@@ -1,0 +1,1500 @@
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (3, 4) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against abra — your wartortle is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's abra went down to your wartortle — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against pidgey — your wartortle is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out pidgey'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's pidgey went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (2, 4) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against weedle — your wartortle is up front'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's weedle went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (3, 4) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against pidgey — your wartortle is up front'
+
+   [kira-voice] -> T1·brisk· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 14ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [kira-voice] -> T2·savor· (event) 'switching it up — this is a better matchup'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] ·floor· (<1s since last) T1 'your spearow took a big hit'
+
+   [kira-voice] -> T1·brisk· (event) 'your spearow used Peck - a super-effective hit'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's oddish went down to your spearow — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (140s > 80s) at (3, 4) map=(3, 44) step=5 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) "this is taking forever - I'm stuck grinding, let me regroup"  fired=True  [age 0.0s + post 4ms]
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (3, 4)->(3, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against oddish — your wartortle is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out oddish'
+
+   [kira-voice] -> T2·savor· (event) 'switching it up — this is a better matchup'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] ·floor· (<1s since last) T1 'your spearow took a big hit'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your spearow used Peck - a super-effective hit'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your spearow used Peck - a super-effective hit'
+
+   [kira-voice] ORACLE kind=battle_item options=['use_potion', 'keep_fighting'] -> pick='use_potion'
+
+   [dialogue] +++ 'POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Use on which POK.MON?"'
+
+   [dialogue] +++ "SPEAROW's HP was restored by 20 point.s.. ."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "SPEAROW\'s HP was restored by 20 point.s.. ."'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<1s since last) T0 "used an item — that's better"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's oddish went down to your spearow — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (125s > 80s) at (3, 3) map=(3, 44) step=4 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·dedup· (repeat text, T0, looping?) "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (3, 3)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [campaign]    GRIND: trained to Lv27 (target 29)
+
+   [campaign]    [roam] RESULT: battle -> ok | pos (3, 44)(0, 11) -> (3, 44)(2, 3) (MOVED)
+
+   [campaign]    [world] learned 1 warp(s) on (3, 44): (51, 4)->(30, 0)
+
+   [campaign]    [roam] afflicted by ['poison'] — remembering for a cure run
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign] -- ROAM TICK 28/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 25 (2, 3) | badges=1 (Boulder) | party=[wartortle L27, ekans L12, spearow L13, rattata L12, abra L13] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 6 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 44) (2,3) f3 -- badge1 $440 party:d1ec bag:a45e]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'battle', 'wander_catch', 'travel:3,43', 'travel:3,22', 'travel:3,27', 'travel:3,21']
+
+   [campaign]    [soul] surface_want FIRE -> Route 25
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 25 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L27), ekans (L12), spearow (L13), rattata (L12), abra (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 44), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 6 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L27), ekans (L12), spearow (L13), rattata (L12), abra (L13)', 'goal': {'short': 'Train the team toward ~L11 (or catch one more teammate), THEN retry', 'medium': "FIRST HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water — the gym comes right after; that errand is the road", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get the team to a solid level before Cerulean'
+
+   [campaign]    [soul] ORACLE pick -> 'get the team to a solid level before Cerulean'
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Cerulean Gym:abra: feeding loss-awareness to the oracle
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 25 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: WEST → Route 24 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 4; an unfamiliar area; Route 3. You can walk to anywhere you\'ve already been.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. That one stung — that trainer (their lead was abra, psychic/psychic-type and they had a full team) at the Cerulean Gym just put you down. Be honest about WHY before you charge back in: their psychic/psychic lead may have the type edge on you. The fix here isn\'t trying again harder, it\'s coming back stronger — leveling up or grabbing a teammate for backup and type coverage is the real play. You CAN retry once if you\'re feeling it, but going in unchanged ends the same way. (Your call.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 2 of 8 — next is Misty in Cerulean City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cerulean City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Misty, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Misty is step two, not a competing choice. Word on the road about Misty: she runs WATER-types — a whole gym over a pool; grass and electric do the work YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter City for the Boulder Badge. Now you\'re pushing on toward the next gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Misty AND Lorelei down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "That cruise ship S.S. ANNE is in VERMILION CITY. I hear there are lots of TRAINERS on board, too. They invited me to their party, but I can\'t stand fancy do\'s. "; "Wait till I get inside the TELEPORTER. When I do, go to my PC and run the Cell Separation System."; "Hello, are you here alone? If you\'re out at CERULEAN\'s cape.. Well, it should be as a couple."; "The people here were robbed. It\'s obvious that TEAM ROCKET is behind this most heinous crime! Even our POLICE FORCE has trouble with the ROCKETS!". YOUR PLAN — right now: Train the team toward ~L11 (or catch one more teammate), THEN retry. Next: FIRST HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — the gym comes right after; that errand is the road. Bigger picture: Reach Cerulean City, beat Misty for the Cascade Badge. Your team right now: wartortle (L27), ekans (L12), spearow (L13), rattata (L12), abra (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 6 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L27), ekans (L12), spearow (L13), rattata (L12), abra (L13)', 'goal': {'short': 'Train the team toward ~L11 (or catch one more teammate), THEN retry', 'medium': "FIRST HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water — the gym comes right after; that errand is the road", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,43', 'travel:3,22', 'travel:3,27', 'travel:3,21']
+
+   [kira-voice] -> T2·savor· (want) 'get the team to a solid level before Cerulean'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,43', 'travel:3,22', 'travel:3,27', 'travel:3,21'] -> pick='battle'
+
+   [campaign]    [soul] ORACLE pick -> 'battle'
+
+   [campaign]    [roam] DECISION THINK: 2966ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: battle
+
+   [campaign]    [roam] RATIONALE: Train the team toward ~L11 (or catch one more teammate), THEN retry — building up here with a purpose, then on to Cerulean City for Misty.
+
+   [campaign]    GRIND: Lv27 < 29 - heading to the grass to train
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (3, 4) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against weedle — your wartortle is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's weedle went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (2, 3) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against pidgey — your wartortle is up front'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out pidgey'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's pidgey went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against oddish — your wartortle is up front'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out oddish'
+
+   [kira-voice] -> T2·savor· (event) 'switching it up — this is a better matchup'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] ·floor· (<1s since last) T1 'your spearow took a big hit'
+
+   [kira-voice] -> T1·brisk· (event) 'your spearow used Peck - a super-effective hit'  fired=True  [age 0.0s + post 19ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your spearow is at low HP - this is getting tense'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=battle_item options=['use_potion', 'keep_fighting'] -> pick='use_potion'
+
+   [dialogue] +++ 'POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Use on which POK.MON?"'
+
+   [dialogue] +++ "SPEAROW's HP was restored by 20 point.s.. ."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "SPEAROW\'s HP was restored by 20 point.s.. ."'  fired=True  [age 0.0s + post 23ms]
+
+   [kira-voice] ·floor· (<1s since last) T0 "used an item — that's better"
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's oddish went down to your spearow — that's the battle, you won"  fired=True  [age 0.0s + post 38ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (99s > 80s) at (3, 3) map=(3, 44) step=4 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 5ms]
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (3, 3)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against kakuna — your wartortle is up front'  fired=True  [age 0.0s + post 30ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out kakuna'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's kakuna went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against caterpie — your wartortle is up front'  fired=True  [age 0.0s + post 29ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out caterpie'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's caterpie went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (2, 4) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against weedle — your wartortle is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out weedle'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's weedle went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (2, 4) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against caterpie — your wartortle is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's caterpie went down to your wartortle — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (2, 4) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against abra — your wartortle is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's abra went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'you walk on under open sky, the next town somewhere past the horizon'  fired=True  [age 0.0s + post 17ms]
+
+   [travel] step 10: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (2, 3) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 11ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against kakuna — your wartortle is up front'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's kakuna went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 103ms]
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against abra — your wartortle is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out abra'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's abra went down to your wartortle — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [travel] step 0: (2, 3)->(1, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against pidgey — your wartortle is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out pidgey'
+
+   [kira-voice] -> T1·brisk· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's abra went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'my wartortle just leveled up to level 28'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (2, 3) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against pidgey — your wartortle is up front'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's pidgey went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (1, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(1, 3) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (1, 3)->(2, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (3, 4) (budget 80s)
+
+   [travel] step 0: (2, 4)->(3, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 4) -> coord (4, 4) (budget 80s)
+
+   [travel] step 0: (3, 4)->(4, 4) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(4, 4) -> coord (3, 3) (budget 80s)
+
+   [travel] step 0: (4, 4)->(4, 3) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(3, 3) -> coord (2, 4) (budget 80s)
+
+   [travel] step 0: (3, 3)->(3, 4) map=(3, 44) (path 3 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 4) -> coord (2, 3) (budget 80s)
+
+   [travel] step 0: (2, 4)->(2, 3) map=(3, 44) (path 2 to exit)
+
+   [travel] reached target coord (2, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 44) coords=(2, 3) -> coord (1, 3) (budget 80s)
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 2655s, restart 1/8) — GAME CONTINUES; respawning audio.
+

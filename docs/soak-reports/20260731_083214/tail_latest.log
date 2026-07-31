@@ -1,0 +1,300 @@
+   [TTS] Speaking: Democracy has limits....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Democracy has limits.' (4 words)
+   [TurnTiming] 08:28:20.431 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:28:22.395 TTS STOP — playback finished (span ~1964ms)
+
+   [TIMING] voice: llm=15037ms(sonnet-stream(llm+tts)) tts=0ms total=15037ms
+   [LATENCY] vad_close=1200ms stt=249ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=2ms ttft=1322ms tts_first_chunk=368ms audio_out=4340ms TOTAL=6311ms
+🎤 Recording...
+   [TurnTiming] 08:28:22.485 VOICE ONSET — mic speech started
+   [TurboVision] +00:15:43 In this sequence, a battle unfolds in a Pokémon game where the player's Wartortle uses "BITE" against a wild Abra. The attack is declared "I…
+   ✨ Emotion: HYPERACTIVE → SASSY
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I chose two, chat chose two.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=29ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=15866ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Bits] New running bit: Democracy Has Limits
+   [TIMING] first-word: 2779ms
+   [TTS] Speaking: Alright alright, fair dinkum — Victorian aristocra...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Alright alright, fair dinkum — Victorian' (12 words)
+   [TurnTiming] 08:28:25.995 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurboVision] +00:15:49 In this sequence, a battle unfolds in a Pokémon game where a Wartortle defeats a wild Abra, gaining 114 EXP. Following the battle, the scree…
+   [TurnTiming] 08:28:30.124 TTS STOP — playback finished (span ~4129ms)
+   [TTS] Speaking: How frightfully democratic of you both....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'How frightfully democratic of you both.' (7 words)
+   [TurnTiming] 08:28:30.130 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:28:32.750 TTS STOP — playback finished (span ~2619ms)
+
+   [TIMING] voice: llm=9910ms(sonnet-stream(llm+tts)) tts=0ms total=9910ms
+   [LATENCY] vad_close=1200ms stt=184ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=2ms ttft=2098ms tts_first_chunk=681ms audio_out=367ms TOTAL=3361ms
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (1/1s) (3 skip(s))
+   [TurnTiming] 08:28:33.985 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~11500ms since onset)
+[YouTube Chat] @dasbooterror: lol
+   [BrainWorker] Got youtube msg from @dasbooterror: lol → buffering for chat_batch_worker
+   [Cookies] +2 → @dasbooterror (first message this session); shared=3/30
+   [LockIn] heads-down — banked 3 chat msg(s) for catch-up, 1 broke through (score >= 75)
+   [ChatAge] ACK injected for @KiraVT7 (waited 28.5s, preempted=none)
+   [Bits] Callback: Democracy Has Limits
+   [SmartMem] q='  - @Ron-y6h (youtube): <<<the sun for the light the moon fo' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=56ms rank=0ms)
+   [SmartMem]     dist=1.058 conf=0.9 type=episodic blend=0.098 lane=KNOW
+   [SmartMem]     dist=1.058 conf=0.95 type=episodic blend=0.098 lane=KNOW
+   [SmartMem]     dist=1.088 conf=0.9 type=episodic blend=0.080 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 08:28:36.509 VOICE ONSET — mic speech started
+   [TurboVision] +00:15:56 The sequence begins with a character standing in tall grass, followed by a transition to a battle scene where a wild "KABUTO" appears. The p…
+   >>> Kira (Chat Batch of 1): Ron-y6h, hold on — KiraVT7, cheers for the two, mate!
+
+Ron, that is the most romantic thing anyone's ever said to me, and I'm still not confirming you're handsome. You're on very thin ice, cobber.
+   [TTS] Speaking: Ron-y6h, hold on — KiraVT7, cheers for the two, ma...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Ron-y6h, hold on — KiraVT7, cheers for t' (14 words)
+   [TurnTiming] 08:28:38.166 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 08:28:42 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurboVision] +00:16:03 In this sequence, a Pokémon battle unfolds between a Wartortle and a wild Pidgey. The Wartortle initiates the turn by using the move "BITE,"…
+   [TurnTiming] 08:28:43.589 TTS STOP — playback finished (span ~5423ms)
+   [TTS] Speaking: Ron, that is the most romantic thing anyone's ever...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Ron, that is the most romantic thing any' (22 words)
+   [TurnTiming] 08:28:44.081 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 08:28:49.547 TTS STOP — playback finished (span ~5465ms)
+   [TTS] Speaking: You're on very thin ice, cobber....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You're on very thin ice, cobber.' (8 words)
+   [TurnTiming] 08:28:49.965 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurboVision] +00:16:10 In this sequence, a Wartortle engages in a Pokémon battle against a wild Spearow. The Wartortle uses the move "BITE," which results in the S…
+   [TurnTiming] 08:28:52.519 TTS STOP — playback finished (span ~2553ms)
+   [Cookies] +1 × 1 (batch response); shared=4/30
+   [ChatAge] @Ron-y6h age=46.1s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [ChatterMem] Stored: @Ron-y6h — Told Kira 'the sun for the light the moon for the night and  [earnest]
+   [TurboVision] +00:16:17 The sequence shows a Pokémon battle unfolding in the central window. Initially, a Wartortle gains "11 EXP. Points," followed by a transition…
+   [LoopbackSTT] self-TTS gate released after 7 skip(s) — resuming transcription.
+   [TurnTiming] 08:28:59.186 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~22676ms since onset)
+>>> You said: Did she just say pogger?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Did she just say pogger?' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "and i'm still" (3rd use this session)
+   [Phrases] Throttling: "is the most" (3rd use this session)
+   [Phrases] Throttling: "that is the" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=2t  moment=tense)
+   [PromptSize] dynamic_context=16113ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 3135ms
+   [TTS] Speaking: Reckon I said "cobber," ya drongo....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Reckon I said "cobber," ya drongo.' (9 words)
+   [TurnTiming] 08:29:02.959 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurboVision] +00:16:24 In the center of the screen, a battle window opens in a game, showing a WARTORTLE facing a SANDSHREW. The text box cycles through prompts, f…
+   [TurnTiming] 08:29:05.720 TTS STOP — playback finished (span ~2760ms)
+   [TTS] Speaking: Keep up....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Keep up.' (3 words)
+   [TurnTiming] 08:29:05.723 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:29:07.546 TTS STOP — playback finished (span ~1823ms)
+
+   [TIMING] voice: llm=8107ms(sonnet-stream(llm+tts)) tts=0ms total=8107ms
+   [LATENCY] vad_close=1200ms stt=223ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=1ms ttft=2719ms tts_first_chunk=416ms audio_out=378ms TOTAL=3761ms
+🎤 Recording... (recovered opening words)
+[YouTube Chat] @Ron-y6h: oh my God
+   [BrainWorker] Got youtube msg from @Ron-y6h: oh my God → buffering for chat_batch_worker
+   [RoomRead] energy=0.64 [terse=0.33 gap=0.73 silence=1.00] target=0.96 mult=0.92 -> min_gap=5s dead_air=18s
+   [TurboVision] +00:16:30 In this sequence, a battle unfolds between a Wartortle and a Meowth in a Pokémon game window. The Wartortle selects the "FIGHT" option, choo…
+   [LockIn] heads-down — banked 1 chat msg(s) for catch-up, 0 broke through (score >= 75)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 08:29:13.703 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~37193ms since onset)
+>>> You said: Oh, she's in her stupid accent mode, picking the one that she picked.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Oh, she's in her stupid accent mode, picking the one that sh" fetched=10 dropped_by_floor=6 kept=4 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=1.174 conf=0.95 type=episodic blend=0.027 lane=KNOW
+   [SmartMem]     dist=1.182 conf=0.95 type=episodic blend=0.022 lane=KNOW
+   [SmartMem]     dist=1.207 conf=0.95 type=episodic blend=0.007 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=32ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=16373ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 2294ms
+   [TTS] Speaking: Oi, I didn't pick it — chat picked two, YOU picked...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Oi, I didn't pick it — chat picked two, ' (22 words)
+   [TurnTiming] 08:29:16.857 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurboVision] +00:16:37 In this sequence, the player's Wartortle defeats an Abra in a Pokémon battle. The text box displays a series of messages: "WARTORTLE used BI…
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:29:22.049 TTS STOP — playback finished (span ~5192ms)
+   [TTS] Speaking: I'm the victim here, mate....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm the victim here, mate.' (7 words)
+   [TurnTiming] 08:29:22.053 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:29:24.174 TTS STOP — playback finished (span ~2121ms)
+
+   [TIMING] voice: llm=10174ms(sonnet-stream(llm+tts)) tts=0ms total=10174ms
+   [LATENCY] vad_close=1200ms stt=261ms stt_wait=0ms salience=0ms triage=bypassed memory=32ms prompt_build=2ms ttft=2142ms tts_first_chunk=152ms audio_out=551ms TOTAL=3140ms
+🎤 Recording... (recovered opening words)
+   [TurboVision] +00:16:44 In this sequence, a battle unfolds in a Pokémon game where the player's Wartortle defeats an Abra, earning "13 EXP. Points!" Following the v…
+   [Bits] Callback: Democracy Has Limits
+   [TurnTiming] 08:29:27.175 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~50665ms since onset)
+   [VRAM] 08:29:27 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 08:29:29.461 VOICE ONSET — mic speech started
+   [TurboVision] +00:16:51 The sequence begins with a message stating "WARTORTLE gained 53 EXP. Points!" before transitioning to a scene where the player character enc…
+   [TurnTiming] 08:29:32.056 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2594ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:29:32.651 VOICE ONSET — mic speech started
+   [TurnTiming] 08:29:33.950 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1299ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:29:35.792 VOICE ONSET — mic speech started
+   [TurboVision] +00:16:58 In this sequence, a Pokémon battle unfolds between a trainer's Wartortle and a wild Pidgey. The text box cycles through the commands "GO! WA…
+   [TurnTiming] 08:29:39.666 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3874ms since onset)
+>>> You said: No, Kira, I think me and chat are all the victims here.
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q='No, Kira, I think me and chat are all the victims here.' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=1ms fetch=74ms rank=0ms)
+   [SmartMem]     dist=0.949 conf=0.9 type=episodic blend=0.166 lane=KNOW
+   [SmartMem]     dist=0.991 conf=0.95 type=episodic blend=0.140 lane=KNOW
+   [SmartMem]     dist=1.042 conf=0.9 type=episodic blend=0.109 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=77ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=16173ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 2740ms
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] Speaking: Crikey, that's a bit harsh....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Crikey, that's a bit harsh.' (7 words)
+   [TurnTiming] 08:29:43.500 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurboVision] +00:17:05 STATIC STATIC: The screen displays a desktop environment with multiple terminal windows, a web browser, and a central window showing a Pokémon batt…
+   [TurnTiming] 08:29:45.708 TTS STOP — playback finished (span ~2208ms)
+   [TTS] Speaking: I'm doing me best....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm doing me best.' (5 words)
+   [TurnTiming] 08:29:45.714 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:29:47.480 TTS STOP — playback finished (span ~1765ms)
+
+   [TIMING] voice: llm=7441ms(sonnet-stream(llm+tts)) tts=0ms total=7441ms
+   [LATENCY] vad_close=1200ms stt=295ms stt_wait=0ms salience=0ms triage=bypassed memory=77ms prompt_build=1ms ttft=1800ms tts_first_chunk=940ms audio_out=711ms TOTAL=3824ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [RoomRead] energy=0.64 [terse=0.32 gap=0.76 silence=0.96] target=0.96 mult=0.94 -> min_gap=5s dead_air=19s
+   [TurnTiming] 08:29:50.297 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~14505ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:29:50.777 VOICE ONSET — mic speech started
+   [TurboVision] +00:17:11 The user is working in a Visual Studio Code window, which initially displays a file explorer and a blank editor pane. Over the course of the…
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurboVision] +00:17:18 STATIC STATIC: The screen displays a desktop environment with three terminal windows open on the left and a Visual Studio Code window on the right.…
+   [TurnTiming] 08:30:02.693 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~11915ms since onset)
+>>> You said: Okay, the fixes are in. One sec, let me implement it.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Okay, the fixes are in. One sec, let me implement it.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=5t  moment=tense)
+   [PromptSize] dynamic_context=16125ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1579ms
+   [TTS] Speaking: Take ya time, no rush....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Take ya time, no rush.' (7 words)
+   [TurnTiming] 08:30:04.965 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurboVision] +00:17:25 STATIC STATIC: The screen displays a desktop environment with three terminal windows open on the left and a Visual Studio Code window on the right.…
+   [TurnTiming] 08:30:07.176 TTS STOP — playback finished (span ~2210ms)
+   [TTS] Speaking: I'll just be here, being very well-adjusted about ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'll just be here, being very well-adjus' (11 words)
+   [TurnTiming] 08:30:07.187 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:30:10.639 TTS STOP — playback finished (span ~3452ms)
+
+   [TIMING] voice: llm=7682ms(sonnet-stream(llm+tts)) tts=0ms total=7682ms
+   [LATENCY] vad_close=1200ms stt=239ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=3ms ttft=1225ms tts_first_chunk=354ms audio_out=414ms TOTAL=2265ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurboVision] +00:17:31 STATIC STATIC: The screen displays a desktop environment with three terminal windows open on the left and a Visual Studio Code window on the right.…
+   [TurnTiming] 08:30:12.184 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~21406ms since onset)
+   [VRAM] 08:30:12 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Bits] Callback: Perfectly Adjusted Grudge Keeper
+[YouTube Chat] @dasbooterror: Crikey, it seems we are taking a trip to the land down under? 
+   [BrainWorker] Got youtube msg from @dasbooterror: Crikey, it seems we are taking a trip to the land down under?  → buffering for chat_batch_worker
+🎤 Recording...
+   [TurnTiming] 08:30:17.129 VOICE ONSET — mic speech started
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0323 · gate=0.003 · 3 accepted
+   [TurboVision] +00:17:38 STATIC STATIC: The screen displays a desktop environment with multiple terminal windows and a Visual Studio Code instance open. Across the sequence…
+   [LockIn] heads-down — banked 1 chat msg(s) for catch-up, 0 broke through (score >= 75)
+   [TurnTiming] 08:30:24.141 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~7011ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:30:24.259 VOICE ONSET — mic speech started
+   [TurboVision] +00:17:45 STATIC STATIC: The screen displays a desktop environment with multiple terminal windows open, surrounding a central Visual Studio Code window. The …
+   [TurnTiming] 08:30:25.678 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1419ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:30:27.306 VOICE ONSET — mic speech started
+   [TurnTiming] 08:30:29.159 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1851ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:30:29.737 VOICE ONSET — mic speech started
+   [TurnTiming] 08:30:31.042 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1304ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:30:32.731 VOICE ONSET — mic speech started
+   [TurboVision] +00:17:53 STATIC STATIC: The screen remains identical across all frames, showing a Windows desktop environment with three terminal windows open on the left a…
+   [TurnTiming] 08:30:34.124 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1392ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:30:35.318 VOICE ONSET — mic speech started
+   [TurnTiming] 08:30:38.936 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3617ms since onset)
+   [TurboVision] +00:18:00 STATIC STATIC: The screen displays a desktop environment with multiple terminal windows open and a central Visual Studio Code editor window. The co…
+🎤 Recording...
+   [TurnTiming] 08:30:42.016 VOICE ONSET — mic speech started
+   [TurnTiming] 08:30:43.428 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1412ms since onset)
+   [TurboVision] +00:18:08 STATIC STATIC: The screen displays a desktop environment with multiple terminal windows open and a Visual Studio Code instance active. The content …
+🎤 Recording...
+   [TurnTiming] 08:30:48.242 VOICE ONSET — mic speech started
+   [TurnTiming] 08:30:50.310 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2067ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:30:53.020 VOICE ONSET — mic speech started
+   [TurboVision] +00:18:15 STATIC STATIC: The screen displays a desktop environment with multiple terminal windows open, showing lines of code and system logs. The content wi…
+   [TurnTiming] 08:30:55.595 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2571ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:30:56.550 VOICE ONSET — mic speech started
+   [VRAM] 08:30:57 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurboVision] +00:18:21 STATIC STATIC: The screen displays a desktop environment with multiple open terminal windows and a Visual Studio Code editor window. The content wi…
+   [LoopbackSTT] tick 168ms — 0 accepted, 1 filtered (rms=0.027)
+   [TurnTiming] 08:31:05.573 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~9022ms since onset)
+>>> You said: All right, after this fight, I'm gonna pause her and then we're gonna get her on hopefully new updates so she can. Here we go.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="All right, after this fight, I'm gonna pause her and then we" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=38ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=38ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "very well-adjusted about" (3rd use this session)
+   [Phrases] Throttling: "i'll just be" (3rd use this session)
+   [PromptSize] dynamic_context=15837ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TurboVision] +00:18:28 STATIC STATIC: The screen displays a desktop environment with multiple terminal windows open, surrounding a central Visual Studio Code window. The …
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 2504ms
+   [TTS] Speaking: Ooh, updates....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Ooh, updates.' (4 words)
+   [TurnTiming] 08:31:08.792 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
