@@ -190,6 +190,15 @@ RunLogged "showtime segment checkpoints (states\kira\*.state, newest first)" {
         Sort-Object LastWriteTime -Descending |
         Select-Object Name, LastWriteTime, Length | Format-Table -AutoSize
 } | Out-Null
+# DENSE AUTO-CHECKPOINTS (2026-07-31): the campaign banks a labeled bundle every ~12 min into
+# states\campaign\checkpoints\<ts>_<place>_<badges>b_<playtime>[_<reason>]. Listing the newest
+# lets the Mac agent pin an exact position via "CKPT <name-substring>" — the hard teleport.
+RunLogged "auto-checkpoint inventory (newest 20)" {
+    Get-ChildItem (Join-Path $campaign "checkpoints") -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notlike "*.partial" } |
+        Sort-Object Name -Descending | Select-Object -First 20 |
+        Select-Object Name, LastWriteTime | Format-Table -AutoSize
+} | Out-Null
 RunLogged "campaign dir + backups" {
     Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states") -Directory -Recurse -Depth 1 -ErrorAction SilentlyContinue |
         Select-Object FullName, LastWriteTime | Format-Table -AutoSize
@@ -235,6 +244,27 @@ if (Test-Path $targetFile) {
         } else {
             Say "!! SNAPSHOT '$snapName' not found in states/campaign - nothing changed, NOT launching."
             Say "   (check the snapshot inventory in this report and re-pin the exact filename)"
+        }
+    } elseif ($target -like "CKPT *") {
+        # CKPT <name-substring> (2026-07-31, "tp her to somewhere else in cerulean"): promote the
+        # NEWEST dense auto-checkpoint whose dir name matches the substring (labels embed the
+        # place, e.g. 20260731_134210_cerulean-city_2b_10h05m) — the hard teleport that does not
+        # depend on the game cooperating. Same contract as SNAPSHOT: live save backed up first,
+        # sidecars untouched (same campaign, minutes older).
+        $ckptPat = $target.Substring(5).Trim().ToLower()
+        $ckptDir = Get-ChildItem (Join-Path $campaign "checkpoints") -Directory -ErrorAction SilentlyContinue |
+                   Where-Object { $_.Name -notlike "*.partial" -and $_.Name.ToLower() -like "*$ckptPat*" } |
+                   Sort-Object Name -Descending | Select-Object -First 1
+        $ckptState = if ($ckptDir) { Join-Path $ckptDir.FullName "kira_campaign.state" } else { $null }
+        if ($ckptState -and (Test-Path $ckptState)) {
+            $liveSave = Join-Path $campaign "kira_campaign.state"
+            Copy-Item $liveSave (Join-Path $campaign "replaced_$ts.state") -ErrorAction SilentlyContinue
+            Copy-Item $ckptState $liveSave -Force
+            Say "CKPT promoted: $($ckptDir.Name) -> kira_campaign.state (old save backed up as replaced_$ts.state)"
+            $promoteOk = $true; $launchApproved = $true
+        } else {
+            Say "!! CKPT: no checkpoint matching '*$ckptPat*' with a kira_campaign.state - nothing changed, NOT launching."
+            Say "   (see the auto-checkpoint inventory in this report and re-pin the exact name)"
         }
     } elseif ($target -eq "RESTORE_WORLD") {
         $troph = Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states") -Directory -Filter "campaign_archived_*" -ErrorAction SilentlyContinue |

@@ -188,7 +188,10 @@ try:
         def __init__(self, camp, log=None, on_event=None):
             pass
 
-        def use_field_move(self, slot, verify, label="", max_seconds=60):
+        def use_field_move(self, slot, verify, label="", max_seconds=60,
+                           drain_frames=90, fixed_row=None):
+            assert fixed_row == 0, "teleport must pin row 0 (never the row scan)"
+            assert drain_frames >= 300, "teleport needs a long animation drain"
             C.tv.map_id = lambda b: (3, 2)             # the warp: new map
             return "used" if verify() else "failed"
     import hm_teach

@@ -207,12 +207,18 @@ class TeachFlow:
                 pass
             self._press("B", settle=16)
 
-    def use_field_move(self, mon_slot, verify, label="field-move", max_seconds=60):
+    def use_field_move(self, mon_slot, verify, label="field-move", max_seconds=60,
+                       drain_frames=90, fixed_row=None):
         """Use a FIELD MOVE from the overworld party menu: START -> POKEMON -> `mon_slot` ->
         the mon's submenu (field moves list FIRST, above SUMMARY/SWITCH/...) -> A; `verify()`
         (RAM truth — e.g. FLAG_SYS_FLASH_ACTIVE for Flash) decides success. Attempt k selects
         submenu row k (no cursor address known for this submenu, so rows are blind — but each
-        attempt reopens the menu fresh, making the count deterministic). Returns
+        attempt reopens the menu fresh, making the count deterministic). `fixed_row` pins the
+        SAME submenu row every attempt (a mon with exactly one field move lists it at row 0 —
+        the row scan only exists for multi-field-move mons). `drain_frames` sizes the animation
+        wait BEFORE any B is pressed: Flash verifies instantly (90 is plenty), but a WARP like
+        Teleport fades + relocates over several real seconds — 2026-07-31 live, the 90-frame
+        drain expired mid-fade and the flow read a fired Teleport as 'did not verify'. Returns
         'used' | 'failed'; fail-safe B-cascade back to the overworld either way."""
         t0 = time.time()
         self.b.set_input_owner("agent")
@@ -220,6 +226,11 @@ class TeachFlow:
             if time.time() - t0 > max_seconds:
                 break
             self._b_cascade(6)                                   # clean slate
+            if verify():
+                # the PREVIOUS attempt's move landed while we were backing out (a slow warp
+                # can complete during the cascade) — count it, don't re-fire
+                self.log(f"   [{label}] VERIFIED late (landed during backout of attempt {attempt - 1})")
+                return "used"
             self._press("START", settle=60)
             if not self._nav_byte(START_CURSOR, 1):              # row 1 = POKEMON (post-dex menu)
                 self.log(f"   [{label}] !! START-menu cursor no-response — retrying")
@@ -238,10 +249,11 @@ class TeachFlow:
                 self.log(f"   [{label}] !! party cursor couldn't reach slot {mon_slot}")
                 continue
             self._press("A", settle=40)                          # the mon's action submenu
-            for _ in range(attempt):                             # attempt k -> submenu row k
+            row = attempt if fixed_row is None else fixed_row
+            for _ in range(row):
                 self._press("DOWN", settle=14)
             self._press("A", settle=40)                          # fire the field move
-            for _ in range(90):                                  # drain the animation
+            for _ in range(drain_frames):                        # drain the animation (NO input)
                 if verify():
                     break
                 self.b.run_frame(); self.c.render()
@@ -251,9 +263,12 @@ class TeachFlow:
                 self._press("B", settle=20)
             if verify():
                 self._b_cascade()
-                self.log(f"   [{label}] VERIFIED used (attempt {attempt}, submenu row {attempt})")
+                self.log(f"   [{label}] VERIFIED used (attempt {attempt}, submenu row {row})")
                 return "used"
-            self.log(f"   [{label}] attempt {attempt} (row {attempt}) did not verify — backing out")
+            self.log(f"   [{label}] attempt {attempt} (row {row}) did not verify — backing out")
+        if verify():
+            self.log(f"   [{label}] VERIFIED late (landed after the final backout)")
+            return "used"
         self._b_cascade()
         self.log(f"   [{label}] !! FAILED — field move never verified (LOUD)")
         return "failed"

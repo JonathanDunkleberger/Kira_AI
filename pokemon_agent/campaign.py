@@ -6926,8 +6926,13 @@ class Campaign:
             self.on_event(f"you know what — {mon}, get us OUT of here. Teleport, straight back "
                           f"to the Center, and we take the road properly from there.",
                           kind="travel", tier=2)
+            # drain_frames=600 (~10s of game frames): Teleport's spin+fade+warp takes SECONDS —
+            # the default 90-frame drain read a fired warp as a miss (2026-07-31 live, "she
+            # clicked tp and nothing happened"). fixed_row=0: a one-field-move mon (Abra) lists
+            # TELEPORT at row 0 every time — never let the retry scan press A on SUMMARY/SWITCH.
             r = ht.TeachFlow(self, log=log, on_event=self.on_event).use_field_move(
-                slot, _warped, label="rescue-teleport", max_seconds=45)
+                slot, _warped, label="rescue-teleport", max_seconds=90,
+                drain_frames=600, fixed_row=0)
             if r == "used":
                 self._wait_overworld()
                 # the warp invalidates every position-anchored suspicion from the border war
@@ -7703,6 +7708,12 @@ class Campaign:
             # flavor hint for the framing layers (a scrappy win rides too, but she shouldn't
             # claim she "crushed it without breaking a sweat" when the stream saw a slugfest)
             self._momentum_decisive = bool(data.get("decisive", True))
+            # who fell + the LIVE badge count, for UNAMBIGUOUS framing (2026-07-31 live: the old
+            # "badge in hand... march for Lt. Surge" phrasing got narrated as "Surge is down,
+            # 3 badges" — the voice must never be handed text it can misread as a future win
+            # already banked)
+            self._momentum_beat = str(data.get("beat") or "the last gym leader")
+            self._momentum_badges = bc
             return True
         except Exception as e:
             log(f"   [roam] momentum read skipped: {e}")
@@ -12310,12 +12321,15 @@ class Campaign:
                             f"{_ng3['leader']}. Walk into {_ng3['city']}'s gym and take the "
                             f"badge NOW. Parking in grass is wasted stream time.")
                     else:
-                        _mflav = ("you CRUSHED the last gym without breaking a sweat"
-                                  if getattr(self, "_momentum_decisive", True)
-                                  else "you WON the last gym — badge in hand, that chapter is CLOSED")
+                        _mbt = getattr(self, "_momentum_beat", "the last gym leader")
+                        _mbc = getattr(self, "_momentum_badges", None)
+                        _mflav = (f"you CRUSHED {_mbt}" if getattr(self, "_momentum_decisive", True)
+                                  else f"you beat {_mbt}")
                         a["head_to_gym"] = (
-                            f"🔥 RIDE THE MOMENTUM — {_mflav}. March STRAIGHT for "
-                            f"{_ng3['leader']} in {_ng3['city']}: heal "
+                            f"🔥 RIDE THE MOMENTUM — {_mflav}"
+                            + (f" (badge #{_mbc}, your {_mbc} badges total)" if _mbc else "")
+                            + f". {_ng3['leader']} in {_ng3['city']} is NEXT — you have NOT "
+                            f"fought {_ng3['leader']} yet. March STRAIGHT there: heal "
                             f"if hurt, stock up if thin, then GO. The trainers on the road are "
                             f"your training — never park in grass you've already cleared.")
                     _prn = [k for k in list(a)
@@ -15539,10 +15553,11 @@ class Campaign:
                 # MOMENTUM flavor: she CRUSHED the last one — the spine says ride it, and the
                 # road's trainers are the training (never backward grass).
                 if _mom_g:
-                    _mwin = ("You CRUSHED that last gym" if getattr(self, "_momentum_decisive", True)
-                             else "You WON that last gym — it's done")
-                    medium = (f"{_mwin} — ride the momentum, go straight for "
-                              f"{ng['leader']} in {ng['city']}; the trainers on the way are your training")
+                    _mbt_g = getattr(self, "_momentum_beat", "the last gym leader")
+                    _mwin = (f"You CRUSHED {_mbt_g}" if getattr(self, "_momentum_decisive", True)
+                             else f"You beat {_mbt_g}")
+                    medium = (f"{_mwin} — ride the momentum: {ng['leader']} in {ng['city']} is "
+                              f"NEXT (not fought yet); the trainers on the way are your training")
                 else:
                     medium = f"You're ready — travel to {ng['city']} and take on {ng['leader']}"
             if wr and not rdy and not _go_hard:
