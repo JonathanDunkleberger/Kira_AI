@@ -48,6 +48,10 @@ BENCH_SPREAD_ALARM = int(os.getenv("POKEMON_BENCH_SPREAD_ALARM", "14"))
 # the grind target is the ace level + this margin. Party target scales toward ~4 by mid-game. Tunable.
 GYM_ANSWER_LEVEL_GAP = int(os.getenv("POKEMON_GYM_ANSWER_LEVEL_GAP", "3"))
 GYM_LEVEL_MARGIN     = int(os.getenv("POKEMON_GYM_LEVEL_MARGIN", "1"))
+# DOMINANCE margin (2026-07-31, the human-pacing tune): top mon this far ABOVE the grind target
+# (which already includes GYM_LEVEL_MARGIN + any loss bump) = she clearly overpowers the leader —
+# skip the type-answer/party-size prep and go fight (a human wouldn't farm grass at that point).
+GYM_DOMINANCE_MARGIN = int(os.getenv("POKEMON_GYM_DOMINANCE_MARGIN", "5"))
 
 
 def load_strategy_kb(path=_KB_PATH, log=print):
@@ -122,13 +126,22 @@ class StrategicPlanner:
         level_target = ace_level + GYM_LEVEL_MARGIN + loss_bump
         top_level = max((m.get("level", 0) for m in party), default=0)
         target_size = min(6, party_target + (1 if loss_bump else 0))
+        # DOMINANCE OVERRIDE (2026-07-31, Jonny pacing note: L27 Wartortle walked OUT of Misty's gym
+        # to hunt a grass/electric 'type answer' she doesn't need). A human who clearly overpowers
+        # the leader just goes and wins — the type-answer and party-size niceties are for teams
+        # scraping the bar, not towering over it. Dominant = top mon >= target + margin (target
+        # already includes GYM_LEVEL_MARGIN and any loss_bump, so this is a REAL overpower read).
+        # Self-correcting: a loss bumps level_target, dominance evaporates, and the full prep
+        # (catch a counter / grind / coverage-teach) returns for the retry.
+        dominant = bool(top_level and top_level >= level_target + GYM_DOMINANCE_MARGIN)
         return {
             "gym": gym_name, "ace": rec.get("ace"), "ace_level": ace_level,
             "level_target": level_target, "top_level": top_level, "underleveled": top_level < level_target,
             "has_type_answer": has_answer, "want_types": want,
             "answer_species": rec.get("answer_species") or [],
             "party_size": len(party), "target_size": target_size, "thin": len(party) < target_size,
-            "ready": has_answer and top_level >= level_target and len(party) >= target_size,
+            "dominant": dominant,
+            "ready": (has_answer and top_level >= level_target and len(party) >= target_size) or dominant,
         }
 
     # ── threat selection ─────────────────────────────────────────────────────────────────────────────

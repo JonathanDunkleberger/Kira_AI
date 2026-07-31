@@ -5625,6 +5625,15 @@ class VTubeBot:
 
             # Load identity anchors + temporal continuity (synchronous O(1) read)
             identity_manager.load()
+            # The channel owner IS Jonny — self-heal the alias map from config so a Twitch
+            # rename (2026-07-31: Militele3 -> TheKiraAgency) never silently demotes his
+            # chat messages to random-viewer status. Idempotent; no-op when already known.
+            try:
+                from kira.config import TWITCH_CHANNEL_TO_JOIN as _tcj
+                if _tcj:
+                    identity_manager.ensure_permanent_alias("Jonny", _tcj)
+            except Exception as _iae:
+                print(f"   [Identity] broadcaster alias self-heal skipped: {_iae}")
 
             # Generate the recent-activity brief now, before any conversation happens
             await self.generate_startup_brief()

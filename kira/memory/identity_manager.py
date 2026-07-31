@@ -223,6 +223,31 @@ def normalize_chatter_key(name: str) -> str:
     return (name or "").strip().lstrip("@").strip().lower()
 
 
+def ensure_permanent_alias(canonical: str, alias: str) -> None:
+    """Idempotently register `alias` under the permanent anchor `canonical`'s also_known_as.
+
+    WHY (2026-07-31): Jonny renamed his Twitch account (Militele3 -> TheKiraAgency) and every
+    downstream path that maps the broadcaster handle to 'Jonny' went stale — identity.json is
+    hand-edited data, so a rename silently orphaned it. The bot now calls this at boot with the
+    configured channel name: the channel owner IS Jonny, whatever the handle says this month.
+    Never invents an anchor (a missing canonical is logged, not created); saves only on change."""
+    if not canonical or not alias:
+        return
+    alias = alias.lstrip("@").strip()
+    if not alias:
+        return
+    for key, entry in _identity.get("permanent", {}).items():
+        if key.lower() == canonical.lower():
+            akas = entry.setdefault("also_known_as", [])
+            if alias.lower() == key.lower() or any(a.lower() == alias.lower() for a in akas):
+                return                                    # already known — no write
+            akas.append(alias)
+            _save()
+            print(f"   [Identity] broadcaster handle {alias!r} registered as an alias of {key!r}")
+            return
+    print(f"   [Identity] ensure_permanent_alias skipped — no permanent anchor {canonical!r}")
+
+
 def resolve_alias(name: str) -> str:
     """Return the canonical display name for a given name or alias.
 

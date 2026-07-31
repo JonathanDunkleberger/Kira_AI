@@ -3903,8 +3903,18 @@ class Campaign:
         if not r:
             return "no_kb"
         if r["ready"]:
-            log(f"   GYM-PREP [{gym.name}]: READY — party {r['party_size']}, top L{r['top_level']} "
-                f">= L{r['level_target']}, type answer ✓")
+            if r.get("dominant") and not r["has_type_answer"]:
+                # DOMINANCE PATH (2026-07-31 pacing tune): she overpowers the leader outright — say
+                # so, so skipping the by-the-book type-answer prep reads as confidence, not a bug.
+                log(f"   GYM-PREP [{gym.name}]: DOMINANT — top L{r['top_level']} >= "
+                    f"L{r['level_target']}+{r['top_level'] - r['level_target']} (no type answer, and "
+                    f"none needed at this power gap) — going in")
+                self.on_event(f"no perfect type matchup for {gym.name}, but honestly? we're way past "
+                              f"needing one. we're strong enough — let's just go win this.",
+                              kind="gym", tier=2)
+            else:
+                log(f"   GYM-PREP [{gym.name}]: READY — party {r['party_size']}, top L{r['top_level']} "
+                    f">= L{r['level_target']}, type answer ✓")
             return "ready"
         log(f"   GYM-PREP [{gym.name}]: NOT ready (loss-bump {bump}) — party {r['party_size']}/"
             f"{r['target_size']}, topL {r['top_level']}/{r['level_target']}, type_answer={r['has_type_answer']}, "
