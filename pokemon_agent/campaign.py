@@ -569,6 +569,15 @@ CREATOR_ORDER_TTL_S = float(os.getenv("POKEMON_CREATOR_ORDER_TTL_S", "1800"))
 MOMENTUM_JSON = os.path.join(STATES_CAMPAIGN, "momentum.json")
 MOMENTUM_ENABLED = os.getenv("POKEMON_MOMENTUM", "1") == "1"
 MOMENTUM_ACE_HP_FRAC = float(os.getenv("POKEMON_MOMENTUM_ACE_HP", "0.60"))
+# MOMENTUM SEED (2026-07-31, Jonny: "she can go to vermillion now"): a repo-committed one-shot
+# latch for a run whose badge win happened BEFORE the momentum code was deployed (the latch only
+# writes at the win moment, so a retroactive ride needs a seed). If MOMENTUM_SEED.json sits next
+# to this file with a badge_count matching the LIVE count and an id not yet consumed, momentum
+# latches on the next roam tick exactly as if the win had been decisive. Consumed ids are recorded
+# in the states dir so a git pull can never re-arm an old seed; releases via the normal paths
+# (next badge / gym loss).
+MOMENTUM_SEED_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MOMENTUM_SEED.json")
+MOMENTUM_SEED_DONE = os.path.join(STATES_CAMPAIGN, "momentum_seed_consumed.json")
 # SEAM-THRASH BREAKER (2026-07-31, the Route-4↔Cerulean border ping-pong): >=3 crossings of the
 # SAME map seam within the window with no badge progress = two mechanisms are fighting over the
 # border. Hard-commit to the forward objective for a few builds and no-go the backward map for
@@ -7398,7 +7407,22 @@ class Campaign:
                 ace = max(m["level"] for m in party)
                 return t if ace < t else None
             t = self.strat.underlevel_target()              # FIELD-WEAK (switch armed)
-            floor = min(m["level"] for m in party)
+            # FIELDABLE FLOOR (2026-07-31, the post-Misty Route-4 forever-farm): mirror grind_weak's
+            # MOVELESS-LEAD GUARD at the PIN level. A mon with zero damaging PP (Teleport-only Abra,
+            # Harden-only Metapod) can never be FIELDED by the grind machinery, so it can never gain
+            # grind XP — letting it pin the team floor makes the bench target UNSATISFIABLE and the
+            # strengthen framing farms the same grass forever ("get abra to L20" while abra never
+            # fights). Those mons are development projects that level opportunistically (evolution
+            # thresholds, participation switches once they have a real move) — they must not anchor
+            # the grind. Floor + pin math run on FIELDABLE members only; all-unfieldable = no prep.
+            try:
+                _fld_lv = [m["level"] for i, m in enumerate(party)
+                           if st.slot_has_damaging_pp(self.b, i)]
+            except Exception:
+                _fld_lv = [m["level"] for m in party]
+            if not _fld_lv:
+                return None
+            floor = min(_fld_lv)
             if (not t and PROACTIVE_BENCH and len(party) >= 2
                     and tuple(tv.map_id(self.b)) not in getattr(self, "_grind_dead", ())):
                 # WALL-LESS bench-raising (2026-07-06 nursery): a fresh catch shouldn't ride the bench
@@ -7471,8 +7495,15 @@ class Campaign:
             return None
 
     def _prep_team_weak(self, state, target):
-        """The under-target members' species names (for the rationale/framing). Pure read off state."""
-        return [m["species"] for m in (state.get("party") or []) if m["level"] < target]
+        """The under-target members' species names (for the rationale/framing). FIELDABLE only
+        (2026-07-31): never name a mon the grind machinery refuses to field (Teleport-only Abra) —
+        the goal read "get abra to L20" while abra never entered a fight, which looked broken."""
+        party = state.get("party") or []
+        try:
+            return [m["species"] for i, m in enumerate(party)
+                    if m["level"] < target and st.slot_has_damaging_pp(self.b, i)]
+        except Exception:
+            return [m["species"] for m in party if m["level"] < target]
 
     def _gym_dominant(self, state):
         """True when the top mon clearly OVERPOWERS the next gym (the planner's dominance read — see
@@ -7505,7 +7536,36 @@ class Campaign:
             return False
         try:
             if not os.path.exists(MOMENTUM_JSON):
-                return False
+                # ── ONE-SHOT SEED (2026-07-31, "she can go to vermillion now"): a committed seed
+                # matching the LIVE badge count latches momentum retroactively — the win predated
+                # the latch code, so the disk state never got written. Consumed-by-id so a pull
+                # can never re-arm it; checked once per process (cheap after that).
+                if not getattr(self, "_momentum_seed_checked", False):
+                    self._momentum_seed_checked = True
+                    try:
+                        if os.path.exists(MOMENTUM_SEED_JSON) and state:
+                            with open(MOMENTUM_SEED_JSON, encoding="utf-8") as f:
+                                seed = _j.load(f) or {}
+                            sid = str(seed.get("id") or "")
+                            done = []
+                            if os.path.exists(MOMENTUM_SEED_DONE):
+                                with open(MOMENTUM_SEED_DONE, encoding="utf-8") as f:
+                                    done = _j.load(f) or []
+                            _bc_now = int(state.get("badge_count", -1))
+                            if sid and sid not in done and int(seed.get("badge_count", -1)) == _bc_now >= 0:
+                                with open(MOMENTUM_JSON, "w", encoding="utf-8") as f:
+                                    _j.dump({"ts": time.time(), "badge_count": _bc_now,
+                                             "beat": seed.get("beat") or "the last gym",
+                                             "decisive": True, "seed_id": sid}, f)
+                                done.append(sid)
+                                with open(MOMENTUM_SEED_DONE, "w", encoding="utf-8") as f:
+                                    _j.dump(done, f)
+                                log(f"   [roam] 🔥 MOMENTUM SEEDED from repo ({sid!r}, badges={_bc_now}) — "
+                                    f"Jonny says GO: march for the next gym, train on the road")
+                    except Exception as _sx:
+                        log(f"   [roam] momentum seed skipped: {_sx}")
+                if not os.path.exists(MOMENTUM_JSON):
+                    return False
             with open(MOMENTUM_JSON, encoding="utf-8") as f:
                 data = _j.load(f) or {}
             bc = int(state.get("badge_count", -1)) if state else -1
@@ -7516,6 +7576,9 @@ class Campaign:
                 log(f"   [roam] 🔥 MOMENTUM released (badge count moved {data.get('badge_count')} -> "
                     f"{bc} — the next win re-evaluates fresh)")
                 return False
+            # flavor hint for the framing layers (a scrappy win rides too, but she shouldn't
+            # claim she "crushed it without breaking a sweat" when the stream saw a slugfest)
+            self._momentum_decisive = bool(data.get("decisive", True))
             return True
         except Exception as e:
             log(f"   [roam] momentum read skipped: {e}")
@@ -12097,9 +12160,12 @@ class Campaign:
                             f"{_ng3['leader']}. Walk into {_ng3['city']}'s gym and take the "
                             f"badge NOW. Parking in grass is wasted stream time.")
                     else:
+                        _mflav = ("you CRUSHED the last gym without breaking a sweat"
+                                  if getattr(self, "_momentum_decisive", True)
+                                  else "you WON the last gym — badge in hand, that chapter is CLOSED")
                         a["head_to_gym"] = (
-                            f"🔥 RIDE THE MOMENTUM — you CRUSHED the last gym without breaking a "
-                            f"sweat. March STRAIGHT for {_ng3['leader']} in {_ng3['city']}: heal "
+                            f"🔥 RIDE THE MOMENTUM — {_mflav}. March STRAIGHT for "
+                            f"{_ng3['leader']} in {_ng3['city']}: heal "
                             f"if hurt, stock up if thin, then GO. The trainers on the road are "
                             f"your training — never park in grass you've already cleared.")
                     _prn = [k for k in list(a)
@@ -13187,11 +13253,14 @@ class Campaign:
                     self._post_badge_city = tuple(gym.city)
                     log(f"   [roam] 🏁 POST-BADGE BEAT armed at {gym.city}: heal/stock/march window — "
                         f"grass parking OFF, forward march ON")
-                    # MOMENTUM LATCH (2026-07-31, the Route-4 seam loop): a DECISIVE win — zero
-                    # faints and the ace still healthy — means the prep machinery has nothing to
-                    # teach her about the NEXT gym yet: ride it. Persisted (survives relaunch,
-                    # which is exactly how the live loop was born); released by the next badge or
-                    # any gym loss. Fresh party read (post-battle) — never trust the pre-fight state.
+                    # MOMENTUM LATCH (2026-07-31, the Route-4 seam loop; widened same day per
+                    # Jonny — "she can go to vermillion now"): EVERY badge win latches momentum.
+                    # A win IS the readiness proof; the human rhythm after any badge is heal →
+                    # stock → MARCH, with the bench training on the road forward — never a park
+                    # in the grass behind (a scrappy win used to skip the latch and the new
+                    # milestone's bench pin farmed Route 4 forever). `decisive` (zero faints,
+                    # ace healthy) is kept for FLAVOR only. Persisted (survives relaunch);
+                    # released by the next badge or any gym loss (loss-bump prep is the net).
                     if MOMENTUM_ENABLED:
                         try:
                             import json as _j
@@ -13200,18 +13269,15 @@ class Campaign:
                             _ace = max(_pty, key=lambda m: m.get("level", 0)) if _pty else None
                             _ace_ok = bool(_ace and _ace.get("maxhp")
                                            and (_ace.get("hp", 0) / _ace["maxhp"]) >= MOMENTUM_ACE_HP_FRAC)
-                            if _no_faints and _ace_ok:
-                                _nbc = state.get("badge_count", 0) + 1   # the count AFTER this award
-                                with open(MOMENTUM_JSON, "w", encoding="utf-8") as f:
-                                    _j.dump({"ts": time.time(), "badge_count": _nbc,
-                                             "beat": ng["leader"]}, f)
-                                log(f"   [roam] 🔥 MOMENTUM LATCHED: {ng['leader']} fell DECISIVELY "
-                                    f"(no faints, ace ≥{int(MOMENTUM_ACE_HP_FRAC * 100)}%) — readiness "
-                                    f"floor + bench pin STAND DOWN for the next gym; heal/stock/MARCH. "
-                                    f"Releases on the next badge or any gym loss.")
-                            else:
-                                log(f"   [roam] momentum NOT latched (faint-free={_no_faints}, "
-                                    f"ace-healthy={_ace_ok}) — normal prep pacing owns the next gym")
+                            _decisive = _no_faints and _ace_ok
+                            _nbc = state.get("badge_count", 0) + 1   # the count AFTER this award
+                            with open(MOMENTUM_JSON, "w", encoding="utf-8") as f:
+                                _j.dump({"ts": time.time(), "badge_count": _nbc,
+                                         "beat": ng["leader"], "decisive": _decisive}, f)
+                            log(f"   [roam] 🔥 MOMENTUM LATCHED ({'DECISIVE' if _decisive else 'scrappy win'}): "
+                                f"{ng['leader']} is DOWN — readiness floor + bench pin STAND DOWN for the "
+                                f"next gym; heal/stock/MARCH (the road's trainers are the training). "
+                                f"Releases on the next badge or any gym loss.")
                         except Exception as _mx:
                             log(f"   [roam] momentum latch skipped: {_mx}")
                     # PHASE 6 — CATHARSIS: reference the worry so the relief is EARNED, not "oh great,
@@ -15288,7 +15354,9 @@ class Campaign:
                 # MOMENTUM flavor: she CRUSHED the last one — the spine says ride it, and the
                 # road's trainers are the training (never backward grass).
                 if _mom_g:
-                    medium = (f"You CRUSHED that last gym — ride the momentum, go straight for "
+                    _mwin = ("You CRUSHED that last gym" if getattr(self, "_momentum_decisive", True)
+                             else "You WON that last gym — it's done")
+                    medium = (f"{_mwin} — ride the momentum, go straight for "
                               f"{ng['leader']} in {ng['city']}; the trainers on the way are your training")
                 else:
                     medium = f"You're ready — travel to {ng['city']} and take on {ng['leader']}"
