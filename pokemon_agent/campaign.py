@@ -79,6 +79,12 @@ ROAD_BENCH_XP_ENABLED = os.getenv("POKEMON_ROAD_BENCH_XP", "1") != "0"
 # defers to the heal path (needs_heal only fires <0.50 on ANY member — this is a higher, ACE-specific
 # floor). On a fresh organically-built run the bench shares the gauntlet, so this rarely bites.
 ROAD_XP_ACE_HP_FLOOR = float(os.getenv("POKEMON_ROAD_XP_ACE_HP_FLOOR", "0.6"))
+# LEAD ROTATION (2026-07-31, Jonny: "cycle pokemon to give xp to as many per fight — keep the ENTIRE
+# team up to par"): strict weakest-first hands every consecutive leg to the same mon until it climbs
+# past the next one. When the previous leg's lead would be re-picked and another under-target candidate
+# sits within this many levels of it, rotate to that one — the whole bench levels evenly instead of one
+# mon monopolising the rides. 0 disables (pure weakest-first).
+ROAD_XP_ROTATE_BAND = int(os.getenv("POKEMON_ROAD_XP_ROTATE_BAND", "3"))
 # PREP-FOR-E4 band (2026-07-11, PASS 3 team-depth): at all 8 badges the whole party is floored to the
 # team-plan's E4 milestone (~L55) so the bench survives the Center-less five-fight gauntlet (NS13/NS14:
 # a top-heavy team where the ace solos then dies at Lance/Champion). A member counts as LEVELABLE only
@@ -7689,12 +7695,17 @@ class Campaign:
                 weak = [s for s, l in enumerate(levels)
                         if l < target and _slot_pid(s) not in stalled
                         and (min_level is None or l >= min_level)    # skip box-fodder chaff (E4-prep floor)
-                        # MOVELESS-LEAD GUARD (2026-07-31, Jonny stream debrief: the 10-minute Ekans
-                        # fight): NEVER field a mon with zero damaging PP (a Teleport-only Abra) —
-                        # it can't win, can't flee a trainer, and war-must-advance spams its failing
-                        # move forever. It still banks XP later via the participation switch once it
-                        # has a real move (evolves/learns); until then the next-weakest attacker leads.
-                        and st.slot_has_damaging_pp(self.b, s)]
+                        # MOVELESS-LEAD GUARD, SWITCH-AWARE (2026-07-31, two Jonny debriefs): with the
+                        # participation switch OFF (solo/ace-cap), NEVER field a mon with zero damaging
+                        # PP (a Teleport-only Abra) — it can't win, can't flee a trainer, and
+                        # war-must-advance spams its failing move forever (the 10-minute Ekans fight).
+                        # With the switch ARMED it's the OPPOSITE: a moveless mon is exactly who should
+                        # lead — the turn-1 switch fields the ace BEFORE the foe's move resolves (a
+                        # switch outprioritises attacks in Gen 3), so the moveless lead takes zero hits
+                        # and banks its XP share. That is literally how a human levels an Abra to 16.
+                        # Fail-safes if the switch doesn't confirm: the PP-FAMINE switch fires the next
+                        # turn (moveless = famine by definition), and the stall set stops re-fielding.
+                        and (use_switch or st.slot_has_damaging_pp(self.b, s))]
                 if not weak:
                     remaining = [s for s, l in enumerate(levels) if l < target]
                     if remaining:                             # floor un-raisable — the under-target mon(s)
@@ -7967,22 +7978,43 @@ class Campaign:
                     pid = None
                 if pid is not None and pid in stalled:   # can't earn XP on this route -> skip
                     continue
-                # MOVELESS-LEAD GUARD (2026-07-31, the 10-minute Ekans fight): a mon with zero
-                # damaging PP (Teleport-only Abra) must NEVER lead a road leg — on a questline-
-                # relaxed leg the participation switch is OFF, so it fights trainers ALONE with a
-                # move that can't deal damage and can't flee (war-must-advance spams it while the
-                # foe Wraps). It levels later through the switch path once it has a real move.
-                if not st.slot_has_damaging_pp(self.b, s):
+                # MOVELESS-LEAD GUARD, LEG-AWARE (2026-07-31, two Jonny debriefs): on a questline-
+                # RELAXED leg the participation switch is OFF — a mon with zero damaging PP
+                # (Teleport-only Abra) would fight trainers ALONE with a move that can't deal
+                # damage and can't flee (the 10-minute Ekans fight) → skip it there. On a NORMAL
+                # march leg the switch is ARMED (set below), so a moveless mon is exactly who
+                # should ride shotgun: it leads, the turn-1 switch fields the ace before the foe's
+                # move resolves, and it banks the XP share — the human Abra-to-16 trick. Fail-safes
+                # on a non-confirm: PP-FAMINE switch next turn + the stall set.
+                if _ql_leg and not st.slot_has_damaging_pp(self.b, s):
                     log(f"   [roam] ROAD-BENCH-XP: skipping slot {s} as lead candidate — no damaging "
-                        f"PP (it can't win a fight it leads)")
+                        f"PP and no switch on this relaxed leg (it can't win a fight it leads)")
                     continue
                 cand.append((l, s))
             if not cand:
                 return False
-            wk = min(cand)[1]                      # the weakest levelable under-target member
+            cand.sort()
+            wk = cand[0][1]                        # the weakest levelable under-target member
+            # LEAD ROTATION (2026-07-31): if the same mon led the previous leg and the runner-up
+            # candidate is within ROAD_XP_ROTATE_BAND levels, hand this leg to the runner-up so
+            # the whole bench climbs together (XP spread across the six, not one shotgun seat).
+            try:
+                _lastp = getattr(self, "_road_xp_last_pid", None)
+                if (ROAD_XP_ROTATE_BAND > 0 and _lastp is not None and len(cand) > 1
+                        and self.b.rd32(ram.GPLAYER_PARTY + wk * st.PARTY_MON_SIZE) == _lastp
+                        and cand[1][0] <= cand[0][0] + ROAD_XP_ROTATE_BAND):
+                    log(f"   [roam] ROAD-BENCH-XP: rotating the lead — slot {wk} rode the last leg, "
+                        f"slot {cand[1][1]} (L{cand[1][0]}) takes this one")
+                    wk = cand[1][1]
+            except Exception:
+                pass
             ace = max(range(len(levels)), key=lambda s: levels[s])
             if wk == ace:
                 return False                       # the weakest IS the ace -> nothing to protect
+            try:
+                self._road_xp_last_pid = self.b.rd32(ram.GPLAYER_PARTY + wk * st.PARTY_MON_SIZE)
+            except Exception:
+                self._road_xp_last_pid = None
             if wk != 0:
                 self._swap_party_slots(0, wk)      # weak mon leads -> "sent out" -> XP-eligible
             # MOVE-LEARN ROOM (NS#16): the weak mon banks XP via road battles here (NOT grind(), so the

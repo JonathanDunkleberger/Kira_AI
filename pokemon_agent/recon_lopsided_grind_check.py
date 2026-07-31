@@ -63,6 +63,12 @@ class FakeCamp:
     def _hurt_severity(self):
         return (self._severity, "…")
 
+    def _on_overworld_now(self):
+        # 2026-07-13 MAP-TYPE-RELAX hook: the recon's 'active questline' case models the
+        # nav-critical (cave/interior) shape the original suppression protects, so report
+        # NOT-overworld — preserving the case's original intent (questline -> None).
+        return False
+
 
 def _mkstate(levels, badge=4):
     return {"party": [{"level": l} for l in levels], "badge_count": badge, "post_game": False}

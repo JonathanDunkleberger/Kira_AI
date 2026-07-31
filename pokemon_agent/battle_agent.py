@@ -2380,7 +2380,32 @@ class BattleAgent:
         self.log(f"   [engine] MATCHUP SWITCH: active is out-typed -> trying party slot {slot}")
         r = self._switch_to_slot(slot, state.get("ours", {}).get("species"))
         if r == "switched":
-            self.emit("switching it up — this is a better matchup", beat=True, tier=2)
+            # SAY THE TYPE MATH (2026-07-31, Jonny: "she needs to know what's good vs what — and
+            # SAY it"): name who's coming in and WHY in type-chart terms, from the same reads the
+            # scorer used — so the stream hears "Spearow eats bugs for breakfast", not a vague
+            # "better matchup". Fail-safe: any read hiccup falls back to the plain line.
+            try:
+                _in_nm = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), "my pick")
+                _foe = state.get("enemy") or {}
+                _foe_ty = "/".join(t for t in (_foe.get("types") or []) if t) or "mystery"
+                _re = 0.0
+                for _mid in st.read_party_moves(self.b, slot):
+                    if _mid:
+                        _mt, _mp = st.move_info(self.b, _mid)
+                        if _mp and _mp > 0:
+                            _re = max(_re, _eff({"type": _mt or "normal"}, _foe))
+                if _re >= 4.0:
+                    _ln = (f"{_in_nm}, you're up — that's a {_foe_ty} type and you hit it "
+                           f"DOUBLE super-effective. this is just bullying.")
+                elif _re >= 2.0:
+                    _ln = (f"{_in_nm} eats {_foe_ty} types for breakfast — super-effective, "
+                           f"switching in. the type chart never lies.")
+                else:
+                    _ln = (f"{_in_nm} takes this one — the {_foe_ty} typing is chewing through "
+                           f"who I had out there.")
+                self.emit(_ln, beat=True, tier=2)
+            except Exception:
+                self.emit("switching it up — this is a better matchup", beat=True, tier=2)
             self._skip_streak.clear()
             return "switched"
         self.log("   [engine] matchup switch did not confirm -> fighting instead (fail-safe, no wedge)")
@@ -2453,7 +2478,15 @@ class BattleAgent:
         self-correcting: a wild within the margin still gets the ace-protect switch. Byte-inert (False) OFF."""
         if not SOLO_OVERLEVEL_GRIND or state is None:
             return False
-        our_lv = (state.get("ours") or {}).get("level") or 0
+        ours = state.get("ours") or {}
+        # MOVELESS GUARD (2026-07-31, the Abra shotgun-seat): a lead with zero damaging PP can
+        # never solo ANYTHING regardless of the level gap (Teleport one-shots nothing) — dropping
+        # the ace switch for it would strand it spamming a failing move. The whole point of
+        # fielding a moveless mon is the participation switch; never suppress it.
+        if not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
+                   for m in (ours.get("moves") or [])):
+            return False
+        our_lv = ours.get("level") or 0
         foe_lv = (state.get("enemy") or {}).get("level") or 0
         return bool(our_lv and foe_lv and our_lv >= foe_lv + SOLO_OVERLEVEL_MARGIN)
 

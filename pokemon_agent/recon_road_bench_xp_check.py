@@ -74,6 +74,9 @@ class FakeCamp:
         if ace != 0:
             self._levels[0], self._levels[ace] = self._levels[ace], self._levels[0]
 
+    def _ensure_move_room(self):
+        pass                       # NS#16 pre-leg hook — inert for the decision under test
+
 
 def _mkstate(levels, ace_hp_frac=1.0):
     """party dicts with hp/maxhp — the ACE (max level) at ace_hp_frac, everyone else full."""
@@ -164,6 +167,22 @@ def main():
                       "head_to_gym", expect_arm=False, ace_hp_frac=0.4)
     all_fails += _run("ace comfortably above HP floor", FakeCamp([32, 14, 18], prep_t=20),
                       "head_to_gym", expect_arm=True, want_lead_level=14, ace_hp_frac=0.9)
+
+    # 10 — LEAD ROTATION (2026-07-31): consecutive legs don't hand every ride to the same mon.
+    # Leg 1: weakest (L14, slot 1) leads. Leg 2 on the SAME camp: the L14 mon would be re-picked
+    # (same pid), but the L15 runner-up is within ROTATE_BAND -> it takes the seat instead.
+    C.ROAD_XP_ROTATE_BAND = 3
+    c10 = FakeCamp([32, 14, 15], prep_t=20)
+    all_fails += _run("rotation leg 1 (weakest leads)", c10, "head_to_gym",
+                      expect_arm=True, want_lead_level=14)
+    all_fails += _run("rotation leg 2 (runner-up rotates in)", c10, "head_to_gym",
+                      expect_arm=True, want_lead_level=15)
+    # runner-up OUTSIDE the band -> no rotation, weakest keeps the seat
+    c10b = FakeCamp([32, 10, 19], prep_t=20)
+    all_fails += _run("no rotation outside band leg 1", c10b, "head_to_gym",
+                      expect_arm=True, want_lead_level=10)
+    all_fails += _run("no rotation outside band leg 2", c10b, "head_to_gym",
+                      expect_arm=True, want_lead_level=10)
 
     print("\n" + ("ALL PASS" if not all_fails else "FAIL:\n  " + "\n  ".join(all_fails)))
     return 0 if not all_fails else 1
