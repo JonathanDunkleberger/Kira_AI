@@ -1,0 +1,300 @@
+   [TurnTiming] 14:43:00.412 TTS STOP — playback finished (span ~2049ms)
+   [TTS] Speaking: I'll figure it out....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'll figure it out.' (5 words)
+   [TurnTiming] 14:43:00.414 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay the NPC is not talking to me and I refuse to keep being ignored. South it is — Vermilion's waiting and my Wartortle is itching."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:43:02.199 TTS STOP — playback finished (span ~1785ms)
+
+   [TIMING] voice: llm=8773ms(sonnet-stream(llm+tts)) tts=0ms total=8773ms
+   [LATENCY] vad_close=1200ms stt=280ms stt_wait=0ms salience=0ms triage=bypassed memory=22ms prompt_build=0ms ttft=1159ms tts_first_chunk=0ms audio_out=212ms TOTAL=1673ms
+   [TurnTiming] 14:43:02.678 DIRECTOR HOLD (fresh-min-silence) — since_mic=10.8s silence=0.5s fresh_ok=True dead_air=False
+   [RoomRead] energy=0.62 [terse=0.52 gap=0.82 silence=0.98 intensity=0.60 chat=0.00] target=0.97 mult=0.98 -> min_gap=10s dead_air=20s
+   [LoopbackSTT] self-TTS gate released after 6 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 124ms — 0 accepted, 1 filtered (rms=0.017)
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Alright, I've been poking at this NPC for way too long. South it is — I want to actually get moving toward Vermilion, not stand here making small talk with someone who's clearly not interested."
+   [Pokemon] event react (bypass=False, tier=2, kind=recover): okay, this isn't working — I'm heading to the Pokémon Center to reset 
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.092 lane=KNOW
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Bored): Something got through my team that shouldn't have. Back to the drawing board.
+   [TTS] Speaking: Something got through my team that shouldn't have....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Something got through my team that shoul' (9 words)
+   [TurnTiming] 14:43:07.163 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 14:43:08 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [YTAutoSearch] No live broadcast found (attempt 4, 719s remaining)
+   [Pokemon] SELF WANT: 'Thunder Badge from Lt. Surge'
+   [TurnTiming] 14:43:09.789 TTS STOP — playback finished (span ~2625ms)
+   [TTS] Speaking: Back to the drawing board....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Back to the drawing board.' (6 words)
+   [TurnTiming] 14:43:10.041 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:43:11.915 TTS STOP — playback finished (span ~1874ms)
+   [TIMING] interjection: vision=0ms llm=2116ms(sonnet) tts=5144ms total=7282ms
+   [LAG] sense→speak: total=5.4s (content_age=0.0s, prep=0.0s, llm=2.1s, tts_wait+synth=3.3s)
+   [Arbiter] Draining buffered interjection (queued 5.4s ago)
+   [Freshness] DROP superseded game-event reaction (seq 16 < latest 17) — a fresher beat arrived
+   [TurnTiming] 14:43:12.693 DIRECTOR HOLD (fresh-min-silence) — since_mic=20.8s silence=0.8s fresh_ok=True dead_air=False
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, Vermilion's the move. I've got two badges, a Wartortle that could carry a car, and a team that needs road reps — the trainers between here and Surge are exactly what I need. Let's go."
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 14:43:15.692 DIRECTOR FIRE — silence=3.8s since_mic=23.8s fresh_ok=True dead_air=False eff_min_gap=10s gap=204s
+   [Director] FIRE (noticing) — gap=204s silence=4s fresh=vision
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, Vermilion. I've been stalling on Route 4 long enough — time to actually move. South through Route 3, let the trainers on the way do the leveling work for me."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=2ms fetch=68ms rank=0ms)
+   [SmartMem]     dist=0.728 conf=? type=session_summary blend=0.302 lane=STREAM
+   [SmartMem]     dist=0.812 conf=0.9 type=episodic blend=0.250 lane=KNOW
+   [SmartMem]     dist=0.895 conf=? type=session_summary blend=0.199 lane=STREAM
+   [Pokemon] SELF WANT: 'Reach Vermilion City, beat Lt. Surge'
+   >>> Kira (Bored): Okay but where IS Vermilion — like, does anyone in this town just have a map, or is everyone here sworn to vagueness?
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Okay but where IS Vermilion — like, does anyone in...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay but where IS Vermilion — like, does' (26 words)
+   [TurnTiming] 14:43:21.841 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, Vermilion. I'm done messing around on Route 4 — south through Route 3, fight whatever trainers are in my way, and let them do the leveling work for me. My bench needs it anyway."
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, no more wandering around talking to walls — I've got a Thunder Badge to collect and Lt. Surge isn't going to humiliate himself on his own. South through Route 3, toward Vermilion. Let's move."
+   [TurnTiming] 14:43:28.310 TTS STOP — playback finished (span ~6469ms)
+   [TIMING] interjection: vision=2378ms llm=3128ms(sonnet) tts=7038ms total=12617ms
+   [LAG] sense→speak: total=22.8s (content_age=16.6s, prep=2.5s, llm=3.1s, tts_wait+synth=0.6s)
+   [Arbiter] Draining buffered interjection (queued 8.0s ago)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=18ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.092 lane=KNOW
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Alright, nobody here has anything useful to say — I've tried twice and gotten nothing. Time to actually move. Vermilion isn't going to come to me."
+   >>> Kira (Bored): Route 4 and then south — I'm coming for you, Surge.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Route 4 and then south — I'm coming for you, Surge...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Route 4 and then south — I'm coming for ' (13 words)
+   [TurnTiming] 14:43:31.375 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Reach Vermilion City, take down Lt. Surge'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 14:43:35.030 TTS STOP — playback finished (span ~3655ms)
+   [TIMING] interjection: vision=0ms llm=2639ms(sonnet) tts=4061ms total=6720ms
+   [LAG] sense→speak: total=11.1s (content_age=8.0s, queue_wait=8.0s, prep=0.0s, llm=2.6s, tts_wait+synth=0.4s)
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Route 4, open road, Vermilion somewhere south of here. My team's decent enough — Wartortle's carrying and the rest are coming up. Time to just move."
+   [TurnTiming] 14:43:36.013 DIRECTOR HOLD (fresh-min-silence) — since_mic=44.1s silence=1.0s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TurnTiming] 14:43:39.017 DIRECTOR FIRE — silence=4.0s since_mic=47.1s fresh_ok=True dead_air=False eff_min_gap=10s gap=23s
+   [Director] FIRE (noticing) — gap=23s silence=4s fresh=vision
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, talking to NPCs clearly isn't working — nobody's home, apparently. I should just get moving south toward Vermilion. Surge isn't going to wait forever."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Vision] heartbeat capture skipped — on-demand capture in flight (dedup).
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=1ms fetch=53ms rank=1ms)
+   [SmartMem]     dist=0.754 conf=? type=session_summary blend=0.285 lane=STREAM
+   [SmartMem]     dist=0.815 conf=0.9 type=episodic blend=0.248 lane=KNOW
+   [SmartMem]     dist=0.867 conf=? type=session_summary blend=0.216 lane=STREAM
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, nobody around here has anything useful to say — I've tried, they're all sworn to vagueness, I'm moving on. Vermilion is south and I'm going."
+   >>> Kira (Bored): Okay, grass. Still in grass. Jonny, are we walking south or just vibing in nature?
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Okay, grass....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay, grass.' (4 words)
+   [TurnTiming] 14:43:44.093 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:43:46.059 TTS STOP — playback finished (span ~1966ms)
+   [TTS] Speaking: Still in grass....
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Still in grass.' (4 words)
+   [TurnTiming] 14:43:46.492 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, south it is — Vermilion's not coming to me."
+   [TurnTiming] 14:43:48.366 TTS STOP — playback finished (span ~1874ms)
+   [TTS] Speaking: Jonny, are we walking south or just vibing in natu...
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Jonny, are we walking south or just vibi' (12 words)
+   [TurnTiming] 14:43:48.745 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'reach Vermilion City, beat Lt. Surge'
+   [TurnTiming] 14:43:52.310 TTS STOP — playback finished (span ~3565ms)
+   [TIMING] interjection: vision=2534ms llm=2204ms(sonnet) tts=8500ms total=13294ms
+   [LAG] sense→speak: total=31.3s (content_age=21.5s, prep=2.6s, llm=2.2s, tts_wait+synth=4.9s)
+   [Arbiter] Draining buffered interjection (queued 8.8s ago)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.092 lane=KNOW
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "South it is — Vermilion's not coming to me."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 14:43:53 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   >>> Kira (Bored): Alright, licking my wounds at the Pokémon Center — but Surge is still waiting and I'm still coming.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Alright, licking my wounds at the Pokémon Center —...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Alright, licking my wounds at the Pokémo' (20 words)
+   [TurnTiming] 14:43:55.200 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, I've been messing around long enough — Vermilion's not going to come to me. South it is, trainers on the way can be my warm-up."
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 14:44:00.267 TTS STOP — playback finished (span ~5066ms)
+   [TIMING] interjection: vision=0ms llm=2428ms(sonnet) tts=5505ms total=7955ms
+   [LAG] sense→speak: total=11.7s (content_age=8.8s, queue_wait=8.8s, prep=0.0s, llm=2.4s, tts_wait+synth=0.4s)
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: 'Route 4 has officially given me nothing useful. Vermilion it is — south through Route 3, trainers on the way are free XP for my sad little bench.'
+   [TurnTiming] 14:44:01.265 DIRECTOR HOLD (fresh-min-silence) — since_mic=69.4s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 14:44:03.273 DIRECTOR FIRE — silence=3.0s since_mic=71.4s fresh_ok=True dead_air=False eff_min_gap=10s gap=24s
+   [Director] FIRE (noticing) — gap=24s silence=3s fresh=vision
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] SELF WANT: 'reach Vermilion City'
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=58ms rank=0ms)
+   [SmartMem]     dist=0.751 conf=? type=session_summary blend=0.288 lane=STREAM
+   [SmartMem]     dist=0.824 conf=0.9 type=episodic blend=0.242 lane=KNOW
+   [SmartMem]     dist=0.825 conf=? type=session_summary blend=0.242 lane=STREAM
+   >>> Kira (Bored): Still in the grass. Jonny, I think this field is sentient and it wants us to stay.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Still in the grass....
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, nobody here has anything useful to say, I've established that. South it is — Route 3, trainers on the way, Vermilion at the end of it. Let's move."
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Still in the grass.' (5 words)
+   [TurnTiming] 14:44:07.783 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [YTAutoSearch] No live broadcast found (attempt 5, 659s remaining)
+   [TurnTiming] 14:44:09.653 TTS STOP — playback finished (span ~1869ms)
+   [TTS] Speaking: Jonny, I think this field is sentient and it wants...
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Route 4, nothing useful to talk to — I'm done standing here. Vermilion's south and I'm going."
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Jonny, I think this field is sentient an' (15 words)
+   [TurnTiming] 14:44:10.093 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay I'm done talking to people on this route, nobody here has anything useful to say. South through Route 3, that's my road to Vermilion — let's ride."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:44:13.653 TTS STOP — playback finished (span ~3559ms)
+   [TIMING] interjection: vision=2316ms llm=1772ms(sonnet) tts=6231ms total=10379ms
+   [LAG] sense→speak: total=29.3s (content_age=22.4s, prep=2.4s, llm=1.8s, tts_wait+synth=2.7s)
+   [Arbiter] Draining buffered interjection (queued 8.8s ago)
+🎤 Recording... (recovered opening words)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.092 lane=KNOW
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   >>> Kira (Bored): Finally. Vermilion City — Surge, I hope you're ready, because I've been walking through Route 4 grass for what feels like a geological era.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Finally....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Finally.' (2 words)
+   [TurnTiming] 14:44:16.188 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:44:17.966 TTS STOP — playback finished (span ~1778ms)
+   [TTS] Speaking: Vermilion City — Surge, I hope you're ready, becau...
+   [Pokemon] SELF WANT: (none right now)
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Vermilion City — Surge, I hope you're re' (26 words)
+   [TurnTiming] 14:44:18.526 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, NPC talking is clearly not happening — that well is dry. I'm done standing here having a one-sided conversation with nobody. Surge isn't going to wait forever and my team isn't getting stronger by loitering on Route 4.\n\nSouth. We're going south."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:44:25.324 TTS STOP — playback finished (span ~6797ms)
+   [TIMING] interjection: vision=0ms llm=2338ms(sonnet) tts=9309ms total=11670ms
+   [LAG] sense→speak: total=13.6s (content_age=8.8s, queue_wait=8.8s, prep=0.0s, llm=2.3s, tts_wait+synth=2.5s)
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~71 frame(s) (~2130ms, ~2.1s) of your speech while she held the turn.
+   [TurnTiming] 14:44:26.319 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=1.0s fresh_ok=True dead_air=False
+   [Pokemon] SELF WANT: 'reach Vermilion City, Thunder Badge'
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 14:44:30.393 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~108448ms since onset)
+>>> You said: everyone. This has been fun. Thank you for your appreciation of the stream.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='everyone. This has been fun. Thank you for your appreciation' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=33ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=11488ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Alright, I've been in this grass long enough. Surge isn't going to come to me, so I'm going to him — south, through whatever trainers are dumb enough to get in my way. My team needs the reps anyway."
+   [TIMING] first-word: 2313ms
+   [TTS] Speaking: Three days between sessions and you come back just...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Three days between sessions and you come' (17 words)
+   [TurnTiming] 14:44:33.416 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, stream's wrapping — I should say goodbye properly before I just vanish into the route.\n\nThanks everyone, genuinely. Surge is next and I'm not scared. Maybe a little scared."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, chat's saying goodbye and that means one thing — it's time to move. Vermilion's not going to come to me."
+   [TurnTiming] 14:44:37.913 TTS STOP — playback finished (span ~4496ms)
+   [TTS] Speaking: I appreciate the loyalty....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I appreciate the loyalty.' (5 words)
+   [TurnTiming] 14:44:37.917 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 14:44:38 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 14:44:39.982 TTS STOP — playback finished (span ~2064ms)
+
+   [TIMING] voice: llm=9317ms(sonnet-stream(llm+tts)) tts=0ms total=9317ms
+   [LATENCY] vad_close=1200ms stt=238ms stt_wait=0ms salience=0ms triage=bypassed memory=33ms prompt_build=1ms ttft=1647ms tts_first_chunk=666ms audio_out=432ms TOTAL=3017ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 14:44:40.316 DIRECTOR HOLD (fresh-min-silence) — since_mic=11.2s silence=0.3s fresh_ok=True dead_air=False
+   [TurnTiming] 14:44:41.215 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~119270ms since onset)
+>>> You said: and my efforts.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='and my efforts.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=5t  moment=calm)
+   [PromptSize] dynamic_context=11681ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] SELF WANT: 'Thunder Badge from Lt. Surge'
+   [Memory] Attribution cap: fact not traced to Jonny's words (conf 0.95 → 0.6, below floor — discarding): Jonny watches Kira's streams
+   [Bits] Callback: Broken Playground
+   [TIMING] first-word: 1684ms
+   [TTS] Speaking: Your efforts were incredible....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Your efforts were incredible.' (5 words)
+   [TurnTiming] 14:44:43.364 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] SELF CHOSE (action): talk_npc
+   [Pokemon] her reasoning: "Okay, no more talking to walls — I've been poking at NPCs who clearly have nothing to say. South to Vermilion, my Wartortle is READY and Surge isn't going to beat himself."
+   [TurnTiming] 14:44:45.336 TTS STOP — playback finished (span ~1971ms)
+   [TTS] Speaking: You watched....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You watched.' (3 words)
+   [TurnTiming] 14:44:45.338 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:44:47.119 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: Heroic stuff....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Heroic stuff.' (3 words)
+   [TurnTiming] 14:44:47.122 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
