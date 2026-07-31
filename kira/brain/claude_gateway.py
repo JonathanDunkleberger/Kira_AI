@@ -63,8 +63,22 @@ def gateway_label() -> str:
     }[gateway_mode()]
 
 
+# BOUNDED REQUESTS (2026-07-31, the Misty-badge deafness): the SDK default is a
+# 10-MINUTE per-request timeout with 2 retries — a single wedged OpenRouter
+# request (observed: the tier-3 badge reaction's Opus call) can hold the bot's
+# turn lock for up to ~30 minutes, during which Kira is deaf+mute to voice AND
+# chat while the game plays on. No live call in this codebase legitimately runs
+# longer than ~90s; fail LOUD and let the caller's local-Llama fallback speak.
+CLAUDE_HTTP_TIMEOUT_S = float(os.getenv("CLAUDE_HTTP_TIMEOUT_S", "90"))
+CLAUDE_HTTP_MAX_RETRIES = int(os.getenv("CLAUDE_HTTP_MAX_RETRIES", "1"))
+
+
 def _client_kwargs() -> dict:
     mode = gateway_mode()
+    common = {
+        "timeout": CLAUDE_HTTP_TIMEOUT_S,
+        "max_retries": CLAUDE_HTTP_MAX_RETRIES,
+    }
     if mode == "openrouter":
         # Scrub the dead direct key so the SDK can't pick it up from env and
         # send a conflicting x-api-key header (mirrors OpenRouter's own
@@ -73,9 +87,10 @@ def _client_kwargs() -> dict:
         return {
             "auth_token": OPENROUTER_API_KEY,
             "base_url": OPENROUTER_ANTHROPIC_BASE_URL,
+            **common,
         }
     if mode == "anthropic":
-        return {"api_key": ANTHROPIC_API_KEY}
+        return {"api_key": ANTHROPIC_API_KEY, **common}
     raise RuntimeError(
         "No route to Claude: set OPENROUTER_API_KEY (preferred — the Anthropic "
         "account is banned) or ANTHROPIC_API_KEY in .env."

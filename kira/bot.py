@@ -477,10 +477,33 @@ class _ChatBudgetGovernor:
         self._window.clear()
 
 
+class _TrackedLock(asyncio.Lock):
+    """asyncio.Lock that remembers WHICH task holds it and since WHEN — the handle the
+    turn-lock watchdog needs to RECOVER a hung turn (2026-07-31, the Misty-badge deafness:
+    a wedged LLM await held _active_turn_lock indefinitely and she went deaf+mute to voice
+    and chat with the stream live). A bare Lock can only be observed, never attributed."""
+
+    def __init__(self):
+        super().__init__()
+        self.holder_task = None
+        self.acquired_at = 0.0
+
+    async def acquire(self):
+        result = await super().acquire()
+        self.holder_task = asyncio.current_task()
+        self.acquired_at = time.time()
+        return result
+
+    def release(self):
+        self.holder_task = None
+        self.acquired_at = 0.0
+        super().release()
+
+
 class VTubeBot:
     def __init__(self):
         self.interruption_event = asyncio.Event()
-        self.processing_lock = asyncio.Lock()
+        self.processing_lock = _TrackedLock()
         # [DroppedInput] instrumentation: frames of Jonny's speech dropped in the current
         # run while processing_lock is held (his voice arriving during one of her turns,
         # never transcribed). Throttled — onset + run-length logged, not per-frame.
@@ -501,7 +524,7 @@ class VTubeBot:
         # Held by voice turns, chat_batch turns, and interjection turns so they
         # never race against each other. Distinct from processing_lock (which remains
         # STT-only and drives VAD interruption_event — no change to that logic).
-        self._active_turn_lock = asyncio.Lock()
+        self._active_turn_lock = _TrackedLock()
         # Buffered P1 interjections (MW/chess reactions) that arrived while a turn
         # was active. Each entry: {prompt, memory_query, scene_override, queued_at}.
         # Drained (one at a time) immediately after each turn completes.
@@ -5130,38 +5153,79 @@ class VTubeBot:
         return (time.time() - self._vad_mic_last_ts) < MIC_GATE_ACTIVE_WINDOW_S
 
     async def _turn_lock_watchdog_loop(self) -> None:
-        """DEAFNESS DETECTOR (2026-07-30, Jonny live report: 'she stopped listening to me and
-        chat'). While processing_lock or _active_turn_lock is held, Jonny's mic frames are
-        DROPPED (vad_loop) and chat batches are SKIPPED (chat_batch_worker) — that's correct for
-        the seconds a real turn takes, but a HUNG turn (a stalled LLM/TTS await) makes her deaf
-        to everything indefinitely while the game keeps playing, with zero log evidence. This
-        watchdog samples the locks and screams when one has been held continuously far past any
-        plausible turn, naming the span — so a live 'she's ignoring me' has a definitive log
-        signature (and the operator knows a voice-loop restart is needed). OBSERVE-ONLY by
-        design: force-releasing an asyncio.Lock out from under 15 legitimate holders can hand
-        the lock to a second turn and corrupt the release chain — a loud diagnosis is safe."""
+        """DEAFNESS DETECTOR + RECOVERY (2026-07-30 observe-only; upgraded 2026-07-31 after the
+        Misty-badge deafness — a hung turn held _active_turn_lock indefinitely and she went silent
+        to voice AND chat with the stream live). While processing_lock or _active_turn_lock is
+        held, Jonny's mic frames are DROPPED (vad_loop) and chat batches are SKIPPED
+        (chat_batch_worker) — correct for the seconds a real turn takes, catastrophic for a hung
+        one (a stalled LLM/TTS await).
+
+        RECOVERY LADDER (conservative — only past WEDGE_S of CONTINUOUS hold, and never while
+        she's actually mid-TTS unless the hold reaches 2x WEDGE_S, i.e. is_speaking itself wedged):
+          1. CANCEL the holder task — but ONLY a per-event/per-request task (a Pokémon event
+             react, a control-server handler). The registered long-lived workers (brain_worker,
+             vad drainer, director loops — self._background_tasks) are NEVER cancelled: a
+             CancelledError there would kill the whole loop, worse than the wedge.
+          2. If the cancel didn't free the lock within one sample (or the holder is a core
+             worker / unknown), ORPHAN the lock: recreate the attribute with a fresh lock so
+             every NEW turn flows again. The hung holder still references the old object and
+             releases it harmlessly whenever (if ever) it resumes — no release-chain corruption,
+             which is why the old force-release idea was rejected but recreation is safe."""
         held_since = {"processing_lock": None, "_active_turn_lock": None}
         last_scream = {"processing_lock": 0.0, "_active_turn_lock": 0.0}
+        cancel_sent_at = {"processing_lock": 0.0, "_active_turn_lock": 0.0}
         WEDGE_S = float(os.getenv("TURN_LOCK_WEDGE_S", "180"))
         while True:
             await asyncio.sleep(15)
             try:
-                for name, lk in (("processing_lock", self.processing_lock),
-                                 ("_active_turn_lock", self._active_turn_lock)):
+                for name in ("processing_lock", "_active_turn_lock"):
+                    lk = getattr(self, name)
                     if not lk.locked():
                         held_since[name] = None
+                        cancel_sent_at[name] = 0.0
                         continue
                     if held_since[name] is None:
                         held_since[name] = time.time()
                         continue
                     span = time.time() - held_since[name]
-                    if span > WEDGE_S and time.time() - last_scream[name] > 60:
+                    if span <= WEDGE_S:
+                        continue
+                    speaking = bool(getattr(self.ai_core, "is_speaking", False))
+                    if time.time() - last_scream[name] > 60:
                         last_scream[name] = time.time()
                         print(f"   [TurnLockWatchdog] !!!! {name} held ~{span:.0f}s CONTINUOUSLY "
-                              f"(speaking={getattr(self.ai_core, 'is_speaking', False)}) — no real "
-                              f"turn runs this long. She is DEAF to voice+chat while this holds; "
-                              f"the turn is almost certainly hung mid-await. Restart the voice "
-                              f"loop to recover.")
+                              f"(speaking={speaking}) — no real turn runs this long. She is DEAF "
+                              f"to voice+chat while this holds; recovering.")
+                    # A real (if absurd) TTS ramble may still be draining — hold fire while she
+                    # is audibly speaking, but not forever: is_speaking stuck True past 2x
+                    # WEDGE_S is itself the wedge (a hung TTS await), so recover anyway then.
+                    if speaking and span <= 2 * WEDGE_S:
+                        print(f"   [TurnLockWatchdog] {name}: holding recovery while she's "
+                              f"speaking (acts at {2 * WEDGE_S:.0f}s regardless).")
+                        continue
+                    holder = getattr(lk, "holder_task", None)
+                    core_tasks = set(getattr(self, "_background_tasks", None) or [])
+                    if getattr(self, "_vad_task", None) is not None:
+                        core_tasks.add(self._vad_task)
+                    if (holder is not None and not holder.done()
+                            and holder not in core_tasks and not cancel_sent_at[name]):
+                        cancel_sent_at[name] = time.time()
+                        print(f"   [TurnLockWatchdog] !! RECOVER step 1: cancelling the hung "
+                              f"holder task of {name} ({holder.get_name()!r}) — a per-event "
+                              f"turn, safe to kill. Lock releases as it unwinds.")
+                        holder.cancel()
+                        continue                      # give it one sample cycle to unwind
+                    # Cancel didn't land (or holder is a core worker / unknown) → orphan the
+                    # lock so new turns flow. LOUD: this is the she-comes-back-to-life moment.
+                    why = ("holder is a core worker — never cancelled" if holder in core_tasks
+                           else ("cancel did not free it" if cancel_sent_at[name]
+                                 else "holder unknown"))
+                    setattr(self, name, _TrackedLock())
+                    held_since[name] = None
+                    cancel_sent_at[name] = 0.0
+                    print(f"   [TurnLockWatchdog] !! RECOVER step 2: {name} ORPHANED after "
+                          f"~{span:.0f}s ({why}) — fresh lock installed, she can hear voice+chat "
+                          f"again. The hung turn still owns the old lock object and dies alone.")
             except Exception as e:
                 print(f"   [TurnLockWatchdog] sample error (watchdog continues): {e}")
 
@@ -5872,9 +5936,10 @@ class VTubeBot:
             # Loopback keep-alive supervisor — self-heals capture/transcriber that
             # never started or dropped (cold-boot silent-bind, unplug, clean exit).
             tasks.append(self._loopback_supervisor_loop())
-            # Turn-lock watchdog — screams when a hung turn holds processing_lock /
-            # _active_turn_lock past any plausible length (the 'she stopped listening
-            # to me and chat' deafness signature). Observe-only, 15s cadence.
+            # Turn-lock watchdog — screams AND RECOVERS when a hung turn holds
+            # processing_lock / _active_turn_lock past any plausible length (the 'she
+            # stopped listening to me and chat' deafness signature): cancels a hung
+            # per-event holder, else orphans+recreates the lock. 15s cadence.
             tasks.append(self._turn_lock_watchdog_loop())
 
             # --- NEW: Start Dynamic Observer (Visual Spark) ---
