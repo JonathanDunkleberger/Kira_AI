@@ -559,6 +559,23 @@ HEALTH_JSON = os.path.join(STATES_CAMPAIGN, "health.json")
 # forgotten order can never park her behavior permanently.
 CREATOR_ORDER_JSON = os.path.join(STATES_CAMPAIGN, "creator_order.json")
 CREATOR_ORDER_TTL_S = float(os.getenv("POKEMON_CREATOR_ORDER_TTL_S", "1800"))
+# MOMENTUM (2026-07-31, the post-Misty Route-4 seam loop): a DECISIVE gym win (zero faints, ace
+# still healthy) latches a persisted momentum state — the readiness floor + bench pin stand DOWN
+# for the NEXT gym and she marches straight at it; the trainers on the road ARE the training
+# (road-bench-XP still arms on march legs). PERSISTED to disk because the live loop was born of a
+# relaunch: the in-memory post-badge beat evaporated with the process and the new milestone's
+# floor parked her in backward grass. Released by: the next badge (re-evaluated fresh), any gym
+# loss (the hard-release branch — loss-bump prep is the safety net), or manual file delete.
+MOMENTUM_JSON = os.path.join(STATES_CAMPAIGN, "momentum.json")
+MOMENTUM_ENABLED = os.getenv("POKEMON_MOMENTUM", "1") == "1"
+MOMENTUM_ACE_HP_FRAC = float(os.getenv("POKEMON_MOMENTUM_ACE_HP", "0.60"))
+# SEAM-THRASH BREAKER (2026-07-31, the Route-4↔Cerulean border ping-pong): >=3 crossings of the
+# SAME map seam within the window with no badge progress = two mechanisms are fighting over the
+# border. Hard-commit to the forward objective for a few builds and no-go the backward map for
+# the session. POKEMON_SEAM_BREAKER=0 disables.
+SEAM_BREAKER_ENABLED = os.getenv("POKEMON_SEAM_BREAKER", "1") == "1"
+SEAM_WINDOW_S = float(os.getenv("POKEMON_SEAM_WINDOW_S", "120"))
+SEAM_TRIP_N = int(os.getenv("POKEMON_SEAM_TRIP_N", "3"))
 # RULE 17 SANCTITY — bank her NARRATIVE saga (grudge/team-feelings/arc) WITH the checkpoint bundle, next to
 # strat/world/soul, so a checkpoint restore resumes her STORY (not just game+strategy). Core Kira keeps its
 # own states/kira/journey_core.json; this campaign-side copy makes the resume bundle COMPLETE.
@@ -5280,7 +5297,7 @@ class Campaign:
         avoid = self._wall_avoid(state)
         pcount = state.get("party_count")
         plevel = state["party"][0]["level"] if state.get("party") else None
-        dead = getattr(self, "_grind_dead", set())
+        dead = getattr(self, "_grind_dead", set()) | getattr(self, "_seam_nogo", set())
         inadeq = getattr(self, "_grind_inadequate_set", set())
         try:
             known = self.world.reachable_with_trait(cur, "has_grass", avoid) or []
@@ -7473,6 +7490,35 @@ class Campaign:
                 loss_bump=getattr(self, "_gym_prep_bump", {}).get(ng["leader"], 0))
             return bool(r and r.get("dominant"))
         except Exception:
+            return False
+
+    def _momentum_live(self, state):
+        """True while a persisted DECISIVE-WIN momentum latch covers the CURRENT badge count (armed by
+        the badge branch of _route_action when the gym fell with zero faints + a healthy ace). While
+        live: the readiness floor spares head_to_gym, the GO block prunes grind/detour picks, and
+        goals say 'ride the momentum'. Auto-releases when the badge count moves past the latch (the
+        NEXT win re-evaluates decisiveness fresh); a gym LOSS deletes the file (hard-release branch).
+        Disk-persisted so a mid-march relaunch resumes the march, not a backward grass park (the
+        live post-Misty Route-4 loop was exactly this evaporating with the process). Never raises."""
+        import json as _j
+        if not MOMENTUM_ENABLED:
+            return False
+        try:
+            if not os.path.exists(MOMENTUM_JSON):
+                return False
+            with open(MOMENTUM_JSON, encoding="utf-8") as f:
+                data = _j.load(f) or {}
+            bc = int(state.get("badge_count", -1)) if state else -1
+            if bc < 0:
+                return False
+            if int(data.get("badge_count", -1)) != bc:
+                os.remove(MOMENTUM_JSON)
+                log(f"   [roam] 🔥 MOMENTUM released (badge count moved {data.get('badge_count')} -> "
+                    f"{bc} — the next win re-evaluates fresh)")
+                return False
+            return True
+        except Exception as e:
+            log(f"   [roam] momentum read skipped: {e}")
             return False
 
     def _creator_order(self, state=None):
@@ -11331,7 +11377,8 @@ class Campaign:
         def gated(m):
             return self.strat.is_gated(m, pcount, plevel)
         dead = (getattr(self, "_grind_dead", set())        # maps grind() proved grassless/strand-only
-                | getattr(self, "_grind_inadequate_set", set()))   # + level-aware inadequate (empty if flag off)
+                | getattr(self, "_grind_inadequate_set", set())   # + level-aware inadequate (empty if flag off)
+                | getattr(self, "_seam_nogo", set()))      # + seam-breaker session bans (border war)
         def has_grass(m):
             return ((m in self._grass_maps or self._is_route_map(m))
                     and m != cur and tuple(m) not in dead)
@@ -11408,21 +11455,42 @@ class Campaign:
                 _cur_d = (len(_r0) - 1) if _r0 else None
         except Exception:
             _cur_d = None
+        # BILLED-ROAD FALLBACK (2026-07-31, the LIVE post-Misty Route-4 relapse): the strictly-closer
+        # read above needs the LEARNED graph to route all the way to the objective — but the next gym
+        # city is usually UNVISITED (that's why it's next), so _cur_d is None, every candidate ties as
+        # "not forward", and nearest-first quietly returns the backward map again. When distances can't
+        # be computed, forwardness = membership in the KB's billed road to the next gym (+ the objective
+        # itself): grinding ON the road forward is march-training; everything off it is backward.
+        _fwd_set = set()
+        try:
+            for _leg in (self._gym_road(state.get("next_gym")) or []):
+                _fwd_set.add(tuple(_leg["map"]))
+            _gc = self._next_gym_city_map(state.get("next_gym"))
+            if _gc:
+                _fwd_set.add(tuple(_gc))
+        except Exception:
+            pass
+        if _obj:
+            _fwd_set.add(tuple(_obj))
+        _fwd_set.discard(tuple(state.get("map") or ()))    # "here" is not a forward TARGET
 
         def _grass_fwd(dst):
             if _cur_d is None:
-                return False
+                return tuple(dst) in _fwd_set
             try:
                 _r = self.world.route(tuple(dst), _obj, self._wall_avoid(state))
-                return bool(_r) and (len(_r) - 1) < _cur_d
+                if _r:
+                    return (len(_r) - 1) < _cur_d
             except Exception:
-                return False
+                pass
+            return tuple(dst) in _fwd_set
         try:
             cur = tuple(state["map"])
             avoid = self._wall_avoid(state)
             known = self.world.reachable_with_trait(cur, "has_grass", avoid)
             _dead = (getattr(self, "_grind_dead", set())   # maps grind() proved grassless/strand-only
-                     | getattr(self, "_grind_inadequate_set", set()))  # + inadequate (empty if flag off)
+                     | getattr(self, "_grind_inadequate_set", set())  # + inadequate (empty if flag off)
+                     | getattr(self, "_seam_nogo", set()))  # + seam-breaker session bans (border war)
             # FORWARD FIRST (stable: within each class the trait scan's own nearest-first order holds):
             # the post-Misty pick becomes Route 5/24 (toward Vermilion / Bill), NOT the cleared Route 4.
             for _entry in sorted(known or [], key=lambda e: 0 if _grass_fwd(e[0]) else 1):
@@ -11447,7 +11515,8 @@ class Campaign:
         # wall. Adjacent ungated route wins (this already includes grass directly behind her).
         cur = tuple(state["map"])
         _dead = (getattr(self, "_grind_dead", set())       # proven-grassless maps aren't candidates
-                 | getattr(self, "_grind_inadequate_set", set()))  # + inadequate (empty if flag off)
+                 | getattr(self, "_grind_inadequate_set", set())  # + inadequate (empty if flag off)
+                 | getattr(self, "_seam_nogo", set()))     # + seam-breaker session bans (border war)
         non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)
                      and (cur, tuple(m)) not in unreach and tuple(m) not in _dead]
         # FORWARD FIRST here too (the adjacent-route sibling of the known-grass loop above).
@@ -11730,7 +11799,10 @@ class Campaign:
             # and when a genuinely stronger reachable spot exists, name it with the XP framing so
             # "train where it counts" beats "grind the weak grass I'm standing near". Distance-ranked
             # options otherwise unchanged; she still chooses.
-            _skip_grass = getattr(self, "_grind_dead", set()) | getattr(self, "_grind_inadequate_set", set())
+            _skip_grass = (getattr(self, "_grind_dead", set())
+                           | getattr(self, "_grind_inadequate_set", set())
+                           | getattr(self, "_seam_nogo", set()))  # seam-breaker bans: never OFFER the
+            #                                                       backward side of a broken border
             for mid, nm, why in self.world.travel_targets(cur, avoid=tavoid, want_traits=_traits)[:4]:
                 if tuple(mid) in _skip_grass:
                     continue
@@ -11825,6 +11897,33 @@ class Campaign:
                             f"pruned grass-parking {_prn_pb}; heal/stock/march only")
             except Exception as _pbx:
                 log(f"   [roam] post-badge beat skipped: {_pbx}")
+            # ── SEAM-COMMIT window (2026-07-31): the seam-thrash breaker fired — for the next few
+            # builds head_to_gym is the FORCED pick and every grass/detour option is off the menu,
+            # so the two feuding choosers physically cannot re-open the ping-pong. DECISION
+            # HYSTERESIS in its bluntest form: the commitment persists across builds, it is not
+            # re-evaluated at the border every tick.
+            _seam_live = False
+            try:
+                _sc = getattr(self, "_seam_commit_ticks", 0)
+                if _sc > 0:
+                    self._seam_commit_ticks = _sc - 1
+                    _seam_live = True
+                    _prn_sc = [k for k in list(a)
+                               if k in ("wander_catch", "battle", "fetch_keeper")
+                               or k.startswith("travel:")]
+                    for k in _prn_sc:
+                        a.pop(k, None)
+                    _ngsc = state.get("next_gym") or {}
+                    a["head_to_gym"] = (
+                        f"COMMIT — you were pacing the same border back and forth. The move is "
+                        f"FORWARD, one direction, no second-guessing: toward "
+                        f"{_ngsc.get('city', 'the next objective')} and the "
+                        f"{_ngsc.get('leader', 'next')} badge.")
+                    self._force_gym_pick = True
+                    log(f"   [roam] !! SEAM-COMMIT ({self._seam_commit_ticks} builds left): forced "
+                        f"head_to_gym, pruned {sorted(_prn_sc)} — the border war is OVER")
+            except Exception as _scx:
+                log(f"   [roam] seam-commit skipped: {_scx}")
             if GYM_READINESS_FLOOR_ENABLED and "head_to_gym" in a and state.get("next_gym"):
                 try:
                     _ngf = state["next_gym"]
@@ -11850,6 +11949,19 @@ class Campaign:
                         # she just conquered — heal/stock/march; the bench trains on the road.
                         log("   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — POST-BADGE BEAT "
                             "(heal/stock/march; train on the road forward)")
+                        rf = None
+                    elif self._momentum_live(state):
+                        # MOMENTUM (2026-07-31): last gym fell decisively — the floor stands DOWN
+                        # for this whole gym; the road's trainers are the training. Survives
+                        # relaunch (disk latch) — the exact hole the live Route-4 loop came from.
+                        log(f"   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM "
+                            f"(decisive last win; march at {_ngf['leader']}, train on the road)")
+                        rf = None
+                    elif _seam_live:
+                        # SEAM-COMMIT: the breaker just forced the forward march — the floor may
+                        # not re-open the border war it exists to end.
+                        log("   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — SEAM-COMMIT "
+                            "(the breaker owns the next builds)")
                         rf = None
                     elif _ql_spare:
                         log(f"   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the "
@@ -11956,16 +12068,21 @@ class Campaign:
                 _ng3 = state.get("next_gym")
                 _ord3 = self._creator_order(state) if _ng3 else None
                 _dom3 = self._gym_dominant(state) if _ng3 else False
+                # MOMENTUM (2026-07-31): a decisive last win is a third GO trigger — same prune +
+                # force as dominance, but the QUESTLINE HIJACK stays LIVE for it (_route_action's
+                # skip keys off creator/dominant only): the errand (Bill's ticket -> S.S. Anne ->
+                # Cut) IS the road to the next gym, and its trainers ARE the training.
+                _mom3 = self._momentum_live(state) if _ng3 else False
                 # GO-HARD RETRY CAP (2026-07-31, the live Misty loop): beat_gym stuck 5+ ticks in a
                 # row on this leader means the interior genuinely has her beat — stop re-forcing the
                 # pick (which would override the structural park forever) and let the normal
                 # watchdog/escape machinery own it. The streak clears on ANY non-stuck gym outcome.
                 _gh_capped = (_ng3 is not None
                               and getattr(self, "_gym_stuck_streak", {}).get(_ng3["leader"], 0) >= 5)
-                if _ng3 and (_ord3 or _dom3) and _gh_capped:
+                if _ng3 and (_ord3 or _dom3 or _mom3) and _gh_capped:
                     log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
                         f"{_ng3['leader']}; escape machinery owns the wedge now")
-                if _ng3 and (_ord3 or _dom3) and not _gh_capped:
+                if _ng3 and (_ord3 or _dom3 or _mom3) and not _gh_capped:
                     if "head_to_gym" not in a:
                         a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
                         log("   [roam] !! restoring head_to_gym (was pruned earlier) — gym is GO")
@@ -11974,11 +12091,17 @@ class Campaign:
                             f"⚡ JONNY'S ORDER (LAW): march to {_ng3['city']}'s gym and fight "
                             f"{_ng3['leader']} RIGHT NOW — he said "
                             f"\"{(_ord3.get('raw') or '')[:80]}\". No grinding. GO.")
-                    else:
+                    elif _dom3:
                         a["head_to_gym"] = (
                             f"YOU'RE READY — STOP GRINDING AND GO. Your strongest OVERPOWERS "
                             f"{_ng3['leader']}. Walk into {_ng3['city']}'s gym and take the "
                             f"badge NOW. Parking in grass is wasted stream time.")
+                    else:
+                        a["head_to_gym"] = (
+                            f"🔥 RIDE THE MOMENTUM — you CRUSHED the last gym without breaking a "
+                            f"sweat. March STRAIGHT for {_ng3['leader']} in {_ng3['city']}: heal "
+                            f"if hurt, stock up if thin, then GO. The trainers on the road are "
+                            f"your training — never park in grass you've already cleared.")
                     _prn = [k for k in list(a)
                             if k in ("battle", "wander_catch", "fetch_keeper")
                             or k.startswith("travel:")]
@@ -11989,8 +12112,8 @@ class Campaign:
                     if getattr(self, "_bench_pin", None) is not None:
                         log(f"   [roam] !! retiring bench pin L{self._bench_pin} — gym is GO now")
                         self._bench_pin = None
-                    log(f"   [roam] !! {'CREATOR ORDER' if _ord3 else 'DOMINANT'} → GO HARD: "
-                        f"forced head_to_gym ({_ng3['leader']}); pruned {sorted(_prn)}; "
+                    log(f"   [roam] !! {'CREATOR ORDER' if _ord3 else ('DOMINANT' if _dom3 else 'MOMENTUM')} "
+                        f"→ GO HARD: forced head_to_gym ({_ng3['leader']}); pruned {sorted(_prn)}; "
                         f"oracle SKIPPED this tick")
             except Exception as _dg:
                 log(f"   [roam] dominant-go reframe skipped: {_dg}")
@@ -13030,12 +13153,17 @@ class Campaign:
                 if out == "stuck":
                     n = self._gym_stuck_streak.get(ng["leader"], 0) + 1
                     self._gym_stuck_streak[ng["leader"]] = n
-                    # GO-HARD STAY (2026-07-31, the live Misty loop): while dominant / creator-ordered,
-                    # a single wedged leg must NOT park the gym and send her wandering out of the city —
-                    # she re-enters beat_gym next tick (the force latch re-arms every menu build).
-                    # Bounded: after 5 consecutive stucks even GO-HARD parks (watchdog/escape owns it).
-                    _park_at = 5 if _go_hard_now else 2
-                    if _go_hard_now and n < _park_at:
+                    # GO-HARD STAY (2026-07-31, the live Misty loop): while dominant / creator-ordered
+                    # (or riding MOMENTUM), a single wedged leg must NOT park the gym and send her
+                    # wandering out of the city — she re-enters beat_gym next tick (the force latch
+                    # re-arms every menu build). Bounded: after 5 consecutive stucks even GO-HARD
+                    # parks (watchdog/escape owns it).
+                    try:
+                        _stay_hard = _go_hard_now or self._momentum_live(state)
+                    except Exception:
+                        _stay_hard = _go_hard_now
+                    _park_at = 5 if _stay_hard else 2
+                    if _stay_hard and n < _park_at:
                         log(f"   [roam] !! GO-HARD: beat_gym stuck x{n} on {ng['leader']} — NOT parking, "
                             f"NOT leaving {gym.city}; re-entering the gym next tick (cap {_park_at})")
                     elif n >= _park_at:
@@ -13059,6 +13187,33 @@ class Campaign:
                     self._post_badge_city = tuple(gym.city)
                     log(f"   [roam] 🏁 POST-BADGE BEAT armed at {gym.city}: heal/stock/march window — "
                         f"grass parking OFF, forward march ON")
+                    # MOMENTUM LATCH (2026-07-31, the Route-4 seam loop): a DECISIVE win — zero
+                    # faints and the ace still healthy — means the prep machinery has nothing to
+                    # teach her about the NEXT gym yet: ride it. Persisted (survives relaunch,
+                    # which is exactly how the live loop was born); released by the next badge or
+                    # any gym loss. Fresh party read (post-battle) — never trust the pre-fight state.
+                    if MOMENTUM_ENABLED:
+                        try:
+                            import json as _j
+                            _pty = (self.read_live_state() or {}).get("party") or []
+                            _no_faints = bool(_pty) and all((m.get("hp") or 0) > 0 for m in _pty)
+                            _ace = max(_pty, key=lambda m: m.get("level", 0)) if _pty else None
+                            _ace_ok = bool(_ace and _ace.get("maxhp")
+                                           and (_ace.get("hp", 0) / _ace["maxhp"]) >= MOMENTUM_ACE_HP_FRAC)
+                            if _no_faints and _ace_ok:
+                                _nbc = state.get("badge_count", 0) + 1   # the count AFTER this award
+                                with open(MOMENTUM_JSON, "w", encoding="utf-8") as f:
+                                    _j.dump({"ts": time.time(), "badge_count": _nbc,
+                                             "beat": ng["leader"]}, f)
+                                log(f"   [roam] 🔥 MOMENTUM LATCHED: {ng['leader']} fell DECISIVELY "
+                                    f"(no faints, ace ≥{int(MOMENTUM_ACE_HP_FRAC * 100)}%) — readiness "
+                                    f"floor + bench pin STAND DOWN for the next gym; heal/stock/MARCH. "
+                                    f"Releases on the next badge or any gym loss.")
+                            else:
+                                log(f"   [roam] momentum NOT latched (faint-free={_no_faints}, "
+                                    f"ace-healthy={_ace_ok}) — normal prep pacing owns the next gym")
+                        except Exception as _mx:
+                            log(f"   [roam] momentum latch skipped: {_mx}")
                     # PHASE 6 — CATHARSIS: reference the worry so the relief is EARNED, not "oh great,
                     # moving on". Tier-3 big beat → her core deep-reaction path RISES; the saga promotes it.
                     nb = state.get("badge_count", 0) + 1
@@ -13096,6 +13251,15 @@ class Campaign:
                                 f"machinery owns the retry (grind bench + ace, THEN re-take)")
                     except Exception as _cox:
                         log(f"   [roam] creator-order release on loss skipped: {_cox}")
+                    # MOMENTUM releases on ANY gym loss (the gym just proved the ride is over) —
+                    # loss_bump/prep machinery owns the retry from here.
+                    try:
+                        if os.path.exists(MOMENTUM_JSON):
+                            os.remove(MOMENTUM_JSON)
+                            log(f"   [roam] 🔥 MOMENTUM released — {ng['leader']} beat her; prep "
+                                f"machinery (bench pin + loss bump) owns the retry")
+                    except Exception as _mox:
+                        log(f"   [roam] momentum release on loss skipped: {_mox}")
                 return out
             # WARP-AWARE forward routing toward the next gym CITY: route THROUGH warps/dungeons (the
             # Underground-Path class), not just map edges. Uses the world-model graph (live-learned warps
@@ -14394,6 +14558,63 @@ class Campaign:
                 self._nomove_streak = 0
                 self._dead_moves.clear()
                 if tuple(_pos0[0]) != tuple(_pos1[0]):
+                    # ── SEAM-THRASH BREAKER (2026-07-31, the Route-4↔Cerulean border ping-pong):
+                    # count crossings of the SAME map seam; >=SEAM_TRIP_N inside SEAM_WINDOW_S with
+                    # no badge progress means two choosers are fighting over the border (one pulls
+                    # into backward grass, one pulls forward) — no amount of per-chooser bias is
+                    # trusted to be exhaustive, so break it STRUCTURALLY: no-go the backward member
+                    # for the session and hard-commit head_to_gym for the next few builds.
+                    if SEAM_BREAKER_ENABLED:
+                        try:
+                            _pair = frozenset((tuple(_pos0[0]), tuple(_pos1[0])))
+                            _bc_s = state.get("badge_count", -1)
+                            _nowt = _t.time()
+                            _sh = [e for e in getattr(self, "_seam_hist", [])
+                                   if _nowt - e[0] <= SEAM_WINDOW_S]
+                            _sh.append((_nowt, _pair, _bc_s))
+                            self._seam_hist = _sh
+                            _hits = sum(1 for e in _sh if e[1] == _pair and e[2] == _bc_s)
+                            if _hits >= SEAM_TRIP_N and _pair not in getattr(self, "_seam_broken", set()):
+                                self._seam_broken = getattr(self, "_seam_broken", set())
+                                self._seam_broken.add(_pair)
+                                _m_a, _m_b = sorted(_pair)
+
+                                def _fwd_score(m):
+                                    """Which side of the seam reads FORWARD: the objective itself,
+                                    the next gym's city, a map on its billed road, or a town (base
+                                    camp) — the other side is the backward pull to ban."""
+                                    s = 0
+                                    try:
+                                        if m == self._forward_objective_map(state):
+                                            s += 4
+                                        _ngx = state.get("next_gym")
+                                        if _ngx and m == self._next_gym_city_map(_ngx):
+                                            s += 3
+                                        if m in {tuple(l["map"]) for l in (self._gym_road(_ngx) or [])}:
+                                            s += 2
+                                        if self.world.is_town(m):
+                                            s += 1
+                                    except Exception:
+                                        pass
+                                    return s
+                                _sa, _sb = _fwd_score(_m_a), _fwd_score(_m_b)
+                                _back = _m_a if _sa < _sb else (_m_b if _sb < _sa else None)
+                                if _back is not None:
+                                    self._seam_nogo = getattr(self, "_seam_nogo", set())
+                                    self._seam_nogo.add(_back)
+                                self._seam_commit_ticks = 8
+                                log(f"   [roam] !!!! SEAM-THRASH BREAKER: crossed the "
+                                    f"{self.world.name(_m_a)}↔{self.world.name(_m_b)} border "
+                                    f"{_hits}x in {SEAM_WINDOW_S:.0f}s with no badge progress — "
+                                    + (f"{self.world.name(_back)} is NO-GO for the session; "
+                                       if _back is not None else
+                                       "no clear backward side (both read forward) — no ban; ")
+                                    + "hard-committing the FORWARD objective for the next 8 builds")
+                                self.on_event("okay, I've been pacing the same border like a lost "
+                                              "tourist — enough. Picking a direction and COMMITTING: "
+                                              "forward, next objective, go.", kind="travel", tier=2)
+                        except Exception as _sbx:
+                            log(f"   [roam] seam breaker skipped: {_sbx}")
                     if pick == "head_to_gym":
                         # remember the leg so a structural fail on arrival can park its feeder
                         self._last_hg_leg = (tuple(_pos0[0]), tuple(_pos1[0]))
@@ -15052,16 +15273,25 @@ class Campaign:
             # _prep_team_target may still re-arm a bench pin for road-bench-XP, but short goals
             # must say GO, not park. Matches the menu prune + FORCE GYM PICK.
             _go_hard = False
+            _mom_g = False
             try:
+                _mom_g = self._momentum_live(state)
                 _go_hard = bool(
                     getattr(self, "_force_gym_pick", False)
                     or self._gym_dominant(state)
-                    or self._creator_order(state))
+                    or self._creator_order(state)
+                    or _mom_g)
             except Exception:
                 _go_hard = False
             if _go_hard and ng:
                 # Questline "Bill before Misty" medium also drops — badge is the beat now.
-                medium = f"You're ready — travel to {ng['city']} and take on {ng['leader']}"
+                # MOMENTUM flavor: she CRUSHED the last one — the spine says ride it, and the
+                # road's trainers are the training (never backward grass).
+                if _mom_g:
+                    medium = (f"You CRUSHED that last gym — ride the momentum, go straight for "
+                              f"{ng['leader']} in {ng['city']}; the trainers on the way are your training")
+                else:
+                    medium = f"You're ready — travel to {ng['city']} and take on {ng['leader']}"
             if wr and not rdy and not _go_hard:
                 target = wr.get("lead_level") or 0
                 # STRATEGIC UNDERLEVEL-GRIND (Task B): when the TEAM FLOOR is the problem, the concrete
