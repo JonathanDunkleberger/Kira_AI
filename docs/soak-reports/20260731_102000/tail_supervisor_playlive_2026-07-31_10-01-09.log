@@ -1,0 +1,1500 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: junior obj3 at (4, 7) un-engageable after 4 tries (wandering/water-locked) - deferring LOUD so the pass proceeds
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [1, 3])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 1/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 2/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 3/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) STILL unreachable after 3 retry rounds — surfacing stuck (never A-mash the leader from across the pool)
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (9, 12), door (31, 21), scanned 0 field object(s): []
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (9, 12), door (31, 21), scanned 0 field object(s): []
+
+   [campaign]    [roam] [!] GYM-GATE PROBE: Gate(hm_obstacle, missing='surf', where=(7, 5), "a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it")
+
+   [campaign]    [roam] !! GO-HARD: beat_gym stuck x2 on Misty — NOT parking, NOT leaving (3, 3); re-entering the gym next tick (cap 5)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 3)(31, 22) -> (7, 5)(9, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(7, 5) coords=(9, 12) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_100455_the-cerulean-gym_1b_8h54m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] tick opened inside interior (7, 5)@(9, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 11/100000000 --
+
+   [campaign]    [roam] STATE IN: the Cerulean Gym (9, 12) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(7, 5) (9,12) f4 D- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (7, 5)@(9, 12) (reason=frozen_world, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (9, 13) on (7, 5) (route around it) + marking (9, 12) a resolved talk-spot — unified block memory now 4 tile(s)
+
+   [campaign]    [roam] disengage: stepped UP AWAY from the NPC -> (9, 11) (closed box + walked off — the real escape)
+
+   [campaign]    [roam] tick opened inside interior (7, 5)@(9, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 12/100000000 --
+
+   [campaign]    [roam] STATE IN: the Cerulean Gym (9, 11) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(7, 5) (9,11) f2 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #2: objective "PUSH FORWARD — the way ahead is blocked (a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it), and the move that opens it is to HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 1 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] WARP-ROUTE toward Cerulean City: (7, 5) -> (3, 3) via warp tile (7, 18)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "there's a passage here heading the right way — taking it."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 11) -> coord (7, 18) (budget 300s)
+
+   [travel] releasing 1 stale NPC block(s) [(9, 13)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 0: (9, 11)->(9, 12) map=(7, 5) (path 10 to exit)
+
+   [travel] reached target coord (7, 18)
+
+   [campaign]    1 door(s); candidates (chosen order): [(7, 18)]
+
+   [campaign]    pick (7, 18) failed — trying adjacent actuatable door (8, 18) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(7, 18) -> coord (8, 17) (budget 60s)
+
+   [travel] step 0: (7, 18)->(7, 17) map=(7, 5) (path 3 to exit)
+
+   [travel] reached target coord (8, 17)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (8, 18) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    WARPED (7, 5) -> (3, 3) via mat-row door (8, 18)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (7, 5)(9, 11) -> (3, 3)(31, 22) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 3) coords=(31, 22) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_100525_cerulean-city_1b_8h54m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 22) toward Route 4 (visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 13/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (31, 22) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (31,22) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Cerulean City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Cerulean City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 3), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Cascade Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'Cascade Badge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [kira-voice] -> T2·savor· (want) 'Cascade Badge'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Misty's city (3, 3) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "alright, Misty's gym. this is it — I'm actually a little nervous. okay. let's climb."
+
+   [campaign]    GYM-PREP [Misty]: DOMINANT — top L28 >= L22+6 (no type answer, and none needed at this power gap) — going in
+
+   [kira-voice] ·floor· (<1s since last) T2 "no perfect type matchup for Misty, but honestly? we're way past needing one. we're strong enough — let's just go win this."
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    13 door(s); candidates (chosen order): [(31, 21)]
+
+   [campaign]    reachable door (31, 21): walking to approach (31, 22)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 3) coords=(31, 22) -> coord (31, 22) (budget 300s)
+
+   [travel] reached target coord (31, 22)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 3) -> (7, 5) via door (31, 21)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    GYM: inside (7, 5) at (8, 18) - clearing junior trainers
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(8, 18) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (8, 18)->(8, 17) map=(7, 5) (path 8 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] path blocked at (9, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 12); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(4, 7), (7, 16), (8, 6), (10, 12)] -> approaching to interact/trigger
+
+   [travel] reached target coord (9, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 13) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (9, 13)->(9, 12) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] step 0: (9, 12)->(9, 11) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 11) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (9, 11)->(9, 12) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [campaign]    GYM: junior obj1 didn't engage (try 1/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] path blocked at (9, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 12); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(4, 7), (7, 16), (8, 6), (10, 12)] -> approaching to interact/trigger
+
+   [travel] reached target coord (9, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 13) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (9, 13)->(9, 12) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] step 0: (9, 12)->(9, 11) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 11) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (9, 11)->(9, 12) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [campaign]    GYM: junior obj1 didn't engage (try 2/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] reached target coord (9, 12)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (7, 5)@(9, 12) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj1 didn't engage (try 3/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: junior obj1 at (10, 12) un-engageable after 4 tries (wandering/water-locked) - deferring LOUD so the pass proceeds
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj3 didn't engage (try 1/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj3 didn't engage (try 2/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj3 didn't engage (try 3/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: junior obj3 at (4, 7) un-engageable after 4 tries (wandering/water-locked) - deferring LOUD so the pass proceeds
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [1, 3])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 1/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 2/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 3/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) STILL unreachable after 3 retry rounds — surfacing stuck (never A-mash the leader from across the pool)
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (9, 12), door (31, 21), scanned 0 field object(s): []
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (9, 12), door (31, 21), scanned 0 field object(s): []
+
+   [campaign]    [roam] [!] GYM-GATE PROBE: Gate(hm_obstacle, missing='surf', where=(7, 5), "a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it")
+
+   [campaign]    [roam] !! GO-HARD: beat_gym stuck x3 on Misty — NOT parking, NOT leaving (3, 3); re-entering the gym next tick (cap 5)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 3)(31, 22) -> (7, 5)(9, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(7, 5) coords=(9, 12) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_100608_the-cerulean-gym_1b_8h55m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] tick opened inside interior (7, 5)@(9, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 14/100000000 --
+
+   [campaign]    [roam] STATE IN: the Cerulean Gym (9, 12) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(7, 5) (9,12) f4 D- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (7, 5)@(9, 12) (reason=frozen_world, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (10, 12) on (7, 5) (route around it) + marking (9, 12) a resolved talk-spot — unified block memory now 3 tile(s)
+
+   [campaign]    [roam] disengage: stepped DOWN AWAY from the NPC -> (9, 14) (closed box + walked off — the real escape)
+
+   [campaign]    [roam] tick opened inside interior (7, 5)@(9, 14) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 15/100000000 --
+
+   [campaign]    [roam] STATE IN: the Cerulean Gym (9, 14) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(7, 5) (9,14) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #3: objective "PUSH FORWARD — the way ahead is blocked (a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it), and the move that opens it is to HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 1 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] WARP-ROUTE toward Cerulean City: (7, 5) -> (3, 3) via warp tile (7, 18)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "there's a passage here heading the right way — taking it."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 14) -> coord (7, 18) (budget 300s)
+
+   [travel] step 0: (9, 14)->(9, 15) map=(7, 5) (path 7 to exit)
+
+   [travel] reached target coord (7, 18)
+
+   [campaign]    1 door(s); candidates (chosen order): [(7, 18)]
+
+   [campaign]    pick (7, 18) failed — trying adjacent actuatable door (8, 18) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(7, 18) -> coord (8, 17) (budget 60s)
+
+   [travel] step 0: (7, 18)->(7, 17) map=(7, 5) (path 3 to exit)
+
+   [travel] reached target coord (8, 17)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (8, 18) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    WARPED (7, 5) -> (3, 3) via mat-row door (8, 18)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (7, 5)(9, 14) -> (3, 3)(31, 22) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 3) coords=(31, 22) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_100638_cerulean-city_1b_8h56m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 22) toward Route 4 (visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 16/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (31, 22) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (31,22) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Cerulean City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Cerulean City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 3), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Cascade Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'Cascade Badge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Misty's city (3, 3) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "alright, Misty's gym. this is it — I'm actually a little nervous. okay. let's climb."
+
+   [kira-voice] -> T2·savor· (want) 'Cascade Badge'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    GYM-PREP [Misty]: DOMINANT — top L28 >= L22+6 (no type answer, and none needed at this power gap) — going in
+
+   [kira-voice] ·floor· (<1s since last) T2 "no perfect type matchup for Misty, but honestly? we're way past needing one. we're strong enough — let's just go win this."
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    13 door(s); candidates (chosen order): [(31, 21)]
+
+   [campaign]    reachable door (31, 21): walking to approach (31, 22)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 3) coords=(31, 22) -> coord (31, 22) (budget 300s)
+
+   [travel] reached target coord (31, 22)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 3) -> (7, 5) via door (31, 21)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    GYM: inside (7, 5) at (8, 18) - clearing junior trainers
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(8, 18) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (8, 18)->(8, 17) map=(7, 5) (path 8 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] path blocked at (9, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 12); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(4, 7), (7, 16), (8, 6), (10, 12)] -> approaching to interact/trigger
+
+   [travel] reached target coord (9, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 13) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (9, 13)->(9, 12) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] step 0: (9, 12)->(9, 11) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 11) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (9, 11)->(9, 12) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [campaign]    GYM: junior obj1 didn't engage (try 1/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] path blocked at (9, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 12); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(4, 7), (7, 16), (8, 6), (10, 12)] -> approaching to interact/trigger
+
+   [travel] reached target coord (9, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 13) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (9, 13)->(9, 12) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] step 0: (9, 12)->(9, 11) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 11) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (9, 11)->(9, 12) map=(7, 5) (path 2 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [campaign]    GYM: junior obj1 didn't engage (try 2/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] reached target coord (9, 12)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.1s at (7, 5)@(9, 12) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj1 didn't engage (try 3/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: junior obj1 at (10, 12) un-engageable after 4 tries (wandering/water-locked) - deferring LOUD so the pass proceeds
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj3 didn't engage (try 1/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj3 didn't engage (try 2/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj3 didn't engage (try 3/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (4, 7) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: junior obj3 at (4, 7) un-engageable after 4 tries (wandering/water-locked) - deferring LOUD so the pass proceeds
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [1, 3])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 1/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 2/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) unreachable (try 3/3) — re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 11) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 12) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (5, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (8, 7) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! GYM: leader front (8, 7) STILL unreachable after 3 retry rounds — surfacing stuck (never A-mash the leader from across the pool)
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (9, 12), door (31, 21), scanned 0 field object(s): []
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (9, 12), door (31, 21), scanned 0 field object(s): []
+
+   [campaign]    [roam] [!] GYM-GATE PROBE: Gate(hm_obstacle, missing='surf', where=(7, 5), "a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it")
+
+   [campaign]    [roam] !! GO-HARD: beat_gym stuck x4 on Misty — NOT parking, NOT leaving (3, 3); re-entering the gym next tick (cap 5)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 3)(31, 22) -> (7, 5)(9, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(7, 5) coords=(9, 12) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_100722_the-cerulean-gym_1b_8h56m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] tick opened inside interior (7, 5)@(9, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 17/100000000 --
+
+   [campaign]    [roam] STATE IN: the Cerulean Gym (9, 12) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(7, 5) (9,12) f4 D- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (7, 5)@(9, 12) (reason=frozen_world, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (10, 12) on (7, 5) (route around it) + marking (9, 12) a resolved talk-spot — unified block memory now 3 tile(s)
+
+   [campaign]    [roam] disengage: stepped DOWN AWAY from the NPC -> (9, 14) (closed box + walked off — the real escape)
+
+   [campaign]    [roam] tick opened inside interior (7, 5)@(9, 14) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 18/100000000 --
+
+   [campaign]    [roam] STATE IN: the Cerulean Gym (9, 14) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(7, 5) (9,14) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #4: objective "PUSH FORWARD — the way ahead is blocked (a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it), and the move that opens it is to HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 1 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] WARP-ROUTE toward Cerulean City: (7, 5) -> (3, 3) via warp tile (7, 18)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (route) "there's a passage here heading the right way — taking it."  fired=True  [age 0.0s + post 4ms]
+
+   [travel] start map=(7, 5) coords=(9, 14) -> coord (7, 18) (budget 300s)
+
+   [travel] step 0: (9, 14)->(9, 15) map=(7, 5) (path 7 to exit)
+
+   [travel] reached target coord (7, 18)
+
+   [campaign]    1 door(s); candidates (chosen order): [(7, 18)]
+
+   [campaign]    pick (7, 18) failed — trying adjacent actuatable door (8, 18) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(7, 18) -> coord (8, 17) (budget 60s)
+
+   [travel] step 0: (7, 18)->(7, 17) map=(7, 5) (path 3 to exit)
+
+   [travel] reached target coord (8, 17)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (8, 18) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    WARPED (7, 5) -> (3, 3) via mat-row door (8, 18)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (7, 5)(9, 14) -> (3, 3)(31, 22) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 3) coords=(31, 22) badges=1 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_100752_cerulean-city_1b_8h57m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 22) toward Route 4 (visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'surf' errand, not Misty's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! retiring bench pin L14 — gym is GO now
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Misty); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 19/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (31, 22) | badges=1 (Boulder) | party=[wartortle L28, caterpie L8, rattata L12, spearow L14, abra L13, ekans L12] | 1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (31,22) f1 -- badge1 $440 party:4f35 bag:81d0]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Cerulean City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Cerulean City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 3), 'badges': ['Boulder'], 'progress': "1 badge(s) earned (Boulder). Next gym: Misty of Cerulean City. Pokédex: 7 caught. She's one badge in — the adventure's really starting (of 8 badges, then the Elite Four).", 'party': 'wartortle (L28), caterpie (L8), rattata (L12), spearow (L14), abra (L13), ekans (L12)', 'goal': {'short': "You're ready — stop grinding and head to Cerulean City for the Cascade Badge", 'medium': "You're ready — travel to Cerulean City and take on Misty", 'long': 'Reach Cerulean City, beat Misty for the Cascade Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='beat Misty, get Cascade Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'beat Misty, get Cascade Badge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cerulean City: You're ready — stop grinding and head to Cerulean City for the Cascade Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — caterpie now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L8 bench mon (target L14) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Misty's city (3, 3) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "alright, Misty's gym. this is it — I'm actually a little nervous. okay. let's climb."
+
+   [kira-voice] -> T2·savor· (want) 'beat Misty, get Cascade Badge'  fired=True  [age 0.0s + post 24ms]
+
+   [campaign]    GYM-PREP [Misty]: DOMINANT — top L28 >= L22+6 (no type answer, and none needed at this power gap) — going in
+
+   [kira-voice] ·floor· (<1s since last) T2 "no perfect type matchup for Misty, but honestly? we're way past needing one. we're strong enough — let's just go win this."
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L28) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    13 door(s); candidates (chosen order): [(31, 21)]
+
+   [campaign]    reachable door (31, 21): walking to approach (31, 22)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 3) coords=(31, 22) -> coord (31, 22) (budget 300s)
+
+   [travel] reached target coord (31, 22)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 3) -> (7, 5) via door (31, 21)
+
+   [campaign]    [world] learned 3 warp(s) on (7, 5): (7, 18)->(3, 3), (8, 18)->(3, 3), (9, 18)->(3, 3)
+
+   [campaign]    GYM: inside (7, 5) at (8, 18) - clearing junior trainers
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (10, 12) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(8, 18) -> coord (9, 12) (budget 90s)
+
+   [travel] step 0: (8, 18)->(8, 17) map=(7, 5) (path 8 to exit)
+
+   [travel] reached target coord (9, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 5) coords=(9, 12) -> coord (9, 13) (budget 90s)
+
+   [travel] path blocked at (9, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 12); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(4, 7), (7, 16), (8, 6), (10, 12)] -> approaching to interact/trigger
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 414s, restart 1/8) — GAME CONTINUES; respawning audio.
+
