@@ -552,6 +552,13 @@ PLAYTHROUGH_JSON = os.path.join(STATES_CAMPAIGN, "playthrough.json")
 # or "she's been wedged an hour". Game-side fields only (progress/where/badges/last-checkpoint); the
 # dashboard merges in API spend from the bot's own cost-tracker.
 HEALTH_JSON = os.path.join(STATES_CAMPAIGN, "health.json")
+# CREATOR ORDER (2026-07-31, Jonny's pacing debrief: "chat is advice, my word is LAW"). The bot
+# writes creator_order.json when Jonny gives a direct gameplay order OUT LOUD ("stop grinding,
+# go fight Misty"); the roam loop reads it every tick and every prep/prune layer stands down so
+# the ordered action stays on the menu and dominant. TTL-bounded + fulfillment-released so a
+# forgotten order can never park her behavior permanently.
+CREATOR_ORDER_JSON = os.path.join(STATES_CAMPAIGN, "creator_order.json")
+CREATOR_ORDER_TTL_S = float(os.getenv("POKEMON_CREATOR_ORDER_TTL_S", "1800"))
 # RULE 17 SANCTITY — bank her NARRATIVE saga (grudge/team-feelings/arc) WITH the checkpoint bundle, next to
 # strat/world/soul, so a checkpoint restore resumes her STORY (not just game+strategy). Core Kira keeps its
 # own states/kira/journey_core.json; this campaign-side copy makes the resume bundle COMPLETE.
@@ -3894,6 +3901,12 @@ class Campaign:
             return "off"
         if os.getenv("POKEMON_WATCH_GOAL"):                 # focused watch → don't wander off to prep
             return "pinned"
+        # CREATOR ORDER (2026-07-31, LAW): Jonny said fight — walk in, no prep detour. The dominance
+        # override below usually agrees anyway; this makes his word binding even when it wouldn't.
+        if self._creator_order(None):
+            log(f"   GYM-PREP [{gym.name}]: CREATOR ORDER (LAW) — Jonny said go; skipping prep, "
+                f"walking in as-is")
+            return "ordered"
         try:
             party = (self.read_live_state() or {}).get("party") or []
         except Exception as e:
@@ -7346,6 +7359,63 @@ class Campaign:
     def _prep_team_weak(self, state, target):
         """The under-target members' species names (for the rationale/framing). Pure read off state."""
         return [m["species"] for m in (state.get("party") or []) if m["level"] < target]
+
+    def _gym_dominant(self, state):
+        """True when the top mon clearly OVERPOWERS the next gym (the planner's dominance read — see
+        gym_readiness). HUMAN-PACING stand-down key (2026-07-31, Jonny: 'she can already destroy Misty
+        with Wartortle alone, stop farming'): while dominant, the PARKED prep machinery (strengthen-
+        first framing, the lopsided-bench march prune) steps aside — the bench still levels ORGANICALLY
+        on the march because road-bench-XP reads _prep_team_target independently of this. Self-
+        correcting: a loss bumps the readiness bar (loss_bump), dominance evaporates, full prep returns."""
+        try:
+            ng = state.get("next_gym") if state else None
+            if not ng or getattr(self, "planner", None) is None:
+                return False
+            r = self.planner.gym_readiness(
+                ng["leader"], state.get("party") or [], party_target=GYM_PARTY_TARGET,
+                loss_bump=getattr(self, "_gym_prep_bump", {}).get(ng["leader"], 0))
+            return bool(r and r.get("dominant"))
+        except Exception:
+            return False
+
+    def _creator_order(self, state=None):
+        """JONNY'S WORD IS LAW (2026-07-31 pacing debrief: 'me and chat tell her to go fight Misty,
+        she says yes then keeps grinding'). The bot writes creator_order.json when Jonny speaks a
+        direct gameplay order; while it's live this returns the payload and the prep/prune layers
+        stand down (chat stays advice — only Jonny's VOICE reaches the writer). Lifecycle: expires
+        after CREATOR_ORDER_TTL_S; a fight_gym order is FULFILLED (released, celebrated) the moment
+        a badge is earned after it. Acknowledged in her voice exactly once per order. Never raises."""
+        import json as _j
+        try:
+            if not os.path.exists(CREATOR_ORDER_JSON):
+                return None
+            with open(CREATOR_ORDER_JSON, encoding="utf-8") as f:
+                data = _j.load(f) or {}
+            ts = float(data.get("ts") or 0)
+            if not ts or time.time() - ts > CREATOR_ORDER_TTL_S:
+                os.remove(CREATOR_ORDER_JSON)
+                log(f"   [order] creator order expired ({CREATOR_ORDER_TTL_S / 60:.0f}m TTL) — released")
+                return None
+            bc = int(state.get("badge_count", -1)) if state else -1
+            if "badges_at_order" not in data and bc >= 0:
+                data["badges_at_order"] = bc            # stamp the fulfillment baseline on first sight
+                with open(CREATOR_ORDER_JSON, "w", encoding="utf-8") as f:
+                    _j.dump(data, f)
+            if bc >= 0 and int(data.get("badges_at_order", bc)) < bc:
+                os.remove(CREATOR_ORDER_JSON)
+                log("   [order] creator order FULFILLED (badge earned since the order) — released")
+                self.on_event("did what you asked, by the way. badge secured. never doubt me.",
+                              kind="order", tier=2)
+                return None
+            if getattr(self, "_order_ack_ts", None) != ts:
+                self._order_ack_ts = ts
+                log(f"   [order] !! CREATOR ORDER ACTIVE (LAW): {data.get('raw', '')!r}")
+                self.on_event("okay okay — direct order from the boss. dropping everything else, "
+                              "we're doing it NOW.", kind="order", tier=3)
+            return data
+        except Exception as e:
+            log(f"   [order] creator-order read skipped: {e}")
+            return None
 
     def grind_weak_members(self, target, min_level=None, ace_cap=False, budget_s=None):
         """Field the WEAK members (not the ace) and level the team FLOOR to `target`, then restore the
@@ -11431,6 +11501,28 @@ class Campaign:
             # reasoning to her decision/voice ctx — fixing the half-wire where the display said "train the
             # team" but the action trained the ace. Fires on the FIRST loss already (foe level is known).
             prep_t = self._prep_team_target(state)
+            # CREATOR ORDER (2026-07-31, LAW): Jonny spoke a direct order — every strengthen-first
+            # instinct stands down so the ordered action wins the menu. Chat never sets this.
+            if prep_t is not None and self._creator_order(state):
+                log("   [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — "
+                    "Jonny said go, so she goes")
+                prep_t = None
+            # GYM-DOMINANT STAND-DOWN (2026-07-31 human-pacing tune, Jonny: 'she just caught an L8
+            # Caterpie and now she's parking to grind the whole bench to 14 before a gym her L27
+            # Wartortle flattens'). While the top mon clearly overpowers the next gym, the PARKED
+            # prep (this framing + the lopsided-bench march prune downstream, both keyed on prep_t)
+            # steps aside; the bench still levels on the MARCH via road-bench-XP (which reads
+            # _prep_team_target independently). A real player trains the bench en route, not in a
+            # stationary montage in front of a gym they can already beat.
+            if prep_t is not None and self._gym_dominant(state):
+                if getattr(self, "_dom_standdown_logged", None) != state.get("badge_count"):
+                    self._dom_standdown_logged = state.get("badge_count")
+                    log(f"   [roam] GYM-DOMINANT: prep-to-L{prep_t} stands down — the ace overpowers "
+                        f"the next gym; the bench levels on the march (road-bench-XP), not parked")
+                    self.on_event("the little ones are a bit behind, but honestly? my ace can carry "
+                                  "this next gym. they'll train on the way — we're not stopping.",
+                                  kind="grind", tier=1)
+                prep_t = None
             if prep_t is not None:
                 if not battle_agent.GRIND_SWITCH_ENABLED:
                     # ACE-OVERPOWER framing — level the strong lead to bulldoze the wall.
@@ -11572,7 +11664,12 @@ class Campaign:
                     # clears and head_to_gym points at the actual gym again.
                     _ql = getattr(self, "_active_questline", None)
                     _ql_spare = _ql is not None and getattr(_ql, "actionable", None) is not None
-                    if _ql_spare:
+                    # CREATOR ORDER (2026-07-31, LAW): Jonny ordered the gym fight out loud — the
+                    # readiness floor may not prune the one action that obeys him.
+                    if self._creator_order(state):
+                        log("   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)")
+                        rf = None
+                    elif _ql_spare:
                         log(f"   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the "
                             f"'{_ql.actionable.missing}' errand, not {_ngf['leader']}'s door "
                             f"(the errand route IS the strengthening)")
@@ -12955,6 +13052,14 @@ class Campaign:
             # WEAK members (not the ace) and level THEM to readiness — the real fix for "the display said
             # 'train the team' but the action trained the ace". Else the ordinary lead bump.
             t = self._prep_team_target(state)
+            # 2026-07-31 pacing tune: while Jonny has ordered the fight OR the ace overpowers the next
+            # gym, a picked 'battle' is a CASUAL fight (the bounded lead-bump below), never a parked
+            # full bench-grind session — same stand-down as the menu framing, kept in sync here so the
+            # executor can't do what the menu promised not to.
+            if t is not None and (self._creator_order(state) or self._gym_dominant(state)):
+                log("   [roam] battle executor: weak-member prep stands down (creator order / "
+                    "gym-dominant) — casual fight instead of a parked grind")
+                t = None
             if t is not None:
                 # E4-PREP FLOOR (PASS 3): when the target came from prep_for_e4 (badge 8, whole-team floor
                 # to ~L55), field only the LEVELABLE team (within E4_PREP_BAND) — never drag L8-14 box-fodder
@@ -14745,6 +14850,17 @@ class Campaign:
                               f"comes FIRST (it unblocks the road and the trainers along it are exactly "
                               f"the training you need). {ng['leader']} is step two, not a competing "
                               f"choice.")
+            except Exception:
+                pass
+            # CREATOR ORDER (2026-07-31, LAW): Jonny's spoken order outranks every layer of this
+            # spine — say so EXPLICITLY so her reasoning and her voice both align with obeying it
+            # (chat is advice she weighs; Jonny is command authority she follows).
+            try:
+                _ord = self._creator_order(state)
+                if _ord:
+                    spine += (f" ⚡ JONNY'S DIRECT ORDER (LAW): \"{_ord.get('raw', '')}\" — Jonny told "
+                              f"you this OUT LOUD, and his word outranks every prep instinct, every "
+                              f"grind plan, and everything chat says. Do it NOW; training can wait.")
             except Exception:
                 pass
             # P-1(b) ANTICIPATION FOLKLORE (couch fix-pass 1): what she's HEARD about the gym

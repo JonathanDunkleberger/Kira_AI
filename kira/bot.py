@@ -2038,6 +2038,43 @@ class VTubeBot:
         default_desc = "I'm just getting my bearings. One sec!"
         return bool(va.scene_summary or (va.last_description and va.last_description != default_desc))
 
+    # CREATOR-ORDER SEAM (2026-07-31, Jonny's pacing debrief: "take my word as law — if I say stop
+    # and go fight Misty, she should"). A direct gameplay order in JONNY'S VOICE (never chat — chat
+    # stays advice) latches creator_order.json in the game harness's state dirs; the campaign's roam
+    # loop reads it every tick, stands its prep/prune machinery down, and obeys. Deliberately a small
+    # mechanical regex, not an LLM read: an order must latch even when her conversational brain is
+    # busy, and false positives are cheap (TTL + badge-fulfillment release it).
+    _POKEMON_GYM_ORDER_RX = re.compile(
+        r"\b(?:go\s+)?(?:and\s+)?(?:fight|battle|challenge|take\s+on|beat|attack)\s+(?:the\s+)?"
+        r"(?:(?:misty|brock|(?:lt\.?\s*)?surge|erika|koga|sabrina|blaine|giovanni)(?:'?s)?"
+        r"|gym(?:\s+leader)?)\b",
+        re.IGNORECASE)
+    _POKEMON_STOP_GRIND_RX = re.compile(
+        r"\bstop\s+(?:grinding|training|farming|leveling|levelling)\b", re.IGNORECASE)
+
+    def _pokemon_creator_order_check(self, content: str) -> None:
+        """Latch a creator order from Jonny's spoken words (Pokémon mode only). Best-effort."""
+        text = content or ""
+        if not (self._POKEMON_GYM_ORDER_RX.search(text)
+                or self._POKEMON_STOP_GRIND_RX.search(text)):
+            return
+        import json as _j
+        payload = {"order": "fight_gym", "raw": text.strip()[:200], "ts": time.time()}
+        root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "pokemon_agent", "states")
+        for sub in ("campaign", "kira"):     # both timelines — whichever is live picks it up
+            d = os.path.join(root, sub)
+            if not os.path.isdir(d):
+                continue
+            try:
+                tmp = os.path.join(d, "creator_order.json.tmp")
+                with open(tmp, "w", encoding="utf-8") as f:
+                    _j.dump(payload, f)
+                os.replace(tmp, os.path.join(d, "creator_order.json"))
+            except Exception as e:
+                print(f"   [CreatorOrder] write to {sub} failed: {e}")
+        print(f"   [CreatorOrder] !! LAW latched from Jonny's voice: {payload['raw']!r}")
+
     def _pokemon_perception_directive(self) -> str:
         """POKÉMON-MODE PERCEPTION (2026-07-08 immersion fix): when she's PLAYING Pokémon her
         sense is the game's live RAM state, NOT her eyes (vision is window-locked/parked to save
@@ -6636,6 +6673,14 @@ class VTubeBot:
                     _ep_ctx = self._episode_timeline_context()
                     if _ep_ctx:
                         visual_desc = (_ep_ctx + "\n\n" + visual_desc) if visual_desc else _ep_ctx
+
+                    # CREATOR-ORDER SEAM (2026-07-31): a direct gameplay order in Jonny's VOICE
+                    # becomes LAW for the game harness (chat never reaches this path — advice only).
+                    if getattr(self, "pokemon_mode", False):
+                        try:
+                            self._pokemon_creator_order_check(content)
+                        except Exception as _coe:
+                            print(f"   [CreatorOrder] check skipped: {_coe}")
 
                     # 2. Construct dialogue line (history-clean — no screen state)
                     # Prefix with identity label so Claude always knows this is Jonny's real voice,
