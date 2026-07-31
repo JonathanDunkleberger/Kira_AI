@@ -164,7 +164,10 @@ function render(d){
   const sEl = el('state'); sEl.textContent = stt.charAt(0)+stt.slice(1).toLowerCase();
   sEl.className = 'state ' + ({BATTLE:'battle',HEALING:'healing',SHOPPING:'shopping'}[stt]||'');
   el('place').textContent = d.place || '—';
-  const t = fmtTime(d.playthrough_s); el('timer').textContent = t; el('sepT').style.display = t?'':'none';
+  // Label the journey total so a NEW viewer reads it instantly as run time, not session/uptime
+  // (2026-07-31: the raw "8h 12m" was ambiguous — whose 8 hours?).
+  const t = fmtTime(d.playthrough_s); el('timer').textContent = t ? `run time ${t}` : '';
+  el('sepT').style.display = t?'':'none';
   el('obj').textContent = d.objective || '';
   el('objWrap').style.display = d.objective ? '' : 'none';
   el('want').textContent = d.want ? `“${d.want}”` : '';

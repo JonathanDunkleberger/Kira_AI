@@ -14494,13 +14494,30 @@ class Campaign:
             now = time.time()
             pt = getattr(self, "_playthrough", None)
             if pt is None:
-                pt = {"played_s": 0.0, "beat_ts": now, "saved_ts": 0.0}
+                pt = {"played_s": 0.0, "beat_ts": now, "saved_ts": 0.0, "seeded_s": 0.0}
                 if os.path.exists(PLAYTHROUGH_JSON):
                     try:
                         with open(PLAYTHROUGH_JSON, encoding="utf-8") as f:
                             data = _json.load(f) or {}
                         if "played_s" in data:
                             pt["played_s"] = float(data.get("played_s") or 0.0)
+                            # PRE-FIX BACKFILL (2026-07-31, Jonny: 'show new viewers how long this
+                            # run has been'): the accumulator started at ZERO at the 07-30 migration,
+                            # discarding the ~4-5h she'd genuinely played before it (that history was
+                            # only ever a wall-clock lie, so it couldn't be recovered exactly). Seed
+                            # Jonny's estimate ONCE into an existing un-seeded file: 'seeded_s' both
+                            # records the applied offset and blocks re-application. A FRESH run's
+                            # file is created below WITH seeded_s already set (0 backfill would be
+                            # a lie there — it truly starts at zero), so future runs never inherit it.
+                            if "seeded_s" in data:
+                                pt["seeded_s"] = float(data.get("seeded_s") or 0.0)
+                            else:
+                                seed = float(os.getenv("POKEMON_PLAYTHROUGH_SEED_H", "4.5")) * 3600.0
+                                pt["played_s"] += seed
+                                pt["seeded_s"] = seed
+                                log(f"   [hud] playthrough timer SEEDED +{seed / 3600.0:.1f}h (the "
+                                    f"pre-migration play the accumulator never saw) — journey total "
+                                    f"now {pt['played_s'] / 3600.0:.1f}h")
                         else:
                             log("   [hud] playthrough timer MIGRATED to time-actually-played — the "
                                 "legacy wall-clock stamp (counted offline hours) is discarded; the "
@@ -14517,7 +14534,9 @@ class Campaign:
                 os.makedirs(STATES_CAMPAIGN, exist_ok=True)
                 tmp = PLAYTHROUGH_JSON + ".tmp"
                 with open(tmp, "w", encoding="utf-8") as f:
-                    _json.dump({"played_s": round(pt["played_s"], 1), "updated_ts": now}, f)
+                    _json.dump({"played_s": round(pt["played_s"], 1),
+                                "seeded_s": round(pt.get("seeded_s", 0.0), 1),
+                                "updated_ts": now}, f)
                 os.replace(tmp, PLAYTHROUGH_JSON)
             return pt["played_s"]
         except Exception as e:
