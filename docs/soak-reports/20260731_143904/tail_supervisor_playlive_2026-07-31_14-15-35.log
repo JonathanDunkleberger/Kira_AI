@@ -1,0 +1,1500 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 15) -> coord (85, 14) (budget 80s)
+
+   [travel] step 0: (84, 15)->(84, 14) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 14) -> coord (85, 16) (budget 80s)
+
+   [travel] step 0: (85, 14)->(85, 15) map=(3, 22) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (85, 15) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against spearow — your rattata is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "rattata showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's spearow went down to your wartortle — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (85, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 16) -> coord (85, 17) (budget 80s)
+
+   [travel] step 0: (85, 16)->(85, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (85, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 17) -> coord (86, 16) (budget 80s)
+
+   [travel] step 0: (85, 17)->(85, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (86, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 16) -> coord (84, 16) (budget 80s)
+
+   [travel] step 0: (86, 16)->(85, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 16) -> coord (85, 15) (budget 80s)
+
+   [travel] step 0: (84, 16)->(84, 15) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 15) -> coord (86, 15) (budget 80s)
+
+   [travel] step 0: (85, 15)->(86, 15) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (86, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 15) -> coord (84, 15) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against rattata — your rattata is up front'  fired=True  [age 0.0s + post 9ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out rattata'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "rattata showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's rattata went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (84, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 15) -> coord (85, 14) (budget 80s)
+
+   [travel] step 0: (84, 15)->(84, 14) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 14) -> coord (85, 16) (budget 80s)
+
+   [travel] step 0: (85, 14)->(85, 15) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 16)
+
+   [campaign]    GRIND: trained to Lv13 (target 15)
+
+   [campaign]    GRIND-WEAK: wall-clock budget — partial progress (levels [13, 10, 30, 14, 13, 13]), restoring ace; the next tick re-enters
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 2, L30) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — wartortle now leads
+
+   [campaign]    [roam] BENCH-TO-MS: bite on (3, 22) gained 1 level(s) (< 2) toward milestone L25 — poor spot, marching to better grass
+
+   [campaign]    [roam] RESULT: battle -> ok | pos (3, 3)(0, 22) -> (3, 22)(85, 16) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 22) coords=(85, 16) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260731_142802_route-4_2b_9h57m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 22): (19, 5)->(1, 1), (32, 5)->(1, 2), (12, 5)->(16, 0)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (2, 6, 9, 93) @ Route 4 (ring=2/4)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 4 (85, 16) | badges=2 (Boulder, Cascade) | party=[wartortle L30, butterfree L10, rattata L13, spearow L14, abra L13, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 22) (85,16) f1 -- badge2 $456 party:7927 bag:7e57]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 4 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Route 3 — wild Pokémon to catch/train; EAST → Cerulean City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 24; an unfamiliar area; Route 2. You can walk to anywhere you\'ve already been.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "TM03 teaches WATER PULSE. Use it on an aquatic POK.MON!"; "KIRA put the TM03 in the TM CASE."; "KIRA received TM03 from MISTY.". YOUR PLAN — right now: get Abra to L20 before Vermilion. Next: Make your way to Vermilion City. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: wartortle (L30), caterpie the butterfree (L10), rattata (L13), spearow (L14), abra (L13), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'wartortle (L30), caterpie the butterfree (L10), rattata (L13), spearow (L14), abra (L13), ekans (L13)', 'goal': {'short': 'get Abra to L20 before Vermilion', 'medium': 'Make your way to Vermilion City', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26']
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26'] -> pick='travel:3,26'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,26'
+
+   [campaign]    [roam] DECISION THINK: 2484ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,26
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Vermilion City for Lt. Surge.
+
+   [campaign]    [roam] TRAVEL: Route 4 -> an unfamiliar area (next hop east -> Cerulean City)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 16) -> map (3, 3) (budget 300s)
+
+   [travel] east connection band rows: [2, 3, 4, 5, 10, 11, 12]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against ekans — your wartortle is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's ekans went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+
+   [campaign]    [roam] RESULT: travel:3,26 -> travel:need_heal | pos (3, 22)(85, 16) -> (3, 22)(85, 16) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'travel:3,26' returned 'travel:need_heal' but her position never changed (streak 1, dead routes ['travel:3,26']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (3, 22): (19, 5)->(1, 1), (32, 5)->(1, 2), (12, 5)->(16, 0)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 4 (85, 16) | badges=2 (Boulder, Cascade) | party=[wartortle L30, butterfree L10, rattata L13, spearow L14, abra L13, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 22) (85,16) f1 -- badge2 $456 party:7927 bag:7e57]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 4 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Route 3 — wild Pokémon to catch/train; EAST → Cerulean City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 24; an unfamiliar area; Route 2. You can walk to anywhere you\'ve already been.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "TM03 teaches WATER PULSE. Use it on an aquatic POK.MON!"; "KIRA put the TM03 in the TM CASE."; "KIRA received TM03 from MISTY.". YOUR PLAN — right now: get Abra to L20 before Vermilion. Next: Make your way to Vermilion City. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: wartortle (L30), caterpie the butterfree (L10), rattata (L13), spearow (L14), abra (L13), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'wartortle (L30), caterpie the butterfree (L10), rattata (L13), spearow (L14), abra (L13), ekans (L13)', 'goal': {'short': 'get Abra to L20 before Vermilion', 'medium': 'Make your way to Vermilion City', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26']
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26'] -> pick='battle'
+
+   [campaign]    [soul] ORACLE pick -> 'battle'
+
+   [campaign]    [roam] DECISION THINK: 2856ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: battle
+
+   [campaign]    [roam] RATIONALE: Team's under-levelled — grinding butterfree, rattata, spearow, abra and ekans up to ~L15 (fielding them, not my ace) so I can push through, then on to Vermilion City for Lt. Surge.
+
+   [campaign]    GRIND-WEAK: team floor under L15 — fielding the weak ones (not the ace) to raise the team's floor; levels now [30, 10, 13, 14, 13, 13]
+
+   [campaign]    GRIND-WEAK: fielding slot 2 (L13) as lead to train it
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — rattata now leads
+
+   [campaign]    [soul] ORACLE decision: kind=move_drop ctx={'place': "your moveset is full and you're leveling, so to learn anything new you'd have to part with ONE move. Your current moves: Tackle (normal, 35 pwr); Tail Whip (normal, 0 pwr; non-damaging); Quick Attack (normal, 40 pwr); move#158 (normal, 80 pwr). Think like a real trainer: your hard-hitter and your type COVERAGE are PRECIOUS — a super-effective or only-of-its-type move must NEVER be tossed for raw power, and a good move can't be re-learned. If one move is clearly redundant or junk, drop THAT; if nothing is worth losing, KEEP THEM ALL. Which do you do?"} options=['Tail Whip', 'Tackle', 'Quick Attack', 'keep them all']
+
+   [kira-voice] ORACLE kind=move_drop options=['Tail Whip', 'Tackle', 'Quick Attack', 'keep them all'] -> pick='Tail Whip'
+
+   [campaign]    [soul] ORACLE pick -> 'Tail Whip'
+
+   [campaign]    [movelearn] PHASE 3B reserved a slot — dropped Tail Whip (her pick; kept the rest) so a new move auto-learns with no un-actuatable box
+
+   [campaign]    GRIND: Lv13 < 15 - heading to the grass to train [FRAGILE: reachable grass only]
+
+   [kira-voice] -> T2·savor· (move) "my moveset's full — I'll let Tail Whip go to make room for something new"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 16) -> coord (85, 17) (budget 80s)
+
+   [travel] step 0: (85, 16)->(85, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (85, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 17) -> coord (86, 16) (budget 80s)
+
+   [travel] step 0: (85, 17)->(85, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (86, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 16) -> coord (84, 16) (budget 80s)
+
+   [travel] step 0: (86, 16)->(85, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 16) -> coord (85, 15) (budget 80s)
+
+   [travel] step 0: (84, 16)->(84, 15) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 15) -> coord (86, 15) (budget 80s)
+
+   [travel] step 0: (85, 15)->(86, 15) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (86, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 15) -> coord (84, 15) (budget 80s)
+
+   [travel] step 0: (86, 15)->(85, 15) map=(3, 22) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (85, 15) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against ekans — your rattata is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's ekans went down to your wartortle — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'Route 4 stretches toward the mountains, the air drier here'  fired=True  [age 0.0s + post 5ms]
+
+   [travel] reached target coord (84, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 15) -> coord (85, 14) (budget 80s)
+
+   [travel] step 0: (84, 15)->(84, 14) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 14) -> coord (85, 17) (budget 80s)
+
+   [travel] step 0: (85, 14)->(85, 15) map=(3, 22) (path 4 to exit)
+
+   [travel] reached target coord (85, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 17) -> coord (84, 17) (budget 80s)
+
+   [travel] step 0: (85, 17)->(84, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (84, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 17) -> coord (83, 17) (budget 80s)
+
+   [travel] step 0: (84, 17)->(83, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (83, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 17) -> coord (86, 16) (budget 80s)
+
+   [travel] step 0: (83, 17)->(83, 16) map=(3, 22) (path 5 to exit)
+
+   [travel] reached target coord (86, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 16) -> coord (84, 16) (budget 80s)
+
+   [travel] step 0: (86, 16)->(85, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 16) -> coord (84, 15) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (84, 16) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against spearow — your rattata is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "rattata showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's spearow went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (84, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 15) -> coord (83, 16) (budget 80s)
+
+   [travel] step 0: (84, 15)->(84, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (83, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 16) -> coord (84, 17) (budget 80s)
+
+   [travel] step 0: (83, 16)->(83, 17) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 17) -> coord (83, 17) (budget 80s)
+
+   [travel] step 0: (84, 17)->(83, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (83, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 17) -> coord (83, 16) (budget 80s)
+
+   [travel] step 0: (83, 17)->(83, 16) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (83, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 16) -> coord (82, 17) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against spearow — your rattata is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out spearow'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "rattata showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's spearow went down to your wartortle — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (82, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(82, 17) -> coord (84, 17) (budget 80s)
+
+   [travel] step 0: (82, 17)->(83, 17) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 17) -> coord (85, 17) (budget 80s)
+
+   [travel] step 0: (84, 17)->(85, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (85, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 17) -> coord (84, 17) (budget 80s)
+
+   [travel] step 0: (85, 17)->(84, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (84, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 17) -> coord (83, 17) (budget 80s)
+
+   [travel] step 0: (84, 17)->(83, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (83, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 17) -> coord (86, 16) (budget 80s)
+
+   [travel] step 0: (83, 17)->(83, 16) map=(3, 22) (path 5 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against spearow — your rattata is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "rattata showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's spearow went down to your wartortle — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (86, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 16) -> coord (84, 16) (budget 80s)
+
+   [travel] step 0: (86, 16)->(85, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 16)
+
+   [campaign]    GRIND: trained to Lv13 (target 15)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L13) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: fielding slot 5 (L13) as lead to train it
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — ekans now leads
+
+   [campaign]    [soul] ORACLE decision: kind=move_drop ctx={'place': "your moveset is full and you're leveling, so to learn anything new you'd have to part with ONE move. Your current moves: move#35 (normal, 15 pwr; your ONLY normal-type move); Leer (normal, 0 pwr; non-damaging); move#40 (poison, 15 pwr; your ONLY poison-type move); Bite (dark, 60 pwr; your ONLY dark-type move). Think like a real trainer: your hard-hitter and your type COVERAGE are PRECIOUS — a super-effective or only-of-its-type move must NEVER be tossed for raw power, and a good move can't be re-learned. If one move is clearly redundant or junk, drop THAT; if nothing is worth losing, KEEP THEM ALL. Which do you do?"} options=['Leer', 'move#35', 'move#40', 'keep them all']
+
+   [kira-voice] -> T1·brisk· (grind) "training time — ekans leads so it soaks up the XP, and if things get hairy my L30 closer steps in to finish. that's the trick."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ORACLE kind=move_drop options=['Leer', 'move#35', 'move#40', 'keep them all'] -> pick='Leer'
+
+   [campaign]    [soul] ORACLE pick -> 'Leer'
+
+   [campaign]    [movelearn] PHASE 3B reserved a slot — dropped Leer (her pick; kept the rest) so a new move auto-learns with no un-actuatable box
+
+   [campaign]    GRIND: Lv13 < 15 - heading to the grass to train [FRAGILE: reachable grass only]
+
+   [kira-voice] -> T2·savor· (move) "my moveset's full — I'll let Leer go to make room for something new"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 16) -> coord (84, 15) (budget 80s)
+
+   [travel] step 0: (84, 16)->(84, 15) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (84, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 15) -> coord (83, 16) (budget 80s)
+
+   [travel] step 0: (84, 15)->(84, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (83, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 16) -> coord (85, 16) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against ekans — your ekans is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out ekans'
+
+   [kira-voice] -> T1·brisk· (event) "ekans showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's ekans went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'Route 4 stretches toward the mountains, the air drier here'  fired=True  [age 0.0s + post 8ms]
+
+   [travel] reached target coord (85, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 16) -> coord (84, 17) (budget 80s)
+
+   [travel] step 0: (85, 16)->(85, 17) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 17) -> coord (83, 17) (budget 80s)
+
+   [travel] step 0: (84, 17)->(83, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (83, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 17) -> coord (85, 17) (budget 80s)
+
+   [travel] step 0: (83, 17)->(84, 17) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 17) -> coord (84, 15) (budget 80s)
+
+   [travel] step 0: (85, 17)->(85, 16) map=(3, 22) (path 4 to exit)
+
+   [travel] reached target coord (84, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 15) -> coord (83, 16) (budget 80s)
+
+   [travel] step 0: (84, 15)->(84, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (83, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 16) -> coord (83, 17) (budget 80s)
+
+   [travel] step 0: (83, 16)->(83, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (83, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 17) -> coord (83, 15) (budget 80s)
+
+   [travel] step 0: (83, 17)->(83, 16) map=(3, 22) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (83, 16) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against spearow — your ekans is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "ekans showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's spearow went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 29ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (83, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 15) -> coord (82, 16) (budget 80s)
+
+   [travel] step 0: (83, 15)->(83, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (82, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(82, 16) -> coord (83, 14) (budget 80s)
+
+   [travel] step 0: (82, 16)->(82, 15) map=(3, 22) (path 4 to exit)
+
+   [travel] reached target coord (83, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 14) -> coord (83, 13) (budget 80s)
+
+   [travel] step 0: (83, 14)->(83, 13) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (83, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 13) -> coord (82, 14) (budget 80s)
+
+   [travel] step 0: (83, 13)->(83, 14) map=(3, 22) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (83, 14) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against rattata — your ekans is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "ekans showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's rattata went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (82, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(82, 14) -> coord (83, 15) (budget 80s)
+
+   [travel] step 0: (82, 14)->(82, 15) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (83, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 15) -> coord (84, 14) (budget 80s)
+
+   [travel] step 0: (83, 15)->(83, 14) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 14) -> coord (84, 13) (budget 80s)
+
+   [travel] step 0: (84, 14)->(84, 13) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (84, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 13) -> coord (83, 14) (budget 80s)
+
+   [travel] step 0: (84, 13)->(84, 14) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (83, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 14) -> coord (84, 15) (budget 80s)
+
+   [travel] step 0: (83, 14)->(83, 15) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 15) -> coord (85, 14) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against rattata — your ekans is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out rattata'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "ekans showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's rattata went down to your wartortle — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (85, 14)
+
+   [campaign]    GRIND: trained to Lv13 (target 15)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L13) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: fielding slot 3 (L14) as lead to train it
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — spearow now leads
+
+   [campaign]    GRIND: Lv14 < 15 - heading to the grass to train [FRAGILE: reachable grass only]
+
+   [kira-voice] -> T1·brisk· (grind) "training time — spearow leads so it soaks up the XP, and if things get hairy my L30 closer steps in to finish. that's the trick."  fired=True  [age 0.0s + post 6ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 14) -> coord (85, 13) (budget 80s)
+
+   [travel] step 0: (85, 14)->(85, 13) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (85, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 13) -> coord (86, 14) (budget 80s)
+
+   [travel] step 0: (85, 13)->(85, 14) map=(3, 22) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (85, 14) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against ekans — your spearow is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "spearow showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's ekans went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'Route 4 stretches toward the mountains, the air drier here'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] reached target coord (86, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 14) -> coord (84, 14) (budget 80s)
+
+   [travel] step 0: (86, 14)->(85, 14) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 14) -> coord (85, 15) (budget 80s)
+
+   [travel] step 0: (84, 14)->(84, 15) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 15) -> coord (86, 15) (budget 80s)
+
+   [travel] step 0: (85, 15)->(86, 15) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (86, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 15) -> coord (84, 15) (budget 80s)
+
+   [travel] step 0: (86, 15)->(85, 15) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 15) -> coord (85, 16) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 26ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against rattata — your spearow is up front'  fired=True  [age 0.0s + post 27ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out rattata'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "spearow showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's rattata went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (85, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 16) -> coord (85, 17) (budget 80s)
+
+   [travel] step 0: (85, 16)->(85, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (85, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 17) -> coord (85, 16) (budget 80s)
+
+   [travel] step 0: (85, 17)->(85, 16) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (85, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 16) -> coord (84, 17) (budget 80s)
+
+   [travel] step 0: (85, 16)->(85, 17) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (84, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(84, 17) -> coord (83, 17) (budget 80s)
+
+   [travel] step 0: (84, 17)->(83, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (83, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(83, 17) -> coord (86, 16) (budget 80s)
+
+   [travel] step 0: (83, 17)->(83, 16) map=(3, 22) (path 5 to exit)
+
+   [travel] reached target coord (86, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 16) -> coord (86, 15) (budget 80s)
+
+   [travel] step 0: (86, 16)->(86, 15) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (86, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 15) -> coord (85, 16) (budget 80s)
+
+   [travel] step 0: (86, 15)->(86, 16) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (85, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 16) -> coord (85, 17) (budget 80s)
+
+   [travel] step 0: (85, 16)->(85, 17) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (85, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(85, 17) -> coord (86, 14) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against spearow — your spearow is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out spearow'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "spearow showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's spearow went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'Route 4 stretches toward the mountains, the air drier here'
+
+   [travel] reached target coord (86, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 14) -> coord (86, 15) (budget 80s)
+
+   [travel] step 0: (86, 14)->(86, 15) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (86, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 15) -> coord (87, 14) (budget 80s)
+
+   [travel] step 0: (86, 15)->(86, 14) map=(3, 22) (path 3 to exit)
+
+   [travel] reached target coord (87, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(87, 14) -> coord (86, 13) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against ekans — your spearow is up front'  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out ekans'
+
+   [kira-voice] -> T1·brisk· (event) "spearow showed up for the XP share — now wartortle takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's ekans went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 28ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'Route 4 stretches toward the mountains, the air drier here'  fired=True  [age 0.0s + post 23ms]
+
+   [travel] reached target coord (86, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(86, 13) -> coord (87, 13) (budget 80s)
+
+   [travel] step 0: (86, 13)->(87, 13) map=(3, 22) (path 2 to exit)
+
+   [travel] reached target coord (87, 13)
+
+   [campaign]    GRIND: trained to Lv14 (target 15)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L14) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: floor NOT crossed, but the remaining under-L15 member(s) [0, 1, 3, 4, 5] can't earn XP here (stalled) — pushing on with the strong core (levels [14, 10, 30, 13, 13, 13]) instead of spinning
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 2, L30) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: battle -> ready | pos (3, 22)(85, 16) -> (3, 22)(87, 13) (MOVED)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 22): (19, 5)->(1, 1), (32, 5)->(1, 2), (12, 5)->(16, 0)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 4 (87, 13) | badges=2 (Boulder, Cascade) | party=[wartortle L30, butterfree L10, spearow L14, ekans L13, abra L13, rattata L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 22) (87,13) f4 -- badge2 $456 party:de99 bag:7e57]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26']
+
+   [campaign]    [soul] surface_want FIRE -> Route 4
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 4 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L30), caterpie the butterfree (L10), spearow (L14), ekans (L13), abra (L13), rattata (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 22), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'wartortle (L30), caterpie the butterfree (L10), spearow (L14), ekans (L13), abra (L13), rattata (L13)', 'goal': {'short': 'get Abra to L20 before Vermilion', 'medium': 'Make your way to Vermilion City', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get Abra to L20 before moving on'
+
+   [campaign]    [soul] ORACLE pick -> 'get Abra to L20 before moving on'
+
+   [soul] !! UNGROUNDED WANT (F-8): 'get Abra to L20 before moving on' names ['abra'] already on the team — the grounded ask didn't take (flagged for the descent grade; her words kept)
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Wartortle is hurt (32/84 HP) — topping up at a Pokémon Center would be smart before pushing on.' — surfacing 'heal' to the oracle
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 4 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Route 3 — wild Pokémon to catch/train; EAST → Cerulean City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 24; an unfamiliar area; Route 2. You can walk to anywhere you\'ve already been.. Wartortle is hurt (32/84 HP) — topping up at a Pokémon Center would be smart before pushing on.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "TM03 teaches WATER PULSE. Use it on an aquatic POK.MON!"; "KIRA put the TM03 in the TM CASE."; "KIRA received TM03 from MISTY.". YOUR PLAN — right now: get Abra to L20 before moving on. Next: Make your way to Vermilion City. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: wartortle (L30), caterpie the butterfree (L10), spearow (L14), ekans (L13), abra (L13), rattata (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'wartortle (L30), caterpie the butterfree (L10), spearow (L14), ekans (L13), abra (L13), rattata (L13)', 'goal': {'short': 'get Abra to L20 before moving on', 'medium': 'Make your way to Vermilion City', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26']
+
+   [kira-voice] -> T2·savor· (want) 'get Abra to L20 before moving on'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,21', 'travel:3,43', 'travel:3,27', 'travel:3,20', 'travel:3,26'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 2479ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to Vermilion City for Lt. Surge.
+
+   [campaign]    HEAL: own Center door (12, 5) UNREACHABLE from (87, 13) on (3, 22) -> crossing to an adjacent city to heal
+
+   [campaign]    HEAL-EXCURSION: lead at (32, 84) - crossing east to (3, 3) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(87, 13) -> map (3, 3) (budget 120s)
+
+   [travel] east connection band rows: [2, 3, 4, 5, 10, 11, 12]
+
+   [travel] step 0: (87, 13)->(87, 14) map=(3, 22) (path 31 to exit)
+
+   [travel] step 10: (91, 15)->(92, 15) map=(3, 22) (path 21 to exit)
+
+   [travel] step 20: (98, 12)->(99, 12) map=(3, 22) (path 11 to exit)
+
+   [travel] MAP TRANSITION (3, 22) -> (3, 3)
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 3) coords=(0, 22)
+
+   [campaign]    HEAL: lead at 32/84 -> routing to the Pokemon Center on (3, 3) via door (22, 19) (will return to (0, 22))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 11ms]
+
+   [travel] start map=(3, 3) coords=(0, 22) -> coord (22, 20) (budget 120s)
+
+   [travel] step 0: (0, 22)->(0, 21) map=(3, 3) (path 25 to exit)
+
+   [travel] step 10: (8, 20)->(9, 20) map=(3, 3) (path 15 to exit)
+
+   [travel] step 20: (18, 20)->(19, 20) map=(3, 3) (path 5 to exit)
+
+   [travel] reached target coord (22, 20)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (7, 3)@(7, 4) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ "Thank you for waiting. We've restored your POK.MON to full health."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Thank you for waiting. We\'ve restored your POK.MON to full health."'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    HEAL: restored party to full (lead was 32/84)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 9) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (6, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (8, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 8) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 9) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (6, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (8, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    2 door(s); candidates (chosen order): [(7, 8)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 9) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (6, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (8, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (6, 8) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    2 door(s); candidates (chosen order): [(6, 8)]
+
+   [campaign]    pick (6, 8) failed — trying adjacent actuatable door (7, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 9) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (6, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (8, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (8, 8) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    2 door(s); candidates (chosen order): [(8, 8)]
+
+   [campaign]    pick (8, 8) failed — trying adjacent actuatable door (7, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 9) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (7, 7) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (6, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (8, 8) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (2, 6) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (1, 7) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (1, 5) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (0, 6) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (2, 6) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (1, 6) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (2, 6) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (1, 7) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (1, 5) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (0, 6) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (2, 6) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    2 door(s); candidates (chosen order): [(1, 6)]
+
+   [campaign]    reachable door (1, 6): walking to approach (1, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (1, 7) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (2, 6) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (1, 7) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (1, 5) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (0, 6) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(7, 3) coords=(7, 4) -> coord (2, 6) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: floor sealed — engaging the guard: NPC #3 at (5, 4) (from (5, 5))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg exit-guard-pre] "Thank you for waiting. We've restored your POK.MON to full health."
+
+   [dialogue] +++ 'We hope to see you again!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "We hope to see you again!"'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [dlg exit-guard-pre] 'We hope to see you again!'
+
+   [campaign]    [dlg-pace exit-guard-pre] box "Thank you for waiting. We've restored your POK.M" visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace exit-guard-pre] box 'We hope to see you again!' visible 1.67s (sink 0ms, hold 0.05s, end=closed)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg exit-guard] "That BILL! I heard that he'll do whatever it takes to get rare POK.MON. "
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 82677 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(7, 3) coords=(5, 5)  badge=True
+
+   [kira-voice] === 86 fired, 88 gated (0 failed) | by tier: T3=4 T2=13 T1=69 (incl ambient trickle) ===
+
+================================================================
+
