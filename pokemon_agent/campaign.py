@@ -11354,12 +11354,36 @@ class Campaign:
                 seen.add(nbr); q.append((nbr, first_edge))
         return None
 
+    def _forward_objective_map(self, state):
+        """The map FORWARD progress currently points at: the active questline step's anchor (the
+        errand IS the road — Bill before the S.S. Anne) else the next gym's city. None when neither
+        resolves (post-game / no data) — callers treat that as 'no forward read', never a wall."""
+        try:
+            q = getattr(self, "_active_questline", None)
+            if q is not None and q.actionable is not None:
+                step = q.actionable
+                if getattr(step, "from_map", None):
+                    return tuple(int(x) for x in str(step.from_map).split(","))
+                w = tuple(q.gate.where or ())
+                if w:
+                    return w
+        except Exception:
+            pass
+        try:
+            return self._next_gym_city_map(state.get("next_gym"))
+        except Exception:
+            return None
+
     def _grass_target(self, state):
         """Where she can HONESTLY hunt: ('here', tile) if reachable on this map, else ('route', (g,n),
         edge) for grass she can reach WITHOUT crossing the gated wall — an ungated adjacent route first,
         else (Phase 2) the nearest grass BEHIND her via the learned graph, else the gated route as a last
         resort (so _route_action surfaces the wall rather than silently offering a phantom hunt).
-        catch_one re-verifies grass on arrival (no_grass backstop) so a wrong guess never freezes."""
+        catch_one re-verifies grass on arrival (no_grass backstop) so a wrong guess never freezes.
+        FORWARD-GRASS BIAS (2026-07-31, Jonny debrief — the post-Misty Route-4 park): candidates that
+        also get her CLOSER to the next objective (live questline anchor, else the next gym city) are
+        tried FIRST; backward/cleared grass stays as the FALLBACK only (anti-park: the only reachable
+        grass is never abandoned)."""
         tile = self._reachable_grass()
         # GRIND-SPOT LEVEL AWARENESS (NS#5 lever a): if grind() marked THIS map grind-inadequate (only
         # done when a reachable higher-level spot exists), don't short-circuit on grass-underfoot — fall
@@ -11374,13 +11398,34 @@ class Campaign:
         # walks back to Route 4 / Mt Moon that she's already cleared, instead of blindly routing onto
         # the unvisited route across Gary's bridge (which the old live-connection scan below would pick).
         unreach = getattr(self, "_grass_unreach", set())   # koga_run3: (from-map, target) travel fails
+        # FORWARD-GRASS BIAS scaffolding: the objective + her own distance to it, computed once.
+        # _grass_fwd(dst) = grinding at dst is ALSO progress (dst is strictly closer to the objective).
+        _obj = self._forward_objective_map(state)
+        _cur_d = None
+        try:
+            if _obj:
+                _r0 = self.world.route(tuple(state["map"]), _obj, self._wall_avoid(state))
+                _cur_d = (len(_r0) - 1) if _r0 else None
+        except Exception:
+            _cur_d = None
+
+        def _grass_fwd(dst):
+            if _cur_d is None:
+                return False
+            try:
+                _r = self.world.route(tuple(dst), _obj, self._wall_avoid(state))
+                return bool(_r) and (len(_r) - 1) < _cur_d
+            except Exception:
+                return False
         try:
             cur = tuple(state["map"])
             avoid = self._wall_avoid(state)
             known = self.world.reachable_with_trait(cur, "has_grass", avoid)
             _dead = (getattr(self, "_grind_dead", set())   # maps grind() proved grassless/strand-only
                      | getattr(self, "_grind_inadequate_set", set()))  # + inadequate (empty if flag off)
-            for _entry in (known or []):                   # try EVERY known grass, not just the nearest
+            # FORWARD FIRST (stable: within each class the trait scan's own nearest-first order holds):
+            # the post-Misty pick becomes Route 5/24 (toward Vermilion / Bill), NOT the cleared Route 4.
+            for _entry in sorted(known or [], key=lambda e: 0 if _grass_fwd(e[0]) else 1):
                 dst = _entry[0]                            # entries are (dst, ...) — width varies
                 if tuple(dst) in _dead:
                     continue                               # visited trait says grass; grind says dead
@@ -11391,7 +11436,8 @@ class Campaign:
                 if (cur, tuple(nxt)) in unreach:
                     continue                               # this hop already failed from here — next
                 log(f"   [roam] grass she KNOWS: routing {edge} -> {nxt} toward {self.world.name(dst)} "
-                    f"(visited grass, avoiding any wall)")
+                    f"({'FORWARD — on the road to the objective' if _grass_fwd(dst) else 'backward — no forward grass reachable'}, "
+                    f"visited grass, avoiding any wall)")
                 return ("route", nxt, edge)
         except Exception as _gt:
             log(f"   [roam] world grass-target skipped: {_gt}")
@@ -11404,6 +11450,8 @@ class Campaign:
                  | getattr(self, "_grind_inadequate_set", set()))  # + inadequate (empty if flag off)
         non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)
                      and (cur, tuple(m)) not in unreach and tuple(m) not in _dead]
+        # FORWARD FIRST here too (the adjacent-route sibling of the known-grass loop above).
+        non_gated.sort(key=lambda dm: 0 if _grass_fwd(dm[1]) else 1)
         if non_gated:
             d, m = non_gated[0]
             return ("route", m, self._EDGE[d])
@@ -11746,6 +11794,37 @@ class Campaign:
             # behind an answer-grind. If NO strengthen option is reachable, head_to_gym is KEPT
             # (never dead-end her). Runs BEFORE the READINESS→GO reframe: once she crosses the bar,
             # this block passes and the forward pull takes over as before.
+            # POST-BADGE BEAT window (armed by the badge branch of _route_action, 2026-07-31 Jonny
+            # debrief): right after a win the beat is heal + stock + MARCH — never park in grass.
+            # The badge raised the milestone, which re-arms the bench pin and lets the NEW gym's
+            # readiness floor prune head_to_gym on the very next tick — that's exactly what sent
+            # her backward to Route 4 after Misty. While the window is live: grass-parking picks
+            # are pruned, head_to_gym is reframed as the move-on pull, and the floor below SPARES
+            # it. Self-clears in a few builds or the moment she leaves the conquered city; the
+            # road-bench-XP march + the forward-grass bias in _grass_target own training after.
+            _pb_live = False
+            try:
+                _pb = getattr(self, "_post_badge_ticks", 0)
+                if _pb > 0:
+                    if tuple(state.get("map") or ()) != getattr(self, "_post_badge_city", None):
+                        self._post_badge_ticks = 0        # she's marching — the beat did its job
+                        log("   [roam] 🏁 POST-BADGE BEAT released (left the conquered city — "
+                            "the march owns training now)")
+                    else:
+                        self._post_badge_ticks = _pb - 1
+                        _pb_live = True
+                        _prn_pb = [k for k in ("wander_catch", "battle") if a.pop(k, None) is not None]
+                        _ngb = state.get("next_gym") or {}
+                        if "head_to_gym" in a:
+                            a["head_to_gym"] = (
+                                f"BADGE WON — the beat now is: heal up if you're hurt, stock up at "
+                                f"the Mart if supplies are thin, and MOVE ON toward "
+                                f"{_ngb.get('city', 'the next objective')}. The team trains on the "
+                                f"road forward, never in grass you've already cleared.")
+                        log(f"   [roam] 🏁 POST-BADGE BEAT ({self._post_badge_ticks} builds left): "
+                            f"pruned grass-parking {_prn_pb}; heal/stock/march only")
+            except Exception as _pbx:
+                log(f"   [roam] post-badge beat skipped: {_pbx}")
             if GYM_READINESS_FLOOR_ENABLED and "head_to_gym" in a and state.get("next_gym"):
                 try:
                     _ngf = state["next_gym"]
@@ -11765,6 +11844,12 @@ class Campaign:
                     # readiness floor may not prune the one action that obeys him.
                     if self._creator_order(state):
                         log("   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)")
+                        rf = None
+                    elif _pb_live:
+                        # POST-BADGE BEAT: the new milestone's floor must not park her in the city
+                        # she just conquered — heal/stock/march; the bench trains on the road.
+                        log("   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — POST-BADGE BEAT "
+                            "(heal/stock/march; train on the road forward)")
                         rf = None
                     elif _ql_spare:
                         log(f"   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the "
@@ -12964,6 +13049,16 @@ class Campaign:
                 else:
                     self._gym_stuck_streak.pop(ng["leader"], None)
                 if out == "badge":
+                    # POST-BADGE BEAT (2026-07-31, Jonny debrief — the post-Misty Route-4 park): the
+                    # human rhythm after a badge is heal → stock up → MOVE ON; training happens on
+                    # the road forward (road-bench-XP arms on the march), never parked in cleared
+                    # grass behind. Latch a short window: the menu builder spares head_to_gym from
+                    # the new milestone's readiness floor + prunes grass-parking while it's live;
+                    # self-clears in a few ticks or the moment she leaves this city (march begun).
+                    self._post_badge_ticks = 6
+                    self._post_badge_city = tuple(gym.city)
+                    log(f"   [roam] 🏁 POST-BADGE BEAT armed at {gym.city}: heal/stock/march window — "
+                        f"grass parking OFF, forward march ON")
                     # PHASE 6 — CATHARSIS: reference the worry so the relief is EARNED, not "oh great,
                     # moving on". Tier-3 big beat → her core deep-reaction path RISES; the saga promotes it.
                     nb = state.get("badge_count", 0) + 1
