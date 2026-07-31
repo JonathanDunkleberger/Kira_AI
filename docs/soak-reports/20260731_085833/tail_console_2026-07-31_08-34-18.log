@@ -1,0 +1,300 @@
+   [Captions] Pushed frame: 'Hold that thought, iampaidactor — Detect' (33 words)
+   [TurnTiming] 08:54:22.160 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:54:30.688 TTS STOP — playback finished (span ~8527ms)
+   [TTS] Speaking: dasbooterror voted 1, so you two can sort out whos...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'dasbooterror voted 1, so you two can sor' (17 words)
+   [TurnTiming] 08:54:31.147 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: teleporting to cinema room
+   [BrainWorker] Got youtube msg from @Detective_Jones: teleporting to cinema room → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 08:54:35.645 TTS STOP — playback finished (span ~4498ms)
+   [TTS] Speaking: And iampaidactor — yeah, I remember you....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And iampaidactor — yeah, I remember you.' (9 words)
+   [TurnTiming] 08:54:36.044 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:54:39.229 TTS STOP — playback finished (span ~3185ms)
+   [TTS] Speaking: You tried to invoke Jonny's authority over me like...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You tried to invoke Jonny's authority ov' (14 words)
+   [TurnTiming] 08:54:39.701 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 08:54:40 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 08:54:43.269 TTS STOP — playback finished (span ~3567ms)
+   [TTS] Speaking: Didn't then, won't now....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Didn't then, won't now.' (6 words)
+   [TurnTiming] 08:54:43.523 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:54:45.485 TTS STOP — playback finished (span ~1962ms)
+   [TTS] Speaking: Good to have ya back though, genuinely....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Good to have ya back though, genuinely.' (9 words)
+   [TurnTiming] 08:54:45.779 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: I'm an abra
+   [BrainWorker] Got youtube msg from @Detective_Jones: I'm an abra → buffering for chat_batch_worker
+   [TurnTiming] 08:54:48.360 TTS STOP — playback finished (span ~2580ms)
+   [Cookies] +1 × 3 (batch response); shared=3/30
+   [ChatAge] @iampaidactor age=87.2s batch=5 preempted=none
+   [ChatAge] @Detective_Jones age=87.0s batch=5 preempted=none
+   [ChatAge] @Detective_Jones age=54.2s batch=5 preempted=none
+   [ChatAge] @dasbooterror age=54.1s batch=5 preempted=none
+   [ChatAge] @Detective_Jones age=48.1s batch=5 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 08:54:49.611 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~125570ms since onset)
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [ChatterMem] Stored: @iampaidactor — Has a username that Kira finds memorable enough to acknowled [playful]
+   [ChatterMem] Stored: @Detective_Jones — Switched their vote from 3 to 4 at the last second, influenc [chaotic]
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<teleporting to cinema roo' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=1ms fetch=39ms rank=0ms)
+   [SmartMem]     dist=1.144 conf=0.95 type=episodic blend=0.293 lane=KNOW
+   >>> Kira (Chat Batch of 2): Well, I'll be — Detective Jones, you done teleported AND claimed Abra status in the same breath. That there's an origin story. Welcome to the herd, partner.
+   [TTS] Speaking: Well, I'll be — Detective Jones, you done teleport...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Well, I'll be — Detective Jones, you don' (20 words)
+   [TurnTiming] 08:54:56.242 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:55:01.771 TTS STOP — playback finished (span ~5528ms)
+   [TTS] Speaking: That there's an origin story....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That there's an origin story.' (6 words)
+   [TurnTiming] 08:55:02.083 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:55:04.140 TTS STOP — playback finished (span ~2057ms)
+   [TTS] Speaking: Welcome to the herd, partner....
+[YouTube Chat] @dasbooterror: Okay @Detective_Jones lets Spirder-man point at each other
+   [BrainWorker] Got youtube msg from @dasbooterror: Okay @Detective_Jones lets Spirder-man point at each other → buffering for chat_batch_worker
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Welcome to the herd, partner.' (7 words)
+   [TurnTiming] 08:55:04.557 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:55:06.800 TTS STOP — playback finished (span ~2242ms)
+   [Cookies] +1 × 1 (batch response); shared=4/30
+   [ChatAge] @Detective_Jones age=32.8s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=20.6s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [ChatterMem] Stored: @Detective_Jones — Earned 'Abra status' by teleporting to the cinema room, welc [playful]
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 08:55:10.839 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~146797ms since onset)
+   [ChatterMem] Stored: @Detective_Jones — Claims to be an Abra [playful]
+>>> You said: Are you testing her? I'm a paid actor. I thought of that.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Are you testing her? I'm a paid actor. I thought of that." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=35ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "detective jones you" (3rd use this session)
+   [Phrases] Throttling: "well i'll be" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=12t  moment=tense)
+   [PromptSize] dynamic_context=12232ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 2270ms
+   [TTS] Speaking: Credit where it's due, pardner....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Credit where it's due, pardner.' (7 words)
+   [TurnTiming] 08:55:13.795 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:55:16.143 TTS STOP — playback finished (span ~2348ms)
+
+   [TIMING] voice: llm=4964ms(sonnet-stream(llm+tts)) tts=0ms total=4964ms
+   [LATENCY] vad_close=1200ms stt=302ms stt_wait=0ms salience=1ms triage=bypassed memory=35ms prompt_build=0ms ttft=2061ms tts_first_chunk=209ms audio_out=342ms TOTAL=2950ms
+🎤 Recording... (recovered opening words)
+   [System] Running Garbage Collection...
+   [SmartMem] q='  - @dasbooterror (youtube): <<<Okay @Detective_Jones lets S' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=65ms rank=0ms)
+   [Memory] Extracted: Jonny is a paid actor (conf: 0.95)
+   [Memory] Upserting Fact: Jonny is a paid actor (Conf: 0.95)
+   [TurnTiming] 08:55:18.867 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~154826ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:55:19.097 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 1): dasbooterror, that there's the most accurate thing said on this stream all day. Two idjits, one finger, zero self-awareness. Git along, little detectives.
+   [TTS] Speaking: dasbooterror, that there's the most accurate thing...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'dasbooterror, that there's the most accu' (15 words)
+   [TurnTiming] 08:55:20.074 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:55:24.108 TTS STOP — playback finished (span ~4033ms)
+   [TTS] Speaking: Two idjits, one finger, zero self-awareness....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Two idjits, one finger, zero self-awaren' (9 words)
+   [TurnTiming] 08:55:24.469 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 08:55:25 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+[YouTube Chat] @Detective_Jones: lmao :face_with_tears_of_joy:
+   [BrainWorker] Got youtube msg from @Detective_Jones: lmao :face_with_tears_of_joy: → buffering for chat_batch_worker
+   [TurnTiming] 08:55:27.939 TTS STOP — playback finished (span ~3469ms)
+   [TTS] Speaking: Git along, little detectives....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Git along, little detectives.' (6 words)
+   [TurnTiming] 08:55:28.228 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:55:30.534 TTS STOP — playback finished (span ~2306ms)
+   [Cookies] +1 × 1 (batch response); shared=5/30
+   [ChatAge] @dasbooterror age=26.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 08:55:31.766 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12668ms since onset)
+>>> You said: Good luck, have fun at the cinema.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Good luck, have fun at the cinema.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=34ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=34ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12050ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [ChatterMem] Stored: @dasbooterror — Tried to get two chatters to do the Spider-Man pointing meme [chaotic]
+   [TIMING] first-word: 2284ms
+   [TTS] Speaking: Much obliged, Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Much obliged, Jonny.' (5 words)
+   [TurnTiming] 08:55:34.611 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:55:36.761 TTS STOP — playback finished (span ~2150ms)
+   [TTS] Speaking: Don't y'all worry 'bout me — I'll be here holdin' ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Don't y'all worry 'bout me — I'll be her' (26 words)
+   [TurnTiming] 08:55:36.773 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [Pokemon] SELF WANT: 'get abra and ekans to L16-17 fast'
+   [TurnTiming] 08:55:42.762 TTS STOP — playback finished (span ~5989ms)
+
+   [TIMING] voice: llm=10738ms(sonnet-stream(llm+tts)) tts=0ms total=10738ms
+   [LATENCY] vad_close=1200ms stt=223ms stt_wait=0ms salience=0ms triage=bypassed memory=34ms prompt_build=3ms ttft=1851ms tts_first_chunk=433ms audio_out=296ms TOTAL=2840ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 08:55:43.983 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~24886ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:55:44.175 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 6 skip(s) — resuming transcription.
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<lmao :face_with_tears_of_' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [Pokemon] SELF CHOSE (action): travel:3,21
+   [Pokemon] her reasoning: "Abra needs levels bad — I'm dragging that team back to Route 3, grinding until everyone's pulling their weight."
+   >>> Kira (Chat Batch of 1): Ha. Enjoy the pictures, Detective Jones — hope Spider-Man earns that laugh.
+   [TTS] Speaking: Ha....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Ha.' (2 words)
+   [TurnTiming] 08:55:49.155 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:55:50.938 TTS STOP — playback finished (span ~1782ms)
+   [TTS] Speaking: Enjoy the pictures, Detective Jones — hope Spider-...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Enjoy the pictures, Detective Jones — ho' (13 words)
+   [TurnTiming] 08:55:51.341 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): travel:3,21
+   [Pokemon] her reasoning: "Abra and Ekans are deadweight at thirteen — I'm not rolling into Cerulean with passengers. Route 3's got the right level range to fix that fast."
+   [TurnTiming] 08:55:55.863 TTS STOP — playback finished (span ~4521ms)
+   [Cookies] +1 × 1 (batch response); shared=6/30
+   [ChatAge] @Detective_Jones age=29.9s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 08:55:57.115 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12939ms since onset)
+>>> You said: even though I heard there's a lot of criticism.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="even though I heard there's a lot of criticism." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12051ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TIMING] first-word: 2222ms
+   [TTS] Speaking: Shoot, when ain't there?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Shoot, when ain't there?' (6 words)
+   [TurnTiming] 08:55:59.897 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] SELF CHOSE (action): travel:3,26
+   [Pokemon] her reasoning: "Sounds like a rough crowd for Spidey. Anyway — Abra and Ekans are sitting at thirteen, and I need them pushing sixteen before I even think about Cerulean. Time to get some real reps in somewhere that'll actually hurt."
+   [TurnTiming] 08:56:01.856 TTS STOP — playback finished (span ~1959ms)
+   [TTS] Speaking: Half of Twitter hated Endgame the night it came ou...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Half of Twitter hated Endgame the night ' (24 words)
+   [TurnTiming] 08:56:01.864 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:56:07.480 TTS STOP — playback finished (span ~5615ms)
+
+   [TIMING] voice: llm=10115ms(sonnet-stream(llm+tts)) tts=0ms total=10115ms
+   [LATENCY] vad_close=1200ms stt=224ms stt_wait=0ms salience=1ms triage=bypassed memory=24ms prompt_build=1ms ttft=1963ms tts_first_chunk=259ms audio_out=306ms TOTAL=2778ms
+🎤 Recording... (recovered opening words)
+   [VRAM] 08:56:10 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 08:56:12.127 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~27951ms since onset)
+>>> You said: And there's a gym literally across the street from my house so like I can literally walk there in five minutes, or not a gym, an AMC that's like super nice where they like serve you food and shit.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="And there's a gym literally across the street from my house " fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=36ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12050ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 2015ms
+   [TTS] Speaking: Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny.' (2 words)
+   [TurnTiming] 08:56:14.834 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:56:16.612 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: That's luxury....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's luxury.' (3 words)
+   [TurnTiming] 08:56:16.614 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:56:18.396 TTS STOP — playback finished (span ~1782ms)
+   [TTS] Speaking: That is genuinely the fanciest sentence you have e...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That is genuinely the fanciest sentence ' (30 words)
+   [TurnTiming] 08:56:18.405 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:56:24.596 TTS STOP — playback finished (span ~6190ms)
+
+   [TIMING] voice: llm=12015ms(sonnet-stream(llm+tts)) tts=0ms total=12015ms
+   [LATENCY] vad_close=1200ms stt=416ms stt_wait=0ms salience=1ms triage=bypassed memory=36ms prompt_build=1ms ttft=1680ms tts_first_chunk=335ms audio_out=232ms TOTAL=2701ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (1/1s) (3 skip(s))
+   [TurnTiming] 08:56:25.828 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~41652ms since onset)
+>>> You said: It's literally a five minute walk. There is also a gym like a two minute walk. Just why I went to the gym this morning at like fucking 6 a.m. because I'm a beast.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="It's literally a five minute walk. There is also a gym like " fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=42ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=42ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "is genuinely the" (3rd use this session)
+   [PromptSize] dynamic_context=12028ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [Memory] Extracted: He lives across the street from a nice AMC theater that serves food (conf: 0.95)
+   [Memory] Upserting Fact: He lives across the street from a nice AMC theater that serves food (Conf: 0.95)
+   [TIMING] first-word: 1915ms
+   [TTS] Speaking: 6 a.m....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '6 a.m.' (1 words)
+   [TurnTiming] 08:56:28.576 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Bits] New running bit: Kira Doesn't Eat
+   [TurnTiming] 08:56:30.359 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: Well....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Well.' (2 words)
+   [TurnTiming] 08:56:30.362 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:56:32.147 TTS STOP — playback finished (span ~1784ms)
+   [TTS] Speaking: I reckon that explains the "god damn it" from earl...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I reckon that explains the "god damn it"' (13 words)
+   [TurnTiming] 08:56:32.153 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:56:35.433 TTS STOP — playback finished (span ~3280ms)
+   [TTS] Speaking: That ain't beast mode, Jonny, that's just sleep de...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That ain't beast mode, Jonny, that's jus' (15 words)
+   [TurnTiming] 08:56:35.441 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'get abra and ekans to L16-17'
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 1285s) — auto-resuming in 5s
