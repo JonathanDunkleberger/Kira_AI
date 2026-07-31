@@ -1,0 +1,6 @@
+{
+  "id": "route4_cerulean_border_tp_20260731",
+  "badge_count": 2,
+  "only_near": ["route 4", "cerulean"],
+  "note": "Jonny 2026-07-31: 'please tp her somewhere so she can actually finish this game' — the live run is parked on the Route-4/Cerulean seam. Abra field-Teleports her to the last Pokemon Center at boot; momentum then marches the billed road south to Vermilion. One-shot: consumed-by-id into states/campaign/rescue_tp_consumed.json (only on a VERIFIED warp, so a failed attempt retries next relaunch)."
+}

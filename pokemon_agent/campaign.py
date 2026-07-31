@@ -584,6 +584,17 @@ MOMENTUM_ACE_HP_FRAC = float(os.getenv("POKEMON_MOMENTUM_ACE_HP", "0.60"))
 # (next badge / gym loss).
 MOMENTUM_SEED_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MOMENTUM_SEED.json")
 MOMENTUM_SEED_DONE = os.path.join(STATES_CAMPAIGN, "momentum_seed_consumed.json")
+# RESCUE TELEPORT (2026-07-31, Jonny: "please tp her somewhere so she can actually finish this
+# game"): the IN-GAME escape hatch for a border war — a party mon that knows TELEPORT (move 100;
+# her Abra qualifies from the moment it's caught) can field-Teleport from any outdoor map straight
+# to the last Pokémon Center used. That physically removes her from a contested seam in one move,
+# no pathfinding involved. Fired two ways: (a) the seam-thrash breaker escalates to it the moment
+# it trips (ban + forward-commit alone still left her parked ON the border), and (b) a one-shot
+# repo-committed RESCUE_TP.json seed (same consumed-by-id contract as the momentum seed) yanks a
+# LIVE stuck run out at boot without waiting for the breaker to re-witness the thrash.
+RESCUE_TP_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "RESCUE_TP.json")
+RESCUE_TP_DONE = os.path.join(STATES_CAMPAIGN, "rescue_tp_consumed.json")
+TELEPORT_MOVE_ID = 100                       # Gen-3 move id for TELEPORT
 # SEAM-THRASH BREAKER (2026-07-31, the Route-4↔Cerulean border ping-pong): >=3 crossings of the
 # SAME map seam within the window with no badge progress = two mechanisms are fighting over the
 # border. Hard-commit to the forward objective for a few builds and no-go the backward map for
@@ -6878,6 +6889,105 @@ class Campaign:
         except Exception as e:
             log(f"   [roam] ENSURE-HM skipped: {e}")
             return False
+
+    def _teleport_rescue(self, reason="rescue"):
+        """ESCAPE HATCH (2026-07-31, the Route-4↔Cerulean border war): field-TELEPORT to the last
+        Pokémon Center used — the game's own 'get me out of here' move, so it needs NO pathfinding
+        and cannot be defeated by whatever is fighting over a map seam. Requires a party mon that
+        knows TELEPORT (her Abra — this is the one job a moveless Abra can do from day one) and an
+        OUTDOOR standing spot (the game refuses it indoors, use_field_move just fails clean).
+        Runs through the SAME proven party-menu flow as Flash (hm_teach.use_field_move, cursor-
+        readback START-menu nav, bounded retries, B-cascade fail-safe). Verified by RAM truth:
+        the map changed OR she moved a long way on the same map (a Teleport inside Cerulean lands
+        at the Center on the same city map). Returns True iff the warp verifiably happened."""
+        try:
+            import hm_teach as ht
+            if st.in_battle(self.b):
+                log(f"   [rescue-tp] skipped ({reason}): mid-battle")
+                return False
+            pc = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            slot = st.party_knows_move(self.b, TELEPORT_MOVE_ID, pc)
+            if slot is None:
+                log(f"   [rescue-tp] skipped ({reason}): nobody in the party knows Teleport")
+                return False
+            m0, c0 = tuple(tv.map_id(self.b)), tv.coords(self.b)
+
+            def _warped():
+                try:
+                    m1, c1 = tuple(tv.map_id(self.b)), tv.coords(self.b)
+                    if m1 != m0:
+                        return True
+                    return bool(c0 and c1 and abs(c1[0] - c0[0]) + abs(c1[1] - c0[1]) >= 8)
+                except Exception:
+                    return False
+            mon = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), f"slot {slot}")
+            log(f"   [rescue-tp] 🌀 ({reason}) {mon} TELEPORT from {self.world.name(m0)} {c0} "
+                f"-> the last Pokémon Center (no pathfinding, the game does the moving)")
+            self.on_event(f"you know what — {mon}, get us OUT of here. Teleport, straight back "
+                          f"to the Center, and we take the road properly from there.",
+                          kind="travel", tier=2)
+            r = ht.TeachFlow(self, log=log, on_event=self.on_event).use_field_move(
+                slot, _warped, label="rescue-teleport", max_seconds=45)
+            if r == "used":
+                self._wait_overworld()
+                # the warp invalidates every position-anchored suspicion from the border war
+                self._seam_hist = []
+                self._nomove_streak = 0
+                if hasattr(self, "_dead_moves"):
+                    self._dead_moves.clear()
+                log(f"   [rescue-tp] VERIFIED: now at {self.world.name(tuple(tv.map_id(self.b)))} "
+                    f"{tv.coords(self.b)} — resuming with a clean slate")
+                return True
+            log(f"   [rescue-tp] !! Teleport did not verify ({reason}) — she stays put, LOUD")
+            return False
+        except Exception as e:
+            log(f"   [rescue-tp] skipped ({reason}): {e}")
+            return False
+
+    def _rescue_tp_seed_check(self):
+        """One-shot repo-committed rescue (RESCUE_TP.json next to this file): at the roam-tick top,
+        if an unconsumed seed matches the LIVE badge count AND she's standing on one of the seed's
+        trap maps (name substrings), fire _teleport_rescue NOW — yanking a live stuck run off the
+        border at relaunch instead of waiting for the seam breaker to re-witness three crossings.
+        Consumed-by-id into the states dir (a pull can never re-arm it); if she's NOT on a trap map
+        the seed is consumed as unnecessary (the march is already working). A failed Teleport leaves
+        the seed UNconsumed so the next relaunch retries; bounded per process. Never raises."""
+        import json as _j
+        if getattr(self, "_rescue_tp_attempts", 0) >= 3:
+            return
+        try:
+            if not os.path.exists(RESCUE_TP_JSON):
+                return
+            with open(RESCUE_TP_JSON, encoding="utf-8") as f:
+                seed = _j.load(f) or {}
+            sid = str(seed.get("id") or "")
+            done = []
+            if os.path.exists(RESCUE_TP_DONE):
+                with open(RESCUE_TP_DONE, encoding="utf-8") as f:
+                    done = _j.load(f) or []
+            if not sid or sid in done:
+                return
+            bc = sum(1 for i in range(8) if self.has_badge(0x820 + i))
+            if int(seed.get("badge_count", -1)) != bc:
+                return
+
+            def _consume(why):
+                done.append(sid)
+                with open(RESCUE_TP_DONE, "w", encoding="utf-8") as f:
+                    _j.dump(done, f)
+                log(f"   [rescue-tp] seed {sid!r} consumed ({why})")
+            here = (self.world.name(tuple(tv.map_id(self.b))) or "").lower()
+            near = [str(s).lower() for s in (seed.get("only_near") or [])]
+            if near and not any(s in here for s in near):
+                _consume(f"unnecessary — she's at {here!r}, not on a trap map")
+                return
+            self._rescue_tp_attempts = getattr(self, "_rescue_tp_attempts", 0) + 1
+            log(f"   [rescue-tp] 🚨 SEED {sid!r} FIRING (badges={bc}, at {here!r}): "
+                f"{seed.get('note', '')}")
+            if self._teleport_rescue(f"seed {sid}"):
+                _consume("teleport verified")
+        except Exception as e:
+            log(f"   [rescue-tp] seed check skipped: {e}")
 
     def grind(self, target_level, fragile=False, budget_s=480):
         """Train the lead to target_level in the grass, healing when low. Self-sufficient gym-readiness
@@ -13992,6 +14102,10 @@ class Campaign:
                     self._auto_checkpoint(f"gain-{_gain_reason}" if _gain_reason else "periodic")
                     self._last_ckpt_t = _now
             self._wait_overworld()
+            # RESCUE-TP SEED (2026-07-31): a repo-committed one-shot Teleport rescue for a LIVE run
+            # parked on a contested border — checked at the tick top so a relaunch fires it within
+            # one tick, before any chooser can re-enter the seam war. No-op once consumed.
+            self._rescue_tp_seed_check()
             # WHITEOUT vs DELIBERATE INTERIORITY (night shift 14 — the S.S. Anne rival ping-pong): the
             # DIRECTED interior nav sets `_ql_inside_target` so the recovery below LEAVES her inside a
             # quest building (the ship). But a battle LOSS whites her out and warps her to a Pokémon Center
@@ -14743,6 +14857,13 @@ class Campaign:
                                 self.on_event("okay, I've been pacing the same border like a lost "
                                               "tourist — enough. Picking a direction and COMMITTING: "
                                               "forward, next objective, go.", kind="travel", tier=2)
+                                # ESCALATION (2026-07-31, "please tp her somewhere"): the ban +
+                                # forward-commit fix the CHOOSERS but still leave her body parked
+                                # ON the seam — physically remove her too. Teleport snaps her to
+                                # the last Center: a clean, healable anchor OFF the border, from
+                                # which the committed forward objective routes fresh. Best-effort
+                                # (no teleporter / indoors -> the structural fix above still holds).
+                                self._teleport_rescue("seam-thrash breaker")
                         except Exception as _sbx:
                             log(f"   [roam] seam breaker skipped: {_sbx}")
                     if pick == "head_to_gym":
