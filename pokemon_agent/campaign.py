@@ -4292,7 +4292,40 @@ class Campaign:
         # is a multi-box speech that a few A-taps don't fully clear; the primitive advances it and
         # stops the instant the battle starts). Misty starts the battle near-immediately - same path.
         self.b.set_input_owner("agent")
-        self._gym_move(gym.leader_front, label="leader")
+        _lf_ok = self._gym_move(gym.leader_front, label="leader")
+        # POOL-MAZE LEADER-APPROACH RETRY (2026-07-31, the live Misty platform wedge): travel to
+        # leader_front can wedge on a platform/pool interior when an unbeaten junior still gates the
+        # walkway (Cerulean's (10,12) swimmer — engageable ONLY from the (9,12) land tile, see the
+        # POOL-GYM FIX in _engage_trainer). One wedged leg must NOT abort the whole gym (that fed the
+        # gym→leave→re-enter loop). Bounded: 3 retry rounds, each re-sweeping ONE nearest junior
+        # (a defeated trainer just fails to fire — cheap, bounded) then re-trying the leader walk.
+        if not _lf_ok and not st.in_battle(self.b) and not self.has_badge(gym.badge_flag):
+            _ldd = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}.get(gym.leader_dir, (0, -1))
+            _leader_tile = (gym.leader_front[0] + _ldd[0], gym.leader_front[1] + _ldd[1])
+            for _rt in range(1, 4):
+                if tv.map_id(self.b) != gym_map:
+                    break                                  # blacked out / left — the checks below handle it
+                log(f"   !! GYM: leader front {gym.leader_front} unreachable (try {_rt}/3) — "
+                    f"re-sweeping juniors (a gating trainer, e.g. the pool swimmer) then retrying")
+                px, py = tv.coords(self.b) or (0, 0)
+                for _ji, _jc, _jf in sorted(self._gym_trainers(),
+                                            key=lambda t: abs(t[1][0] - px) + abs(t[1][1] - py)):
+                    if tuple(_jc) == _leader_tile:
+                        continue                           # never LoS-poke the leader from here
+                    self._engage_trainer(_jc, _jf)
+                    if st.in_battle(self.b):
+                        _jr = self.battle_runner()
+                        log(f"   GYM: retry-sweep junior obj{_ji} -> {_jr}")
+                        self._drain_overworld(label="trainer")
+                        break                              # one fight per round, then re-try the leader
+                _lf_ok = self._gym_move(gym.leader_front, label="leader-retry")
+                if _lf_ok or st.in_battle(self.b) or self.has_badge(gym.badge_flag):
+                    break
+            if (not _lf_ok and not st.in_battle(self.b) and not self.has_badge(gym.badge_flag)
+                    and tv.coords(self.b) != gym.leader_front):
+                log(f"   !! GYM: leader front {gym.leader_front} STILL unreachable after 3 retry "
+                    f"rounds — surfacing stuck (never A-mash the leader from across the pool)")
+                return "stuck"
         _lvl = self.b.rd8(ram.GPLAYER_PARTY + 0x54)
         _sp = st.SPECIES_NAME.get(st.read_party_species(self.b, 0), "?")
         log(f"   GYM: at {tv.coords(self.b)} (leader front {gym.leader_front}) - engaging {name} "
@@ -11774,7 +11807,16 @@ class Campaign:
                 _ng3 = state.get("next_gym")
                 _ord3 = self._creator_order(state) if _ng3 else None
                 _dom3 = self._gym_dominant(state) if _ng3 else False
-                if _ng3 and (_ord3 or _dom3):
+                # GO-HARD RETRY CAP (2026-07-31, the live Misty loop): beat_gym stuck 5+ ticks in a
+                # row on this leader means the interior genuinely has her beat — stop re-forcing the
+                # pick (which would override the structural park forever) and let the normal
+                # watchdog/escape machinery own it. The streak clears on ANY non-stuck gym outcome.
+                _gh_capped = (_ng3 is not None
+                              and getattr(self, "_gym_stuck_streak", {}).get(_ng3["leader"], 0) >= 5)
+                if _ng3 and (_ord3 or _dom3) and _gh_capped:
+                    log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
+                        f"{_ng3['leader']}; escape machinery owns the wedge now")
+                if _ng3 and (_ord3 or _dom3) and not _gh_capped:
                     if "head_to_gym" not in a:
                         a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
                         log("   [roam] !! restoring head_to_gym (was pruned earlier) — gym is GO")
@@ -12764,8 +12806,24 @@ class Campaign:
             # the unlock errand — so while a questline is active, head_to_gym drives THAT (e.g. north to
             # Bill for the S.S. Ticket) instead of the gated wall. Self-clears the instant the success flag
             # reads satisfied LIVE, then normal gym-routing resumes.
+            # GO-HARD OVERRIDE (2026-07-31, the LIVE gym↔Bill oscillation Jonny watched): when
+            # DOMINANT→GO / CREATOR→GO forces head_to_gym, this hijack sent the "forced gym march"
+            # up Route 24/25 to Bill instead — gym → errand walk-out → back → repeat, forever.
+            # Under GO-HARD the badge IS the next beat (same doctrine as the menu prune that forced
+            # the pick), so the questline hijack STANDS DOWN and head_to_gym drives THE ACTUAL GYM.
+            # The questline itself stays alive/untouched — normal (non-GO-HARD) ticks still run it.
+            _go_hard_now = False
+            try:
+                _go_hard_now = bool(self._creator_order(state) or self._gym_dominant(state))
+            except Exception:
+                _go_hard_now = False
             if QUESTLINE_ENABLED and self._active_questline is not None:
-                return self._run_questline_step(state)
+                if _go_hard_now:
+                    log("   [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack "
+                        f"('{getattr(self._active_questline.gate, 'missing', '?')}' errand parked, "
+                        f"not cleared) — driving THE GYM DOOR, not the errand")
+                else:
+                    return self._run_questline_step(state)
             # BATCH 6 PHASE 1 — SHE ACTUALLY CLIMBS. The loop's whole point: when she's AT the next gym's
             # city, don't just mill around — ENTER the gym, clear its junior trainers, beat the leader,
             # earn the badge, advance to the next base camp. beat_gym is the general, data-driven handler
@@ -12823,13 +12881,22 @@ class Campaign:
                 if out == "stuck":
                     n = self._gym_stuck_streak.get(ng["leader"], 0) + 1
                     self._gym_stuck_streak[ng["leader"]] = n
-                    if n >= 2:
+                    # GO-HARD STAY (2026-07-31, the live Misty loop): while dominant / creator-ordered,
+                    # a single wedged leg must NOT park the gym and send her wandering out of the city —
+                    # she re-enters beat_gym next tick (the force latch re-arms every menu build).
+                    # Bounded: after 5 consecutive stucks even GO-HARD parks (watchdog/escape owns it).
+                    _park_at = 5 if _go_hard_now else 2
+                    if _go_hard_now and n < _park_at:
+                        log(f"   [roam] !! GO-HARD: beat_gym stuck x{n} on {ng['leader']} — NOT parking, "
+                            f"NOT leaving {gym.city}; re-entering the gym next tick (cap {_park_at})")
+                    elif n >= _park_at:
                         self._dead_moves_structural.setdefault(tuple(gym.city), set()).add("head_to_gym")
                         self.on_event(f"okay, {ng['leader']}'s gym has me beat for the moment — that layout "
                                       f"is a puzzle and I keep bouncing off it. I'll regroup and come back "
                                       f"at it fresh.", kind="gym", tier=2)
                         log(f"   [roam] !! GYM-INTERIOR WALL: beat_gym stuck x{n} on {ng['leader']} — "
-                            f"head_to_gym structurally parked on {gym.city} until she leaves the map")
+                            f"head_to_gym structurally parked on {gym.city} until she leaves the map"
+                            + (" (GO-HARD retry cap exhausted)" if _go_hard_now else ""))
                 else:
                     self._gym_stuck_streak.pop(ng["leader"], None)
                 if out == "badge":
