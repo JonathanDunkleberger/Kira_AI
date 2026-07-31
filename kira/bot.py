@@ -2052,16 +2052,35 @@ class VTubeBot:
     _POKEMON_STOP_GRIND_RX = re.compile(
         r"\bstop\s+(?:grinding|training|farming|leveling|levelling)\b", re.IGNORECASE)
 
+    def _pokemon_creator_order_live(self) -> bool:
+        """True when a Pokémon campaign is actually running — health.json heartbeat fresh, OR
+        the states dir exists (resume_marathon may not set pokemon_mode on the bot). Voice orders
+        must latch either way; chat never reaches this path."""
+        try:
+            from kira import pokemon_proc
+            if pokemon_proc.heartbeat_alive():
+                return True
+        except Exception:
+            pass
+        root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "pokemon_agent", "states")
+        return os.path.isdir(os.path.join(root, "campaign")) or os.path.isdir(
+            os.path.join(root, "kira"))
+
     def _pokemon_creator_order_check(self, content: str) -> None:
-        """Latch a creator order from Jonny's spoken words (Pokémon mode only). Best-effort."""
+        """Latch a creator order from Jonny's spoken words. Best-effort; not gated on pokemon_mode
+        (resume_marathon launches the harness outside the dashboard mode flip)."""
         text = content or ""
         if not (self._POKEMON_GYM_ORDER_RX.search(text)
                 or self._POKEMON_STOP_GRIND_RX.search(text)):
+            return
+        if not self._pokemon_creator_order_live():
             return
         import json as _j
         payload = {"order": "fight_gym", "raw": text.strip()[:200], "ts": time.time()}
         root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                             "pokemon_agent", "states")
+        wrote = False
         for sub in ("campaign", "kira"):     # both timelines — whichever is live picks it up
             d = os.path.join(root, sub)
             if not os.path.isdir(d):
@@ -2071,9 +2090,11 @@ class VTubeBot:
                 with open(tmp, "w", encoding="utf-8") as f:
                     _j.dump(payload, f)
                 os.replace(tmp, os.path.join(d, "creator_order.json"))
+                wrote = True
             except Exception as e:
                 print(f"   [CreatorOrder] write to {sub} failed: {e}")
-        print(f"   [CreatorOrder] !! LAW latched from Jonny's voice: {payload['raw']!r}")
+        if wrote:
+            print(f"   [CreatorOrder] !! LAW latched from Jonny's voice: {payload['raw']!r}")
 
     def _pokemon_perception_directive(self) -> str:
         """POKÉMON-MODE PERCEPTION (2026-07-08 immersion fix): when she's PLAYING Pokémon her
@@ -6676,11 +6697,12 @@ class VTubeBot:
 
                     # CREATOR-ORDER SEAM (2026-07-31): a direct gameplay order in Jonny's VOICE
                     # becomes LAW for the game harness (chat never reaches this path — advice only).
-                    if getattr(self, "pokemon_mode", False):
-                        try:
-                            self._pokemon_creator_order_check(content)
-                        except Exception as _coe:
-                            print(f"   [CreatorOrder] check skipped: {_coe}")
+                    # NOT gated on pokemon_mode — resume_marathon may leave that flag False while
+                    # health.json is fresh / states/campaign exists; the check itself decides.
+                    try:
+                        self._pokemon_creator_order_check(content)
+                    except Exception as _coe:
+                        print(f"   [CreatorOrder] check skipped: {_coe}")
 
                     # 2. Construct dialogue line (history-clean — no screen state)
                     # Prefix with identity label so Claude always knows this is Jonny's real voice,

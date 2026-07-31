@@ -11759,6 +11759,50 @@ class Campaign:
                            else "") + "; the move is to travel to the gym")
             except Exception as _rr:
                 log(f"   [roam] readiness reframe skipped: {_rr}")
+            # DOMINANT→GO / CREATOR→GO (2026-07-31 HARD): watched live — stand-down only muted the
+            # STRENGTHEN framing; battle/wander_catch/travel stayed on the menu and the oracle kept
+            # picking grass ("grind caterpie… to ~L14") for an hour while L28 Wartortle sat ready for
+            # Misty. Soft reframes are not enough. When dominant OR Jonny ordered the fight:
+            #   (1) restore head_to_gym if an earlier floor pruned it
+            #   (2) prune EVERY grind/detour option (battle, wander_catch, travel:*, fetch_keeper)
+            #   (3) reframe head_to_gym as the ONLY forward pick
+            #   (4) latch _force_gym_pick so free_roam SKIPS the oracle and executes head_to_gym
+            # Questline deferral DROPS here too: Bill-before-Misty is correct early, but once she's
+            # dominant (or ordered) the badge IS the next beat — farming Route 24/25 "for Misty"
+            # while the gym is in the same city is the pacing bug Jonny is watching.
+            try:
+                _ng3 = state.get("next_gym")
+                _ord3 = self._creator_order(state) if _ng3 else None
+                _dom3 = self._gym_dominant(state) if _ng3 else False
+                if _ng3 and (_ord3 or _dom3):
+                    if "head_to_gym" not in a:
+                        a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
+                        log("   [roam] !! restoring head_to_gym (was pruned earlier) — gym is GO")
+                    if _ord3:
+                        a["head_to_gym"] = (
+                            f"⚡ JONNY'S ORDER (LAW): march to {_ng3['city']}'s gym and fight "
+                            f"{_ng3['leader']} RIGHT NOW — he said "
+                            f"\"{(_ord3.get('raw') or '')[:80]}\". No grinding. GO.")
+                    else:
+                        a["head_to_gym"] = (
+                            f"YOU'RE READY — STOP GRINDING AND GO. Your strongest OVERPOWERS "
+                            f"{_ng3['leader']}. Walk into {_ng3['city']}'s gym and take the "
+                            f"badge NOW. Parking in grass is wasted stream time.")
+                    _prn = [k for k in list(a)
+                            if k in ("battle", "wander_catch", "fetch_keeper")
+                            or k.startswith("travel:")]
+                    for k in _prn:
+                        a.pop(k, None)
+                    self._force_gym_pick = True
+                    # Retire the parked bench pin so short-goal / rationale stop saying 'grind to L14'
+                    if getattr(self, "_bench_pin", None) is not None:
+                        log(f"   [roam] !! retiring bench pin L{self._bench_pin} — gym is GO now")
+                        self._bench_pin = None
+                    log(f"   [roam] !! {'CREATOR ORDER' if _ord3 else 'DOMINANT'} → GO HARD: "
+                        f"forced head_to_gym ({_ng3['leader']}); pruned {sorted(_prn)}; "
+                        f"oracle SKIPPED this tick")
+            except Exception as _dg:
+                log(f"   [roam] dominant-go reframe skipped: {_dg}")
         # ── CROSS-MAP KEEPER ROUTER (PASS 3 NEW#2) ───────────────────────────────────────────────────
         # Offer a BOUNDED detour to fetch a plan keeper that lives on a nearby reachable map (party has
         # room, keeper NOT on this map, within KEEPER_ROUTER_MAX_HOPS). Offered ALONGSIDE head_to_gym (the
@@ -11770,7 +11814,10 @@ class Campaign:
         # (esp. a cave, via the static connection) and spin re-entering it catching nothing (the 3-ball
         # cave3 soft-livelock). Zero balls -> the offer drops, _ball_note tells the oracle a Mart run comes
         # first, and she falls to head_to_gym/stock_up instead. Re-offered once she has balls again.
-        if KEEPER_ROUTER_ENABLED and self._ball_count() > 0:
+        # Skip when GO-HARD latched — fetch_keeper was just pruned; re-offering it would put a
+        # detour back on the menu opposite a forced Misty march.
+        if (KEEPER_ROUTER_ENABLED and not getattr(self, "_force_gym_pick", False)
+                and self._ball_count() > 0):
             _kr = self._keeper_route_target(state)
             if _kr:
                 # HEAL-GATE (NS#39: don't start a detour on a dinged team) with an NS#41 SAFE-HOP relaxation:
@@ -13956,6 +14003,15 @@ class Campaign:
                     self._nav_watch = None
             except Exception as _nwx:
                 log(f"   [roam] wander-tripwire skipped: {_nwx}")
+            # HARD FORCE GYM (2026-07-31): DOMINANT→GO / CREATOR→GO latched _force_gym_pick while
+            # building the menu. If head_to_gym is still available, SKIP the oracle — she is not
+            # asked. Heal-only menus (hurt, gym option absent) leave the latch for the next tick
+            # so we never deadlock on a forced pick that isn't there.
+            if getattr(self, "_force_gym_pick", False) and "head_to_gym" in avail:
+                _forced_pick = "head_to_gym"
+                self._force_gym_pick = False
+                log("   [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED "
+                    "(dominant / creator order; grass is OFF the menu)")
             # ZERO-INPUT THINK GUARANTEE (void-core batch): the watch-rig pump runs frames while the
             # LLM decides — if any prior handler left a key held (an abort path that skipped its
             # release), she WALKS during the think (the intra-tick position-jump class the QW-4 log
@@ -14721,7 +14777,11 @@ class Campaign:
                 onward = f", then push on toward {ng['city']}" if ng else ""
                 medium = f"Build a team strong enough to beat {who} at {place}{onward}"
             elif ng:
-                medium = (f"You're ready — travel to {ng['city']} and take on {ng['leader']}" if rdy
+                # DOMINANCE counts as ready (2026-07-31): rdy is wall-relative (needs a recorded LOSS),
+                # so a never-lost run said only 'Make your way to <city>' — a nothing-goal when she's
+                # already standing in it, which let the bench-alarm beats own her intent.
+                medium = (f"You're ready — travel to {ng['city']} and take on {ng['leader']}"
+                          if (rdy or self._gym_dominant(state))
                           else f"Make your way to {ng['city']}")
             elif state.get("post_game"):
                 medium = "Head out of the league, heal up, and pick the next adventure"
@@ -14746,7 +14806,21 @@ class Campaign:
                     want = str(self.soul.wants[-1])
             except Exception:
                 want = ""
-            if wr and not rdy:
+            # GO-HARD (dominant / creator order / force latch): never whisper "grind to L14" —
+            # _prep_team_target may still re-arm a bench pin for road-bench-XP, but short goals
+            # must say GO, not park. Matches the menu prune + FORCE GYM PICK.
+            _go_hard = False
+            try:
+                _go_hard = bool(
+                    getattr(self, "_force_gym_pick", False)
+                    or self._gym_dominant(state)
+                    or self._creator_order(state))
+            except Exception:
+                _go_hard = False
+            if _go_hard and ng:
+                # Questline "Bill before Misty" medium also drops — badge is the beat now.
+                medium = f"You're ready — travel to {ng['city']} and take on {ng['leader']}"
+            if wr and not rdy and not _go_hard:
                 target = wr.get("lead_level") or 0
                 # STRATEGIC UNDERLEVEL-GRIND (Task B): when the TEAM FLOOR is the problem, the concrete
                 # task is to level the WEAK members (named) by fielding them — not a vague "train the team".
@@ -14762,7 +14836,7 @@ class Campaign:
                     short = "Catch a teammate so you're not going in solo, then retry"
                 else:
                     short = "Grind the team up a couple levels, then go back and retry"
-            elif rdy:
+            elif rdy or _go_hard:
                 _bc = state.get("badge_count", 0)
                 _bn = self._BADGE_NAMES[_bc] if _bc < len(self._BADGE_NAMES) else None
                 short = (f"You're ready — stop grinding and head to {ng['city']}"
@@ -14906,9 +14980,14 @@ class Campaign:
             return f"Heading for the next gym{(' — ' + ng['city']) if ng else ''}: {short}."
         if pick in ("battle", "wander_catch"):
             # STRATEGIC UNDERLEVEL-GRIND (Task B): make the WHY explicit on the dashboard — she's leveling
-            # the weak members on purpose to cross the wall, not aimlessly farming.
+            # the weak members on purpose to cross the wall, not aimlessly farming. Stand down when
+            # dominant / creator-ordered / force-latched so the dashboard never says "grind to L14"
+            # while the menu is forcing the gym (road-bench-XP still reads _prep_team_target raw).
             try:
                 pt = self._prep_team_target(state)
+                if pt is not None and (self._creator_order(state) or self._gym_dominant(state)
+                                       or getattr(self, "_force_gym_pick", False)):
+                    pt = None
                 if pt is not None and pick == "battle":
                     weak = self._prep_team_weak(state, pt)
                     who = (weak[0] if len(weak) == 1
