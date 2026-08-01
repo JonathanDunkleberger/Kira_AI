@@ -1,6 +1,0 @@
-{
-  "id": "route4_cerulean_border_tp_20260731",
-  "badge_count": 2,
-  "only_near": ["route 4"],
-  "note": "Jonny 2026-07-31: 'please tp her somewhere so she can actually finish this game' — if she boots on Route 4 (the seam trap), Abra field-Teleports her to the last Pokemon Center. Narrowed from route4+cerulean after the CKPT cerulean-city promote (booting IN Cerulean City needs no teleport — momentum marches south from there). One-shot: consumed-by-id only on a VERIFIED warp; if she boots off Route 4 it consumes as unnecessary."
-}

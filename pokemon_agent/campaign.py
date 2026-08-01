@@ -548,7 +548,11 @@ WEDGE_MEM_TTL_S = float(os.getenv("POKEMON_WEDGE_MEM_TTL_S", str(12 * 3600)))
 # and persisted false blocked-tiles/resolved-talk-spots at innocent tiles (they were poisoning travel
 # routing across restarts). A v1 (or unversioned) file is discarded WHOLESALE on load, loud; only
 # post-gate marks (written with "v": 2) are ever restored.
-WEDGE_MEM_SCHEMA = 2
+# v3 (2026-08-01, Jonny: "delete her memory of everything in her current tile space"): every mark
+# recorded during the Route-4/Cerulean border-war era is suspect — the graph-first gym router was
+# marching her into structural dead ends for two days, planting wedge marks on roads that are fine.
+# One more wholesale purge; the fixed router records only honest marks from here.
+WEDGE_MEM_SCHEMA = 3
 # HUD — the WHOLE-PLAYTHROUGH timer (persists across sessions, unlike per-session run_uptime). Stamped
 # once at the first free-roam and read forever after, so the stream HUD shows "how long this journey
 # has taken" not "how long since this launch".
@@ -584,16 +588,12 @@ MOMENTUM_ACE_HP_FRAC = float(os.getenv("POKEMON_MOMENTUM_ACE_HP", "0.60"))
 # (next badge / gym loss).
 MOMENTUM_SEED_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MOMENTUM_SEED.json")
 MOMENTUM_SEED_DONE = os.path.join(STATES_CAMPAIGN, "momentum_seed_consumed.json")
-# RESCUE TELEPORT (2026-07-31, Jonny: "please tp her somewhere so she can actually finish this
-# game"): the IN-GAME escape hatch for a border war — a party mon that knows TELEPORT (move 100;
-# her Abra qualifies from the moment it's caught) can field-Teleport from any outdoor map straight
-# to the last Pokémon Center used. That physically removes her from a contested seam in one move,
-# no pathfinding involved. Fired two ways: (a) the seam-thrash breaker escalates to it the moment
-# it trips (ban + forward-commit alone still left her parked ON the border), and (b) a one-shot
-# repo-committed RESCUE_TP.json seed (same consumed-by-id contract as the momentum seed) yanks a
-# LIVE stuck run out at boot without waiting for the breaker to re-witness the thrash.
-RESCUE_TP_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "RESCUE_TP.json")
-RESCUE_TP_DONE = os.path.join(STATES_CAMPAIGN, "rescue_tp_consumed.json")
+# RESCUE TELEPORT — RETIRED 2026-08-01. The 07-31 escape hatch (field-Teleport off a contested
+# border via the party menu) drove the submenu BLIND and live pressed A on SUMMARY, not TELEPORT —
+# on-stream menu loops, twice. _teleport_rescue is kept (documented, uncalled) but nothing may
+# invoke it until the submenu row is read back, not assumed. Physical relocation goes through the
+# deterministic CKPT/SNAPSHOT promote path in resume_marathon.ps1; forward routing is owned by
+# head_to_gym's BILLED-ROAD PRIORITY.
 TELEPORT_MOVE_ID = 100                       # Gen-3 move id for TELEPORT
 # SEAM-THRASH BREAKER (2026-07-31, the Route-4↔Cerulean border ping-pong): >=3 crossings of the
 # SAME map seam within the window with no badge progress = two mechanisms are fighting over the
@@ -6891,7 +6891,14 @@ class Campaign:
             return False
 
     def _teleport_rescue(self, reason="rescue"):
-        """ESCAPE HATCH (2026-07-31, the Route-4↔Cerulean border war): field-TELEPORT to the last
+        """RETIRED FROM ALL AUTOMATIC PATHS (2026-08-01). Live 2026-07-31/08-01: the blind
+        submenu drive pressed A on SUMMARY, not TELEPORT (the FRLG party submenu row order does
+        NOT match the field-moves-first assumption for this case), so instead of a warp the
+        stream showed her opening Abra's summary in a loop — twice. NOBODY may call this until
+        the submenu row is READ BACK (pixel/RAM truth), not assumed (pitfall-13 class). Kept for
+        reference and possible manual invocation only.
+
+        ORIGINAL INTENT (2026-07-31, the Route-4↔Cerulean border war): field-TELEPORT to the last
         Pokémon Center used — the game's own 'get me out of here' move, so it needs NO pathfinding
         and cannot be defeated by whatever is fighting over a map seam. Requires a party mon that
         knows TELEPORT (her Abra — this is the one job a moveless Abra can do from day one) and an
@@ -6948,51 +6955,6 @@ class Campaign:
         except Exception as e:
             log(f"   [rescue-tp] skipped ({reason}): {e}")
             return False
-
-    def _rescue_tp_seed_check(self):
-        """One-shot repo-committed rescue (RESCUE_TP.json next to this file): at the roam-tick top,
-        if an unconsumed seed matches the LIVE badge count AND she's standing on one of the seed's
-        trap maps (name substrings), fire _teleport_rescue NOW — yanking a live stuck run off the
-        border at relaunch instead of waiting for the seam breaker to re-witness three crossings.
-        Consumed-by-id into the states dir (a pull can never re-arm it); if she's NOT on a trap map
-        the seed is consumed as unnecessary (the march is already working). A failed Teleport leaves
-        the seed UNconsumed so the next relaunch retries; bounded per process. Never raises."""
-        import json as _j
-        if getattr(self, "_rescue_tp_attempts", 0) >= 3:
-            return
-        try:
-            if not os.path.exists(RESCUE_TP_JSON):
-                return
-            with open(RESCUE_TP_JSON, encoding="utf-8") as f:
-                seed = _j.load(f) or {}
-            sid = str(seed.get("id") or "")
-            done = []
-            if os.path.exists(RESCUE_TP_DONE):
-                with open(RESCUE_TP_DONE, encoding="utf-8") as f:
-                    done = _j.load(f) or []
-            if not sid or sid in done:
-                return
-            bc = sum(1 for i in range(8) if self.has_badge(0x820 + i))
-            if int(seed.get("badge_count", -1)) != bc:
-                return
-
-            def _consume(why):
-                done.append(sid)
-                with open(RESCUE_TP_DONE, "w", encoding="utf-8") as f:
-                    _j.dump(done, f)
-                log(f"   [rescue-tp] seed {sid!r} consumed ({why})")
-            here = (self.world.name(tuple(tv.map_id(self.b))) or "").lower()
-            near = [str(s).lower() for s in (seed.get("only_near") or [])]
-            if near and not any(s in here for s in near):
-                _consume(f"unnecessary — she's at {here!r}, not on a trap map")
-                return
-            self._rescue_tp_attempts = getattr(self, "_rescue_tp_attempts", 0) + 1
-            log(f"   [rescue-tp] 🚨 SEED {sid!r} FIRING (badges={bc}, at {here!r}): "
-                f"{seed.get('note', '')}")
-            if self._teleport_rescue(f"seed {sid}"):
-                _consume("teleport verified")
-        except Exception as e:
-            log(f"   [rescue-tp] seed check skipped: {e}")
 
     def grind(self, target_level, fragile=False, budget_s=480):
         """Train the lead to target_level in the grass, healing when low. Self-sufficient gym-readiness
@@ -13520,19 +13482,22 @@ class Campaign:
             # live south-edge DISCOVERY below (she explores forward, learning each map's warps, which fills
             # the graph). One hop per tick — she can still divert (true free roam, discovery preserved).
             cur_map = tuple(state["map"])
-            # CAVE-PASS PRIORITY (2026-07-09 shift 6): when she's standing ON a billed 'pass' leg that
-            # runs THROUGH a dark warp-maze cave (Rock Tunnel: map (3,28) -> Lavender), the billed road
-            # MUST own the crossing (_cross_tunnel_leg), NOT the world-graph warp-route. Route 10's SOUTH
-            # map-connection to Lavender (3,4) is seeded as a plain EDGE, but that band is cliff-sealed —
-            # the only crossing is the tunnel — so _next_step_rideable returned an EDGE-ROUTE south that
-            # _edge_travel dead-ended on 'no_path', and head_to_gym got structurally pruned on Route 10
-            # (the shift-4 _cross_tunnel_leg fix never even ran). Same class as the shift-3 gated-shortcut
-            # preemption (Snorlax/Saffron), but via a phantom walkable edge. Run the billed road first so
-            # the tunnel crossing takes the leg; fall through to the warp-route only if it can't help.
-            _cave_road = self._gym_road(ng)
-            if _cave_road and any(leg["map"] == cur_map and leg.get("via") == "pass"
-                                  and leg.get("cave") for leg in _cave_road):
-                rr = self._road_step(state, _cave_road)
+            # BILLED-ROAD PRIORITY (2026-08-01, the Route-4 westward death-march): when a road is
+            # billed for the next gym, the CURATED road owns the routing OUTRIGHT — the world-graph
+            # warp-route below is only the fallback when the road can't help (_road_step -> None).
+            # WHY the flip: the graph route runs on whatever the graph believes, and seeded corridor
+            # priors can poison that belief — live 2026-08-01 03:5x, _next_step_rideable(Cerulean ->
+            # Vermilion) found the Diglett's-Cave prior and marched her WEST onto Route 4 (Mt.
+            # Moon... the long way around the region) while the billed road said SOUTH onto Route 5;
+            # the next western leg wedged, head_to_gym got structurally pruned, and with the seam
+            # bans live her action menu collapsed to talk_npc — the "repeating repeating" morning.
+            # This generalizes the shift-6 CAVE-PASS PRIORITY (Rock Tunnel), which was the same bug
+            # through a phantom edge: the road must preempt the graph EVERYWHERE, not only on cave
+            # legs. _road_step is leg-wise (one move per tick), gate-aware (questlines arm off it),
+            # and returns None off-road with no reachable anchor — exactly the fallback contract.
+            _road_first = self._gym_road(ng)
+            if _road_first:
+                rr = self._road_step(state, _road_first)
                 if rr is not None:
                     return rr
             target_city = self._next_gym_city_map(ng)
@@ -14116,10 +14081,11 @@ class Campaign:
                     self._auto_checkpoint(f"gain-{_gain_reason}" if _gain_reason else "periodic")
                     self._last_ckpt_t = _now
             self._wait_overworld()
-            # RESCUE-TP SEED (2026-07-31): a repo-committed one-shot Teleport rescue for a LIVE run
-            # parked on a contested border — checked at the tick top so a relaunch fires it within
-            # one tick, before any chooser can re-enter the seam war. No-op once consumed.
-            self._rescue_tp_seed_check()
+            # NOTE (2026-08-01): the RESCUE-TP boot seed that fired here is RETIRED — the blind
+            # party-submenu drive selected SUMMARY instead of TELEPORT live and looped her through
+            # menus on stream (see _teleport_rescue's docstring). Physical relocation goes through
+            # the deterministic CKPT/SNAPSHOT promote path in resume_marathon.ps1; on-foot routing
+            # is owned by head_to_gym's BILLED-ROAD PRIORITY.
             # WHITEOUT vs DELIBERATE INTERIORITY (night shift 14 — the S.S. Anne rival ping-pong): the
             # DIRECTED interior nav sets `_ql_inside_target` so the recovery below LEAVES her inside a
             # quest building (the ship). But a battle LOSS whites her out and warps her to a Pokémon Center
@@ -14871,13 +14837,13 @@ class Campaign:
                                 self.on_event("okay, I've been pacing the same border like a lost "
                                               "tourist — enough. Picking a direction and COMMITTING: "
                                               "forward, next objective, go.", kind="travel", tier=2)
-                                # ESCALATION (2026-07-31, "please tp her somewhere"): the ban +
-                                # forward-commit fix the CHOOSERS but still leave her body parked
-                                # ON the seam — physically remove her too. Teleport snaps her to
-                                # the last Center: a clean, healable anchor OFF the border, from
-                                # which the committed forward objective routes fresh. Best-effort
-                                # (no teleporter / indoors -> the structural fix above still holds).
-                                self._teleport_rescue("seam-thrash breaker")
+                                # NOTE (2026-08-01): the teleport escalation that lived here is
+                                # RETIRED. Live, the blind party-submenu drive opened SUMMARY
+                                # instead of TELEPORT and looped her through menus on stream —
+                                # the exact "AI fiddling menus" look this project exists to avoid.
+                                # The border war's real root (graph-first gym routing) is fixed at
+                                # head_to_gym's BILLED-ROAD PRIORITY; the ban + forward-commit
+                                # above are the structural recovery. No blind menu driving.
                         except Exception as _sbx:
                             log(f"   [roam] seam breaker skipped: {_sbx}")
                     if pick == "head_to_gym":
