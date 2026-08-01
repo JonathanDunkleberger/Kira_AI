@@ -503,7 +503,8 @@ def bfs(grid, start, goal_test, bound=None, walkable=None):
             # LEDGE HOP: if the adjacent tile is a ledge whose one-way jump direction matches the
             # move, we hop OVER it and land 2 tiles along (the ledge itself is never a standing
             # tile). Crossing the ledge the wrong way isn't offered -> the directed one-way edge.
-            if grid.ledge_dir(cx + dx, cy + dy) == (dx, dy):
+            hop = grid.ledge_dir(cx + dx, cy + dy) == (dx, dy)
+            if hop:
                 nx, ny = cx + 2 * dx, cy + 2 * dy
             else:
                 nx, ny = cx + dx, cy + dy
@@ -512,7 +513,22 @@ def bfs(grid, start, goal_test, bound=None, walkable=None):
                 if hasattr(grid, "edge_open") and not grid.edge_open(cx, cy, dx, dy):
                     continue
             if not (bx_lo <= nx <= bx_hi and by_lo <= ny <= by_hi):
-                continue
+                # LEDGE HOP OFF THE MAP EDGE IS A LEGAL SEAM CROSSING (2026-08-01, the Cerulean
+                # south-ledge seam): Cerulean's whole boundary row toward Route 5 is one-way
+                # south-jump ledges, and a hop over a boundary-row ledge lands at sy_hi+1 — ONE
+                # tile past the playable rect, in the border buffer where the neighbour's tiles
+                # overlap (the exact tiles the connection band already read as walkable). The
+                # unconditional bound check discarded that landing, and since a ledge tile can
+                # never be stood on, NO tile could satisfy the south edge goal -> the only exit
+                # read as a solid wall (head_to_gym -> no_path every tick, the Cerulean<->Route 4
+                # ping-pong). Accept the out-of-bound landing ONLY when all three hold: it is a
+                # ledge hop, the goal fires there, and the tile reads walkable (Grid.walkable
+                # bounds-checks buffer coords itself). It's a terminal node by construction (the
+                # goal test fires the moment it's popped), so BFS never expands INTO the border.
+                # Normal 1-tile steps keep the strict bound: border tiles read collision-0 on
+                # every side, so unbounded stepping would leak the plan off the map.
+                if not (hop and goal_test((nx, ny)) and walk(nx, ny)):
+                    continue
             nxt = (nx, ny)
             if nxt in came or not walk(nx, ny):
                 continue

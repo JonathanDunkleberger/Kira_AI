@@ -9,7 +9,11 @@
 #     and launches the marathon (bot + supervised game).
 #
 # PROMOTE_TARGET.txt contents (one-shot; consumed after use):
-#   (absent)                  -> inventory + push only (safe, never touches saves)
+#   (absent)                  -> same as CANONICAL: launch the canonical save as-is
+#                                (2026-08-01: the old inventory-only fallback killed the
+#                                running processes and launched NOTHING — and since the
+#                                file is consumed after every launch, "absent" is the
+#                                COMMON state; it stranded the marathon dark repeatedly)
 #   CANONICAL                 -> canonical save is already right; just launch
 #   <sandbox path>            -> monotonic promote of that sandbox, then launch
 #   NEW_CAMPAIGN <path|AUTO>  -> archive current canonical campaign (trophy), then
@@ -331,8 +335,13 @@ if (Test-Path $targetFile) {
     # one-shot: consume the decision so future runs go back to inventory mode
     Remove-Item $targetFile -ErrorAction SilentlyContinue
 } else {
-    Say ">> No PROMOTE_TARGET.txt - inventory-only run. Nothing was promoted or launched."
-    Say ">> Tell the Mac agent 'done' - it will read this report, pick the right save, and push the decision."
+    # DEFAULT = CANONICAL (2026-08-01): the directive file is consumed one-shot after every
+    # launch, so "absent" is the normal steady state — treating it as inventory-only meant
+    # every plain rerun killed Kira's processes and then launched nothing (stranded the
+    # marathon repeatedly). Absent now behaves exactly like a CANONICAL directive; the
+    # special one-shot directives above (SNAPSHOT/CKPT/NEW_CAMPAIGN/...) are unchanged.
+    Say ">> no PROMOTE_TARGET.txt — defaulting to CANONICAL launch (canonical save as-is)."
+    $promoteOk = $true; $launchApproved = $true
 }
 
 # 4) push the report (and the consumed target file) to GitHub

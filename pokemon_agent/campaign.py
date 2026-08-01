@@ -13500,6 +13500,21 @@ class Campaign:
                 rr = self._road_step(state, _road_first)
                 if rr is not None:
                     return rr
+                # ON-ROAD, THE ROAD IS AUTHORITATIVE — NO GRAPH FALLBACK (2026-08-01, part 2 of
+                # the Cerulean south-ledge seam fix): standing ON a billed (non-city) leg, the
+                # road's direction is the ONLY forward; the world-graph route below can believe
+                # a seeded/poisoned corridor (the Diglett's-Cave prior routes Cerulean->Vermilion
+                # the long way WEST through Route 4/Mt. Moon — i.e. BACKWARD along the billed
+                # road) and re-open the Cerulean<->Route 4 ping-pong the moment a road leg has a
+                # transient failure. _road_step returning None on a non-city leg is a KB data gap
+                # (a leg with no 'go'), never a license to route backward — fail LOUD and let the
+                # oracle re-decide. The gym CITY itself (the road's last leg) keeps the old flow:
+                # _road_step declines it by design and the blocks below own the in-city approach.
+                if any(l["map"] == cur_map for l in _road_first[:-1]):
+                    log(f"   [roam] ROAD to {ng.get('city', 'the next gym')}: ON the billed road at "
+                        f"{cur_map} but the road leg produced no move — road is AUTHORITATIVE here; "
+                        f"REFUSING the world-graph fallback (it can only lead backward off the road)")
+                    return "no_gym_route"
             target_city = self._next_gym_city_map(ng)
             if target_city and target_city != cur_map:
                 # SAFFRON BYPASS (2026-07-09 shift 3): Saffron's gatehouses are GUARD-BLOCKED (a static
