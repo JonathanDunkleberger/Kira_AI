@@ -1,0 +1,1500 @@
+   [travel] step 0: (5, 19)->(5, 18) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (3, 11)->(4, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (1, 11)
+
+   [dialogue] +++ "Hey! There's a switch under the trash! Turn it on! The first electric lock opened!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey! There\'s a switch under the trash! Turn it on! The first electric lock opened!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Hey! There's a switch under the trash! Turn it on! The first electric lo"
+
+   [dialogue] +++ "Nope! There's only trash here. Hey! The electric locks were reset!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Nope! There\'s only trash here. Hey! The electric locks were reset!"'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here. Hey! The electric locks were reset!"
+
+   [campaign]    [dlg-pace trashcan] box "Hey! There's a switch under the trash! Turn it o" visible 4.63s (sink 0ms, hold 0.11s, end=next_box)
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here. Hey! The electric" visible 2.23s (sink 1ms, hold 0.10s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 10) from (1, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 11) -> coord (3, 11) (budget 70s)
+
+   [travel] step 0: (1, 11)->(0, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (3, 11)
+
+   [dialogue] +++ "Nope! There's only trash here."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Nope! There\'s only trash here."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 10) from (3, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 11) -> coord (5, 11) (budget 70s)
+
+   [travel] step 0: (3, 11)->(4, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 10) from (5, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 11) -> coord (7, 11) (budget 70s)
+
+   [travel] step 0: (5, 11)->(6, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 10) from (7, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 11) -> coord (9, 11) (budget 70s)
+
+   [travel] step 0: (7, 11)->(8, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (9, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 10) from (9, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 11) -> coord (1, 13) (budget 70s)
+
+   [travel] step 0: (9, 11)->(8, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (1, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 12) from (1, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 13) -> coord (3, 13) (budget 70s)
+
+   [travel] step 0: (1, 13)->(2, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (3, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 12) from (3, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 13) -> coord (5, 13) (budget 70s)
+
+   [travel] step 0: (3, 13)->(4, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 13)
+
+   [dialogue] +++ "Hey! There's a switch under the trash! Turn it on! The first electric lock opened!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey! There\'s a switch under the trash! Turn it on! The first electric lock opened!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Hey! There's a switch under the trash! Turn it on! The first electric lo"
+
+   [dialogue] +++ "Nope! There's only trash here. Hey! The electric locks were reset!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Nope! There\'s only trash here. Hey! The electric locks were reset!"'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here. Hey! The electric locks were reset!"
+
+   [campaign]    [dlg-pace trashcan] box "Hey! There's a switch under the trash! Turn it o" visible 4.63s (sink 0ms, hold 0.11s, end=next_box)
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here. Hey! The electric" visible 2.48s (sink 0ms, hold 0.10s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 12) from (5, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 13) -> coord (7, 13) (budget 70s)
+
+   [travel] step 0: (5, 13)->(6, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 13)
+
+   [dialogue] +++ "Nope! There's only trash here."  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Nope! There\'s only trash here."'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 12) from (7, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 13) -> coord (9, 13) (budget 70s)
+
+   [travel] step 0: (7, 13)->(6, 13) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (9, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 12) from (9, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 13) -> coord (1, 15) (budget 70s)
+
+   [travel] step 0: (9, 13)->(10, 13) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (3, 15)->(2, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (1, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 14) from (1, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 15) -> coord (3, 15) (budget 70s)
+
+   [travel] step 0: (1, 15)->(2, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (3, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.69s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 14) from (3, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 15) -> coord (5, 15) (budget 70s)
+
+   [travel] step 0: (3, 15)->(4, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 14) from (5, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 15) -> coord (7, 15) (budget 70s)
+
+   [travel] step 0: (5, 15)->(6, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.70s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 14) from (7, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 15) -> coord (9, 15) (budget 70s)
+
+   [travel] step 0: (7, 15)->(8, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (9, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 14) from (9, 15) face UP (box=1 temp1=0 both=0)
+
+   [campaign]    [puzzle] !! swept cans, no first switch (checked=15 failed_interact=0 sites=15)
+
+   [campaign]    [puzzle] recovery: leave gym → heal → re-enter (re-roll switches)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 15) -> coord (5, 18) (budget 60s)
+
+   [kira-voice] -> T2·savor· (gym) "okay these cans are messing with me — I'm stepping out, healing, and coming back fresh."  fired=True  [age 0.0s + post 19ms]
+
+   [travel] step 0: (9, 15)->(9, 16) map=(9, 6) (path 8 to exit)
+
+   [travel] reached target coord (5, 18)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (5, 19) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    EXIT-BUILDING: (9, 6) -> (3, 5)@(14, 26)
+
+   [campaign]    HEAL: lead at 88/91 -> routing to the Pokemon Center on (3, 5) via door (15, 6) (will return to (14, 26))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(14, 26) -> coord (15, 7) (budget 120s)
+
+   [travel] path blocked at (14, 26) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 26); NPC-allowing path EXISTS (len 35), blocker NPC tile=(19, 24), npcs nearby=[(19, 24), (24, 33)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "RATTATA used CUT!"'
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.50s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (19, 24) on (3, 5) CLEARED with cut — continuing the leg
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [kira-voice] -> T1·brisk· (beat) 'Vermilion City — gulls, salt air, the harbor stretching out to sea'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] step 10: (19, 19)->(19, 18) map=(3, 5) (path 23 to exit)
+
+   [travel] step 20: (22, 12)->(21, 12) map=(3, 5) (path 13 to exit)
+
+   [travel] step 30: (17, 7)->(16, 7) map=(3, 5) (path 3 to exit)
+
+   [travel] reached target coord (15, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 18ms]
+
+   [dialogue] +++ "Thank you for waiting. We've restored your POK.MON to full health."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Thank you for waiting. We\'ve restored your POK.MON to full health."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    HEAL: restored party to full (lead was 88/91)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 1) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'We hope to see you again!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "We hope to see you again!"'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(5, 8), (6, 4), (7, 2), (12, 5), (14, 5)] -> approaching to interact/trigger
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    EXIT-BUILDING: (9, 1) -> (3, 5)@(15, 7)
+
+   [campaign]    HEAL: exited Center -> map=(3, 5) coords=(15, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(15, 7) -> coord (14, 26) (budget 120s)
+
+   [travel] step 0: (15, 7)->(15, 8) map=(3, 5) (path 35 to exit)
+
+   [travel] step 10: (20, 12)->(20, 13) map=(3, 5) (path 25 to exit)
+
+   [travel] step 20: (22, 20)->(22, 21) map=(3, 5) (path 15 to exit)
+
+   [travel] path blocked at (19, 23) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 23); NPC-allowing path EXISTS (len 9), blocker NPC tile=(19, 24), npcs nearby=[(19, 24)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 5)@(19, 23) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "that little tree's in my way — good thing I carry Cut now. TIMBER!"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "RATTATA used CUT!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.77s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (19, 24) on (3, 5) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    HEAL: returned toward (14, 26) -> stuck (now (19, 23))
+
+   [campaign]    [puzzle] recovery heal -> ok
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 23) -> coord (14, 26) (budget 300s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [puzzle] !! recovery re-enter failed
+
+   [campaign]    GYM: trash-can puzzle -> stuck
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 23) -> coord (16, 25) (budget 60s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (19, 23)->(19, 24) map=(3, 5) (path 6 to exit)
+
+   [travel] reached target coord (16, 25)
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (16, 25), door (14, 25), scanned 0 field object(s): []
+
+   [campaign]    [roam] !! SURGE PUZZLE STILL OPEN: beat_gym stuck x2 — NOT parking head_to_gym; TrashCanPuzzle re-arms next tick (inside gym or city)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 5)(19, 22) -> (3, 5)(16, 25) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick5] -> campaign/kira_campaign.state  (map=(3, 5) coords=(16, 25) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 24) toward Route 6 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! DOMINANT → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (16, 25) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (16,25) f3 -- badge2 $4088 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'stock_up', 'talk_npc']
+
+   [campaign]    [roam] SHOP: "There's a Mart right here, and you've got the money. you could carry a lot more Potions before that next push; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — stocking up on healing BEFORE you walk back into that wall is the smart play, not charging in empty-handed." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:a building in Vermilion City:magnemite: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:a building in Vermilion City:magnemite: team floor < L22 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #1: objective "PUSH FORWARD — the way ahead is blocked (a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it), and the move that opens it is to HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 0 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP and no switch on this relaxed leg (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L11 bench mon (target L22) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Lt. Surge's city (3, 5) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay. Lt. Surge's gym — and this is the wall that's been beating me. deep breath. this is the one. here we go."
+
+   [kira-voice] -> T1·brisk· (travel) "okay, enough drifting — I said I was heading there, so let's actually go."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    GYM-PREP [Lt. Surge]: DOMINANT — top L33 >= L25+8 (no type answer, and none needed at this power gap) — going in
+
+   [kira-voice] ·floor· (<1s since last) T2 "no perfect type matchup for Lt. Surge, but honestly? we're way past needing one. we're strong enough — let's just go win this."
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L33) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(16, 25) -> coord (14, 26) (budget 300s)
+
+   [travel] step 0: (16, 25)->(16, 26) map=(3, 5) (path 4 to exit)
+
+   [travel] reached target coord (14, 26)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 5) -> (9, 6) via door (14, 25)
+
+   [campaign]    [world] learned 3 warp(s) on (9, 6): (4, 19)->(3, 5), (5, 19)->(3, 5), (6, 19)->(3, 5)
+
+   [campaign]    GYM: inside (9, 6) at (5, 19) - clearing junior trainers
+
+   [campaign]    [puzzle] trash-can hunt: 15 sites [(1, 10), (3, 10), (5, 10), (7, 10), (9, 10), (1, 12), (3, 12), (5, 12), (7, 12), (9, 12), (1, 14), (3, 14), (5, 14), (7, 14), (9, 14)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (gym) "okay — the door's locked behind some switch hidden in these trash cans. gross, but fine: we're going bin-diving."  fired=True  [age 0.0s + post 2ms]
+
+   [travel] start map=(9, 6) coords=(5, 19) -> coord (1, 11) (budget 70s)
+
+   [travel] step 0: (5, 19)->(5, 18) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (3, 11)->(4, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (1, 11)
+
+   [dialogue] +++ "Nope! There's only trash here."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Nope! There\'s only trash here."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 10) from (1, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 11) -> coord (3, 11) (budget 70s)
+
+   [travel] step 0: (1, 11)->(0, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (3, 11)
+
+   [dialogue] +++ "Hey! There's a switch under the trash! Turn it on! The first electric lock opened!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey! There\'s a switch under the trash! Turn it on! The first electric lock opened!"'  fired=True  [age 0.0s + post 7ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Hey! There's a switch under the trash! Turn it on! The first electric lo"
+
+   [dialogue] +++ "Nope! There's only trash here. Hey! The electric locks were reset!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Nope! There\'s only trash here. Hey! The electric locks were reset!"'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here. Hey! The electric locks were reset!"
+
+   [campaign]    [dlg-pace trashcan] box "Hey! There's a switch under the trash! Turn it o" visible 4.62s (sink 0ms, hold 0.11s, end=next_box)
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here. Hey! The electric" visible 2.23s (sink 0ms, hold 0.10s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 10) from (3, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 11) -> coord (5, 11) (budget 70s)
+
+   [travel] step 0: (3, 11)->(4, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 11)
+
+   [dialogue] +++ "Nope! There's only trash here."  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Nope! There\'s only trash here."'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.69s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 10) from (5, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 11) -> coord (7, 11) (budget 70s)
+
+   [travel] step 0: (5, 11)->(6, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 10) from (7, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 11) -> coord (9, 11) (budget 70s)
+
+   [travel] step 0: (7, 11)->(8, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (9, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 10) from (9, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 11) -> coord (1, 13) (budget 70s)
+
+   [travel] step 0: (9, 11)->(8, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (1, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.70s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 12) from (1, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 13) -> coord (3, 13) (budget 70s)
+
+   [travel] step 0: (1, 13)->(2, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (3, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 12) from (3, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 13) -> coord (5, 13) (budget 70s)
+
+   [travel] step 0: (3, 13)->(4, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 12) from (5, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 13) -> coord (7, 13) (budget 70s)
+
+   [travel] step 0: (5, 13)->(6, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 12) from (7, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 13) -> coord (9, 13) (budget 70s)
+
+   [travel] step 0: (7, 13)->(6, 13) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (9, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 12) from (9, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 13) -> coord (1, 15) (budget 70s)
+
+   [travel] step 0: (9, 13)->(10, 13) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (3, 15)->(2, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (1, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 14) from (1, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 15) -> coord (3, 15) (budget 70s)
+
+   [travel] step 0: (1, 15)->(2, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (3, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 14) from (3, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 15) -> coord (5, 15) (budget 70s)
+
+   [travel] step 0: (3, 15)->(4, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 14) from (5, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 15) -> coord (7, 15) (budget 70s)
+
+   [travel] step 0: (5, 15)->(6, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 14) from (7, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 15) -> coord (9, 15) (budget 70s)
+
+   [travel] step 0: (7, 15)->(8, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (9, 15)
+
+   [dialogue] +++ "Hey! There's a switch under the trash! Turn it on! The first electric lock opened!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey! There\'s a switch under the trash! Turn it on! The first electric lock opened!"'  fired=True  [age 0.0s + post 6ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Hey! There's a switch under the trash! Turn it on! The first electric lo"
+
+   [dialogue] +++ "Nope! There's only trash here. Hey! The electric locks were reset!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Nope! There\'s only trash here. Hey! The electric locks were reset!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here. Hey! The electric locks were reset!"
+
+   [campaign]    [dlg-pace trashcan] box "Hey! There's a switch under the trash! Turn it o" visible 4.63s (sink 0ms, hold 0.11s, end=next_box)
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here. Hey! The electric" visible 2.50s (sink 0ms, hold 0.10s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 14) from (9, 15) face UP (box=1 temp1=0 both=0)
+
+   [campaign]    [puzzle] !! swept cans, no first switch (checked=15 failed_interact=0 sites=15)
+
+   [campaign]    [puzzle] recovery: leave gym → heal → re-enter (re-roll switches)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (gym) "okay these cans are messing with me — I'm stepping out, healing, and coming back fresh."  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 15) -> coord (5, 18) (budget 60s)
+
+   [travel] step 0: (9, 15)->(9, 16) map=(9, 6) (path 8 to exit)
+
+   [travel] reached target coord (5, 18)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (5, 19) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    EXIT-BUILDING: (9, 6) -> (3, 5)@(14, 26)
+
+   [campaign]    HEAL: whole party already full - skipping
+
+   [campaign]    [puzzle] recovery heal -> ok
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(14, 26) -> coord (14, 26) (budget 300s)
+
+   [travel] reached target coord (14, 26)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 5) -> (9, 6) via door (14, 25)
+
+   [campaign]    [world] learned 3 warp(s) on (9, 6): (4, 19)->(3, 5), (5, 19)->(3, 5), (6, 19)->(3, 5)
+
+   [campaign]    [puzzle] recovery re-enter -> map=(9, 6) ok=True
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 19) -> coord (1, 11) (budget 70s)
+
+   [travel] step 0: (5, 19)->(5, 18) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (3, 11)->(4, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (1, 11)
+
+   [dialogue] +++ "Nope! There's only trash here."  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Nope! There\'s only trash here."'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 10) from (1, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 11) -> coord (3, 11) (budget 70s)
+
+   [travel] step 0: (1, 11)->(0, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (3, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 10) from (3, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 11) -> coord (5, 11) (budget 70s)
+
+   [travel] step 0: (3, 11)->(4, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 10) from (5, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 11) -> coord (7, 11) (budget 70s)
+
+   [travel] step 0: (5, 11)->(6, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 10) from (7, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 11) -> coord (9, 11) (budget 70s)
+
+   [travel] step 0: (7, 11)->(8, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (9, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 10) from (9, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 11) -> coord (1, 13) (budget 70s)
+
+   [travel] step 0: (9, 11)->(8, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (1, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 1ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 12) from (1, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 13) -> coord (3, 13) (budget 70s)
+
+   [travel] step 0: (1, 13)->(2, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (3, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.69s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 12) from (3, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 13) -> coord (5, 13) (budget 70s)
+
+   [travel] step 0: (3, 13)->(4, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 12) from (5, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 13) -> coord (7, 13) (budget 70s)
+
+   [travel] step 0: (5, 13)->(6, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 12) from (7, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 13) -> coord (9, 13) (budget 70s)
+
+   [travel] step 0: (7, 13)->(6, 13) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (9, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.69s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 12) from (9, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 13) -> coord (1, 15) (budget 70s)
+
+   [travel] step 0: (9, 13)->(10, 13) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (3, 15)->(2, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (1, 15)
+
+   [dialogue] +++ "Hey! There's a switch under the trash! Turn it on! The first electric lock opened!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey! There\'s a switch under the trash! Turn it on! The first electric lock opened!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Hey! There's a switch under the trash! Turn it on! The first electric lo"
+
+   [dialogue] +++ "Nope! There's only trash here. Hey! The electric locks were reset!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Nope! There\'s only trash here. Hey! The electric locks were reset!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here. Hey! The electric locks were reset!"
+
+   [campaign]    [dlg-pace trashcan] box "Hey! There's a switch under the trash! Turn it o" visible 4.64s (sink 0ms, hold 0.11s, end=next_box)
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here. Hey! The electric" visible 2.23s (sink 0ms, hold 0.10s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 14) from (1, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 15) -> coord (3, 15) (budget 70s)
+
+   [travel] step 0: (1, 15)->(2, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (3, 15)
+
+   [dialogue] +++ "Nope! There's only trash here."  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Nope! There\'s only trash here."'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 14) from (3, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 15) -> coord (5, 15) (budget 70s)
+
+   [travel] step 0: (3, 15)->(4, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 14) from (5, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 15) -> coord (7, 15) (budget 70s)
+
+   [travel] step 0: (5, 15)->(6, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 14) from (7, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 15) -> coord (9, 15) (budget 70s)
+
+   [travel] step 0: (7, 15)->(8, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (9, 15)
+
+   [dialogue] +++ "Hey! There's a switch under the trash! Turn it on! The first electric lock opened!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey! There\'s a switch under the trash! Turn it on! The first electric lock opened!"'  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Hey! There's a switch under the trash! Turn it on! The first electric lo"
+
+   [dialogue] +++ "Nope! There's only trash here. Hey! The electric locks were reset!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Nope! There\'s only trash here. Hey! The electric locks were reset!"'  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here. Hey! The electric locks were reset!"
+
+   [campaign]    [dlg-pace trashcan] box "Hey! There's a switch under the trash! Turn it o" visible 4.63s (sink 0ms, hold 0.11s, end=next_box)
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here. Hey! The electric" visible 2.23s (sink 0ms, hold 0.10s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 14) from (9, 15) face UP (box=1 temp1=0 both=0)
+
+   [campaign]    [puzzle] !! swept cans, no first switch (checked=15 failed_interact=0 sites=15)
+
+   [campaign]    [puzzle] recovery: leave gym → heal → re-enter (re-roll switches)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (gym) "okay these cans are messing with me — I'm stepping out, healing, and coming back fresh."  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 15) -> coord (5, 18) (budget 60s)
+
+   [travel] step 0: (9, 15)->(9, 16) map=(9, 6) (path 8 to exit)
+
+   [travel] reached target coord (5, 18)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (5, 19) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    EXIT-BUILDING: (9, 6) -> (3, 5)@(14, 26)
+
+   [campaign]    HEAL: whole party already full - skipping
+
+   [campaign]    [puzzle] recovery heal -> ok
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(14, 26) -> coord (14, 26) (budget 300s)
+
+   [travel] reached target coord (14, 26)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 5) -> (9, 6) via door (14, 25)
+
+   [campaign]    [world] learned 3 warp(s) on (9, 6): (4, 19)->(3, 5), (5, 19)->(3, 5), (6, 19)->(3, 5)
+
+   [campaign]    [puzzle] recovery re-enter -> map=(9, 6) ok=True
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 19) -> coord (1, 11) (budget 70s)
+
+   [travel] step 0: (5, 19)->(5, 18) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (3, 11)->(4, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (1, 11)
+
+   [dialogue] +++ "Nope! There's only trash here."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Nope! There\'s only trash here."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 10) from (1, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 11) -> coord (3, 11) (budget 70s)
+
+   [travel] step 0: (1, 11)->(0, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (3, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 10) from (3, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 11) -> coord (5, 11) (budget 70s)
+
+   [travel] step 0: (3, 11)->(4, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 10) from (5, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 11) -> coord (7, 11) (budget 70s)
+
+   [travel] step 0: (5, 11)->(6, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.70s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 10) from (7, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 11) -> coord (9, 11) (budget 70s)
+
+   [travel] step 0: (7, 11)->(8, 11) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (9, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 1ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 10) from (9, 11) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 11) -> coord (1, 13) (budget 70s)
+
+   [travel] step 0: (9, 11)->(8, 11) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (1, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.69s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 12) from (1, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 13) -> coord (3, 13) (budget 70s)
+
+   [travel] step 0: (1, 13)->(2, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (3, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 12) from (3, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 13) -> coord (5, 13) (budget 70s)
+
+   [travel] step 0: (3, 13)->(4, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 12) from (5, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 13) -> coord (7, 13) (budget 70s)
+
+   [travel] step 0: (5, 13)->(6, 13) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.69s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 12) from (7, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 13) -> coord (9, 13) (budget 70s)
+
+   [travel] step 0: (7, 13)->(6, 13) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (9, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 1ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 12) from (9, 13) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 13) -> coord (1, 15) (budget 70s)
+
+   [travel] step 0: (9, 13)->(10, 13) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (3, 15)->(2, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (1, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(1, 14) from (1, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 15) -> coord (3, 15) (budget 70s)
+
+   [travel] step 0: (1, 15)->(2, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (3, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(3, 14) from (3, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(3, 15) -> coord (5, 15) (budget 70s)
+
+   [travel] step 0: (3, 15)->(4, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (5, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.70s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(5, 14) from (5, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 15) -> coord (7, 15) (budget 70s)
+
+   [travel] step 0: (5, 15)->(6, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (7, 15)
+
+   [dialogue] +++ "Hey! There's a switch under the trash! Turn it on! The first electric lock opened!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey! There\'s a switch under the trash! Turn it on! The first electric lock opened!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Hey! There's a switch under the trash! Turn it on! The first electric lo"
+
+   [dialogue] +++ "Nope! There's only trash here. Hey! The electric locks were reset!"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Nope! There\'s only trash here. Hey! The electric locks were reset!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here. Hey! The electric locks were reset!"
+
+   [campaign]    [dlg-pace trashcan] box "Hey! There's a switch under the trash! Turn it o" visible 4.63s (sink 0ms, hold 0.11s, end=next_box)
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here. Hey! The electric" visible 2.23s (sink 0ms, hold 0.10s, end=closed)
+
+   [campaign]    [puzzle] checked can(7, 14) from (7, 15) face UP (box=1 temp1=0 both=0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(7, 15) -> coord (9, 15) (budget 70s)
+
+   [travel] step 0: (7, 15)->(8, 15) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (9, 15)
+
+   [dialogue] +++ "Nope! There's only trash here."  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Nope! There\'s only trash here."'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg trashcan] "Nope! There's only trash here."
+
+   [campaign]    [dlg-pace trashcan] box "Nope! There's only trash here." visible 1.68s (sink 0ms, hold 0.05s, end=closed)
+
+   [campaign]    [puzzle] checked can(9, 14) from (9, 15) face UP (box=1 temp1=0 both=0)
+
+   [campaign]    [puzzle] !! swept cans, no first switch (checked=15 failed_interact=0 sites=15)
+
+   [campaign]    GYM: trash-can puzzle -> stuck
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (9, 15), door (14, 25), scanned 0 field object(s): []
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 15) -> coord (11, 20) (budget 60s)
+
+   [travel] step 0: (9, 15)->(9, 16) map=(9, 6) (path 8 to exit)
+
+   [travel] path blocked at (10, 19) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (10, 19); NPC-allowing path EXISTS (len 3), blocker NPC tile=None, npcs nearby=[(4, 17), (8, 13)] -> approaching to interact/trigger
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (9, 6)@(10, 19) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 517s, restart 1/8) — GAME CONTINUES; respawning audio.
+

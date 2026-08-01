@@ -1,4 +1,4 @@
-resume_marathon 20260801_063406  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260801_063937  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
 Already up to date.
@@ -8,9 +8,10 @@ Already up to date.
 
 Name                            LastWriteTime           Length
 ----                            -------------           ------
+latest.log                      8/1/2026 6:38:15 AM      30004
+console_2026-08-01_06-34-12.log 8/1/2026 6:38:15 AM      30004
+playlive_faulthandler.log       8/1/2026 6:35:07 AM       5720
 console_2026-08-01_06-22-58.log 8/1/2026 6:32:28 AM      78431
-latest.log                      8/1/2026 6:32:28 AM      78431
-playlive_faulthandler.log       8/1/2026 6:23:48 AM       5610
 console_2026-08-01_04-54-50.log 8/1/2026 6:18:01 AM     717738
 console_2026-08-01_04-17-39.log 8/1/2026 4:26:00 AM      64550
 console_2026-08-01_03-59-06.log 8/1/2026 4:04:01 AM      33918
@@ -224,9 +225,9 @@ console_2026-06-16_17-58-32.log 6/16/2026 6:05:26 PM     32137
 
 
 
-tailed newest debug log: console_2026-08-01_06-22-58.log
+tailed newest debug log: latest.log
+tailed supervisor log: playlive_2026-08-01_06-35-07.log
 tailed supervisor log: playlive_2026-08-01_06-23-48.log
-tailed supervisor log: playlive_2026-08-01_04-55-44.log
 == sandbox inventory (G:\temp\kira_watch) ==
 [1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
     last activity: 07/28/2026 13:14:40
@@ -235,13 +236,13 @@ tailed supervisor log: playlive_2026-08-01_04-55-44.log
     last activity: 07/28/2026 12:57:41
     badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
 == canonical campaign ==
-    last activity: 08/01/2026 06:32:24
-    badges=2 party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] place=a building in Vermilion City played=723min timeline=sherpa
+    last activity: 08/01/2026 06:38:11
+    badges=2 party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] place=a building in Vermilion City played=726min timeline=sherpa
 == campaign snapshot inventory (*.state, newest first) ==
 
 Name                             LastWriteTime         Length
 ----                             -------------         ------
-kira_campaign.state              8/1/2026 6:27:43 AM   397312
+kira_campaign.state              8/1/2026 6:35:09 AM   397312
 pre_reload_20260801_054735.state 8/1/2026 5:47:35 AM   397312
 pre_reload_20260731_152047.state 7/31/2026 3:20:47 PM  397312
 pre_reload_20260731_151952.state 7/31/2026 3:19:52 PM  397312
@@ -280,6 +281,7 @@ seg_opening.state                7/28/2026 2:02:29 PM 397312
 
 Name                                                                 LastWriteTime      
 ----                                                                 -------------      
+20260801_063509_vermilion-city_2b_12h02m_roam-start                  8/1/2026 6:35:09 AM
 20260801_062427_vermilion-city_2b_11h55m_gain-new-area               8/1/2026 6:24:27 AM
 20260801_062423_route-6_2b_11h54m_gain-new-area                      8/1/2026 6:24:23 AM
 20260801_062349_vermilion-city_2b_11h54m_roam-start                  8/1/2026 6:23:49 AM
@@ -299,7 +301,6 @@ Name                                                                 LastWriteTi
 20260801_054735_vermilion-city_2b_11h24m_gain-new-area               8/1/2026 5:47:35 AM
 20260801_054532_the-s-s-anne_2b_11h21m_gain-new-area                 8/1/2026 5:45:32 AM
 20260801_054518_the-s-s-anne_2b_11h21m_gain-new-area                 8/1/2026 5:45:18 AM
-20260801_054417_vermilion-city_2b_11h20m_gain-new-area               8/1/2026 5:44:17 AM
 
 
 
@@ -308,12 +309,12 @@ Name                                                                 LastWriteTi
 FullName                                                                                                                             LastWriteTime        
 --------                                                                                                                             -------------        
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                                                   6/26/2026 4:11:48 PM 
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/1/2026 6:32:24 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/1/2026 6:38:11 AM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423                                                         7/29/2026 9:04:20 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      7/31/2026 10:25:39 AM
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427                                                          7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                                                  7/15/2026 12:12:19 PM
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/1/2026 6:24:27 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/1/2026 6:35:09 AM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427                       7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\checkpoints                                             7/29/2026 8:59:40 AM 
@@ -368,27 +369,3 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 
 >> no PROMOTE_TARGET.txt -- defaulting to CANONICAL launch (canonical save as-is).
 == push soak report ==
-[main 5fb6f37] report(soak): 20260801_063406 inventory/rescue (auto from resume_marathon.ps1)
- 9 files changed, 3799 insertions(+)
- create mode 100644 docs/soak-reports/20260801_063406/canonical_health.json
- create mode 100644 docs/soak-reports/20260801_063406/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260801_063406/resume_marathon.log
- create mode 100644 docs/soak-reports/20260801_063406/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260801_063406/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260801_063406/tail_console_2026-08-01_06-22-58.log
- create mode 100644 docs/soak-reports/20260801_063406/tail_supervisor_playlive_2026-08-01_04-55-44.log
- create mode 100644 docs/soak-reports/20260801_063406/tail_supervisor_playlive_2026-08-01_06-23-48.log
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:353 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   ca0029c..5fb6f37  main -> main
-
-== launching bot (window 1) ==
-waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
-bot is up. == launching supervised marathon (window 2) ==
-She is live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking.
-To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T
