@@ -10960,7 +10960,13 @@ class Campaign:
         at the blocking obstacle — Vermilion's cut tree IS the chokepoint), then run the HM-obstacle
         recognizer AT HER FEET. This was the missing wire: recognize() was only ever called with
         blocked_dir (exit gates), so the adjacency-based HM_OBSTACLE gate was dead code from the
-        roam loop. Returns a Gate or None."""
+        roam loop.
+
+        Returns:
+          "cut_cleared" — Cut just dropped the gym-door tree THIS call (caller must re-enter NOW)
+          a Gate        — only cut/strength door obstacles (never water/surf)
+          None          — no actionable gym-door gate; caller stays / retries
+        """
         try:
             grid = tv.Grid(self.b)
             cur = tuple(tv.coords(self.b))
@@ -10974,8 +10980,11 @@ class Campaign:
             # a SURF/Safari questline (runs 5-6). A tree/boulder near the door IS the gate: walk
             # adjacent to the OBJECT and recognize there (obstacles outrank water in the recognizer).
             import field_moves as _fm
+            _mid = tuple(tv.map_id(self.b))
+            _saw_door_tree = False
 
             def _obstacle_probe():
+                nonlocal _saw_door_tree
                 g2 = tv.Grid(self.b)
                 here2 = tuple(tv.coords(self.b))
                 # DIAGNOSTIC (2026-07-10 NIGHT SHIFT 16): the Surge gym-door Cut never actuates even on the
@@ -10993,6 +11002,7 @@ class Campaign:
                         # far away (Vermilion (29,18), ~16 tiles off) where scan_field_objects loads
                         # NOTHING — the cache lets phase B walk straight back to it.
                         self._gym_cut_cache[tuple(tv.map_id(self.b))] = (ox, oy)
+                        _saw_door_tree = True
                     for stand in ((ox, oy - 1), (ox, oy + 1), (ox - 1, oy), (ox + 1, oy)):
                         _reach = bool(tv.bfs(g2, here2, lambda t, s=stand: t == s, walkable=g2.walkable))
                         log(f"   [roam] 🔎 tree@{ob['coord']} gfx={ob.get('gfx')} stand={stand} bfs_reachable={_reach}")
@@ -11028,7 +11038,10 @@ class Campaign:
 
             found = _obstacle_probe()
             if found == "cleared":
-                return None      # tree is DOWN — no gate; the next tick's door leg walks through
+                # Distinct signal so head_to_gym re-enters THIS tick (None used to fall through to
+                # beach water recognize on the NEXT stuck and exile her to Route 6 / UGP).
+                log("   [roam] 🪓 GYM-GATE: Cut CLEARED the door tree — signaling cut_cleared for immediate re-enter")
+                return "cut_cleared"
             if not found:
                 # phase B — reposition so the gate tree LOADS into scan range, then rescan.
                 grid2 = tv.Grid(self.b)
@@ -11073,12 +11086,40 @@ class Campaign:
                                              max_steps=200, max_seconds=60)
                             break
                 if _obstacle_probe() == "cleared":
-                    return None
+                    log("   [roam] 🪓 GYM-GATE: Cut CLEARED (phase B) — signaling cut_cleared for immediate re-enter")
+                    return "cut_cleared"
+            # Door-tree still present (or Cut usable + cached) — NEVER fall through to beach water.
+            # Live 2026-08-01: post-Cut / near-beach recognize() armed missing='surf' → Fuchsia
+            # questline → discovery walked her NORTH onto Route 6 / UGP forever.
+            _cut_ok = False
+            try:
+                _cut_ok = bool(_fm.can_use(self.b, "cut", self.b.rd8(ram.GPLAYER_PARTY_CNT)))
+            except Exception:
+                _cut_ok = False
+            _cached_tree = self._gym_cut_cache.get(_mid)
+            if found is True or _saw_door_tree or (_cached_tree and _cut_ok):
+                log(f"   [roam] !! GYM-GATE: door cut-tree path owns this stuck "
+                    f"(found={found!r} saw_tree={_saw_door_tree} cached={_cached_tree} "
+                    f"cut_ok={_cut_ok}) — REFUSING water/recognize fallthrough")
+                return None
             here = tv.coords(self.b)
             gate = self._gate_recognizer.recognize(tuple(tv.map_id(self.b)),
                                                    player_xy=tuple(here) if here else None,
                                                    grid=tv.Grid(self.b))
             if gate:
+                _miss = getattr(gate, "missing", None)
+                _kind = (getattr(gate, "detail", None) or {}).get("kind")
+                # HARD RULE: gym-door probe never returns water/surf (beach near Vermilion gym).
+                if _miss == "surf" or _kind == "water" or (
+                        isinstance(_miss, str) and _miss.startswith("badge:surf")):
+                    log(f"   [roam] !! GYM-GATE: DISCARDING water/surf gate at gym door "
+                        f"({gate}) — door is HERE, not a sea errand")
+                    return None
+                # Only cut/strength are legitimate gym-door HM obstacles; Safari/story noise → ignore.
+                if _miss not in ("cut", "strength"):
+                    log(f"   [roam] !! GYM-GATE: IGNORING non-door-tree gate at gym city "
+                        f"({gate}) — not opening a Safari/surf/story errand from the door probe")
+                    return None
                 try:
                     log(f"   [roam] [!] GYM-GATE PROBE: {gate}")
                 except Exception:
@@ -11087,6 +11128,34 @@ class Campaign:
         except Exception as _e:
             log(f"   [roam] gym-gate probe skipped: {_e}")
             return None
+
+    def _retry_gym_door_enter(self, gym, tries=2):
+        """After Cut clears the door tree: walk to a stand tile adjacent to gym.door and enter_warp.
+        Bounded retries. Returns 'warped' on success, else the last enter_warp result / 'stuck'."""
+        door = tuple(gym.door)
+        last = "stuck"
+        for i in range(max(1, int(tries))):
+            try:
+                here = tuple(tv.coords(self.b) or ())
+                grid = tv.Grid(self.b)
+                stands = ((door[0], door[1] + 1), (door[0], door[1] - 1),
+                          (door[0] - 1, door[1]), (door[0] + 1, door[1]))
+                # Prefer the south stand (Vermilion gym door faces south into the street).
+                for stand in stands:
+                    if tv.bfs(grid, here, lambda t, s=stand: t == s, walkable=grid.walkable):
+                        log(f"   [roam] 🚪 post-Cut door approach try {i + 1}/{tries}: "
+                            f"walk stand {stand} → enter {door}")
+                        self.trav.travel(target_map=None, arrive_coord=stand,
+                                         max_steps=200, max_seconds=60)
+                        break
+                last = self.enter_warp(pick=door)
+                log(f"   [roam] 🚪 post-Cut enter_warp({door}) try {i + 1}/{tries} -> {last}")
+                if last == "warped":
+                    return "warped"
+            except Exception as _ee:
+                log(f"   [roam] post-Cut door re-enter try {i + 1} errored: {_ee}")
+                last = "stuck"
+        return last
 
     def _ensure_forward_questline(self, state):
         """PROACTIVE forward drive (ROOT FIX for the backward-grind). Recognise the gate on the FORWARD
@@ -11774,6 +11843,13 @@ class Campaign:
             except Exception:
                 pass
             return tuple(dst) in _fwd_set
+        # SURGE CITY STAY (2026-08-01 live): at Vermilion with next gym Lt. Surge, Route 6 and the
+        # Underground Path are BEHIND her for this objective — never offer them as grass/FORWARD
+        # grind targets (they fed the cut→surf-questline→Route-6 exile loop).
+        _surge_city_stay = (
+            tuple(state.get("map") or ()) == VERMILION
+            and (state.get("next_gym") or {}).get("leader") == "Lt. Surge")
+        _SURGE_BACK_GRASS = {(3, 24)} | {(1, n) for n in range(30, 36)}  # Route 6 + UGP
         try:
             cur = tuple(state["map"])
             avoid = self._wall_avoid(state)
@@ -11787,12 +11863,19 @@ class Campaign:
                 dst = _entry[0]                            # entries are (dst, ...) — width varies
                 if tuple(dst) in _dead:
                     continue                               # visited trait says grass; grind says dead
+                if _surge_city_stay and tuple(dst) in _SURGE_BACK_GRASS:
+                    continue
                 hop = self.world.next_hop(cur, dst, avoid)
                 if not hop:
                     continue
                 nxt, edge = hop
                 if (cur, tuple(nxt)) in unreach:
                     continue                               # this hop already failed from here — next
+                if _surge_city_stay and (tuple(nxt) in _SURGE_BACK_GRASS
+                                         or tuple(dst) in _SURGE_BACK_GRASS):
+                    log(f"   [roam] !! SURGE-STAY: refusing grass hop {nxt}->{dst} "
+                        f"(Route 6/UGP are behind — gym door is HERE)")
+                    continue
                 log(f"   [roam] grass she KNOWS: routing {edge} -> {nxt} toward {self.world.name(dst)} "
                     f"({'FORWARD — on the road to the objective' if _grass_fwd(dst) else 'backward — no forward grass reachable'}, "
                     f"visited grass, avoiding any wall)")
@@ -11808,7 +11891,8 @@ class Campaign:
                  | getattr(self, "_grind_inadequate_set", set())  # + inadequate (empty if flag off)
                  | getattr(self, "_seam_nogo", set()))     # + seam-breaker session bans (border war)
         non_gated = [(d, m) for d, m in routes if not self.strat.is_gated(m, pcount, plevel)
-                     and (cur, tuple(m)) not in unreach and tuple(m) not in _dead]
+                     and (cur, tuple(m)) not in unreach and tuple(m) not in _dead
+                     and not (_surge_city_stay and tuple(m) in _SURGE_BACK_GRASS)]
         # FORWARD FIRST here too (the adjacent-route sibling of the known-grass loop above).
         non_gated.sort(key=lambda dm: 0 if _grass_fwd(dm[1]) else 1)
         if non_gated:
@@ -11819,14 +11903,19 @@ class Campaign:
         hop = self._grass_via_graph(state)
         if hop is not None:
             nxt, edge = hop
-            log(f"   [roam] grass-behind-the-wall: routing one hop {edge} -> {nxt} toward known/likely grass "
-                f"(avoiding the gated route)")
-            return ("route", nxt, edge)
+            if _surge_city_stay and tuple(nxt) in _SURGE_BACK_GRASS:
+                log(f"   [roam] !! SURGE-STAY: refusing grass-behind hop {nxt} "
+                    f"(Route 6/UGP are behind — gym door is HERE)")
+            else:
+                log(f"   [roam] grass-behind-the-wall: routing one hop {edge} -> {nxt} toward known/likely grass "
+                    f"(avoiding the gated route)")
+                return ("route", nxt, edge)
         # Truly only the gated route exists -> surface it; _route_action's gate tells her it's blocked.
         # (koga_run5: the last resort must ALSO honor the fail/dead memories — returning a proven
         # no-route hop here re-created the exact spin the memories exist to kill.)
         _last = [(d, m) for d, m in routes
-                 if (cur, tuple(m)) not in unreach and tuple(m) not in _dead]
+                 if (cur, tuple(m)) not in unreach and tuple(m) not in _dead
+                 and not (_surge_city_stay and tuple(m) in _SURGE_BACK_GRASS)]
         if _last:
             d, m = _last[0]
             return ("route", m, self._EDGE[d])
@@ -13456,6 +13545,17 @@ class Campaign:
                         f"re-entering beat_gym (puzzle / juniors / leader), NOT exiting")
                 else:
                     log(f"   [roam] ⛰️  AT {ng['leader']}'s city {gym.city} — ENTERING the gym to take the badge")
+                # SURF-POISON CLEAR (2026-08-01 live): a beach water gate near Vermilion gym armed a
+                # parked `surf` questline (anchor Fuchsia). GO-HARD ignores the hijack but leaves it
+                # parked — next non-GO tick / discovery exile walks her onto Route 6 / UGP. When the
+                # next gym's door is HERE in this city, discard that poison immediately.
+                if (ng.get("leader") == "Lt. Surge"
+                        and (tuple(state["map"]) == VERMILION or _in_surge_gym)
+                        and self._active_questline is not None
+                        and getattr(getattr(self._active_questline, "gate", None), "missing", None)
+                        == "surf"):
+                    self._clear_questline(
+                        "surf poison at Vermilion — Lt. Surge door is HERE, not a sea errand")
                 # PHASE 6 — DREAD: a gym is a hard challenge; name the nerves BEFORE the fight so the
                 # payoff has something to land against (earned relief requires prior worry). Tier-2
                 # anticipation; her core voice colors the actual nerves. Sharper if she's walled here.
@@ -13479,18 +13579,67 @@ class Campaign:
                 # actually use (can_use('cut') inside), so cutting the tree is idempotent + safe even
                 # mid-questline. Only OPEN a NEW gate errand when nothing's already in flight (preserve
                 # the original guard against competing questlines).
+                #
+                # CUT→RE-ENTER SAME TICK (2026-08-01 live Vermilion exile): after TIMBER the probe
+                # used to return None → stuck → next tick beach recognize armed `surf` → questline
+                # discovery marched her to Route 6 / UGP. On cut_cleared: immediate door re-enter
+                # (bounded) + beat_gym again; NEVER open a questline that leaves gym.city.
                 if out == "stuck" and QUESTLINE_ENABLED:
+                    _cut_cleared_this_tick = False
                     # STORY-PREREQ FIRST (2026-07-10 night shift 2, the Sabrina/Silph wall): a gym whose
                     # DOOR is Rocket/story-blocked has no tree for the HM probe to find — check the gym's
                     # story-prereq gate and arm the liberation errand (Silph Co.) BEFORE the HM probe
                     # walks her around hunting a non-existent obstacle. Only when nothing's in flight.
+                    # HARD RULE: at the gym city itself, NEVER open/pursue a surf/water questline from
+                    # this path — the door is HERE (Vermilion beach water is poison, not the gate).
                     if self._active_questline is None:
                         pgate = self._gym_prereq_gate(gym)
+                        if pgate is not None:
+                            _pm = getattr(pgate, "missing", None)
+                            if (_pm == "surf" or (isinstance(_pm, str) and "surf" in _pm)
+                                    or (getattr(pgate, "detail", None) or {}).get("kind") == "water"):
+                                log(f"   [roam] !! AT-CITY: DISCARDING water/surf prereq gate "
+                                    f"({pgate}) while standing in {gym.city} — door is HERE")
+                                pgate = None
                         if pgate and self._open_questline(pgate, state):
                             return self._run_questline_step(state)
                     gate = self._gym_gate_probe(gym)
-                    if gate and self._active_questline is None and self._open_questline(gate, state):
+                    if gate == "cut_cleared":
+                        _cut_cleared_this_tick = True
+                        log(f"   [roam] 🪓 AT-CITY: cut_cleared at {gym.city} — immediate door "
+                            f"re-enter (no questline, no leave-city)")
+                        if self._retry_gym_door_enter(gym, tries=2) == "warped":
+                            out = self.beat_gym(ng["leader"])
+                            log(f"   [roam] 🪓 AT-CITY: post-Cut beat_gym re-call -> {out}")
+                        else:
+                            log(f"   [roam] !! AT-CITY: post-Cut enter still stuck at "
+                                f"{gym.door} — STAYING in {gym.city} (no surf/questline exile)")
+                            return "stuck"
+                    elif gate:
+                        _gm = getattr(gate, "missing", None)
+                        _gk = (getattr(gate, "detail", None) or {}).get("kind")
+                        # HARD RULE: at gym city / Surge interior — never open surf/water from probe.
+                        if (_gm == "surf" or _gk == "water"
+                                or (isinstance(_gm, str) and _gm.startswith("badge:surf"))):
+                            log(f"   [roam] !! AT-CITY: DISCARDING water/surf gym-gate "
+                                f"({gate}) — no-surf-questline while door is in {gym.city}")
+                            gate = None
+                        elif _gm not in ("cut", "strength"):
+                            log(f"   [roam] !! AT-CITY: IGNORING non-cut/strength gym-gate "
+                                f"({gate}) — not opening a Safari/surf errand from the door")
+                            gate = None
+                    if (gate and gate != "cut_cleared" and self._active_questline is None
+                            and self._open_questline(gate, state)):
+                        # Still stuck AFTER a successful cut this tick → stay; never leave gym.city.
+                        if _cut_cleared_this_tick:
+                            log(f"   [roam] !! AT-CITY: cut cleared but still stuck — "
+                                f"REFUSING questline step that would leave {gym.city}")
+                            return "stuck"
                         return self._run_questline_step(state)
+                    if _cut_cleared_this_tick and out == "stuck":
+                        log(f"   [roam] !! AT-CITY: post-Cut still stuck — STAY in {gym.city}, "
+                            f"no questline exile to Route 6/UGP")
+                        return "stuck"
                 # GYM-INTERIOR PING-PONG BREAKER (descent re-grade 2026-07-08, the banked_SILPH
                 # Saffron loop): beat_gym 'stuck' can end with her INSIDE an interior she can't
                 # cross (Sabrina's teleport pads — strike-solved, not general yet); the next tick's
