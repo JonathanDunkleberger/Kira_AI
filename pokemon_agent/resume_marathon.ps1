@@ -1,4 +1,4 @@
-# resume_marathon.ps1 - the ONE-PASTE resume for the FireRed marathon (Windows PC).
+﻿# resume_marathon.ps1 - the ONE-PASTE resume for the FireRed marathon (Windows PC).
 #
 # How the PC<->Mac loop works:
 #   - This script inventories EVERY watch sandbox + the canonical save + crash logs
@@ -11,7 +11,7 @@
 # PROMOTE_TARGET.txt contents (one-shot; consumed after use):
 #   (absent)                  -> same as CANONICAL: launch the canonical save as-is
 #                                (2026-08-01: the old inventory-only fallback killed the
-#                                running processes and launched NOTHING — and since the
+#                                running processes and launched NOTHING -- and since the
 #                                file is consumed after every launch, "absent" is the
 #                                COMMON state; it stranded the marathon dark repeatedly)
 #   CANONICAL                 -> canonical save is already right; just launch
@@ -113,7 +113,7 @@ if (Test-Path $envFile) {
     }
     if (-not (Select-String -Path $envFile -Pattern "^\s*DISCORD_WEBHOOK_URL\s*=\s*\S+" -Quiet)) {
         # SUBATHON AUDIT 2026-07-30: the dead-man's switch (she's abandoned/wedged -> ping Jonny) posts
-        # to this webhook. Without it the alert is a SILENT no-op — you'd find her stopped hours later
+        # to this webhook. Without it the alert is a SILENT no-op -- you'd find her stopped hours later
         # instead of getting a phone buzz. Discord: Server Settings > Integrations > Webhooks > New.
         Say "!! DISCORD_WEBHOOK_URL is missing from .env - the dead-man's switch CANNOT reach you."
         Say "   (If she gets truly stuck mid-subathon, you will NOT be notified.)"
@@ -188,7 +188,7 @@ RunLogged "campaign snapshot inventory (*.state, newest first)" {
 } | Out-Null
 # The showtime lineage (states\kira) banks a checkpoint at each SEGMENT SEAM (seg_cerulean.state =
 # the moment she arrived in Cerulean, healthy). Same lineage as the migrated campaign, so one of
-# these can be promoted via "SNAPSHOT kira/<file>" — the real teleport-to-a-known-good-place.
+# these can be promoted via "SNAPSHOT kira/<file>" -- the real teleport-to-a-known-good-place.
 RunLogged "showtime segment checkpoints (states\kira\*.state, newest first)" {
     Get-ChildItem (Join-Path $RepoRoot "pokemon_agent\states\kira") -File -Filter "*.state" -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending |
@@ -196,7 +196,7 @@ RunLogged "showtime segment checkpoints (states\kira\*.state, newest first)" {
 } | Out-Null
 # DENSE AUTO-CHECKPOINTS (2026-07-31): the campaign banks a labeled bundle every ~12 min into
 # states\campaign\checkpoints\<ts>_<place>_<badges>b_<playtime>[_<reason>]. Listing the newest
-# lets the Mac agent pin an exact position via "CKPT <name-substring>" — the hard teleport.
+# lets the Mac agent pin an exact position via "CKPT <name-substring>" -- the hard teleport.
 RunLogged "auto-checkpoint inventory (newest 20)" {
     Get-ChildItem (Join-Path $campaign "checkpoints") -Directory -ErrorAction SilentlyContinue |
         Where-Object { $_.Name -notlike "*.partial" } |
@@ -229,8 +229,8 @@ if (Test-Path $targetFile) {
         $promoteOk = $true; $launchApproved = $true
     } elseif ($target -like "SNAPSHOT *") {
         # SNAPSHOT <file.state> (2026-07-30): promote a banked recovery snapshot from states/campaign
-        # to be the living save — the "teleport" (e.g. back to the moment she reached Cerulean).
-        # Current save is backed up first, sidecars (world/soul/strat) untouched — same campaign.
+        # to be the living save -- the "teleport" (e.g. back to the moment she reached Cerulean).
+        # Current save is backed up first, sidecars (world/soul/strat) untouched -- same campaign.
         $snapName = $target.Substring(9).Trim()
         # "kira/<file>" pulls a showtime segment checkpoint (same save lineage as the migrated
         # campaign); a bare name pulls a banked recovery snapshot from states\campaign.
@@ -252,7 +252,7 @@ if (Test-Path $targetFile) {
     } elseif ($target -like "CKPT *") {
         # CKPT <name-substring> (2026-07-31, "tp her to somewhere else in cerulean"): promote the
         # NEWEST dense auto-checkpoint whose dir name matches the substring (labels embed the
-        # place, e.g. 20260731_134210_cerulean-city_2b_10h05m) — the hard teleport that does not
+        # place, e.g. 20260731_134210_cerulean-city_2b_10h05m) -- the hard teleport that does not
         # depend on the game cooperating. Same contract as SNAPSHOT: live save backed up first,
         # sidecars untouched (same campaign, minutes older).
         $ckptPat = $target.Substring(5).Trim().ToLower()
@@ -330,17 +330,17 @@ if (Test-Path $targetFile) {
         $promoteOk = PromoteBank $target
         $launchApproved = $promoteOk
     } else {
-        Say "!! PROMOTE_TARGET.txt points to a path that doesn't exist: $target"
+        Say "!! PROMOTE_TARGET.txt points to a path that does not exist: $target"
     }
     # one-shot: consume the decision so future runs go back to inventory mode
     Remove-Item $targetFile -ErrorAction SilentlyContinue
 } else {
     # DEFAULT = CANONICAL (2026-08-01): the directive file is consumed one-shot after every
-    # launch, so "absent" is the normal steady state — treating it as inventory-only meant
+    # launch, so "absent" is the normal steady state -- treating it as inventory-only meant
     # every plain rerun killed Kira's processes and then launched nothing (stranded the
     # marathon repeatedly). Absent now behaves exactly like a CANONICAL directive; the
     # special one-shot directives above (SNAPSHOT/CKPT/NEW_CAMPAIGN/...) are unchanged.
-    Say ">> no PROMOTE_TARGET.txt — defaulting to CANONICAL launch (canonical save as-is)."
+    Say ">> no PROMOTE_TARGET.txt -- defaulting to CANONICAL launch (canonical save as-is)."
     $promoteOk = $true; $launchApproved = $true
 }
 
@@ -379,5 +379,5 @@ Say "bot is up. == launching supervised marathon (window 2) =="
 # loop-retries a lost gym; it is not the marathon vehicle. Canonical campaign now carries the
 # migrated stream run; the supervisor resumes it on every crash.
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python pokemon_agent\supervisor.py --timeline sherpa --audio"
-Say "She's live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking."
+Say "She is live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking."
 Say "To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T"
