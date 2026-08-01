@@ -76,6 +76,14 @@ nbr_bottom = EP.adjacent_cans((3, 14), cans)
 check(5, "bottom-row neighbors exclude statues",
       set(nbr_bottom) == {(1, 14), (5, 14), (3, 12)} and (3, 17) not in nbr_bottom)
 
+# pret TrySwitchTwo: re-checking the FIRST switch can RESETS. legal_second_targets must
+# never include first; adjacent_cans already excludes it — pin the contract hard.
+secs = EP.legal_second_targets((5, 12), cans)
+check(14, "legal seconds never include the first can itself (double-talk = reset)",
+      (5, 12) not in secs and set(secs) == set(nbr_mid))
+check(15, "legal seconds == adjacent_cans (pret orthogonal only)",
+      secs == EP.adjacent_cans((5, 12), cans))
+
 
 # already-solved short-circuit
 class _FlagBridge:

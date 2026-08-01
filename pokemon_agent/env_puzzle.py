@@ -8,18 +8,20 @@ updates belief, narrates the hunt. RAM is used to VERIFY outcomes (did the switc
 to pick the answer — the constitution's honest-search law: she doesn't psychically know, she hunts,
 she celebrates the find. (VAR_TEMP_0/1 DO hold the answer ids here; they are deliberately unread.)
 
-INSTANCE #1 GROUND TRUTH (pret src/field_specials.c SetVermilionTrashCans + scripts.inc):
+INSTANCE #1 GROUND TRUTH (pret pokefirered — field_specials.c SetVermilionTrashCans +
+VermilionCity_Gym/scripts.inc TrashCan / TrySwitchTwo):
   - 15 cans in a 5-wide, 3-row grid; ids 1..15. The FIRST switch can is uniform-random; the SECOND
-    is ALWAYS ADJACENT (idx ±1 same row / ±5 next row) — so her folk strategy "the next one's got
-    to be right beside it!" is CORRECT (and endearing).
+    is ALWAYS orthogonally ADJACENT (idx ±1 same row / ±5 next row). Diagonals are NEVER legal.
   - Live can tiles (VermilionCity_Gym/map.json): x∈{1,3,5,7,9}, y∈{10,12,14}. Pitch 2×2.
     TWO gym statues at (3,17)/(7,17) are ALSO bg script events — must NOT be treated as cans.
-  - Feedback: finding switch 1 sets FLAG_TEMP_1 (0x001) + opens beam set 1. A WRONG second pick
-    re-randomizes BOTH cans + beams back on (FLAG_TEMP_1 clears). Finding both sets
+  - Feedback: finding switch 1 sets FLAG_TEMP_1 (0x001) + opens beam set 1. Finding both sets
     FLAG_FOUND_BOTH_VERMILION_GYM_SWITCHES (0x264) — the door to Surge is open, PERMANENT.
-  - Expected honest cost: ~8 checks to find #1, adjacent-first for #2 (2-4 neighbors) — ~3 rounds.
+  - CRITICAL RESET LAW (TrySwitchTwo): once FLAG_TEMP_1 is set, checking ANY can that is not
+    SWITCH2 — INCLUDING RE-CHECKING THE FIRST SWITCH CAN — clears the flag and re-rolls both.
+    "Double-talk the first switch" is exactly how chat saw her reset. After first: only touch
+    true adjacent neighbors; never phase-1 re-sweep while TEMP_1 is still set.
   - Leave/re-enter (map transition) re-rolls TEMP switches via OnTransition InitTrashCans; FLAG_BOTH
-    stays. Used only as bounded stream-ok recovery after honest search stalls.
+    stays. Used when TEMP_1 is already set with no remembered first can, or after honest search stalls.
 """
 import time
 
@@ -72,7 +74,8 @@ def adjacent_cans(first, sites):
     """True 5×3 can-grid neighbors (pret: idx ±1 same row / ±5 next row).
 
     Tile rule on the live lattice: same row ±pitch_x, or same col ±pitch_y — never Manhattan
-    ball (that pulled in statues at Manhattan=3 from the bottom row).
+    ball (that pulled in statues at Manhattan=3 from the bottom row). NEVER includes `first`
+    itself — re-checking the first switch can is a RESET under TrySwitchTwo.
     """
     fx, fy = first
     sites = list(sites)
@@ -98,6 +101,14 @@ def adjacent_cans(first, sites):
             out.append(s)
     out.sort(key=lambda s: abs(s[0] - fx) + abs(s[1] - fy))
     return out
+
+
+def legal_second_targets(first, sites):
+    """Cans she may touch after finding switch #1 (pret TrySwitchTwo).
+
+    Exactly the orthogonal adjacent cans — never `first`, never diagonals, never statues.
+    """
+    return adjacent_cans(first, sites)
 
 
 class TrashCanPuzzle:
@@ -191,14 +202,73 @@ class TrashCanPuzzle:
         self.log(f"   [puzzle] recovery re-enter -> map={tv.map_id(self.b)} ok={ok}")
         return ok
 
+    def _step_away(self, first):
+        """Walk off the first-switch tile before phase 2 so a stray A can't re-check it.
+
+        pret TrySwitchTwo: re-talking SWITCH1 while FLAG_TEMP_1 is set = full reset.
+        """
+        fx, fy = first
+        for stand in ((fx, fy + 2), (fx + 2, fy), (fx - 2, fy), (fx, fy - 2),
+                      (fx, fy + 1), (fx + 1, fy), (fx - 1, fy), (fx, fy - 1)):
+            if stand == first:
+                continue
+            r = self.c.trav.travel(target_map=None, arrive_coord=stand,
+                                   max_steps=40, max_seconds=20)
+            if r == "arrived":
+                self.log(f"   [puzzle] stepped away from first {first} -> {stand}")
+                return True
+        self.log(f"   [puzzle] !! could not step away from first {first} — proceeding carefully")
+        return False
+
+    def _hunt_seconds(self, first, sites, t0, max_seconds, ev, rounds):
+        """Phase 2: ONLY legal adjacent cans. Never retouch `first`. Returns
+        'solved' | 'reset' | 'no_touch' (neighbors unreachable) | 'stuck' (budget)."""
+        neighbors = legal_second_targets(first, sites)
+        self.log(f"   [puzzle] phase2: first={first} legal_seconds={neighbors} "
+                 f"(pret: adjacent only; first is FORBIDDEN)")
+        if not neighbors:
+            self.log("   [puzzle] !! no grid neighbors — site filter broken?")
+            return "no_touch"
+        self._step_away(first)
+        for s in neighbors:
+            if time.time() - t0 > max_seconds:
+                return "stuck"
+            # Hard guard: never A the first can again (chat: "she double talked the first").
+            if s == first:
+                continue
+            if not self._interact(s):
+                continue
+            if read_flag(self.b, FLAG_BOTH_SWITCHES):
+                ev("YES — second switch! the beams are DOWN. okay Surge, no more hiding "
+                   "behind your garbage.", kind="gym", tier=3)
+                self.log(f"   [puzzle] BOTH switches — second was {s}")
+                return "solved"
+            if not read_flag(self.b, FLAG_TEMP_1):
+                ev("no no no — it reset?! the switches MOVED. okay. deep breath. "
+                   "we go again.", kind="gym", tier=2)
+                self.log(f"   [puzzle] wrong second {s} — reset (round {rounds})")
+                return "reset"
+            # TEMP_1 still set and not BOTH: interacting registered but didn't clear —
+            # shouldn't happen on a real can; treat as no progress and keep hunting.
+            self.log(f"   [puzzle] odd: checked {s} but TEMP_1 still set and not BOTH")
+        return "no_touch"
+
     def run(self, max_seconds=600):
         t0 = time.time()
         if read_flag(self.b, FLAG_BOTH_SWITCHES):
             self.log("   [puzzle] FLAG_BOTH already set — beams open")
             return "already"
         ev = self.c.on_event
+        # Mid-hunt relaunch: TEMP_1 set but we don't remember which can was first.
+        # Cannot safely phase-1 (any non-SWITCH2 check resets). Clean re-roll instead.
+        if read_flag(self.b, FLAG_TEMP_1):
+            self.log("   [puzzle] FLAG_TEMP_1 already set at entry — leave/re-enter to re-roll "
+                     "(cannot hunt seconds without knowing which can was first)")
+            if not self._recover_leave_reenter():
+                return "stuck"
         ev("okay — the door's locked behind some switch hidden in these trash cans. gross, but "
-           "fine: we're going bin-diving.", kind="gym", tier=2)
+           "fine: we're going bin-diving. second one's always right next to the first — "
+           "that's the rule.", kind="gym", tier=2)
         sites = self.can_sites()
         if len(sites) < 6:
             self.log(f"   [puzzle] !! only {len(sites)} can sites on this map — wrong room? LOUD")
@@ -208,13 +278,27 @@ class TrashCanPuzzle:
         recoveries = 0
         while time.time() - t0 < max_seconds and rounds < 12:
             rounds += 1
+            # If a prior phase2 left TEMP_1 set somehow without returning reset, do NOT
+            # re-sweep — that would double-talk empties/first and force a reset.
+            if read_flag(self.b, FLAG_TEMP_1):
+                self.log("   [puzzle] TEMP_1 set mid-loop without a remembered first — recover")
+                if recoveries < 2:
+                    recoveries += 1
+                    if self._recover_leave_reenter():
+                        sites = self.can_sites()
+                        continue
+                return "stuck"
             first = None
             checked = 0
             failed = 0
-            # phase 1 — sweep for the first switch (row order; skip nothing: honest hunt)
+            # phase 1 — sweep for the first switch (row order). Only legal while TEMP_1 clear.
             for s in sites:
                 if time.time() - t0 > max_seconds:
                     return "stuck"
+                if read_flag(self.b, FLAG_TEMP_1):
+                    # Shouldn't arm mid-sweep except via our own find; bail to phase 2 if we
+                    # somehow set first already, else recover.
+                    break
                 if not self._interact(s):
                     failed += 1
                     continue
@@ -225,50 +309,38 @@ class TrashCanPuzzle:
                     return "solved"
                 if read_flag(self.b, FLAG_TEMP_1):
                     first = s
-                    ev("hang on — there's a SWITCH under the lid! one down. the second one's got "
-                       "to be right beside it… right? that's how these things work.",
+                    ev("hang on — there's a SWITCH under the lid! one down. the second one's "
+                       "got to be RIGHT BESIDE this one — and I'm NOT touching this can again.",
                        kind="gym", tier=2)
-                    self.log(f"   [puzzle] FIRST switch at {s} (round {rounds})")
+                    self.log(f"   [puzzle] FIRST switch at {s} (round {rounds}) — "
+                             f"phase2 adjacent-only, first FORBIDDEN")
                     break
             if first is None:
                 self.log(f"   [puzzle] !! swept cans, no first switch "
                          f"(checked={checked} failed_interact={failed} sites={len(sites)})")
-                # Travel/NPC thrash: leave-heal-reenter re-rolls + clears aisle blockers once.
                 if recoveries < 2 and (failed > 0 or checked > 0):
                     recoveries += 1
                     if self._recover_leave_reenter():
                         sites = self.can_sites()
                         continue
                 return "stuck"
-            # phase 2 — the adjacent hunt (her folk strategy; ALSO the game's real rule)
-            neighbors = adjacent_cans(first, sites)
-            self.log(f"   [puzzle] adjacent to {first}: {neighbors}")
-            if not neighbors:
-                self.log("   [puzzle] !! no grid neighbors — site filter broken? re-sweep")
-                continue
-            hit_reset = False
-            for s in neighbors:
-                if time.time() - t0 > max_seconds:
-                    return "stuck"
-                if not self._interact(s):
+            # phase 2 — pret law: only orthogonal adjacent cans; never retouch first;
+            # never fall back to a full re-sweep while TEMP_1 is still set.
+            outcome = self._hunt_seconds(first, sites, t0, max_seconds, ev, rounds)
+            if outcome == "solved":
+                return "solved"
+            if outcome == "stuck":
+                return "stuck"
+            if outcome == "reset":
+                continue                          # honest re-hunt from a clean TEMP_1
+            # no_touch: neighbors unreachable — leave/reenter (re-roll) rather than
+            # re-sweeping while TEMP_1 is still latched (that was the double-talk reset).
+            self.log("   [puzzle] adjacent cans unreachable — recover (no re-sweep under TEMP_1)")
+            if recoveries < 2:
+                recoveries += 1
+                if self._recover_leave_reenter():
+                    sites = self.can_sites()
                     continue
-                if read_flag(self.b, FLAG_BOTH_SWITCHES):
-                    ev("YES — second switch! the beams are DOWN. okay Surge, no more hiding "
-                       "behind your garbage.", kind="gym", tier=3)
-                    self.log(f"   [puzzle] BOTH switches — second was {s}")
-                    return "solved"
-                if not read_flag(self.b, FLAG_TEMP_1):
-                    hit_reset = True                     # wrong pick -> the game re-randomized
-                    ev("no no no — it reset?! the switches MOVED. okay. deep breath. "
-                       "we go again.", kind="gym", tier=2)
-                    self.log(f"   [puzzle] wrong second {s} — reset (round {rounds})")
-                    break
-            if not hit_reset and not read_flag(self.b, FLAG_BOTH_SWITCHES):
-                # neighbors exhausted without reset or win — odd; re-sweep (bounded by rounds)
-                self.log("   [puzzle] neighbors exhausted without a reset — re-sweeping (odd state)")
-                if recoveries < 2 and rounds >= 3:
-                    recoveries += 1
-                    if self._recover_leave_reenter():
-                        sites = self.can_sites()
+            return "stuck"
         self.log(f"   [puzzle] !! unsolved after {rounds} rounds — LOUD")
         return "stuck"
