@@ -55,6 +55,15 @@ GYM_LEVEL_MARGIN     = int(os.getenv("POKEMON_GYM_LEVEL_MARGIN", "1"))
 # Wartortle walked in water-vs-water neutral against a fast Starmie and DIED — a pure level gap
 # lies in a neutral/resisted matchup. 8 keeps the mechanism for genuine overpowers only.
 GYM_DOMINANCE_MARGIN = int(os.getenv("POKEMON_GYM_DOMINANCE_MARGIN", "8"))
+# MID-STAGE STARTERS (2026-08-01, the live Surge chalk): Wartortle L33 vs Raichu was called
+# DOMINANT (top >= ace+margin) and GO HARD marched a paper bench into one-shots. A mid-evo
+# starter is NOT dominant until its final form's evo level (or it has already evolved).
+# species -> level at which it evolves into the FINAL form.
+_MID_STAGE_FINAL_EVO = {
+    "ivysaur": 32,      # → venusaur
+    "charmeleon": 36,   # → charizard
+    "wartortle": 36,    # → blastoise
+}
 
 
 def load_strategy_kb(path=_KB_PATH, log=print):
@@ -129,6 +138,12 @@ class StrategicPlanner:
         level_target = ace_level + GYM_LEVEL_MARGIN + loss_bump
         top_level = max((m.get("level", 0) for m in party), default=0)
         target_size = min(6, party_target + (1 if loss_bump else 0))
+        _top_mon = max(party, key=lambda m: m.get("level", 0)) if party else None
+        _top_sp = (_top_mon.get("species") or "").lower() if _top_mon else ""
+        # Mid-evo starter still below final form: grind bar at least the final evo level so
+        # Wartortle L33 isn't "levels OK" vs Surge while Blastoise is the real rematch bar.
+        if _top_sp in _MID_STAGE_FINAL_EVO and top_level < _MID_STAGE_FINAL_EVO[_top_sp]:
+            level_target = max(level_target, _MID_STAGE_FINAL_EVO[_top_sp])
         # DOMINANCE OVERRIDE (2026-07-31, Jonny pacing note: L27 Wartortle walked OUT of Misty's gym
         # to hunt a grass/electric 'type answer' she doesn't need). A human who clearly overpowers
         # the leader just goes and wins — the type-answer and party-size niceties are for teams
@@ -141,12 +156,32 @@ class StrategicPlanner:
         # by Misty's whole water team while Starmie hits back neutral + fast), so the raw level
         # gap overstates real power. Dominance now also requires NO shared type with the gym —
         # a genuinely off-type overpower (e.g. an over-leveled ace vs Brock's rocks) still fires.
-        _top_mon = max(party, key=lambda m: m.get("level", 0)) if party else None
+        # MID-EVO GUARD (2026-08-01, Surge chalk): a mid-stage starter below its FINAL evo level
+        # is never dominant — Wartortle L33 vs Raichu looked like overpower on paper and died.
+        # PAPER-BENCH GUARD (same chalk): if the rest of the party maxes below the gym ace (or the
+        # spread is alarm-wide and the floor is under the ace), Raichu farms them — not dominant.
         _gym_types = set(rec.get("types") or [])
         _slugfest = bool(_top_mon is not None and _gym_types
                          and (_gym_types & set(_types_of(_top_mon))))
+        _mid_evo_block = bool(_top_sp in _MID_STAGE_FINAL_EVO
+                              and top_level < _MID_STAGE_FINAL_EVO[_top_sp])
+        _rest_lv = []
+        if party:
+            try:
+                _ti = max(range(len(party)), key=lambda i: party[i].get("level", 0))
+                _rest_lv = sorted(int(party[i].get("level") or 0)
+                                  for i in range(len(party)) if i != _ti)
+            except Exception:
+                _rest_lv = []
+        _bench_max = _rest_lv[-1] if _rest_lv else 0
+        _bench_floor = _rest_lv[0] if _rest_lv else 0
+        _paper_bench = bool(
+            not _rest_lv  # solo carry = paper
+            or _bench_max < ace_level
+            or ((top_level - _bench_floor) >= BENCH_SPREAD_ALARM and _bench_floor < ace_level)
+        )
         dominant = bool(top_level and top_level >= level_target + GYM_DOMINANCE_MARGIN
-                        and not _slugfest)
+                        and not _slugfest and not _mid_evo_block and not _paper_bench)
         return {
             "gym": gym_name, "ace": rec.get("ace"), "ace_level": ace_level,
             "level_target": level_target, "top_level": top_level, "underleveled": top_level < level_target,
@@ -154,6 +189,8 @@ class StrategicPlanner:
             "answer_species": rec.get("answer_species") or [],
             "party_size": len(party), "target_size": target_size, "thin": len(party) < target_size,
             "dominant": dominant,
+            "mid_evo_block": _mid_evo_block,
+            "paper_bench": _paper_bench,
             "ready": (has_answer and top_level >= level_target and len(party) >= target_size) or dominant,
         }
 

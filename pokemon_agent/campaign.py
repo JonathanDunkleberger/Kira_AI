@@ -36,7 +36,7 @@ import pokemon_state as st       # noqa: E402
 import travel as tv              # noqa: E402
 import world_fingerprint as wf   # noqa: E402  (MACRO ProgressLedger + fingerprint keystone)
 from pokemon_strategy import StrategicMemory, roster_judgment  # noqa: E402  (Batch 3 Phase 2 + block-#3 choice)
-from pokemon_planner import StrategicPlanner, TeamPlanner  # noqa: E402  (2026-07-08 mega-batch; TeamPlanner 2026-07-09 mission-pivot)
+from pokemon_planner import StrategicPlanner, TeamPlanner, GYM_LEVEL_MARGIN  # noqa: E402  (2026-07-08 mega-batch; TeamPlanner 2026-07-09 mission-pivot)
 from pokemon_search import GuideSearch  # noqa: E402  (Batch 6 Phase 5: silent strategy-guide when stuck)
 from pokemon_world import WorldModel  # noqa: E402  (Batch-WORLD: visited-map memory + capability registry — sense of PLACE)
 import questline as ql                # noqa: E402  (GATE-UNLOCK: recognise a gate -> derive a questline -> execute)
@@ -578,6 +578,14 @@ CREATOR_ORDER_TTL_S = float(os.getenv("POKEMON_CREATOR_ORDER_TTL_S", "1800"))
 # loss (the hard-release branch — loss-bump prep is the safety net), or manual file delete.
 MOMENTUM_JSON = os.path.join(STATES_CAMPAIGN, "momentum.json")
 MOMENTUM_ENABLED = os.getenv("POKEMON_MOMENTUM", "1") == "1"
+# GYM-PREP BUMP PERSISTENCE (2026-08-01, Surge L33 Wartortle DOMINANT re-entry after relaunch):
+# loss bumps used to live only in memory — resume_marathon restarted the process, the bump
+# evaporated, and DOMINANT/GO HARD re-armed immediately against Raichu with a paper bench.
+# Same dir pattern as momentum.json; cleared when the badge lands.
+GYM_PREP_BUMP_JSON = os.path.join(STATES_CAMPAIGN, "gym_prep_bump.json")
+# Squirtle-line rematch bar: after a gym loss, grind targets Blastoise (L36) before re-challenging.
+BLASTOISE_EVO_LEVEL = 36
+_SQUIRTLE_LINE = frozenset(("squirtle", "wartortle", "blastoise"))
 MOMENTUM_ACE_HP_FRAC = float(os.getenv("POKEMON_MOMENTUM_ACE_HP", "0.60"))
 # MOMENTUM SEED (2026-07-31, Jonny: "she can go to vermillion now"): a repo-committed one-shot
 # latch for a run whose badge win happened BEFORE the momentum code was deployed (the latch only
@@ -1264,6 +1272,9 @@ class Campaign:
         # process (supervisor relaunch after an abandon / a crash / Jonny's morning resume) wakes up
         # REMEMBERING which tiles trapped her — instead of re-approaching the same wedge with amnesia.
         self._load_wedge_memory()
+        # GYM-PREP BUMP ACROSS RESTARTS (2026-08-01): same class of hole as momentum — a Surge loss
+        # bump that only lived in RAM vanished on resume_marathon and DOMINANT re-armed at L33.
+        self._gym_prep_bump = self._load_gym_prep_bump()
         # LAYER B — UNIVERSAL WALL-CLOCK WATCHDOG: created at free_roam start. `_stuck_request` is the
         # latched disengage the live render hook sets when StuckWatch trips (honored at the top of the
         # roam loop AND cooperatively by travel via stuck_check); `_watchdog_trips` counts trips this
@@ -3959,14 +3970,79 @@ class Campaign:
             return
         log(f"   !! GYM: hit {max_rounds} clear-rounds with trainers still loaded - proceeding LOUD")
 
+    def _load_gym_prep_bump(self):
+        """Load persisted per-gym prep bumps. WHY (2026-08-01): Surge L33 Wartortle read DOMINANT,
+        marched into Raichu with a paper bench, lost, then resume_marathon wiped the in-memory bump
+        and GO HARD re-armed immediately — she needs the escalated bar to survive a relaunch."""
+        import json as _j
+        try:
+            if not os.path.exists(GYM_PREP_BUMP_JSON):
+                return {}
+            with open(GYM_PREP_BUMP_JSON, encoding="utf-8") as f:
+                data = _j.load(f) or {}
+            bumps = data.get("bumps") if isinstance(data, dict) else None
+            if not isinstance(bumps, dict):
+                bumps = data if isinstance(data, dict) else {}
+            out = {str(k): int(v) for k, v in bumps.items()
+                   if isinstance(v, (int, float)) and int(v) > 0}
+            if out:
+                log(f"   GYM-PREP: restored loss bumps from disk {out} — relaunch will NOT "
+                    f"re-arm DOMINANT/GO HARD past a proven wall")
+            return out
+        except Exception as e:
+            log(f"   GYM-PREP: bump load skipped ({e}) — starting fresh (LOUD)")
+            return {}
+
+    def _save_gym_prep_bump(self):
+        """Persist _gym_prep_bump next to momentum.json. Best-effort; never raises."""
+        import json as _j
+        try:
+            os.makedirs(STATES_CAMPAIGN, exist_ok=True)
+            bumps = {k: int(v) for k, v in (getattr(self, "_gym_prep_bump", {}) or {}).items()
+                     if int(v) > 0}
+            tmp = GYM_PREP_BUMP_JSON + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                _j.dump({"bumps": bumps}, f)
+            os.replace(tmp, GYM_PREP_BUMP_JSON)
+        except Exception as e:
+            log(f"   GYM-PREP: bump save skipped ({e}) (LOUD)")
+
     def _bump_gym_prep(self, gym_name, step=2):
         """Fix B: on a gym LOSS, escalate the prep demand so the retry doesn't throw the SAME losing team
         back in — prep_for_gym reads this as extra levels to grind + a bigger team to field. Reset when the
-        badge lands (the gym is done)."""
-        self._gym_prep_bump = getattr(self, "_gym_prep_bump", {})
+        badge lands (the gym is done). PERSISTED to disk (2026-08-01) so resume_marathon cannot re-arm
+        DOMINANT/GO HARD. Squirtle-line: escalate far enough that level_target >= Blastoise (L36)."""
+        self._gym_prep_bump = getattr(self, "_gym_prep_bump", {}) or {}
         self._gym_prep_bump[gym_name] = self._gym_prep_bump.get(gym_name, 0) + step
+        # Squirtle-line rematch bar (2026-08-01, the live Surge chalk): Raichu one-shot the paper
+        # bench while Wartortle L33 was called DOMINANT. Coming back as Blastoise (L36) with a
+        # stronger bench is the real rematch — bump must make level_target >= 36.
+        try:
+            party = (self.read_live_state() or {}).get("party") or []
+            top = max(party, key=lambda m: m.get("level", 0)) if party else None
+            sp = (top.get("species") or "").lower() if top else ""
+            if sp in _SQUIRTLE_LINE:
+                rec = (getattr(getattr(self, "planner", None), "threats", None) or {}).get(gym_name) or {}
+                band = rec.get("level_band") or [0, 0]
+                ace_level = int(band[-1] if band else 0)
+                need = max(0, BLASTOISE_EVO_LEVEL - (ace_level + GYM_LEVEL_MARGIN))
+                if self._gym_prep_bump[gym_name] < need:
+                    self._gym_prep_bump[gym_name] = need
+                    log(f"   GYM-PREP: '{gym_name}' Squirtle-line rematch bar — bump raised to "
+                        f"{need} so grind targets Blastoise L{BLASTOISE_EVO_LEVEL} "
+                        f"(ace~L{ace_level}+margin)")
+                    try:
+                        self.on_event(
+                            "that hit hard — next time I'm walking in as Blastoise with a bench "
+                            "that can take a punch, not paper mons Raichu farms.",
+                            kind="gym", tier=2)
+                    except Exception:
+                        pass
+        except Exception as e:
+            log(f"   GYM-PREP: Blastoise-bar bump adjust skipped ({e}) (LOUD)")
         log(f"   GYM-PREP: '{gym_name}' loss -> prep demand escalated (+{step} → bump "
             f"{self._gym_prep_bump[gym_name]}); the retry grinds/teams up higher")
+        self._save_gym_prep_bump()
 
     def prep_for_gym(self, gym):
         """Fix B (2026-07-09) — ENFORCED pre-gym readiness, wired through the StrategicPlanner KB. Before a
@@ -4509,6 +4585,7 @@ class Campaign:
         if self.has_badge(gym.badge_flag):
             log(f"   GYM: *** {name.upper()} BADGE obtained ***")
             getattr(self, "_gym_prep_bump", {}).pop(name, None)   # Fix B: gym done -> clear the loss-bump
+            self._save_gym_prep_bump()                            # persist the clear (relaunch must not re-prep)
             self.on_event(f"I beat {name} - that's the badge!")
             if tv.map_id(self.b)[0] != 3:                      # still in the gym interior -> leave to
                 pn = getattr(self, "_gym_pads", None)          # pad maze: ride back beside a door first
@@ -7602,7 +7679,8 @@ class Campaign:
         with Wartortle alone, stop farming'): while dominant, the PARKED prep machinery (strengthen-
         first framing, the lopsided-bench march prune) steps aside — the bench still levels ORGANICALLY
         on the march because road-bench-XP reads _prep_team_target independently of this. Self-
-        correcting: a loss bumps the readiness bar (loss_bump), dominance evaporates, full prep returns."""
+        correcting: a loss bumps the readiness bar (loss_bump), dominance evaporates, full prep returns.
+        Mid-evo starters + paper benches never dominate (planner gates, 2026-08-01 Surge chalk)."""
         try:
             ng = state.get("next_gym") if state else None
             if not ng or getattr(self, "planner", None) is None:
@@ -7611,6 +7689,32 @@ class Campaign:
                 ng["leader"], state.get("party") or [], party_target=GYM_PARTY_TARGET,
                 loss_bump=getattr(self, "_gym_prep_bump", {}).get(ng["leader"], 0))
             return bool(r and r.get("dominant"))
+        except Exception:
+            return False
+
+    def _gym_go_hard_blocked(self, state):
+        """True when DOMINANT/MOMENTUM must NOT force head_to_gym. Creator order still wins (LAW).
+        WHY (2026-08-01): Wartortle L33 + paper bench vs Surge was called DOMINANT and GO HARD
+        marched her into Raichu; after loss, a missing bump / leftover momentum seed could re-latch.
+        Blocks while Squirtle-line is pre-Blastoise (<L36) OR a live prep bump says not ready."""
+        try:
+            ng = state.get("next_gym") if state else None
+            if not ng:
+                return False
+            party = state.get("party") or []
+            top = max(party, key=lambda m: m.get("level", 0)) if party else None
+            if top:
+                sp = (top.get("species") or "").lower()
+                lv = int(top.get("level") or 0)
+                if sp in ("squirtle", "wartortle") and lv < BLASTOISE_EVO_LEVEL:
+                    return True
+            bump = getattr(self, "_gym_prep_bump", {}).get(ng["leader"], 0)
+            if bump and getattr(self, "planner", None) is not None:
+                r = self.planner.gym_readiness(
+                    ng["leader"], party, party_target=GYM_PARTY_TARGET, loss_bump=bump)
+                if r and not r.get("ready"):
+                    return True
+            return False
         except Exception:
             return False
 
@@ -12136,10 +12240,11 @@ class Campaign:
                         log("   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — POST-BADGE BEAT "
                             "(heal/stock/march; train on the road forward)")
                         rf = None
-                    elif self._momentum_live(state):
+                    elif self._momentum_live(state) and not self._gym_go_hard_blocked(state):
                         # MOMENTUM (2026-07-31): last gym fell decisively — the floor stands DOWN
                         # for this whole gym; the road's trainers are the training. Survives
                         # relaunch (disk latch) — the exact hole the live Route-4 loop came from.
+                        # 2026-08-01: NOT when Surge prep / mid-evo Blastoise bar blocks GO HARD.
                         log(f"   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM "
                             f"(decisive last win; march at {_ngf['leader']}, train on the road)")
                         rf = None
@@ -12259,6 +12364,16 @@ class Campaign:
                 # skip keys off creator/dominant only): the errand (Bill's ticket -> S.S. Anne ->
                 # Cut) IS the road to the next gym, and its trainers ARE the training.
                 _mom3 = self._momentum_live(state) if _ng3 else False
+                # SURGE / MID-EVO PREP GATE (2026-08-01): dominance + momentum must NOT force the
+                # gym while Wartortle < Blastoise or a live loss bump says not ready. Creator
+                # order still overrides (LAW). Mid-evo/paper-bench gates also zero _gym_dominant.
+                if _ng3 and not _ord3 and self._gym_go_hard_blocked(state):
+                    if _dom3 or _mom3:
+                        log(f"   [roam] !! GO-HARD BLOCKED for {_ng3['leader']} — mid-evo / prep "
+                            f"bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise "
+                            f"+ bench first)")
+                    _dom3 = False
+                    _mom3 = False
                 # GO-HARD RETRY CAP (2026-07-31, the live Misty loop): beat_gym stuck 5+ ticks in a
                 # row on this leader means the interior genuinely has her beat — stop re-forcing the
                 # pick (which would override the structural park forever) and let the normal
@@ -15554,18 +15669,42 @@ class Campaign:
                     want = str(self.soul.wants[-1])
             except Exception:
                 want = ""
+            # SURGE REMATCH PREP (2026-08-01): Wartortle/Squirtle below Blastoise, or a live Surge
+            # loss bump saying not ready — NEVER "You're ready — stop grinding". Evolve first, raise
+            # the bench so Raichu can't farm them, THEN re-take Thunder Badge.
+            _surge_prep = False
+            try:
+                if ng and ng.get("leader") == "Lt. Surge":
+                    _top_g = max(party, key=lambda m: m.get("level", 0)) if party else None
+                    _sp_g = (_top_g.get("species") or "").lower() if _top_g else ""
+                    _lv_g = int(_top_g.get("level") or 0) if _top_g else 0
+                    if _sp_g in ("squirtle", "wartortle") and _lv_g < BLASTOISE_EVO_LEVEL:
+                        _surge_prep = True
+                    elif self._gym_go_hard_blocked(state):
+                        _surge_prep = True
+            except Exception:
+                _surge_prep = False
+            if _surge_prep and ng:
+                short = (f"Evolve to Blastoise (L{BLASTOISE_EVO_LEVEL}) — level up Wartortle, "
+                         f"THEN re-challenge Lt. Surge")
+                medium = ("Raise the fieldable bench so they survive Raichu, then re-take the "
+                          "Thunder Badge — do not march in with paper mons")
+                return {"short": short, "medium": medium, "long": long}
             # GO-HARD (dominant / creator order / force latch): never whisper "grind to L14" —
             # _prep_team_target may still re-arm a bench pin for road-bench-XP, but short goals
             # must say GO, not park. Matches the menu prune + FORCE GYM PICK.
+            # Prep-blocked (mid-evo / loss bump): only creator order may still say GO.
             _go_hard = False
             _mom_g = False
             try:
-                _mom_g = self._momentum_live(state)
-                _go_hard = bool(
-                    getattr(self, "_force_gym_pick", False)
-                    or self._gym_dominant(state)
-                    or self._creator_order(state)
-                    or _mom_g)
+                _prep_block = self._gym_go_hard_blocked(state)
+                _ord_g = self._creator_order(state)
+                _mom_g = (not _prep_block) and self._momentum_live(state)
+                _go_hard = bool(_ord_g or (
+                    (not _prep_block) and (
+                        getattr(self, "_force_gym_pick", False)
+                        or self._gym_dominant(state)
+                        or _mom_g)))
             except Exception:
                 _go_hard = False
             if _go_hard and ng:
