@@ -805,10 +805,10 @@ VERMILION = (3, 5)
 VERMILION_PC_DOOR, VERMILION_MART_DOOR = (15, 6), (29, 17)
 # Vermilion Gym (disasm VermilionCity_Gym; interiors live-verify on first entry): town door (14,25)
 # — CUT-LOCKED behind the fence tree until HM01. Surge at (5,2), fought from (5,3) UP; juniors at
-# (2,11)/(8,13)/(7,8); exits (4-6,19). ⚠ the leader is ALSO gated by the TRASH-CAN electric-lock
-# puzzle (two switches; disasm recon pending) — beat_gym's junior-then-leader pattern is NOT enough
-# here; do not trust a beat_gym('Lt. Surge') run until the can-puzzle solver lands.
+# (2,11)/(8,13)/(7,8); exits (4-6,19). Leader ALSO gated by the trash-can electric-lock puzzle —
+# beat_gym runs env_puzzle.TrashCanPuzzle BEFORE the junior clear (FLAG_BOTH 0x264).
 VERMILION_GYM_DOOR, SURGE_FRONT = (14, 25), (5, 3)
+VERMILION_GYM_INTERIOR = (9, 7)   # live-verified; head_to_gym must re-enter beat_gym when standing here
 # FLAG_BADGE0x_GET in the SaveBlock1 flag array (base + 0x0EE0): Boulder 0x820, Cascade 0x821.
 FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
 FLAG_BADGE_THUNDER = 0x822
@@ -921,8 +921,8 @@ GYMS = {
     "Brock": GymSpec("Brock", PEWTER, PEWTER_GYM_DOOR, BROCK_FRONT, FLAG_BADGE_BOULDER, 2, "UP"),
     "Misty": GymSpec("Misty", CERULEAN, CERULEAN_GYM_DOOR, MISTY_FRONT, FLAG_BADGE_CASCADE, 0, "UP"),
     # Registered so head_to_gym routes to the door (whose approach is the CUT TREE — standing at it
-    # arms the HM_OBSTACLE gate -> the hm01 questline -> the S.S. Anne). The gym itself stays
-    # UNBEATABLE until the trash-can puzzle solver lands (see VERMILION_GYM_DOOR note).
+    # arms the HM_OBSTACLE gate -> the hm01 questline -> the S.S. Anne). Interior puzzle solved by
+    # TrashCanPuzzle (env_puzzle) before juniors/leader — see VERMILION_GYM_DOOR note.
     "Lt. Surge": GymSpec("Lt. Surge", VERMILION, VERMILION_GYM_DOOR, SURGE_FRONT,
                          FLAG_BADGE_THUNDER, 0, "UP"),
     "Erika": GymSpec("Erika", CELADON, CELADON_GYM_DOOR, ERIKA_FRONT,
@@ -12263,8 +12263,20 @@ class Campaign:
                 # row on this leader means the interior genuinely has her beat — stop re-forcing the
                 # pick (which would override the structural park forever) and let the normal
                 # watchdog/escape machinery own it. The streak clears on ANY non-stuck gym outcome.
+                # EXCEPTION: Surge trash-can gate still open — keep forcing head_to_gym so
+                # TrashCanPuzzle re-arms (parking/escape left her thrashing cans manually).
                 _gh_capped = (_ng3 is not None
                               and getattr(self, "_gym_stuck_streak", {}).get(_ng3["leader"], 0) >= 5)
+                if _gh_capped and _ng3 and _ng3.get("leader") == "Lt. Surge":
+                    try:
+                        import env_puzzle as _ep2
+                        from field_moves import read_flag as _rf2
+                        if not _rf2(self.b, _ep2.FLAG_BOTH_SWITCHES):
+                            _gh_capped = False
+                            log("   [roam] !! GO-HARD cap WAIVED — Surge trash-can FLAG_BOTH unset; "
+                                "keeping force-pick so the puzzle solver re-arms")
+                    except Exception:
+                        pass
                 if _ng3 and (_ord3 or _dom3 or _mom3) and _gh_capped:
                     log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
                         f"{_ng3['leader']}; escape machinery owns the wedge now")
@@ -13317,10 +13329,18 @@ class Campaign:
             # (reserve -> enter -> juniors -> leader -> award -> badge); a loss propagates as battle_loss
             # (free_roam's blackout-recovery retries), a nav fail as 'stuck' (surfaces to the oracle —
             # never a freeze). She still CHOSE head_to_gym this tick (capability-not-script).
+            # ALSO when already INSIDE the target gym (Surge trash-can mid-hunt): call beat_gym again —
+            # do NOT warp-route OUT to the city (that left her thrashing cans / parking head_to_gym).
             ng = state.get("next_gym")
             gym = GYMS.get(ng["leader"]) if ng else None
-            if gym is not None and state["map"] == gym.city:
-                log(f"   [roam] ⛰️  AT {ng['leader']}'s city {gym.city} — ENTERING the gym to take the badge")
+            _in_surge_gym = (ng is not None and ng.get("leader") == "Lt. Surge"
+                             and tuple(state["map"]) == VERMILION_GYM_INTERIOR)
+            if gym is not None and (state["map"] == gym.city or _in_surge_gym):
+                if _in_surge_gym:
+                    log(f"   [roam] ⛰️  ALREADY INSIDE {ng['leader']}'s gym {tuple(state['map'])} — "
+                        f"re-entering beat_gym (puzzle / juniors / leader), NOT exiting")
+                else:
+                    log(f"   [roam] ⛰️  AT {ng['leader']}'s city {gym.city} — ENTERING the gym to take the badge")
                 # PHASE 6 — DREAD: a gym is a hard challenge; name the nerves BEFORE the fight so the
                 # payoff has something to land against (earned relief requires prior worry). Tier-2
                 # anticipation; her core voice colors the actual nerves. Sharper if she's walled here.
@@ -13378,7 +13398,26 @@ class Campaign:
                     except Exception:
                         _stay_hard = _go_hard_now
                     _park_at = 5 if _stay_hard else 2
-                    if _stay_hard and n < _park_at:
+                    # SURGE TRASH-CAN GATE: never structurally park head_to_gym while FLAG_BOTH (0x264)
+                    # is unset — a stuck here is a puzzle-round failure, not a permanent layout wall.
+                    # Parking left her thrashing cans in free-roam without calling TrashCanPuzzle again.
+                    _surge_puzzle_open = False
+                    if ng.get("leader") == "Lt. Surge":
+                        try:
+                            import env_puzzle as _ep
+                            from field_moves import read_flag as _rf
+                            _surge_puzzle_open = not _rf(self.b, _ep.FLAG_BOTH_SWITCHES)
+                        except Exception as _spe:
+                            log(f"   [roam] surge puzzle-open check skipped: {_spe}")
+                    if _surge_puzzle_open:
+                        log(f"   [roam] !! SURGE PUZZLE STILL OPEN: beat_gym stuck x{n} — NOT parking "
+                            f"head_to_gym; TrashCanPuzzle re-arms next tick (inside gym or city)")
+                        # Clear a prior park on the city so a mid-puzzle stuck can't strand her.
+                        try:
+                            self._dead_moves_structural.get(tuple(gym.city), set()).discard("head_to_gym")
+                        except Exception:
+                            pass
+                    elif _stay_hard and n < _park_at:
                         log(f"   [roam] !! GO-HARD: beat_gym stuck x{n} on {ng['leader']} — NOT parking, "
                             f"NOT leaving {gym.city}; re-entering the gym next tick (cap {_park_at})")
                     elif n >= _park_at:
