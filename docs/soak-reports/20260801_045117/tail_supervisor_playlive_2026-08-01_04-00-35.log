@@ -1,0 +1,242 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 22) coords=(107, 12) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 18 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 18 keeper species, 7 key moves
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=8352).
+
+   [soul] continuity loaded: 12 roster bond(s), 340 want(s)
+
+   [campaign]    [strat] continuity loaded: 3 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 99 place(s) known, 214 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 22) coords=(107, 12) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260801_040037_route-4_2b_10h22m_roam-start  (4 bundle file(s))
+
+   [campaign]    [rescue-tp] 🚨 SEED 'route4_cerulean_border_tp_20260731' FIRING (badges=2, at 'route 4'): Jonny 2026-07-31: 'please tp her somewhere so she can actually finish this game' — if she boots on Route 4 (the seam trap), Abra field-Teleports her to the last Pokemon Center. Narrowed from route4+cerulean after the CKPT cerulean-city promote (booting IN Cerulean City needs no teleport — momentum marches south from there). One-shot: consumed-by-id only on a VERIFIED warp; if she boots off Route 4 it consumes as unnecessary.
+
+   [campaign]    [rescue-tp] 🌀 (seed route4_cerulean_border_tp_20260731) abra TELEPORT from Route 4 (107, 12) -> the last Pokémon Center (no pathfinding, the game does the moving)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (travel) 'you know what — abra, get us OUT of here. Teleport, straight back to the Center, and we take the road properly from there.'  fired=True  [age 0.0s + post 16ms]
+
+   [pkmn-audio-child] LIVE: device=10, 48000Hz, 2ch � writing until parent EOF.
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rescue-teleport] attempt 0 (row 0) did not verify — backing out
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rescue-teleport] attempt 1 (row 0) did not verify — backing out
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rescue-teleport] attempt 2 (row 0) did not verify — backing out
+
+   [campaign]    [rescue-teleport] !! FAILED — field move never verified (LOUD)
+
+   [campaign]    [rescue-tp] !! Teleport did not verify (seed route4_cerulean_border_tp_20260731) — she stays put, LOUD
+
+   [campaign]    [world] learned 3 warp(s) on (3, 22): (19, 5)->(1, 1), (32, 5)->(1, 2), (12, 5)->(16, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L16 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,20', 'travel:3,21', 'travel:3,26', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (2, 6, 9, 93) @ Route 4 (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 4 (107, 12) | badges=2 (Boulder, Cascade) | party=[wartortle L30, butterfree L10, rattata L13, spearow L14, abra L13, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 22) (107,12) f3 -- badge2 $456 party:7ef4 bag:7e57]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Route 4
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 4 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L30), caterpie the butterfree (L10), rattata (L13), spearow (L14), abra (L13), ekans (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 22), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'wartortle (L30), caterpie the butterfree (L10), rattata (L13), spearow (L14), abra (L13), ekans (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Thunder Badge from Lt. Surge'
+
+   [campaign]    [soul] ORACLE pick -> 'Thunder Badge from Lt. Surge'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 6
+
+   [campaign]    [teamplan] next action: catch_keeper (pikachu -> raichu answers Lorelei, Lance, Champion) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Thunder Badge from Lt. Surge'  fired=True  [age 0.0s + post 20ms]
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L10 bench mon (target L16) so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)
+
+   [campaign]    [roam] EDGE-ROUTE toward Vermilion City: (3, 22) -> (3, 21) (edge south)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(107, 12) -> map (3, 21) (budget 300s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107]
+
+   [travel] path blocked at (107, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (107, 12) AND no NPC-allowing path (npcs nearby=[(117, 12)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (107, 12) map=(3, 22) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(107, 12) -> map (3, 21) (budget 180s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107]
+
+   [travel] path blocked at (107, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (107, 12) AND no NPC-allowing path (npcs nearby=[(117, 12)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (107, 12) map=(3, 22) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 3ms]
+
+   [travel] start map=(3, 22) coords=(107, 12) -> map (3, 21) (budget 180s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107]
+
+   [travel] path blocked at (107, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (107, 12) AND no NPC-allowing path (npcs nearby=[(117, 12)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (107, 12) map=(3, 22) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 22) coords=(107, 12) -> map (3, 21) (budget 180s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 13, 14, 15, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107]
+
+   [travel] path blocked at (107, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (107, 12) AND no NPC-allowing path (npcs nearby=[(117, 12)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (107, 12) map=(3, 22) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L30) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 22)(107, 12) -> (3, 22)(107, 12) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [rescue-tp] 🚨 SEED 'route4_cerulean_border_tp_20260731' FIRING (badges=2, at 'route 4'): Jonny 2026-07-31: 'please tp her somewhere so she can actually finish this game' — if she boots on Route 4 (the seam trap), Abra field-Teleports her to the last Pokemon Center. Narrowed from route4+cerulean after the CKPT cerulean-city promote (booting IN Cerulean City needs no teleport — momentum marches south from there). One-shot: consumed-by-id only on a VERIFIED warp; if she boots off Route 4 it consumes as unnecessary.
+
+   [campaign]    [rescue-tp] 🌀 (seed route4_cerulean_border_tp_20260731) abra TELEPORT from Route 4 (107, 12) -> the last Pokémon Center (no pathfinding, the game does the moving)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (travel) 'you know what — abra, get us OUT of here. Teleport, straight back to the Center, and we take the road properly from there.'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rescue-teleport] attempt 0 (row 0) did not verify — backing out
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rescue-teleport] attempt 1 (row 0) did not verify — backing out
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rescue-teleport] attempt 2 (row 0) did not verify — backing out
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [campaign]    [rescue-teleport] !! FAILED — field move never verified (LOUD)
+
+   [campaign]    [rescue-tp] !! Teleport did not verify (seed route4_cerulean_border_tp_20260731) — she stays put, LOUD
+
+   [campaign]    [world] learned 3 warp(s) on (3, 22): (19, 5)->(1, 1), (32, 5)->(1, 2), (12, 5)->(16, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L16 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,20', 'travel:3,21', 'travel:3,26', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! STRUCTURAL DEAD-ROUTE: ['head_to_gym'] proven dead on this map — pruned until she leaves it (or a questline arms); remaining: ['talk_npc']
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 4 (107, 12) | badges=2 (Boulder, Cascade) | party=[wartortle L30, butterfree L10, rattata L13, spearow L14, abra L13, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 22) (107,12) f3 -- badge2 $456 party:7ef4 bag:7e57]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['talk_npc']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 4 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Route 3 — wild Pokémon to catch/train; EAST → Cerulean City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 24; an unfamiliar area; Route 2. You can walk to anywhere you\'ve already been.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "Why don\'t you go upstairs and try trading POK.MON with your friends? You could get a lot more variety by trading. The POK.MON you get in trades grow quickly, to"; "TM03 teaches WATER PULSE. Use it on an aquatic POK.MON!"; "KIRA put the TM03 in the TM CASE.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Vermilion City for the Thunder Badge. Next: You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: wartortle (L30), caterpie the butterfree (L10), rattata (L13), spearow (L14), abra (L13), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'wartortle (L30), caterpie the butterfree (L10), rattata (L13), spearow (L14), abra (L13), ekans (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['talk_npc']
+
+   [kira-voice] !! ORACLE POST FAILED (bot down?) kind=action: timed out -> None
+
+   [campaign]    [soul] ORACLE pick -> None
+
+   [campaign]    [roam] DECISION THINK: 12005ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK: (oracle returned nothing — no bot / unparsable) -> idle this tick
+
+   [campaign]    [rescue-tp] 🚨 SEED 'route4_cerulean_border_tp_20260731' FIRING (badges=2, at 'route 4'): Jonny 2026-07-31: 'please tp her somewhere so she can actually finish this game' — if she boots on Route 4 (the seam trap), Abra field-Teleports her to the last Pokemon Center. Narrowed from route4+cerulean after the CKPT cerulean-city promote (booting IN Cerulean City needs no teleport — momentum marches south from there). One-shot: consumed-by-id only on a VERIFIED warp; if she boots off Route 4 it consumes as unnecessary.
+
+   [campaign]    [rescue-tp] 🌀 (seed route4_cerulean_border_tp_20260731) abra TELEPORT from Route 4 (107, 12) -> the last Pokémon Center (no pathfinding, the game does the moving)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rescue-teleport] attempt 0 (row 0) did not verify — backing out
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
