@@ -1,7 +1,26 @@
-resume_marathon 20260801_045117  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260801_045443  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
-Already up to date.
+git : From https://github.com/JonathanDunkleberger/Kira_AI
+At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:85 char:24
++ RunLogged "git pull" { git pull } | Out-Null
++                        ~~~~~~~~
+    + CategoryInfo          : NotSpecified: (From https://gi...eberger/Kira_AI:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   fcaaf7e..a980e56  main       -> origin/main
+Updating fcaaf7e..a980e56
+Fast-forward
+ docs/handoff-cerulean-border-war.md     | 117 +++++++++++++++++++++++++++
+ pokemon_agent/PROMOTE_TARGET.txt        |   1 +
+ pokemon_agent/campaign.py               |  15 ++++
+ pokemon_agent/recon_ledge_edge_cross.py | 136 ++++++++++++++++++++++++++++++++
+ pokemon_agent/resume_marathon.ps1       |  15 +++-
+ pokemon_agent/travel.py                 |  20 ++++-
+ 6 files changed, 299 insertions(+), 5 deletions(-)
+ create mode 100644 docs/handoff-cerulean-border-war.md
+ create mode 100644 pokemon_agent/PROMOTE_TARGET.txt
+ create mode 100644 pokemon_agent/recon_ledge_edge_cross.py
 
 == crash forensics ==
 == logs\debug listing (newest first) ==
@@ -363,26 +382,5 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 
 
 
->> No PROMOTE_TARGET.txt - inventory-only run. Nothing was promoted or launched.
->> Tell the Mac agent 'done' - it will read this report, pick the right save, and push the decision.
+PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is.
 == push soak report ==
-[main fcaaf7e] report(soak): 20260801_045117 inventory/rescue (auto from resume_marathon.ps1)
- 9 files changed, 2531 insertions(+)
- create mode 100644 docs/soak-reports/20260801_045117/canonical_health.json
- create mode 100644 docs/soak-reports/20260801_045117/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260801_045117/resume_marathon.log
- create mode 100644 docs/soak-reports/20260801_045117/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260801_045117/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260801_045117/tail_console_2026-08-01_04-17-39.log
- create mode 100644 docs/soak-reports/20260801_045117/tail_supervisor_playlive_2026-08-01_04-00-35.log
- create mode 100644 docs/soak-reports/20260801_045117/tail_supervisor_playlive_2026-08-01_04-19-27.log
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:344 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   192d2fa..fcaaf7e  main -> main
-
-done (no launch this run).
