@@ -1,0 +1,1500 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 15) -> coord (1, 11) (budget 90s)
+
+   [kira-voice] -> T3·BIG· (gym) 'YES — second switch! the beams are DOWN. okay Surge, no more hiding behind your garbage.'  fired=True  [age 0.0s + post 10ms]
+
+   [travel] step 0: (1, 15)->(0, 15) map=(9, 6) (path 7 to exit)
+
+   [travel] reached target coord (1, 11)
+
+   [dialogue] +++ "Okay, I'll talk! LT. SURGE said he hid door switches inside something."  tags=['GYM_LEADER']
+
+   [kira-voice]    (dialogue tags: gym_leader)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "Okay, I\'ll talk! LT. SURGE said he hid door switches inside something."'  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg junior-talk] "Okay, I'll talk! LT. SURGE said he hid door switches inside something."
+
+   [campaign]    [dlg-pace junior-talk] box "Okay, I'll talk! LT. SURGE said he hid door swit" visible 2.48s (sink 0ms, hold 0.11s, end=closed)
+
+   [campaign]    GYM: trainer at (2, 11) TALKED instead of fighting (post-defeat line drained, no battle) — ALREADY BEATEN in the save
+
+   [campaign]    GYM: junior obj3 at (2, 11) is ALREADY BEATEN in the save (talked, no battle) — marked done for the session, never re-engaging
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (8, 13) (facing 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(1, 11) -> coord (9, 13) (budget 90s)
+
+   [travel] step 0: (1, 11)->(0, 11) map=(9, 6) (path 19 to exit)
+
+   [travel] step 10: (5, 15)->(6, 15) map=(9, 6) (path 9 to exit)
+
+   [travel] reached target coord (9, 13)
+
+   [dialogue] +++ 'LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is right next to it.'  tags=['GYM_LEADER', 'PLACE']
+
+   [kira-voice]    (dialogue tags: gym_leader, place)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is right next to it."'  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg junior-talk] 'LT. SURGE installed the traps in the GYM himself. He set up double locks'
+
+   [campaign]    [hints] + heard something actionable: 'LT. SURGE installed the traps in the GYM himself. He set up double locks everywh' (at (9, 6))
+
+   [campaign]    [dlg-uwatch junior-talk] fp[(9, 6) (9,13) f3 D- badge2 $4088 party:cfb6 bag:9a0a] same line, frozen world x15/90
+
+   [campaign]    [dlg-pace junior-talk] box 'LT. SURGE installed the traps in the GYM himself' visible 6.48s (sink 2ms, hold 0.11s, end=closed)
+
+   [campaign]    GYM: trainer at (8, 13) TALKED instead of fighting (post-defeat line drained, no battle) — ALREADY BEATEN in the save
+
+   [campaign]    GYM: junior obj1 at (8, 13) is ALREADY BEATEN in the save (talked, no battle) — marked done for the session, never re-engaging
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj4 at (7, 8) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(9, 13) -> coord (6, 8) (budget 90s)
+
+   [travel] step 0: (9, 13)->(10, 13) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (6, 8)
+
+   [dialogue] +++ 'When I was in the Army, LT. SURGE was my strict CO. He was a hard taskmaster.'  tags=['GYM_LEADER']
+
+   [kira-voice]    (dialogue tags: gym_leader)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "When I was in the Army, LT. SURGE was my strict CO. He was a hard taskmaster."'  fired=True  [age 0.0s + post 10ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg junior-talk] 'When I was in the Army, LT. SURGE was my strict CO. He was a hard taskma'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [dlg junior-talk] battle opened mid-drain -> handing off (battle engine owns that UI)
+
+   [campaign]    [strat] !! gEnemyParty UNCONFIRMED (slot0=25 != active foe 96) — party-SIZE reads DISABLED (loss-learning still works on the verified active-foe read)
+
+   [play-live] battle context: trainer=True foe=drowzee rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against pikachu — your wartortle is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out pikachu'
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 24ms]
+
+   [dialogue] +++ "Stop! You're very good!"  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Stop! You\'re very good!"'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pikachu went down to your wartortle — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: junior trainer -> win
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(6, 8) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(9, 6) (path 7 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [1, 3, 4])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] reached target coord (5, 3)
+
+   [campaign]    GYM: at (5, 3) (leader front (5, 3)) - engaging Lt. Surge [lead wartortle Lv33, party=6]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (5, 4) (budget 90s)
+
+   [travel] step 0: (5, 3)->(5, 4) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 4) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (5, 4)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (4, 3) (budget 90s)
+
+   [travel] step 0: (5, 3)->(4, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(4, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (4, 3)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (6, 3) (budget 90s)
+
+   [travel] step 0: (5, 3)->(6, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (6, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(6, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (6, 3)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [dialogue] +++ "Hey, kid! What do you think you're doing here? You won't live long in combat! Not with your puny power! I tell you, kid, electric POK.MON saved me during the war! They zapped my enemies into p"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey, kid! What do you think you\'re doing here? You won\'t live long in combat! Not with your puny power! I tell you, kid, electric POK.MON saved me during the war! They zapped my enemies into p"'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [dlg Lt. Surge-challenge] "Hey, kid! What do you think you're doing here? You won't live long in co"
+
+   [campaign]    [dlg-uwatch Lt. Surge-challenge] fp[(9, 6) (5,3) f2 D- badge2 $5744 party:72e3 bag:9a0a] same line, frozen world x15/90
+
+   [campaign]    [dlg-uwatch Lt. Surge-challenge] fp[(9, 6) (5,3) f2 D- badge2 $5744 party:72e3 bag:9a0a] same line, frozen world x30/90
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (9, 6)@(5, 3) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [dlg-pace Lt. Surge-challenge] box "Hey, kid! What do you think you're doing here? Y" visible 10.72s (sink 0ms, hold 0.11s, end=stopped)
+
+   [play-live] battle context: trainer=True foe=pikachu rare=True -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against voltorb — your wartortle is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out voltorb'
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's voltorb fainted — your wartortle took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pikachu'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pikachu fainted — your wartortle took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out raichu'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T1·brisk· (event) "no — Bite - a solid hit didn't happen, I'm fully paralyzed! hang in there…"  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle is at low HP - this is getting tense'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: LT. SURGE -> timeout
+
+   [campaign]    [roam] !! drain 'Lt. Surge-award' requested during a LIVE battle -> skipping (battle engine owns that UI)
+
+   [campaign]    !! GYM: paced award didn't set the badge - A-mash backstop
+
+   [campaign]    !! GYM: Lt. Surge not beaten / no badge flag
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (5, 3), door (14, 25), scanned 0 field object(s): []
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (11, 20) (budget 60s)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (303s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 15ms]
+
+   [dialogue] +++ 'WARTORTLE has no energy left to battle! .'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "WARTORTLE has no energy left to battle! ."'
+
+   [play-live] battle context: trainer=True foe=raichu rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. and we're going in HURT — this could get scary."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'a battle started against raichu — your wartortle is up front'
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your spearow fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata fainted'  fired=True  [age 0.0s + post 9ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) "I'm out of real moves on this one — switching to someone who can still hit."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your ekans fainted'  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "I'm out of real moves on this one — switching to someone who can still hit."  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) 'your butterfree fainted'  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ 'KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm.."'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [strat] !! trainer battle returned ambiguous 'ended' (likely a loss swallowed at the whiteout boundary) -> RECORDING as LOSS so the strategic-stuck floor isn't starved
+
+   [campaign]    [strat] LOSS recorded vs trainer:a building in Vermilion City:raichu (now 1x) at map=(9, 6) — SPATIAL wall active (gated until stronger)
+
+   [travel] battle outcome=ended; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'quiet in here — just the hum of the building around you'
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (168s > 60s) at (7, 4) map=(9, 1) step=1 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [kira-voice] -> T2·savor· (event) 'the battle ended'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (7, 4), door (14, 25), scanned 0 field object(s): []
+
+   [campaign]    [roam] !! GO-HARD: beat_gym stuck x1 on Lt. Surge — NOT parking, NOT leaving (3, 5); re-entering the gym next tick (cap 5)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 5)(16, 25) -> (9, 1)(7, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(9, 1) coords=(7, 4) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_065259_a-building-in-vermilion-city_2b_12h18m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (9, 1)@(7, 4) — exiting to the overworld to re-orient
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 1) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [dialogue] +++ 'First, you should restore your POK.MON to full health.'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "First, you should restore your POK.MON to full health."'
+
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(5, 8), (6, 4), (7, 2), (12, 5), (14, 5)] -> approaching to interact/trigger
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (9, 1)@(7, 4) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'Your POK.MON have been healed to perfect health. We hope you excel!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your POK.MON have been healed to perfect health. We hope you excel!"'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 1) coords=(7, 5) -> coord (7, 9) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 1) coords=(7, 5) -> coord (7, 7) (budget 45s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (7, 5)->(7, 6) map=(9, 1) (path 3 to exit)
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    EXIT-BUILDING: (9, 1) -> (3, 5)@(15, 7)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 24) toward Route 6 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): "Don't jinx it, you still gotta beat the gym leader."
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [kira-voice] -> T3·BIG· (order) "okay okay — direct order from the boss. dropping everything else, we're doing it NOW."  fired=True  [age 0.0s + post 14ms]
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (15, 7) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (15,7) f1 -- badge2 $4952 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'stock_up', 'talk_npc']
+
+   [campaign]    [roam] SHOP: "There's a Mart right here, and you've got the money. you could carry a lot more Potions before that next push; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — stocking up on healing BEFORE you walk back into that wall is the smart play, not charging in empty-handed." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:a building in Vermilion City:raichu: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:a building in Vermilion City:raichu: team floor < L25 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L13) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L13 bench mon (target L25) so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)
+
+   [campaign]    [roam] ⛰️  AT Lt. Surge's city (3, 5) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay. Lt. Surge's gym — and this is the wall that's been beating me. deep breath. this is the one. here we go."
+
+   [campaign]    GYM-PREP [Lt. Surge]: CREATOR ORDER (LAW) — Jonny said go; skipping prep, walking in as-is
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L33) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — wartortle now leads
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(15, 7) -> coord (14, 26) (budget 300s)
+
+   [travel] step 0: (15, 7)->(15, 8) map=(3, 5) (path 35 to exit)
+
+   [travel] step 10: (20, 12)->(20, 13) map=(3, 5) (path 25 to exit)
+
+   [travel] step 20: (22, 20)->(22, 21) map=(3, 5) (path 15 to exit)
+
+   [travel] path blocked at (19, 23) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 23); NPC-allowing path EXISTS (len 9), blocker NPC tile=(19, 24), npcs nearby=[(19, 24)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 5)@(19, 23) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "RATTATA used CUT!"'
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (19, 24) on (3, 5) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    !! GYM: couldn't enter the Lt. Surge gym
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 23) -> coord (16, 25) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [campaign]    [roam] [!] GYM-GATE PROBE: Gate(hm_obstacle, missing='surf', where=(3, 5), "a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it")
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=hm_obstacle/surf → steps=['surf'] actionable=surf (resolved=True)
+
+   [campaign]    [roam] questline: no graph route (3, 5) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water."  fired=True  [age 0.0s + post 4ms]
+
+   [travel] start map=(3, 5) coords=(19, 23) -> map (3, 24) (budget 300s)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 22, 23, 24, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (19, 23)->(19, 22) map=(3, 5) (path 27 to exit)
+
+   [travel] step 10: (22, 16)->(22, 15) map=(3, 5) (path 17 to exit)
+
+   [travel] step 20: (22, 6)->(22, 5) map=(3, 5) (path 7 to exit)
+
+   [travel] MAP TRANSITION (3, 5) -> (3, 24)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [travel] north connection band cols: [23, 24]
+
+   [travel] ARRIVED at target map (3, 24) coords=(10, 39)
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 5)(15, 7) -> (3, 24)(10, 39) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 24) coords=(10, 39) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_065344_route-6_2b_12h18m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (10, 39) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 24) (10,39) f2 -- badge2 $4952 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:a building in Vermilion City:raichu: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:a building in Vermilion City:raichu: team floor < L25 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP and no switch on this relaxed leg (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L11 bench mon (target L25) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Vermilion City: on Route 6 — billed leg south toward Vermilion City
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Vermilion City runs south from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(10, 39) -> map (3, 5) (budget 300s)
+
+   [travel] south connection band cols: [10, 11, 12]
+
+   [travel] MAP TRANSITION (3, 24) -> (3, 5)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] ARRIVED at target map (3, 5) coords=(22, 0)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L33) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 24)(10, 39) -> (3, 5)(22, 0) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 5) coords=(22, 0) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_065345_vermilion-city_2b_12h18m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 24) toward Route 6 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (22, 0) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (22,0) f1 -- badge2 $4952 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'stock_up', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Vermilion City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Vermilion City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: wartortle (L33), caterpie the butterfree (L11), rattata (L14), spearow (L15), abra (L14), ekans (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 5), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'wartortle (L33), caterpie the butterfree (L11), rattata (L14), spearow (L15), abra (L14), ekans (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='level up butterfree before facing Surge'
+
+   [campaign]    [soul] ORACLE pick -> 'level up butterfree before facing Surge'
+
+   [soul] !! UNGROUNDED WANT (F-8): 'level up butterfree before facing Surge' names ['butterfree'] already on the team — the grounded ask didn't take (flagged for the descent grade; her words kept)
+
+   [campaign]    [roam] SHOP: "There's a Mart right here, and you've got the money. you could carry a lot more Potions before that next push; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — stocking up on healing BEFORE you walk back into that wall is the smart play, not charging in empty-handed." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:a building in Vermilion City:raichu: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:a building in Vermilion City:raichu: team floor < L25 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [kira-voice] -> T2·savor· (want) 'level up butterfree before facing Surge'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP and no switch on this relaxed leg (it can't win a fight it leads)
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L13) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L13 bench mon (target L25) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Lt. Surge's city (3, 5) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay. Lt. Surge's gym — and this is the wall that's been beating me. deep breath. this is the one. here we go."
+
+   [campaign]    GYM-PREP [Lt. Surge]: CREATOR ORDER (LAW) — Jonny said go; skipping prep, walking in as-is
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L33) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — wartortle now leads
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(22, 0) -> coord (14, 26) (budget 300s)
+
+   [travel] step 0: (22, 0)->(22, 1) map=(3, 5) (path 35 to exit)
+
+   [travel] step 10: (22, 10)->(23, 10) map=(3, 5) (path 27 to exit)
+
+   [travel] step 20: (23, 19)->(23, 20) map=(3, 5) (path 17 to exit)
+
+   [travel] path blocked at (19, 23) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 23); NPC-allowing path EXISTS (len 9), blocker NPC tile=(19, 24), npcs nearby=[(19, 24)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 5)@(19, 23) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "that little tree's in my way — good thing I carry Cut now. TIMBER!"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "RATTATA used CUT!"'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 2.28s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (19, 24) on (3, 5) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    !! GYM: couldn't enter the Lt. Surge gym
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 23) -> coord (16, 25) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [campaign]    [roam] [!] GYM-GATE PROBE: Gate(hm_obstacle, missing='surf', where=(3, 5), "a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it")
+
+   [campaign]    [roam] !! GO-HARD: beat_gym stuck x2 on Lt. Surge — NOT parking, NOT leaving (3, 5); re-entering the gym next tick (cap 5)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 5)(22, 0) -> (3, 5)(19, 23) (MOVED)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 24) toward Route 6 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (19, 23) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (19,23) f4 -- badge2 $4952 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 5)@(19, 23) (reason=frozen_box, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (19, 24) on (3, 5) (route around it) + marking (19, 23) a resolved talk-spot — unified block memory now 8 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] disengage: stepped UP AWAY from the NPC -> (19, 22) (closed box + walked off — the real escape)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick5] -> campaign/kira_campaign.state  (map=(3, 5) coords=(19, 22) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 24) toward Route 6 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (19, 22) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (19,22) f2 -- badge2 $4952 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'stock_up']
+
+   [campaign]    [roam] SHOP: "There's a Mart right here, and you've got the money. you could carry a lot more Potions before that next push; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — stocking up on healing BEFORE you walk back into that wall is the smart play, not charging in empty-handed." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:a building in Vermilion City:raichu: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:a building in Vermilion City:raichu: team floor < L25 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP and no switch on this relaxed leg (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L11 bench mon (target L25) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Lt. Surge's city (3, 5) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay. Lt. Surge's gym — and this is the wall that's been beating me. deep breath. this is the one. here we go."
+
+   [campaign]    GYM-PREP [Lt. Surge]: CREATOR ORDER (LAW) — Jonny said go; skipping prep, walking in as-is
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L33) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 22) -> coord (14, 26) (budget 300s)
+
+   [travel] releasing 1 stale NPC block(s) [(19, 24)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 0: (19, 22)->(19, 23) map=(3, 5) (path 10 to exit)
+
+   [travel] reached target coord (14, 26)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 5) -> (9, 6) via door (14, 25)
+
+   [campaign]    [world] learned 3 warp(s) on (9, 6): (4, 19)->(3, 5), (5, 19)->(3, 5), (6, 19)->(3, 5)
+
+   [campaign]    GYM: inside (9, 6) at (5, 19) - clearing junior trainers
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 19) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (5, 19)->(5, 18) map=(9, 6) (path 19 to exit)
+
+   [travel] step 10: (6, 10)->(6, 9) map=(9, 6) (path 9 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj4 at (7, 8) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (6, 8) (budget 90s)
+
+   [travel] step 0: (5, 3)->(5, 4) map=(9, 6) (path 7 to exit)
+
+   [travel] reached target coord (6, 8)
+
+   [dialogue] +++ "It's not easy opening that door. LT. SURGE was always famous for his cautious nature in the Army."  tags=['GYM_LEADER']
+
+   [kira-voice]    (dialogue tags: gym_leader)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "It\'s not easy opening that door. LT. SURGE was always famous for his cautious nature in the Army."'  fired=True  [age 0.0s + post 21ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg junior-talk] "It's not easy opening that door. LT. SURGE was always famous for his cau"
+
+   [campaign]    [dlg-pace junior-talk] box "It's not easy opening that door. LT. SURGE was a" visible 3.48s (sink 0ms, hold 0.11s, end=closed)
+
+   [campaign]    GYM: trainer at (7, 8) TALKED instead of fighting (post-defeat line drained, no battle) — ALREADY BEATEN in the save
+
+   [campaign]    GYM: junior obj4 at (7, 8) is ALREADY BEATEN in the save (talked, no battle) — marked done for the session, never re-engaging
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(6, 8) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(9, 6) (path 7 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [4])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] reached target coord (5, 3)
+
+   [campaign]    GYM: at (5, 3) (leader front (5, 3)) - engaging Lt. Surge [lead wartortle Lv33, party=6]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (5, 4) (budget 90s)
+
+   [travel] step 0: (5, 3)->(5, 4) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 4) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (5, 4)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (4, 3) (budget 90s)
+
+   [travel] step 0: (5, 3)->(4, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(4, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (4, 3)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (6, 3) (budget 90s)
+
+   [travel] step 0: (5, 3)->(6, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (6, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(6, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (6, 3)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [dialogue] +++ "Hey, kid! What do you think you're doing here? You won't live long in combat! Not with your puny power! I tell you, kid, electric POK.MON saved me during the war! They zapped my enemies into p"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey, kid! What do you think you\'re doing here? You won\'t live long in combat! Not with your puny power! I tell you, kid, electric POK.MON saved me during the war! They zapped my enemies into p"'  fired=True  [age 0.0s + post 12ms]
+
+   [campaign]    [dlg Lt. Surge-challenge] "Hey, kid! What do you think you're doing here? You won't live long in co"
+
+   [campaign]    [dlg-uwatch Lt. Surge-challenge] fp[(9, 6) (5,3) f2 D- badge2 $4952 party:cfb6 bag:9a0a] same line, frozen world x15/90
+
+   [campaign]    [dlg-uwatch Lt. Surge-challenge] fp[(9, 6) (5,3) f2 D- badge2 $4952 party:cfb6 bag:9a0a] same line, frozen world x30/90
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (9, 6)@(5, 3) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [dlg-pace Lt. Surge-challenge] box "Hey, kid! What do you think you're doing here? Y" visible 10.72s (sink 0ms, hold 0.11s, end=stopped)
+
+   [play-live] battle context: trainer=True foe=raichu rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against voltorb — your wartortle is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's voltorb fainted — your wartortle took it down"  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pikachu'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pikachu fainted — your wartortle took it down"  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out raichu'  fired=True  [age 0.0s + post 28ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 28ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle is at low HP - this is getting tense'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 11ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [strat] WIN/clear vs trainer:a building in Vermilion City:raichu — wall lifted
+
+   [campaign]    GYM: LT. SURGE -> timeout
+
+   [campaign]    [roam] !! drain 'Lt. Surge-award' requested during a LIVE battle -> skipping (battle engine owns that UI)
+
+   [campaign]    !! GYM: paced award didn't set the badge - A-mash backstop
+
+   [campaign]    !! GYM: Lt. Surge not beaten / no badge flag
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (5, 3), door (14, 25), scanned 0 field object(s): []
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (11, 20) (budget 60s)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (285s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 6ms]
+
+   [dialogue] +++ 'SPEAROW has no energy left to battle! .'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "SPEAROW has no energy left to battle! ."'
+
+   [play-live] battle context: trainer=True foe=raichu rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. and we're going in HURT — this could get scary."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'a battle started against raichu — your spearow is up front'
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 9ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'my wartortle just leveled up to level 33'
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] -> T2·savor· (event) "I'm out of real moves on this one — switching to someone who can still hit."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your ekans fainted'  fired=True  [age 0.0s + post 110ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) "I'm out of real moves on this one — switching to someone who can still hit."  fired=True  [age 0.0s + post 7ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+   [kira-voice] -> T2·savor· (event) 'your butterfree fainted'  fired=True  [age 0.0s + post 8ms]
+
+   [dialogue] +++ 'Do wse a POK.MON.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Do wse a POK.MON."'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm.."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [strat] !! trainer battle returned ambiguous 'ended' (likely a loss swallowed at the whiteout boundary) -> RECORDING as LOSS so the strategic-stuck floor isn't starved
+
+   [kira-voice] -> T2·savor· (event) 'the battle ended'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [evolve] PHASE 3A: control LOCKED after a level-up — driving the cutscene (A-only)
+
+   [dialogue] +++ 'First, you should restore your POK.MON to full health.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "First, you should restore your POK.MON to full health."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (9, 1)@(7, 4) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'Your POK.MON have been healed to perfect health. We hope you excel!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your POK.MON have been healed to perfect health. We hope you excel!"'  fired=True  [age 0.0s + post 19ms]
+
+   [campaign]    [evolve] PHASE 3A drove the evolution cutscene: spearow -> wartortle — naming beat
+
+   [campaign]    [soul] ORACLE decision: kind=name ctx={'place': 'your spearow just evolved into a wartortle! this is a new chapter for a teammate you love — give this wartortle a name, just the name.'} options=[]
+
+   [kira-voice] -> T3·BIG· (evolve) 'spearow evolved into wartortle'  fired=True  [age 0.0s + post 22ms]
+
+   [kira-voice] ORACLE kind=name options=[] -> pick=None
+
+   [campaign]    [soul] ORACLE pick -> None
+
+   [campaign]    [strat] LOSS recorded vs trainer:a building in Vermilion City:raichu (now 2x) at map=(9, 6) — SPATIAL wall active (gated until stronger)
+
+   [travel] battle outcome=ended; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (7, 4), door (14, 25), scanned 0 field object(s): []
+
+   [campaign]    [roam] !! GO-HARD: beat_gym stuck x3 on Lt. Surge — NOT parking, NOT leaving (3, 5); re-entering the gym next tick (cap 5)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 5)(19, 22) -> (9, 1)(7, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(9, 1) coords=(7, 4) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_070200_a-building-in-vermilion-city_2b_12h27m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (9, 1)@(7, 4) — exiting to the overworld to re-orient
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 1) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 1) coords=(7, 4) -> coord (7, 9) (budget 45s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (7, 4) AND no NPC-allowing path (npcs nearby=[(3, 8), (6, 4), (7, 2), (12, 5), (14, 3)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (7, 4) map=(9, 1) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 1) coords=(7, 4) -> coord (7, 7) (budget 45s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(9, 1) (path 4 to exit)
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    EXIT-BUILDING: (9, 1) -> (3, 5)@(15, 7)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 24) toward Route 6 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [strat] WALL RETIRED: trainer:a building in Vermilion City:raichu (2x losses) — readiness crossed + region advanced past it; a fresh loss re-records
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (15, 7) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (15,7) f1 -- badge2 $4160 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'stock_up', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Vermilion City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Vermilion City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: spearow the wartortle (L33), caterpie the butterfree (L11), rattata (L14), spearow (L15), abra (L14), ekans (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 5), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'spearow the wartortle (L33), caterpie the butterfree (L11), rattata (L14), spearow (L15), abra (L14), ekans (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Beat Lt. Surge, get the Thunder Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'Beat Lt. Surge, get the Thunder Badge'
+
+   [campaign]    [roam] SHOP: "There's a Mart right here. you're low on Potions; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — a real trainer stocks up before pushing on." — surfacing 'stock_up' to the oracle
+
+   [kira-voice] -> T2·savor· (want) 'Beat Lt. Surge, get the Thunder Badge'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #1: objective "PUSH FORWARD — the way ahead is blocked (a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it), and the move that opens it is to HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 0 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [kira-voice] ·floor· (<1s since last) T1 "okay, enough drifting — I said I was heading there, so let's actually go."
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP and no switch on this relaxed leg (it can't win a fight it leads)
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L13) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L13 bench mon (target L17) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Lt. Surge's city (3, 5) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "alright, Lt. Surge's gym. this is it — I'm actually a little nervous. okay. let's climb."
+
+   [campaign]    GYM-PREP [Lt. Surge]: CREATOR ORDER (LAW) — Jonny said go; skipping prep, walking in as-is
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L33) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — wartortle now leads
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(15, 7) -> coord (14, 26) (budget 300s)
+
+   [travel] step 0: (15, 7)->(15, 8) map=(3, 5) (path 35 to exit)
+
+   [travel] step 10: (20, 12)->(20, 13) map=(3, 5) (path 25 to exit)
+
+   [travel] step 20: (22, 20)->(22, 21) map=(3, 5) (path 15 to exit)
+
+   [travel] path blocked at (19, 23) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 23); NPC-allowing path EXISTS (len 9), blocker NPC tile=(19, 24), npcs nearby=[(19, 24)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 5)@(19, 23) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "RATTATA used CUT!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 2.29s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (19, 24) on (3, 5) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    !! GYM: couldn't enter the Lt. Surge gym
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 23) -> coord (16, 25) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [campaign]    [roam] [!] GYM-GATE PROBE: Gate(hm_obstacle, missing='surf', where=(3, 5), "a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it")
+
+   [campaign]    [roam] !! GO-HARD: beat_gym stuck x4 on Lt. Surge — NOT parking, NOT leaving (3, 5); re-entering the gym next tick (cap 5)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 5)(15, 7) -> (3, 5)(19, 23) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 5) coords=(19, 23) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_070233_vermilion-city_2b_12h27m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 24) toward Route 6 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! retiring bench pin L17 — gym is GO now
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (19, 23) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (19,23) f4 -- badge2 $4160 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 5)@(19, 23) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (19, 24) on (3, 5) (route around it) + marking (19, 23) a resolved talk-spot — unified block memory now 8 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] disengage: stepped UP AWAY from the NPC -> (19, 22) (closed box + walked off — the real escape)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 24) toward Route 6 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! retiring bench pin L17 — gym is GO now
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (19, 22) | badges=2 (Boulder, Cascade) | party=[wartortle L33, butterfree L11, rattata L14, spearow L15, abra L14, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 9 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (19,22) f2 -- badge2 $4160 party:cfb6 bag:9a0a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'stock_up']
+
+   [campaign]    [roam] SHOP: "There's a Mart right here. you're low on Potions; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — a real trainer stocks up before pushing on." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #2: objective "PUSH FORWARD — the way ahead is blocked (a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it), and the move that opens it is to HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 0 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipping slot 4 as lead candidate — no damaging PP and no switch on this relaxed leg (it can't win a fight it leads)
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L11 bench mon (target L17) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Lt. Surge's city (3, 5) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "alright, Lt. Surge's gym. this is it — I'm actually a little nervous. okay. let's climb."
+
+   [campaign]    GYM-PREP [Lt. Surge]: CREATOR ORDER (LAW) — Jonny said go; skipping prep, walking in as-is
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L33) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — wartortle now leads
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 22) -> coord (14, 26) (budget 300s)
+
+   [travel] releasing 1 stale NPC block(s) [(19, 24)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 0: (19, 22)->(19, 23) map=(3, 5) (path 10 to exit)
+
+   [travel] reached target coord (14, 26)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 5) -> (9, 6) via door (14, 25)
+
+   [campaign]    [world] learned 3 warp(s) on (9, 6): (4, 19)->(3, 5), (5, 19)->(3, 5), (6, 19)->(3, 5)
+
+   [campaign]    GYM: inside (9, 6) at (5, 19) - clearing junior trainers
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 19) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (5, 19)->(5, 18) map=(9, 6) (path 19 to exit)
+
+   [travel] step 10: (6, 10)->(6, 9) map=(9, 6) (path 9 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] reached target coord (5, 3)
+
+   [campaign]    GYM: at (5, 3) (leader front (5, 3)) - engaging Lt. Surge [lead wartortle Lv33, party=6]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (5, 4) (budget 90s)
+
+   [travel] step 0: (5, 3)->(5, 4) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 4) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (5, 4)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (4, 3) (budget 90s)
+
+   [travel] step 0: (5, 3)->(4, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(4, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (4, 3)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (6, 3) (budget 90s)
+
+   [travel] step 0: (5, 3)->(6, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (6, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(6, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (6, 3)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [dialogue] +++ "Hey, kid! What do you think you're doing here? You won't live long in combat! Not with your puny power! I tell you, kid, electric POK.MON saved me during the war! They zapped my enemies into p"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey, kid! What do you think you\'re doing here? You won\'t live long in combat! Not with your puny power! I tell you, kid, electric POK.MON saved me during the war! They zapped my enemies into p"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg Lt. Surge-challenge] "Hey, kid! What do you think you're doing here? You won't live long in co"
+
+   [campaign]    [dlg-uwatch Lt. Surge-challenge] fp[(9, 6) (5,3) f2 D- badge2 $4160 party:cfb6 bag:9a0a] same line, frozen world x15/90
+
+   [campaign]    [dlg-uwatch Lt. Surge-challenge] fp[(9, 6) (5,3) f2 D- badge2 $4160 party:cfb6 bag:9a0a] same line, frozen world x30/90
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (9, 6)@(5, 3) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [dlg-pace Lt. Surge-challenge] box "Hey, kid! What do you think you're doing here? Y" visible 10.72s (sink 0ms, hold 0.11s, end=stopped)
+
+   [play-live] battle context: trainer=True foe=raichu rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against voltorb — your wartortle is up front'  fired=True  [age 0.0s + post 9ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'WARTORTLE is already in battle! .'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "WARTORTLE is already in battle! ."'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's voltorb fainted — your wartortle took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my wartortle just leveled up to level 34'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pikachu'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pikachu fainted — your wartortle took it down"  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out raichu'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle used Bite - a solid hit'  fired=True  [age 0.0s + post 21ms]
+
+   [kira-voice] -> T2·savor· (event) 'your wartortle fainted'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: LT. SURGE -> timeout
+
+   [campaign]    [roam] !! drain 'Lt. Surge-award' requested during a LIVE battle -> skipping (battle engine owns that UI)
+
+   [campaign]    !! GYM: paced award didn't set the badge - A-mash backstop
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1579s, restart 1/8) — GAME CONTINUES; respawning audio.
+
