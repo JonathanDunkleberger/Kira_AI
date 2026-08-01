@@ -1,0 +1,300 @@
+   [TwitchChat] Received from the_one_over_there: Bruh,  I was just about to hit the store
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [TIMING] first-word: 1690ms
+   [TTS] Speaking: Honestly?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Honestly?' (2 words)
+   [TurnTiming] 04:01:09.448 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:01:11.227 TTS STOP — playback finished (span ~1778ms)
+   [TTS] Speaking: Pretty good....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Pretty good.' (3 words)
+   [TurnTiming] 04:01:11.228 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 04:01:13.009 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: Watching you install software while a YouTube vide...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Watching you install software while a Yo' (22 words)
+   [TurnTiming] 04:01:13.017 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_presets' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_library' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [VRAM] 04:01:16 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 04:01:19.052 TTS STOP — playback finished (span ~6035ms)
+   [TTS] Speaking: How are you?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'How are you?' (4 words)
+   [TurnTiming] 04:01:19.055 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:01:20.835 TTS STOP — playback finished (span ~1779ms)
+
+   [TIMING] voice: llm=13249ms(sonnet-stream(llm+tts)) tts=0ms total=13249ms
+   [LATENCY] vad_close=1200ms stt=205ms stt_wait=0ms salience=0ms triage=bypassed memory=21ms prompt_build=1ms ttft=1304ms tts_first_chunk=386ms audio_out=168ms TOTAL=2085ms
+   ✨ Emotion: EMOTIONAL → SASSY
+   [BrainWorker] Got twitch msg from the_one_over_there: Bruh,  I was just about to hit the store → buffering for chat_batch_worker
+   [Cookies] +2 → the_one_over_there (first message this session); shared=7/30
+🎤 Recording...
+   [TurnTiming] 04:01:21.522 VOICE ONSET — mic speech started
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (1/1s) (3 skip(s))
+   [SmartMem] q='  - the_one_over_there (twitch) [FIRST TIME CHATTER]: <<<Bru' fetched=10 dropped_by_floor=6 kept=4 survivors=3 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [SmartMem]     dist=1.146 conf=0.95 type=episodic blend=0.044 lane=KNOW
+   [SmartMem]     dist=1.156 conf=0.95 type=episodic blend=0.038 lane=KNOW
+   [SmartMem]     dist=1.165 conf=0.95 type=episodic blend=0.033 lane=KNOW
+   >>> Kira (Chat Batch of 1): Right! Perfect timing as always.
+   [TTS] Speaking: Right!...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Right!' (2 words)
+   [TurnTiming] 04:01:23.985 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:01:25.758 TTS STOP — playback finished (span ~1772ms)
+   [TTS] Speaking: Perfect timing as always....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Perfect timing as always.' (5 words)
+   [TurnTiming] 04:01:26.039 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Presence] chatty → Director drive-gap 5s (lower = more present).
+   [TurnTiming] 04:01:28.199 TTS STOP — playback finished (span ~2159ms)
+   [Cookies] +1 × 1 (batch response); shared=8/30
+   [ChatAge] the_one_over_there age=7.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=moderator/1,premium/1;client-nonce=bf3814f2-92fa-44fb-afc7-cbddc28fd0c8;color=;display-name=classiccoldfish;emotes=;first-msg=0;flags=;id=2dd1b539-76ea-42cf-92e9-a85c95e5bdbe;mod=1
+   [TwitchChat] Received from classiccoldfish: You guys are up late! Holy
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from classiccoldfish: You guys are up late! Holy → buffering for chat_batch_worker
+   [Cookies] +2 → classiccoldfish (first message this session); shared=10/30
+   [Cookies] Drip 10 — queued directive (compliment) for the_one_over_there
+   [TurnTiming] 04:01:29.435 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~7913ms since onset)
+   [Valence] updated 3 entit(ies): Jonny +0.20→+0.44; Abra +0.00→+0.32; Kira +0.29→+0.49
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [YTAutoSearch] No live broadcast found (attempt 2, 839s remaining)
+   [SmartMem] q='chatter the_one_over_there' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=2ms fetch=29ms rank=0ms)
+🎤 Recording...
+   [TurnTiming] 04:01:34.869 VOICE ONSET — mic speech started
+   >>> Kira (Bored): the_one_over_there, 495 messages deep and still getting scooped by a notification — classic. Also genuinely one of the most reliably here people in this chat, so the store can wait.
+
+Modest Abra, by the way. Jonny accidentally built a speedrunner.
+   [TTS] Speaking: the one over there, 495 messages deep and still ge...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'the one over there, 495 messages deep an' (18 words)
+   [TurnTiming] 04:01:37.567 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 04:01:43.480 TTS STOP — playback finished (span ~5913ms)
+   [TTS] Speaking: Also genuinely one of the most reliably here peopl...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Also genuinely one of the most reliably ' (19 words)
+   [TurnTiming] 04:01:44.041 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=;client-nonce=18d2f849ccf44d66867ba02fdd03303d;color=#5F9EA0;display-name=The_One_Over_There;emotes=;first-msg=0;flags=;id=9ad8c4af-ca26-431a-a49f-5a8c36df4300;mod=0;returning-chat
+   [TwitchChat] Received from the_one_over_there: i do be up at 1pm D:
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from the_one_over_there: i do be up at 1pm D: → buffering for chat_batch_worker
+   [TurnTiming] 04:01:48.859 TTS STOP — playback finished (span ~4817ms)
+   [TTS] Speaking: Modest Abra, by the way....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Modest Abra, by the way.' (7 words)
+   [TurnTiming] 04:01:49.148 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:01:51.405 TTS STOP — playback finished (span ~2256ms)
+   [TTS] Speaking: Jonny accidentally built a speedrunner....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Jonny accidentally built a speedrunner.' (6 words)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 04:01:51.718 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:01:54.249 TTS STOP — playback finished (span ~2530ms)
+   [TIMING] interjection: vision=2818ms llm=3269ms(sonnet) tts=17209ms total=23329ms
+   [LAG] sense→speak: total=36.1s (content_age=15.3s, prep=2.9s, llm=3.3s, tts_wait+synth=14.7s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TurnTiming] 04:01:56.730 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~21860ms since onset)
+>>> You said: I know I'm up so early.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I know I'm up so early." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TERSE  (one_word_count=1  tangent_since=101t  moment=calm)
+   [PromptSize] dynamic_context=11445ch  hist=8turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1255ms
+   [TTS] Speaking: How early are we talking?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'How early are we talking?' (6 words)
+   [TurnTiming] 04:01:58.519 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:02:00.382 TTS STOP — playback finished (span ~1862ms)
+
+   [TIMING] voice: llm=3411ms(sonnet-stream(llm+tts)) tts=0ms total=3411ms
+   [LATENCY] vad_close=1200ms stt=211ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=0ms ttft=1075ms tts_first_chunk=180ms audio_out=290ms TOTAL=1783ms
+🎤 Recording... (recovered opening words)
+   [Pokemon] SELF WANT: 'Thunder Badge from Lt. Surge'
+   ✨ Emotion: SASSY → MOODY
+   [VTS] Emotion transition → MOODY (mapped: 'My Animation 3')
+   [VTS] Emotion MOODY → triggered 'My Animation 3' (success)
+   [TurnTiming] 04:02:01.607 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~26737ms since onset)
+   [VRAM] 04:02:01 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+>>> You said: I accidentally just woke up at like 2 a.m. so...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I accidentally just woke up at like 2 a.m. so...' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=40ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=43ms
+   [Triage] RESPOND
+   (Kira's current emotion is: MOODY)
+   [PromptSize] dynamic_context=11159ch  hist=10turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1768ms
+   [TTS] Speaking: 2am is not waking up early....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '2am is not waking up early.' (7 words)
+   [TurnTiming] 04:02:03.984 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:02:06.603 TTS STOP — playback finished (span ~2618ms)
+   [TTS] Speaking: 2am is waking up wrong....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '2am is waking up wrong.' (6 words)
+   [TurnTiming] 04:02:06.607 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 04:02:09.037 TTS STOP — playback finished (span ~2430ms)
+
+   [TIMING] voice: llm=7144ms(sonnet-stream(llm+tts)) tts=0ms total=7144ms
+   [LATENCY] vad_close=1200ms stt=242ms stt_wait=0ms salience=0ms triage=bypassed memory=43ms prompt_build=1ms ttft=1768ms tts_first_chunk=0ms audio_out=317ms TOTAL=2371ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: MOODY → SASSY
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 04:02:12.226 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~37357ms since onset)
+>>> You said: Kira, please play this fucking game. I know, I know.
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q='Kira, please play this fucking game. I know, I know.' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=0.716 conf=0.95 type=episodic blend=0.309 lane=KNOW
+   [SmartMem]     dist=0.721 conf=0.95 type=episodic blend=0.306 lane=KNOW
+   [SmartMem]     dist=0.728 conf=0.9 type=episodic blend=0.302 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11536ch  hist=12turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1648ms
+   [TTS] Speaking: I'm watching you juggle a terminal and a paused Po...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm watching you juggle a terminal and a' (16 words)
+   [TurnTiming] 04:02:14.558 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 04:02:18.959 TTS STOP — playback finished (span ~4400ms)
+   [TTS] Speaking: They are not equally urgent....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'They are not equally urgent.' (6 words)
+   [TurnTiming] 04:02:18.963 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:02:21.029 TTS STOP — playback finished (span ~2065ms)
+
+   [TIMING] voice: llm=8481ms(sonnet-stream(llm+tts)) tts=0ms total=8481ms
+   [LATENCY] vad_close=1200ms stt=291ms stt_wait=0ms salience=0ms triage=bypassed memory=28ms prompt_build=0ms ttft=955ms tts_first_chunk=693ms audio_out=354ms TOTAL=2321ms
+   [Bits] Callback: Professional Spectator
+   [ChatAge] ACK injected for classiccoldfish (waited 54.8s, preempted=none)
+   [SmartMem] q='  - classiccoldfish (twitch) [FIRST TIME CHATTER]: <<<You gu' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=38ms rank=0ms)
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=moderator/1,premium/1;client-nonce=80f450d4-cf51-40ae-80fd-40a885be379d;color=;display-name=classiccoldfish;emotes=;first-msg=0;flags=;id=2daf0673-805d-4000-bcc6-300335635bca;mod=1
+   [TwitchChat] Received from classiccoldfish: Real coder hours fr
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from classiccoldfish: Real coder hours fr → buffering for chat_batch_worker
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 2): classiccoldfish, hello — the banana guy is here, we're really doing this at 2am.
+
+Right, 1pm is respectable actually. Some of us woke up at 2am and are pretending that's fine.
+   [TTS] Speaking: classiccoldfish, hello — the banana guy is here, w...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'classiccoldfish, hello — the banana guy ' (17 words)
+   [TurnTiming] 04:02:30.112 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [YTAutoSearch] No live broadcast found (attempt 3, 779s remaining)
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=;client-nonce=9a1f2699213f4d8c92d95907ada44fa6;color=#5F9EA0;display-name=The_One_Over_There;emotes=;first-msg=0;flags=;id=3200522c-53ab-4a0b-8e16-8851b6d01cd5;mod=0;returning-chat
+   [TwitchChat] Received from the_one_over_there: waking up wrong.   I'm going to use that at some point
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from the_one_over_there: waking up wrong.   I'm going to use that at some point → buffering for chat_batch_worker
+   [TurnTiming] 04:02:35.327 TTS STOP — playback finished (span ~5214ms)
+   [TTS] Speaking: Right, 1pm is respectable actually....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Right, 1pm is respectable actually.' (7 words)
+   [TurnTiming] 04:02:35.690 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:02:38.726 TTS STOP — playback finished (span ~3035ms)
+   [TTS] Speaking: Some of us woke up at 2am and are pretending that'...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Some of us woke up at 2am and are preten' (13 words)
+   [TurnTiming] 04:02:39.158 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 04:02:42.804 TTS STOP — playback finished (span ~3646ms)
+   [Cookies] +1 × 2 (batch response); shared=12/30
+   [ChatAge] classiccoldfish age=74.2s batch=2 preempted=none
+   [ChatAge] the_one_over_there age=57.2s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 04:02:44.021 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~69151ms since onset)
+   [ChatterMem] Stored: classiccoldfish — Known as 'the banana guy' by Kira [playful]
+   [ChatterMem] Stored: the_one_over_there — Often up at 1pm [dry]
+   [VRAM] 04:02:46 (periodic) kira_process=0.00GB card=8.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 04:02:46.723 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0179 · gate=0.003 · 0 accepted
+   [ChatAge] ACK injected for classiccoldfish (waited 22.1s, preempted=none)
+   [SmartMem] q='  - classiccoldfish (twitch): <<<Real coder hours fr>>>\n  - ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=47ms rank=0ms)
+   [TurnTiming] 04:02:48.042 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1319ms since onset)
+🎤 Recording...
+   [TurnTiming] 04:02:48.402 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 2): Hold on, classiccoldfish — real coder hours, yeah, except real coders chose to be awake. This was an accident.
+
+Right, use it wisely. It has range.
+   [TTS] Speaking: Hold on, classiccoldfish — real coder hours, yeah,...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Hold on, classiccoldfish — real coder ho' (19 words)
+   [TurnTiming] 04:02:50.941 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 04:02:56.932 TTS STOP — playback finished (span ~5991ms)
+   [TTS] Speaking: This was an accident....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This was an accident.' (5 words)
+   [TurnTiming] 04:02:58.068 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 04:02:59.849 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: Right, use it wisely....
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TwitchChat] event_raw_data parse error: 'ServerTimeoutError' object has no attribute 'splitlines'
+   TTS Fail: Connection failed (no connection to the remote host). Internal error: 1. Error details: Failed with error: WS_OPEN_ERROR_UNDERLYING_IO_OPEN_FAILED
+wss://westus3.tts.speech.microsoft.com/tts/cognitiveservices/websocket/v1
+X-ConnectionId: e3b7adb91f744e5c881f78d43079b370 USP state: Sending. Received audio size: 0 bytes.
+   [TTS] backend=azure
+   [TTS] Speaking: It has range....
+   TTS Fail: Connection failed (no connection to the remote host). Internal error: 1. Error details: Failed with error: WS_OPEN_ERROR_UNDERLYING_IO_OPEN_FAILED
+wss://westus3.tts.speech.microsoft.com/tts/cognitiveservices/websocket/v1
+X-ConnectionId: 75518c57070d479db996a9cf6a8289e1 USP state: Sending. Received audio size: 0 bytes.
+   [TTS] backend=azure
+   [Cookies] +1 × 2 (batch response); shared=14/30
+   [ChatAge] classiccoldfish age=62.5s batch=2 preempted=none
+   [ChatAge] the_one_over_there age=54.2s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 04:03:31.524 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~43121ms since onset)
+   [VRAM] 04:03:31 (periodic) kira_process=0.00GB card=8.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 8 skip(s) — resuming transcription.
+>>> You said: it's okay. All right, Kira is clearly stuck. Fuck. Did my OBS disconnect?
+   [YTAutoSearch] No live broadcast found (attempt 4, 719s remaining)
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q="it's okay. All right, Kira is clearly stuck. Fuck. Did my OB" fetched=10 dropped_by_floor=4 kept=6 survivors=3 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [SmartMem]     dist=1.066 conf=0.9 type=episodic blend=0.093 lane=KNOW
+   [SmartMem]     dist=1.086 conf=0.9 type=episodic blend=0.081 lane=KNOW
+   [SmartMem]     dist=1.192 conf=0.95 type=episodic blend=0.016 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=26ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11494ch  hist=16turns  moment=calm
+>>> Kira (streaming):    [WARN] vision_agent (capture_and_describe) LLM call timed out after 15s — skipping
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
