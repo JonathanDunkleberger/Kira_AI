@@ -84,6 +84,14 @@ check(14, "legal seconds never include the first can itself (double-talk = reset
 check(15, "legal seconds == adjacent_cans (pret orthogonal only)",
       secs == EP.adjacent_cans((5, 12), cans))
 
+# A-spam reset fix (2026-08-01): drain must face AWAY + prefer B — never A-mash into the can.
+ep_src = open(os.path.join(_HERE, "env_puzzle.py"), encoding="utf-8").read()
+check(16, "interact faces away before closing can dialogue (A-spam reset)",
+      "def _face_away" in ep_src and "def _close_can_dialogue" in ep_src
+      and 'press("B"' in ep_src and "facing AWAY" in ep_src)
+check(17, "first-lock path steps away before returning from interact",
+      "_step_away(site)" in ep_src or "_step_away(first)" in ep_src)
+
 
 # already-solved short-circuit
 class _FlagBridge:

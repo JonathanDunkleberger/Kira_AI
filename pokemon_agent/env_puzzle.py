@@ -126,8 +126,37 @@ class TrashCanPuzzle:
         evs = [xy for (xy, kind) in tv.read_bg_events(self.b) if kind <= 4]
         return filter_can_sites(evs)
 
+    def _face_away(self, face):
+        """Turn opposite the can. pret TrySwitchTwo: an A while still facing the first
+        switch can AFTER FLAG_TEMP_1 sets = full lock reset (the live A-spam Jonny saw)."""
+        opp = {"UP": "DOWN", "DOWN": "UP", "LEFT": "RIGHT", "RIGHT": "LEFT"}.get(face)
+        if not opp:
+            return
+        self.b.press(opp, 8, 12, self.c.render, owner="agent")
+        for _f in range(16):
+            self.b.run_frame()
+
+    def _close_can_dialogue(self, face):
+        """Close the can's msgbox WITHOUT re-triggering the script.
+
+        `_drain_overworld` A-mashes; if she is still facing the can when the box closes,
+        the next A re-enters TrashCan → TrySwitchTwo → reset. Face away first, advance
+        with B (also closes FRLG msgboxes), only fall back to drain while facing away.
+        """
+        self._face_away(face)
+        for _ in range(48):
+            if not dd_box_open(self.b):
+                return
+            self.b.press("B", 6, 10, self.c.render, owner="agent")
+            for _f in range(14):
+                self.b.run_frame()
+        if dd_box_open(self.b):
+            self._face_away(face)          # belt + suspenders before any A-mash fallback
+            self.c._drain_overworld(label="trashcan-away")
+            self._face_away(face)
+
     def _interact(self, site):
-        """Walk beside the can and press A facing it; settle the dialogue.
+        """Walk beside the can, ONE A to open, close dialogue facing AWAY from the can.
 
         Returns True only when an interaction actually registered (dialogue opened and/or a
         switch flag flipped). Prefer stand SOUTH / face UP — FRLG cans face that way.
@@ -139,33 +168,52 @@ class TrashCanPuzzle:
         temp0 = read_flag(self.b, FLAG_TEMP_1)
         both0 = read_flag(self.b, FLAG_BOTH_SWITCHES)
         if dd_box_open(self.b):
-            self.c._drain_overworld(label="trashcan-pre")
+            # Unknown facing — B-advance only, never A-mash a mystery box next to cans.
+            for _ in range(40):
+                if not dd_box_open(self.b):
+                    break
+                self.b.press("B", 6, 10, self.c.render, owner="agent")
+                for _f in range(14):
+                    self.b.run_frame()
         for stand, face in stands:
             r = self.c.trav.travel(target_map=None, arrive_coord=stand,
                                    max_steps=140, max_seconds=70)
             if r != "arrived":
                 self.log(f"   [puzzle] travel->{stand} for can{site}: {r}")
                 continue
-            # Face the can (first press may only turn) then A; confirm the box/flag moved.
+            # Face the can (first press may only turn) then ONE A — never A-hold / never mash.
             for _ in range(2):
                 self.b.press(face, 8, 10, self.c.render, owner="agent")
                 for _f in range(14):
                     self.b.run_frame()
-            self.b.press("A", 8, 12, self.c.render, owner="agent")
+            self.b.press("A", 4, 16, self.c.render, owner="agent")   # short tap, long gap
             saw_box = False
-            for _f in range(50):
+            found_first = False
+            for _f in range(60):
                 self.b.run_frame()
                 if dd_box_open(self.b):
                     saw_box = True
+                if (not temp0) and read_flag(self.b, FLAG_TEMP_1):
+                    found_first = True
+                    # FIRST LOCK OPEN — turn away IMMEDIATELY before any more A/B on this tile.
+                    self.log(f"   [puzzle] FIRST lock flipped during wait at {site} — facing AWAY")
+                    self._face_away(face)
                     break
-            self.c._drain_overworld(label="trashcan")
-            temp1 = read_flag(self.b, FLAG_TEMP_1)
-            both1 = read_flag(self.b, FLAG_BOTH_SWITCHES)
-            if saw_box or temp1 != temp0 or both1 != both0:
+                if saw_box and _f > 20:
+                    break
+            if saw_box or found_first or read_flag(self.b, FLAG_TEMP_1) != temp0 \
+                    or read_flag(self.b, FLAG_BOTH_SWITCHES) != both0:
+                self._close_can_dialogue(face)
+                temp1 = read_flag(self.b, FLAG_TEMP_1)
+                both1 = read_flag(self.b, FLAG_BOTH_SWITCHES)
+                # If we just armed first lock, step away before returning (no stray A on this can).
+                if (not temp0) and temp1 and not both1:
+                    self._step_away(site)
                 self.log(f"   [puzzle] checked can{site} from {stand} face {face} "
                          f"(box={int(saw_box)} temp1={int(temp1)} both={int(both1)})")
                 return True
             self.log(f"   [puzzle] A at can{site} from {stand} did not register — trying next side")
+            self._face_away(face)
         self.log(f"   [puzzle] !! could not interact with can{site} from any side")
         return False
 
