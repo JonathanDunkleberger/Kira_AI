@@ -1,1 +1,1 @@
-CKPT cerulean-city
+CANONICAL
