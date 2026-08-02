@@ -1,0 +1,183 @@
+resume_marathon 20260802_134813  (repo: G:\JonnyD\NeuroAI_Bot)
+== stopping any running Kira python processes ==
+== git pull ==
+Already up to date.
+
+== crash forensics ==
+== logs\debug listing (newest 25) ==
+
+Name                            LastWriteTime         Length
+----                            -------------         ------
+console_2026-08-02_13-44-01.log 8/2/2026 1:45:25 PM    77836
+latest.log                      8/2/2026 1:45:25 PM    77836
+playlive_faulthandler.log       8/2/2026 1:44:56 PM     6710
+console_2026-08-02_13-08-48.log 8/2/2026 1:29:49 PM   201974
+console_2026-08-02_08-07-35.log 8/2/2026 8:22:08 AM   126238
+console_2026-08-02_07-25-42.log 8/2/2026 8:07:05 AM   331140
+console_2026-08-02_06-47-45.log 8/2/2026 7:25:05 AM   359739
+console_2026-08-01_16-59-29.log 8/1/2026 5:09:07 PM    85511
+console_2026-08-01_15-18-44.log 8/1/2026 4:50:29 PM   864183
+console_2026-08-01_07-07-18.log 8/1/2026 7:14:54 AM    53162
+console_2026-08-01_06-39-44.log 8/1/2026 7:06:54 AM   225907
+console_2026-08-01_06-34-12.log 8/1/2026 6:38:15 AM    30004
+console_2026-08-01_06-22-58.log 8/1/2026 6:32:28 AM    78431
+console_2026-08-01_04-54-50.log 8/1/2026 6:18:01 AM   717738
+console_2026-08-01_04-17-39.log 8/1/2026 4:26:00 AM    64550
+console_2026-08-01_03-59-06.log 8/1/2026 4:04:01 AM    33918
+console_2026-07-31_15-16-58.log 7/31/2026 3:25:54 PM   92259
+console_2026-07-31_14-59-58.log 7/31/2026 3:03:16 PM   37915
+console_2026-07-31_14-39-13.log 7/31/2026 2:44:47 PM   61460
+console_2026-07-31_14-14-31.log 7/31/2026 2:38:48 PM  209906
+console_2026-07-31_13-26-13.log 7/31/2026 1:46:48 PM  192922
+console_2026-07-31_10-20-07.log 7/31/2026 10:49:24 AM 150585
+console_2026-07-31_10-00-11.log 7/31/2026 10:08:07 AM  68992
+console_2026-07-31_09-35-15.log 7/31/2026 9:41:57 AM   57768
+console_2026-07-31_08-58-42.log 7/31/2026 9:34:59 AM  331747
+
+
+
+tailed newest debug log: console_2026-08-02_13-44-01.log
+tailed supervisor log: playlive_2026-08-02_13-44-56.log
+tailed supervisor log: playlive_2026-08-02_13-09-47.log
+== sandbox inventory (G:\temp\kira_watch) ==
+[1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
+    last activity: 07/28/2026 13:14:40
+    badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 2 played=15min timeline=sherpa
+[2] G:\temp\kira_watch\sandbox_canonical_20260728_125602
+    last activity: 07/28/2026 12:57:41
+    badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
+== canonical campaign ==
+    last activity: 08/02/2026 13:45:22
+    badges=3 party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] place=Mt. Moon B1F played=962min timeline=sherpa
+== campaign snapshot inventory (*.state, newest first) ==
+
+Name                             LastWriteTime         Length
+----                             -------------         ------
+kira_campaign.state              8/2/2026 1:45:22 PM   397312
+pre_reload_20260801_054735.state 8/1/2026 5:47:35 AM   397312
+pre_reload_20260731_152047.state 7/31/2026 3:20:47 PM  397312
+pre_reload_20260731_151952.state 7/31/2026 3:19:52 PM  397312
+pre_reload_20260730_131347.state 7/30/2026 1:13:47 PM  397312
+pre_reload_20260730_115901.state 7/30/2026 11:59:01 AM 397312
+pre_reload_20260730_102123.state 7/30/2026 10:21:23 AM 397312
+pre_reload_20260730_102031.state 7/30/2026 10:20:31 AM 397312
+pre_reload_20260730_101940.state 7/30/2026 10:19:40 AM 397312
+pre_reload_20260730_101849.state 7/30/2026 10:18:49 AM 397312
+pre_reload_20260730_100344.state 7/30/2026 10:03:44 AM 397312
+pre_reload_20260730_100252.state 7/30/2026 10:02:52 AM 397312
+pre_reload_20260730_100201.state 7/30/2026 10:02:01 AM 397312
+pre_reload_20260730_100110.state 7/30/2026 10:01:10 AM 397312
+pre_reload_20260730_100018.state 7/30/2026 10:00:18 AM 397312
+replaced_20260730_094739.state   7/30/2026 9:40:24 AM  397312
+pre_reload_20260730_091004.state 7/30/2026 9:10:04 AM  397312
+pre_reload_20260729_141617.state 7/29/2026 2:16:17 PM  397312
+pre_reload_20260729_101235.state 7/29/2026 10:12:35 AM 397312
+
+
+
+== showtime segment checkpoints (states\kira\*.state, newest first) ==
+
+Name                             LastWriteTime        Length
+----                             -------------        ------
+seg_cascade_badge.progress.state 7/28/2026 3:25:01 PM 397312
+seg_cerulean.state               7/28/2026 3:25:00 PM 397312
+seg_route3_caught.state          7/28/2026 3:02:47 PM 397312
+seg_route3_entered.state         7/28/2026 2:56:29 PM 397312
+seg_boulder_badge.state          7/28/2026 2:55:43 PM 397312
+seg_opening.state                7/28/2026 2:02:29 PM 397312
+
+
+
+== auto-checkpoint inventory (newest 20) ==
+
+Name                                                   LastWriteTime      
+----                                                   -------------      
+20260802_134458_mt-moon-b1f_3b_16h01m_roam-start       8/2/2026 1:44:58 PM
+20260802_132938_mt-moon-b1f_3b_16h01m_gain-new-area    8/2/2026 1:29:38 PM
+20260802_132322_route-4_3b_15h55m_gain-new-area        8/2/2026 1:23:22 PM
+20260802_132308_route-3_3b_15h55m_gain-new-area        8/2/2026 1:23:08 PM
+20260802_132259_pewter-city_3b_15h55m_gain-new-area    8/2/2026 1:22:59 PM
+20260802_132012_route-2_3b_15h52m_gain-new-area        8/2/2026 1:20:12 PM
+20260802_131704_route-11_3b_15h49m_gain-new-area       8/2/2026 1:17:04 PM
+20260802_131657_vermilion-city_3b_15h49m_gain-new-area 8/2/2026 1:16:57 PM
+20260802_131650_route-6_3b_15h48m_gain-new-area        8/2/2026 1:16:50 PM
+20260802_131601_route-5_3b_15h48m_gain-new-area        8/2/2026 1:16:01 PM
+20260802_131556_cerulean-city_3b_15h47m_gain-new-area  8/2/2026 1:15:56 PM
+20260802_130955_route-9_3b_15h41m_gain-new-area        8/2/2026 1:09:55 PM
+20260802_130949_route-10_3b_15h41m_roam-start          8/2/2026 1:09:49 PM
+20260802_082159_route-10_3b_15h41m_gain-new-area       8/2/2026 8:21:59 AM
+20260802_082158_route-9_3b_15h41m_gain-new-area        8/2/2026 8:21:58 AM
+20260802_082157_route-10_3b_15h41m_gain-new-area       8/2/2026 8:21:57 AM
+20260802_082153_route-9_3b_15h41m_gain-new-area        8/2/2026 8:21:53 AM
+20260802_082152_route-10_3b_15h41m_gain-new-area       8/2/2026 8:21:52 AM
+20260802_082147_route-9_3b_15h41m_gain-new-area        8/2/2026 8:21:47 AM
+20260802_082146_route-9_3b_15h41m_gain-new-area        8/2/2026 8:21:46 AM
+
+
+
+== campaign dir + backups ==
+
+FullName                                                                                                                             LastWriteTime        
+--------                                                                                                                             -------------        
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                                                   6/26/2026 4:11:48 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/2/2026 1:45:22 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423                                                         7/29/2026 9:04:20 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      8/2/2026 1:19:32 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427                                                          7/29/2026 9:54:27 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                                                  7/15/2026 12:12:19 PM
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/2/2026 1:44:58 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427                       7/29/2026 9:54:27 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\checkpoints                                             7/29/2026 8:59:40 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\hm01_bank_20260706_203730                               7/6/2026 8:32:47 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_badge3_backup_20260706_212610                       7/6/2026 9:26:10 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_blaine_badge7_backup_20260707_130328                7/7/2026 1:03:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_celadon_reach_backup_20260707_005144                7/7/2026 12:51:44 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_cinnabar_reach_backup_20260707_121633               7/7/2026 12:16:33 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_dex10_backup_20260706_231721                        7/6/2026 11:17:21 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_dex11_mankey_backup_20260706_235322                 7/6/2026 11:53:22 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_erika_badge4_backup_20260707_014247                 7/7/2026 1:42:47 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_fuchsia_reach_backup_20260707_045518                7/7/2026 4:55:18 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_fuchsia_south_backup_20260707_084122                7/7/2026 8:41:22 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_giovanni_badge8_backup_20260707_131428              7/7/2026 1:14:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_hall_of_fame_backup_20260707_200544                 7/7/2026 8:05:44 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_hm01_backup_20260706_203744                         7/6/2026 8:37:44 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_hm05_flash_backup_20260707_001448                   7/7/2026 12:14:48 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_indigo_reach_backup_20260707_154528                 7/7/2026 3:45:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_koga_badge5_backup_20260707_050954                  7/7/2026 5:09:54 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_lapras_party_backup_20260707_083659                 7/7/2026 8:36:59 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_pcbox_spearow_backup_20260706_232812                7/6/2026 11:28:12 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_poke_flute_backup_20260707_042213                   7/7/2026 4:22:13 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_postgame_backup_20260708_003254                     7/8/2026 12:32:54 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_rocktunnel_lavender_backup_20260707_002712          7/7/2026 12:27:12 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_route10_reach_backup_20260706_230609                7/6/2026 11:06:09 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_route12_snorlax_backup_20260707_042553              7/7/2026 4:25:53 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_route5_backup_20260706_072125                       7/6/2026 7:21:25 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_sabrina_badge6_backup_20260707_082745               7/7/2026 8:27:45 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_safari_hms_backup_20260707_101928                   7/7/2026 10:19:28 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_saffron_reach_backup_20260707_060438                7/7/2026 6:04:38 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_secret_key_backup_20260707_123848                   7/7/2026 12:38:48 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_silph_cleared_backup_20260707_075833                7/7/2026 7:58:33 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_silph_scope_backup_20260707_034948                  7/7/2026 3:49:48 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_silph_scope_out_backup_20260707_035722              7/7/2026 3:57:22 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_snorlax_woken_backup_20260707_043049                7/7/2026 4:30:49 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_squad31_backup_20260706_180600                      7/6/2026 6:06:00 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_squad_backup_20260706_162755                        7/6/2026 4:27:55 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_surf_taught_backup_20260707_102403                  7/7/2026 10:24:03 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_tea_banked_backup_20260707_055824                   7/7/2026 5:58:24 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_ticket_backup_20260705_233354                       7/5/2026 11:33:54 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_tm43_secret_power_backup_20260707_025255            7/7/2026 2:52:55 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_vermilion_backup_20260706_152434                    7/6/2026 3:24:34 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_watch_rescue_20260729_085809_backup_20260729_085810 7/29/2026 8:58:11 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_191540                                                              7/8/2026 7:15:40 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_201300                                                              7/8/2026 8:13:00 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_204856                                                              7/8/2026 8:48:56 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_223401                                                              7/8/2026 10:34:01 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260709_114958                                                              7/9/2026 11:49:58 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539                                                              7/28/2026 1:55:39 PM 
+
+
+
+CKPT promoted: 20260802_131657_vermilion-city_3b_15h49m_gain-new-area -> kira_campaign.state (old save backed up as replaced_20260802_134813.state)
+== push soak report (this can take ~30s; console stays quiet on purpose) ==
+== push soak report ==
