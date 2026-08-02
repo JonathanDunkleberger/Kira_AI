@@ -4577,13 +4577,24 @@ class Campaign:
             log(f"   !! GYM: no spec for '{name}'"); return "stuck"
         # ICE BEAM ERRAND (2026-08-02, Celadon chalk): before Erika, Game Corner cash→coins→
         # TM13 → teach the ace. Human let's-play tech (Ice into Grass); same TM later hits
-        # Giovanni/Lance. Idempotent; broke/no-learner LOUD-skips. BEFORE prep so coverage
-        # teach sees Ice Beam already on the moveset.
+        # Giovanni/Lance. Idempotent. Broke → arm a cash farm (trainers/wilds), defer the gym
+        # door until she can afford the prize (a human doesn't skip the TM and walk in empty).
         if name == "Erika":
             try:
-                from game_corner import IceBeamErrand
+                from game_corner import IceBeamErrand, ice_beam_cash_shortfall
                 _ibr = IceBeamErrand(self, log=log).run()
                 log(f"   GYM-PREP [Erika]: ice-beam errand -> {_ibr}")
+                if _ibr == "broke":
+                    _need = ice_beam_cash_shortfall(self)
+                    self._ice_beam_cash_needed = max(int(_need or 0), 1)
+                    log(f"   GYM-PREP [Erika]: need ¥{self._ice_beam_cash_needed} more for Ice Beam "
+                        f"— deferring gym door; earn cash on the road then retry")
+                    self.on_event("Ice Beam's at the Game Corner but I'm short on cash — "
+                                  "gonna knock out some trainers, then buy it.",
+                                  kind="gym", tier=2)
+                    return "need_cash_for_tm"
+                if _ibr in ("taught", "have_ice_beam"):
+                    self._ice_beam_cash_needed = 0
             except Exception as e:
                 log(f"   !! GYM-PREP ice-beam errand crashed ({e}) — entering Erika as-is (LOUD)")
         # Fix B: ENFORCED pre-gym readiness (catch a team / type answer / level) BEFORE entering — she
@@ -12885,7 +12896,29 @@ class Campaign:
                 if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and _gh_capped:
                     log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
                         f"{_ng3['leader']}; escape machinery owns the wedge now")
-                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and not _gh_capped:
+                # ICE-BEAM CASH FARM (2026-08-02): short on Game Corner coins money — keep
+                # battle on the menu (trainers = yen), soft-stand-down force-gym until she can
+                # afford TM13. Human play: earn, buy Ice Beam, THEN Erika.
+                _cash_tm = int(getattr(self, "_ice_beam_cash_needed", 0) or 0)
+                if _cash_tm > 0 and _ng3 and _ng3.get("leader") == "Erika":
+                    try:
+                        from game_corner import ice_beam_cash_shortfall as _ib_short
+                        _left = _ib_short(self)
+                    except Exception:
+                        _left = _cash_tm
+                    if _left <= 0:
+                        self._ice_beam_cash_needed = 0
+                        log("   [roam] !! Ice Beam cash farm DONE — wallet covers TM13; gym is GO")
+                    else:
+                        self._ice_beam_cash_needed = _left
+                        a["battle"] = (f"EARN CASH for Ice Beam — need ~¥{_left} more, then Game "
+                                       f"Corner → TM13 → Erika. Fight trainers / wilds for money; "
+                                       f"this is the shop run, not a level park.")
+                        self._force_gym_pick = False
+                        log(f"   [roam] !! ICE-BEAM CASH FARM: keeping battle (need ¥{_left}); "
+                            f"GO-HARD force-gym stood down until she can buy TM13")
+                _cash_blocking = int(getattr(self, "_ice_beam_cash_needed", 0) or 0) > 0
+                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and not _gh_capped and not _cash_blocking:
                     if "head_to_gym" not in a:
                         a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
                         log("   [roam] !! restoring head_to_gym (was pruned earlier) — gym is GO")
@@ -13755,7 +13788,24 @@ class Campaign:
                         return "arrived"
                     if r == "road_passthrough":
                         return "road_passthrough"
-                    # need_flash / None -> fall through (door_passthrough/edge; defensive only)
+                    # need_flash / fail: NEVER fall through to edge (that IS the R9↔R10
+                    # ping-pong — east to the dark mouth, bounce, west, repeat).
+                    if r == "need_flash":
+                        try:
+                            gate = self._gate_recognizer.recognize(cur, blocked_dir=leg["go"])
+                            if gate and QUESTLINE_ENABLED and self._open_questline(gate, state):
+                                log("   [roam] ROAD: tunnel needs Flash — opening unlock errand "
+                                    "(no edge fallthrough)")
+                                return self._run_questline_step(state)
+                        except Exception as _fx:
+                            log(f"   [roam] Flash re-open after need_flash skipped: {_fx}")
+                        self.on_event("pitch black ahead — I need Flash before I walk in there.",
+                                      kind="route", tier=2)
+                        return "road_gated"
+                    if r is None:
+                        log("   [roam] ROAD: tunnel leg unresolved — not edge-oscillating; "
+                            "surfacing road_gated")
+                        return "road_gated"
                 pt = self._door_passthrough(want_map=tuple(nxt) if nxt else None)
                 if pt == "need_heal":
                     return "need_heal"
@@ -13930,17 +13980,28 @@ class Campaign:
             # Under GO-HARD the badge IS the next beat (same doctrine as the menu prune that forced
             # the pick), so the questline hijack STANDS DOWN and head_to_gym drives THE ACTUAL GYM.
             # The questline itself stays alive/untouched — normal (non-GO-HARD) ticks still run it.
+            # ROAD-BLOCKER EXCEPTION (2026-08-02, Route 9↔10 Celadon chalk): Flash (and Cut) are
+            # ON the billed road to the next gym — parking them under GO-HARD makes head_to_gym
+            # drive east into Rock Tunnel while the Flash errand walks west → border ping-pong
+            # forever (motives flip every seam). Bill-before-Misty was a DETOUR; Flash is the road.
             _go_hard_now = False
             try:
-                _go_hard_now = bool(self._creator_order(state) or self._gym_dominant(state))
+                _go_hard_now = bool(self._creator_order(state) or self._gym_dominant(state)
+                                    or self._ace_carries_next_gym(state)
+                                    or getattr(self, "_force_gym_pick", False))
             except Exception:
                 _go_hard_now = False
             if QUESTLINE_ENABLED and self._active_questline is not None:
-                if _go_hard_now:
+                _ql_miss = getattr(self._active_questline.gate, "missing", None)
+                _road_blocker = _ql_miss in ("flash", "cut")
+                if _go_hard_now and not _road_blocker:
                     log("   [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack "
-                        f"('{getattr(self._active_questline.gate, 'missing', '?')}' errand parked, "
-                        f"not cleared) — driving THE GYM DOOR, not the errand")
+                        f"('{_ql_miss}' errand parked, not cleared) — driving THE GYM DOOR, "
+                        f"not the errand")
                 else:
+                    if _go_hard_now and _road_blocker:
+                        log(f"   [roam] !! GO-HARD WAIVES questline park — '{_ql_miss}' is ON "
+                            f"the billed road (not a detour); running the unlock errand")
                     return self._run_questline_step(state)
             # BATCH 6 PHASE 1 — SHE ACTUALLY CLIMBS. The loop's whole point: when she's AT the next gym's
             # city, don't just mill around — ENTER the gym, clear its junior trainers, beat the leader,

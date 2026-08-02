@@ -49,6 +49,22 @@ MONEY_FLOOR = int(os.getenv("POKEMON_SHOP_MONEY_FLOOR", "500"))
 ICE_BEAM_ERRAND_ENABLED = os.getenv("POKEMON_ICE_BEAM_ERRAND", "1") != "0"
 
 
+def ice_beam_cash_shortfall(camp):
+    """¥ still needed (above MONEY_FLOOR) to buy enough 500-coin packs for TM13. 0 if affordable."""
+    try:
+        have_c = coins(camp.b)
+        need_c = max(0, TM13_COIN_COST - have_c)
+        if need_c <= 0:
+            return 0
+        packs = (need_c + COINS_PACK_500 - 1) // COINS_PACK_500
+        cost = packs * COINS_PACK_COST
+        have_m = int(camp.money())
+        short = cost + MONEY_FLOOR - have_m
+        return max(0, short)
+    except Exception:
+        return COINS_PACK_COST * 8  # fail-closed: assume full buy
+
+
 def coins(b):
     """Player coin balance (SaveBlock1+0x294 XOR encryptionKey)."""
     sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
