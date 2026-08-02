@@ -492,6 +492,15 @@ class BattleAgent:
             self._wait(3)
         return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_RUN
 
+    def _foe_blocks_flee(self):
+        """True when the wild foe's ability makes RUN impossible (Diglett/Dugtrio = Arena Trap).
+        Fleeing then livelocks on 'Can't escape' + RUN spam (2026-08-02 Diglett chalk)."""
+        try:
+            esp = st.read_enemy_species(self.b, 0)
+            return esp in _DIGLETT_LINE
+        except Exception:
+            return False
+
     def flee(self, max_seconds=90):
         """RETREAT: flee a WILD battle (the wounded heal-return path - fighting our way back
         through the grass is what blacks us out). Forced TRAINER battles can't be fled, so we
@@ -517,26 +526,54 @@ class BattleAgent:
                 self._prev = st.read_battle(self.b)
         if self._is_trainer_battle():                 # can't flee a trainer -> WIN it
             return self.run(max_seconds=max_seconds)
+        # ARENA TRAP (Diglett/Dugtrio): RUN never works — fight clear immediately. Do NOT spam RUN
+        # for `max_seconds` (live stream chalk: she narrated "running" and stuck in Diglett forever).
+        if self._foe_blocks_flee():
+            foe = st.SPECIES_NAME.get(st.read_enemy_species(self.b, 0), "Diglett")
+            self.log(f"   [engine] flee: {foe} has Arena Trap — Can't escape. FIGHTING to clear "
+                     f"(not RUN-spamming)")
+            self.emit(f"Arena Trap — you can't run from {foe}. finishing the fight.",
+                      beat=True, tier=2)
+            self._skip_catch_divert = True
+            try:
+                return self.run(max_seconds=max(120, max_seconds))
+            finally:
+                self._skip_catch_divert = False
         for _ in range(3):                            # ensure the ACTION menu, not the move list:
             if not self._in_move_list():              # _white_box can't tell them apart, so RUN nav
                 break                                 # from an open move-list fires a move + never
             self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)  # escapes (flee 'stuck'
             self._wait(10)                            # loop). Same class as the catch bag-nav bug.
+        cant_escape = 0
         for _ in range(40):
             if not st.in_battle(self.b):
                 return "fled"
             self._settle()
             if not st.in_battle(self.b):
                 return "fled"
+            # Ability / Mean Look class: if RUN keeps failing, stop spamming and fight clear.
+            if self._foe_blocks_flee() or cant_escape >= 2:
+                self.log(f"   [engine] flee: Can't escape (streak={cant_escape}) — FIGHTING clear")
+                self.emit("can't run from this one — fighting out.", beat=True, tier=2)
+                self._skip_catch_divert = True
+                try:
+                    return self.run(max_seconds=max(120, max_seconds))
+                finally:
+                    self._skip_catch_divert = False
             cur = st.read_battle(self.b)
             if cur and cur["ours"]["hp"] == 0:
                 return "loss"
             if self._white_box() and self._goto_run():
                 self._tap("RIGHT"); self._tap("DOWN") # engage (eaten-press; RUN stays at corner)
                 self._tap("A"); self._wait(20)        # confirm RUN -> "got away safely" / retry
+                if st.in_battle(self.b):
+                    cant_escape += 1                  # still in fight = Can't escape / failed flee
             else:
                 self._advance_text()                  # advance the escape/"can't escape" message
-        return "fled" if not st.in_battle(self.b) else "stuck"
+        if st.in_battle(self.b):
+            self.log("   [engine] flee: still in battle after RUN budget — FIGHTING clear (LOUD)")
+            return self._resolve_open_battle(max_seconds=max(120, max_seconds))
+        return "fled"
 
     # ── autonomous CATCH (real bag nav; the phantom-A bug that made this impossible was
     # fixed 2026-06-25 — see [[pokemon-battle-menu-nav-cracked]]). Flow, screenshot- and
@@ -902,18 +939,20 @@ class BattleAgent:
                 return _ended()
             if self._ball_count() <= 0:
                 self.emit("I'm out of Poké Balls - I'll come back for this one", beat=True)
-                # 2026-07-06 WEDGE FIX: never walk away from a LIVE battle — an abandoned battle gets
-                # re-detected by travel as a fresh encounter forever (south_run1: 'stuck' ×27 spin).
-                # Resolve it first. Diglett/Arena Trap (and any Can't escape): flee FAILS — fight clear
-                # (2026-08-02 Diglett cave RUN-spam chalk).
-                self.flee(max_seconds=45)
-                if st.in_battle(self.b):
-                    self.log("   [engine] catch no_balls: flee failed (still in battle) — fighting clear")
+                # 2026-07-06 WEDGE FIX: never walk away from a LIVE battle. Diglett Arena Trap:
+                # skip RUN entirely — flee() now fights Diglett, but go straight to FIGHT here too.
+                if self._foe_blocks_flee():
+                    self.log("   [engine] catch no_balls + Arena Trap — FIGHTING clear (no RUN attempt)")
                     self._skip_catch_divert = True
                     try:
                         self.run(max_seconds=120)
                     finally:
                         self._skip_catch_divert = False
+                else:
+                    self.flee(max_seconds=45)
+                    if st.in_battle(self.b):
+                        self.log("   [engine] catch no_balls: flee failed — fighting clear")
+                        self._resolve_open_battle(max_seconds=120)
                 return "no_balls"
             self._settle()
             if not st.in_battle(self.b):

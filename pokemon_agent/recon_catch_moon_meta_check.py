@@ -47,6 +47,9 @@ def run():
           "Arena Trap" in camp and "never flee Diglett" in camp)
     check("3c catch_now does not badge-fulfill",
           'order not in ("catch_now", "get_flash")' in camp and "_fulfill_catch_order" in camp)
+    check("3c3 flee() refuses Diglett Arena Trap RUN-spam",
+          "def _foe_blocks_flee" in ba
+          and "Arena Trap — Can't escape. FIGHTING to clear" in ba)
     check("3c2 get_flash order + Arena Trap fight-clear",
           'order == "get_flash"' in camp and "_skip_catch_divert" in open(
               os.path.join(_HERE, "battle_agent.py"), encoding="utf-8").read())
