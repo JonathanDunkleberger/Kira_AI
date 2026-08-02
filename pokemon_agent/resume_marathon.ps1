@@ -233,8 +233,17 @@ function PromoteBank([string]$bankDir) {
 }
 
 if (Test-Path $targetFile) {
-    $target = (Get-Content $targetFile -Raw).Trim()
-    if ($target -eq "CANONICAL") {
+    # First non-empty, non-# line only — comments after the directive used to poison CKPT
+    # substring match (2026-08-02: whole file became the pattern, promote failed, no launch).
+    $target = (
+        Get-Content $targetFile -ErrorAction SilentlyContinue |
+        ForEach-Object { $_.Trim() } |
+        Where-Object { $_ -and ($_ -notmatch '^\s*#') } |
+        Select-Object -First 1
+    )
+    if (-not $target) {
+        Say "!! PROMOTE_TARGET.txt has no directive line (only blanks/comments) - nothing changed, NOT launching."
+    } elseif ($target -eq "CANONICAL") {
         Say "PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is."
         $promoteOk = $true; $launchApproved = $true
     } elseif ($target -like "SNAPSHOT *") {
