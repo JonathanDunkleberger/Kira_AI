@@ -1551,11 +1551,18 @@ class BattleAgent:
         Vine Whip), not a pre-swapped slot 0. We never press B at the action menu (that flees a
         wild battle); B is only used to back out of a wrongly-opened submenu."""
         ours, enemy = state["ours"], state["enemy"]
-        idx, desc, low = pol.choose_move(ours["moves"], enemy["types"], _hp_frac(ours))
+        _our_types = [t for t in (ours.get("types") or []) if t and t != "???"]
+        idx, desc, low = pol.choose_move(
+            ours["moves"], enemy["types"], _hp_frac(ours), our_types=_our_types)
 
         def _usable(i):                                # a real move with PP
             m = ours["moves"][i]
             return m.get("id", 0) != 0 and m.get("pp", 0) > 0
+
+        def _dmg_score(i):
+            # STAB × type × accuracy — same yardstick as choose_move (2026-08-02).
+            return pol.move_score(ours["moves"][i], enemy["types"], _our_types)
+
         if not (0 <= idx < 4) or not _usable(idx) or idx in self._skip_streak:
             # FIX 1 — REPETITION-AVERSE move pick: exclude EVERY move that already failed to fire this
             # streak (not just the last one), so she pivots through her whole moveset and NEVER re-spams
@@ -1564,8 +1571,7 @@ class BattleAgent:
             # so a working move is never permanently benched (the PoisonPowder-spam lesson).
             cands = [i for i in range(4) if _usable(i) and i not in self._skip_streak]
             if cands:
-                idx = max(cands, key=lambda i: max(ours["moves"][i].get("power", 0), 1)
-                          * _eff(ours["moves"][i], enemy))
+                idx = max(cands, key=_dmg_score)
                 desc = ours["moves"][idx].get("name", desc)
             else:
                 # Every usable move has already failed to fire this streak (or none are usable at all —
@@ -1583,8 +1589,7 @@ class BattleAgent:
                         # prefer moves that can CONNECT (status counts); immune-damaging is last resort
                         1 if (ours["moves"][i].get("power", 0) == 0
                               or _eff(ours["moves"][i], enemy) > 0) else 0,
-                        max(ours["moves"][i].get("power", 0), 1)
-                        * _eff(ours["moves"][i], enemy)))
+                        _dmg_score(i)))
                     desc = ours["moves"][idx].get("name", desc)
                     self.log(f"   [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: "
                              f"re-firing {desc} (idling never resolves a can't-flee fight)")
@@ -1613,8 +1618,7 @@ class BattleAgent:
         if 0 <= idx < 4 and ours["moves"][idx].get("power", 0) > 0 and eff == 0:
             _uc = [i for i in range(4) if _useful(i)]
             if _uc:
-                idx = max(_uc, key=lambda i: max(ours["moves"][i].get("power", 0), 1)
-                          * _eff(ours["moves"][i], enemy))
+                idx = max(_uc, key=_dmg_score)
                 desc = ours["moves"][idx].get("name", desc)
                 eff = _eff(ours["moves"][idx], enemy)
                 self.log(f"   [engine] avoided a type-immune move -> {desc} (eff x{eff:g}) instead")
@@ -1720,8 +1724,24 @@ class BattleAgent:
                         self.log(f"   [engine] STATUS STRATEGY: damage resisted (best x{best_dmg_eff:g}) "
                                  f"-> {desc} (type-independent chip/neutralise past the wall)")
                         break
-        self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
-                 f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
+        # LOUD scoreboard of all 4 FIGHT slots (TL=0 TR=1 BL=2 BR=3) so a missed STAB
+        # / wrong-column pick is visible in the soak without a frame dump.
+        try:
+            _board = []
+            for _i, _m in enumerate(ours["moves"]):
+                if not _m.get("id"):
+                    continue
+                _sc = pol.move_score(_m, enemy["types"], _our_types)
+                _board.append(
+                    f"[{_i}]{_m.get('name','?')}(p{_m.get('power',0)}"
+                    f"{'*STAB' if pol.stab_mult(_m.get('type'), _our_types) > 1 else ''}"
+                    f",sc={_sc:g})")
+            self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
+                     f"{st.SPECIES_NAME.get(enemy['species'], '?')} "
+                     f"{enemy['hp']}/{enemy['maxhp']} | {' '.join(_board)}")
+        except Exception:
+            self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
+                     f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
         # OPEN THE MOVE LIST ROBUSTLY: home to FIGHT, A, pixel-confirm the list opened; retry the
         # A if it was eaten (still at the white action menu); if a wrong submenu opened (bag/
         # POKEMON - NOT the white action panel) back out with B and re-home. Bounded.

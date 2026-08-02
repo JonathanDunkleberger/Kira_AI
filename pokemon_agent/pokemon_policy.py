@@ -3,10 +3,17 @@
 Gen-3 type chart + "pick the highest expected-damage move; flag low HP". Returns a
 move index + a NEUTRAL descriptor (for the event summary - never her dialogue).
 Pure logic, fully unit-testable without the emulator.
+
+STAB + accuracy (2026-08-02, Surge/Raichu chalk): without Same-Type Attack Bonus a
+Dark Bite (60) beat Water Gun (40) on raw power vs Electric — Blastoise never touched
+the water STAB in the top-right FIGHT slot. Score is now power × STAB × type-eff ×
+accuracy so she uses the whole 2×2 matrix for the quickest/safest KO.
 """
 
 TYPES = ["normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost",
          "steel", "fire", "water", "grass", "electric", "psychic", "ice", "dragon", "dark"]
+
+STAB_MULT = 1.5
 
 # attacker -> {defender: multiplier}; unlisted = 1.0. Gen 3 (no Fairy).
 _X = {
@@ -46,27 +53,73 @@ def effectiveness(move_type, defender_types):
     return m
 
 
-def choose_move(our_moves, enemy_types, our_hp_frac=1.0):
-    """our_moves: list of dicts {name, type, power, pp}. enemy_types: list of type strings.
-    Returns (index, descriptor, low_hp). descriptor is NEUTRAL ("a super-effective Water
-    move") for the event summary - NOT dialogue. Picks max power*effectiveness among
-    moves with PP > 0; falls back to first move with PP if all score 0."""
+def stab_mult(move_type, our_types):
+    """Gen-3 Same-Type Attack Bonus: 1.5x when the move shares a type with the user."""
+    if not our_types or not move_type:
+        return 1.0
+    ours = {t for t in our_types if t and t != "???"}
+    return STAB_MULT if move_type in ours else 1.0
+
+
+def accuracy_frac(mv):
+    """Gen-3 accuracy byte → hit chance. 0 / missing = always-hit / unknown → 1.0
+    (Swift-class and unread ROM rows must not zero the score)."""
+    acc = mv.get("accuracy")
+    if acc is None or acc <= 0:
+        return 1.0
+    return min(100, int(acc)) / 100.0
+
+
+def move_score(mv, enemy_types, our_types=None):
+    """Expected-damage score for a damaging move: power × STAB × type-eff × accuracy.
+    Status / 0-power → 0 (never wins a damage pick over a real attack)."""
+    power = int(mv.get("power", 0) or 0)
+    if power <= 0:
+        return 0.0
+    eff = effectiveness(mv.get("type", "normal"), enemy_types)
+    return power * stab_mult(mv.get("type"), our_types) * eff * accuracy_frac(mv)
+
+
+def choose_move(our_moves, enemy_types, our_hp_frac=1.0, our_types=None):
+    """our_moves: list of dicts {name, type, power, pp[, accuracy]}.
+    enemy_types / our_types: type strings. Returns (index, descriptor, low_hp).
+    Picks max expected damage (STAB + type chart + accuracy) among PP>0 damaging
+    moves; falls back to first PP-having move if nothing damages."""
     best_i, best_score, best_eff = -1, -1.0, 1.0
     for i, mv in enumerate(our_moves):
         if mv.get("pp", 1) <= 0:
             continue
+        score = move_score(mv, enemy_types, our_types)
+        if score <= 0:
+            continue                                    # status — only if nothing damages
         eff = effectiveness(mv.get("type", "normal"), enemy_types)
-        score = max(mv.get("power", 0), 1) * eff
-        if score > best_score:
+        # Tie-break when expected damage matches (Bite 60 == Water Gun 40×1.5): prefer
+        # STAB first (her typing is the point), then accuracy, then raw power.
+        tie = (stab_mult(mv.get("type"), our_types), accuracy_frac(mv),
+               int(mv.get("power", 0) or 0))
+        best_tie = (
+            stab_mult(our_moves[best_i].get("type"), our_types),
+            accuracy_frac(our_moves[best_i]),
+            int(our_moves[best_i].get("power", 0) or 0),
+        ) if best_i >= 0 else (-1, -1, -1)
+        if score > best_score or (score == best_score and tie > best_tie):
             best_i, best_score, best_eff = i, score, eff
-    if best_i < 0:                       # no PP anywhere -> Struggle / first move
-        return 0, "out of options (Struggle)", our_hp_frac < LOW_HP_FRAC
+    if best_i < 0:
+        # No damaging PP — any remaining status / Struggle slot
+        for i, mv in enumerate(our_moves):
+            if mv.get("pp", 1) > 0:
+                best_i = i
+                break
+        if best_i < 0:
+            return 0, "out of options (Struggle)", our_hp_frac < LOW_HP_FRAC
     if our_moves[best_i].get("power", 0) <= 0:
         # Only status moves have PP left (or one is genuinely best) — never bill it as a "hit"
         # (erika_run2 logged 'Growl - a solid hit' for hours while a 60/60 Gloom never moved).
         word = "a status move (nothing damaging left)"
     else:
+        _stab = stab_mult(our_moves[best_i].get("type"), our_types) > 1.0
         word = ("a super-effective hit" if best_eff >= 2 else
                 "a not-very-effective hit" if 0 < best_eff < 1 else
-                "no effect" if best_eff == 0 else "a solid hit")
+                "no effect" if best_eff == 0 else
+                ("a STAB hit" if _stab else "a solid hit"))
     return best_i, f"{our_moves[best_i]['name']} - {word}", our_hp_frac < LOW_HP_FRAC

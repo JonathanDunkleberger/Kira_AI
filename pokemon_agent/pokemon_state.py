@@ -37,6 +37,7 @@ GBATTLE_MOVES = 0x08250C04   # ROM addr (CANDIDATE)
 MOVE_SIZE     = 12
 MOVE_F_POWER  = 0x01         # u8
 MOVE_F_TYPE   = 0x02         # u8
+MOVE_F_ACCURACY = 0x03       # u8 (0 = always-hit / special; else 1..100)
 
 
 # ── Party species (Gen-3 encrypted substructures) ───────────────────────────
@@ -136,7 +137,8 @@ MOVE_NAMES = {
     43: "Leer", 28: "Sand-Attack", 98: "Quick Attack", 64: "Peck", 16: "Gust",
     52: "Ember", 108: "Smokescreen", 82: "Dragon Rage", 232: "Metal Claw",
     22: "Vine Whip", 74: "Growth", 73: "Leech Seed", 77: "PoisonPowder",
-    79: "Sleep Powder", 75: "Razor Leaf", 55: "Water Gun", 145: "Bubble",
+    79: "Sleep Powder", 75: "Razor Leaf",     55: "Water Gun", 145: "Bubble", 352: "Water Pulse", 56: "Hydro Pump",
+    250: "Whirlpool", 308: "Hydro Cannon",
     44: "Bite", 99: "Rage", 84: "Thunder Shock", 88: "Rock Throw", 111: "Defense Curl",
     # HM field moves (ids from campaign's TEACH BRIDGE): without these her oracle move-drop
     # ctx rendered a learned HM as "move#15" instead of "Cut" (soul gap — she'd narrate the
@@ -331,13 +333,25 @@ def _type_name(b):
 
 
 def move_info(bridge, move_id):
-    """(type_name, power) for a move id, read from ROM gBattleMoves. CANDIDATE offsets."""
+    """(type_name, power) for a move id, read from ROM gBattleMoves. CANDIDATE offsets.
+    Prefer move_info_full when accuracy is needed (STAB expected-damage picks)."""
     if move_id == 0:
         return (None, 0)
     base = GBATTLE_MOVES + move_id * MOVE_SIZE
     power = bridge.rd8(base + MOVE_F_POWER)
     tname = _type_name(bridge.rd8(base + MOVE_F_TYPE))
     return (tname, power)
+
+
+def move_info_full(bridge, move_id):
+    """(type_name, power, accuracy) from ROM gBattleMoves. accuracy 0 = always-hit."""
+    if move_id == 0:
+        return (None, 0, 0)
+    base = GBATTLE_MOVES + move_id * MOVE_SIZE
+    power = bridge.rd8(base + MOVE_F_POWER)
+    tname = _type_name(bridge.rd8(base + MOVE_F_TYPE))
+    acc = bridge.rd8(base + MOVE_F_ACCURACY)
+    return (tname, power, acc)
 
 
 def read_mon(bridge, index):
@@ -351,9 +365,10 @@ def read_mon(bridge, index):
     moves = []
     for i in range(4):
         mid = bridge.rd16(base + F_MOVES + i * 2)
-        mt, mp = move_info(bridge, mid)
+        mt, mp, macc = move_info_full(bridge, mid)
         moves.append({"id": mid, "name": MOVE_NAMES.get(mid, f"move#{mid}"),
-                      "type": mt or "normal", "power": mp, "pp": bridge.rd8(base + F_PP + i)})
+                      "type": mt or "normal", "power": mp, "accuracy": macc,
+                      "pp": bridge.rd8(base + F_PP + i)})
     types = [t for t in (t1, t2) if t and t != "normal" or t == t1]
     # status1 (u32 @ 0x4C in BattlePokemon): sleep = bits 0-2 (turn counter), poison 0x08, burn 0x10,
     # freeze 0x20, paralysis 0x40, bad-poison 0x80. Exposed so the engine can sleep-LOCK a foe (re-apply
