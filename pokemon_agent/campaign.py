@@ -627,6 +627,9 @@ CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # hea
 # watch.py --list surfaces them; watch.py --at <path|alias> reloads one into a canonical-safe sandbox.
 AUTO_CKPT_ENABLED = os.getenv("POKEMON_AUTO_CKPT", "1") == "1"
 CKPT_EVERY_S      = float(os.getenv("POKEMON_AUTO_CKPT_EVERY_S", "720"))   # wall-clock floor (~12 min)
+# Inside Rock Tunnel / dungeon floors she used to bounce for 20+ min with ZERO cave CKPTs
+# (2026-08-02 chalk) — denser floor so a rescue can TP into the dark, not Route 10.
+CKPT_EVERY_CAVE_S = float(os.getenv("POKEMON_AUTO_CKPT_EVERY_CAVE_S", "90"))
 CKPT_KEEP         = int(os.getenv("POKEMON_AUTO_CKPT_KEEP", "40"))         # retain last N (~16 MB cap)
 # INTRA-SEGMENT PROGRESS (2026-07-09, Fix C) — the SHOW/segment spine only banked a checkpoint AFTER a
 # whole segment completed, so a deep failure (e.g. losing to Brock at the END of pallet_to_brock) made
@@ -9676,6 +9679,7 @@ class Campaign:
         except Exception as _ee:
             log(f"   [tunnel] entry-mouth ban skipped: {_ee}")
         interior_rides = 0
+        entry_bounce_retries = 0
         while tuple(tv.map_id(b))[0] != 3:
             if time.time() - t0 > budget_s:
                 log(f"   [tunnel] maze crossing TIMEOUT at {tv.map_id(b)}"); return False
@@ -9719,19 +9723,27 @@ class Campaign:
                     far = max(fresh, key=dist)
                     log(f"   [tunnel] room {mid}: at {pos}, riding fresh warp {far} (reach={reach})")
                 elif any(w == pos for (w, d) in warps):
-                    # Never "backtrack" out the banned entry mouth before an interior ride —
-                    # that IS the Flash→walk-out bounce (standing on the door you came in).
+                    # NEVER backtrack out an overworld mouth before an interior ladder ride —
+                    # live chalk: ladder (45,2) failed → BACKTRACK (17,2) → Route 10 bounce.
                     at_ow = any(w == pos and d[0] == 3 for (w, d) in warps)
-                    if at_ow and (mid, pos) in rode and interior_rides < 1:
-                        log(f"   [tunnel] room {mid}: refusing ENTRY-mouth backtrack at {pos} "
-                            f"(no interior ride yet) — failing section to retry")
-                        return False
+                    if at_ow and interior_rides < 1:
+                        entry_bounce_retries += 1
+                        log(f"   [tunnel] room {mid}: refusing OVERWORLD backtrack at {pos} "
+                            f"(no interior ride yet) — retrying ladders "
+                            f"({entry_bounce_retries}/4), not bouncing out")
+                        if entry_bounce_retries >= 4:
+                            log("   [tunnel] ladder retries exhausted — failing maze (LOUD)")
+                            return False
+                        # Un-mark failed interior rides so the next loop retries the ladder.
+                        rode = {(m, w) for (m, w) in rode if m != mid
+                                or any(ww == w and dd[0] == 3 for (ww, dd) in warps)}
+                        continue
                     far = pos; backtrack = True
                     log(f"   [tunnel] room {mid}: section exhausted — BACKTRACK via arrival warp {pos}")
                 else:
                     log(f"   [tunnel] room {mid}: exhausted, no arrival warp to backtrack on"); return False
-            if not backtrack:
-                rode.add((mid, far))
+            # Do NOT mark rode until the warp actually fires (failed ladder was getting
+            # permanently banned → only the entry mouth left → bounce-out).
             before = mid
             before_dest = next((d for (w, d) in warps if w == far), None)
             if backtrack:
@@ -9745,10 +9757,41 @@ class Campaign:
                 if tuple(tv.map_id(b)) == before:
                     self.enter_warp(pick=pos)
             else:
-                self.trav.travel(target_map=None, arrive_coord=far, max_steps=600, max_seconds=240,
-                                 avoid=[w for w in others if w != far])
-                if tuple(tv.map_id(b)) == before:
+                # Ladder / interior warps: approach from EVERY cardinal neighbor, then step on.
+                # Plain travel+(45,2) was "reachable" but never fired (2026-08-02 Rock Tunnel chalk).
+                approaches = [(far[0], far[1] + 1), (far[0], far[1] - 1),
+                              (far[0] + 1, far[1]), (far[0] - 1, far[1])]
+                for ap in approaches:
+                    if tuple(tv.map_id(b)) != before:
+                        break
+                    try:
+                        if not g.walkable(*ap) and ap != far:
+                            continue
+                    except Exception:
+                        pass
+                    self.trav.travel(target_map=None, arrive_coord=ap, max_steps=400, max_seconds=120,
+                                     avoid=[w for w in others if w != far])
+                    if tuple(tv.map_id(b)) != before:
+                        break
                     self.enter_warp(pick=far)
+                    if tuple(tv.map_id(b)) != before:
+                        break
+                    # Hard step from this approach tile onto the warp.
+                    cc = tuple(tv.coords(b))
+                    if abs(cc[0] - far[0]) + abs(cc[1] - far[1]) == 1:
+                        step = (("RIGHT" if far[0] > cc[0] else "LEFT") if far[0] != cc[0]
+                                else ("DOWN" if far[1] > cc[1] else "UP"))
+                        for _try in range(4):
+                            b.press(step, 10, 6, lambda: None, owner="agent")
+                            for _f in range(40):
+                                b.run_frame()
+                            if tuple(tv.map_id(b)) != before:
+                                break
+                if tuple(tv.map_id(b)) == before:
+                    self.trav.travel(target_map=None, arrive_coord=far, max_steps=200, max_seconds=90,
+                                     avoid=[w for w in others if w != far])
+                    if tuple(tv.map_id(b)) == before:
+                        self.enter_warp(pick=far)
             # EDGE cave-mouth warps (Rock Tunnel south mouth class: (18,37)->(3,28) Lavender-side)
             # sit on the map's BORDER — the warp tile is not a standable target, so travel stops ONE
             # TILE SHORT (lands at (18,36)) and the on-far fire block below never runs -> "didn't fire"
@@ -9776,13 +9819,15 @@ class Campaign:
                     if tuple(tv.coords(b)) != far:
                         self.trav.travel(target_map=None, arrive_coord=far, max_steps=20)
             after = tuple(tv.map_id(b))
-            if after != before and not backtrack:
+            if after != before:
+                if not backtrack:
+                    rode.add((before, far))
                 # Count interior ladder/floor changes (same dungeon group, new map) — unlocks exits.
                 if before_dest is not None and before_dest[0] != 3:
                     interior_rides += 1
                     log(f"   [tunnel] interior ride #{interior_rides}: {before} -> {after}")
-            if after == before and not backtrack:
-                log(f"   [tunnel] room {before}: warp {far} didn't fire despite reachability — next")
+            elif not backtrack:
+                log(f"   [tunnel] room {before}: warp {far} didn't fire — will retry (NOT permanently banned)")
         return True
 
     def _cross_tunnel_leg(self, cave_map, out_map, out_dir):
@@ -9847,6 +9892,15 @@ class Campaign:
             return None
         self.on_event(f"and there's light. okay, {_cave_here} — let's do this properly.",
                       kind="route", tier=2)
+        # Bank INSIDE the lit cave so a resume can TP here — not 20 min away on Route 10
+        # (2026-08-02 Jonny: she wasn't saving enough in the tunnel).
+        try:
+            self._save_campaign("rock-tunnel-lit")
+            self._continuity_save()
+            self._auto_checkpoint("rock-tunnel-lit")
+            self._last_ckpt_t = time.time()
+        except Exception as _cke:
+            log(f"   [tunnel] in-cave checkpoint skipped: {_cke}")
         entry_overworld = cur0
         entry_mouth = mouth
         saved_runner, saved_heal = self.trav.battle_runner, self._suppress_heal
@@ -15205,11 +15259,21 @@ class Campaign:
             # only; cannot touch the sacred states/kira/ spine (see _auto_checkpoint firewall).
             if AUTO_CKPT_ENABLED:
                 _now = _t.time()
-                _due = (_now - self._last_ckpt_t) >= CKPT_EVERY_S
+                _cave_here = False
+                try:
+                    _mid_ck = tuple(tv.map_id(self.b))
+                    _cave_here = (_mid_ck in getattr(self, "_CELADON_SPINE_MAPS", ())
+                                  and _mid_ck[0] == 1) or _mid_ck in {(1, 81), (1, 82)}
+                except Exception:
+                    _cave_here = False
+                _every = CKPT_EVERY_CAVE_S if _cave_here else CKPT_EVERY_S
+                _due = (_now - self._last_ckpt_t) >= _every
                 if _gain_reason is not None or _due:
                     if not _saved_this_tick:
                         self._save_campaign("ckpt"); self._continuity_save()
-                    self._auto_checkpoint(f"gain-{_gain_reason}" if _gain_reason else "periodic")
+                    self._auto_checkpoint(
+                        f"gain-{_gain_reason}" if _gain_reason
+                        else ("cave-periodic" if _cave_here else "periodic"))
                     self._last_ckpt_t = _now
             self._wait_overworld()
             # POST-FLASH / ROUTE-4 RESCUE (2026-08-02 chalk #2): after Flash she rewound

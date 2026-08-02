@@ -19,7 +19,10 @@ def run():
     check("1b defer exits until interior ride", "deferring" in src and "anti bounce-out" in src)
     check("1c farthest exit not nearest", "farthest of" in src)
     check("1d bounce-out detect in tunnel leg", "BOUNCE-OUT" in src and "near entry mouth" in src)
-    check("1e refuse entry backtrack", "refusing ENTRY-mouth backtrack" in src)
+    check("1e refuse overworld backtrack", "refusing OVERWORLD backtrack" in src)
+    check("1f only mark rode after fire", "will retry (NOT permanently banned)" in src)
+    check("1g in-cave checkpoint after Flash", "rock-tunnel-lit" in src)
+    check("1h dense cave CKPT cadence", "CKPT_EVERY_CAVE_S" in src)
     if fails:
         print(f"FAIL — {fails}")
         sys.exit(1)
