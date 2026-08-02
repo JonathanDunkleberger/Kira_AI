@@ -1,0 +1,300 @@
+   [TTS] Speaking: In my defense, the first two were emotional suppor...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'In my defense, the first two were emotio' (12 words)
+   [TurnTiming] 13:56:51.949 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:56:55.700 TTS STOP — playback finished (span ~3750ms)
+
+   [TIMING] voice: llm=6296ms(sonnet-stream(llm+tts)) tts=0ms total=6296ms
+   [LATENCY] vad_close=1200ms stt=268ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=16ms ttft=1629ms tts_first_chunk=391ms audio_out=503ms TOTAL=2836ms
+   [Intensity] → TENSE  (silence=0s  audio="")
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=2, kind=event): a diglett — Diglett's Cave keeper. catching this one for the Ground sl
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.090 lane=KNOW
+[YouTube Chat] @zekromite4572: go up kira also battle the digglets
+   [BrainWorker] Got youtube msg from @zekromite4572: go up kira also battle the digglets → buffering for chat_batch_worker
+   >>> Kira (Bored): Diglett's mine. Now I'm leaving before this cave tries to give me a personality.
+   [TTS] Speaking: Diglett's mine....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Diglett's mine.' (3 words)
+   [TurnTiming] 13:57:06.264 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:57:08.045 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: Now I'm leaving before this cave tries to give me ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Now I'm leaving before this cave tries t' (13 words)
+   [TurnTiming] 13:57:08.504 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @dasbooterror: Kira, cant you just run away from these fools
+   [BrainWorker] Got youtube msg from @dasbooterror: Kira, cant you just run away from these fools → buffering for chat_batch_worker
+   [TurnTiming] 13:57:12.062 TTS STOP — playback finished (span ~3558ms)
+   [TIMING] interjection: vision=0ms llm=1740ms(sonnet) tts=6037ms total=7806ms
+   [LAG] sense→speak: total=4.2s (content_age=0.0s, prep=0.0s, llm=1.7s, tts_wait+synth=2.5s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<go up kira also battle the ' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=1.045 conf=0.9 type=episodic blend=0.356 lane=KNOW
+   [SmartMem]     dist=1.074 conf=0.9 type=episodic blend=0.089 lane=KNOW
+   [SmartMem]     dist=1.101 conf=0.95 type=episodic blend=0.072 lane=KNOW
+   [TurnTiming] 13:57:13.298 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~55162ms since onset)
+   >>> Kira (Chat Batch of 2): zekromite4572 I'm going, I'm going — and yes I will be battling the Diglett, they live here and I'm a guest, it's only polite.
+
+dasbooterror I could run, but then zekromite4572 gives me the disappointed coach look and somehow that's worse than just fighting.
+   [TTS] Speaking: zekromite4572 I'm going, I'm going — and yes I wil...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'zekromite4572 I'm going, I'm going — and' (28 words)
+   [TurnTiming] 13:57:18.216 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @zekromite4572: u need flash 
+   [BrainWorker] Got youtube msg from @zekromite4572: u need flash  → buffering for chat_batch_worker
+   [VRAM] 13:57:22 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 13:57:26.030 TTS STOP — playback finished (span ~7813ms)
+   [TTS] Speaking: dasbooterror I could run, but then zekromite4572 g...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'dasbooterror I could run, but then zekro' (22 words)
+   [TurnTiming] 13:57:26.685 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 13:57:33.528 TTS STOP — playback finished (span ~6843ms)
+   [Cookies] +1 × 2 (batch response); shared=29/30
+   [ChatAge] @zekromite4572 age=27.9s batch=2 preempted=none
+   [ChatAge] @dasbooterror age=21.8s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [ChatterMem] Stored: @zekromite4572 — Holds Kira accountable for following through on game actions [playful]
+   [TurnTiming] 13:57:35.656 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~77521ms since onset)
+   [ChatterMem] Stored: @dasbooterror — Suggested Kira should run away from trainer battles instead  [playful]
+🎤 Recording...
+   [TurnTiming] 13:57:37.713 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<u need flash >>>' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=1.070 conf=0.95 type=episodic blend=0.091 lane=KNOW
+   [TurnTiming] 13:57:40.019 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2306ms since onset)
+>>> You said: Carrie, you can't escape.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Carrie, you can't escape." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=19ms
+   [Triage] RESPOND
+   >>> Kira (Chat Batch of 1): zekromite4572 yes, I know, you've been waiting to say that since Route 2. I'm getting it, I'm going.
+   [TTS] Speaking: zekromite4572 yes, I know, you've been waiting to ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'zekromite4572 yes, I know, you've been w' (16 words)
+   [TurnTiming] 13:57:42.211 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:57:47.552 TTS STOP — playback finished (span ~5340ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @zekromite4572 age=26.6s batch=1 preempted=none
+   [Cookies] 🎡 WHEEL — milestone #195, tipper=@zekromite4572, slice=chat_writes_her_line
+   [TTS] Speaking: The jar overflows. @zekromite4572 gets credit. The...
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=1  tangent_since=2t  moment=tense)
+   [PromptSize] dynamic_context=13300ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TTS] backend=azure
+   [Captions] Pushed frame: 'The jar overflows. @zekromite4572 gets c' (22 words)
+   [TurnTiming] 13:57:48.217 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @NaitHaunter: lol
+   [TIMING] first-word: 1508ms
+   [ChatterMem] Stored: @zekromite4572 — Has been waiting to point out that Kira needs Flash since Ro [playful]
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 13:57:57.219 TTS STOP — playback finished (span ~9002ms)
+   [Wheel] Executing slice: chat_writes_her_line
+   [TTS] Speaking: The Wheel — Chat Writes My Line. Let's go....
+   [TTS] Speaking: Carrie?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Carrie?' (2 words)
+   [TurnTiming] 13:57:57.421 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:57:59.204 TTS STOP — playback finished (span ~1783ms)
+
+   [TIMING] voice: llm=11639ms(sonnet-stream(llm+tts)) tts=0ms total=11639ms
+   [LATENCY] vad_close=1200ms stt=167ms stt_wait=0ms salience=0ms triage=bypassed memory=19ms prompt_build=13ms ttft=1508ms tts_first_chunk=0ms audio_out=8331ms TOTAL=10038ms
+🎤 Recording... (recovered opening words)
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The Wheel — Chat Writes My Line. Let's g' (11 words)
+   [TurnTiming] 13:57:59.433 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [BrainWorker] Got youtube msg from @NaitHaunter: lol → buffering for chat_batch_worker
+   [TurnTiming] 13:58:00.820 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~23107ms since onset)
+>>> You said: Fuck me.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Fuck me.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13086ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 2088ms
+   [TurnTiming] 13:58:03.216 TTS STOP — playback finished (span ~3782ms)
+   [TTS] Speaking: That bad?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That bad?' (3 words)
+   [TurnTiming] 13:58:03.489 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @dasbooterror: :thinking_face:
+   [TurnTiming] 13:58:05.238 TTS STOP — playback finished (span ~1749ms)
+
+   [TIMING] voice: llm=4228ms(sonnet-stream(llm+tts)) tts=0ms total=4228ms
+   [LATENCY] vad_close=1200ms stt=166ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=15ms ttft=2008ms tts_first_chunk=80ms audio_out=373ms TOTAL=2666ms
+   [BrainWorker] Got youtube msg from @dasbooterror: :thinking_face: → buffering for chat_batch_worker
+   [SmartMem] q='Chat Writes My Line' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+[YouTube Chat] @zekromite4572: that's why im the coach and ur the ai
+   [BrainWorker] Got youtube msg from @zekromite4572: that's why im the coach and ur the ai → buffering for chat_batch_worker
+   >>> Kira (Wheel/chat_writes_her_line): Okay chat, give me a line — anything. Drop it in chat and I'll say it. First usa
+   [TTS] Speaking: Okay chat, give me a line — anything. Drop it in c...
+   [VRAM] 13:58:07 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay chat, give me a line — anything. Dr' (24 words)
+   [TurnTiming] 13:58:08.531 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:58:15.753 TTS STOP — playback finished (span ~7221ms)
+   [SmartMem] q='  - @NaitHaunter (youtube): <<<lol>>>\n  - @dasbooterror (you' fetched=10 dropped_by_floor=4 kept=6 survivors=3 direct=0 | timing(direct=0ms fetch=57ms rank=0ms)
+   [SmartMem]     dist=1.173 conf=0.9 type=episodic blend=0.027 lane=KNOW
+   [SmartMem]     dist=1.198 conf=0.9 type=episodic blend=0.012 lane=KNOW
+   [SmartMem]     dist=1.202 conf=0.95 type=episodic blend=0.010 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 7 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0342 · gate=0.003 · 0 accepted
+   >>> Kira (Chat Batch of 3): Nait going "lol" while dasbooterror posts a thinking face — that's the full spectrum of human reaction right there, represented.
+
+And zekromite, "coach and the AI" — okay, fair. But every time your player wins, whose name goes on the badge?
+   [TTS] Speaking: Nait going "lol" while dasbooterror posts a thinki...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait going "lol" while dasbooterror post' (24 words)
+   [TurnTiming] 13:58:21.548 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:58:28.582 TTS STOP — playback finished (span ~7034ms)
+   [TTS] Speaking: And zekromite, "coach and the AI" — okay, fair....
+[YouTube Chat] @zekromite4572: click fight
+   [BrainWorker] Got youtube msg from @zekromite4572: click fight → buffering for chat_batch_worker
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And zekromite, "coach and the AI" — okay' (12 words)
+   [TurnTiming] 13:58:29.018 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @dasbooterror: If you cant escape Kira, perhaps you need to smash this diglett like a bug. Take them DOWN.
+   [BrainWorker] Got youtube msg from @dasbooterror: If you cant escape Kira, perhaps you need to smash this diglett like a bug. Take them DOWN. → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 13:58:33.073 TTS STOP — playback finished (span ~4054ms)
+   [TTS] Speaking: But every time your player wins, whose name goes o...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'But every time your player wins, whose n' (14 words)
+   [TurnTiming] 13:58:33.443 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:58:36.906 TTS STOP — playback finished (span ~3462ms)
+   [Cookies] +1 × 3 (batch response); shared=3/30
+   [ChatAge] @NaitHaunter age=37.3s batch=3 preempted=none
+   [ChatAge] @dasbooterror age=31.4s batch=3 preempted=none
+   [ChatAge] @zekromite4572 age=29.6s batch=3 preempted=none
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TurnTiming] 13:58:38.122 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~60409ms since onset)
+>>> You said: Kira, Kira, Kira, click fight.
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q='Kira, Kira, Kira, click fight.' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=0.807 conf=0.95 type=episodic blend=0.253 lane=KNOW
+   [SmartMem]     dist=0.815 conf=0.95 type=episodic blend=0.248 lane=KNOW
+   [SmartMem]     dist=0.817 conf=0.95 type=episodic blend=0.247 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13397ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1405ms
+   [TTS] Speaking: Fine....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Fine.' (2 words)
+   [TurnTiming] 13:58:39.954 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @zekromite4572 — Refers to themselves as 'the coach' in relation to the AI [chaotic]
+   [TurnTiming] 13:58:41.778 TTS STOP — playback finished (span ~1824ms)
+   [TTS] Speaking: Fighting the Diglett....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Fighting the Diglett.' (4 words)
+   [TurnTiming] 13:58:41.781 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:58:43.564 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: Under protest....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Under protest.' (3 words)
+   [TurnTiming] 13:58:43.567 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:58:45.342 TTS STOP — playback finished (span ~1775ms)
+
+   [TIMING] voice: llm=6964ms(sonnet-stream(llm+tts)) tts=0ms total=6964ms
+   [LATENCY] vad_close=1200ms stt=227ms stt_wait=0ms salience=1ms triage=bypassed memory=27ms prompt_build=3ms ttft=1081ms tts_first_chunk=324ms audio_out=164ms TOTAL=1827ms
+   ✨ Emotion: EMOTIONAL → SASSY
+   [System] Running Garbage Collection...
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<click fight>>>\n  - @dasboot' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=34ms rank=0ms)
+   [SmartMem]     dist=1.055 conf=0.95 type=episodic blend=0.100 lane=KNOW
+   [SmartMem]     dist=1.070 conf=0.95 type=episodic blend=0.091 lane=KNOW
+   [SmartMem]     dist=1.075 conf=0.9 type=episodic blend=0.088 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 2): dasbooterror, "smash this diglett like a bug" — you know what, fair energy actually.
+
+And zekromite, yes, I know, Flash, Route 2, Oak's aide — you've been sitting on that one for like three routes and I see you.
+   [TTS] Speaking: dasbooterror, "smash this diglett like a bug" — yo...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'dasbooterror, "smash this diglett like a' (17 words)
+   [TurnTiming] 13:58:50.735 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 13:58:52 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:58:55.893 TTS STOP — playback finished (span ~5158ms)
+   [TTS] Speaking: And zekromite, yes, I know, Flash, Route 2, Oak's ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And zekromite, yes, I know, Flash, Route' (31 words)
+   [TurnTiming] 13:58:56.464 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @zekromite4572: click fight pls
+   [BrainWorker] Got youtube msg from @zekromite4572: click fight pls → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 13:59:04.151 TTS STOP — playback finished (span ~7687ms)
+   [Cookies] +1 × 2 (batch response); shared=5/30
+   [ChatAge] @zekromite4572 age=35.4s batch=2 preempted=none
+   [ChatAge] @dasbooterror age=32.4s batch=2 preempted=none
+   [ChatterMem] Stored: @zekromite4572 — Has been waiting to bring up Flash/Route 2/Oak's aide for se [playful]
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [ChatterMem] Stored: @dasbooterror — Told Kira to 'smash this diglett like a bug' as battle strat [chaotic]
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<click fight pls>>>' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=1.185 conf=0.9 type=episodic blend=0.268 lane=KNOW
+   [SmartMem]     dist=1.038 conf=0.95 type=episodic blend=0.111 lane=KNOW
+   [SmartMem]     dist=1.108 conf=0.9 type=episodic blend=0.068 lane=KNOW
+   [Phrases] Throttling: "yes i know" (3rd use this session)
+   >>> Kira (Chat Batch of 1): Zekromite, you've typed "click fight" three times. I'm fighting. I can feel your energy through the screen and it is exhausting in the most loving way.
+   [TTS] Speaking: Zekromite, you've typed "click fight" three times....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zekromite, you've typed "click fight" th' (11 words)
+   [TurnTiming] 13:59:11.858 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:59:15.427 TTS STOP — playback finished (span ~3569ms)
+   [TTS] Speaking: I'm fighting....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm fighting.' (3 words)
+   [TurnTiming] 13:59:15.630 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:59:17.406 TTS STOP — playback finished (span ~1776ms)
+   [TTS] Speaking: I can feel your energy through the screen and it i...
+[YouTube Chat] @zekromite4572: diglet is not letting u go 
+   [BrainWorker] Got youtube msg from @zekromite4572: diglet is not letting u go  → buffering for chat_batch_worker
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I can feel your energy through the scree' (18 words)
+   [TurnTiming] 13:59:17.814 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:59:22.030 TTS STOP — playback finished (span ~4216ms)
+   [Cookies] +1 × 1 (batch response); shared=6/30
+   [ChatAge] @zekromite4572 age=19.6s batch=1 preempted=none
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 13:59:23.073 VOICE ONSET — mic speech started

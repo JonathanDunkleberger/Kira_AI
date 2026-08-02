@@ -1,0 +1,1500 @@
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Celadon City runs north from here — onward.'
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·floor· (<1s since last) T1 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    74 door(s); candidates (chosen order): [(19, 13)]
+
+   [campaign]    reachable door (19, 13): walking to approach (19, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(12, 39) -> coord (19, 14) (budget 240s)
+
+   [travel] step 0: (12, 39)->(12, 38) map=(3, 24) (path 51 to exit)
+
+   [travel] step 10: (12, 29)->(12, 28) map=(3, 24) (path 41 to exit)
+
+   [travel] step 20: (17, 24)->(17, 23) map=(3, 24) (path 31 to exit)
+
+   [travel] step 30: (12, 19)->(11, 19) map=(3, 24) (path 21 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 24) coords=(9, 14) elapsed=5s
+
+   [travel] step 40: (9, 14)->(10, 14) map=(3, 24) (path 11 to exit)
+
+   [travel] reached target coord (19, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 24) -> (1, 32) via door (19, 13)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 32) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [order] creator order expired (30m TTL) — released
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(3, 60) -> coord (4, 3) (budget 110s)
+
+   [travel] step 0: (3, 60)->(3, 59) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (3, 50)->(3, 49) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (3, 40)->(3, 39) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (3, 30)->(3, 29) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(3, 20) elapsed=5s
+
+   [travel] step 40: (3, 20)->(3, 19) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (3, 10)->(3, 9) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 30) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    WARPED (1, 30) -> (3, 23) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (19, 13): (3, 24)@(12, 39) -> (3, 23)@(31, 32)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 3, L39) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 24)(12, 39) -> (3, 23)(31, 32) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 23) coords=(31, 32) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135005_route-5_3b_16h02m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 3) toward Route 9 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] ACE-CARRIES: prep-to-L20 stands down — ace clears the next gym's level bar; MARCH (bench XP on the road), not parked Route grass
+
+   [kira-voice] ·floor· (<1s since last) T1 "bench is thin, but my ace already clears the next gym's level — we're marching; they'll catch XP on the road."
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 5 (31, 32) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 23) (31,32) f1 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L14 bench mon (target L20) so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)
+
+   [campaign]    [roam] ROAD to Celadon City: on Route 5 — billed leg north toward Cerulean City
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Celadon City runs north from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 23) coords=(31, 32) -> map (3, 3) (budget 300s)
+
+   [travel] north connection band cols: [15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 48]
+
+   [travel] step 0: (31, 32)->(30, 32) map=(3, 23) (path 35 to exit)
+
+   [travel] step 10: (29, 24)->(29, 23) map=(3, 23) (path 25 to exit)
+
+   [travel] step 20: (29, 14)->(29, 13) map=(3, 23) (path 15 to exit)
+
+   [travel] step 30: (29, 4)->(29, 3) map=(3, 23) (path 5 to exit)
+
+   [travel] MAP TRANSITION (3, 23) -> (3, 3)
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 22, 23, 24, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] ARRIVED at target map (3, 3) coords=(29, 39)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L39) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 23)(31, 32) -> (3, 3)(29, 39) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 3) coords=(29, 39) badges=3 party=6)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 21ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135010_cerulean-city_3b_16h02m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 27) toward Route 9 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (29, 39) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (29,39) f2 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm', 'stock_up', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Cerulean City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Cerulean City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 3), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Eevee from Celadon City'
+
+   [campaign]    [soul] ORACLE pick -> 'Eevee from Celadon City'
+
+   [campaign]    [roam] SHOP: "There's a Mart right here. you're low on Potions; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — a real trainer stocks up before pushing on." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Eevee from Celadon City'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 3 (L15) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — rattata now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L15 bench mon (target L20) so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)
+
+   [campaign]    [roam] ROAD to Celadon City: on Cerulean City — billed leg east toward Route 9
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Celadon City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 3) coords=(29, 39) -> map (3, 27) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] step 0: (29, 39)->(29, 38) map=(3, 3) (path 40 to exit)
+
+   [travel] step 10: (33, 33)->(34, 33) map=(3, 3) (path 30 to exit)
+
+   [travel] step 20: (39, 29)->(39, 28) map=(3, 3) (path 20 to exit)
+
+   [travel] step 30: (39, 19)->(40, 19) map=(3, 3) (path 10 to exit)
+
+   [travel] MAP TRANSITION (3, 3) -> (3, 27)
+
+   [travel] east connection band rows: [8, 9, 10]
+
+   [travel] ARRIVED at target map (3, 27) coords=(0, 9)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 3, L39) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 3)(29, 39) -> (3, 27)(0, 9) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 27) coords=(0, 9) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135020_route-9_3b_16h02m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 9 (0, 9) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 27) (0,9) f4 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L14 bench mon (target L20) so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)
+
+   [campaign]    [roam] ROAD to Celadon City: on Route 9 — billed leg east toward Route 10 north
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 27) coords=(0, 9) -> map (3, 28) (budget 300s)
+
+   [travel] east connection band rows: [8, 9, 10]
+
+   [travel] path blocked at (0, 9) (NPC on the gap?) - waiting
+
+   [kira-voice] -> T1·brisk· (route) 'the road to Celadon City runs east from here — onward.'  fired=True  [age 0.0s + post 16ms]
+
+   [travel] no clean path from (0, 9); NPC-allowing path EXISTS (len 96), blocker NPC tile=(2, 8), npcs nearby=[(2, 8)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 27)@(1, 8) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "RATTATA used CUT!"'
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.50s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (2, 8) on (3, 27) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L39) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 27)(0, 9) -> (3, 27)(1, 8) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick5] -> campaign/kira_campaign.state  (map=(3, 27) coords=(1, 8) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 9 (1, 8) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 27) (1,8) f1 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 27)@(1, 8) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (2, 8) on (3, 27) (route around it) + marking (1, 8) a resolved talk-spot — unified block memory now 3 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] disengage: stepped LEFT AWAY from the NPC -> (0, 8) (closed box + walked off — the real escape)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 9 (0, 8) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 27) (0,8) f3 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm']
+
+   [campaign]    [soul] surface_want FIRE -> Route 9
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 9 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 27), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Eevee from Celadon City'
+
+   [campaign]    [soul] ORACLE pick -> 'Eevee from Celadon City'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 3 (L15) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — rattata now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L15 bench mon (target L20) so it banks participation XP on this leg — the ace fields turn 1 (fail-safe switch)
+
+   [campaign]    [roam] ROAD to Celadon City: on Route 9 — billed leg east toward Route 10 north
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the road to Celadon City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (want) 'Eevee from Celadon City'  fired=True  [age 0.0s + post 15ms]
+
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s)
+
+   [travel] east connection band rows: [8, 9, 10]
+
+   [travel] releasing 1 stale NPC block(s) [(2, 8)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 0: (0, 8)->(1, 8) map=(3, 27) (path 95 to exit)
+
+   [travel] step 10: (9, 9)->(10, 9) map=(3, 27) (path 85 to exit)
+
+   [travel] step 20: (15, 13)->(16, 13) map=(3, 27) (path 76 to exit)
+
+   [travel] step 30: (25, 13)->(26, 13) map=(3, 27) (path 66 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 27) coords=(35, 13) elapsed=6s
+
+   [travel] step 40: (35, 13)->(36, 13) map=(3, 27) (path 56 to exit)
+
+   [travel] step 50: (45, 13)->(46, 13) map=(3, 27) (path 46 to exit)
+
+   [travel] step 60: (52, 10)->(52, 9) map=(3, 27) (path 36 to exit)
+
+   [travel] step 70: (52, 2)->(52, 3) map=(3, 27) (path 28 to exit)
+
+   [travel] HEARTBEAT step=80 map=(3, 27) coords=(60, 2) elapsed=11s
+
+   [travel] step 80: (60, 2)->(61, 2) map=(3, 27) (path 18 to exit)
+
+   [travel] step 90: (64, 8)->(65, 8) map=(3, 27) (path 9 to exit)
+
+   [travel] MAP TRANSITION (3, 27) -> (3, 28)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+   [travel] ARRIVED at target map (3, 28) coords=(0, 8)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 3, L39) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 27)(0, 8) -> (3, 28)(0, 8) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 28) coords=(0, 8) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135055_route-10_3b_16h03m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/flash → steps=['flash'] actionable=flash (resolved=True)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need HM Flash — Oak's aide in the little gatehouse on Route 2 gives it to anyone who's caught ten kinds of Pokémon. Lights up Rock Tunnel.."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,22', 'travel:3,26', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (0, 8) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 28) (0,8) f4 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [kira-voice] ·floor· (<1s since last) T2 "HM Flash — Oak's aide in the little gatehouse on Route 2 gives it to anyone who's caught ten kinds of Pokémon. Lights up Rock Tunnel."
+
+   [campaign]    [flash-errand] leg (3, 28) -west-> (3, 27)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(0, 8) -> map (3, 27) (budget 300s)
+
+   [travel] west connection band rows: [8, 9, 10, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+   [travel] MAP TRANSITION (3, 28) -> (3, 27)
+
+   [travel] west connection band rows: [6, 8, 9, 11]
+
+   [travel] ARRIVED at target map (3, 27) coords=(71, 8)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] 🔦 FLASH ERRAND (flash) -> flash_progress
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_flash | pos (3, 28)(0, 8) -> (3, 27)(71, 8) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 27) coords=(71, 8) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135056_route-9_3b_16h03m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 9 (71, 8) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 27) (71,8) f3 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm', 'talk_npc', 'grab_item']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [flash-errand] leg (3, 27) -west-> (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 27) coords=(71, 8) -> map (3, 3) (budget 300s)
+
+   [travel] west connection band rows: [6, 8, 9, 11]
+
+   [travel] step 0: (71, 8)->(71, 9) map=(3, 27) (path 97 to exit)
+
+   [travel] step 10: (68, 15)->(68, 16) map=(3, 27) (path 91 to exit)
+
+   [travel] step 20: (60, 17)->(60, 16) map=(3, 27) (path 81 to exit)
+
+   [travel] step 30: (51, 16)->(50, 16) map=(3, 27) (path 71 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 27) coords=(41, 16) elapsed=6s
+
+   [travel] step 40: (41, 16)->(40, 16) map=(3, 27) (path 61 to exit)
+
+   [travel] step 50: (35, 12)->(35, 11) map=(3, 27) (path 51 to exit)
+
+   [travel] step 60: (29, 8)->(28, 8) map=(3, 27) (path 41 to exit)
+
+   [travel] step 70: (25, 2)->(24, 2) map=(3, 27) (path 31 to exit)
+
+   [travel] HEARTBEAT step=80 map=(3, 27) coords=(17, 4) elapsed=11s
+
+   [travel] step 80: (17, 4)->(17, 5) map=(3, 27) (path 21 to exit)
+
+   [travel] step 90: (11, 8)->(10, 8) map=(3, 27) (path 12 to exit)
+
+   [travel] path blocked at (3, 8) (NPC on the gap?) - waiting
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 5ms]
+
+   [travel] no clean path from (3, 8); NPC-allowing path EXISTS (len 4), blocker NPC tile=(2, 8), npcs nearby=[(2, 8), (12, 17)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 27)@(3, 8) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "that little tree's in my way — good thing I carry Cut now. TIMBER!"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "RATTATA used CUT!"'  fired=True  [age 0.0s + post 19ms]
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 1ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (2, 8) on (3, 27) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [roam] 🔦 FLASH ERRAND (flash) -> flash_progress
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_flash | pos (3, 27)(71, 8) -> (3, 27)(3, 8) (MOVED)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 9 (3, 8) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 27) (3,8) f1 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 27)@(3, 8) (reason=frozen_box, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (2, 8) on (3, 27) (route around it) + marking (3, 8) a resolved talk-spot — unified block memory now 3 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] disengage: stepped RIGHT AWAY from the NPC -> (4, 8) (closed box + walked off — the real escape)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick10] -> campaign/kira_campaign.state  (map=(3, 27) coords=(4, 8) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 11/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 9 (4, 8) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 27) (4,8) f4 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm', 'talk_npc', 'grab_item']
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #1: objective "PUSH FORWARD — the way ahead is blocked (the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)), and the move that opens it is to HM Flash — Oak's aide in the little gatehouse on Route 2 gives it to anyone who's caught ten kinds of Pokémon. Lights up Rock Tunnel.. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 8 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [kira-voice] ·floor· (<1s since last) T1 "okay, enough drifting — I said I was heading there, so let's actually go."
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [flash-errand] leg (3, 27) -west-> (3, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 27) coords=(4, 8) -> map (3, 3) (budget 300s)
+
+   [travel] west connection band rows: [6, 8, 9, 11]
+
+   [travel] releasing 1 stale NPC block(s) [(2, 8)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 0: (4, 8)->(3, 8) map=(3, 27) (path 5 to exit)
+
+   [travel] MAP TRANSITION (3, 27) -> (3, 3)
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 3) coords=(47, 18)
+
+   [campaign]    [roam] 🔦 FLASH ERRAND (flash) -> flash_progress
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_flash | pos (3, 27)(4, 8) -> (3, 3)(47, 18) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 3) coords=(47, 18) badges=3 party=6)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 12ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135131_cerulean-city_3b_16h03m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 22) toward Route 3 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 12/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (47, 18) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (47,18) f3 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm', 'stock_up']
+
+   [campaign]    [roam] SHOP: "There's a Mart right here. you're low on Potions; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — a real trainer stocks up before pushing on." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [flash-errand] leg (3, 3) -south-> (3, 23)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 3) coords=(47, 18) -> map (3, 23) (budget 300s)
+
+   [travel] south connection band cols: [15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 29, 30, 31, 32, 48]
+
+   [travel] step 0: (47, 18)->(47, 19) map=(3, 3) (path 37 to exit)
+
+   [travel] step 10: (40, 21)->(40, 22) map=(3, 3) (path 27 to exit)
+
+   [travel] step 20: (40, 31)->(40, 32) map=(3, 3) (path 17 to exit)
+
+   [travel] step 30: (33, 34)->(32, 34) map=(3, 3) (path 7 to exit)
+
+   [travel] MAP TRANSITION (3, 3) -> (3, 23)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [travel] south connection band cols: [23, 24, 25, 26, 48]
+
+   [travel] ARRIVED at target map (3, 23) coords=(32, 0)
+
+   [campaign]    [roam] 🔦 FLASH ERRAND (flash) -> flash_progress
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_flash | pos (3, 3)(47, 18) -> (3, 23)(32, 0) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 23) coords=(32, 0) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135136_route-5_3b_16h04m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 3) toward Route 2 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 13/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 5 (32, 0) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 23) (32,0) f1 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm']
+
+   [campaign]    [soul] surface_want FIRE -> Route 5
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 5 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 23), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Get to Celadon, grab that Eevee'
+
+   [campaign]    [soul] ORACLE pick -> 'Get to Celadon, grab that Eevee'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Get to Celadon, grab that Eevee'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [flash-errand] leg (3, 23) -pass-> (3, 24)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·floor· (<1s since last) T1 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    16 door(s); candidates (chosen order): [(31, 31)]
+
+   [campaign]    reachable door (31, 31): walking to approach (31, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 23) coords=(32, 0) -> coord (31, 32) (budget 240s)
+
+   [travel] step 0: (32, 0)->(32, 1) map=(3, 23) (path 38 to exit)
+
+   [travel] step 10: (32, 10)->(32, 11) map=(3, 23) (path 28 to exit)
+
+   [travel] step 20: (32, 20)->(32, 21) map=(3, 23) (path 18 to exit)
+
+   [travel] step 30: (30, 28)->(29, 28) map=(3, 23) (path 8 to exit)
+
+   [travel] reached target coord (31, 32)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 23) -> (1, 30) via door (31, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 30) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(4, 3) -> coord (3, 60) (budget 110s)
+
+   [travel] step 0: (4, 3)->(4, 4) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (4, 13)->(4, 14) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (4, 23)->(4, 24) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (4, 33)->(4, 34) map=(1, 31) (path 29 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(4, 43) elapsed=5s
+
+   [travel] step 40: (4, 43)->(4, 44) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (4, 53)->(4, 54) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (3, 60)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 32) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    WARPED (1, 32) -> (3, 24) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (31, 31): (3, 23)@(32, 0) -> (3, 24)@(19, 14)
+
+   [campaign]    [roam] 🔦 FLASH ERRAND (flash) -> flash_progress
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_flash | pos (3, 23)(32, 0) -> (3, 24)(19, 14) (MOVED)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 1ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 24) coords=(19, 14) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135224_route-6_3b_16h04m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 14/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 24) (19,14) f1 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm']
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #2: objective "PUSH FORWARD — the way ahead is blocked (the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)), and the move that opens it is to HM Flash — Oak's aide in the little gatehouse on Route 2 gives it to anyone who's caught ten kinds of Pokémon. Lights up Rock Tunnel.. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 14 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [flash-errand] leg (3, 24) -south-> (3, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> map (3, 5) (budget 300s)
+
+   [travel] south connection band cols: [10, 11, 12]
+
+   [travel] step 0: (19, 14)->(18, 14) map=(3, 24) (path 51 to exit)
+
+   [travel] step 10: (9, 14)->(8, 14) map=(3, 24) (path 41 to exit)
+
+   [travel] step 20: (11, 20)->(12, 20) map=(3, 24) (path 31 to exit)
+
+   [travel] step 30: (17, 24)->(17, 25) map=(3, 24) (path 21 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 24) coords=(12, 29) elapsed=5s
+
+   [travel] step 40: (12, 29)->(12, 30) map=(3, 24) (path 11 to exit)
+
+   [travel] MAP TRANSITION (3, 24) -> (3, 5)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] ARRIVED at target map (3, 5) coords=(24, 0)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] 🔦 FLASH ERRAND (flash) -> flash_progress
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_flash | pos (3, 24)(19, 14) -> (3, 5)(24, 0) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 5) coords=(24, 0) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135232_vermilion-city_3b_16h04m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 29) toward Route 11 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 15/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (24, 0) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (24,0) f1 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm', 'stock_up', 'talk_npc']
+
+   [campaign]    [roam] SHOP: "There's a Mart right here. you're low on Potions; you're light on Poké Balls — grab a good stock so you can actually catch the teammate your plan wants — a real trainer stocks up before pushing on." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [flash-errand] leg (3, 5) -east-> (3, 29)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(24, 0) -> map (3, 29) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] step 0: (24, 0)->(24, 1) map=(3, 5) (path 44 to exit)
+
+   [travel] step 10: (24, 10)->(24, 11) map=(3, 5) (path 34 to exit)
+
+   [travel] step 20: (25, 19)->(26, 19) map=(3, 5) (path 24 to exit)
+
+   [travel] step 30: (35, 19)->(36, 19) map=(3, 5) (path 14 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 5) coords=(45, 19) elapsed=5s
+
+   [travel] step 40: (45, 19)->(46, 19) map=(3, 5) (path 4 to exit)
+
+   [travel] MAP TRANSITION (3, 5) -> (3, 29)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [travel] east connection band rows: [9, 10, 11]
+
+   [travel] ARRIVED at target map (3, 29) coords=(0, 9)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] 🔦 FLASH ERRAND (flash) -> flash_progress
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_flash | pos (3, 5)(24, 0) -> (3, 29)(0, 9) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 29) coords=(0, 9) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135238_route-11_3b_16h05m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,21', 'travel:3,24', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 16/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 11 (0, 9) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 29) (0,9) f4 -- badge3 $3904 party:8f1a bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm']
+
+   [campaign]    [soul] surface_want FIRE -> Route 11
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 29), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get to Celadon, grab that Eevee'
+
+   [campaign]    [soul] ORACLE pick -> 'get to Celadon, grab that Eevee'
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #3: objective "PUSH FORWARD — the way ahead is blocked (the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)), and the move that opens it is to HM Flash — Oak's aide in the little gatehouse on Route 2 gives it to anyone who's caught ten kinds of Pokémon. Lights up Rock Tunnel.. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 16 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [kira-voice] -> T2·savor· (want) 'get to Celadon, grab that Eevee'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    3 door(s); candidates (chosen order): [(6, 7), (58, 10), (65, 10)]
+
+   [campaign]    reachable door (6, 7): walking to approach (6, 8)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(0, 9) -> coord (6, 8) (budget 300s)
+
+   [travel] step 0: (0, 9)->(0, 8) map=(3, 29) (path 8 to exit)
+
+   [travel] reached target coord (6, 8)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [dialogue] +++ "DIGLETT'S CAVE"  tags=['PLACE']
+
+   [kira-voice]    (dialogue tags: place)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "DIGLETT\'S CAVE"'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    WARPED (3, 29) -> (1, 38) via door (6, 7)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 38): (4, 6)->(3, 29), (6, 4)->(1, 37)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 38) coords=(4, 6) -> coord (6, 4) (budget 300s)
+
+   [travel] step 0: (4, 6)->(4, 5) map=(1, 38) (path 5 to exit)
+
+   [travel] reached target coord (6, 4)
+
+   [campaign]    2 door(s); candidates (chosen order): [(6, 4)]
+
+   [campaign]    reachable door (6, 4): walking to approach (6, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 38) coords=(6, 4) -> coord (6, 5) (budget 300s)
+
+   [travel] step 0: (6, 4)->(82, 71) map=(1, 38) (path 2 to exit)
+
+   [travel] MAP TRANSITION (1, 38) -> (1, 37)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 2 warp(s) on (1, 37): (3, 3)->(1, 36), (82, 71)->(1, 38)
+
+   [travel] coord leg ended by the transition -> (1, 37) (target (6, 5) was the old map's frame)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(82, 71) -> coord (3, 3) (budget 300s)
+
+   [travel] step 0: (82, 71)->(81, 71) map=(1, 37) (path 148 to exit)
+
+   [travel] step 10: (76, 67)->(75, 67) map=(1, 37) (path 138 to exit)
+
+   [travel] step 20: (73, 60)->(73, 59) map=(1, 37) (path 128 to exit)
+
+   [travel] step 30: (70, 53)->(69, 53) map=(1, 37) (path 118 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 37) coords=(63, 50) elapsed=5s
+
+   [travel] step 40: (63, 50)->(62, 50) map=(1, 37) (path 108 to exit)
+
+   [travel] step 50: (56, 47)->(56, 46) map=(1, 37) (path 98 to exit)
+
+   [travel] step 60: (51, 42)->(51, 41) map=(1, 37) (path 88 to exit)
+
+   [travel] step 70: (45, 38)->(45, 37) map=(1, 37) (path 78 to exit)
+
+   [travel] HEARTBEAT step=80 map=(1, 37) coords=(39, 34) elapsed=11s
+
+   [travel] step 80: (39, 34)->(39, 33) map=(1, 37) (path 68 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against diglett — your blastoise is up front'  fired=True  [age 0.0s + post 23ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "a diglett — Diglett's Cave keeper. catching this one for the Ground slot."
+
+   [kira-voice] ·floor· (<1s since last) T1 'no safe way to weaken this one — full-health throw it is. wish me luck.'
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POK. BALL is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now "Oh, she caught one. Okay. I heard there's a reason to catch a diglet."
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 10ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 37)@(39, 33) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    2 door(s); candidates (chosen order): [(3, 3)]
+
+   [campaign]    reachable door (3, 3): walking to approach (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(39, 33) -> coord (3, 4) (budget 300s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [flash-errand] cave: warp (3, 3) didn't fire
+
+   [campaign]    [roam] 🔦 FLASH ERRAND (flash) -> flash_stuck
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_unresolved | pos (3, 29)(0, 9) -> (1, 37)(39, 33) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 37) coords=(39, 33) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_135359_diglett-s-cave_3b_16h06m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 37)@(39, 33) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Diglett's Cave:beedrill was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Diglett's Cave:beedrill from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(39, 33) -> coord (3, 3) (budget 60s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (39, 33)->(39, 32) map=(1, 37) (path 67 to exit)
+
+   [travel] step 10: (36, 26)->(36, 25) map=(1, 37) (path 57 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against diglett — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) "catch order — switching to balls on this diglett. weaken, don't KO."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<1s since last) T1 'no safe way to weaken this one — full-health throw it is. wish me luck.'
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 37)@(33, 25) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    2 door(s); candidates (chosen order): [(3, 3)]
+
+   [campaign]    reachable door (3, 3): walking to approach (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(33, 25) -> coord (3, 4) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(33, 25) -> coord (82, 71) (budget 60s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against diglett — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) "a diglett — Diglett's Cave keeper. catching this one for the Ground slot."  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] ·floor· (<1s since last) T1 'no safe way to weaken this one — full-health throw it is. wish me luck.'
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [kira-voice] -> T1·brisk· (event) "I'm out of Poké Balls - I'll come back for this one"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=no_balls; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 2ms]
+
+   [travel] step 10: (35, 29)->(36, 29) map=(1, 37) (path 90 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against diglett — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "a diglett — Diglett's Cave keeper. catching this one for the Ground slot."
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I'm out of Poké Balls - I'll come back for this one"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=no_balls; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (61s > 60s) at (37, 36) map=(1, 37) step=23 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [kira-voice] -> T1·brisk· (beat) "it's dim and quiet down here, the path winding deeper into the dark"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    2 door(s); candidates (chosen order): [(82, 71)]
+
+   [campaign]    reachable door (82, 71): walking to approach (82, 72)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(37, 36) -> coord (82, 72) (budget 60s)
+
+   [travel] step 0: (37, 36)->(37, 37) map=(1, 37) (path 82 to exit)
+
+   [travel] step 10: (42, 41)->(43, 41) map=(1, 37) (path 72 to exit)
+
+   [travel] step 20: (48, 45)->(49, 45) map=(1, 37) (path 62 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against diglett — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) "a diglett — Diglett's Cave keeper. catching this one for the Ground slot."  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I'm out of Poké Balls - I'll come back for this one"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=no_balls; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against diglett — your blastoise is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I'm out of Poké Balls - I'll come back for this one"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=no_balls; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (94s > 60s) at (54, 49) map=(1, 37) step=35 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [kira-voice] -> T1·brisk· (event) "this is taking forever - I'm stuck grinding, let me regroup"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 37)@(54, 49) - LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 37): (3, 3)->(1, 36), (82, 71)->(1, 38)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 37): (3, 3)->(1, 36), (82, 71)->(1, 38)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['travel:3,1', 'travel:3,2', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 17/100000000 --
+
+   [campaign]    [roam] STATE IN: Diglett's Cave (54, 49) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 37) (54,49) f1 -B badge3 $3904 party:d504 bag:0afe]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'teach_tm']
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #4: objective "PUSH FORWARD — the way ahead is blocked (the road south runs through Rock Tunnel and it's pitch dark in there - I need Flash lit up before I go in (Oak's aide on Route 2 hands HM05 to anyone who's caught ten kinds)), and the move that opens it is to HM Flash — Oak's aide in the little gatehouse on Route 2 gives it to anyone who's caught ten kinds of Pokémon. Lights up Rock Tunnel.. Go DO that now: it's the road FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if you want, but keep heading to the objective — never backward into somewhere you've already cleared." has gone 20s+ without route progress (dist 15 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'flash' is ON the billed road (not a detour); running the unlock errand
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(54, 49) -> coord (3, 3) (budget 300s)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 36375 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(1, 37) coords=(54, 49)  badge=True
+
+   [kira-voice] === 33 fired, 46 gated (0 failed) | by tier: T3=2 T2=14 T1=17 (incl ambient trickle) ===
+
+================================================================
+
