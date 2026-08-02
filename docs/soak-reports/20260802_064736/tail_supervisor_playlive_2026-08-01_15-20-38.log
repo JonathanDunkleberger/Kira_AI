@@ -1,0 +1,1500 @@
+   [kira-voice] ·floor· (<1s since last) T2 "okay, this road just dead-ends into water and rock — no getting through here the straight way. I'll find another route and come back when I can cross."
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick50] -> campaign/kira_campaign.state  (map=(3, 24) coords=(11, 39) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 51/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (11, 39) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 24) (11,39) f2 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] questline: no graph route (3, 24) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(11, 39) -> map (3, 11) (budget 300s)
+
+   [travel] north connection band cols: [23, 24]
+
+   [travel] path blocked at (11, 39) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (11, 39) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (11, 39) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 24)(11, 39) -> (3, 24)(11, 39) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 24) right after riding in from (3, 5) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 52/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (11, 39) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 24) (11,39) f2 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] surface_want FIRE -> Route 6
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 24), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Thunder Badge from Lt. Surge'
+
+   [campaign]    [soul] ORACLE pick -> 'Thunder Badge from Lt. Surge'
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. From here: NORTH → an unexplored area (unexplored); SOUTH → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 11; Route 2; Route 4. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Lt. Surge, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Lt. Surge is step two, not a competing choice. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY"; "I\'m a lightweight, but I\'m good with electricity! That\'s why I joined this GYM.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Vermilion City for the Thunder Badge. Next: You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['regroup']
+
+   [kira-voice] -> T2·savor· (want) 'Thunder Badge from Lt. Surge'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 3661ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Vermilion City for the Thunder Badge. then on to Vermilion City for Lt. Surge
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    74 door(s); candidates (chosen order): [(19, 13)]
+
+   [campaign]    reachable door (19, 13): walking to approach (19, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(11, 39) -> coord (19, 14) (budget 240s)
+
+   [travel] step 0: (11, 39)->(11, 38) map=(3, 24) (path 52 to exit)
+
+   [travel] step 10: (11, 29)->(11, 28) map=(3, 24) (path 42 to exit)
+
+   [travel] step 20: (17, 25)->(17, 24) map=(3, 24) (path 32 to exit)
+
+   [travel] step 30: (13, 19)->(12, 19) map=(3, 24) (path 22 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 24) coords=(8, 14) elapsed=5s
+
+   [travel] step 40: (8, 14)->(9, 14) map=(3, 24) (path 12 to exit)
+
+   [travel] step 50: (18, 14)->(19, 14) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (19, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 24) -> (1, 32) via door (19, 13)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 32) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(3, 60) -> coord (4, 3) (budget 110s)
+
+   [travel] step 0: (3, 60)->(3, 59) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (3, 50)->(3, 49) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (3, 40)->(3, 39) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (3, 30)->(3, 29) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(3, 20) elapsed=5s
+
+   [travel] step 40: (3, 20)->(3, 19) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (3, 10)->(3, 9) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 30) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    WARPED (1, 30) -> (3, 23) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (19, 13): (3, 24)@(11, 39) -> (3, 23)@(31, 32)
+
+   [campaign]    [roam] REGROUP: rode a connector building out of the pocket
+
+   [campaign]    [roam] RESULT: regroup -> regrouped | pos (3, 24)(11, 39) -> (3, 23)(31, 32) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 24) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 23) coords=(31, 32) badges=2 party=6)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 14ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_164548_route-5_2b_14h00m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 3) toward Route 4 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,26', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 53/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 5 (31, 32) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 23) (31,32) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: no graph route across the Route 5 pass leg — trying the Underground Path hut (door-passthrough toward Route 6)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    16 door(s); candidates (chosen order): [(31, 31)]
+
+   [campaign]    reachable door (31, 31): walking to approach (31, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 23) coords=(31, 32) -> coord (31, 32) (budget 240s)
+
+   [travel] reached target coord (31, 32)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 23) -> (1, 30) via door (31, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 30) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(4, 3) -> coord (3, 60) (budget 110s)
+
+   [travel] step 0: (4, 3)->(4, 4) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (4, 13)->(4, 14) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (4, 23)->(4, 24) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (4, 33)->(4, 34) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(4, 43) elapsed=5s
+
+   [travel] step 40: (4, 43)->(4, 44) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (4, 53)->(4, 54) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (3, 60)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 32) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    WARPED (1, 32) -> (3, 24) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (31, 31): (3, 23)@(31, 32) -> (3, 24)@(19, 14)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (3, 23)(31, 32) -> (3, 24)(19, 14) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 24) coords=(19, 14) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_164628_route-6_2b_14h01m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 54/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] questline: no graph route (3, 24) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> map (3, 11) (budget 300s)
+
+   [travel] north connection band cols: [23, 24]
+
+   [travel] path blocked at (19, 14) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 14) AND no NPC-allowing path (npcs nearby=[(12, 21), (13, 21)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (19, 14) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 24)(19, 14) -> (3, 24)(19, 14) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 24) right after riding in from (3, 23) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T2·savor· (travel) "okay, this road just dead-ends into water and rock — no getting through here the straight way. I'll find another route and come back when I can cross."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 55/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 6
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 24), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Reach Vermilion City, wreck Surge'
+
+   [campaign]    [soul] ORACLE pick -> 'Reach Vermilion City, wreck Surge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Reach Vermilion City, wreck Surge'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] questline: no graph route (3, 24) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> map (3, 11) (budget 300s)
+
+   [travel] north connection band cols: [23, 24]
+
+   [travel] path blocked at (19, 14) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 14) AND no NPC-allowing path (npcs nearby=[(12, 21), (13, 21)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (19, 14) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 24)(19, 14) -> (3, 24)(19, 14) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 24) right after riding in from (3, 23) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick55] -> campaign/kira_campaign.state  (map=(3, 24) coords=(19, 14) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 56/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. From here: NORTH → an unexplored area (unexplored); SOUTH → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 11; Route 2; Route 4. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Lt. Surge, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Lt. Surge is step two, not a competing choice. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY"; "I\'m a lightweight, but I\'m good with electricity! That\'s why I joined this GYM.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Vermilion City for the Thunder Badge. Next: You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2649ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Vermilion City for the Thunder Badge. then on to Vermilion City for Lt. Surge
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    74 door(s); candidates (chosen order): [(19, 13)]
+
+   [campaign]    reachable door (19, 13): walking to approach (19, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> coord (19, 14) (budget 240s)
+
+   [travel] reached target coord (19, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 24) -> (1, 32) via door (19, 13)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 32) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(3, 60) -> coord (4, 3) (budget 110s)
+
+   [travel] step 0: (3, 60)->(3, 59) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (3, 50)->(3, 49) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (3, 40)->(3, 39) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (3, 30)->(3, 29) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(3, 20) elapsed=5s
+
+   [travel] step 40: (3, 20)->(3, 19) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (3, 10)->(3, 9) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 30) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    WARPED (1, 30) -> (3, 23) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (19, 13): (3, 24)@(19, 14) -> (3, 23)@(31, 32)
+
+   [campaign]    [roam] REGROUP: rode a connector building out of the pocket
+
+   [campaign]    [roam] RESULT: regroup -> regrouped | pos (3, 24)(19, 14) -> (3, 23)(31, 32) (MOVED)
+
+   [campaign]    [roam] !!!! SEAM-THRASH BREAKER: crossed the Route 5↔Route 6 border 3x in 120s with no badge progress — no clear backward side (both read forward) — no ban; hard-committing the FORWARD objective for the next 8 builds
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay, I've been pacing the same border like a lost tourist — enough. Picking a direction and COMMITTING: forward, next objective, go."
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 24) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 23) coords=(31, 32) badges=2 party=6)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_164719_route-5_2b_14h02m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 3) toward Route 4 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (7 builds left): forced head_to_gym, pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,26', 'travel:3,27', 'travel:3,43', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned []; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 57/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 5 (31, 32) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 23) (31,32) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: no graph route across the Route 5 pass leg — trying the Underground Path hut (door-passthrough toward Route 6)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    16 door(s); candidates (chosen order): [(31, 31)]
+
+   [campaign]    reachable door (31, 31): walking to approach (31, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 23) coords=(31, 32) -> coord (31, 32) (budget 240s)
+
+   [travel] reached target coord (31, 32)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 23) -> (1, 30) via door (31, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 30) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(4, 3) -> coord (3, 60) (budget 110s)
+
+   [travel] step 0: (4, 3)->(4, 4) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (4, 13)->(4, 14) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (4, 23)->(4, 24) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (4, 33)->(4, 34) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(4, 43) elapsed=5s
+
+   [travel] step 40: (4, 43)->(4, 44) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (4, 53)->(4, 54) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (3, 60)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 32) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    WARPED (1, 32) -> (3, 24) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (31, 31): (3, 23)@(31, 32) -> (3, 24)@(19, 14)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (3, 23)(31, 32) -> (3, 24)(19, 14) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 23) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 24) coords=(19, 14) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_164800_route-6_2b_14h02m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] !! SEAM-COMMIT (6 builds left): forced head_to_gym, pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned []; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 58/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 6
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 24), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Vermilion City'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Vermilion City'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Vermilion City'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] questline: no graph route (3, 24) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> map (3, 11) (budget 300s)
+
+   [travel] north connection band cols: [23, 24]
+
+   [travel] path blocked at (19, 14) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 14) AND no NPC-allowing path (npcs nearby=[(12, 21), (13, 21)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (19, 14) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 24)(19, 14) -> (3, 24)(19, 14) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 24) right after riding in from (3, 23) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] !! SEAM-COMMIT (5 builds left): forced head_to_gym, pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned []; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 59/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] questline: no graph route (3, 24) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> map (3, 11) (budget 300s)
+
+   [travel] north connection band cols: [23, 24]
+
+   [travel] path blocked at (19, 14) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 14) AND no NPC-allowing path (npcs nearby=[(12, 21), (13, 21)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (19, 14) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 24)(19, 14) -> (3, 24)(19, 14) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 24) right after riding in from (3, 23) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] !! SEAM-COMMIT (4 builds left): forced head_to_gym, pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned []; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 60/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. From here: NORTH → an unexplored area (unexplored); SOUTH → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 11; Route 2; Route 4. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Lt. Surge, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Lt. Surge is step two, not a competing choice. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY"; "I\'m a lightweight, but I\'m good with electricity! That\'s why I joined this GYM.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Vermilion City for the Thunder Badge. Next: You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 3660ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Vermilion City for the Thunder Badge. then on to Vermilion City for Lt. Surge
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    74 door(s); candidates (chosen order): [(19, 13)]
+
+   [campaign]    reachable door (19, 13): walking to approach (19, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> coord (19, 14) (budget 240s)
+
+   [travel] reached target coord (19, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 24) -> (1, 32) via door (19, 13)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 32) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(3, 60) -> coord (4, 3) (budget 110s)
+
+   [travel] step 0: (3, 60)->(3, 59) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (3, 50)->(3, 49) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (3, 40)->(3, 39) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (3, 30)->(3, 29) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(3, 20) elapsed=5s
+
+   [travel] step 40: (3, 20)->(3, 19) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (3, 10)->(3, 9) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 30) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    WARPED (1, 30) -> (3, 23) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (19, 13): (3, 24)@(19, 14) -> (3, 23)@(31, 32)
+
+   [campaign]    [roam] REGROUP: rode a connector building out of the pocket
+
+   [campaign]    [roam] RESULT: regroup -> regrouped | pos (3, 24)(19, 14) -> (3, 23)(31, 32) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 24) across exit (≥2 strikes): ['head_to_gym']
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 23) coords=(31, 32) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_164852_route-5_2b_14h03m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 3) toward Route 4 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (3 builds left): forced head_to_gym, pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,26', 'travel:3,27', 'travel:3,43', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned []; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 61/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 5 (31, 32) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 23) (31,32) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 5
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 5 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 23), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Vermilion City, Thunder Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Vermilion City, Thunder Badge'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Vermilion City, Thunder Badge'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: no graph route across the Route 5 pass leg — trying the Underground Path hut (door-passthrough toward Route 6)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    16 door(s); candidates (chosen order): [(31, 31)]
+
+   [campaign]    reachable door (31, 31): walking to approach (31, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 23) coords=(31, 32) -> coord (31, 32) (budget 240s)
+
+   [travel] reached target coord (31, 32)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 23) -> (1, 30) via door (31, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 30) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(4, 3) -> coord (3, 60) (budget 110s)
+
+   [travel] step 0: (4, 3)->(4, 4) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (4, 13)->(4, 14) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (4, 23)->(4, 24) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (4, 33)->(4, 34) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(4, 43) elapsed=5s
+
+   [travel] step 40: (4, 43)->(4, 44) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (4, 53)->(4, 54) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (3, 60)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 32) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    WARPED (1, 32) -> (3, 24) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (31, 31): (3, 23)@(31, 32) -> (3, 24)@(19, 14)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (3, 23)(31, 32) -> (3, 24)(19, 14) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 23) across exit (≥2 strikes): ['head_to_gym']
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 24) coords=(19, 14) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_164936_route-6_2b_14h04m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] !! SEAM-COMMIT (2 builds left): forced head_to_gym, pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned []; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 62/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] questline: no graph route (3, 24) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> map (3, 11) (budget 300s)
+
+   [travel] north connection band cols: [23, 24]
+
+   [travel] path blocked at (19, 14) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 14) AND no NPC-allowing path (npcs nearby=[(12, 21), (13, 21)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (19, 14) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 24)(19, 14) -> (3, 24)(19, 14) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 24) right after riding in from (3, 23) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] !! SEAM-COMMIT (1 builds left): forced head_to_gym, pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned []; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 63/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] questline: no graph route (3, 24) -> anchor (3, 7) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water' — heading NORTH toward the Secret House deep in the Safari Zone (enter the Safari gate north of Fuchsia's Center; the house is in the far Area 3, past the ponds) (success=('cap', 'surf'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> map (3, 11) (budget 300s)
+
+   [travel] north connection band cols: [23, 24]
+
+   [travel] path blocked at (19, 14) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 14) AND no NPC-allowing path (npcs nearby=[(12, 21), (13, 21)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (19, 14) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 24)(19, 14) -> (3, 24)(19, 14) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 24) right after riding in from (3, 23) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 20ms]
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] !! SEAM-COMMIT (0 builds left): forced head_to_gym, pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned []; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 64/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (19, 14) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 24) (19,14) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] surface_want FIRE -> Route 6
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 24), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Reach Vermilion City and wreck Surge'
+
+   [campaign]    [soul] ORACLE pick -> 'Reach Vermilion City and wreck Surge'
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. From here: NORTH → an unexplored area (unexplored); SOUTH → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 11; Route 2; Route 4. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Lt. Surge, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Lt. Surge is step two, not a competing choice. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY"; "I\'m a lightweight, but I\'m good with electricity! That\'s why I joined this GYM.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Vermilion City for the Thunder Badge. Next: You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), ekans (L13), spearow (L17), abra (L14), rattata (L14), caterpie the butterfree (L13)', 'goal': {'short': "You're ready — stop grinding and head to Vermilion City for the Thunder Badge", 'medium': 'You CRUSHED Misty — ride the momentum: Lt. Surge in Vermilion City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['regroup']
+
+   [kira-voice] -> T2·savor· (want) 'Reach Vermilion City and wreck Surge'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2560ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Vermilion City for the Thunder Badge. then on to Vermilion City for Lt. Surge
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    74 door(s); candidates (chosen order): [(19, 13)]
+
+   [campaign]    reachable door (19, 13): walking to approach (19, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(19, 14) -> coord (19, 14) (budget 240s)
+
+   [travel] reached target coord (19, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 24) -> (1, 32) via door (19, 13)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 32) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(3, 60) -> coord (4, 3) (budget 110s)
+
+   [travel] step 0: (3, 60)->(3, 59) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (3, 50)->(3, 49) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (3, 40)->(3, 39) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (3, 30)->(3, 29) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(3, 20) elapsed=5s
+
+   [travel] step 40: (3, 20)->(3, 19) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (3, 10)->(3, 9) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 30) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    WARPED (1, 30) -> (3, 23) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (19, 13): (3, 24)@(19, 14) -> (3, 23)@(31, 32)
+
+   [campaign]    [roam] REGROUP: rode a connector building out of the pocket
+
+   [campaign]    [roam] RESULT: regroup -> regrouped | pos (3, 24)(19, 14) -> (3, 23)(31, 32) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 24) across exit (≥2 strikes): ['head_to_gym']
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 23) coords=(31, 32) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260801_165026_route-5_2b_14h05m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 23): (31, 31)->(1, 30), (23, 25)->(17, 0), (24, 32)->(17, 1), (25, 32)->(17, 1)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 3) toward Route 4 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Lt. Surge, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! MOMENTUM → GO HARD: forced head_to_gym (Lt. Surge); pruned ['battle', 'travel:3,21', 'travel:3,22', 'travel:3,26', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] FORWARD-DRIVE: prep grind armed BUT a questline errand is live — the errand road is the training ground; driving forward instead of parking
+
+   [campaign] -- ROAM TICK 65/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 5 (31, 32) | badges=2 (Boulder, Cascade) | party=[blastoise L36, ekans L13, spearow L17, abra L14, rattata L14, butterfree L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 23) (31,32) f1 -- badge2 $360 party:5475 bag:2255]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: You're ready — stop grinding and head to Vermilion City for the Thunder Badge.
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: no graph route across the Route 5 pass leg — trying the Underground Path hut (door-passthrough toward Route 6)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    16 door(s); candidates (chosen order): [(31, 31)]
+
+   [campaign]    reachable door (31, 31): walking to approach (31, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 23) coords=(31, 32) -> coord (31, 32) (budget 240s)
+
+   [travel] reached target coord (31, 32)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 320925 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 23) coords=(31, 31)  badge=True
+
+   [kira-voice] === 383 fired, 289 gated (0 failed) | by tier: T3=5 T2=73 T1=305 (incl ambient trickle) ===
+
+================================================================
+
