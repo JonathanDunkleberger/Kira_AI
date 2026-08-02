@@ -138,7 +138,13 @@
   "kabuto":   {"tier": "rare", "evolves": "kabutops", "where": "Mt. Moon fossil choice (Dome)", "note": "a fossil Rock/Water — Kabutops is a fast physical sweeper if you pick the Dome"},
   "clefairy": {"tier": "decent", "evolves": "clefable (Moon Stone)", "where": "Mt. Moon (rare)", "note": "a rare Mt. Moon Normal-type with a huge, flexible movepool"},
   "gyarados": {"tier": "strong", "evolves": "none", "where": "evolve a Magikarp / rare fish", "note": "a Water/Flying powerhouse — huge attack"},
-  "vulpix":   {"tier": "decent", "evolves": "ninetales (Fire Stone)", "where": "Routes 7/8 (FireRed exclusive)", "note": "a solid Fire option if you skipped Growlithe"}
+  "vulpix":   {"tier": "decent", "evolves": "ninetales (Fire Stone)", "where": "Routes 7/8 (FireRed exclusive)", "note": "a solid Fire option if you skipped Growlithe"},
+  "diglett":  {"tier": "strong", "evolves": "dugtrio @26", "where": "Diglett's Cave (Route 11 <-> Route 2)", "note": "the Surge hard-counter — Electric can't touch Ground; becomes Dugtrio, Earthquake body for Koga/Blaine/Agatha"},
+  "dugtrio":  {"tier": "strong", "evolves": "none", "where": "Diglett's Cave (rare) / evolve Diglett", "note": "fast Ground sweeper — Surge answer and late-game Earthquake user"},
+  "moltres":  {"tier": "rare_strong", "evolves": "none", "where": "Mt. Ember (Sevii / post-Rocket)", "note": "LEGENDARY Fire/Flying bird — weaken carefully and ball; NEVER KO"},
+  "articuno": {"tier": "rare_strong", "evolves": "none", "where": "Seafoam Islands", "note": "LEGENDARY Ice/Flying — weaken carefully and ball; NEVER KO"},
+  "zapdos":   {"tier": "rare_strong", "evolves": "none", "where": "Power Plant", "note": "LEGENDARY Electric/Flying — weaken carefully and ball; NEVER KO"},
+  "mewtwo":   {"tier": "rare_strong", "evolves": "none", "where": "Cerulean Cave (post-Elite Four)", "note": "LEGENDARY Psychic — the endgame catch; never KO on sight"}
  },
 
  "key_moves": {

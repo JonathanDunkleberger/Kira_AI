@@ -1897,6 +1897,14 @@ class Campaign:
         doors = self._door_tiles()
         if not doors:
             log("   no door/warp tiles (0x6x) found on this map"); return "no_warp"
+        # CLEARED-DUNGEON REFUSE (2026-08-02): post-Cascade never re-enter Mt. Moon via a Route 4
+        # mouth — graph priors + Diglett adjacency kept walking her back into finished ground.
+        _warp_dest = {}
+        try:
+            _warp_dest = {tuple(wxy): tuple(d) for (wxy, d, _i) in tv.read_warps(self.b)}
+        except Exception:
+            _warp_dest = {}
+        _bc_now = sum(1 for i in range(8) if self.has_badge(0x820 + i))
         cur = tv.coords(self.b)
         # WAYPOINT-GUIDED APPROACH: a door in a maze-walled pocket (Fuchsia Mart (11,15)) makes the
         # direct BFS-travel oscillate and cap far away. If we have KB waypoints for this exact door,
@@ -1921,6 +1929,11 @@ class Campaign:
         approach_dy, step_key = (-1, "DOWN") if prefer == "south" else (1, "UP")
         log(f"   {len(doors)} door(s); candidates (chosen order): {order}")
         for door in order:
+            _dest = _warp_dest.get(tuple(door))
+            if (_dest in getattr(self, "_MT_MOON_MAPS", ()) and _bc_now >= 2):
+                log(f"   [warp] REFUSING door {door} -> {_dest} (Mt. Moon already cleared; "
+                    f"badge_count={_bc_now}) — not re-entering finished dungeon")
+                continue
             approach = (door[0], door[1] + approach_dy)  # stand just beside the door
             # FAST reachability pre-check (BFS only) so unreachable doors are skipped
             # instantly instead of a slow walk-then-fail. Uses grass-ALLOWED collision
@@ -6187,10 +6200,12 @@ class Campaign:
                 self.on_event(f"there it is — a wild {_tfname}! this is the one I came for.",
                               kind="roster", tier=2)
                 # fall through to the commit (skip the judgment block)
+            # CREATOR CATCH LAW (2026-08-02): Jonny said catch — skip judgment, commit balls.
             # BLOCK #3 — THE CHOICE (2026-07-06 nursery): a real player doesn't ball everything that
             # rustles the grass. Size the wild up (dupe/coverage/level/room), offer the call to the
             # oracle (hers, live), follow the framework's lean headless — and VOICE it both ways.
-            elif CATCH_JUDGMENT_ENABLED:
+            elif CATCH_JUDGMENT_ENABLED and not (
+                    (self._creator_order(None) or {}).get("order") == "catch_now"):
                 # FOE SOURCE = gEnemyParty[0] (written at wild-mon CREATION, before the battle
                 # intro even fades in), NOT the gBattleMons snapshot: at hand-off time
                 # gBattleMons[1] can still hold the PREVIOUS battle's foe — the voltorb_run1
@@ -6283,6 +6298,7 @@ class Campaign:
             if res == "caught":
                 caught[0] = True
                 self.on_event("I caught a new teammate!")
+                self._fulfill_catch_order()
             elif res == "no_balls":
                 out_of_balls[0] = True              # STOP the wander — wandering ball-less just hits
             elif res == "cant_weaken":
@@ -8127,7 +8143,8 @@ class Campaign:
         direct gameplay order; while it's live this returns the payload and the prep/prune layers
         stand down (chat stays advice — only Jonny's VOICE reaches the writer). Lifecycle: expires
         after CREATOR_ORDER_TTL_S; a fight_gym order is FULFILLED (released, celebrated) the moment
-        a badge is earned after it. Acknowledged in her voice exactly once per order. Never raises."""
+        a badge is earned after it; a catch_now order is fulfilled by BattleAgent / catch_one (not
+        by badge). Acknowledged in her voice exactly once per order. Never raises."""
         import json as _j
         try:
             if not os.path.exists(CREATOR_ORDER_JSON):
@@ -8139,12 +8156,16 @@ class Campaign:
                 os.remove(CREATOR_ORDER_JSON)
                 log(f"   [order] creator order expired ({CREATOR_ORDER_TTL_S / 60:.0f}m TTL) — released")
                 return None
+            order = data.get("order") or "fight_gym"
             bc = int(state.get("badge_count", -1)) if state else -1
             if "badges_at_order" not in data and bc >= 0:
                 data["badges_at_order"] = bc            # stamp the fulfillment baseline on first sight
                 with open(CREATOR_ORDER_JSON, "w", encoding="utf-8") as f:
                     _j.dump(data, f)
-            if bc >= 0 and int(data.get("badges_at_order", bc)) < bc:
+            # Badge fulfillment is for fight_gym / stop-grind ONLY — catch_now stays live until a
+            # catch settles (or TTL), otherwise "catch that Diglett" dies the moment she earns Erika.
+            if (order != "catch_now" and bc >= 0
+                    and int(data.get("badges_at_order", bc)) < bc):
                 os.remove(CREATOR_ORDER_JSON)
                 log("   [order] creator order FULFILLED (badge earned since the order) — released")
                 self.on_event("did what you asked, by the way. badge secured. never doubt me.",
@@ -8152,13 +8173,33 @@ class Campaign:
                 return None
             if getattr(self, "_order_ack_ts", None) != ts:
                 self._order_ack_ts = ts
-                log(f"   [order] !! CREATOR ORDER ACTIVE (LAW): {data.get('raw', '')!r}")
-                self.on_event("okay okay — direct order from the boss. dropping everything else, "
-                              "we're doing it NOW.", kind="order", tier=3)
+                log(f"   [order] !! CREATOR ORDER ACTIVE (LAW): {order} {data.get('raw', '')!r}")
+                if order == "catch_now":
+                    self.on_event("catch order locked in — next wild gets the ball treatment, "
+                                  "not a KO. I'm listening.", kind="order", tier=3)
+                else:
+                    self.on_event("okay okay — direct order from the boss. dropping everything else, "
+                                  "we're doing it NOW.", kind="order", tier=3)
             return data
         except Exception as e:
             log(f"   [order] creator-order read skipped: {e}")
             return None
+
+    def _fulfill_catch_order(self):
+        """Release a live catch_now creator order after a committed catch (success or clear attempt)."""
+        import json as _j
+        try:
+            if not os.path.exists(CREATOR_ORDER_JSON):
+                return
+            with open(CREATOR_ORDER_JSON, encoding="utf-8") as f:
+                data = _j.load(f) or {}
+            if data.get("order") != "catch_now":
+                return
+            os.remove(CREATOR_ORDER_JSON)
+            log("   [order] creator catch_now FULFILLED — released")
+            self.on_event("caught what you told me to. order done.", kind="order", tier=2)
+        except Exception as e:
+            log(f"   [order] catch-order fulfill skipped: {e}")
 
     def grind_weak_members(self, target, min_level=None, ace_cap=False, budget_s=None):
         """Field the WEAK members (not the ace) and level the team FLOOR to `target`, then restore the
@@ -8920,6 +8961,39 @@ class Campaign:
 
     # Snorlax-gated coastal roads: routable only once the Poké Flute (item 350) is in the bag.
     _FLUTE_GATED_MAPS = {(3, 30), (3, 34)}    # Route 12 (south of Lavender), Route 16 (west of Celadon)
+    # Mt. Moon floors — DONE after Cascade Badge (badge ≥ 2). Graph priors + Diglett's Cave adjacency
+    # kept dragging her back in and narrating it as Rock Tunnel (2026-08-02 chalk).
+    _MT_MOON_MAPS = {(1, 1), (1, 2), (1, 3)}
+
+    def _cleared_dungeon_avoid(self, state):
+        """Maps that are CLOSED for re-entry once the story has moved past them. Post-Misty Mt. Moon
+        is dead XP and wrong-road; keep world.route / grass-target / keeper hops OUT of it."""
+        try:
+            if int(state.get("badge_count") or 0) >= 2:
+                return set(self._MT_MOON_MAPS)
+        except Exception:
+            pass
+        return set()
+
+    def _escape_off_mission_mt_moon(self, state):
+        """If she's already INSIDE post-Cascade Mt. Moon, clear east to Cerulean via the proven plan
+        (clear_mt_moon). Teleport rescue is retired — this is on-foot escape. Returns status or None."""
+        mid = tuple(state.get("map") or ())
+        if mid not in self._MT_MOON_MAPS:
+            return None
+        if int(state.get("badge_count") or 0) < 2:
+            return None
+        place = self._place_name(mid, default="Mt. Moon")
+        log(f"   [roam] !! OFF-MISSION: inside {place} ({mid}) with "
+            f"{state.get('badge_count')} badges — escaping via clear_mt_moon (NOT Rock Tunnel)")
+        self.on_event("wait — this is Mt. Moon, not Rock Tunnel. I've already cleared this cave. "
+                      "getting out and back on the road east.", kind="route", tier=3)
+        out = self.clear_mt_moon()
+        log(f"   [roam] Mt. Moon off-mission escape -> {out} (now {tv.map_id(self.b)})")
+        if out == "cleared":
+            self.on_event("out of Mt. Moon — Cerulean side. Celadon road, not nostalgia tourism.",
+                          kind="route", tier=2)
+        return out or "stuck"
 
     def _story_gate_avoid(self, state):
         """Story-gated maps to keep OUT of graph ROUTING until the key item is owned. The world graph is
@@ -8927,7 +9001,9 @@ class Campaign:
         warp-route now sends her Vermilion->Route 11->Route 12 toward Celadon — but Route 12 is Snorlax-
         blocked pre-Flute (the ONLY pre-Flute road to Lavender is ROCK TUNNEL — gamedata/frlg_gates.json
         roads['Celadon City']). She wedged at the Snorlax (13,70). Avoid the gated maps so the graph route
-        falls through to the billed road (Rock Tunnel). Post-Flute (item 350) they clear and become roads."""
+        falls through to the billed road (Rock Tunnel). Post-Flute (item 350) they clear and become roads.
+        Also folds cleared-dungeon avoid (post-Cascade Mt. Moon)."""
+        cleared = self._cleared_dungeon_avoid(state)
         try:
             # ITEM_POKE_FLUTE (350) is a KEY item — _item_count/bag_count only scan the ITEMS pocket
             # (0x310) and can NEVER see it, so the old `_item_count(350)>0` never fired and Route 12/16
@@ -8937,10 +9013,10 @@ class Campaign:
             # graph path south runs through Route 12 — which the proactive Surf questline is the first to need.)
             import hm_teach as ht
             if 350 in ht.pocket_items(self.b, ht.KEY_ITEMS_OFF, 30):
-                return set()
+                return set(cleared)
         except Exception:
             pass
-        return set(self._FLUTE_GATED_MAPS)
+        return set(self._FLUTE_GATED_MAPS) | cleared
 
     def _keeper_hard_gate_avoid(self, state):
         """NS#43 — the KEEPER ROUTER (only) must not offer a keeper reachable only ACROSS a hard gate she
@@ -9151,10 +9227,30 @@ class Campaign:
                 f"catching or an off-errand route sweep, e.g. Route 24/25). Surfacing, not spinning.")
             return "flash_stuck"
 
-        # PHASE 3 — inside Diglett's Cave (non-overworld): keep crossing toward Route 2.
+        # PHASE 3 — inside Diglett's Cave (non-overworld): TARGETED Diglett catch (no grass here —
+        # catch_one without target_species returned no_grass and then _cross_cave's fight-runner
+        # murdered every Diglett on the walk; 2026-08-02 Diglett chalk), then flee-cross to Route 2.
         if cur[0] != 3:
-            _catch_to_10("Diglett's Cave", tries=3)
-            ok = self._cross_cave(None, ROUTE2)
+            _have_ground = any(sid in self._owned_species_ids() for sid in (50, 51))  # Diglett/Dugtrio
+            if ram.pokedex_owned_count(b) < 10 or not _have_ground:
+                for _try in range(3):
+                    if ram.pokedex_owned_count(b) >= 10 and any(
+                            sid in self._owned_species_ids() for sid in (50, 51)):
+                        break
+                    cr = self.catch_one(max_seconds=90, target_species="diglett")
+                    log(f"   [flash-errand] Diglett's Cave targeted catch -> {cr} "
+                        f"(dex={ram.pokedex_owned_count(b)}/10)")
+                    if cr == "caught":
+                        self._fulfill_catch_order()
+                        break
+                    if cr in ("no_balls", "no_reachable_target"):
+                        break
+            saved_runner = self.trav.battle_runner
+            self.trav.battle_runner = self._cave_runner   # flee remaining wilds; don't KO Digletts
+            try:
+                ok = self._cross_cave(None, ROUTE2)
+            finally:
+                self.trav.battle_runner = saved_runner
             return "flash_progress" if ok else "flash_stuck"
         # PHASE 2 — on Route 11: catch fresh species (Drowzee), then cross Diglett's Cave (north mouth ->
         # Route 2). Exhausted-memo: once Route 11 yields no new species, skip the re-catch (else with a full
@@ -9523,16 +9619,21 @@ class Campaign:
         def _lit():
             return bool(fm.read_flag(b, fm.FLAG_SYS_FLASH_ACTIVE))
 
+        # HONEST PLACE NAME (2026-08-02 Mt.Moon chalk): this helper also lights Diglett's Cave /
+        # any dark warp-maze — hardcoding "Rock Tunnel" made her narrate Mt. Moon as Rock Tunnel live.
+        _cave_here = self._place_name(tuple(tv.map_id(b)), default="this cave")
         if not _lit():
-            self.on_event("Rock Tunnel — pitch dark. good thing I carry Flash now.", kind="route", tier=2)
+            self.on_event(f"{_cave_here} — pitch dark. good thing I carry Flash now.",
+                          kind="route", tier=2)
             slot = st.party_knows_move(b, FLASH_MOVE, b.rd8(ram.GPLAYER_PARTY_CNT))
             r = ht.TeachFlow(self, log=lambda m: log(m), on_event=self.on_event).use_field_move(
                 slot, verify=_lit, label="flash")
-            log(f"   [tunnel] use flash -> {r} (lit={_lit()})")
+            log(f"   [tunnel] use flash -> {r} (lit={_lit()}) place={_cave_here}")
         if not _lit():
             log("   [tunnel] FLASH did not light the cave — refusing to walk dark; deferring")
             return None
-        self.on_event("and there's light. okay, Rock Tunnel — let's do this properly.", kind="route", tier=2)
+        self.on_event(f"and there's light. okay, {_cave_here} — let's do this properly.",
+                      kind="route", tier=2)
         saved_runner, saved_heal = self.trav.battle_runner, self._suppress_heal
         self.trav.battle_runner = self._cave_runner       # FLEE wilds / FIGHT trainers
         self._suppress_heal = True                         # no PC in a cave -> survive-or-blackout
@@ -9549,8 +9650,12 @@ class Campaign:
         if out_dir and out_map and tuple(tv.map_id(b)) != tuple(out_map):
             self._edge_travel(tuple(out_map), out_dir)
         if out_map and tuple(tv.map_id(b)) == tuple(out_map):
-            self.on_event("Lavender Town — the little town with the tower. we made it through the dark.",
-                          kind="route", tier=2)
+            _out_name = self._place_name(tuple(out_map), default="the far side")
+            if tuple(out_map) == LAVENDER:
+                self.on_event("Lavender Town — the little town with the tower. we made it through the dark.",
+                              kind="route", tier=2)
+            else:
+                self.on_event(f"{_out_name} — out of the dark. good.", kind="route", tier=2)
             return "arrived"
         return "road_passthrough"
 
@@ -9669,7 +9774,7 @@ class Campaign:
             r = self._flash_errand()
             log(f"   [roam] 🔦 FLASH ERRAND ({step.missing}) -> {r}")
             if r == "flash_done":
-                self.on_event("Flash — lit. now Rock Tunnel won't be pitch black. onward.",
+                self.on_event("Flash — lit. dark caves won't be pitch black now. onward.",
                               kind="route", tier=2)
                 self._clear_questline("flash taught")
                 return "questline_done"
@@ -14875,6 +14980,17 @@ class Campaign:
                     self._auto_checkpoint(f"gain-{_gain_reason}" if _gain_reason else "periodic")
                     self._last_ckpt_t = _now
             self._wait_overworld()
+            # OFF-MISSION MT. MOON ESCAPE (2026-08-02 chalk): post-Cascade she wandered into Mt. Moon
+            # (graph prior / Diglett adjacency) and narrated it as Rock Tunnel. Escape on-foot via the
+            # proven clear_mt_moon plan BEFORE any other roam pick can dig her deeper. Teleport rescue
+            # stays retired — this is the on-foot substitute.
+            _esc = self._escape_off_mission_mt_moon({
+                "map": tuple(tv.map_id(self.b)),
+                "badge_count": sum(1 for i in range(8) if self.has_badge(0x820 + i)),
+            })
+            if _esc is not None:
+                ledger.note_action("escape_mt_moon", str(_esc))
+                continue
             # NOTE (2026-08-01): the RESCUE-TP boot seed that fired here is RETIRED — the blind
             # party-submenu drive selected SUMMARY instead of TELEPORT live and looped her through
             # menus on stream (see _teleport_rescue's docstring). Physical relocation goes through

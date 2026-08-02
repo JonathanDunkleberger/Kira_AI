@@ -2074,6 +2074,14 @@ class VTubeBot:
         re.IGNORECASE)
     _POKEMON_STOP_GRIND_RX = re.compile(
         r"\bstop\s+(?:grinding|training|farming|leveling|levelling)\b", re.IGNORECASE)
+    # CATCH NOW (2026-08-02 Diglett chalk): "catch that / catch one / ball it" must latch LAW the
+    # same way fight-gym does — conversational "okay" without a harness latch was the kill-loop.
+    _POKEMON_CATCH_ORDER_RX = re.compile(
+        r"\b(?:catch|capture|ball)\s+(?:that|this|it|one|him|her|them|a\s+\w+)\b"
+        r"|\bcatch\s+(?:one|it|that)\b"
+        r"|\btry\s+to\s+catch\b"
+        r"|\bthrow\s+(?:a\s+)?(?:poke\s*)?balls?\b",
+        re.IGNORECASE)
 
     def _pokemon_creator_order_live(self) -> bool:
         """True when a Pokémon campaign is actually running — health.json heartbeat fresh, OR
@@ -2094,13 +2102,17 @@ class VTubeBot:
         """Latch a creator order from Jonny's spoken words. Best-effort; not gated on pokemon_mode
         (resume_marathon launches the harness outside the dashboard mode flip)."""
         text = content or ""
-        if not (self._POKEMON_GYM_ORDER_RX.search(text)
-                or self._POKEMON_STOP_GRIND_RX.search(text)):
+        if self._POKEMON_CATCH_ORDER_RX.search(text):
+            order = "catch_now"
+        elif (self._POKEMON_GYM_ORDER_RX.search(text)
+              or self._POKEMON_STOP_GRIND_RX.search(text)):
+            order = "fight_gym"
+        else:
             return
         if not self._pokemon_creator_order_live():
             return
         import json as _j
-        payload = {"order": "fight_gym", "raw": text.strip()[:200], "ts": time.time()}
+        payload = {"order": order, "raw": text.strip()[:200], "ts": time.time()}
         root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                             "pokemon_agent", "states")
         wrote = False

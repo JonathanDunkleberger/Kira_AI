@@ -22,6 +22,12 @@ HOLD = 8
 
 # Gen-1 legendaries (FireRed national-dex ids) — a big-beat recognition in run() (Phase 2D).
 _LEGENDARY_SPECIES = frozenset({144, 145, 146, 150, 151})   # Articuno, Zapdos, Moltres, Mewtwo, Mew
+# Diglett's Cave floors (campaign._PLACE_NAMES / frlg_connections) — common keepers; never KO on sight
+# when unowned (2026-08-02 Diglett chalk: Flash cave-cross fought every Diglett after Jonny said catch).
+_DIGLETT_CAVE_MAPS = frozenset({(1, 36), (1, 37), (1, 38)})
+_DIGLETT_LINE = frozenset({50, 51})  # Diglett, Dugtrio
+# Creator "catch that!" latch path (kira/bot.py -> states/*/creator_order.json).
+_CREATOR_ORDER_TTL_S = float(os.getenv("POKEMON_CREATOR_ORDER_TTL_S", "1800"))
 
 # SELF-DESTRUCT FAMILY (FireRed national-dex ids) — foes that can NUKE-TRADE our active: Self-
 # Destruct/Explosion one-shots even a dominant lead (koga_run3 2026-07-07: Koga's L37 Koffing
@@ -285,6 +291,74 @@ class BattleAgent:
     def _is_trainer_battle(self):
         """BATTLE_TYPE_TRAINER (0x08). Valid in-battle. Wild = can flee, trainer = can't."""
         return bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08)
+
+    def _creator_catch_order_path(self):
+        """First live creator_order.json under states/campaign or states/kira (same dirs the bot writes)."""
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "states")
+        for sub in ("campaign", "kira"):
+            p = os.path.join(root, sub, "creator_order.json")
+            if os.path.isfile(p):
+                return p
+        return None
+
+    def _peek_creator_catch_order(self):
+        """True when Jonny's voice latched order=catch_now and the TTL hasn't expired."""
+        import json as _j
+        path = self._creator_catch_order_path()
+        if not path:
+            return False
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = _j.load(f) or {}
+            if data.get("order") != "catch_now":
+                return False
+            ts = float(data.get("ts") or 0)
+            if not ts or time.time() - ts > _CREATOR_ORDER_TTL_S:
+                return False
+            return True
+        except Exception:
+            return False
+
+    def _clear_creator_catch_order(self):
+        """Release catch_now after a committed catch attempt settles (caught or abandoned)."""
+        import json as _j
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "states")
+        for sub in ("campaign", "kira"):
+            p = os.path.join(root, sub, "creator_order.json")
+            try:
+                if not os.path.isfile(p):
+                    continue
+                with open(p, encoding="utf-8") as f:
+                    data = _j.load(f) or {}
+                if data.get("order") == "catch_now":
+                    os.remove(p)
+                    self.log("   [engine] creator catch_now order CLEARED (fulfilled/released)")
+            except Exception as e:
+                self.log(f"   [engine] creator-catch clear skipped ({sub}): {e}")
+
+    def _party_owns_species(self, species_id):
+        """Cheap party-only owned check (box scan lives on Campaign; party covers the live Diglett case)."""
+        try:
+            n = min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)
+            for i in range(n):
+                if st.read_party_species(self.b, i) == species_id:
+                    return True
+        except Exception:
+            pass
+        return False
+
+    def _divert_wild_catch(self, reason, foe_name, max_seconds):
+        """Shared careful-capture divert (shiny / legendary / creator catch_now / Diglett keeper)."""
+        self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — {foe_name}: weaken+balls, never KO")
+        res = self.catch_pokemon(max_seconds=max(150, max_seconds), weaken=True)
+        if reason == "creator_catch_now":
+            self._clear_creator_catch_order()
+        if res != "caught" and st.in_battle(self.b) and reason in ("shiny", "legendary"):
+            self.emit(f"I couldn't catch it ({res}) — I am NOT killing a {reason}, I'm backing out.",
+                      beat=True, tier=3)
+            self.log(f"   [engine] {reason} capture failed ({res}) — fleeing to avoid KOing it")
+            return self.flee(max_seconds=60)
+        return res
 
     def _enemy_live_remaining(self):
         """F-7(c): how many LIVE mons remain in gEnemyParty (valid species, HP > 0). The party
@@ -2664,27 +2738,42 @@ class BattleAgent:
             self._bigmoment_done = True
             esp = state["enemy"]["species"]
             foe = st.SPECIES_NAME.get(esp, "this Pokémon")
+            _wild = not self._is_trainer_battle()
             if st.enemy_is_shiny(self.b):
                 self.emit(f"WAIT — STOP. that {foe} is SHINY. chat, do you SEE this — you can play this "
                           f"game for five years and never see one. this is real, this is happening.",
                           beat=True, tier=3)
-                if not self._is_trainer_battle():
-                    self.log(f"   [engine] ✨✨ SHINY wild {foe} — diverting to CAREFUL CAPTURE "
-                             f"(weaken+catch, never KO)")
-                    res = self.catch_pokemon(max_seconds=max(150, max_seconds), weaken=True)
-                    # SAFETY: if the catch failed (no balls / broke out / timed out) and the shiny is
-                    # STILL on the field, FLEE rather than fight — never KO a shiny (the tragedy), and
-                    # never leave the battle hanging (a wedge). A clean catch ends the battle -> return.
-                    if res != "caught" and st.in_battle(self.b):
-                        self.emit(f"I couldn't catch it ({res}) — I am NOT killing a shiny, I'm backing "
-                                  f"out. that hurts.", beat=True, tier=3)
-                        self.log(f"   [engine] shiny capture failed ({res}) — fleeing to avoid KOing it")
-                        return self.flee(max_seconds=60)
-                    return res
+                if _wild:
+                    return self._divert_wild_catch("shiny", foe, max_seconds)
                 self.log(f"   [engine] ✨ SHINY trainer {foe} — uncatchable, fighting (freak-out only)")
             elif esp in _LEGENDARY_SPECIES:
                 self.emit(f"that's a {foe}. a LEGENDARY. okay — okay, do NOT mess this up.",
                           beat=True, tier=3)
+                # Wild legendaries (Moltres/Articuno/Zapdos/Mewtwo) are CATCH moments — never KO on sight
+                # (2026-08-02 Jonny: "what if she finds the fire bird and just kills it").
+                if _wild:
+                    self.emit(f"balls out. weaken it carefully — we are NOT knocking out a legendary.",
+                              beat=True, tier=3)
+                    return self._divert_wild_catch("legendary", foe, max_seconds)
+            elif _wild and self._peek_creator_catch_order():
+                # Creator LAW (2026-08-02 Diglett chalk): "catch that!" must divert THIS battle — the
+                # conversational OK without a harness latch was the insta-kill loop on stream.
+                self.emit(f"catch order — switching to balls on this {foe}. weaken, don't KO.",
+                          beat=True, tier=2)
+                return self._divert_wild_catch("creator_catch_now", foe, max_seconds)
+            elif _wild and esp in _DIGLETT_LINE:
+                # Diglett's Cave keeper instinct: Diglett/Dugtrio are the Surge Ground answer — catch
+                # the first unowned one on sight instead of fighting through the cave (Flash cross).
+                try:
+                    import travel as _tv
+                    mid = tuple(_tv.map_id(self.b))
+                except Exception:
+                    mid = (0, 0)
+                if mid in _DIGLETT_CAVE_MAPS and not self._party_owns_species(50) \
+                        and not self._party_owns_species(51):
+                    self.emit(f"a {foe} — Diglett's Cave keeper. catching this one for the Ground slot.",
+                              beat=True, tier=2)
+                    return self._divert_wild_catch("diglett_keeper", foe, max_seconds)
 
         last_glob, stall = None, 0
         # victory_run7 (2026-07-07): gMoveToLearn is STALE across battles — snapshot at attach so

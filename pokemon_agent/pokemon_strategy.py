@@ -68,19 +68,31 @@ def roster_judgment(team, foe, dex_new=None, quality=None, also_owned=None):
              "coverage": coverage, "foe_level": foe.get("level"), "floor": floor,
              "lead": lead, "room": len(team) < 6, "dex_new": bool(dex_new), "tier": tier}
     lv = foe.get("level") or 0
-    if not facts["room"]:
-        return (False, f"my team's full — {name} would need someone to make way, and I like my six",
-                facts)
     if facts["dupe"]:
         return (False, f"I've already got one of those — a twin {name} doesn't make the team stronger",
                 facts)
+    # FULL PARTY + KEEPER/DEX-NEW (2026-08-02): FRLG auto-boxes on catch when the party is full —
+    # refusing a rare/strong/first-owned mon because "I like my six" was the Diglett-kill / shiny-
+    # tragedy class. Box the catch for the dex / later swap; bench composition is a separate verb.
+    if not facts["room"]:
+        if tier in ("rare_strong", "strong") or dex_new:
+            why = qnote or ("new dex entry" if dex_new else "keeper")
+            return (True, f"team's full but {name} is worth boxing — {why}. catch now, swap later",
+                    facts)
+        return (False, f"my team's full — {name} would need someone to make way, and I like my six",
+                facts)
     # KEEPER (species-quality) — the excited 'I know what this is' lean. A rare/strong mon is worth
     # grabbing even with no immediate type gap; a bit under-level is fine because it's a KEEPER I'll raise.
+    # LEVEL-UPGRADE (2026-08-02): a much stronger wild of a useful tier can replace paper bench later —
+    # still catch now (box if needed); the swap/PC polish is the next seam.
     if tier in ("rare_strong", "strong"):
         gap = f" — and it fills my {'/'.join(coverage)} gap" if coverage else ""
+        upgrade = ""
+        if lv >= lead + 5:
+            upgrade = f" — and it's L{lv}, way above my lead; that's a real upgrade body"
         excite = "oh—a {n}! that's a proper KEEPER".format(n=name) if tier == "rare_strong" \
             else "a {n} — that's a strong one, worth grabbing".format(n=name)
-        return (True, f"{excite}: {qnote}{gap}. I've got room and I want this one", facts)
+        return (True, f"{excite}: {qnote}{gap}{upgrade}. I've got room and I want this one", facts)
     if coverage:
         tt = "/".join(coverage)
         if lv >= max(2, floor - 6):
