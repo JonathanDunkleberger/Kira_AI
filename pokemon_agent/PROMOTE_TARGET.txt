@@ -1,0 +1,4 @@
+CKPT 20260802_135232_vermilion-city
+# Post-Flash Celadon road-head. She has (or will re-get) Flash; Vermilion is leg 1 of the
+# billed Celadon road (Vermilion → Route 6 → Cerulean → Route 9 → Rock Tunnel → Lavender → Celadon).
+# Do NOT pin mt-moon* / route-4* / diglett west-pocket — those rewind the march.

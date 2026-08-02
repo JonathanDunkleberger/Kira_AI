@@ -8994,13 +8994,167 @@ class Campaign:
 
     def _cleared_dungeon_avoid(self, state):
         """Maps that are CLOSED for re-entry once the story has moved past them. Post-Misty Mt. Moon
-        is dead XP and wrong-road; keep world.route / grass-target / keeper hops OUT of it."""
+        is dead XP and wrong-road; keep world.route / grass-target / keeper hops OUT of it.
+        Post-Flash Celadon push ALSO closes the Pewter/Route3 west pocket — the graph otherwise
+        walks Pewter→Route3→Route4 (Mt. Moon front) after the aide handoff (2026-08-02 live chalk)."""
+        out = set()
         try:
             if int(state.get("badge_count") or 0) >= 2:
-                return set(self._MT_MOON_MAPS)
+                out |= set(self._MT_MOON_MAPS)
         except Exception:
             pass
-        return set()
+        out |= self._post_flash_west_avoid(state)
+        return out
+
+    # Diglett's Cave west pocket + early Kanto — DEAD for the Celadon billed road (starts Vermilion).
+    _DIGLETT_CAVE_MAPS = {(1, 36), (1, 37), (1, 38)}
+    _FLASH_WEST_POCKET = {
+        ROUTE2, PEWTER, ROUTE3, VIRIDIAN, ROUTE1, PALLET, ROUTE22, (1, 0),
+    } | _DIGLETT_CAVE_MAPS
+    # Celadon billed spine + Diglett's east mouth (Route 11). Once here, Flash return is done.
+    _CELADON_SPINE_MAPS = {
+        VERMILION, (3, 24), (3, 23), CERULEAN, (3, 27), (3, 28), LAVENDER,
+        (3, 26), (3, 25), CELADON, (3, 29), (1, 81), (1, 82),
+    }
+
+    def _party_knows_flash(self):
+        try:
+            return st.party_knows_move(self.b, 148, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is not None
+        except Exception:
+            return False
+
+    def _on_celadon_spine(self, mid=None):
+        mid = tuple(mid or tv.map_id(self.b))
+        return mid in self._CELADON_SPINE_MAPS
+
+    def _post_flash_west_avoid(self, state):
+        """While Flash is taught and Erika is still next, NEVER graph-route through Pewter/Route 3
+        (that path dumps her at Mt. Moon's mouth — the post-Flash rewind). SRC map is always allowed
+        by world.route, so being stranded ON Pewter still escapes."""
+        try:
+            if int(state.get("badge_count") or 0) >= 4:
+                return set()
+            if not self._party_knows_flash():
+                return set()
+            ng = ((state.get("next_gym") or {}).get("city") or "")
+            if ng and ng != "Celadon City":
+                return set()
+            # Route 4 too — Cerulean→Route4 is the Mt.Moon-mouth rewind from the east side.
+            return {PEWTER, ROUTE3, ROUTE4}
+        except Exception:
+            return set()
+
+    def _diglett_east_to_vermilion(self):
+        """From the Flash west pocket (Route 2 / Diglett / Pewter…), cross Diglett's Cave EAST to
+        Route 11 → Vermilion — the Celadon road-head. Returns a status string; sets `_flash_returned`
+        ONLY when she is actually on the Celadon spine."""
+        ROUTE11 = (3, 29)
+        b = self.b
+        cur = tuple(tv.map_id(b))
+        if self._on_celadon_spine(cur):
+            self._flash_returned = True
+            return "already_spine"
+        log(f"   [flash-return] west-pocket rescue at {cur}@{tuple(tv.coords(b))} — "
+            f"Diglett EAST → Route 11 → Vermilion (NOT Pewter/Route3/Mt.Moon)")
+        self.on_event("Flash is done — Diglett's Cave east to Vermilion. "
+                      "that's the Celadon road, not back to Pewter.", kind="route", tier=2)
+        try:
+            if cur[0] != 3 and cur not in self._DIGLETT_CAVE_MAPS:
+                # Aide gatehouse / Pewter building / Forest gate — street first.
+                self._exit_to_overworld(max_tries=6)
+                cur = tuple(tv.map_id(b))
+            if cur in self._DIGLETT_CAVE_MAPS:
+                ok = self._cross_cave(None, ROUTE11)
+                if ok:
+                    self._edge_travel(VERMILION, "west")
+            elif cur == ROUTE2:
+                DIGLETT_R2_MOUTH, CAVE_EXIT_TILE = (17, 11), (17, 12)
+                AIDE_SOUTH_DOOR = (18, 46)
+
+                def _north_pocket():
+                    try:
+                        g = tv.Grid(b)
+                        return (tuple(tv.map_id(b)) == ROUTE2 and bool(tv.bfs(
+                            g, tuple(tv.coords(b)), lambda t: t == CAVE_EXIT_TILE,
+                            walkable=g.walkable)))
+                    except Exception:
+                        return False
+
+                for _ in range(4):
+                    if _north_pocket():
+                        break
+                    if tv.map_id(b)[0] != 3:
+                        self.enter_warp(prefer="north")
+                    else:
+                        self.enter_warp(pick=AIDE_SOUTH_DOOR)
+                if _north_pocket():
+                    self.trav.travel(target_map=None, arrive_coord=CAVE_EXIT_TILE, max_steps=400)
+                    r = self.enter_warp(pick=DIGLETT_R2_MOUTH)
+                    log(f"   [flash-return] cave-mouth enter -> {r} (now {tuple(tv.map_id(b))})")
+                    if r == "warped" and self._cross_cave(None, ROUTE11):
+                        self._edge_travel(VERMILION, "west")
+                else:
+                    log(f"   [flash-return] not in north pocket (on {tuple(tv.map_id(b))}) — "
+                        f"will retry next tick")
+            elif cur in (PEWTER, ROUTE3):
+                # Walk south/west toward Route 2 Diglett mouth — NOT east toward Mt. Moon.
+                go = "west" if cur == ROUTE3 else "south"
+                nxt = ROUTE2 if cur == PEWTER else PEWTER
+                log(f"   [flash-return] {cur} — {go} toward Diglett mouth (refuse Mt.Moon east)")
+                self._edge_travel(nxt, go)
+            elif cur in (VIRIDIAN, ROUTE1, PALLET, ROUTE22, (1, 0)):
+                # North/east toward Route 2 Diglett — never further south into Pallet nostalgia.
+                if cur == (1, 0):
+                    self._exit_to_overworld(max_tries=6)
+                elif cur == VIRIDIAN:
+                    self._edge_travel(ROUTE2, "north")
+                elif cur == ROUTE1:
+                    self._edge_travel(VIRIDIAN, "north")
+                else:
+                    self._edge_travel(VIRIDIAN, "north")
+            else:
+                log(f"   [flash-return] unexpected map {cur} — exit + retry")
+                if cur[0] != 3:
+                    self._exit_to_overworld(max_tries=4)
+        except Exception as _re:
+            log(f"   [flash-return] errored: {_re} (LOUD)")
+        now = tuple(tv.map_id(b))
+        if self._on_celadon_spine(now):
+            self._flash_returned = True
+            log(f"   [flash-return] ON CELADON SPINE at {now} — Flash detour closed")
+            self.on_event("back on the Celadon road. Rock Tunnel next — Flash is ready.",
+                          kind="route", tier=2)
+            return "returned"
+        return "progress"
+
+    def _rescue_post_flash_detour(self, state):
+        """Free-roam tick hook: after Flash, refuse the Pewter→Route3→Route4 rewind AND shove
+        Route-4 strand east into Cerulean (on the billed Celadon road)."""
+        bc = int(state.get("badge_count") or 0)
+        cur = tuple(state.get("map") or tv.map_id(self.b))
+        # Route 4 post-Cascade: east to Cerulean. Never sit at the Mt. Moon healing center.
+        if bc >= 2 and cur == ROUTE4:
+            log("   [roam] !! POST-CASCADE Route 4 — forcing EAST to Cerulean "
+                "(Mt. Moon is finished ground; Celadon road is Cerulean → Route 9 → Rock Tunnel)")
+            self.on_event("Route 4 — Mt. Moon's behind us. Cerulean east, then Rock Tunnel.",
+                          kind="route", tier=2)
+            self._edge_travel(CERULEAN, "east")
+            return "route4_east"
+        if bc >= 4 or not self._party_knows_flash():
+            return None
+        ng = ((state.get("next_gym") or {}).get("city") or "Celadon City")
+        if ng != "Celadon City":
+            return None
+        if self._on_celadon_spine(cur):
+            self._flash_returned = True
+            return None
+        if cur in self._FLASH_WEST_POCKET or (
+                cur[0] != 3 and cur not in self._MT_MOON_MAPS
+                and (state.get("place") or "").lower() in (
+                    "pewter city", "viridian city", "pallet town", "viridian forest",
+                    "route 2", "route 3", "diglett's cave")):
+            return self._diglett_east_to_vermilion()
+        return None
 
     def _escape_off_mission_mt_moon(self, state):
         """If she's already INSIDE post-Cascade Mt. Moon, get OUT. clear_mt_moon only works from 1F
@@ -9221,9 +9375,21 @@ class Campaign:
         # that for first-of-a-kind wilds ONLY. Cleared the instant Flash is known / dex hits 10.
         self._dex_catch_all = (st.party_knows_move(b, FLASH_MOVE, pc()) is None
                                and ram.pokedex_owned_count(b) < 10)
+        # Flash taught ≠ errand done. BUGFIX (2026-08-02 live): early flash_done + `_flash_returned=True`
+        # BEFORE Diglett-east succeeded left her on Route 2; graph walked Pewter→Route3→Route4 (Mt.Moon).
+        # Stay in the errand (or free-roam rescue) until she's on the Celadon spine (Vermilion+).
         if st.party_knows_move(b, FLASH_MOVE, pc()) is not None:
             self._dex_catch_all = False
-            return "flash_done"
+            if self._on_celadon_spine():
+                self._flash_returned = True
+                return "flash_done"
+            log("   [flash-errand] Flash already taught but still WEST of Diglett's — "
+                "forcing Vermilion road-head before clearing the questline")
+            self._diglett_east_to_vermilion()
+            if self._on_celadon_spine():
+                self._flash_returned = True
+                return "flash_done"
+            return "flash_progress"
 
         def _catch_to_10(where, tries=6):
             # EARLY-BAIL on a dupe-heavy map (2026-07-09): catch_one wanders until it catches SOMETHING
@@ -9352,83 +9518,15 @@ class Campaign:
                     ht.TeachFlow(self, log=lambda m: log(m), on_event=self.on_event).teach(
                         "flash", slot, forget_idx)
             if st.party_knows_move(b, FLASH_MOVE, pc()) is not None:
-                # RETURN TO THE CELADON ROAD-HEAD (2026-07-09 shift 2): the aide strip (Route 2) is a
-                # south-west DEAD POCKET — from here forward-drive ping-pongs Viridian<->Route 2 to a STALL
-                # (the billed Celadon road starts at VERMILION, and the only link back is EAST through
-                # Diglett's Cave, a warp-maze the world-graph won't route across). So the instant Flash is
-                # learnt, steer her back ONCE: re-cross the cave east to Route 11 -> Vermilion, where
-                # head_to_gym's billed Celadon road (Route 6 -> Underground Path) picks up cleanly.
-                if not getattr(self, "_flash_returned", False):
+                # RETURN TO THE CELADON ROAD-HEAD — every tick until spine, NOT once-and-forget.
+                # (2026-08-02: old code set `_flash_returned=True` before Diglett-east succeeded.)
+                log("   [flash-errand] Flash learnt — Diglett EAST to Vermilion road-head "
+                    "(questline stays open until she's on the Celadon spine)")
+                self._diglett_east_to_vermilion()
+                if self._on_celadon_spine():
                     self._flash_returned = True
-                    log("   [flash-errand] Flash learnt — returning EAST across Diglett's Cave to the "
-                        "Vermilion road-head (Route 2 is a SW dead-pocket)")
-                    try:
-                        # BUGFIX (2026-07-09 shift 3): the shift-2 return called _cross_cave(None,..)
-                        # which means "already inside — skip the entry warp". But the teach leaves her
-                        # INSIDE the aide GATEHOUSE (a group!=3 interior); _cross_cave then treated the
-                        # gatehouse as the cave, walked her out its door to a Route-2 pocket, and returned
-                        # False (never entering Diglett's Cave) -> _edge_travel skipped -> Route2<->Viridian
-                        # ping-pong STALL. FIX: (1) exit to the Route 2 overworld first, (2) explicitly
-                        # ENTER Diglett's Cave via its Route-2 mouth (17,11)->(1,36), (3) cross east to
-                        # Route 11, (4) edge-travel to Vermilion. The forward cross EXITS the cave at
-                        # (17,12) — right beside (17,11) — and reaches the aide from there, so the aide
-                        # pocket reaches the mouth.
-                        # The Diglett's Cave Route-2 mouth (17,11)->(1,36); its south-approach /
-                        # cave-EXIT tile is (17,12). A CUT tree sits between the aide-door pocket
-                        # and the mouth pocket, and it REGROWS on the gatehouse map-reload — so
-                        # enter_warp's plain-BFS reachability pre-check (tree=wall) would skip the
-                        # mouth. travel()'s obstacle handler CUTS the regrown tree (she owns Cut),
-                        # so route to the cave-exit tile FIRST (crosses into the mouth pocket), THEN
-                        # enter_warp fires trivially from right beside it.
-                        DIGLETT_R2_MOUTH, CAVE_EXIT_TILE = (17, 11), (17, 12)
-                        AIDE_SOUTH_DOOR = (18, 46)
-                        # REACH THE CAVE-MOUTH (NORTH) POCKET (2026-07-09 shift 3, geometry-verified via
-                        # recon_gate_exit): the aide gate (15,2) is a PASS-THROUGH. She enters from the
-                        # SOUTH door (18,46) via a ONE-WAY LEDGE and the teach leaves her inside; its south
-                        # interior door (7,10) drops back onto (18,47) [SOUTH pocket — walled off from the
-                        # cave mouth by that ledge, un-cuttable], its NORTH door (7,1) exits to (18,41)
-                        # [NORTH pocket, which reaches the mouth]. So exit NORTH; if she's already been
-                        # dumped into the south pocket, re-enter the gate and exit north. Only THEN is the
-                        # cave mouth walk-reachable.
-                        def _north_pocket():
-                            try:
-                                g = tv.Grid(b)
-                                return (tuple(tv.map_id(b)) == ROUTE2 and bool(tv.bfs(
-                                    g, tuple(tv.coords(b)), lambda t: t == CAVE_EXIT_TILE,
-                                    walkable=g.walkable)))
-                            except Exception:
-                                return False
-                        for _ in range(4):
-                            if _north_pocket():
-                                break
-                            if tv.map_id(b)[0] != 3:                # inside the gate -> exit north door
-                                self.enter_warp(prefer="north")
-                            else:                                  # on Route 2 (south pocket) -> re-enter
-                                self.enter_warp(pick=AIDE_SOUTH_DOOR)
-                        cur_r = tuple(tv.map_id(b))
-                        log(f"   [flash-errand] return: on {cur_r}@{tuple(tv.coords(b))} "
-                            f"(north_pocket={_north_pocket()}); routing to the Diglett's Cave mouth "
-                            f"{DIGLETT_R2_MOUTH} (cutting the regrown tree)")
-                        if cur_r == ROUTE2 and _north_pocket():
-                            # travel to the cave-exit tile first — travel's obstacle handler CUTS the
-                            # regrown tree (18,26) between the north-door landing and the mouth; enter_warp's
-                            # plain-BFS pre-check treats a regrown tree as a wall and would skip the mouth.
-                            self.trav.travel(target_map=None, arrive_coord=CAVE_EXIT_TILE,
-                                             max_steps=400)
-                            r = self.enter_warp(pick=DIGLETT_R2_MOUTH)
-                            log(f"   [flash-errand] return: cave-mouth enter -> {r} "
-                                f"(now on {tuple(tv.map_id(b))})")
-                            if r == "warped" and self._cross_cave(None, ROUTE11):
-                                self._edge_travel(VERMILION, "west")
-                            else:
-                                log("   [flash-errand] return: cave re-entry failed — releasing to "
-                                    "roam (head_to_gym owns the road retry) (LOUD)")
-                        else:
-                            log(f"   [flash-errand] return: couldn't reach the cave-mouth pocket "
-                                f"(on {cur_r}) — releasing to roam (LOUD)")
-                    except Exception as _re:
-                        log(f"   [flash-errand] road-head return skipped ({_re}) (LOUD)")
-                return "flash_done"
+                    return "flash_done"
+                return "flash_progress"
             return "flash_progress"
         # PHASE 1 — walk the billed back-legs home + east to Route 11.
         if cur in self._FLASH_BACK_LEGS:
@@ -15053,13 +15151,29 @@ class Campaign:
                     self._auto_checkpoint(f"gain-{_gain_reason}" if _gain_reason else "periodic")
                     self._last_ckpt_t = _now
             self._wait_overworld()
+            # POST-FLASH / ROUTE-4 RESCUE (2026-08-02 chalk #2): after Flash she rewound
+            # Pewter→Route3→Mt.Moon mouth; also parks on Route 4 forever. Force Diglett→Vermilion
+            # or Route4→Cerulean BEFORE any other roam pick can dig her deeper west.
+            _bc_now = sum(1 for i in range(8) if self.has_badge(0x820 + i))
+            # badge 3 ⇒ Erika/Celadon. Route4→Cerulean still applies at badge≥2 even without Flash.
+            _here = {
+                "map": tuple(tv.map_id(self.b)),
+                "badge_count": _bc_now,
+                "next_gym": {"city": "Celadon City"} if _bc_now == 3 else None,
+                "place": self._place_name(tuple(tv.map_id(self.b)), default=""),
+            }
+            _fr = self._rescue_post_flash_detour(_here)
+            if _fr is not None:
+                ledger.note_action("rescue_flash_detour", str(_fr))
+                if _fr in ("returned", "already_spine", "route4_east", "progress"):
+                    continue
             # OFF-MISSION MT. MOON ESCAPE (2026-08-02 chalk): post-Cascade she wandered into Mt. Moon
             # (graph prior / Diglett adjacency) and narrated it as Rock Tunnel. Escape on-foot via the
             # proven clear_mt_moon plan BEFORE any other roam pick can dig her deeper. Teleport rescue
             # stays retired — this is the on-foot substitute.
             _esc = self._escape_off_mission_mt_moon({
                 "map": tuple(tv.map_id(self.b)),
-                "badge_count": sum(1 for i in range(8) if self.has_badge(0x820 + i)),
+                "badge_count": _bc_now,
             })
             if _esc is not None:
                 ledger.note_action("escape_mt_moon", str(_esc))
