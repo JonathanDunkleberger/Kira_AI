@@ -695,6 +695,11 @@ GYM_PARTY_TARGET     = int(os.getenv("POKEMON_GYM_PARTY_TARGET", "3"))     # aim
 GYM_READINESS_FLOOR_ENABLED = os.getenv("POKEMON_GYM_READINESS_FLOOR", "1") == "1"
 GYM_PREP_CATCH_TRIES = int(os.getenv("POKEMON_GYM_PREP_CATCH_TRIES", "3")) # bounded catch attempts per prep
 GYM_COVERAGE_TEACH   = os.getenv("POKEMON_GYM_COVERAGE_TEACH", "1") == "1" # teach the ace a coverage move
+# BAG-TM TEACH (2026-08-02): opportunistic — TMs sitting in the case go onto the neediest
+# compatible mon (Teleport-only Abra, plan teach targets), not only the ace at a type wall.
+# Single-use: ROM tm_compatible before every teach. Revert: POKEMON_BAG_TM_TEACH=0.
+BAG_TM_TEACH_ENABLED = os.getenv("POKEMON_BAG_TM_TEACH", "1") == "1"
+BAG_TM_TEACH_MAX = int(os.getenv("POKEMON_BAG_TM_TEACH_MAX", "1"))  # per dispatch (badge / action)
 
 # COVERAGE-TEACH KB (2026-07-10, the Erika grass wall) — when the ACE's whole offense is RESISTED by a
 # gym's typing, teach it a neutral-or-better damaging move from a bag TM/HM. The Erika root: L43 Venusaur's
@@ -715,12 +720,14 @@ _COVERAGE_MOVES = {
     314: (None, 26, 89, "ground", 100),          # TM26 Earthquake
     317: (None, 29, 94, "psychic", 90),          # TM29 Psychic
     318: (None, 30, 247, "ghost", 80),           # TM30 Shadow Ball
-    319: (None, 31, 280, "fighting", 75),        # TM31 Brick Break
+    319: (None, 31, 280, "fighting", 75),        # TM31 Brick Break — Abra CAN learn (not Shock Wave)
     323: (None, 35, 53, "fire", 95),             # TM35 Flamethrower
     326: (None, 38, 126, "fire", 120),           # TM38 Fire Blast
-    291: (None, 3, 145, "water", 60),            # TM03 Water Pulse
+    291: (None, 3, 352, "water", 60),            # TM03 Water Pulse (NOT Bubble #145)
     327: (None, 39, 317, "rock", 50),            # TM39 Rock Tomb
-    322: (None, 34, 351, "electric", 60),        # TM34 Shock Wave
+    322: (None, 34, 351, "electric", 60),        # TM34 Shock Wave — Pikachu/Raichu (NOT Abra)
+    311: (None, 23, 231, "steel", 100),          # TM23 Iron Tail — Abra-compatible nuke
+    328: (None, 40, 332, "flying", 60),          # TM40 Aerial Ace — Spearow/Fearow STAB
 }
 
 
@@ -4424,6 +4431,142 @@ class Campaign:
                           kind="gym", tier=2)
         return res
 
+    def _plan_teach_boosts(self):
+        """(tm_no -> set of species names) from TeamPlanner teach_plan rows that are due now."""
+        out = {}
+        try:
+            tp = getattr(self, "team_planner", None)
+            if tp is None:
+                return out
+            state = self.read_live_state() or {}
+            due = tp._due_teach(state.get("party") or [], int(state.get("badge_count", 0)))
+            if due and due.get("tm") and due.get("mon"):
+                raw = str(due["tm"]).upper().replace("TM", "")
+                try:
+                    tno = int(raw)
+                except Exception:
+                    tno = None
+                if tno:
+                    out.setdefault(tno, set()).add(str(due["mon"]).lower())
+        except Exception:
+            pass
+        return out
+
+    def _plan_bag_tm_teach(self):
+        """Best (item, tm_no, move_id, mtype, power, slot, forget_idx, mon_name) for one bag TM,
+        or None. Pure selection + ROM compat; does not actuate. Skips HMs (questline owns those)."""
+        if not BAG_TM_TEACH_ENABLED:
+            return None
+        import hm_teach as ht
+        pc = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        if not pc:
+            return None
+        try:
+            ace_slot = max(range(pc),
+                           key=lambda s: self.b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54))
+        except Exception:
+            ace_slot = 0
+        boosts = self._plan_teach_boosts()
+        best = None  # (score, item, tm_no, move_id, mtype, power, slot, forget_idx, mon)
+        for item, (hm_key, tm_no, move_id, mtype, power) in _COVERAGE_MOVES.items():
+            if hm_key is not None or tm_no is None:
+                continue                                  # HMs have their own teach bridge
+            if (power or 0) <= 0:
+                continue                                  # status TMs (Calm Mind) — not this path
+            if ht.tm_case_row(self.b, item) is None:
+                continue
+            if tm_no is not None:
+                rt, rp = st.move_info(self.b, move_id)
+                if (rt or "").lower() != mtype:
+                    log(f"   BAG-TM: TM{tm_no:02d} move#{move_id} ROM type {rt!r}!={mtype!r} — skip (LOUD)")
+                    continue
+            for slot in range(pc):
+                sp = st.read_party_species(self.b, slot)
+                if not sp or not ht.tm_compatible(self.b, tm_no, sp):
+                    continue
+                moves = st.read_party_moves(self.b, slot)
+                if move_id in moves:
+                    continue
+                dmg = []
+                for m in moves:
+                    if not m:
+                        continue
+                    mt, mp = st.move_info(self.b, m)
+                    if (mp or 0) > 0:
+                        dmg.append((mt or "normal", mp))
+                mon = (st.SPECIES_NAME.get(sp) or f"slot{slot}").lower()
+                # plan boost: teach_plan target OR same evolutionary line name substring
+                plan_boost = mon in (boosts.get(tm_no) or set())
+                if not plan_boost:
+                    for tgt in (boosts.get(tm_no) or set()):
+                        if tgt in mon or mon in tgt:
+                            plan_boost = True
+                            break
+                # also boost Abra-line for Psychic/Shadow Ball/Brick Break/Iron Tail even
+                # before teach_plan badge gate — empty offense is the whole point
+                if mon in ("abra", "kadabra", "alakazam") and tm_no in (29, 30, 31, 23, 24, 13):
+                    plan_boost = True
+                score = ht.score_tm_recipient(
+                    dmg, st.species_types(sp), mtype, power,
+                    plan_boost=plan_boost, is_ace=(slot == ace_slot))
+                if score < 0:
+                    continue
+                # Minimum bar: neediest (no damage) OR plan/STAB with real power — don't burn
+                # Shock Wave on a full Blastoise that already murders everything.
+                if score < 80 and dmg:
+                    continue
+                forget_idx = ht.forget_idx_for_tm(self.b, slot)
+                cand = (score, item, tm_no, move_id, mtype, power, slot, forget_idx, mon)
+                if best is None or cand[0] > best[0]:
+                    best = cand
+        if best is None:
+            return None
+        _sc, item, tm_no, move_id, mtype, power, slot, forget_idx, mon = best
+        return {
+            "item": item, "tm_no": tm_no, "move_id": move_id, "mtype": mtype,
+            "power": power, "slot": slot, "forget_idx": forget_idx, "mon": mon,
+            "score": _sc,
+        }
+
+    def teach_bag_tms(self, max_teaches=None):
+        """Opportunistic bag-TM teach (2026-08-02 dream): spend single-use TMs on the neediest
+        compatible teammate — Teleport-only Abra before a full-moveset ace. Bounded, best-effort,
+        never blocks the caller. Returns 'taught' | 'nothing' | 'failed' | 'off'."""
+        if not BAG_TM_TEACH_ENABLED:
+            return "off"
+        import hm_teach as ht
+        n = max_teaches if max_teaches is not None else BAG_TM_TEACH_MAX
+        taught_any = False
+        for _ in range(max(1, n)):
+            plan = self._plan_bag_tm_teach()
+            if not plan:
+                break
+            label = f"TM{plan['tm_no']:02d}"
+            mon = plan["mon"]
+            self.on_event(
+                f"{mon} needs a real move — teaching {label} from the case. "
+                f"that's what the TM case is for.",
+                kind="team", tier=2)
+            log(f"   BAG-TM: teaching {label} ({plan['mtype']} {plan['power']}) -> {mon} "
+                f"slot {plan['slot']} (score {plan['score']}, forget={plan['forget_idx']})")
+            tf = ht.TeachFlow(self, log=log, on_event=self.on_event)
+            res = tf.teach("_tm", plan["slot"], plan["forget_idx"],
+                           item_override=plan["item"], move_override=plan["move_id"])
+            log(f"   BAG-TM: {label} -> {mon} -> {res}")
+            if res == "taught":
+                taught_any = True
+                try:
+                    tp = getattr(self, "team_planner", None)
+                    if tp is not None:
+                        tp.on_teach(f"TM{plan['tm_no']:02d}", mon)
+                except Exception:
+                    pass
+                self.on_event(f"{mon} knows {label} now — finally something that hits.",
+                              kind="team", tier=2)
+            else:
+                return res if not taught_any else "taught"
+        return "taught" if taught_any else "nothing"
+
     def beat_gym(self, name):
         """GENERAL gym handler (gyms gate the leader behind their junior trainers): reserve move
         slots if this gym has a level-up double-learn, enter, BEAT EVERY JUNIOR TRAINER, then engage
@@ -4714,6 +4857,14 @@ class Campaign:
                         pn.goto_region(_adj, label="pads->exit")
                 self._exit_to_overworld()                      # the city via the general hardened exit
                 log(f"   GYM: exit -> now {tv.map_id(self.b)}@{tv.coords(self.b)}")
+            # BAG-TM TEACH (2026-08-02): gym reward TMs land in the case during the award drain —
+            # spend them on the neediest compatible mon (Teleport-only Abra, plan targets) NOW,
+            # overworld menus clean. Best-effort; never undoes the badge.
+            try:
+                _tmr = self.teach_bag_tms(max_teaches=BAG_TM_TEACH_MAX)
+                log(f"   GYM: post-badge bag-TM teach -> {_tmr}")
+            except Exception as _tme:
+                log(f"   GYM: post-badge bag-TM teach crashed ({_tme}) — continuing (LOUD)")
             return "badge"
         log(f"   !! GYM: {name} not beaten / no badge flag"); return "stuck"
 
@@ -12226,6 +12377,15 @@ class Campaign:
         _heal_dead = tuple(state.get("map") or ()) in getattr(self, "_heal_dead_maps", set())
         if (self.needs_heal() or sev == "hurt") and not _heal_dead:
             a["heal"] = "go to a Pokemon Center and heal the team up"
+        # BAG-TM TEACH offer: a useful single-use TM in the case + a neediest compatible mon
+        # (Abra with only Teleport, plan teach targets). She picks it like a human opening the case.
+        if BAG_TM_TEACH_ENABLED:
+            try:
+                if self._plan_bag_tm_teach() is not None:
+                    a["teach_tm"] = ("teach a TM from your case onto a teammate who needs it — "
+                                     "empty offense or a coverage hole you've been sitting on")
+            except Exception as _pte:
+                log(f"   [roam] bag-TM plan skipped: {_pte}")
         # PP DEPLETION (Phase 4) — a Center restores PP, not just HP. When the lead can barely act
         # (≤1 move with PP left) she can neither weaken-to-catch nor fight safely — the depleted spiral
         # that froze her vs Mankey + burned her balls. Offer heal even at full HP so she tops up first.
@@ -13566,6 +13726,12 @@ class Campaign:
         """Route an oracle ACTION pick to its wired handler; return the handler's outcome string."""
         # HUD now-state label (BATTLE is detected live via in_battle() at publish time).
         self._now_state = {"heal": "HEALING", "stock_up": "SHOPPING"}.get(pick, "EXPLORING")
+        if pick == "teach_tm":
+            try:
+                return self.teach_bag_tms(max_teaches=BAG_TM_TEACH_MAX)
+            except Exception as e:
+                log(f"   [roam] teach_tm crashed ({e}) (LOUD)")
+                return "failed"
         if pick == "heal":
             _hp0 = (tuple(tv.map_id(self.b)), tuple(tv.coords(self.b) or ()))
             _hr = self.heal_nearest()
@@ -14680,6 +14846,20 @@ class Campaign:
             # (west to Route 4) and never trigger the gate. Self-clears the instant the flag reads satisfied.
             self._ensure_forward_questline(state)
             avail = self._available_actions(state)
+            # BAG-TM AUTO (empty offense): Teleport-only Abra etc. — a human opens the case
+            # immediately, doesn't wait for the oracle to notice. Score >=1000 = zero damaging
+            # moves on the recipient. One teach, then rebuild avail (offer drops once spent).
+            if BAG_TM_TEACH_ENABLED and "teach_tm" in avail:
+                try:
+                    _btp = self._plan_bag_tm_teach()
+                    if _btp and int(_btp.get("score") or 0) >= 1000:
+                        log(f"   [roam] !! BAG-TM AUTO: {_btp['mon']} has no damaging moves — "
+                            f"teaching TM{_btp['tm_no']:02d} now (not waiting on the oracle)")
+                        _btr = self.teach_bag_tms(max_teaches=1)
+                        log(f"   [roam] BAG-TM AUTO -> {_btr}")
+                        avail = self._available_actions(state)
+                except Exception as _bte:
+                    log(f"   [roam] BAG-TM AUTO skipped: {_bte}")
             party_str = ", ".join(f"{m['species']} L{m['level']}" for m in state["party"]) or "(none)"
             # MACRO PROGRESS LEDGER (increment 3): fingerprint THIS tick + escalate if the world has
             # sat unchanged across her last actions. GREEN=progressing / YELLOW=not getting anywhere /

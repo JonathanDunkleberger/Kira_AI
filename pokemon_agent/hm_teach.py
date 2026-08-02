@@ -447,6 +447,55 @@ def tm_compatible(b, tm_no, species):
 # expendable move classes for the forget choice: pure-status/no-power utility first, never the
 # mon's strongest damaging move.
 _PRECIOUS = {73}                              # leech seed etc. — never auto-forget
+# Field / battle-useless fillers — prefer these when a 4-move mon must forget for a bag TM.
+_FORGET_FIRST = {100}                         # Teleport (Abra's only move until Kadabra)
+
+
+def score_tm_recipient(dmg_moves, mon_types, tm_type, tm_power, *, plan_boost=False, is_ace=False):
+    """How badly `mon` needs this damaging TM. dmg_moves = [(type, power), ...] already known.
+    Returns score (>=0 worth teaching) or -1 (skip — already has comparable coverage).
+    Pure logic for recon; campaign uses this to pick Abra-over-Blastoise etc."""
+    tm_type = (tm_type or "").lower()
+    tm_power = int(tm_power or 0)
+    if tm_power <= 0 or not tm_type:
+        return -1
+    for mt, mp in dmg_moves:
+        if (mt or "").lower() == tm_type and int(mp or 0) >= int(tm_power * 0.8):
+            return -1
+    score = 0
+    if not dmg_moves:
+        score += 1000                               # Teleport-only Abra — the dream case
+    elif max(int(p or 0) for _, p in dmg_moves) < 40:
+        score += 200                                # thin offense
+    types = {(t or "").lower() for t in (mon_types or []) if t and t != "???"}
+    if tm_type in types:
+        score += 80                                 # STAB platform
+    if plan_boost:
+        score += 400                                # TeamPlanner teach_plan due
+    if is_ace and dmg_moves:
+        score -= 40                                 # prefer projects when the ace already fights
+    score += tm_power
+    return score
+
+
+def forget_idx_for_tm(b, mon_slot):
+    """Forget index for a bag-TM teach: None if room; else Teleport/0-power first, never precious."""
+    moves = st.read_party_moves(b, mon_slot)
+    real = [m for m in moves if m]
+    if len(real) < 4 or 0 in moves:
+        return None
+    scored = []
+    for i, m in enumerate(moves):
+        if not m or m in _PRECIOUS:
+            continue
+        _t, power = st.move_info(b, m)
+        # Teleport first, then pure status, then weakest damage
+        tier = 0 if m in _FORGET_FIRST else (1 if (power or 0) <= 0 else 2)
+        scored.append((tier, power or 0, i))
+    if not scored:
+        return 0
+    scored.sort()
+    return scored[0][2]
 
 
 def default_plan(b, hm_key, party_count):

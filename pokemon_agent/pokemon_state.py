@@ -138,7 +138,8 @@ MOVE_NAMES = {
     52: "Ember", 108: "Smokescreen", 82: "Dragon Rage", 232: "Metal Claw",
     22: "Vine Whip", 74: "Growth", 73: "Leech Seed", 77: "PoisonPowder",
     79: "Sleep Powder", 75: "Razor Leaf",     55: "Water Gun", 145: "Bubble", 352: "Water Pulse", 56: "Hydro Pump",
-    250: "Whirlpool", 308: "Hydro Cannon",
+    250: "Whirlpool", 308: "Hydro Cannon", 231: "Iron Tail", 332: "Aerial Ace",
+    280: "Brick Break", 351: "Shock Wave",
     44: "Bite", 99: "Rage", 84: "Thunder Shock", 88: "Rock Throw", 111: "Defense Curl",
     # HM field moves (ids from campaign's TEACH BRIDGE): without these her oracle move-drop
     # ctx rendered a learned HM as "move#15" instead of "Cut" (soul gap — she'd narrate the
