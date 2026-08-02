@@ -9003,24 +9003,50 @@ class Campaign:
         return set()
 
     def _escape_off_mission_mt_moon(self, state):
-        """If she's already INSIDE post-Cascade Mt. Moon, clear east to Cerulean via the proven plan
-        (clear_mt_moon). Teleport rescue is retired — this is on-foot escape. Returns status or None."""
+        """If she's already INSIDE post-Cascade Mt. Moon, get OUT. clear_mt_moon only works from 1F
+        plan start — mid-floor PLAN-MISMATCH used to return 'stuck' every tick and `continue` forever
+        (2026-08-02 Route4 TP chalk: she froze, then escape-hatch rewound to the Route 4 Center).
+        Returns a status string to re-tick, or None to fall through to normal roam / leave_building."""
         mid = tuple(state.get("map") or ())
         if mid not in self._MT_MOON_MAPS:
+            self._mt_moon_escape_tries = 0
             return None
         if int(state.get("badge_count") or 0) < 2:
             return None
+        tries = int(getattr(self, "_mt_moon_escape_tries", 0))
+        if tries >= 2:
+            # Exhausted — STOP parking the tick. Let leave_building / Dig / roam move her.
+            log("   [roam] !! OFF-MISSION Mt.Moon escape EXHAUSTED — releasing tick to leave_building "
+                f"(still at {mid})")
+            self._ql_inside_target = False
+            return None
+        self._mt_moon_escape_tries = tries + 1
         place = self._place_name(mid, default="Mt. Moon")
         log(f"   [roam] !! OFF-MISSION: inside {place} ({mid}) with "
-            f"{state.get('badge_count')} badges — escaping via clear_mt_moon (NOT Rock Tunnel)")
+            f"{state.get('badge_count')} badges — escape try {self._mt_moon_escape_tries}/2")
         self.on_event("wait — this is Mt. Moon, not Rock Tunnel. I've already cleared this cave. "
-                      "getting out and back on the road east.", kind="route", tier=3)
-        out = self.clear_mt_moon()
-        log(f"   [roam] Mt. Moon off-mission escape -> {out} (now {tv.map_id(self.b)})")
-        if out == "cleared":
-            self.on_event("out of Mt. Moon — Cerulean side. Celadon road, not nostalgia tourism.",
-                          kind="route", tier=2)
-        return out or "stuck"
+                      "getting out.", kind="route", tier=3)
+        if mid == (1, 1) and tries == 0:
+            out = self.clear_mt_moon()
+            log(f"   [roam] Mt. Moon clear_mt_moon -> {out} (now {tv.map_id(self.b)})")
+            if out == "cleared":
+                self._mt_moon_escape_tries = 0
+                self.on_event("out of Mt. Moon — Cerulean side. Celadon road, not nostalgia tourism.",
+                              kind="route", tier=2)
+                return "cleared"
+        # Mid-floor / plan mismatch / second try: generic door exit (not the full moon plan).
+        log("   [roam] Mt.Moon: using EXIT-TO-OVERWORLD (plan can't resume mid-floor)")
+        try:
+            self._exit_to_overworld(max_tries=8)
+        except Exception as _ee:
+            log(f"   [roam] Mt.Moon exit_to_overworld errored: {_ee}")
+        now = tuple(tv.map_id(self.b))
+        if now not in self._MT_MOON_MAPS:
+            self._mt_moon_escape_tries = 0
+            log(f"   [roam] Mt.Moon ESCAPED via doors -> {now}")
+            self.on_event("out — back on the overworld. Celadon road from here.", kind="route", tier=2)
+            return "escaped_doors"
+        return "stuck"
 
     def _story_gate_avoid(self, state):
         """Story-gated maps to keep OUT of graph ROUTING until the key item is owned. The world graph is
@@ -9243,7 +9269,10 @@ class Campaign:
         # here" is ALWAYS cross Diglett's Cave to Route 2 (an un-swept catch source), NEVER give up. Counting
         # Route 11 tripped DEX-BLOCKED at dex 9 the moment she had balls to over-hunt it, short-circuiting the
         # cave cross below. Only Route 2 (the terminal catch strip) + inside the cave count toward the stall.
-        _catch_phase = (cur == ROUTE2 or cur[0] != 3)
+        # Diglett's Cave interiors ONLY — never Route 4 PC / Mt. Moon / random houses
+        # (same chalk as PHASE 3: `cur[0] != 3` poisoned the stall counter + flash_stuck).
+        _DIGLETT_CAVE_STALL = {(1, 36), (1, 37), (1, 38)}
+        _catch_phase = (cur == ROUTE2 or cur in _DIGLETT_CAVE_STALL)
         if _dex > getattr(self, "_flash_dex_hi", -1):
             self._flash_dex_hi, self._flash_nogain = _dex, 0
         elif _catch_phase:
@@ -9254,11 +9283,11 @@ class Campaign:
                 f"catching or an off-errand route sweep, e.g. Route 24/25). Surfacing, not spinning.")
             return "flash_stuck"
 
-        # PHASE 3 — inside Diglett's Cave (non-overworld): catch AT MOST ONE Diglett if unowned,
-        # then FIGHT-cross to Route 2. Diglett has Arena Trap — flee ALWAYS fails (2026-08-02 chalk:
-        # RUN-spam livelock after emptying balls on duplicate Digletts). Dex gaps past one Diglett
-        # are filled on Route 2 grass (Caterpie/Weedle), NOT by balling every Diglett in the cave.
-        if cur[0] != 3:
+        # PHASE 3 — Diglett's Cave ONLY (1,36..38). BUGFIX (2026-08-02 Route4 TP chalk): the old
+        # `cur[0] != 3` treated Route 4 PC / Mt. Moon / every interior as Diglett's Cave and tried
+        # `_cross_cave` to Route 2 forever (flash_stuck + escape-hatch rewind).
+        _DIGLETT_CAVE = {(1, 36), (1, 37), (1, 38)}
+        if cur in _DIGLETT_CAVE:
             _have_ground = any(sid in self._owned_species_ids() for sid in (50, 51))
             try:
                 _have_ground = _have_ground or ram.pokedex_owns(b, 50) or ram.pokedex_owns(b, 51)
@@ -9281,6 +9310,15 @@ class Campaign:
             finally:
                 self.trav.battle_runner = saved_runner
             return "flash_progress" if ok else "flash_stuck"
+        if cur[0] != 3:
+            # Wrong interior during Flash (Route 4 Center, Mt. Moon, random house) — get OUTSIDE.
+            log(f"   [flash-errand] inside non-Diglett interior {cur} "
+                f"({self._place_name(cur)}) — exiting to overworld (not Diglett's Cave)")
+            try:
+                self._exit_to_overworld(max_tries=6)
+            except Exception as _xe:
+                log(f"   [flash-errand] exit_to_overworld skipped: {_xe}")
+            return "flash_progress"
         # PHASE 2 — on Route 11: catch fresh species (Drowzee), then cross Diglett's Cave (north mouth ->
         # Route 2). Exhausted-memo: once Route 11 yields no new species, skip the re-catch (else with a full
         # ball pocket catch_one wanders the whole route 90s/pass hunting a non-dupe that isn't there) and go
@@ -13236,10 +13274,11 @@ class Campaign:
                             q = self._active_questline
                             a["head_to_gym"] = (
                                 f"PUSH FORWARD — the way ahead is blocked ({q.gate.human}), and the move "
-                                f"that opens it is to {q.actionable.human}. Go DO that now: it's the road "
-                                f"FORWARD toward the next badge. Grind the trainers and grass ON THE WAY if "
-                                f"you want, but keep heading to the objective — never backward into "
-                                f"somewhere you've already cleared.")
+                                f"that opens it is to {q.actionable.human}. Go DO that now: that errand "
+                                f"IS the road FORWARD toward the next badge (Diglett's Cave → Route 2 "
+                                f"for Flash is FORWARD for Celadon — Rock Tunnel stays dark without it; "
+                                f"it is NOT Pewter nostalgia). Grind trainers ON THE WAY if you want, "
+                                f"but finish the errand — don't sit at a Center narrating Celadon.")
                         else:
                             aname = self.world.name(anchor)
                             a["head_to_gym"] = (
@@ -15024,7 +15063,10 @@ class Campaign:
             })
             if _esc is not None:
                 ledger.note_action("escape_mt_moon", str(_esc))
-                continue
+                # Only re-tick on real progress. "stuck" used to `continue` forever and skip
+                # leave_building (Route 4 Center park). Fall through so doors/roam can move her.
+                if _esc in ("cleared", "escaped_doors"):
+                    continue
             # NOTE (2026-08-01): the RESCUE-TP boot seed that fired here is RETIRED — the blind
             # party-submenu drive selected SUMMARY instead of TELEPORT live and looped her through
             # menus on stream (see _teleport_rescue's docstring). Physical relocation goes through
@@ -15173,11 +15215,24 @@ class Campaign:
                 log("   [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to "
                     "bank a poisoned escape target (would reload back into the strand)")
             elif macro == ledger.GREEN:
-                try:
-                    self._last_good_state = self.b.save_state()
-                    self._last_good_gain = self._gain_sig()
-                except Exception as _e:
-                    log(f"   [roam] last-good snapshot skipped: {_e}")
+                # POST-CASCADE Route 4 / Mt.Moon / that Center are DONE ground — banking them as
+                # escape-hatch targets rewound her to the Route 4 PC forever (2026-08-02 live TP chalk).
+                _km = tuple(tv.map_id(self.b))
+                _kbc = int(state.get("badge_count") or 0)
+                _kp = (state.get("place") or "").lower()
+                _route4_poison = (
+                    _km in self._MT_MOON_MAPS or _km == ROUTE4
+                    or "route 4" in _kp or "mt. moon" in _kp or "mt moon" in _kp
+                )
+                if _kbc >= 2 and _route4_poison:
+                    log(f"   [roam] known-good SKIPPED at {_km}/{_kp!r} — post-Cascade "
+                        f"Route4/Mt.Moon poison the escape-hatch rewind")
+                else:
+                    try:
+                        self._last_good_state = self.b.save_state()
+                        self._last_good_gain = self._gain_sig()
+                    except Exception as _e:
+                        log(f"   [roam] last-good snapshot skipped: {_e}")
                 # PHASE 1 — bank a deep-wedge fallback into the ring at a GAIN SEAM (a badge / a new
                 # teammate / a fresh catch since the last ring entry). Gain seams are guaranteed-clear
                 # states well clear of any wedge lip, so reverting to one ALWAYS escapes a structural
