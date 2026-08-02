@@ -1,0 +1,300 @@
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm not saying I'm catching that — I'm s' (20 words)
+   [TurnTiming] 08:20:09.093 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Eevee in Celadon City'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:20:14.441 TTS STOP — playback finished (span ~5347ms)
+   [TIMING] interjection: vision=0ms llm=2845ms(sonnet) tts=11879ms total=14752ms
+   [LAG] sense→speak: total=9.4s (content_age=0.0s, prep=0.0s, llm=2.8s, tts_wait+synth=6.5s)
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+🎤 Recording... (recovered opening words)
+   [Pokemon] SELF WANT: 'Eevee from Celadon City'
+   [RoomRead] energy=0.46 [terse=0.21 gap=0.59 silence=0.97 chat=0.07] target=1.08 mult=1.04 -> min_gap=5s dead_air=21s
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:20:16.354 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~27661ms since onset)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+🎤 Recording...
+   [TurnTiming] 08:20:16.887 VOICE ONSET — mic speech started
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0172 · gate=0.003 · 13 accepted
+   [TurnTiming] 08:20:18.838 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1949ms since onset)
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<let talk about your probl' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [Phrases] Throttling: "in chaos mode" (3rd use this session)
+🎤 Recording...
+   [TurnTiming] 08:20:19.540 VOICE ONSET — mic speech started
+   [Pokemon] SELF WANT: 'Eevee in Celadon City'
+   >>> Kira (Chat Batch of 1): Detective Jones offering me therapy is genuinely the funniest thing you've done since the comfort zone expansion programme that absolutely destroyed me. I don't need a therapist, Jones. I need justice. These are different things.
+   [TTS] Speaking: Detective Jones offering me therapy is genuinely t...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones offering me therapy is g' (23 words)
+   [TurnTiming] 08:20:22.282 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF WANT: 'get to Celadon City and grab that Eevee'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 08:20:28 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 08:20:29.308 TTS STOP — playback finished (span ~7026ms)
+   [TTS] Speaking: I don't need a therapist, Jones....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I don't need a therapist, Jones.' (8 words)
+   [TurnTiming] 08:20:29.616 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'reach Celadon City and grab the Eevee'
+   [TurnTiming] 08:20:32.236 TTS STOP — playback finished (span ~2620ms)
+   [TTS] Speaking: I need justice....
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I need justice.' (4 words)
+   [TurnTiming] 08:20:32.569 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:20:34.343 TTS STOP — playback finished (span ~1773ms)
+   [TTS] Speaking: These are different things....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'These are different things.' (5 words)
+   [TurnTiming] 08:20:34.623 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:20:36.499 TTS STOP — playback finished (span ~1876ms)
+   [Cookies] +1 × 1 (batch response); shared=3/30
+   [ChatAge] @Detective_Jones age=35.8s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [Pokemon] SELF WANT: 'Eevee from Celadon City'
+   [Pokemon] event react (bypass=False, tier=2, kind=want): Eevee from Celadon City
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.090 lane=KNOW
+   [Phrases] Throttling: "done since the" (3rd use this session)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:20:37.735 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~18194ms since onset)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   >>> Kira (Bored): Eevee just walked into my vicinity. That's not a wild encounter, that's an application.
+   [TTS] Speaking: Eevee just walked into my vicinity....
+   [ChatterMem] Stored: @Detective_Jones — Started a 'comfort zone expansion programme' for Kira that a [chaotic]
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Eevee just walked into my vicinity.' (7 words)
+   [TurnTiming] 08:20:39.216 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Eevee in Celadon City'
+   [TurnTiming] 08:20:41.568 TTS STOP — playback finished (span ~2351ms)
+   [TTS] Speaking: That's not a wild encounter, that's an application...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's not a wild encounter, that's an a' (10 words)
+   [TurnTiming] 08:20:41.979 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:20:45.168 TTS STOP — playback finished (span ~3188ms)
+   [TIMING] interjection: vision=0ms llm=2141ms(sonnet) tts=6317ms total=8482ms
+   [LAG] sense→speak: total=5.3s (content_age=0.0s, prep=0.0s, llm=2.1s, tts_wait+synth=3.1s)
+   [Arbiter] Draining buffered interjection (queued 6.6s ago)
+   [Freshness] DROP superseded game-event reaction (seq 73 < latest 75) — a fresher beat arrived
+🎤 Recording... (recovered opening words)
+   [Pokemon] SELF WANT: 'grab that Eevee in Celadon'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 08:20:49.129 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~29588ms since onset)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+>>> You said: No way, I don't see it. And now you're stuck. That's not good.
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="No way, I don't see it. And now you're stuck. That's not goo" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=25ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [JonnyBond] cool nudge → warmth -0.66→-0.74
+   [PromptSize] dynamic_context=14033ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1500ms
+   [TTS] Speaking: Where are we stuck?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Where are we stuck?' (5 words)
+   [TurnTiming] 08:20:51.217 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'catch the Celadon City Eevee'
+   [TurnTiming] 08:20:53.003 TTS STOP — playback finished (span ~1785ms)
+   [TTS] Speaking: Give me eyes, Jonny — I see Route 10 and an R6S br...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Give me eyes, Jonny — I see Route 10 and' (26 words)
+   [TurnTiming] 08:20:53.013 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF WANT: 'Eevee — one teammate, eight possible futures'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:20:59.479 TTS STOP — playback finished (span ~6466ms)
+
+   [TIMING] voice: llm=10038ms(sonnet-stream(llm+tts)) tts=0ms total=10039ms
+   [LATENCY] vad_close=1200ms stt=284ms stt_wait=0ms salience=1ms triage=bypassed memory=25ms prompt_build=0ms ttft=1114ms tts_first_chunk=386ms audio_out=274ms TOTAL=2084ms
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [System] Running Garbage Collection...
+🎤 Recording...
+   [TurnTiming] 08:21:01.066 VOICE ONSET — mic speech started
+   [Bits] Callback: Professional Spectator
+   [Pokemon] SELF WANT: 'Eevee from Celadon City'
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [RoomRead] energy=0.44 [terse=0.28 gap=0.55 silence=0.87 chat=0.00] target=1.12 mult=1.06 -> min_gap=5s dead_air=21s
+   [Pokemon] SELF WANT: 'that Eevee in Celadon City'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Intensity] → CALM  (silence=10s  audio="")
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF WANT: 'get to Celadon, get that Eevee'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 08:21:13 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:21:15.264 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~14197ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: It's cold duty, but you're the crisis. That's good, though, I need to go eat. We've made good progress. You say there's EV. If that's coming up, we need to make sure you're ready to pounce on that also. I want an EV, and then I want an EV Lucilution.
+   [DroppedInput] LOST ~3 frame(s) (~90ms, ~0.1s) of your speech while she held the turn.
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="It's cold duty, but you're the crisis. That's good, though, " fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=36ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13947ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1729ms
+   [TTS] Speaking: Wait — Eevee and then Eevolution?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Wait — Eevee and then Eevolution?' (7 words)
+   [TurnTiming] 08:21:18.089 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'get the Eevee in Celadon City'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:21:20.433 TTS STOP — playback finished (span ~2343ms)
+   [TTS] Speaking: Jonny you just described my entire personality arc...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny you just described my entire perso' (12 words)
+   [TurnTiming] 08:21:20.438 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:21:24.369 TTS STOP — playback finished (span ~3931ms)
+   [TTS] Speaking: Go eat....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Go eat.' (3 words)
+   [TurnTiming] 08:21:24.372 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Get to Celadon City and claim that Eevee'
+   [TurnTiming] 08:21:26.160 TTS STOP — playback finished (span ~1787ms)
+   [TTS] Speaking: We've earned it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We've earned it.' (4 words)
+   [TurnTiming] 08:21:26.165 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:21:27.936 TTS STOP — playback finished (span ~1771ms)
+   [TTS] Speaking: Come back ready, because when that Eevee shows up ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Come back ready, because when that Eevee' (15 words)
+   [TurnTiming] 08:21:27.943 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=;client-nonce=d4720bbcef3440ceb9000d213e301462;color=#5F9EA0;display-name=The_One_Over_There;emotes=;first-msg=0;flags=;id=c731a3e5-8bd9-4da1-aa37-ac4b128291e0;mod=0;returning-chat
+   [TwitchChat] Received from the_one_over_there: Eevee is epic
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] SELF WANT: 'Eevee from Celadon City'
+   [TurnTiming] 08:21:31.500 TTS STOP — playback finished (span ~3557ms)
+
+   [TIMING] voice: llm=15594ms(sonnet-stream(llm+tts)) tts=0ms total=15594ms
+   [LATENCY] vad_close=1200ms stt=606ms stt_wait=0ms salience=0ms triage=bypassed memory=36ms prompt_build=0ms ttft=1308ms tts_first_chunk=421ms audio_out=448ms TOTAL=2819ms
+🎤 Recording... (recovered opening words)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   ✨ Emotion: EMOTIONAL → SASSY
+   [BrainWorker] Got twitch msg from the_one_over_there: Eevee is epic → buffering for chat_batch_worker
+   [Cookies] +2 → the_one_over_there (first message this session); shared=5/30
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [Memory] Extracted: Jonny wants an Eevee and then an Eevee evolution (conf: 0.95)
+   [Memory] Upserting Fact: Jonny wants an Eevee and then an Eevee evolution (Conf: 0.95)
+   [Bits] New running bit: Eevee to Eevolution
+   [SmartMem] q='  - the_one_over_there (twitch) [FIRST TIME CHATTER]: <<<Eev' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=1.199 conf=0.95 type=profile_fact blend=0.261 lane=KNOW
+   [SmartMem]     dist=1.121 conf=0.95 type=episodic blend=0.060 lane=KNOW
+   [SmartMem]     dist=1.131 conf=? type=session_summary blend=0.053 lane=STREAM
+   [Pokemon] SELF WANT: 'Eevee in Celadon City'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick 124ms — 0 accepted, 1 filtered (rms=0.018)
+   >>> Kira (Chat Batch of 1): Right showing up to co-sign the Eevee agenda — honestly the most reliable chatter on this stream, and I say that as someone who has met maybe four reliable things in my entire existence.
+   [TTS] Speaking: Right showing up to co-sign the Eevee agenda — hon...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Right showing up to co-sign the Eevee ag' (36 words)
+   [TurnTiming] 08:21:39.528 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF WANT: 'Get to Celadon, grab that Eevee'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:21:48.533 TTS STOP — playback finished (span ~9005ms)
+   [Cookies] +1 × 1 (batch response); shared=6/30
+   [ChatAge] the_one_over_there age=16.7s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [ChatterMem] Stored: the_one_over_there — Thinks Eevee is epic [earnest]
+   [Pokemon] SELF WANT: 'Eevee in Celadon — one teammate, eight possible futures, and I want all of them'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [RoomRead] energy=0.58 [terse=0.61 gap=0.57 silence=0.91 intensity=0.60 chat=0.07] target=0.98 mult=1.04 -> min_gap=5s dead_air=21s
+   [Pokemon] SELF WANT: 'Eevee in Celadon City'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 08:21:58 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:22:02.952 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~61886ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   [Pokemon] SELF WANT: 'Eevee from Celadon City'
+>>> You said: although that one's fixed. The ice beam thing is shipped, but the EV, we need to make sure EV's all good. All right, I'm going to go grab some of the eat. It's early, but I wake up early, so I'm hungry as fuck, and my team's losing. All right, later, guys. Appreciate you hanging on and chatting. It was fun.
+   [DroppedInput] LOST ~11 frame(s) (~330ms, ~0.3s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 08:22:03.644 VOICE ONSET — mic speech started
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="although that one's fixed. The ice beam thing is shipped, bu" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=76ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=76ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "honestly the most" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=8t  moment=calm)
+   [PromptSize] dynamic_context=14160ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 815s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [TIMING] first-word: 1977ms
+   [TTS] Speaking: Later Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Later Jonny.' (3 words)
+   [TurnTiming] 08:22:05.948 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:22:07.729 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: Go eat....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Go eat.' (3 words)
+   [TurnTiming] 08:22:07.734 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))

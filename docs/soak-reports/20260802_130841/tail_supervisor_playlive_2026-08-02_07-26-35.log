@@ -1,0 +1,1500 @@
+   [kira-voice] ORACLE kind=name options=[] -> pick=None
+
+   [campaign]    [soul] ORACLE pick -> None
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (81s > 80s) at (15, 32) map=(3, 24) step=5 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (15, 32)->(15, 31) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (16, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 32) -> coord (16, 31) (budget 80s)
+
+   [travel] step 0: (16, 32)->(16, 31) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (16, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 31) -> coord (16, 33) (budget 80s)
+
+   [travel] step 0: (16, 31)->(16, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 33) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (16, 33)->(16, 32) map=(3, 24) (path 4 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (16, 30) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 31) map=(3, 24) (path 5 to exit)
+
+   [travel] reached target coord (16, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 30) -> coord (15, 30) (budget 80s)
+
+   [travel] step 0: (16, 30)->(15, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 30) -> coord (16, 31) (budget 80s)
+
+   [travel] step 0: (15, 30)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 31) -> coord (14, 30) (budget 80s)
+
+   [travel] step 0: (16, 31)->(16, 30) map=(3, 24) (path 4 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against pidgey — your kadabra is up front'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out pidgey'
+
+   [kira-voice] -> T1·brisk· (event) "kadabra showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's pidgey went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 11ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] reached target coord (14, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 30) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (14, 30)->(14, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 30) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 30) -> coord (16, 31) (budget 80s)
+
+   [travel] step 0: (15, 30)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 31) -> coord (14, 31) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against pidgey — your kadabra is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pidgey'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "kadabra showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's pidgey went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (14, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (13, 31) (budget 80s)
+
+   [travel] step 0: (14, 31)->(13, 31) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (13, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(13, 31) -> coord (13, 30) (budget 80s)
+
+   [travel] step 0: (13, 31)->(13, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (13, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(13, 30) -> coord (14, 31) (budget 80s)
+
+   [travel] step 0: (13, 30)->(13, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (13, 32) (budget 80s)
+
+   [travel] path blocked at (14, 31) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 31) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33), (20, 25)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 31) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (14, 30) (budget 80s)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 11ms]
+
+   [travel] step 0: (14, 31)->(14, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 30)
+
+   [campaign]    GRIND: trained to Lv16 (target 19)
+
+   [campaign]    GRIND-WEAK: fielding slot 3 (L15) as lead to train it
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — rattata now leads
+
+   [kira-voice] ·floor· (<1s since last) T1 "training time — rattata leads so it soaks up the XP, and if things get hairy my L37 closer steps in to finish. that's the trick."
+
+   [campaign]    GRIND: Lv15 < 19 - heading to the grass to train [FRAGILE: reachable grass only]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 30) -> coord (15, 30) (budget 80s)
+
+   [travel] step 0: (14, 30)->(15, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 30) -> coord (13, 30) (budget 80s)
+
+   [travel] step 0: (15, 30)->(14, 30) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (13, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(13, 30) -> coord (14, 31) (budget 80s)
+
+   [travel] step 0: (13, 30)->(13, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (13, 31) (budget 80s)
+
+   [travel] step 0: (14, 31)->(13, 31) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (13, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(13, 31) -> coord (13, 30) (budget 80s)
+
+   [travel] step 0: (13, 31)->(13, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (13, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(13, 30) -> coord (14, 31) (budget 80s)
+
+   [travel] step 0: (13, 30)->(13, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (13, 32) (budget 80s)
+
+   [travel] path blocked at (14, 31) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 31) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33), (20, 25)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 31) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (14, 32) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (14, 31) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against pidgey — your rattata is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's pidgey went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (14, 32)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 31) (budget 80s)
+
+   [travel] step 0: (15, 32)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (14, 33) (budget 80s)
+
+   [travel] step 0: (14, 31)->(14, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 33) -> coord (13, 32) (budget 80s)
+
+   [travel] path blocked at (14, 33) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 33) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 33) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 33) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (14, 33)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (13, 33) (budget 80s)
+
+   [travel] path blocked at (14, 32) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 32) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33), (20, 25)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 32) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 33) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (15, 32)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 31) map=(3, 24) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (14, 31) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against oddish — your rattata is up front'  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's oddish went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 10ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (16, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 32) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (16, 32)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (16, 31) (budget 80s)
+
+   [travel] step 0: (15, 32)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 31) -> coord (16, 33) (budget 80s)
+
+   [travel] step 0: (16, 31)->(16, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 33) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (16, 33)->(16, 32) map=(3, 24) (path 4 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (14, 32)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 31) (budget 80s)
+
+   [travel] step 0: (15, 32)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (14, 33) (budget 80s)
+
+   [travel] step 0: (14, 31)->(14, 32) map=(3, 24) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (14, 32) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against pidgey — your rattata is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pidgey'  fired=True  [age 0.0s + post 16ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's pidgey went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] reached target coord (14, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 33) -> coord (13, 32) (budget 80s)
+
+   [travel] path blocked at (14, 33) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 33) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 33) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 33) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (14, 33)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (13, 33) (budget 80s)
+
+   [travel] path blocked at (14, 32) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 32) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33), (20, 25)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 32) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 33) (budget 80s)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 10ms]
+
+   [travel] step 0: (14, 32)->(14, 33) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (15, 32)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (15, 32) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against oddish — your rattata is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out oddish'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): "Okay, great, she beat the gym leaders, but now she's just run, she beat the third gym leader, now she's just running in a circle leveling up everyone before she goes to like the fourth town, I guess."
+
+   [kira-voice] -> T3·BIG· (order) "okay okay — direct order from the boss. dropping everything else, we're doing it NOW."  fired=True  [age 0.0s + post 10ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's oddish went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (16, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 32)
+
+   [campaign]    GRIND: trained to Lv15 (target 19)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L15) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: fielding slot 3 (L16) as lead to train it
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — kadabra now leads
+
+   [campaign]    GRIND: Lv16 < 19 - heading to the grass to train [FRAGILE: reachable grass only]
+
+   [kira-voice] -> T1·brisk· (grind) "training time — kadabra leads so it soaks up the XP, and if things get hairy my L37 closer steps in to finish. that's the trick."  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 32) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (16, 32)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (16, 31) (budget 80s)
+
+   [travel] step 0: (15, 32)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 31) -> coord (16, 33) (budget 80s)
+
+   [travel] step 0: (16, 31)->(16, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 33) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (16, 33)->(16, 32) map=(3, 24) (path 4 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (14, 32)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 31) (budget 80s)
+
+   [travel] step 0: (15, 32)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (14, 33) (budget 80s)
+
+   [travel] step 0: (14, 31)->(14, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 33) -> coord (13, 32) (budget 80s)
+
+   [travel] path blocked at (14, 33) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 33) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 33) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 33) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (14, 33)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (13, 33) (budget 80s)
+
+   [travel] path blocked at (14, 32) (NPC on the gap?) - waiting
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] no clean path from (14, 32) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33), (20, 25)]) - genuine wall/zone gap, will time out
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against meowth — your kadabra is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out meowth'
+
+   [kira-voice] -> T1·brisk· (event) "kadabra showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's meowth went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 8ms]
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 32) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 33) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (15, 32)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (15, 30) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against oddish — your kadabra is up front'  fired=True  [age 0.0s + post 10ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out oddish'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "kadabra showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's oddish went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 20ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (15, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 30) -> coord (14, 30) (budget 80s)
+
+   [travel] step 0: (15, 30)->(14, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 30) -> coord (16, 30) (budget 80s)
+
+   [travel] step 0: (14, 30)->(15, 30) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 30) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (16, 30)->(16, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (15, 32)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (15, 30) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 4 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (15, 31) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against pidgey — your kadabra is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "kadabra showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's pidgey went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (15, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 30) -> coord (14, 30) (budget 80s)
+
+   [travel] step 0: (15, 30)->(14, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 30) -> coord (16, 30) (budget 80s)
+
+   [travel] step 0: (14, 30)->(15, 30) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 30) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (16, 30)->(16, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 32) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (15, 32) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against pidgey — your kadabra is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "kadabra showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's pidgey went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (15, 30) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 4 to exit)
+
+   [travel] reached target coord (15, 30)
+
+   [campaign]    GRIND: trained to Lv16 (target 19)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L16) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: fielding slot 4 (L17) as lead to train it
+
+   [campaign]    GRIND-WEAK: swap 0<->4 verified — spearow now leads
+
+   [campaign]    GRIND: Lv17 < 19 - heading to the grass to train [FRAGILE: reachable grass only]
+
+   [kira-voice] -> T1·brisk· (grind) "training time — spearow leads so it soaks up the XP, and if things get hairy my L37 closer steps in to finish. that's the trick."  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 30) -> coord (14, 30) (budget 80s)
+
+   [travel] step 0: (15, 30)->(14, 30) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 30) -> coord (16, 30) (budget 80s)
+
+   [travel] step 0: (14, 30)->(15, 30) map=(3, 24) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (15, 30) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against pidgey — your spearow is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "spearow showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's pidgey went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] reached target coord (16, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 30) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (16, 30)->(16, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (15, 32)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (15, 32) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against meowth — your spearow is up front'  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "spearow showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's meowth went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (16, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 32) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (16, 32)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (16, 31) (budget 80s)
+
+   [travel] step 0: (15, 32)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 31) -> coord (16, 33) (budget 80s)
+
+   [travel] step 0: (16, 31)->(16, 32) map=(3, 24) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (16, 32) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against meowth — your spearow is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "spearow showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (16, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 33) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (16, 33)->(16, 32) map=(3, 24) (path 4 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (14, 32)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 31) (budget 80s)
+
+   [travel] step 0: (15, 32)->(15, 31) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 31) -> coord (14, 33) (budget 80s)
+
+   [travel] step 0: (14, 31)->(14, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (14, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 33) -> coord (13, 32) (budget 80s)
+
+   [travel] path blocked at (14, 33) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 33) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 33) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 33) -> coord (14, 32) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (14, 33) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against meowth — your spearow is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "spearow showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's meowth went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (13, 33) (budget 80s)
+
+   [travel] path blocked at (14, 32) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 32) AND no NPC-allowing path (npcs nearby=[(13, 32), (13, 33), (20, 25)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 32) map=(3, 24) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 33) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (15, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (15, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 32) -> coord (14, 32) (budget 80s)
+
+   [travel] step 0: (15, 32)->(14, 32) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (14, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(14, 32) -> coord (15, 31) (budget 80s)
+
+   [travel] step 0: (14, 32)->(14, 31) map=(3, 24) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (14, 31) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against pidgey — your spearow is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "spearow showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's pidgey went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (15, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 31) -> coord (15, 33) (budget 80s)
+
+   [travel] step 0: (15, 31)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (15, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(15, 33) -> coord (16, 32) (budget 80s)
+
+   [travel] step 0: (15, 33)->(15, 32) map=(3, 24) (path 3 to exit)
+
+   [travel] reached target coord (16, 32)
+
+   [campaign]    GRIND: trained to Lv17 (target 19)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L17) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: wall-clock budget — partial progress (levels [17, 14, 37, 15, 16, 15]), restoring ace; the next tick re-enters
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 2, L37) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: battle -> ok | pos (3, 24)(15, 32) -> (3, 24)(16, 32) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(3, 24) coords=(16, 32) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_080619_route-6_3b_15h27m_periodic  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! retiring bench pin L19 — gym is GO now
+
+   [campaign]    [roam] !! CREATOR ORDER → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,20', 'travel:3,22', 'travel:3,29', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (3, 6, 11, 114) @ Route 6 (ring=4/4)
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 6 (16, 32) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L37, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 24) (16,32) f4 -- badge3 $460 party:4010 bag:4685]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 6
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 6 — outdoors under open sky (an open route; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L37), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 24), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 11 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L37), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': "You're ready — travel to Celadon City and take on Erika", 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get to Celadon and pick up that Eevee'
+
+   [campaign]    [soul] ORACLE pick -> 'get to Celadon and pick up that Eevee'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [kira-voice] -> T2·savor· (want) 'get to Celadon and pick up that Eevee'  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [roam] ROAD to Celadon City: on Route 6 — billed leg north toward Route 5 (pass-through country)
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Celadon City runs north from here — onward.'
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·floor· (<1s since last) T1 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    74 door(s); candidates (chosen order): [(19, 13)]
+
+   [campaign]    reachable door (19, 13): walking to approach (19, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(16, 32) -> coord (19, 14) (budget 240s)
+
+   [travel] step 0: (16, 32)->(16, 31) map=(3, 24) (path 22 to exit)
+
+   [travel] step 10: (16, 22)->(16, 21) map=(3, 24) (path 12 to exit)
+
+   [travel] step 20: (18, 14)->(19, 14) map=(3, 24) (path 2 to exit)
+
+   [travel] reached target coord (19, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 24) -> (1, 32) via door (19, 13)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 32): (5, 8)->(3, 24), (6, 8)->(3, 24), (7, 8)->(3, 24), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 32) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 32) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 32) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 31): (4, 3)->(1, 30), (3, 60)->(1, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 31) coords=(3, 60) -> coord (4, 3) (budget 110s)
+
+   [travel] step 0: (3, 60)->(3, 59) map=(1, 31) (path 59 to exit)
+
+   [travel] step 10: (3, 50)->(3, 49) map=(1, 31) (path 49 to exit)
+
+   [travel] step 20: (3, 40)->(3, 39) map=(1, 31) (path 39 to exit)
+
+   [travel] step 30: (3, 30)->(3, 29) map=(1, 31) (path 29 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 31) coords=(3, 20) elapsed=5s
+
+   [travel] step 40: (3, 20)->(3, 19) map=(1, 31) (path 19 to exit)
+
+   [travel] step 50: (3, 10)->(3, 9) map=(1, 31) (path 9 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 30): (5, 8)->(3, 23), (6, 8)->(3, 23), (7, 8)->(3, 23), (7, 4)->(1, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 30) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 30) coords=(5, 8) -> coord (6, 7) (budget 60s)
+
+   [travel] step 0: (5, 8)->(5, 7) map=(1, 30) (path 3 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 144137 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(1, 30) coords=(6, 8)  badge=True
+
+   [kira-voice] === 177 fired, 130 gated (0 failed) | by tier: T3=10 T2=31 T1=136 (incl ambient trickle) ===
+
+================================================================
+
