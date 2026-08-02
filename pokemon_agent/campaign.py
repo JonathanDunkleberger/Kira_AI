@@ -1086,6 +1086,10 @@ SILPH_REVIVE_TARGET = 5
 # I take that bridge" is a live, characterful option — not only a restock when she's already empty.
 SHOP_POTION_FORESIGHT = 10
 SHOP_CURE_QTY = 2
+# Pre-gym Bulbapedia kit (2026-08-02): how many of each KB `bring_cures` status cure to
+# carry into the fight (Parlyz Heal vs Surge, Antidote vs Koga). Tunable; not a hoard.
+GYM_CURE_TARGET = int(os.getenv("POKEMON_GYM_CURE_TARGET", "3"))
+ITEM_FULL_HEAL = 23
 # BATCH 6 PHASE 3 — Poké Ball FORESIGHT: a teammate is the answer to a wall (Phase 2), and you can't
 # catch one with an empty bag. When she's running a thin team and low on balls, "grab some Poké Balls"
 # surfaces as a real shopping need — so she goes into the grass equipped to actually come home with a
@@ -4194,6 +4198,83 @@ class Campaign:
         log(f"   POTION-STALL [{gym.name}]: bought {bought} — now carrying {got} potion(s)")
         return "bought" if bought else "buy_failed"
 
+    def _kb_bring_cures(self, gym_name):
+        """Statuses the strategy KB says to stock before `gym_name` (Bulbapedia kit). Empty if none."""
+        try:
+            rec = (getattr(getattr(self, "planner", None), "threats", None) or {}).get(gym_name) or {}
+            return [s for s in (rec.get("bring_cures") or []) if s in STATUS_CURE]
+        except Exception:
+            return []
+
+    def _cure_item_on_shelf(self, status, city=None):
+        """Item id to BUY for `status` at this city's Mart: specific cure if sold, else Full Heal.
+        None if neither is on the shelf (don't invent a mis-buy)."""
+        cure = STATUS_CURE.get(status)
+        if not cure:
+            return None
+        city = city if city is not None else tv.map_id(self.b)
+        stock = MART_STOCK.get(city, [])
+        if cure[0] in stock:
+            return cure[0]
+        if ITEM_FULL_HEAL in stock:
+            return ITEM_FULL_HEAL
+        return None
+
+    def _status_cure_have(self, status):
+        """How many cures she can already spend on `status` (specific + Full Heal)."""
+        cure = STATUS_CURE.get(status)
+        if not cure:
+            return 0
+        return self.bag_count(cure[0]) + self.bag_count(ITEM_FULL_HEAL)
+
+    def _stock_status_cures_for_gym(self, gym):
+        """PRE-GYM STATUS-CURE KIT (2026-08-02). Strategy KB `bring_cures` = the statuses a human
+        who read Bulbapedia would stock for (Surge → Parlyz Heal for Thunder Wave; Koga → Antidote).
+        Buys the shortfall at the gym-city Mart before the door so in-battle item instinct can
+        un-lock the ace mid-fight — not only after she's already lost a turn to para. Best-effort
+        + bounded; buy_at_mart bag-delta guards; no-mart / too-poor / nothing-on-shelf → enter as-is
+        (LOUD). Game-facts in frlg_strategy.json; returns a short status string."""
+        statuses = self._kb_bring_cures(gym.name)
+        if not statuses:
+            return "not_flagged"
+        city = tv.map_id(self.b)
+        door = CITY_MART_DOORS.get(city)
+        if door is None:
+            log(f"   CURE-KIT [{gym.name}]: not standing in a Mart city ({city}) — can't stock here (LOUD)")
+            return "no_mart"
+        buy = []
+        names = []
+        for status in statuses:
+            have = self._status_cure_have(status)
+            if have >= GYM_CURE_TARGET:
+                continue
+            iid = self._cure_item_on_shelf(status, city)
+            if iid is None:
+                log(f"   CURE-KIT [{gym.name}]: no {status} cure on {city} shelf — skip (LOUD)")
+                continue
+            need = GYM_CURE_TARGET - have
+            buy.append((iid, need))
+            names.append(ITEM_NAMES.get(iid, str(iid)))
+        if not buy:
+            log(f"   CURE-KIT [{gym.name}]: already carrying cures for {statuses} "
+                f"(target {GYM_CURE_TARGET}) — good to go")
+            return "already_stocked"
+        # Parlyz Heal is $200 — cheap; Full Heal $600. Floor + one unit of the dearest line.
+        if self.money() < SHOP_MONEY_FLOOR + 200:
+            log(f"   CURE-KIT [{gym.name}]: too poor ({self.money()}) to stock cures — entering as-is (LOUD)")
+            return "too_poor"
+        who = ", ".join(names)
+        self.on_event(
+            f"{gym.name}'s gym is built to lock you down — I'm not walking in without {who}. "
+            f"quick Mart run, then we take the badge.",
+            kind="gym", tier=2)
+        log(f"   CURE-KIT [{gym.name}]: buying {buy} at {city} Mart before the fight "
+            f"(KB bring_cures={statuses})")
+        bought = self.buy_at_mart(door, buy)
+        got = {s: self._status_cure_have(s) for s in statuses}
+        log(f"   CURE-KIT [{gym.name}]: bought {bought} — now carrying {got}")
+        return "bought" if bought else "buy_failed"
+
     def stock_hyper_potions(self, hyper_target=SILPH_HYPER_TARGET, revive_target=SILPH_REVIVE_TARGET):
         """Pre-Silph SILPH KIT stock-up (night-shift 4). Gary's Silph gauntlet ends on a Charizard
         (Fire/Flying) that 2x-burns solo Venusaur while QUAD-resisting her Grass (Razor Leaf x0.25) —
@@ -4367,6 +4448,14 @@ class Campaign:
             self._stock_potions_for_gym(gym)
         except Exception as e:
             log(f"   !! GYM potion-stall stock-up crashed ({e}) — entering {name} as-is (LOUD)")
+        # STATUS-CURE KIT (2026-08-02): KB `bring_cures` foresight — Surge Thunder Wave /
+        # Koga Toxic etc. Buy Parlyz Heal / Antidote at the city Mart BEFORE the door so
+        # in-battle item instinct can un-lock the ace. Same beat_gym seam as potion-stall
+        # (fires even when prep_for_gym is pinned). Best-effort; never blocks the gym.
+        try:
+            self._stock_status_cures_for_gym(gym)
+        except Exception as e:
+            log(f"   !! GYM status-cure stock-up crashed ({e}) — entering {name} as-is (LOUD)")
         # HEAL-BEFORE-THE-GYM GATE (2026-07-07, erika_run2): she walked into Erika's gauntlet with
         # two fainted mons and a PP-dry lead and status-moved her way to a 12-battle futility wall.
         # A human ALWAYS taps the Center first — gym cities always have one and heal_at_center
@@ -11337,13 +11426,30 @@ class Campaign:
         ball_target = SHOP_BALL_KEEPER_TARGET if keeper_due else SHOP_BALL_TARGET
         if (self._thin_team() or self._ball_count() < 2 or keeper_due) and self._ball_count() < ball_target:
             sl.append((ITEM_POKE_BALL, ball_target - self._ball_count()))
-        for status in sorted(self._afflict_seen):
-            cure = STATUS_CURE.get(status)
-            if not cure:
+        # Afflictions she's felt on the road + KB foresight for the NEXT gym (Surge Parlyz
+        # Heal before Thunder Wave ever lands — 2026-08-02 Bulbapedia kit). Prefer the
+        # specific cure on this Mart's shelf; Full Heal if that's all they sell.
+        _want = set(self._afflict_seen)
+        _kb_cures = set()
+        try:
+            _ng = (state or {}).get("next_gym") if state else None
+            if _ng and _ng.get("leader"):
+                _kb_cures = set(self._kb_bring_cures(_ng["leader"]))
+                _want |= _kb_cures
+        except Exception:
+            pass
+        _city = tv.map_id(self.b)
+        for status in sorted(_want):
+            if status not in STATUS_CURE:
                 continue
-            need = SHOP_CURE_QTY - self.bag_count(cure[0])
-            if need > 0:
-                sl.append((cure[0], need))
+            target = GYM_CURE_TARGET if status in _kb_cures else SHOP_CURE_QTY
+            have = self._status_cure_have(status)
+            if have >= target:
+                continue
+            iid = self._cure_item_on_shelf(status, _city)
+            if iid is None:
+                continue
+            sl.append((iid, target - have))
         return sl
 
     def _best_potion_for_sale(self):
@@ -11371,8 +11477,26 @@ class Campaign:
         pick reads as learning from the road ('paralysis cost me that fight — grabbing Parlyz Heals').
         FORESIGHT (Phase 2): when she's walled, lead with 'stock up BEFORE you push that wall'."""
         target = SHOP_POTION_FORESIGHT if foresight else SHOP_POTION_TARGET
-        cures = [STATUS_CURE[s][1] for s in sorted(self._afflict_seen) if s in STATUS_CURE
-                 and self.bag_count(STATUS_CURE[s][0]) < SHOP_CURE_QTY]
+        _want_shop = set(self._afflict_seen)
+        _ng_note = None
+        try:
+            _ng_note = (state or {}).get("next_gym") if state else None
+            if _ng_note and _ng_note.get("leader"):
+                _want_shop |= set(self._kb_bring_cures(_ng_note["leader"]))
+        except Exception:
+            pass
+        cures = []
+        for s in sorted(_want_shop):
+            if s not in STATUS_CURE:
+                continue
+            if self._status_cure_have(s) >= (
+                    GYM_CURE_TARGET if _ng_note and s in set(
+                        self._kb_bring_cures(_ng_note.get("leader") or ""))
+                    else SHOP_CURE_QTY):
+                continue
+            if self._cure_item_on_shelf(s) is None:
+                continue
+            cures.append(STATUS_CURE[s][1])
         bits = []
         if sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19)) < target:
             bits.append("you're low on Potions" if not foresight
@@ -11386,8 +11510,19 @@ class Campaign:
                         "teammate your plan wants" if keeper_due else
                         "you're light on Poké Balls — grab some so you can actually catch a teammate out there")
         if cures:
-            afflicts = ", ".join(sorted(self._afflict_seen & set(STATUS_CURE)))
-            bits.append(f"{afflicts} has been hurting you — {', '.join(cures)} would help")
+            _kb = set()
+            try:
+                if _ng_note and _ng_note.get("leader"):
+                    _kb = set(self._kb_bring_cures(_ng_note["leader"]))
+            except Exception:
+                pass
+            if _kb & _want_shop:
+                bits.append(
+                    f"{_ng_note['leader']} locks people with status — grab "
+                    f"{', '.join(cures)} before you walk into that gym")
+            else:
+                afflicts = ", ".join(sorted(self._afflict_seen & set(STATUS_CURE)))
+                bits.append(f"{afflicts} has been hurting you — {', '.join(cures)} would help")
         if not bits:
             return ""
         head = ("There's a Mart right here, and you've got the money. " if foresight

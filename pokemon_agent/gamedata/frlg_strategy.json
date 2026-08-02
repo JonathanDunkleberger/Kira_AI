@@ -4,7 +4,7 @@
   "source": "pret/pokefirered (data/trainers, party rosters) + Bulbapedia leader/E4 pages + long-standing FRLG playthrough knowledge, distilled offline. FireRed version (Vulpix/Growlithe/Scyther available; Sandshrew/Meowth/Pinsir are LeafGreen).",
   "firewall": "MODE-GATED. Consumed only inside the Pokémon campaign free-roam oracle context. Never touches core Kira identity; never surfaces in unrelated chat. Same firewall class as frlg_gates.json.",
   "voice_rule": "The planner renders these facts as ONE characterful anticipation beat in HER voice (excited-kid-who-did-her-homework), never a data dump. The `counter`/`folklore` strings are her raw material, not lines to read verbatim.",
-  "type_note": "`weak_to` = attack types that hit the leader's overall team hard (a curated summary, not a per-mon chart). `answer_types` = the practical types SHE should field to beat them. `answer_species` = specific keepers that hard-counter (used for the 'level your existing counter' nudge). `level_band` = [low, high] of the leader's team on the first (non-rematch) fight.",
+  "type_note": "`weak_to` = attack types that hit the leader's overall team hard (a curated summary, not a per-mon chart). `answer_types` = the practical types SHE should field to beat them. `answer_species` = specific keepers that hard-counter (used for the 'level your existing counter' nudge). `level_band` = [low, high] of the leader's team on the first (non-rematch) fight. `bring_cures` = non-volatile statuses the gym commonly lands (Thunder Wave, Toxic, Sleep Powder…) — stock those cures at the city Mart BEFORE the fight (Bulbapedia kit foresight), not only after she's already been hit.",
   "updated": "2026-07-08 (the strategic-intelligence mega-batch)"
  },
 
@@ -30,8 +30,9 @@
    "types": ["electric"], "ace": "raichu", "level_band": [21, 24],
    "weak_to": ["ground"],
    "answer_types": ["ground"], "answer_species": ["diglett", "dugtrio", "sandshrew", "nidoking", "geodude"],
+   "bring_cures": ["paralysis"],
    "counter": "Electric can't touch a GROUND-type at all — a Diglett/Dugtrio from the cave, or any ground mon, makes Surge a joke",
-   "folklore": "the lightning American — ELECTRIC-types; ground moves shut his whole act down"
+   "folklore": "the lightning American — ELECTRIC-types; Thunder Wave locks your ace — Parlyz Heals in the bag before you walk in; ground moves shut his whole act down"
   },
   "Erika": {
    "order": 4, "kind": "gym", "city": "Celadon City",
@@ -46,6 +47,7 @@
    "types": ["poison"], "ace": "weezing", "level_band": [37, 43],
    "weak_to": ["psychic", "ground"],
    "answer_types": ["psychic", "ground"], "answer_species": ["kadabra", "alakazam", "abra"],
+   "bring_cures": ["poison"],
    "counter": "his Poison team gets erased by PSYCHIC (and Ground); an Abra line here is the answer that carries straight into Sabrina",
    "folklore": "a literal ninja — POISON and confusion tricks; bring antidotes and patience, and Psychic wrecks him"
   },

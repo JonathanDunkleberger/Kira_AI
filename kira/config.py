@@ -389,10 +389,15 @@ CHAT_POST_KIRA_MAX_LEN = int(os.getenv("CHAT_POST_KIRA_MAX_LEN", "200"))        
 # Discord daily-diary webhook (Phase 1). Kira writes an in-character end-of-
 # session diary entry that is SAVED for review, NOT auto-posted. Posting to the
 # webhook is a deliberate manual action from the dashboard ("Post to Discord").
-# DISCORD_AUTOPOST stays false until the tone is trusted over several sessions;
-# flipping it true would let the diary fire to the webhook automatically.
+# PARKED 2026-08-02 (Jonny): posts weren't landing / felt random — stop generate
+# + autopost until we revisit. Flip DISCORD_DIARY_PARKED False to resume review
+# mode; DISCORD_AUTOPOST still defaults off even then.
+DISCORD_DIARY_PARKED = os.getenv("DISCORD_DIARY_PARKED", "true").lower() == "true"
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
-DISCORD_AUTOPOST = os.getenv("DISCORD_AUTOPOST", "false").lower() == "true"
+DISCORD_AUTOPOST = (
+    False if DISCORD_DIARY_PARKED
+    else os.getenv("DISCORD_AUTOPOST", "false").lower() == "true"
+)
 
 # On-screen captions (Neuro-sama style word-by-word overlay).
 # When ENABLE_CAPTIONS=true, a local WebSocket server starts on

@@ -9201,49 +9201,51 @@ class VTubeBot:
             llm_transcript = llm_transcript[:16000] + "\n\n[... middle of session truncated for length ...]\n\n" + llm_transcript[-40000:]
 
         # ── PRIORITY ARTIFACT: Discord daily diary (Phase 1 — REVIEW MODE). ──
-        # Generated FIRST among the LLM artifacts on purpose. It is the review-gate
-        # artifact Jonny reads before any Discord post, and unlike lore/clips it can
-        # NOT be backfilled from the raw dump (no backfill script exists for it). If
-        # shutdown axes the chain partway, the diary must already be on disk — so it
-        # leads and the backfill-able artifacts (lore/clips) trail. Own try/except.
-        try:
-            diary = await self.generate_daily_summary(
-                activity=activity,
-                date_str=date_str,
-                session_duration_min=session_duration_min,
-                highlights_block=highlights_block,
-                called_shots_block=called_shots_block,
-                transcript=transcript,
-            )
-            if diary:
-                os.makedirs("logs/diary", exist_ok=True)
-                diary_path = os.path.join("logs/diary", f"{date_str}_{activity_slug}.md")
-                with open(diary_path, "w", encoding="utf-8") as f:
-                    f.write(f"# Kira's Diary — {activity} ({date_str})\n\n")
-                    f.write(f"_~{session_duration_min} min · REVIEW MODE: not yet posted_\n\n")
-                    f.write(diary + "\n")
-                    f.flush()
-                    os.fsync(f.fileno())
-                self.pending_discord_summary = diary
-                self.pending_discord_summary_path = diary_path
-                self.pending_discord_summary_posted = False
-                results["diary"] = diary_path
-                print(f"   [Diary] Saved for review → {diary_path} (NOT posted)")
+        # PARKED 2026-08-02 (Jonny): posts felt random / not landing — skip generate
+        # + autopost until we un-park DISCORD_DIARY_PARKED. Lore/clips still run below.
+        from kira.config import DISCORD_DIARY_PARKED, DISCORD_AUTOPOST
+        if DISCORD_DIARY_PARKED:
+            print("   [Diary] PARKED — skipping diary generate/post "
+                  "(set DISCORD_DIARY_PARKED=false to resume review mode)")
+            results["diary"] = "parked"
+        else:
+            try:
+                diary = await self.generate_daily_summary(
+                    activity=activity,
+                    date_str=date_str,
+                    session_duration_min=session_duration_min,
+                    highlights_block=highlights_block,
+                    called_shots_block=called_shots_block,
+                    transcript=transcript,
+                )
+                if diary:
+                    os.makedirs("logs/diary", exist_ok=True)
+                    diary_path = os.path.join("logs/diary", f"{date_str}_{activity_slug}.md")
+                    with open(diary_path, "w", encoding="utf-8") as f:
+                        f.write(f"# Kira's Diary — {activity} ({date_str})\n\n")
+                        f.write(f"_~{session_duration_min} min · REVIEW MODE: not yet posted_\n\n")
+                        f.write(diary + "\n")
+                        f.flush()
+                        os.fsync(f.fileno())
+                    self.pending_discord_summary = diary
+                    self.pending_discord_summary_path = diary_path
+                    self.pending_discord_summary_posted = False
+                    results["diary"] = diary_path
+                    print(f"   [Diary] Saved for review → {diary_path} (NOT posted)")
 
-                from kira.config import DISCORD_AUTOPOST
-                if DISCORD_AUTOPOST:
-                    try:
-                        from kira.streaming.discord_poster import post_discord_message
-                        ok, detail = await post_discord_message(diary)
-                        self.pending_discord_summary_posted = bool(ok)
-                        print(f"   [Diary] AUTOPOST → {detail}")
-                    except Exception as e:
-                        print(f"   [Diary] Autopost failed: {e}")
-            else:
-                print("   [Diary] generate_daily_summary returned empty — no diary written.")
-        except Exception as e:
-            print(f"   [Diary] Diary stage failed: {e}")
-            traceback.print_exc()
+                    if DISCORD_AUTOPOST:
+                        try:
+                            from kira.streaming.discord_poster import post_discord_message
+                            ok, detail = await post_discord_message(diary)
+                            self.pending_discord_summary_posted = bool(ok)
+                            print(f"   [Diary] AUTOPOST → {detail}")
+                        except Exception as e:
+                            print(f"   [Diary] Autopost failed: {e}")
+                else:
+                    print("   [Diary] generate_daily_summary returned empty — no diary written.")
+            except Exception as e:
+                print(f"   [Diary] Diary stage failed: {e}")
+                traceback.print_exc()
 
         # D4 (Phase K): the head + format spec is SHARED with backfill_clips via
         # prompt_spec — one copy, no drift; clip_cutter's parser depends on it.
