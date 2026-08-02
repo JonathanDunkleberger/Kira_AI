@@ -966,7 +966,35 @@ class Traveler:
                 # class — the old loop re-entered it fresh every 3 minutes for the rest of the leg
                 # (latches cleared each time, so the same moveless lead re-spun the same futile turns).
                 if outcome in ("stuck", "timeout") and st.in_battle(self.b):
-                    _bstuck[0] += 1
+                    # DECIDED-WIN GUARD (2026-08-02): if every enemy mon is already dead, this is a
+                    # mid-victory abort — re-entering looks like a fight rewind on stream. Hand off
+                    # one more BattleAgent attach (re-entry corpse guard drains the win) WITHOUT
+                    # counting toward the breaker; only unresolved LIVE fights escalate.
+                    _foes_live = 0
+                    try:
+                        for _es in range(6):
+                            _esp = st.read_enemy_species(self.b, _es)
+                            if not (1 <= _esp <= 411):
+                                continue
+                            if self.b.rd16(ram.GENEMY_PARTY + _es * 100 + 0x56) > 0:
+                                _foes_live += 1
+                    except Exception:
+                        _foes_live = 99
+                    if _foes_live == 0:
+                        self.log("   [travel] battle returned "
+                                 f"{outcome} but enemy party is WIPED — finishing victory chain "
+                                 f"(refuse fight-reset re-entry loop)")
+                        outcome = self.battle_runner()
+                        if outcome == "loss":
+                            self.on_event("we got knocked out... I need to regroup")
+                            return "battle_loss"
+                        if not (outcome in ("stuck", "timeout") and st.in_battle(self.b)):
+                            _bstuck[0] = 0
+                            # fall through to post-battle resume below
+                        else:
+                            _bstuck[0] += 1
+                    else:
+                        _bstuck[0] += 1
                     if _bstuck[0] >= 3:
                         self.log("   [travel] !! BATTLE-LOOP BREAKER: 3 consecutive unresolved 'stuck' "
                                  "battles — aborting the leg LOUD (no infinite re-entry)")

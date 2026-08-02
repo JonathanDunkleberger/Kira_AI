@@ -415,6 +415,72 @@ class BattleAgent:
         except Exception:
             return 99
 
+    def _decided_win(self):
+        """True when the fight is already OVER for us — last foe down, we still standing.
+        Used to forbid stuck/timeout aborts that make travel RE-ENTER the victory drain
+        (2026-08-02 Rock Tunnel chalk: win beat → rewind into last seconds of the fight)."""
+        try:
+            if self._we_fainted:
+                return False
+            if not (self._enemy_fainted or self._win_emitted):
+                return False
+            return self._enemy_live_remaining() == 0
+        except Exception:
+            return False
+
+    def _drain_decided_win(self, grace_s=120):
+        """Keep mashing the victory chain until the battle exits. NEVER return stuck/timeout
+        while the win is decided — those aborts are what travel re-enters as a 'fight reset'."""
+        t0 = time.time()
+        n = 0
+        self.log(f"   [engine] DECIDED-WIN DRAIN: last foe down — finishing victory chain "
+                 f"(grace {grace_s}s; will NOT abort mid-win for re-entry)")
+        while time.time() - t0 < grace_s:
+            if not st.in_battle(self.b):
+                return self._finish()
+            n += 1
+            # Escalate clears the same way as drain armor, but never bail to stuck.
+            if n == 40:
+                self.log("   [engine] decided-win drain: 40 advances — B-first pairs")
+                self._debug_snap("decided_win40")
+            elif n == 80:
+                self.log("   [engine] decided-win drain: 80 advances — START tap")
+                self._debug_snap("decided_win80")
+                self.b.press("START", 2, 14, self.render, owner=self.owner)
+                self._wait(16)
+            elif n > 0 and n % 120 == 0:
+                self.log(f"   [engine] decided-win drain still live at {n} advances — "
+                         f"keeping on (NOT stuck; win is decided)")
+                self._debug_snap(f"decided_win{n}")
+                self.b.press("START", 2, 14, self.render, owner=self.owner)
+                self._wait(16)
+            if n >= 40:
+                self.b.press("B", 2, 14, self.render, owner=self.owner)
+                self._wait(16)
+                self.b.press("A", 2, 14, self.render, owner=self.owner)
+                self._wait(16)
+            else:
+                self._advance_text(force_b=True)
+        # Grace spent but still in battle — one last hard mash, then finish as win if cleared.
+        self.log("   [engine] !! decided-win grace spent — hard mash then exit (LOUD)")
+        for _ in range(60):
+            if not st.in_battle(self.b):
+                return self._finish()
+            self.b.press("B", 2, 10, self.render, owner=self.owner)
+            self._wait(8)
+            self.b.press("A", 2, 10, self.render, owner=self.owner)
+            self._wait(8)
+        if not st.in_battle(self.b):
+            return self._finish()
+        # Still open: report win anyway so travel does NOT treat this as stuck and re-enter.
+        # The next tick's _wait_overworld / a fresh attach will keep draining; aborting as
+        # stuck is what caused the visible fight-reset loop on stream.
+        self.log("   [engine] !! decided-win still in_battle after hard mash — returning win "
+                 f"(refuse re-entry loop; in_battle={st.in_battle(self.b)})")
+        if not self._win_emitted:
+            self._win_emitted = True
+        return "win"
+
     # ── events + performance beats ─────────────────────────────────────────────
     def emit(self, summary, beat=False, tier=None):
         """NEUTRAL game-event -> her self. beat=True is a PERFORMANCE moment: yield the
@@ -3026,6 +3092,13 @@ class BattleAgent:
                         self.b.press("START", 2, 14, self.render, owner=self.owner)
                         self._wait(16)
                     elif self._drain_noprog >= 120:
+                        # DECIDED WIN (2026-08-02 Rock Tunnel): never abort mid-victory — travel
+                        # re-enters the same fight and the stream watches the last seconds rewind.
+                        if self._decided_win():
+                            self.log("   [engine] !! post-faint drain wedged BUT win is DECIDED — "
+                                     "extending decided-win drain (refuse fight-reset re-entry)")
+                            self._debug_snap("drain120_decided_win")
+                            return self._drain_decided_win()
                         self.log("   [engine] !! post-faint drain WEDGED (120 no-progress advances) "
                                  "-> LOUD stuck + frame; never the silent 420s spin again")
                         self._debug_snap("drain120")
@@ -3294,9 +3367,19 @@ class BattleAgent:
                 self._advance_text()                  # BLUE dialogue/animation box -> advance it
                 stall += 1
             if stall >= 30:                           # genuine wedge -> loud abort, never silent
+                if self._decided_win():
+                    self.log("   [engine] !! stall≥30 but win DECIDED — finishing victory chain "
+                             "(refuse fight-reset re-entry)")
+                    return self._drain_decided_win()
                 self.log("   [engine] !! battle wedged - no progress over 30 attempts, aborting loudly")
                 self.emit("okay I'm properly stuck, the menu's glitched", beat=False)
                 return "stuck"
+        # Budget exhausted: if the fight is already won, NEVER hand travel a timeout that
+        # re-attaches mid-victory (Rock Tunnel trainer loop, 2026-08-02).
+        if self._decided_win():
+            self.log(f"   [engine] !! battle budget exhausted ({max_seconds}s) but win DECIDED — "
+                     f"extending decided-win drain (refuse timeout re-entry)")
+            return self._drain_decided_win()
         return "timeout"
 
     def _finish(self):

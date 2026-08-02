@@ -413,10 +413,14 @@ def main():
                 snap.append((st.read_party_species(b, s), b.rd16(base + 0x56)))
             return snap
         party0 = _party_hp()
+        # Trainers (Rock Tunnel gauntlet etc.) need headroom for multi-mon + EXP + level-up
+        # drains; 180s was exhausting mid-victory and travel re-entered the same fight
+        # (2026-08-02 stream: win → rewind into last seconds). Wilds stay at 180.
+        _budget = 420 if trainer else 180
         out = BattleAgent(b, on_event=voice.emit, render=render,
                           pace=(None if args.no_pace else pace),
                           choose=voice.choose,          # PART B: in-battle "use your items" instinct -> her
-                          log=lambda m: None).run(max_seconds=180)
+                          log=lambda m: None).run(max_seconds=_budget)
         voice.clear_context()
         _end_beat = False       # P-3: did a bigger beat already own this battle's ending?
         # HIGHLIGHT (Phase 4): a CLUTCH win — she pulled it out at a sliver of HP. Post-battle the lead

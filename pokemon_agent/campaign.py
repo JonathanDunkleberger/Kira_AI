@@ -15279,15 +15279,19 @@ class Campaign:
             if AUTO_CKPT_ENABLED:
                 _now = _t.time()
                 _cave_here = False
+                _mid_battle_ckpt = False
                 try:
                     _mid_ck = tuple(tv.map_id(self.b))
                     _cave_here = (_mid_ck in getattr(self, "_CELADON_SPINE_MAPS", ())
                                   and _mid_ck[0] == 1) or _mid_ck in {(1, 81), (1, 82)}
+                    _mid_battle_ckpt = st.in_battle(self.b)
                 except Exception:
                     _cave_here = False
                 _every = CKPT_EVERY_CAVE_S if _cave_here else CKPT_EVERY_S
                 _due = (_now - self._last_ckpt_t) >= _every
-                if _gain_reason is not None or _due:
+                if _mid_battle_ckpt and (_gain_reason is not None or _due):
+                    log("   [roam] AUTO-CHECKPOINT deferred — mid-battle (refuse fight-rewind pin)")
+                elif _gain_reason is not None or _due:
                     if not _saved_this_tick:
                         self._save_campaign("ckpt"); self._continuity_save()
                     self._auto_checkpoint(
@@ -15469,7 +15473,9 @@ class Campaign:
             # become the escape target — that was THE bug: the escape-hatch reloaded straight back into
             # the strand, looping forever (observed infinite STALL). A poisoned checkpoint is worse than
             # none. Both recent-good AND the gain-seam ring are guarded.
-            if macro == ledger.GREEN and not self._center_reachable_here():
+            if macro == ledger.GREEN and st.in_battle(self.b):
+                log("   [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)")
+            elif macro == ledger.GREEN and not self._center_reachable_here():
                 log("   [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to "
                     "bank a poisoned escape target (would reload back into the strand)")
             elif macro == ledger.GREEN:
@@ -16481,6 +16487,15 @@ class Campaign:
             log(f"   !! CAMPAIGN SAVE REFUSED [{reason}]: the live world reads DEAD (title-screen "
                 f"signature — map (0,0), party 0). NOT poisoning the anchor (LOUD)")
             return False
+        # MID-BATTLE GUARD (2026-08-02): denser cave CKPTs + heartbeat saves must NEVER bank a
+        # fight-in-progress — escape-hatch / resume then rewind into the last seconds of the fight.
+        try:
+            if st.in_battle(self.b):
+                log(f"   !! CAMPAIGN SAVE REFUSED [{reason}]: mid-battle — not banking a fight "
+                    f"rewind target (LOUD)")
+                return False
+        except Exception:
+            pass
         try:
             os.makedirs(STATES_CAMPAIGN, exist_ok=True)
             path = os.path.join(STATES_CAMPAIGN, CAMPAIGN_SAVE)
