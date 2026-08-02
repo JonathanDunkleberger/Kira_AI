@@ -48,10 +48,20 @@ function Say([string]$m) {
     Add-Content -Path $mainLog -Value $m
 }
 function RunLogged([string]$label, [scriptblock]$cmd) {
+    # Quiet by default: huge Format-Table dumps (states/ + logs\debug) were flooding the
+    # console as "glitched numbers scrolling forever" and hid whether launch actually ran
+    # (2026-08-02 13:43 chalk). Full text still goes to the soak report file.
     Say "== $label =="
     $out = & $cmd 2>&1 | Out-String -Width 300
-    Write-Host $out
     Add-Content -Path $mainLog -Value $out
+    $lines = @($out -split "`r?`n" | Where-Object { $_ -ne "" })
+    if ($lines.Count -le 40) {
+        Write-Host $out
+    } else {
+        Write-Host ($lines[0..19] -join "`n")
+        Write-Host ("... ($($lines.Count) lines -> $mainLog; not dumping all to console) ...")
+        Write-Host ($lines[($lines.Count - 5)..($lines.Count - 1)] -join "`n")
+    }
     return $out
 }
 # Newest file mtime anywhere inside a directory (folder mtimes lie on Windows).
@@ -132,9 +142,9 @@ if (Test-Path $envFile) {
 # 1) crash forensics
 Say "== crash forensics =="
 $dbg = Join-Path $RepoRoot "logs\debug"
-RunLogged "logs\debug listing (newest first)" {
+RunLogged "logs\debug listing (newest 25)" {
     Get-ChildItem $dbg -File -ErrorAction SilentlyContinue |
-        Sort-Object LastWriteTime -Descending |
+        Sort-Object LastWriteTime -Descending | Select-Object -First 25 |
         Select-Object Name, LastWriteTime, Length | Format-Table -AutoSize
 } | Out-Null
 Copy-Item (Join-Path $dbg "playlive_crash_*.log") $report -ErrorAction SilentlyContinue
@@ -346,18 +356,21 @@ if (Test-Path $targetFile) {
 
 # 4) push the report (and the consumed target file) to GitHub
 # NOTE: separate git add calls - a pathspec that matches nothing must not sink the whole add.
+Say "== push soak report (this can take ~30s; console stays quiet on purpose) =="
 RunLogged "push soak report" {
     git add -A docs\soak-reports
     git add -A pokemon_agent\PROMOTE_TARGET.txt 2>&1 | Out-Null
     git commit -m "report(soak): $ts inventory/rescue (auto from resume_marathon.ps1)"
     git push origin main
 } | Out-Null
+Say "push soak report finished (see log if git complained)."
 
 # 5) launch
 if (-not $launchApproved) { Say "done (no launch this run)."; exit 0 }
 if ($NoLaunch) { Say "done (-NoLaunch)."; exit 0 }
 
 Say "== launching bot (window 1) =="
+Say "    expect: a PowerShell titled roughly 'python run.py' + browser dashboard at :8766"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python run.py"
 
 Say "waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)..."
@@ -368,16 +381,20 @@ for ($j = 0; $j -lt 60; $j++) {
         $r = Invoke-WebRequest -Uri "http://127.0.0.1:8766/" -UseBasicParsing -TimeoutSec 3
         if ($r.StatusCode -eq 200) { $botUp = $true; break }
     } catch { }
+    if (($j % 5) -eq 4) { Say "    still waiting for bot... ($([int](($j+1)*3))s)" }
 }
 if (-not $botUp) {
     Say "!! bot never came up - check window 1 for the error, then rerun this script to send fresh logs."
     exit 1
 }
 Say "bot is up. == launching supervised marathon (window 2) =="
+Say "    expect: a PowerShell for supervisor.py, THEN the FireRed / mGBA game window"
 # FREE-ROAM (sherpa timeline) is the full-game engine - the one that finished fresh_go_6 to
 # credits. The showtime spine is a scripted opener that ENDS at its last segment (Misty) and
 # loop-retries a lost gym; it is not the marathon vehicle. Canonical campaign now carries the
 # migrated stream run; the supervisor resumes it on every crash.
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$RepoRoot'; .\.venv\Scripts\Activate.ps1; python pokemon_agent\supervisor.py --timeline sherpa --audio"
+Start-Sleep -Seconds 8
 Say "She is live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking."
+Say "If the GAME window never appears: look at window 2 for a Traceback (ROM path / SDL / mgba)."
 Say "To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T"
