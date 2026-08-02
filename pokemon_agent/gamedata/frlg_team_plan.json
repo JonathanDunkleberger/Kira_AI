@@ -87,6 +87,7 @@
    ],
 
    "teach_plan": [
+    {"tm": "TM13", "move": "ice-beam", "to": "blastoise", "where": "Celadon Game Corner (4000 coins; cash→coins)", "when_badge": 3, "for": ["Erika", "Giovanni", "Lance"], "note": "actuated by game_corner.IceBeamErrand before beat_gym(Erika)"},
     {"tm": "TM29", "move": "psychic", "to": "kadabra", "where": "Saffron (Mr. Psychic, free)", "when_badge": 6, "for": ["Koga", "Sabrina", "Bruno", "Agatha"]},
     {"tm": "TM30", "move": "shadow-ball", "to": "kadabra", "where": "Celadon Game Corner (4500 coins)", "when_badge": 4, "for": ["Sabrina", "Agatha"]},
     {"tm": "TM13", "move": "ice-beam", "to": "lapras", "where": "Celadon Game Corner (4000 coins)", "when_badge": 6, "for": ["Lance", "Giovanni", "Agatha"]},

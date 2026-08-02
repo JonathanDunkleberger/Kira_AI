@@ -4575,6 +4575,17 @@ class Campaign:
         gym = GYMS.get(name)
         if gym is None:
             log(f"   !! GYM: no spec for '{name}'"); return "stuck"
+        # ICE BEAM ERRAND (2026-08-02, Celadon chalk): before Erika, Game Corner cash→coins→
+        # TM13 → teach the ace. Human let's-play tech (Ice into Grass); same TM later hits
+        # Giovanni/Lance. Idempotent; broke/no-learner LOUD-skips. BEFORE prep so coverage
+        # teach sees Ice Beam already on the moveset.
+        if name == "Erika":
+            try:
+                from game_corner import IceBeamErrand
+                _ibr = IceBeamErrand(self, log=log).run()
+                log(f"   GYM-PREP [Erika]: ice-beam errand -> {_ibr}")
+            except Exception as e:
+                log(f"   !! GYM-PREP ice-beam errand crashed ({e}) — entering Erika as-is (LOUD)")
         # Fix B: ENFORCED pre-gym readiness (catch a team / type answer / level) BEFORE entering — she
         # must never solo a gym underleveled. Best-effort; a crash here never blocks the gym (LOUD).
         try:

@@ -143,8 +143,8 @@
 
  "key_moves": {
   "_doc": "the handful of TMs/moves that change what the team can DO. The planner names these as a want when the matching threat is ahead and she has a good user for it.",
-  "ice beam":    {"tm": "TM13", "where": "Celadon Dept. Store 4F (buy, ~4000)", "type": "ice", "why": "THE dragon-slayer — 4x on Lance's Dragonite and huge on his Dragonairs; also stellar neutral coverage. Teach it to Lapras or any Water-type", "for": ["Lance", "Giovanni", "Agatha"]},
-  "thunderbolt": {"tm": "TM24", "where": "Celadon Dept. Store 4F (buy, ~4000)", "type": "electric", "why": "hits Lorelei's water mons AND Lance's Gyarados/Aerodactyl hard; a clean Misty answer too", "for": ["Lorelei", "Lance", "Misty"]},
+  "ice beam":    {"tm": "TM13", "where": "Celadon Game Corner prize desk (4000 coins; buy coins with cash)", "type": "ice", "why": "Melts Erika's grass line; later THE dragon-slayer — 4x on Lance's Dragonite. Teach it to Blastoise/Lapras/any Water-type", "for": ["Erika", "Lance", "Giovanni", "Agatha"]},
+  "thunderbolt": {"tm": "TM24", "where": "Celadon Game Corner prize desk (4000 coins)", "type": "electric", "why": "hits Lorelei's water mons AND Lance's Gyarados/Aerodactyl hard; a clean Misty answer too", "for": ["Lorelei", "Lance", "Misty"]},
   "earthquake":  {"tm": "TM26", "where": "Silph Co. (gift on 7F) / found in the Rocket Hideout", "type": "ground", "why": "the best Ground move in the game — smashes Surge, Blaine, Koga and Agatha's poison", "for": ["Lt. Surge", "Agatha", "Blaine", "Koga"]},
   "psychic":     {"tm": "TM29", "where": "Saffron gym reward (beat Sabrina) / Celadon Game Corner", "type": "psychic", "why": "nukes Koga's poison, Bruno's fighters and Agatha's ghosts", "for": ["Koga", "Bruno", "Agatha"]},
   "fire blast":  {"tm": "TM38", "where": "Celadon Game Corner prize", "type": "fire", "why": "a heavy Fire nuke — melts Erika and any Grass/Ice/Bug", "for": ["Erika"]},
