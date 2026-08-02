@@ -1,0 +1,1500 @@
+   [travel] step 0: (21, 16)->(21, 15) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (20, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(20, 15) -> coord (22, 15) (budget 80s)
+
+   [travel] step 0: (20, 15)->(21, 15) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (22, 15)
+
+   [campaign]    GRIND: trained to Lv15 (target 19)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L15) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: wall-clock budget — partial progress (levels [15, 14, 17, 36, 15, 13]), restoring ace; the next tick re-enters
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 3, L36) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: battle -> ok | pos (3, 29)(22, 14) -> (3, 29)(22, 15) (MOVED)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (2, 6, 10, 110) @ Route 11 (ring=3/4)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 11 (22, 15) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, spearow L17, rattata L15, abra L15, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 29) (22,15) f4 -- badge2 $360 party:8f2c bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: EAST → an unexplored area (BLOCKED — you can\'t get past there yet); WEST → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 6; Route 2; Route 1. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY". YOUR PLAN — right now: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge. Next: Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), caterpie the butterfree (L14), spearow (L17), rattata (L15), abra (L15), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), spearow (L17), rattata (L15), abra (L15), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'heal', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26'] -> pick='battle'
+
+   [campaign]    [soul] ORACLE pick -> 'battle'
+
+   [campaign]    [roam] DECISION THINK: 5904ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: battle
+
+   [campaign]    [roam] RATIONALE: Team's under-levelled — grinding butterfree, spearow, rattata and ekans up to ~L19 (fielding them, not my ace) so I can push through, then on to Vermilion City for Lt. Surge.
+
+   [campaign]    GRIND-WEAK: team floor under L19 — fielding the weak ones (not the ace) to raise the team's floor; levels now [36, 14, 17, 15, 15, 13]
+
+   [campaign]    GRIND-WEAK: fielding slot 4 (L15) as lead to train it
+
+   [campaign]    GRIND-WEAK: swap 0<->4 verified — abra now leads
+
+   [campaign]    GRIND: Lv15 < 19 - heading to the grass to train [FRAGILE: reachable grass only]
+
+   [kira-voice] -> T1·brisk· (grind) "training time — abra leads so it soaks up the XP, and if things get hairy my L36 closer steps in to finish. that's the trick."  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(22, 15) -> coord (23, 15) (budget 80s)
+
+   [travel] step 0: (22, 15)->(23, 15) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (23, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 15) -> coord (22, 14) (budget 80s)
+
+   [travel] step 0: (23, 15)->(23, 14) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (22, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(22, 14) -> coord (21, 15) (budget 80s)
+
+   [travel] step 0: (22, 14)->(22, 15) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (21, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(21, 15) -> coord (22, 16) (budget 80s)
+
+   [travel] step 0: (21, 15)->(21, 16) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (22, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(22, 16) -> coord (21, 16) (budget 80s)
+
+   [travel] step 0: (22, 16)->(21, 16) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (21, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(21, 16) -> coord (23, 16) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 15ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against ekans — your abra is up front'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out ekans'
+
+   [kira-voice] -> T2·savor· (event) "I'm out of real moves on this one — switching to someone who can still hit."  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's ekans went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] reached target coord (23, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 16) -> coord (23, 15) (budget 80s)
+
+   [travel] step 0: (23, 16)->(23, 15) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (23, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 15) -> coord (24, 16) (budget 80s)
+
+   [travel] step 0: (23, 15)->(23, 16) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (24, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(24, 16) -> coord (24, 15) (budget 80s)
+
+   [travel] step 0: (24, 16)->(24, 15) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (24, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(24, 15) -> coord (25, 16) (budget 80s)
+
+   [travel] step 0: (24, 15)->(24, 16) map=(3, 29) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (24, 16) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against ekans — your abra is up front'
+
+   [kira-voice] -> T2·savor· (event) "I'm out of real moves on this one — switching to someone who can still hit."  fired=True  [age 0.0s + post 21ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's ekans went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (25, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(25, 16) -> coord (23, 16) (budget 80s)
+
+   [travel] step 0: (25, 16)->(24, 16) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (23, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 16) -> coord (24, 14) (budget 80s)
+
+   [travel] step 0: (23, 16)->(23, 15) map=(3, 29) (path 4 to exit)
+
+   [travel] reached target coord (24, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(24, 14) -> coord (25, 14) (budget 80s)
+
+   [travel] step 0: (24, 14)->(25, 14) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (25, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(25, 14) -> coord (24, 15) (budget 80s)
+
+   [travel] step 0: (25, 14)->(25, 15) map=(3, 29) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (25, 15) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against spearow — your abra is up front'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out spearow'
+
+   [kira-voice] -> T2·savor· (event) "I'm out of real moves on this one — switching to someone who can still hit."  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's spearow went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 43ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (24, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(24, 15) -> coord (24, 13) (budget 80s)
+
+   [travel] step 0: (24, 15)->(24, 14) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (24, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(24, 13) -> coord (23, 14) (budget 80s)
+
+   [travel] step 0: (24, 13)->(24, 14) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (23, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 14) -> coord (23, 13) (budget 80s)
+
+   [travel] step 0: (23, 14)->(23, 13) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (23, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 13) -> coord (24, 14) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against drowzee — your abra is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out drowzee'
+
+   [kira-voice] -> T2·savor· (event) "I'm out of real moves on this one — switching to someone who can still hit."  fired=True  [age 0.0s + post 22ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's drowzee went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 18ms]
+
+   [travel] reached target coord (24, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(24, 14) -> coord (23, 15) (budget 80s)
+
+   [travel] step 0: (24, 14)->(24, 15) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (23, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 15) -> coord (22, 14) (budget 80s)
+
+   [travel] step 0: (23, 15)->(23, 14) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (22, 14)
+
+   [campaign]    GRIND: trained to Lv15 (target 19)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L15) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: fielding slot 2 (L17) as lead to train it
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — spearow now leads
+
+   [kira-voice] ·floor· (<1s since last) T1 "training time — spearow leads so it soaks up the XP, and if things get hairy my L36 closer steps in to finish. that's the trick."
+
+   [campaign]    GRIND: Lv17 < 19 - heading to the grass to train [FRAGILE: reachable grass only]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(22, 14) -> coord (21, 14) (budget 80s)
+
+   [travel] step 0: (22, 14)->(21, 14) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (21, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(21, 14) -> coord (22, 13) (budget 80s)
+
+   [travel] step 0: (21, 14)->(21, 13) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (22, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(22, 13) -> coord (22, 15) (budget 80s)
+
+   [travel] step 0: (22, 13)->(22, 14) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (22, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(22, 15) -> coord (23, 14) (budget 80s)
+
+   [travel] step 0: (22, 15)->(22, 14) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (23, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 14) -> coord (23, 13) (budget 80s)
+
+   [travel] step 0: (23, 14)->(23, 13) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (23, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 13) -> coord (24, 14) (budget 80s)
+
+   [travel] step 0: (23, 13)->(23, 14) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (24, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(24, 14) -> coord (23, 15) (budget 80s)
+
+   [travel] step 0: (24, 14)->(24, 15) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (23, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(23, 15) -> coord (21, 14) (budget 80s)
+
+   [travel] step 0: (23, 15)->(23, 14) map=(3, 29) (path 4 to exit)
+
+   [travel] reached target coord (21, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(21, 14) -> coord (20, 14) (budget 80s)
+
+   [travel] step 0: (21, 14)->(20, 14) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (20, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(20, 14) -> coord (21, 13) (budget 80s)
+
+   [travel] step 0: (20, 14)->(20, 13) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (21, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(21, 13) -> coord (21, 15) (budget 80s)
+
+   [travel] step 0: (21, 13)->(21, 14) map=(3, 29) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (21, 14) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against ekans — your spearow is up front'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] -> T1·brisk· (event) "spearow showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 19ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's ekans went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+
+   [campaign]    HEAL: unmapped (3, 29) — ADJACENT city Vermilion City (W) has a registered Center; one-edge heal excursion
+
+   [campaign]    HEAL-EXCURSION: lead at (28, 45) - crossing west to (3, 5) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(21, 14) -> map (3, 5) (budget 120s)
+
+   [travel] west connection band rows: [6, 8, 9, 10]
+
+   [travel] step 0: (21, 14)->(21, 13) map=(3, 29) (path 26 to exit)
+
+   [travel] step 10: (15, 10)->(14, 10) map=(3, 29) (path 16 to exit)
+
+   [travel] step 20: (5, 10)->(4, 10) map=(3, 29) (path 6 to exit)
+
+   [travel] MAP TRANSITION (3, 29) -> (3, 5)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 5) coords=(47, 20)
+
+   [campaign]    HEAL: lead at 28/45 -> routing to the Pokemon Center on (3, 5) via door (15, 6) (will return to (47, 20))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(47, 20) -> coord (15, 7) (budget 120s)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 128ms]
+
+   [travel] step 0: (47, 20)->(47, 19) map=(3, 5) (path 46 to exit)
+
+   [travel] step 10: (38, 19)->(37, 19) map=(3, 5) (path 36 to exit)
+
+   [travel] step 20: (29, 18)->(28, 18) map=(3, 5) (path 26 to exit)
+
+   [travel] step 30: (26, 11)->(26, 10) map=(3, 5) (path 16 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 5) coords=(20, 7) elapsed=5s
+
+   [travel] step 40: (20, 7)->(19, 7) map=(3, 5) (path 6 to exit)
+
+   [travel] reached target coord (15, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Thank you for waiting. We've restored your POK.MON to full health."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Thank you for waiting. We\'ve restored your POK.MON to full health."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    HEAL: restored party to full (lead was 28/45)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 1) coords=(7, 4) -> coord (7, 7) (budget 60s)
+
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'We hope to see you again!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "We hope to see you again!"'  fired=True  [age 0.0s + post 2ms]
+
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(4, 8), (6, 4), (7, 2), (12, 5), (14, 3)] -> approaching to interact/trigger
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    EXIT-BUILDING: (9, 1) -> (3, 5)@(15, 7)
+
+   [campaign]    HEAL: exited Center -> map=(3, 5) coords=(15, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(15, 7) -> coord (47, 20) (budget 120s)
+
+   [travel] step 0: (15, 7)->(15, 8) map=(3, 5) (path 46 to exit)
+
+   [travel] step 10: (20, 12)->(20, 13) map=(3, 5) (path 36 to exit)
+
+   [travel] step 20: (22, 20)->(23, 20) map=(3, 5) (path 26 to exit)
+
+   [travel] step 30: (32, 20)->(33, 20) map=(3, 5) (path 16 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 5) coords=(42, 20) elapsed=6s
+
+   [travel] step 40: (42, 20)->(43, 20) map=(3, 5) (path 6 to exit)
+
+   [travel] reached target coord (47, 20)
+
+   [campaign]    HEAL: returned toward (47, 20) -> arrived (now (47, 20))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(47, 20) -> map (3, 29) (budget 120s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] step 0: (47, 20)->(0, 10) map=(3, 5) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 5) -> (3, 29)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [travel] east connection band rows: [9, 10, 11]
+
+   [travel] ARRIVED at target map (3, 29) coords=(0, 10)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    HEAL-EXCURSION: healed + back on (3, 29) at (0, 10)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(0, 10) -> coord (19, 14) (budget 80s)
+
+   [travel] step 0: (0, 10)->(1, 10) map=(3, 29) (path 24 to exit)
+
+   [travel] step 10: (10, 10)->(11, 10) map=(3, 29) (path 14 to exit)
+
+   [travel] step 20: (16, 14)->(17, 14) map=(3, 29) (path 4 to exit)
+
+   [travel] reached target coord (19, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(19, 14) -> coord (19, 13) (budget 80s)
+
+   [travel] step 0: (19, 14)->(19, 13) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (19, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(19, 13) -> coord (20, 14) (budget 80s)
+
+   [travel] step 0: (19, 13)->(19, 14) map=(3, 29) (path 3 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (19, 14) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against ekans — your spearow is up front'  fired=True  [age 0.0s + post 128ms]
+
+   [kira-voice] -> T1·brisk· (event) "spearow showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's ekans went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 11ms]
+
+   [travel] reached target coord (20, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(20, 14) -> coord (18, 14) (budget 80s)
+
+   [travel] step 0: (20, 14)->(19, 14) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (18, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(18, 14) -> coord (19, 15) (budget 80s)
+
+   [travel] step 0: (18, 14)->(18, 15) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (19, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(19, 15) -> coord (19, 14) (budget 80s)
+
+   [travel] step 0: (19, 15)->(19, 14) map=(3, 29) (path 2 to exit)
+
+   [travel] reached target coord (19, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(19, 14) -> coord (19, 16) (budget 80s)
+
+   [travel] step 0: (19, 14)->(19, 15) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (19, 16)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(19, 16) -> coord (20, 15) (budget 80s)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against spearow — your spearow is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out spearow'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "spearow showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's spearow went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] reached target coord (20, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(20, 15) -> coord (18, 15) (budget 80s)
+
+   [travel] step 0: (20, 15)->(19, 15) map=(3, 29) (path 3 to exit)
+
+   [travel] reached target coord (18, 15)
+
+   [campaign]    GRIND: trained to Lv17 (target 19)
+
+   [campaign]    GRIND-WEAK: fielded mon made NO progress (still L17) — marking it un-grindable on this route (stalled) so the pass never loops on it
+
+   [campaign]    GRIND-WEAK: floor NOT crossed, but the remaining under-L19 member(s) [0, 1, 2, 3, 5] can't earn XP here (stalled) — pushing on with the strong core (levels [17, 14, 15, 15, 36, 13]) instead of spinning
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 4, L36) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->4 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: battle -> ready | pos (3, 29)(22, 15) -> (3, 29)(18, 15) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(3, 29) coords=(18, 15) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_071916_route-11_2b_14h43m_periodic  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign]    [roam] LOPSIDED-DBG: floor=13 lead=36 ms=25 prep_t=19 ms_gap=12 ace_gap=23 done=[]
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 11 (18, 15) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 29) (18,15) f3 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [campaign]    [soul] surface_want FIRE -> Route 11
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 29), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get Blastoise to L38, push at least one bench mon to L20'
+
+   [campaign]    [soul] ORACLE pick -> 'get Blastoise to L38, push at least one bench mon to L20'
+
+   [soul] !! UNGROUNDED WANT (F-8): 'get Blastoise to L38, push at least one bench mon to L20' names ['blastoise'] already on the team — the grounded ask didn't take (flagged for the descent grade; her words kept)
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: EAST → an unexplored area (BLOCKED — you can\'t get past there yet); WEST → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 6; Route 2; Route 1. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY". YOUR PLAN — right now: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge. Next: Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [kira-voice] -> T2·savor· (want) 'get Blastoise to L38, push at least one bench mon to L20'  fired=True  [age 0.0s + post 10ms]
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26'] -> pick='battle'
+
+   [campaign]    [soul] ORACLE pick -> 'battle'
+
+   [campaign]    [roam] DECISION THINK: 2639ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: battle
+
+   [campaign]    [roam] RATIONALE: Team's under-levelled — grinding butterfree, rattata, spearow and ekans up to ~L19 (fielding them, not my ace) so I can push through, then on to Vermilion City for Lt. Surge.
+
+   [campaign]    GRIND-WEAK: team floor under L19 — fielding the weak ones (not the ace) to raise the team's floor; levels now [36, 14, 15, 15, 17, 13]
+
+   [campaign]    GRIND-WEAK: floor NOT crossed, but the remaining under-L19 member(s) [1, 2, 3, 4, 5] can't earn XP here (stalled) — pushing on with the strong core (levels [36, 14, 15, 15, 17, 13]) instead of spinning
+
+   [campaign]    [roam] RESULT: battle -> ready | pos (3, 29)(18, 15) -> (3, 29)(18, 15) (NO MOVEMENT)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign]    [roam] LOPSIDED-DBG: floor=13 lead=36 ms=25 prep_t=19 ms_gap=12 ace_gap=23 done=[]
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 11 (18, 15) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 29) (18,15) f3 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: EAST → an unexplored area (BLOCKED — you can\'t get past there yet); WEST → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 6; Route 2; Route 1. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY". YOUR PLAN — right now: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge. Next: Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26'] -> pick='battle'
+
+   [campaign]    [soul] ORACLE pick -> 'battle'
+
+   [campaign]    [roam] DECISION THINK: 2285ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: battle
+
+   [campaign]    [roam] RATIONALE: Team's under-levelled — grinding butterfree, rattata, spearow and ekans up to ~L19 (fielding them, not my ace) so I can push through, then on to Vermilion City for Lt. Surge.
+
+   [campaign]    GRIND-WEAK: team floor under L19 — fielding the weak ones (not the ace) to raise the team's floor; levels now [36, 14, 15, 15, 17, 13]
+
+   [campaign]    GRIND-WEAK: floor NOT crossed, but the remaining under-L19 member(s) [1, 2, 3, 4, 5] can't earn XP here (stalled) — pushing on with the strong core (levels [36, 14, 15, 15, 17, 13]) instead of spinning
+
+   [campaign]    [roam] RESULT: battle -> ready | pos (3, 29)(18, 15) -> (3, 29)(18, 15) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick5] -> campaign/kira_campaign.state  (map=(3, 29) coords=(18, 15) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign]    [roam] LOPSIDED-DBG: floor=13 lead=36 ms=25 prep_t=19 ms_gap=12 ace_gap=23 done=[]
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 11 (18, 15) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 29) (18,15) f3 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: EAST → an unexplored area (BLOCKED — you can\'t get past there yet); WEST → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 6; Route 2; Route 1. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY". YOUR PLAN — right now: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge. Next: Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26'] -> pick='battle'
+
+   [campaign]    [soul] ORACLE pick -> 'battle'
+
+   [campaign]    [roam] DECISION THINK: 9863ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: battle
+
+   [campaign]    [roam] RATIONALE: Team's under-levelled — grinding butterfree, rattata, spearow and ekans up to ~L19 (fielding them, not my ace) so I can push through, then on to Vermilion City for Lt. Surge.
+
+   [campaign]    GRIND-WEAK: team floor under L19 — fielding the weak ones (not the ace) to raise the team's floor; levels now [36, 14, 15, 15, 17, 13]
+
+   [campaign]    GRIND-WEAK: floor NOT crossed, but the remaining under-L19 member(s) [1, 2, 3, 4, 5] can't earn XP here (stalled) — pushing on with the strong core (levels [36, 14, 15, 15, 17, 13]) instead of spinning
+
+   [campaign]    [roam] RESULT: battle -> ready | pos (3, 29)(18, 15) -> (3, 29)(18, 15) (NO MOVEMENT)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign]    [roam] LOPSIDED-DBG: floor=13 lead=36 ms=25 prep_t=19 ms_gap=12 ace_gap=23 done=[]
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 11 (18, 15) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 29) (18,15) f3 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [campaign]    [soul] surface_want FIRE -> Route 11
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 29), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='grind Blastoise to L38, push Ekans toward L20'
+
+   [campaign]    [soul] ORACLE pick -> 'grind Blastoise to L38, push Ekans toward L20'
+
+   [soul] !! UNGROUNDED WANT (F-8): 'grind Blastoise to L38, push Ekans toward L20' names ['blastoise', 'ekans'] already on the team — the grounded ask didn't take (flagged for the descent grade; her words kept)
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to battle but the world hasn't changed in 3 turns - it went 'ready', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'battle' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: EAST → an unexplored area (BLOCKED — you can\'t get past there yet); WEST → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 6; Route 2; Route 1. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. You keep trying to battle but the world hasn\'t changed in 3 turns - it went \'ready\', and you don\'t seem to be getting anywhere.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY". YOUR PLAN — right now: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge. Next: Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'battle\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [kira-voice] -> T2·savor· (want) 'grind Blastoise to L38, push Ekans toward L20'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26'] -> pick='travel:3,26'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,26'
+
+   [campaign]    [roam] DECISION THINK: 3030ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,26  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Vermilion City for Lt. Surge.
+
+   [campaign]    [roam] TRAVEL: Route 11 -> an unfamiliar area (next hop west -> Vermilion City)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(18, 15) -> map (3, 5) (budget 300s)
+
+   [travel] west connection band rows: [6, 8, 9, 10]
+
+   [travel] step 0: (18, 15)->(18, 14) map=(3, 29) (path 24 to exit)
+
+   [travel] step 10: (13, 10)->(12, 10) map=(3, 29) (path 14 to exit)
+
+   [travel] step 20: (3, 10)->(2, 10) map=(3, 29) (path 4 to exit)
+
+   [travel] MAP TRANSITION (3, 29) -> (3, 5)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 5) coords=(47, 20)
+
+   [campaign]    [roam] RESULT: travel:3,26 -> hop_ok | pos (3, 29)(18, 15) -> (3, 5)(47, 20) (MOVED)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 5) coords=(47, 20) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_071945_vermilion-city_2b_14h43m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 29) toward Route 11 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign]    [roam] LOPSIDED-DBG: floor=13 lead=36 ms=25 prep_t=19 ms_gap=12 ace_gap=23 done=[]
+
+   [campaign]    [roam] !! LOPSIDED-BENCH: bench severely behind milestone L25 + the ace (solo-carry shape) — forcing ONE dedicated grind stint; pruned march ['head_to_gym', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'travel:3,29', 'wander_catch']
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (47, 20) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (47,20) f3 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Vermilion City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. From here: NORTH → Route 6 — wild Pokémon to catch/train; EAST → Route 11 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 2; Route 1; Route 3. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY". YOUR PLAN — right now: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge. Next: Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['battle']
+
+   [kira-voice] ORACLE kind=action options=['battle'] -> pick='battle'
+
+   [campaign]    [soul] ORACLE pick -> 'battle'
+
+   [campaign]    [roam] DECISION THINK: 3952ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: battle
+
+   [campaign]    [roam] RATIONALE: Team's under-levelled — grinding butterfree, rattata, spearow and ekans up to ~L19 (fielding them, not my ace) so I can push through, then on to Vermilion City for Lt. Surge.
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 29) toward Route 11 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] no grass underfoot -> routing to grass route (3, 29) (east) first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(47, 20) -> map (3, 29) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] step 0: (47, 20)->(0, 10) map=(3, 5) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 5) -> (3, 29)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [travel] east connection band rows: [9, 10, 11]
+
+   [travel] ARRIVED at target map (3, 29) coords=(0, 10)
+
+   [campaign]    GRIND-WEAK: team floor under L19 — fielding the weak ones (not the ace) to raise the team's floor; levels now [36, 14, 15, 15, 17, 13]
+
+   [campaign]    GRIND-WEAK: floor NOT crossed, but the remaining under-L19 member(s) [1, 2, 3, 4, 5] can't earn XP here (stalled) — pushing on with the strong core (levels [36, 14, 15, 15, 17, 13]) instead of spinning
+
+   [campaign]    [roam] BENCH-TO-MS: bite on (3, 29) gained 0 level(s) (< 2) toward milestone L25 — poor spot, marching to better grass
+
+   [campaign]    [roam] RESULT: battle -> ready | pos (3, 5)(47, 20) -> (3, 29)(0, 10) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 29) coords=(0, 10) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_071950_route-11_2b_14h44m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign]    [roam] LOPSIDED-DBG: floor=13 lead=36 ms=25 prep_t=19 ms_gap=12 ace_gap=23 done=[]
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 11 (0, 10) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 29) (0,10) f4 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 11 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: EAST → an unexplored area (BLOCKED — you can\'t get past there yet); WEST → Vermilion City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 6; Route 2; Route 1. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 3 of 8 — next is Lt. Surge in Vermilion City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Vermilion City. Never just circle the same grass. Word on the road about Lt. Surge: the lightning American — ELECTRIC-types; ground moves shut his whole act down YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and beat Misty for the Cascade Badge. Now you\'re after your third gym.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is ri"; "VERMILION POK.MON GYM LEADER. LT. SURGE WINNING TRAINERS. GARY". YOUR PLAN — right now: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge. Next: Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.. Bigger picture: Reach Vermilion City, beat Lt. Surge for the Thunder Badge. Your team right now: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. RECALIBRATE — before the last detour you\'d set out to: "TRAIN WHERE IT COUNTS — the wild Pokémon around an unfamiliar area run ~L20; the grass here is too weak to level you toward L25. Real XP is a short walk away.". That\'s still available. Unless something fundamental has actually changed, pick it back up and continue — don\'t lose the thread to aimless wandering.', 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26']
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym', 'battle', 'wander_catch', 'travel:3,24', 'travel:3,20', 'travel:3,19', 'travel:3,21', 'travel:3,26'] -> pick='travel:3,26'
+
+   [campaign]    [soul] ORACLE pick -> 'travel:3,26'
+
+   [campaign]    [roam] DECISION THINK: 2563ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: travel:3,26
+
+   [campaign]    [roam] RATIONALE: Routing to a place I need then on to Vermilion City for Lt. Surge.
+
+   [campaign]    [roam] TRAVEL: Route 11 -> an unfamiliar area (next hop west -> Vermilion City)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(0, 10) -> map (3, 5) (budget 300s)
+
+   [travel] west connection band rows: [6, 8, 9, 10]
+
+   [travel] MAP TRANSITION (3, 29) -> (3, 5)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 5) coords=(47, 20)
+
+   [campaign]    [roam] RESULT: travel:3,26 -> hop_ok | pos (3, 29)(0, 10) -> (3, 5)(47, 20) (MOVED)
+
+   [campaign]    [roam] !!!! SEAM-THRASH BREAKER: crossed the Vermilion City↔Route 11 border 3x in 120s with no badge progress — Route 11 is NO-GO for the session; hard-committing the FORWARD objective for the next 8 builds
+
+   [kira-voice] -> T2·savor· (travel) "okay, I've been pacing the same border like a lost tourist — enough. Picking a direction and COMMITTING: forward, next objective, go."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 5) coords=(47, 20) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_071954_vermilion-city_2b_14h44m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 29) toward Route 2 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (7 builds left): forced head_to_gym, pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — SEAM-COMMIT (the breaker owns the next builds)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (47, 20) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (47,20) f3 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Vermilion City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Vermilion City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 5), 'badges': ['Boulder', 'Cascade'], 'progress': "2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).", 'party': 'blastoise (L36), caterpie the butterfree (L14), abra (L15), rattata (L15), spearow (L17), ekans (L13)', 'goal': {'short': 'Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge', 'medium': 'Close last time — a short farm so Blastoise finishes Raichu (or a bench mon can), then re-take the Thunder Badge. Not infinite gym spam.', 'long': 'Reach Vermilion City, beat Lt. Surge for the Thunder Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='real XP — grass with ~L20 wilds to grind the bench'
+
+   [campaign]    [soul] ORACLE pick -> 'real XP — grass with ~L20 wilds to grind the bench'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge.
+
+   [campaign]    [roam] ⛰️  AT Lt. Surge's city (3, 5) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "alright, Lt. Surge's gym. this is it — I'm actually a little nervous. okay. let's climb."
+
+   [kira-voice] -> T2·savor· (want) 'real XP — grass with ~L20 wilds to grind the bench'  fired=True  [age 0.0s + post 16ms]
+
+   [campaign]    GYM-PREP [Lt. Surge]: NOT ready (loss-bump 0) — party 6/3, topL 36/25, type_answer=False, paper_bench=True, want=['ground'] — prepping BEFORE the gym
+
+   [kira-voice] ·floor· (<1s since last) T2 "Lt. Surge's ace farms my bench — quick grass farm so someone besides the lead can take a hit, then we knock."
+
+   [campaign]    !! CATCH: 4 grass tile(s) here but NONE reachable from (47, 20) (walled off / bad target) - returning to roam, the oracle decides (LOUD)
+
+   [campaign]    GYM-PREP [Lt. Surge]: catch attempt 1/3 -> no_reachable_target
+
+   [campaign]    !! CATCH: 4 grass tile(s) here but NONE reachable from (47, 20) (walled off / bad target) - returning to roam, the oracle decides (LOUD)
+
+   [campaign]    GYM-PREP [Lt. Surge]: catch attempt 2/3 -> no_reachable_target
+
+   [campaign]    !! CATCH: 4 grass tile(s) here but NONE reachable from (47, 20) (walled off / bad target) - returning to roam, the oracle decides (LOUD)
+
+   [campaign]    GYM-PREP [Lt. Surge]: catch attempt 3/3 -> no_reachable_target
+
+   [campaign]    GYM-PREP [Lt. Surge]: coverage-teach dispatch -> have_coverage
+
+   [campaign]    GYM-PREP [Lt. Surge]: grinding to L25 (ace ~L24; paper bench (max L17 < fieldable ~L20))
+
+   [campaign]    GRIND: already Lv36 >= 25
+
+   [campaign]    GYM-PREP [Lt. Surge]: grind -> ok
+
+   [campaign]    CURE-KIT [Lt. Surge]: too poor (360) to stock cures — entering as-is (LOUD)
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(47, 20) -> coord (14, 26) (budget 300s)
+
+   [travel] step 0: (47, 20)->(46, 20) map=(3, 5) (path 40 to exit)
+
+   [travel] step 10: (37, 20)->(36, 20) map=(3, 5) (path 30 to exit)
+
+   [travel] step 20: (28, 21)->(27, 21) map=(3, 5) (path 20 to exit)
+
+   [travel] step 30: (19, 22)->(19, 23) map=(3, 5) (path 10 to exit)
+
+   [travel] path blocked at (19, 23) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (19, 23); NPC-allowing path EXISTS (len 9), blocker NPC tile=(19, 24), npcs nearby=[(19, 24)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'  fired=True  [age 0.0s + post 21ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 5)@(19, 23) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "RATTATA used CUT!"'
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.79s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.24s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (19, 24) on (3, 5) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    !! GYM: couldn't enter the Lt. Surge gym
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 23) -> coord (16, 25) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [roam] 🔎 OBSTACLE-PROBE: at (19, 23), door (14, 25), scanned 0 field object(s): []
+
+   [campaign]    [roam] !! GYM-GATE: DISCARDING water/surf gate at gym door (Gate(hm_obstacle, missing='surf', where=(3, 5), "a water blocking the way — I'd need HM Surf — the prize of the Safari Zone's Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road's water to get past it")) — door is HERE, not a sea errand
+
+   [campaign]    [roam] !! GO-HARD: beat_gym stuck x1 on Lt. Surge — NOT parking, NOT leaving (3, 5); re-entering the gym next tick (cap 5)
+
+   [campaign]    [roam] RESULT: head_to_gym -> stuck | pos (3, 5)(47, 20) -> (3, 5)(19, 23) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick10] -> campaign/kira_campaign.state  (map=(3, 5) coords=(19, 23) badges=2 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 29) toward Route 2 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (6 builds left): forced head_to_gym, pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — SEAM-COMMIT (the breaker owns the next builds)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign] -- ROAM TICK 11/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (19, 23) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (19,23) f4 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 5)@(19, 23) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (19, 24) on (3, 5) (route around it) + marking (19, 23) a resolved talk-spot — unified block memory now 1 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] disengage: stepped UP AWAY from the NPC -> (19, 22) (closed box + walked off — the real escape)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 29) toward Route 2 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (5 builds left): forced head_to_gym, pruned ['battle', 'travel:3,19', 'travel:3,20', 'travel:3,24', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — SEAM-COMMIT (the breaker owns the next builds)
+
+   [campaign]    [roam] !! GO-HARD BLOCKED for Lt. Surge — mid-evo / prep bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise + bench first)
+
+   [campaign] -- ROAM TICK 12/100000000 --
+
+   [campaign]    [roam] STATE IN: Vermilion City (19, 22) | badges=2 (Boulder, Cascade) | party=[blastoise L36, butterfree L14, abra L15, rattata L15, spearow L17, ekans L13] | 2 badge(s) earned (Boulder, Cascade). Next gym: Lt. Surge of Vermilion City. Pokédex: 10 caught. She's two badges down, a quarter of the way (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 5) (19,22) f2 -- badge2 $360 party:3dd1 bag:5c08]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Vermilion City: Grind Blastoise toward L38 and raise one bench mon to ~L20 in grass, THEN retry Lt. Surge.
+
+   [campaign]    [roam] ⛰️  AT Lt. Surge's city (3, 5) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "alright, Lt. Surge's gym. this is it — I'm actually a little nervous. okay. let's climb."
+
+   [campaign]    GYM-PREP [Lt. Surge]: NOT ready (loss-bump 0) — party 6/3, topL 36/25, type_answer=False, paper_bench=True, want=['ground'] — prepping BEFORE the gym
+
+   [kira-voice] ·floor· (<1s since last) T2 "Lt. Surge's ace farms my bench — quick grass farm so someone besides the lead can take a hit, then we knock."
+
+   [campaign]    !! CATCH: 4 grass tile(s) here but NONE reachable from (19, 22) (walled off / bad target) - returning to roam, the oracle decides (LOUD)
+
+   [campaign]    GYM-PREP [Lt. Surge]: catch attempt 1/3 -> no_reachable_target
+
+   [campaign]    !! CATCH: 4 grass tile(s) here but NONE reachable from (19, 22) (walled off / bad target) - returning to roam, the oracle decides (LOUD)
+
+   [campaign]    GYM-PREP [Lt. Surge]: catch attempt 2/3 -> no_reachable_target
+
+   [campaign]    !! CATCH: 4 grass tile(s) here but NONE reachable from (19, 22) (walled off / bad target) - returning to roam, the oracle decides (LOUD)
+
+   [campaign]    GYM-PREP [Lt. Surge]: catch attempt 3/3 -> no_reachable_target
+
+   [campaign]    GYM-PREP [Lt. Surge]: coverage-teach dispatch -> have_coverage
+
+   [campaign]    GYM-PREP [Lt. Surge]: grinding to L25 (ace ~L24; paper bench (max L17 < fieldable ~L20))
+
+   [campaign]    GRIND: already Lv36 >= 25
+
+   [campaign]    GYM-PREP [Lt. Surge]: grind -> ok
+
+   [campaign]    CURE-KIT [Lt. Surge]: too poor (360) to stock cures — entering as-is (LOUD)
+
+   [campaign]    11 door(s); candidates (chosen order): [(14, 25)]
+
+   [campaign]    reachable door (14, 25): walking to approach (14, 26)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(19, 22) -> coord (14, 26) (budget 300s)
+
+   [travel] releasing 1 stale NPC block(s) [(19, 24)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 0: (19, 22)->(19, 23) map=(3, 5) (path 10 to exit)
+
+   [travel] reached target coord (14, 26)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 5) -> (9, 6) via door (14, 25)
+
+   [campaign]    [world] learned 3 warp(s) on (9, 6): (4, 19)->(3, 5), (5, 19)->(3, 5), (6, 19)->(3, 5)
+
+   [campaign]    GYM: inside (9, 6) at (5, 19) - clearing junior trainers
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj1 at (8, 13) (facing 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 19) -> coord (8, 14) (budget 90s)
+
+   [travel] step 0: (5, 19)->(5, 18) map=(9, 6) (path 9 to exit)
+
+   [travel] reached target coord (8, 14)
+
+   [dialogue] +++ 'LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is right next to it.'  tags=['GYM_LEADER', 'PLACE']
+
+   [kira-voice]    (dialogue tags: gym_leader, place)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "LT. SURGE installed the traps in the GYM himself. He set up double locks everywhere. Let me give you a hint. When you open the first lock, the second lock is right next to it."'  fired=True  [age 0.0s + post 20ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg junior-talk] 'LT. SURGE installed the traps in the GYM himself. He set up double locks'
+
+   [campaign]    [hints] + heard something actionable: 'LT. SURGE installed the traps in the GYM himself. He set up double locks everywh' (at (9, 6))
+
+   [campaign]    [dlg-uwatch junior-talk] fp[(9, 6) (8,14) f2 D- badge2 $360 party:3dd1 bag:5c08] same line, frozen world x15/90
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (9, 6)@(8, 14) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [dlg-pace junior-talk] box 'LT. SURGE installed the traps in the GYM himself' visible 9.24s (sink 2ms, hold 0.11s, end=closed)
+
+   [campaign]    GYM: trainer at (8, 13) TALKED instead of fighting (post-defeat line drained, no battle) — ALREADY BEATEN in the save
+
+   [campaign]    GYM: junior obj1 at (8, 13) is ALREADY BEATEN in the save (talked, no battle) — marked done for the session, never re-engaging
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj4 at (7, 8) (facing 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(8, 14) -> coord (6, 8) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(8, 14) -> coord (7, 9) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(8, 14) -> coord (8, 8) (budget 90s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (8, 14)->(8, 15) map=(9, 6) (path 13 to exit)
+
+   [travel] step 10: (10, 8)->(9, 8) map=(9, 6) (path 3 to exit)
+
+   [travel] reached target coord (8, 8)
+
+   [dialogue] +++ "It's not easy opening that door. LT. SURGE was always famous for his cautious nature in the Army."  tags=['GYM_LEADER']
+
+   [kira-voice]    (dialogue tags: gym_leader)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "It\'s not easy opening that door. LT. SURGE was always famous for his cautious nature in the Army."'  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg junior-talk] "It's not easy opening that door. LT. SURGE was always famous for his cau"
+
+   [campaign]    [dlg-pace junior-talk] box "It's not easy opening that door. LT. SURGE was a" visible 3.48s (sink 0ms, hold 0.11s, end=closed)
+
+   [campaign]    GYM: trainer at (7, 8) TALKED instead of fighting (post-defeat line drained, no battle) — ALREADY BEATEN in the save
+
+   [campaign]    GYM: junior obj4 at (7, 8) is ALREADY BEATEN in the save (talked, no battle) — marked done for the session, never re-engaging
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj3 at (2, 11) (facing 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(8, 8) -> coord (2, 10) (budget 90s)
+
+   [travel] step 0: (8, 8)->(8, 9) map=(9, 6) (path 9 to exit)
+
+   [travel] reached target coord (2, 10)
+
+   [dialogue] +++ "Okay, I'll talk! LT. SURGE said he hid door switches inside something."  tags=['GYM_LEADER']
+
+   [kira-voice]    (dialogue tags: gym_leader)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "Okay, I\'ll talk! LT. SURGE said he hid door switches inside something."'  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg junior-talk] "Okay, I'll talk! LT. SURGE said he hid door switches inside something."
+
+   [campaign]    [dlg-pace junior-talk] box "Okay, I'll talk! LT. SURGE said he hid door swit" visible 2.48s (sink 0ms, hold 0.11s, end=closed)
+
+   [campaign]    GYM: trainer at (2, 11) TALKED instead of fighting (post-defeat line drained, no battle) — ALREADY BEATEN in the save
+
+   [campaign]    GYM: junior obj3 at (2, 11) is ALREADY BEATEN in the save (talked, no battle) — marked done for the session, never re-engaging
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(2, 10) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (2, 10)->(2, 9) map=(9, 6) (path 11 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [1, 3, 4])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] reached target coord (5, 3)
+
+   [campaign]    GYM: at (5, 3) (leader front (5, 3)) - engaging Lt. Surge [lead blastoise Lv36, party=6]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (5, 4) (budget 90s)
+
+   [travel] step 0: (5, 3)->(5, 4) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 4) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (5, 4)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (4, 3) (budget 90s)
+
+   [travel] step 0: (5, 3)->(4, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (4, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(4, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (4, 3)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(5, 3) -> coord (6, 3) (budget 90s)
+
+   [travel] step 0: (5, 3)->(6, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (6, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(9, 6) coords=(6, 3) -> coord (5, 3) (budget 90s)
+
+   [travel] step 0: (6, 3)->(5, 3) map=(9, 6) (path 2 to exit)
+
+   [travel] reached target coord (5, 3)
+
+   [dialogue] +++ "Hey, kid! What do you think you're doing here? You won't live long in combat! Not with your puny power! I tell you, kid, electric POK.MON saved me during the war! They zapped my enemies into p"  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hey, kid! What do you think you\'re doing here? You won\'t live long in combat! Not with your puny power! I tell you, kid, electric POK.MON saved me during the war! They zapped my enemies into p"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg Lt. Surge-challenge] "Hey, kid! What do you think you're doing here? You won't live long in co"
+
+   [campaign]    [dlg-uwatch Lt. Surge-challenge] fp[(9, 6) (5,3) f2 D- badge2 $360 party:3dd1 bag:5c08] same line, frozen world x15/90
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (9, 6)@(5, 3) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [dlg-uwatch Lt. Surge-challenge] fp[(9, 6) (5,3) f2 D- badge2 $360 party:3dd1 bag:5c08] same line, frozen world x30/90
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [dlg-pace Lt. Surge-challenge] box "Hey, kid! What do you think you're doing here? Y" visible 10.72s (sink 0ms, hold 0.11s, end=stopped)
+
+   [campaign]    [strat] !! gEnemyParty UNCONFIRMED (slot0=100 != active foe 21) — party-SIZE reads DISABLED (loss-learning still works on the verified active-foe read)
+
+   [play-live] battle context: trainer=True foe=spearow rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against voltorb — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out voltorb'
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's voltorb fainted — your blastoise took it down"  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pikachu'  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE is already in battle! ."'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pikachu fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out raichu'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: LT. SURGE -> timeout
+
+   [campaign]    [roam] !! drain 'Lt. Surge-award' requested during a LIVE battle -> skipping (battle engine owns that UI)
+
+   [campaign]    !! GYM: paced award didn't set the badge - A-mash backstop
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 122935 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(9, 6) coords=(5, 3)  badge=True
+
+   [kira-voice] === 128 fired, 97 gated (0 failed) | by tier: T3=3 T2=35 T1=90 (incl ambient trickle) ===
+
+================================================================
+
