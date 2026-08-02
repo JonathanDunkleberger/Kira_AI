@@ -1,0 +1,94 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 22) coords=(12, 6) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 2 blocked tile(s), 7 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=4912).
+
+   [soul] continuity loaded: 12 roster bond(s), 465 want(s)
+
+   [campaign]    [strat] continuity loaded: 5 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 117 place(s) known, 217 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 22) coords=(12, 6) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260802_142036_route-4_3b_16h26m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 22): (19, 5)->(1, 1), (32, 5)->(1, 2), (12, 5)->(16, 0)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 3) toward Route 9 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] ACE-CARRIES: prep-to-L20 stands down — ace clears the next gym's level bar; MARCH (bench XP on the road), not parked Route grass
+
+   [kira-voice] -> T1·brisk· (grind) "bench is thin, but my ace already clears the next gym's level — we're marching; they'll catch XP on the road."  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Erika, train on the road)
+
+   [campaign]    [roam] !! retiring bench pin L20 — gym is GO now
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,20', 'travel:3,21', 'travel:3,27', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (3, 6, 12, 116) @ Route 4 (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 4 (12, 6) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L39, ekans L14, spearow L17, rattata L15, kadabra L16, butterfree L15] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 22) (12,6) f2 -- badge3 $4128 party:8f1a bag:e816]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Route 4
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 4 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 22), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L39), ekans (L14), spearow (L17), rattata (L15), abra the kadabra (L16), caterpie the butterfree (L15)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=10, 48000Hz, 2ch � writing until parent EOF.
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 129 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 22) coords=(12, 6)  badge=True
+
+   [kira-voice] === 1 fired, 0 gated (0 failed) | by tier: T3=0 T2=0 T1=1 (incl ambient trickle) ===
+
+================================================================
+
