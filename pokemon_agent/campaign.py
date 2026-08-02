@@ -16522,19 +16522,40 @@ class Campaign:
 
     # FIX 2 — RUN HISTORY (her story-so-far), keyed by what her badges PROVE she's done this run. Honest
     # past, NOT omniscient future (the Lapras-confabulation guard: she knows where she's BEEN, discovers
-    # what's ahead). Extend as she earns more badges.
+    # what's ahead). MUST cover every badge count — empty at ≥3 made her forget Surge on stream
+    # (2026-08-02 chalk: "forgot beating Lt. Surge" while Thunder Badge was in RAM).
     _STORY_MILESTONES = {
         0: "You just set out from Pallet Town with your first Pokémon — the whole journey's ahead of you.",
         1: "You started in Pallet Town, crossed Route 1-2 and Viridian Forest, and beat Brock in Pewter "
            "City for the Boulder Badge. Now you're pushing on toward the next gym.",
         2: "You started in Pallet Town, beat Brock in Pewter (Boulder Badge), fought up Route 3 and "
            "through the Mt. Moon cave — a real maze you nearly got lost in — reached Cerulean City, and "
-           "beat Misty for the Cascade Badge. Now you're after your third gym.",
+           "beat Misty for the Cascade Badge. That badge unlocked Cut (HM01) — you can clear cuttable "
+           "trees. Now you're after your third gym: Lt. Surge in Vermilion.",
+        3: "You've beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder "
+           "Badge — that's THREE gyms done. You have Cut and can clear trees on the road. Next is Erika "
+           "in Celadon City (Rainbow Badge).",
+        4: "Four badges: Brock, Misty, Lt. Surge, and Erika in Celadon (Rainbow). You've been through "
+           "the early Kanto road — next is Koga in Fuchsia for the Soul Badge.",
+        5: "Five badges in — Brock, Misty, Surge, Erika, Koga. Surf should be opening the seas. Next is "
+           "Sabrina in Saffron (Marsh Badge).",
+        6: "Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between "
+           "you and the Elite Four road.",
+        7: "Seven badges — one left: Giovanni in Viridian for the Earth Badge, then the Indigo Plateau.",
+        8: "All eight Gym Badges are yours. The Elite Four and the Champion are the summit.",
     }
 
     def _story_so_far(self, badge_count):
-        """Her real run history (what she's actually done), for grounding her decision + voice context."""
-        return self._STORY_MILESTONES.get(badge_count, "")
+        """Her real run history (what she's actually done), for grounding her decision + voice context.
+        Uses the highest milestone ≤ badge_count so a missing key never blanks her past."""
+        try:
+            bc = int(badge_count or 0)
+        except Exception:
+            bc = 0
+        for k in range(bc, -1, -1):
+            if k in self._STORY_MILESTONES:
+                return self._STORY_MILESTONES[k]
+        return ""
 
     def _spine_and_history(self, state):
         """FIX 1+2 — the FIXED main-quest SPINE + her real RUN HISTORY, folded into her oracle ctx so she's
@@ -16731,6 +16752,21 @@ class Campaign:
                     if c["species"] == active_species and (c.get("hp") or 0) > 0:
                         c["active"] = True
                         break
+            # FIELD HMs (2026-08-02 chalk): publish what she can actually use so voice grounding
+            # stops denying Cut while she's chopping trees on stream. Same usable_hms RAM truth
+            # the Cut actuator reads — badge_ok means it would work RIGHT NOW.
+            field_hms = []
+            try:
+                import field_moves as _fm
+                _uh = _fm.usable_hms(self.b, int(state.get("party_count") or 6))
+                for _info in _uh.values():
+                    _nm = _info.get("name") or "?"
+                    if _info.get("badge_ok"):
+                        field_hms.append(_nm)
+                    else:
+                        field_hms.append(f"{_nm} (taught, need badge)")
+            except Exception:
+                field_hms = []
             health = {
                 "ts": time.time(),
                 "progress": macro,                       # GREEN / YELLOW / RED / ABANDONED — the watchdog light
@@ -16741,6 +16777,7 @@ class Campaign:
                 "party_hud": party_hud,
                 "active_species": active_species,        # who's ACTUALLY fighting right now (None = not in battle)
                 "party_count": state.get("party_count"), "dex_caught": state.get("dex_caught"),
+                "field_hms": field_hms,                  # Cut/Flash/Surf/… she can use (or taught-gated)
                 "next_gym": state.get("next_gym"),
                 "now_state": now_state, "objective": objective, "want": want,
                 "goals": goals, "plan": plan,            # PHASE 1 — 3-tier goal (short/medium/long) + flat line

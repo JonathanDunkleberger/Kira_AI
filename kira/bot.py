@@ -2139,8 +2139,10 @@ class VTubeBot:
         directive that GROUNDS her in the game and forbids ALL screen/vision talk."""
         return (
             "\n\n[PERCEPTION — you're PLAYING Pokémon FireRed. You read the game through its live "
-            "state: your team, the route, the battle, what just happened. Vision/eyes are OFF for "
-            "this and that is NORMAL — you don't need them to play.]\n"
+            "state: your team, badges, field moves (Cut/Flash/Surf/…), the route, the battle, what "
+            "just happened. Vision/eyes are OFF for this and that is NORMAL — you don't need them "
+            "to play. When [YOUR POKÉMON RUN] appears in context, that block is ground truth — trust "
+            "it over fuzzy memory; never deny a badge or HM it lists.]\n"
             "NEVER mention a screen, display, 'black screen', 'dark', 'frozen', 'I can't see', or "
             "your vision in ANY way — you are not watching a screen, you are PLAYING. Talk about the "
             "GAME and the moment. If the GAME itself seems unresponsive, frame it as the game being "
@@ -2151,7 +2153,7 @@ class VTubeBot:
         """Strong prohibition against fabricated visual observations when vision is off
         or no frame has been captured. Mirrors the UNCERTAIN-honesty rule already used
         by the vision agent — don't claim to see what you can't see."""
-        if getattr(self, "pokemon_mode", False):
+        if self._pokemon_live_voice_ok():
             return self._pokemon_perception_directive()
         return (
             "\n\n[VISUAL STATUS: BLIND — no live visual input]\n"
@@ -2165,7 +2167,7 @@ class VTubeBot:
 
     def _stale_visual_directive(self, age_seconds: int) -> str:
         """Used when vision is on but the last frame is too old to be treated as 'now'."""
-        if getattr(self, "pokemon_mode", False):
+        if self._pokemon_live_voice_ok():
             return self._pokemon_perception_directive()
         return (
             f"\n\n[VISUAL STATUS: STALE — last frame was {age_seconds}s ago]\n"
@@ -3721,13 +3723,27 @@ class VTubeBot:
     _BADGE_LEADER = {"Boulder": "Brock", "Cascade": "Misty", "Thunder": "Lt. Surge", "Rainbow": "Erika",
                      "Soul": "Koga", "Marsh": "Sabrina", "Volcano": "Blaine", "Earth": "Giovanni"}
 
+    def _pokemon_live_voice_ok(self) -> bool:
+        """True when her live Pokémon brief should be injected — pokemon_mode OR a fresh harness
+        heartbeat (resume_marathon often leaves pokemon_mode False while she plays)."""
+        if getattr(self, "pokemon_mode", False):
+            return True
+        try:
+            from kira import pokemon_proc
+            return bool(pokemon_proc.heartbeat_alive())
+        except Exception:
+            return False
+
     def _pokemon_state_block_for_voice(self) -> str:
         """FIX 2 — her REAL live run-state (the SAME health.json the dashboard reads), formatted for her
         DECISION + VOICE so she stops flying blind: confabulating ('Dome fossil secured' with none),
         not knowing she beat Misty, asking Jonny her own goal. Single source of truth shared with the
         cockpit — 'wired to the display' is NOT enough; this is the wired-to-the-brain half. Returns ''
         when there's no fresh snapshot (no run / stale / crashed) so she never asserts stale facts.
-        Best-effort; never raises."""
+        Best-effort; never raises.
+
+        2026-08-02: also grounds FIELD HMs (Cut/Flash/…) — she was denying Cut while chopping trees,
+        and forgetting Lt. Surge after Thunder Badge because story milestones stopped at Misty."""
         try:
             from kira import pokemon_proc
             h = pokemon_proc.health() or {}
@@ -3746,12 +3762,19 @@ class VTubeBot:
             objective = g.get("active_objective") or goals.get("medium") or g.get("objective") or ""
             longg = goals.get("long") or ""
             place = g.get("place") or "?"
+            hms = g.get("field_hms") or []
             lines = ["[YOUR POKÉMON RUN — your REAL state right now. Answer from THIS; never ask anyone "
-                     "what you're doing or which badges/items you have, and never narrate a goal as if "
-                     "it's already done. Don't recite it robotically — just KNOW it.]"]
-            lines.append(f"Badges: {bc}/8" + (f" — you've beaten {', '.join(beaten)}" if beaten
+                     "what you're doing or which badges/items/HMs you have, never claim you haven't "
+                     "beaten a gym that's listed below, and never narrate a goal as if it's already done. "
+                     "Don't recite it robotically — just KNOW it.]"]
+            lines.append(f"Badges: {bc}/8" + (f" — you've ALREADY beaten {', '.join(beaten)}" if beaten
                                               else " — no gym beaten yet") + ".")
             lines.append(f"Your team: {team}.")
+            if hms:
+                lines.append(f"Field moves you can use RIGHT NOW: {', '.join(hms)} — if you're cutting "
+                             f"trees / lighting caves / surfing, that IS you using that HM. You have it.")
+            else:
+                lines.append("Field moves: none usable yet (no taught+badge-unlocked HM on the party).")
             # WHO'S ON THE FIELD (2026-07-30 attribution fix): mid-battle, name the ACTIVE battler
             # explicitly — without this she only saw the roster and invented which of her mons was
             # fighting ("spearow's eating well" on a Wartortle kill). Ground truth from health.json
@@ -8078,6 +8101,14 @@ class VTubeBot:
             session_context_block += self._pokemon_journey_block()
         except Exception:
             pass
+        # LIVE badges/HMs for chat too (journey summary can lag; health.json is current).
+        try:
+            if self._pokemon_live_voice_ok():
+                _live_chat = self._pokemon_state_block_for_voice()
+                if _live_chat:
+                    session_context_block += _live_chat + "\n"
+        except Exception:
+            pass
         # Mid-session rolling takes — lets chat responses callback to opinions
         # she's already stated in this session, not just on-disk ones.
         if self.session_takes_summary:
@@ -11174,8 +11205,9 @@ class VTubeBot:
                 # FIX 2 — during Pokémon play, inject her LIVE run-state so mic questions ("did you beat
                 # Misty? what's your goal? which fossil?") are answered from her OWN state, never asked
                 # back at Jonny or confabulated. Same health.json the dashboard reads (reaches-brain, not
-                # just display). Gated on pokemon_mode so it's absent in every non-Pokémon context.
-                if getattr(self, "pokemon_mode", False):
+                # just display). Heartbeat OR pokemon_mode — resume_marathon often leaves the mode flag
+                # false while she's mid-run (2026-08-02 Surge/Cut amnesia chalk).
+                if self._pokemon_live_voice_ok():
                     _pkmn_state = self._pokemon_state_block_for_voice()
                     if _pkmn_state:
                         dynamic_context += f"\n\n{_pkmn_state}"
