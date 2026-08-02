@@ -275,9 +275,20 @@ if (Test-Path $targetFile) {
         # depend on the game cooperating. Same contract as SNAPSHOT: live save backed up first,
         # sidecars untouched (same campaign, minutes older).
         $ckptPat = $target.Substring(5).Trim().ToLower()
-        $ckptDir = Get-ChildItem (Join-Path $campaign "checkpoints") -Directory -ErrorAction SilentlyContinue |
+        $ckptRoot = Join-Path $campaign "checkpoints"
+        $ckptDir = Get-ChildItem $ckptRoot -Directory -ErrorAction SilentlyContinue |
                    Where-Object { $_.Name -notlike "*.partial" -and $_.Name.ToLower() -like "*$ckptPat*" } |
                    Sort-Object Name -Descending | Select-Object -First 1
+        # Anti-Diglett-rewind (2026-08-02): Mac pins to Diglett/Route2/Pewter/Mt.Moon kept
+        # forcing a 20-min re-walk. If a Rock Tunnel CKPT exists, prefer THAT instead.
+        $westPoison = $ckptPat -match 'diglett|route-2|pewter|mt-moon|route-3|viridian|pallet|route-1'
+        $tunnelDir = Get-ChildItem $ckptRoot -Directory -ErrorAction SilentlyContinue |
+                     Where-Object { $_.Name -notlike "*.partial" -and $_.Name.ToLower() -like "*rock-tunnel*" } |
+                     Sort-Object Name -Descending | Select-Object -First 1
+        if ($westPoison -and $tunnelDir) {
+            Say "!! CKPT override: '$ckptPat' is Diglett-west poison — promoting Rock Tunnel instead: $($tunnelDir.Name)"
+            $ckptDir = $tunnelDir
+        }
         $ckptState = if ($ckptDir) { Join-Path $ckptDir.FullName "kira_campaign.state" } else { $null }
         if ($ckptState -and (Test-Path $ckptState)) {
             $liveSave = Join-Path $campaign "kira_campaign.state"

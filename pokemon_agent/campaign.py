@@ -617,7 +617,7 @@ SEAM_TRIP_N = int(os.getenv("POKEMON_SEAM_TRIP_N", "3"))
 # strat/world/soul, so a checkpoint restore resumes her STORY (not just game+strategy). Core Kira keeps its
 # own states/kira/journey_core.json; this campaign-side copy makes the resume bundle COMPLETE.
 JOURNEY_JSON = os.path.join(STATES_CAMPAIGN, "journey_core.json")
-CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # heartbeat-save every N roam ticks
+CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "2"))   # heartbeat-save every N roam ticks
 # DENSE AUTO-CHECKPOINT (2026-07-09) — the rolling campaign anchor above is a SINGLE overwriting file
 # ("now" only). For a dev fix→reload→verify loop across a 25-30h run you must hop to JUST BEFORE a bug,
 # not restart from the bedroom. So ALSO bank a GROWING, LABELED history of full sanctity bundles into
@@ -626,11 +626,11 @@ CAMPAIGN_SAVE_EVERY = int(os.getenv("POKEMON_CAMPAIGN_SAVE_EVERY", "5"))   # hea
 # campaign-side bundle only and is structurally incapable of writing the sacred states/kira/ spine.
 # watch.py --list surfaces them; watch.py --at <path|alias> reloads one into a canonical-safe sandbox.
 AUTO_CKPT_ENABLED = os.getenv("POKEMON_AUTO_CKPT", "1") == "1"
-CKPT_EVERY_S      = float(os.getenv("POKEMON_AUTO_CKPT_EVERY_S", "720"))   # wall-clock floor (~12 min)
-# Inside Rock Tunnel / dungeon floors she used to bounce for 20+ min with ZERO cave CKPTs
-# (2026-08-02 chalk) — denser floor so a rescue can TP into the dark, not Route 10.
-CKPT_EVERY_CAVE_S = float(os.getenv("POKEMON_AUTO_CKPT_EVERY_CAVE_S", "90"))
-CKPT_KEEP         = int(os.getenv("POKEMON_AUTO_CKPT_KEEP", "40"))         # retain last N (~16 MB cap)
+# Dense by default (2026-08-02 Jonny): 12-min floor meant every rescue TP'd 20 min backward
+# and she re-walked Diglett's Cave. Keep a fat recent history for live fixes.
+CKPT_EVERY_S      = float(os.getenv("POKEMON_AUTO_CKPT_EVERY_S", "120"))  # ~2 min overworld
+CKPT_EVERY_CAVE_S = float(os.getenv("POKEMON_AUTO_CKPT_EVERY_CAVE_S", "45"))  # Rock Tunnel etc.
+CKPT_KEEP         = int(os.getenv("POKEMON_AUTO_CKPT_KEEP", "80"))         # retain last N
 # INTRA-SEGMENT PROGRESS (2026-07-09, Fix C) — the SHOW/segment spine only banked a checkpoint AFTER a
 # whole segment completed, so a deep failure (e.g. losing to Brock at the END of pallet_to_brock) made
 # the supervisor resume from seg_opening and REPLAY THE ENTIRE SEGMENT from the bedroom (~40 min). Now
@@ -9316,6 +9316,14 @@ class Campaign:
         once, in character (firewall: `place`/event seam — she narrates, she still chooses)."""
         if not QUESTLINE_ENABLED:
             return False
+        # Flash already taught → NEVER re-open the Diglett west errand from Route 10
+        # (2026-08-02 chalk: every bad TP re-armed flash → Diglett's Cave tourism).
+        try:
+            if getattr(gate, "missing", None) == "flash" and self._party_knows_flash():
+                log("   [roam] QUESTLINE REFUSED: flash already taught — not re-opening Diglett errand")
+                return False
+        except Exception:
+            pass
         q = self._derive_questline(gate)
         if q.actionable is None:
             return False                       # every step already satisfied → the gate is open, no errand
@@ -9383,8 +9391,12 @@ class Campaign:
         # Stay in the errand (or free-roam rescue) until she's on the Celadon spine (Vermilion+).
         if st.party_knows_move(b, FLASH_MOVE, pc()) is not None:
             self._dex_catch_all = False
-            if self._on_celadon_spine():
+            # Route 10 / Rock Tunnel / Cerulean road = DONE with Diglett. Never walk west.
+            cur_now = tuple(tv.map_id(b))
+            if self._on_celadon_spine(cur_now) or cur_now in {(1, 81), (1, 82)}:
                 self._flash_returned = True
+                log(f"   [flash-errand] Flash taught + on Celadon/Rock-Tunnel road {cur_now} — "
+                    f"DONE (no Diglett rewind)")
                 return "flash_done"
             log("   [flash-errand] Flash already taught but still WEST of Diglett's — "
                 "forcing Vermilion road-head before clearing the questline")
@@ -10053,6 +10065,13 @@ class Campaign:
         # (the catch-in-place driver species-exhausts on Route 10; the errand walks east to fresh grass
         # + the aide together). Owns BOTH the dex-prereq step and the flash step.
         if self._active_questline.gate.missing == "flash":
+            # Already have Flash (or standing on Celadon spine with it) — kill Diglett rewind NOW.
+            if self._party_knows_flash():
+                log("   [roam] 🔦 FLASH ERRAND skipped — Flash already taught; clearing questline "
+                    "(refuse Diglett west from Route 10)")
+                self._flash_returned = True
+                self._clear_questline("flash already taught")
+                return "questline_done"
             if not getattr(self, "_ql_catch_voiced", False):
                 self.on_event(step.human, kind="route", tier=2)
                 self._ql_catch_voiced = True
