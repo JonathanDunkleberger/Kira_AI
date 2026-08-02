@@ -1,0 +1,1500 @@
+   [campaign]    reachable door (45, 2): walking to approach (45, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 81) coords=(17, 2) -> coord (45, 3) (budget 300s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 81) coords=(17, 2) -> coord (45, 1) (budget 120s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (17, 2)->(17, 3) map=(1, 81) (path 50 to exit)
+
+   [travel] step 10: (21, 8)->(22, 8) map=(1, 81) (path 40 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 2ms]
+
+   [travel] step 30: (32, 12)->(33, 12) map=(1, 81) (path 25 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 81) coords=(42, 12) elapsed=20s
+
+   [travel] step 40: (42, 12)->(42, 11) map=(1, 81) (path 15 to exit)
+
+   [travel] step 50: (42, 2)->(43, 2) map=(1, 81) (path 5 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (44, 2) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] reached target coord (45, 1)
+
+   [kira-voice] -> T1·brisk· (beat) "it's dim and quiet down here, the path winding deeper into the dark"  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    6 door(s); candidates (chosen order): [(45, 2)]
+
+   [campaign]    reachable door (45, 2): walking to approach (45, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 81) coords=(45, 1) -> coord (45, 3) (budget 300s)
+
+   [travel] step 0: (45, 1)->(45, 2) map=(1, 81) (path 3 to exit)
+
+   [travel] MAP TRANSITION (1, 81) -> (1, 82)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 82): (38, 28)->(1, 81), (33, 3)->(1, 81), (27, 12)->(1, 81), (2, 3)->(1, 81)
+
+   [travel] coord leg ended by the transition -> (1, 82) (target (45, 3) was the old map's frame)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [tunnel] interior ride #1: (1, 81) -> (1, 82)
+
+   [campaign]    [tunnel] room (1, 82): at (38, 28), riding fresh warp (33, 3) (reach=[(33, 3)])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 82) coords=(38, 28) -> coord (33, 4) (budget 120s)
+
+   [travel] step 0: (38, 28)->(38, 29) map=(1, 82) (path 88 to exit)
+
+   [travel] step 10: (36, 36)->(35, 36) map=(1, 82) (path 78 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the cave presses in close around you, every sound echoing off the rock'
+
+   [travel] step 30: (20, 36)->(19, 36) map=(1, 82) (path 62 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 82) coords=(17, 29) elapsed=20s
+
+   [travel] step 40: (17, 29)->(17, 28) map=(1, 82) (path 52 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'your rattata used an attack'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] step 50: (22, 28)->(23, 28) map=(1, 82) (path 46 to exit)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "it's dim and quiet down here, the path winding deeper into the dark"
+
+   [travel] step 60: (24, 20)->(24, 19) map=(1, 82) (path 36 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (28, 19) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] step 70: (28, 19)->(29, 19) map=(1, 82) (path 31 to exit)
+
+   [kira-voice] -> T1·brisk· (beat) 'you pick your way through the cavern, watching the ground in the gloom'  fired=True  [age 0.0s + post 14ms]
+
+   [travel] HEARTBEAT step=80 map=(1, 82) coords=(38, 19) elapsed=55s
+
+   [travel] step 80: (38, 19)->(38, 18) map=(1, 82) (path 21 to exit)
+
+   [travel] step 90: (37, 12)->(36, 12) map=(1, 82) (path 13 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (34, 7) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the cave presses in close around you, every sound echoing off the rock'
+
+   [travel] reached target coord (33, 4)
+
+   [campaign]    4 door(s); candidates (chosen order): [(33, 3)]
+
+   [campaign]    reachable door (33, 3): walking to approach (33, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 82) coords=(33, 4) -> coord (33, 4) (budget 300s)
+
+   [travel] reached target coord (33, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (1, 82) -> (1, 81) via door (33, 3)
+
+   [campaign]    [world] learned 6 warp(s) on (1, 81): (17, 2)->(3, 28), (45, 2)->(1, 82), (4, 2)->(1, 82), (20, 13)->(1, 82), (45, 21)->(1, 82), (18, 37)->(3, 28)
+
+   [campaign]    [tunnel] interior ride #2: (1, 82) -> (1, 81)
+
+   [campaign]    [tunnel] room (1, 81): at (4, 2), riding fresh warp (20, 13) (reach=[(20, 13)])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 81) coords=(4, 2) -> coord (20, 14) (budget 120s)
+
+   [travel] step 0: (4, 2)->(4, 3) map=(1, 81) (path 33 to exit)
+
+   [travel] step 10: (7, 9)->(7, 8) map=(1, 81) (path 23 to exit)
+
+   [dialogue] +++ 'This tunnel goes a long way, kid!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tunnel goes a long way, kid!"'  fired=True  [age 0.0s + post 22ms]
+
+   [travel] path blocked at (7, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (7, 9); NPC-allowing path EXISTS (len 23), blocker NPC tile=None, npcs nearby=[(7, 8)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 12ms]
+
+   [play-live] battle context: trainer=True foe=mankey rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against geodude — your rattata is up front'  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's geodude fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my rattata just leveled up to level 16'  fired=True  [age 0.0s + post 1ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out geodude'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's geodude fainted — your blastoise took it down"  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out geodude'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's geodude fainted — your blastoise took it down"  fired=True  [age 0.0s + post 24ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out machop'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's machop went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Doh! You win!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Doh! You win!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [strat] WIN/clear vs trainer:Rock Tunnel:mankey — wall lifted
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (164s > 120s) at (7, 9) map=(1, 81) step=22 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    6 door(s); candidates (chosen order): [(20, 13)]
+
+   [campaign]    reachable door (20, 13): walking to approach (20, 14)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 81) coords=(7, 9) -> coord (20, 14) (budget 300s)
+
+   [travel] step 0: (7, 9)->(8, 9) map=(1, 81) (path 23 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'your rattata took a big hit'  fired=True  [age 0.0s + post 5ms]
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the cave presses in close around you, every sound echoing off the rock'
+
+   [travel] step 20: (16, 16)->(16, 15) map=(1, 81) (path 7 to exit)
+
+   [travel] reached target coord (20, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (1, 81) -> (1, 82) via door (20, 13)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 82): (38, 28)->(1, 81), (33, 3)->(1, 81), (27, 12)->(1, 81), (2, 3)->(1, 81)
+
+   [campaign]    [tunnel] interior ride #3: (1, 81) -> (1, 82)
+
+   [campaign]    [tunnel] room (1, 82): at (27, 12), riding fresh warp (2, 3) (reach=[(2, 3)])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 82) coords=(27, 12) -> coord (2, 4) (budget 120s)
+
+   [travel] step 0: (27, 12)->(27, 13) map=(1, 82) (path 42 to exit)
+
+   [travel] step 10: (20, 15)->(19, 15) map=(1, 82) (path 32 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'your rattata used an attack'  fired=True  [age 0.0s + post 2ms]
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the cave presses in close around you, every sound echoing off the rock'
+
+   [dialogue] +++ 'Do you know how you can avoid getting lost in the mountains? You can bend twigs as trail markers.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Do you know how you can avoid getting lost in the mountains? You can bend twigs as trail markers."'  fired=True  [age 0.0s + post 5ms]
+
+   [travel] path blocked at (11, 16) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (11, 16); NPC-allowing path EXISTS (len 22), blocker NPC tile=(11, 15), npcs nearby=[(2, 23), (4, 23), (5, 11), (11, 15)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 2ms]
+
+   [play-live] battle context: trainer=True foe=onix rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against jigglypuff — your rattata is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's jigglypuff fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pidgey'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pidgey fainted — your blastoise took it down"  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 40'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out meowth'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's meowth went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Ohhh! I did my best!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Ohhh! I did my best!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (138s > 120s) at (11, 16) map=(1, 82) step=31 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [kira-voice] -> T1·brisk· (beat) "it's dim and quiet down here, the path winding deeper into the dark"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    4 door(s); candidates (chosen order): [(2, 3)]
+
+   [campaign]    reachable door (2, 3): walking to approach (2, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 82) coords=(11, 16) -> coord (2, 4) (budget 300s)
+
+   [travel] step 0: (11, 16)->(10, 16) map=(1, 82) (path 22 to exit)
+
+   [dialogue] +++ 'Hahaha! Can you beat my power?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hahaha! Can you beat my power?"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] path blocked at (5, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (5, 12); NPC-allowing path EXISTS (len 12), blocker NPC tile=(5, 11), npcs nearby=[(1, 20), (2, 6), (5, 11), (11, 15)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] battle context: trainer=True foe=meowth rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against geodude — your rattata is up front'  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out geodude'
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's geodude fainted — your blastoise took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 40'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out geodude'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's geodude fainted — your blastoise took it down"  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out graveler'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's graveler went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'Oops! Outmuscled!'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Oops! Outmuscled!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 15ms]
+
+   [travel] step 20: (4, 10)->(4, 9) map=(1, 82) (path 9 to exit)
+
+   [dialogue] +++ 'You have a POK.DEX? I want one, too.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "You have a POK.DEX? I want one, too."'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] path blocked at (4, 6) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (4, 6); NPC-allowing path EXISTS (len 5), blocker NPC tile=None, npcs nearby=[(3, 6), (5, 11), (9, 2), (11, 15)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] battle context: trainer=True foe=graveler rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against slowpoke — your rattata is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out slowpoke'
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's slowpoke fainted — your blastoise took it down"  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 41'  fired=True  [age 0.0s + post 91ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out slowpoke'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's slowpoke fainted — your blastoise took it down"  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out slowpoke'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's slowpoke went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Shoot! I am so jealous!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Shoot! I am so jealous!"'  fired=True  [age 0.0s + post 262ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) "it's dim and quiet down here, the path winding deeper into the dark"  fired=True  [age 0.0s + post 3ms]
+
+   [travel] reached target coord (2, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (1, 82) -> (1, 81) via door (2, 3)
+
+   [campaign]    [world] learned 6 warp(s) on (1, 81): (17, 2)->(3, 28), (45, 2)->(1, 82), (4, 2)->(1, 82), (20, 13)->(1, 82), (45, 21)->(1, 82), (18, 37)->(3, 28)
+
+   [campaign]    [tunnel] interior ride #4: (1, 82) -> (1, 81)
+
+   [campaign]    [tunnel] room (1, 81): at (45, 21), EXIT door (18, 37) (farthest of [(18, 37)])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 81) coords=(45, 21) -> coord (18, 36) (budget 120s)
+
+   [travel] step 0: (45, 21)->(45, 22) map=(1, 81) (path 45 to exit)
+
+   [dialogue] +++ "Eek! Don't try anything funny in the dark!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Eek! Don\'t try anything funny in the dark!"'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] path blocked at (44, 24) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (44, 24); NPC-allowing path EXISTS (len 41), blocker NPC tile=None, npcs nearby=[(39, 27), (45, 24)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] battle context: trainer=True foe=slowpoke rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against bellsprout — your rattata is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out bellsprout'
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's bellsprout fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 41'  fired=True  [age 0.0s + post 1ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out clefairy'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's clefairy went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 15ms]
+
+   [dialogue] +++ 'It was too dark..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "It was too dark.."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] step 20: (42, 31)->(42, 32) map=(1, 81) (path 32 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'your rattata took a big hit'  fired=True  [age 0.0s + post 13ms]
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) "it's dim and quiet down here, the path winding deeper into the dark"  fired=True  [age 0.0s + post 3ms]
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (120s > 120s) at (34, 31) map=(1, 81) step=34 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [campaign]    6 door(s); candidates (chosen order): [(18, 37)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 81) coords=(34, 31) -> coord (18, 36) (budget 60s)
+
+   [travel] step 0: (34, 31)->(33, 31) map=(1, 81) (path 22 to exit)
+
+   [travel] path blocked at (26, 31) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'I came this far looking for wild POK.MON.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I came this far looking for wild POK.MON."'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] no clean path from (26, 31); NPC-allowing path EXISTS (len 14), blocker NPC tile=None, npcs nearby=[(26, 30)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] battle context: trainer=True foe=zubat rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against meowth — your rattata is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's meowth fainted — your blastoise took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'my rattata just leveled up to level 17'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out oddish'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's oddish fainted — your blastoise took it down"  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pidgey'  fired=True  [age 0.0s + post 11ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pidgey went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ "I'm out of POK.MON!"  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "I\'m out of POK.MON!"'  fired=True  [age 0.0s + post 20ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (131s > 60s) at (26, 31) map=(1, 81) step=15 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 7ms]
+
+   [travel] start map=(1, 81) coords=(26, 31) -> coord (18, 38) (budget 45s)
+
+   [travel] path blocked at (26, 31) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (26, 31) AND no NPC-allowing path (npcs nearby=[(26, 30)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (26, 31) map=(1, 81) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 81) coords=(26, 31) -> coord (18, 36) (budget 45s)
+
+   [travel] step 0: (26, 31)->(25, 31) map=(1, 81) (path 14 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 6ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] reached target coord (18, 36)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (18, 37) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    WARPED (1, 81) -> (3, 28) via directional door (18, 37)
+
+   [campaign]    [tunnel] OUT of the tunnel at (3, 28) coords=(8, 58)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(8, 58) -> map (3, 4) (budget 300s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] step 0: (8, 58)->(8, 59) map=(3, 28) (path 33 to exit)
+
+   [dialogue] +++ "I'm feeling a bit faint. I haven't hiked in some time."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I\'m feeling a bit faint. I haven\'t hiked in some time."'  fired=True  [age 0.0s + post 10ms]
+
+   [travel] path blocked at (8, 60) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (8, 60); NPC-allowing path EXISTS (len 29), blocker NPC tile=(4, 62), npcs nearby=[(4, 62), (4, 68), (7, 60)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] battle context: trainer=True foe=machop rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against pidgey — your rattata is up front'  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] -> T1·brisk· (event) "rattata showed up for the XP share — now blastoise takes it from here. that's how you train a rookie."  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pidgey fainted — your blastoise took it down"  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pidgeotto'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise fainted'  fired=True  [age 0.0s + post 19ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) 'your spearow used Peck - a STAB hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra used Confusion - a STAB hit'  fired=True  [age 0.0s + post 2ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 601; bursts here = audible crackle)
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pidgeotto went down to your kadabra — that's the battle, you won"  fired=True  [age 0.0s + post 20ms]
+
+   [dialogue] +++ "I'm too tired. I wasn't up for it."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "I\'m too tired. I wasn\'t up for it."'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (faint) 'we won… but my blastoise went down doing it. you did good — rest up.'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] step 10: (8, 61)->(7, 61) map=(3, 28) (path 30 to exit)
+
+   [dialogue] +++ 'Ha-hahah-ah-ha!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ha-hahah-ah-ha!"'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] path blocked at (4, 61) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (4, 61); NPC-allowing path EXISTS (len 24), blocker NPC tile=(4, 62), npcs nearby=[(4, 62), (4, 68), (7, 60)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 4ms]
+
+   [play-live] battle context: trainer=True foe=pidgeotto rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against geodude — your rattata is up front'  fired=True  [age 0.0s + post 23ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out geodude'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata used move#158 - a not-very-effective hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata took a big hit'  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata used move#158 - a not-very-effective hit'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata fainted'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'your spearow used Peck - a not-very-effective hit'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [kira-voice] -> T2·savor· (event) 'your spearow fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's geodude fainted — your kadabra took it down"  fired=True  [age 0.0s + post 26ms]
+
+   [kira-voice] -> T2·savor· (event) 'my kadabra just leveled up to level 18'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T1·brisk· (event) 'ooh — Disable on offer. tempting, but I know my four. we keep the set.'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out onix'  fired=True  [age 0.0s + post 7ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=timeout; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 3, L41) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->3 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> road_passthrough | pos (3, 28)(13, 21) -> (3, 28)(4, 61) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 28) coords=(4, 61) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_161338_route-10_3b_17h59m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (3, 6, 12, 125) @ Route 10 (ring=3/4)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (4, 61) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L41, ekans L16, spearow L17, rattata L17, kadabra L18, butterfree L16] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 28) (4,61) f3 -B badge3 $11644 party:a726 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Blastoise is at 0/128 HP and 3 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Lavender Town — a Pokémon Center; WEST → Route 9 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: an unfamiliar area; Route 24; Route 25. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Your team is badly hurt — Blastoise is at 0/128 HP and 3 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['heal']
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 2581ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to Celadon City for Erika.
+
+   [campaign]    HEAL: own Center door (13, 20) UNREACHABLE from (4, 61) on (3, 28) -> crossing to an adjacent city to heal
+
+   [campaign]    HEAL-EXCURSION: lead at (0, 128) - crossing south to (3, 4) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(4, 61) -> map (3, 4) (budget 120s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'a battle started against onix — your kadabra is up front'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's onix went down to your kadabra — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Ha-haha! Not laughing! Ha-hay fever! Haha-ha-choo!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ha-haha! Not laughing! Ha-hay fever! Haha-ha-choo!"'  fired=True  [age 0.0s + post 5ms]
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] path blocked at (3, 68) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'Ah! This mountain air is delicious!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ah! This mountain air is delicious!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] no clean path from (3, 68); NPC-allowing path EXISTS (len 19), blocker NPC tile=None, npcs nearby=[(4, 62), (4, 68)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against onix — your ekans is up front'  fired=True  [age 0.0s + post 155ms]
+
+   [kira-voice] -> T1·brisk· (event) 'kadabra takes this one — the rock/ground typing is chewing through who I had out there.'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra used Confusion - a STAB hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's onix fainted — your kadabra took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'my kadabra just leveled up to level 19'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out graveler'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's graveler went down to your kadabra — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'That cleared my head!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "That cleared my head!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (140s > 120s) at (3, 68) map=(3, 28) step=15 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [campaign]    !! HEAL-EXCURSION: didn't reach (3, 4) (at (3, 28))
+
+   [campaign]    !! HEAL: no reachable adjacent Center from (3, 28) (conns=[('S', (3, 4)), ('W', (3, 27))]) — LOUD
+
+   [kira-voice] -> T1·brisk· (beat) 'you walk on under open sky, the next town somewhere past the horizon'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260802_161616.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !! ESCAPE-HATCH: current gain (3, 6, 12, 126) EXCEEDS last-good (3, 6, 12, 125) — a real gain happened since (badge/teammate/catch). REFUSING to reload past it; re-anchoring current as the new known-good and declining (ABANDON will surface for a human instead).
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [escape_reanchor] -> campaign/kira_campaign.state  (map=(3, 28) coords=(3, 68) badges=3 party=6)
+
+   [campaign]    [roam] !!!! DEEP-WEDGE REVERT #1: escape-hatch spent + still frozen -> reverted to safe checkpoint gain(3, 6, 12, 125)@Route 10 (gain (3, 6, 12, 125))
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh — something properly glitched out on me there. let me just back up to where things were working and pick it up again.'
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_deepwedge_revert] -> campaign/kira_campaign.state  (map=(3, 28) coords=(4, 61) badges=3 party=6)
+
+   [campaign]    HEAL: TRUE strand -> deep-wedge ring reverted to a guaranteed-safe checkpoint (recovered)
+
+   [campaign]    [roam] RESULT: heal -> ok | pos (3, 28)(4, 61) -> (3, 28)(4, 61) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (heal) "okay — patched up and ready. let's go."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(3, 28) coords=(4, 61) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_161631_route-10_3b_18h02m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (4, 61) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L41, ekans L16, spearow L17, rattata L17, kadabra L18, butterfree L16] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 28) (4,61) f3 -B badge3 $11644 party:a726 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [soul] surface_want FIRE -> Route 10
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 28), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Eevee in Celadon City'
+
+   [campaign]    [soul] ORACLE pick -> 'Eevee in Celadon City'
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Blastoise is at 0/128 HP and 3 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Lavender Town — a Pokémon Center; WEST → Route 9 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: an unfamiliar area; Route 24; Route 25. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Your team is badly hurt — Blastoise is at 0/128 HP and 3 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['heal']
+
+   [kira-voice] -> T2·savor· (want) 'Eevee in Celadon City'  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 2211ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to Celadon City for Erika.
+
+   [campaign]    HEAL: own Center door (13, 20) UNREACHABLE from (4, 61) on (3, 28) -> crossing to an adjacent city to heal
+
+   [campaign]    HEAL-EXCURSION: lead at (0, 128) - crossing south to (3, 4) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(4, 61) -> map (3, 4) (budget 120s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 21ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'a battle started against onix — your kadabra is up front'
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra used Confusion - a STAB hit'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's onix went down to your kadabra — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Ha-haha! Not laughing! Ha-hay fever! Haha-ha-choo!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ha-haha! Not laughing! Ha-hay fever! Haha-ha-choo!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 14ms]
+
+   [travel] path blocked at (3, 68) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'Ah! This mountain air is delicious!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ah! This mountain air is delicious!"'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] no clean path from (3, 68); NPC-allowing path EXISTS (len 19), blocker NPC tile=None, npcs nearby=[(4, 62), (4, 68)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against onix — your ekans is up front'  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T1·brisk· (event) 'kadabra takes this one — the rock/ground typing is chewing through who I had out there.'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your kadabra used Confusion - a STAB hit'
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra is at low HP - this is getting tense'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's onix fainted — your kadabra took it down"  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] -> T2·savor· (event) 'my kadabra just leveled up to level 19'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out graveler'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra used Confusion - a STAB hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra fainted'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T1·brisk· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [travel] blocker battle outcome=timeout; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (158s > 120s) at (3, 68) map=(3, 28) step=15 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [campaign]    !! HEAL-EXCURSION: didn't reach (3, 4) (at (3, 28))
+
+   [campaign]    !! HEAL: no reachable adjacent Center from (3, 28) (conns=[('S', (3, 4)), ('W', (3, 27))]) — LOUD
+
+   [kira-voice] -> T1·brisk· (event) "this is taking forever - I'm stuck grinding, let me regroup"  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260802_161930.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !! ESCAPE-HATCH: current gain (3, 6, 12, 126) EXCEEDS last-good (3, 6, 12, 125) — a real gain happened since (badge/teammate/catch). REFUSING to reload past it; re-anchoring current as the new known-good and declining (ABANDON will surface for a human instead).
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [escape_reanchor] -> campaign/kira_campaign.state  (map=(3, 28) coords=(3, 68) badges=3 party=6)
+
+   [campaign]    [roam] !!!! DEEP-WEDGE REVERT #1: escape-hatch spent + still frozen -> reverted to safe checkpoint gain(3, 6, 12, 125)@Route 10 (gain (3, 6, 12, 125))
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh — something properly glitched out on me there. let me just back up to where things were working and pick it up again.'
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_deepwedge_revert] -> campaign/kira_campaign.state  (map=(3, 28) coords=(4, 61) badges=3 party=6)
+
+   [campaign]    HEAL: TRUE strand -> deep-wedge ring reverted to a guaranteed-safe checkpoint (recovered)
+
+   [campaign]    [roam] RESULT: heal -> ok | pos (3, 28)(4, 61) -> (3, 28)(4, 61) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (heal) "okay — patched up and ready. let's go."  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick4] -> campaign/kira_campaign.state  (map=(3, 28) coords=(4, 61) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_161945_route-10_3b_18h05m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (4, 61) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L41, ekans L16, spearow L17, rattata L17, kadabra L18, butterfree L16] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 28) (4,61) f3 -B badge3 $11644 party:a726 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Blastoise is at 0/128 HP and 3 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Lavender Town — a Pokémon Center; WEST → Route 9 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: an unfamiliar area; Route 24; Route 25. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Your team is badly hurt — Blastoise is at 0/128 HP and 3 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['heal']
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 2268ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to Celadon City for Erika.
+
+   [campaign]    HEAL: own Center door (13, 20) UNREACHABLE from (4, 61) on (3, 28) -> crossing to an adjacent city to heal
+
+   [campaign]    HEAL-EXCURSION: lead at (0, 128) - crossing south to (3, 4) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(4, 61) -> map (3, 4) (budget 120s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'a battle started against onix — your kadabra is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your kadabra used Confusion - a STAB hit'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's onix went down to your kadabra — that's the battle, you won"  fired=True  [age 0.0s + post 15ms]
+
+   [dialogue] +++ 'Ha-haha! Not laughing! Ha-hay fever! Haha-ha-choo!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ha-haha! Not laughing! Ha-hay fever! Haha-ha-choo!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] path blocked at (3, 68) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'Ah! This mountain air is delicious!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ah! This mountain air is delicious!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] no clean path from (3, 68); NPC-allowing path EXISTS (len 19), blocker NPC tile=None, npcs nearby=[(4, 62), (4, 68)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against onix — your ekans is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) 'kadabra takes this one — the rock/ground typing is chewing through who I had out there.'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra used Confusion - a STAB hit'  fired=True  [age 0.0s + post 11ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra is at low HP - this is getting tense'  fired=True  [age 0.0s + post 19ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's onix fainted — your kadabra took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my kadabra just leveled up to level 19'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out graveler'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your kadabra used Confusion - a STAB hit'
+
+   [travel] blocker battle outcome=timeout; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (156s > 120s) at (3, 68) map=(3, 28) step=15 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [campaign]    !! HEAL-EXCURSION: didn't reach (3, 4) (at (3, 28))
+
+   [campaign]    !! HEAL: no reachable adjacent Center from (3, 28) (conns=[('S', (3, 4)), ('W', (3, 27))]) — LOUD
+
+   [kira-voice] -> T1·brisk· (event) "this is taking forever - I'm stuck grinding, let me regroup"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260802_162238.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !! ESCAPE-HATCH: current gain (3, 6, 12, 126) EXCEEDS last-good (3, 6, 12, 125) — a real gain happened since (badge/teammate/catch). REFUSING to reload past it; re-anchoring current as the new known-good and declining (ABANDON will surface for a human instead).
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [escape_reanchor] -> campaign/kira_campaign.state  (map=(3, 28) coords=(3, 68) badges=3 party=6)
+
+   [campaign]    [roam] !!!! DEEP-WEDGE REVERT #1: escape-hatch spent + still frozen -> reverted to safe checkpoint gain(3, 6, 12, 125)@Route 10 (gain (3, 6, 12, 125))
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh — something properly glitched out on me there. let me just back up to where things were working and pick it up again.'
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_deepwedge_revert] -> campaign/kira_campaign.state  (map=(3, 28) coords=(4, 61) badges=3 party=6)
+
+   [campaign]    HEAL: TRUE strand -> deep-wedge ring reverted to a guaranteed-safe checkpoint (recovered)
+
+   [campaign]    [roam] RESULT: heal -> ok | pos (3, 28)(4, 61) -> (3, 28)(4, 61) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (heal) "okay — patched up and ready. let's go."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(3, 28) coords=(4, 61) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_162253_route-10_3b_18h09m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (4, 61) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L41, ekans L16, spearow L17, rattata L17, kadabra L18, butterfree L16] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 28) (4,61) f3 -B badge3 $11644 party:a726 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Blastoise is at 0/128 HP and 3 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to heal but the world hasn't changed in 3 turns - it went 'ok', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'heal' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Lavender Town — a Pokémon Center; WEST → Route 9 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: an unfamiliar area; Route 24; Route 25. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Your team is badly hurt — Blastoise is at 0/128 HP and 3 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.. You keep trying to heal but the world hasn\'t changed in 3 turns - it went \'ok\', and you don\'t seem to be getting anywhere.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'heal\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L18), caterpie the butterfree (L16)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['heal']
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 4954ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to Celadon City for Erika.
+
+   [campaign]    HEAL: own Center door (13, 20) UNREACHABLE from (4, 61) on (3, 28) -> crossing to an adjacent city to heal
+
+   [campaign]    HEAL-EXCURSION: lead at (0, 128) - crossing south to (3, 4) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(4, 61) -> map (3, 4) (budget 120s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'a battle started against onix — your kadabra is up front'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your kadabra used Confusion - a STAB hit'
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's onix went down to your kadabra — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Ha-haha! Not laughing! Ha-hay fever! Haha-ha-choo!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ha-haha! Not laughing! Ha-hay fever! Haha-ha-choo!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] path blocked at (3, 68) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'Ah! This mountain air is delicious!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ah! This mountain air is delicious!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] no clean path from (3, 68); NPC-allowing path EXISTS (len 19), blocker NPC tile=None, npcs nearby=[(4, 62), (4, 68)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against onix — your ekans is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T1·brisk· (event) 'kadabra takes this one — the rock/ground typing is chewing through who I had out there.'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra used Confusion - a STAB hit'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's onix fainted — your kadabra took it down"  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) 'my kadabra just leveled up to level 19'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out graveler'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your kadabra used Confusion - a STAB hit'
+
+   [kira-voice] -> T1·brisk· (event) 'your kadabra took a big hit'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's graveler went down to your kadabra — that's the battle, you won"  fired=True  [age 0.0s + post 19ms]
+
+   [dialogue] +++ 'That cleared my head!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "That cleared my head!"'  fired=True  [age 0.0s + post 5ms]
+
+   [travel] blocker battle outcome=timeout; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (164s > 120s) at (3, 68) map=(3, 28) step=15 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [campaign]    !! HEAL-EXCURSION: didn't reach (3, 4) (at (3, 28))
+
+   [campaign]    !! HEAL: no reachable adjacent Center from (3, 28) (conns=[('S', (3, 4)), ('W', (3, 27))]) — LOUD
+
+   [kira-voice] -> T1·brisk· (beat) 'you walk on under open sky, the next town somewhere past the horizon'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260802_162556.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (3, 6, 12, 126)); current backed up to pre_reload_20260802_162556.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 28) coords=(3, 68) badges=3 party=6)
+
+   [campaign]    HEAL: TRUE strand -> escape-hatch reloaded to last good checkpoint (recovered)
+
+   [campaign]    [roam] RESULT: heal -> ok | pos (3, 28)(4, 61) -> (3, 28)(3, 68) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick6] -> campaign/kira_campaign.state  (map=(3, 28) coords=(3, 68) badges=3 party=6)
+
+   [kira-voice] -> T2·savor· (heal) "okay — patched up and ready. let's go."  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_162612_route-10_3b_18h12m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (3, 6, 12, 126) @ Route 10 (ring=4/4)
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (3, 68) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L41, ekans L16, spearow L17, rattata L17, kadabra L19, butterfree L16] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 28) (3,68) f1 -B badge3 $12400 party:8ddc bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [soul] surface_want FIRE -> Route 10
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L16). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 28), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L16)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Eevee in Celadon'
+
+   [campaign]    [soul] ORACLE pick -> 'Eevee in Celadon'
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Blastoise is at 0/128 HP and 4 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. From here: SOUTH → Lavender Town — a Pokémon Center; WEST → Route 9 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: an unfamiliar area; Route 24; Route 25. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Your team is badly hurt — Blastoise is at 0/128 HP and 4 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L16). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L41), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L16)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['heal']
+
+   [kira-voice] -> T2·savor· (want) 'Eevee in Celadon'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 3146ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to Celadon City for Erika.
+
+   [campaign]    HEAL: own Center door (13, 20) UNREACHABLE from (3, 68) on (3, 28) -> crossing to an adjacent city to heal
+
+   [campaign]    HEAL-EXCURSION: lead at (0, 128) - crossing south to (3, 4) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(3, 68) -> map (3, 4) (budget 120s)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against graveler — your ekans is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your ekans used Bite - a solid hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your ekans fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] battle outcome=timeout; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against graveler — your butterfree is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's graveler went down to your butterfree — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 901; bursts here = audible crackle)
+
+   [kira-voice] -> T2·savor· (event) 'my butterfree just leveled up to level 17'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'That cleared my head!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "That cleared my head!"'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (135s > 120s) at (3, 68) map=(3, 28) step=2 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] ·floor· (<1s since last) T0 "this is taking forever - I'm stuck grinding, let me regroup"
+
+   [campaign]    !! HEAL-EXCURSION: didn't reach (3, 4) (at (3, 28))
+
+   [campaign]    !! HEAL: no reachable adjacent Center from (3, 28) (conns=[('S', (3, 4)), ('W', (3, 27))]) — LOUD
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260802_162848.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !! ESCAPE-HATCH: current gain (3, 6, 12, 127) EXCEEDS last-good (3, 6, 12, 126) — a real gain happened since (badge/teammate/catch). REFUSING to reload past it; re-anchoring current as the new known-good and declining (ABANDON will surface for a human instead).
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [escape_reanchor] -> campaign/kira_campaign.state  (map=(3, 28) coords=(3, 68) badges=3 party=6)
+
+   [campaign]    [roam] !!!! DEEP-WEDGE REVERT #1: escape-hatch spent + still frozen -> reverted to safe checkpoint gain(3, 6, 12, 126)@Route 10 (gain (3, 6, 12, 126))
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh — something properly glitched out on me there. let me just back up to where things were working and pick it up again.'
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_deepwedge_revert] -> campaign/kira_campaign.state  (map=(3, 28) coords=(3, 68) badges=3 party=6)
+
+   [campaign]    HEAL: TRUE strand -> deep-wedge ring reverted to a guaranteed-safe checkpoint (recovered)
+
+   [campaign]    [roam] RESULT: heal -> ok | pos (3, 28)(3, 68) -> (3, 28)(3, 68) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (heal) "okay — patched up and ready. let's go."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(3, 28) coords=(3, 68) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_162903_route-10_3b_18h15m_periodic  (4 bundle file(s))
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 207875 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 28) coords=(3, 68)  badge=True
+
+   [kira-voice] === 291 fired, 67 gated (0 failed) | by tier: T3=3 T2=150 T1=138 (incl ambient trickle) ===
+
+================================================================
+
