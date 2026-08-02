@@ -7959,6 +7959,45 @@ class Campaign:
         except Exception:
             return False
 
+    def _ace_carries_next_gym(self, state):
+        """True when the ACE alone is at/above the next gym's grind bar — MARCH; train the bench
+        on the road (road-bench-XP), don't park in the same grass for a +6 pin.
+
+        WHY (2026-08-02, post-Surge Celadon chalk): after Thunder Badge the milestone rose to
+        Erika L31, the bench pin re-armed at L19, and she farmed Route 6 for Ekans/Rattata while
+        narrating 'Celadon, ready to go'. Blastoise L36 already clears the Erika level bar —
+        credits are the spine; grass parks that aren't a rematch bar are a pacing bug. Mid-evo
+        / rematch bumps still require the real grind (level_target rises; this returns False).
+
+        PAPER + STATUS-GYM GUARD: Blastoise L36 vs Surge ALSO clears the raw level bar, but
+        Thunder Wave / Raichu farm a paper bench — that rematch chalk must keep GO-HARD blocked.
+        KB `bring_cures` marks status-heavy gyms (Surge paralysis, Koga poison): with a paper
+        bench those stay a short farm, not a march. Erika has no bring_cures → Celadon chalk
+        marches when the level bar is cleared (credits > Route-6 montage)."""
+        try:
+            ng = state.get("next_gym") if state else None
+            if not ng or getattr(self, "planner", None) is None:
+                return False
+            party = state.get("party") or []
+            if not party:
+                return False
+            bump = getattr(self, "_gym_prep_bump", {}).get(ng["leader"], 0)
+            r = self.planner.gym_readiness(
+                ng["leader"], party, party_target=GYM_PARTY_TARGET, loss_bump=bump)
+            if not r or r.get("mid_evo_block"):
+                return False
+            top = int(r.get("top_level") or 0)
+            target = int(r.get("level_target") or 0)
+            if not (top and target and top >= target):
+                return False
+            if r.get("paper_bench"):
+                rec = (self.planner.threats or {}).get(ng["leader"]) or {}
+                if rec.get("bring_cures"):
+                    return False
+            return True
+        except Exception:
+            return False
+
     def _gym_go_hard_blocked(self, state):
         """True when DOMINANT/MOMENTUM must NOT force head_to_gym. Creator order still wins (LAW).
         WHY (2026-08-01): Wartortle L33 + paper bench vs Surge was called DOMINANT and GO HARD
@@ -7966,8 +8005,12 @@ class Campaign:
         WHY (2026-08-02): Blastoise L36 + paper bench STILL rode Misty MOMENTUM into Surge
         (bump was 0, so the old gate only blocked mid-evo). ALWAYS consult gym_readiness —
         not ready (paper bench / underleveled rematch bar) means no GO HARD, even with live
-        momentum. Short grass farm, then rematch — never bang the gym forever."""
+        momentum. Short grass farm, then rematch — never bang the gym forever.
+        EXCEPTION (same day, Celadon chalk): when the ACE already carries the next gym's level
+        bar, paper-bench 'not ready' must NOT park a grass farm — march; road trains the bench."""
         try:
+            if self._ace_carries_next_gym(state):
+                return False
             ng = state.get("next_gym") if state else None
             if not ng:
                 return False
@@ -8607,6 +8650,9 @@ class Campaign:
             return None
         if not (STRATEGIC_GRIND_ENABLED and battle_agent.GRIND_SWITCH_ENABLED):
             return None                              # need the proven participation switch to level a bench
+        # Ace already clears the next gym's level bar — never force a grass park (Celadon chalk).
+        if self._ace_carries_next_gym(state):
+            return None
         if getattr(self, "_active_questline", None) is not None:
             # MAP-TYPE-RELAXED (2026-07-13 — fresh_go_2 root): keep the ace leading INSIDE a cave/dungeon
             # interior (a forced grind there is the flee-loop). But on OPEN GROUND with a questline merely
@@ -12442,6 +12488,19 @@ class Campaign:
                                   "this next gym. they'll train on the way — we're not stopping.",
                                   kind="grind", tier=1)
                 prep_t = None
+            # ACE-CARRIES STAND-DOWN (2026-08-02 Celadon chalk): Blastoise already at/above Erika's
+            # level bar but paper bench blocks "dominant" — same park as Misty chalk. Mute STRENGTHEN
+            # FIRST framing; pin stays live for road-bench-XP on the Celadon march. GO HARD below
+            # also forces head_to_gym + prunes battle.
+            if prep_t is not None and self._ace_carries_next_gym(state):
+                if getattr(self, "_ace_carry_standdown_logged", None) != state.get("badge_count"):
+                    self._ace_carry_standdown_logged = state.get("badge_count")
+                    log(f"   [roam] ACE-CARRIES: prep-to-L{prep_t} stands down — ace clears the next "
+                        f"gym's level bar; MARCH (bench XP on the road), not parked Route grass")
+                    self.on_event("bench is thin, but my ace already clears the next gym's level — "
+                                  "we're marching; they'll catch XP on the road.",
+                                  kind="grind", tier=1)
+                prep_t = None
             if prep_t is not None:
                 if not battle_agent.GRIND_SWITCH_ENABLED:
                     # ACE-OVERPOWER framing — level the strong lead to bulldoze the wall.
@@ -12779,16 +12838,21 @@ class Campaign:
                 # skip keys off creator/dominant only): the errand (Bill's ticket -> S.S. Anne ->
                 # Cut) IS the road to the next gym, and its trainers ARE the training.
                 _mom3 = self._momentum_live(state) if _ng3 else False
+                # ACE-CARRIES MARCH (2026-08-02 Celadon chalk): ace at/above next gym's level bar
+                # → same GO HARD as dominance (prune grass, force head_to_gym). Bench XP on the road.
+                _ace3 = self._ace_carries_next_gym(state) if _ng3 else False
                 # SURGE / MID-EVO PREP GATE (2026-08-01): dominance + momentum must NOT force the
                 # gym while Wartortle < Blastoise or a live loss bump says not ready. Creator
                 # order still overrides (LAW). Mid-evo/paper-bench gates also zero _gym_dominant.
+                # Ace-carries clears the block inside _gym_go_hard_blocked (level bar already met).
                 if _ng3 and not _ord3 and self._gym_go_hard_blocked(state):
-                    if _dom3 or _mom3:
+                    if _dom3 or _mom3 or _ace3:
                         log(f"   [roam] !! GO-HARD BLOCKED for {_ng3['leader']} — mid-evo / prep "
                             f"bump says not ready (no DOMINANT/MOMENTUM force; grind to Blastoise "
                             f"+ bench first)")
                     _dom3 = False
                     _mom3 = False
+                    _ace3 = False
                 # GO-HARD RETRY CAP (2026-07-31, the live Misty loop): beat_gym stuck 5+ ticks in a
                 # row on this leader means the interior genuinely has her beat — stop re-forcing the
                 # pick (which would override the structural park forever) and let the normal
@@ -12807,10 +12871,10 @@ class Campaign:
                                 "keeping force-pick so the puzzle solver re-arms")
                     except Exception:
                         pass
-                if _ng3 and (_ord3 or _dom3 or _mom3) and _gh_capped:
+                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and _gh_capped:
                     log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
                         f"{_ng3['leader']}; escape machinery owns the wedge now")
-                if _ng3 and (_ord3 or _dom3 or _mom3) and not _gh_capped:
+                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and not _gh_capped:
                     if "head_to_gym" not in a:
                         a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
                         log("   [roam] !! restoring head_to_gym (was pruned earlier) — gym is GO")
@@ -12824,6 +12888,12 @@ class Campaign:
                             f"YOU'RE READY — STOP GRINDING AND GO. Your strongest OVERPOWERS "
                             f"{_ng3['leader']}. Walk into {_ng3['city']}'s gym and take the "
                             f"badge NOW. Parking in grass is wasted stream time.")
+                    elif _ace3:
+                        a["head_to_gym"] = (
+                            f"MARCH — your ace already clears {_ng3['leader']}'s level bar. "
+                            f"Walk to {_ng3['city']} and take the badge. Train the bench on "
+                            f"the road (trainers + wilds en route) — NEVER park Route grass "
+                            f"to level everyone before you leave. Credits are the goal.")
                     else:
                         _mbt = getattr(self, "_momentum_beat", "the last gym leader")
                         _mbc = getattr(self, "_momentum_badges", None)
@@ -12846,9 +12916,11 @@ class Campaign:
                     if getattr(self, "_bench_pin", None) is not None:
                         log(f"   [roam] !! retiring bench pin L{self._bench_pin} — gym is GO now")
                         self._bench_pin = None
-                    log(f"   [roam] !! {'CREATOR ORDER' if _ord3 else ('DOMINANT' if _dom3 else 'MOMENTUM')} "
-                        f"→ GO HARD: forced head_to_gym ({_ng3['leader']}); pruned {sorted(_prn)}; "
-                        f"oracle SKIPPED this tick")
+                    _go_tag = ("CREATOR ORDER" if _ord3 else
+                               ("DOMINANT" if _dom3 else
+                                ("ACE-CARRIES" if _ace3 else "MOMENTUM")))
+                    log(f"   [roam] !! {_go_tag} → GO HARD: forced head_to_gym ({_ng3['leader']}); "
+                        f"pruned {sorted(_prn)}; oracle SKIPPED this tick")
             except Exception as _dg:
                 log(f"   [roam] dominant-go reframe skipped: {_dg}")
         # ── CROSS-MAP KEEPER ROUTER (PASS 3 NEW#2) ───────────────────────────────────────────────────
@@ -16194,21 +16266,24 @@ class Campaign:
                     medium = ("Raise the fieldable bench so they survive Raichu, then re-take the "
                               "Thunder Badge — do not march in with paper mons")
                 return {"short": short, "medium": medium, "long": long}
-            # GO-HARD (dominant / creator order / force latch): never whisper "grind to L14" —
-            # _prep_team_target may still re-arm a bench pin for road-bench-XP, but short goals
-            # must say GO, not park. Matches the menu prune + FORCE GYM PICK.
+            # GO-HARD (dominant / creator / momentum / ace-carries / force latch): never whisper
+            # "grind to L19" — _prep_team_target returns None when the ace carries (Celadon chalk),
+            # and short goals must say MARCH, not park. Matches the menu prune + FORCE GYM PICK.
             # Prep-blocked (mid-evo / loss bump): only creator order may still say GO.
             _go_hard = False
             _mom_g = False
+            _ace_g = False
             try:
                 _prep_block = self._gym_go_hard_blocked(state)
                 _ord_g = self._creator_order(state)
                 _mom_g = (not _prep_block) and self._momentum_live(state)
+                _ace_g = (not _prep_block) and self._ace_carries_next_gym(state)
                 _go_hard = bool(_ord_g or (
                     (not _prep_block) and (
                         getattr(self, "_force_gym_pick", False)
                         or self._gym_dominant(state)
-                        or _mom_g)))
+                        or _mom_g
+                        or _ace_g)))
             except Exception:
                 _go_hard = False
             if _go_hard and ng:
@@ -16221,6 +16296,9 @@ class Campaign:
                              else f"You beat {_mbt_g}")
                     medium = (f"{_mwin} — ride the momentum: {ng['leader']} in {ng['city']} is "
                               f"NEXT (not fought yet); the trainers on the way are your training")
+                elif _ace_g:
+                    medium = (f"Your ace already clears {ng['leader']}'s level bar — march to "
+                              f"{ng['city']}; train the bench on the road (not parked grass)")
                 else:
                     medium = f"You're ready — travel to {ng['city']} and take on {ng['leader']}"
             if wr and not rdy and not _go_hard:
@@ -16389,6 +16467,7 @@ class Campaign:
             try:
                 pt = self._prep_team_target(state)
                 if pt is not None and (self._creator_order(state) or self._gym_dominant(state)
+                                       or self._ace_carries_next_gym(state)
                                        or getattr(self, "_force_gym_pick", False)):
                     pt = None
                 if pt is not None and pick == "battle":
