@@ -2082,6 +2082,15 @@ class VTubeBot:
         r"|\btry\s+to\s+catch\b"
         r"|\bthrow\s+(?:a\s+)?(?:poke\s*)?balls?\b",
         re.IGNORECASE)
+    # Flash / forward: "go get flash", "move forward", "leave the cave" — stand down catch spam.
+    _POKEMON_FLASH_FORWARD_RX = re.compile(
+        r"\b(?:go\s+)?(?:get|grab|find|learn)\s+flash\b"
+        r"|\b(?:need|needs)\s+flash\b"
+        r"|\bmove\s+forward\b"
+        r"|\bleave\s+(?:the\s+)?(?:cave|diglett)\b"
+        r"|\bstop\s+catching\b"
+        r"|\bkeep\s+(?:going|moving)\b",
+        re.IGNORECASE)
 
     def _pokemon_creator_order_live(self) -> bool:
         """True when a Pokémon campaign is actually running — health.json heartbeat fresh, OR
@@ -2102,7 +2111,10 @@ class VTubeBot:
         """Latch a creator order from Jonny's spoken words. Best-effort; not gated on pokemon_mode
         (resume_marathon launches the harness outside the dashboard mode flip)."""
         text = content or ""
-        if self._POKEMON_CATCH_ORDER_RX.search(text):
+        # Flash/forward OUTRANKS a lingering catch_now — "go get flash" must clear Diglett ball spam.
+        if self._POKEMON_FLASH_FORWARD_RX.search(text):
+            order = "get_flash"
+        elif self._POKEMON_CATCH_ORDER_RX.search(text):
             order = "catch_now"
         elif (self._POKEMON_GYM_ORDER_RX.search(text)
               or self._POKEMON_STOP_GRIND_RX.search(text)):

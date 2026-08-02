@@ -41,13 +41,15 @@ def run():
     check("2e creator catch_now divert", 'return self._divert_wild_catch("creator_catch_now"' in ba)
 
     camp = open(os.path.join(_HERE, "campaign.py"), encoding="utf-8").read()
-    check("3a Diglett targeted catch in flash Phase 3",
-          'target_species="diglett"' in camp and "Diglett's Cave targeted catch" in camp)
-    check("3b flash cave cross uses flee runner",
-          "self.trav.battle_runner = self._cave_runner" in camp
-          and "don't KO Digletts" in camp)
+    check("3a Diglett ONE catch in flash Phase 3",
+          'target_species="diglett"' in camp and "ONE diglett catch" in camp)
+    check("3b flash Diglett cave uses FIGHT runner (Arena Trap)",
+          "Arena Trap" in camp and "never flee Diglett" in camp)
     check("3c catch_now does not badge-fulfill",
-          'order != "catch_now"' in camp and "_fulfill_catch_order" in camp)
+          'order not in ("catch_now", "get_flash")' in camp and "_fulfill_catch_order" in camp)
+    check("3c2 get_flash order + Arena Trap fight-clear",
+          'order == "get_flash"' in camp and "_skip_catch_divert" in open(
+              os.path.join(_HERE, "battle_agent.py"), encoding="utf-8").read())
     check("3d tunnel uses place_name not hardcoded Rock Tunnel voice",
           "_cave_here = self._place_name" in camp
           and 'self.on_event("Rock Tunnel — pitch dark' not in camp)

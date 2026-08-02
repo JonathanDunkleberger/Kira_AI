@@ -347,18 +347,55 @@ class BattleAgent:
             pass
         return False
 
+    def _dex_owns_species(self, species_id):
+        """Pokédex owned bit — true once she's EVER caught this species (party OR box)."""
+        try:
+            return ram.pokedex_owns(self.b, species_id) is True
+        except Exception:
+            return self._party_owns_species(species_id)
+
+    def _resolve_open_battle(self, max_seconds=120):
+        """NEVER return while in_battle is still True (Arena Trap / failed flee leaves a live fight —
+        travel then re-enters the same battle forever → RUN spam loop). Fight it out."""
+        if not st.in_battle(self.b):
+            return "win"
+        self.log("   [engine] battle still open after catch/flee fail — FIGHTING to clear "
+                 "(Arena Trap / Can't escape class)")
+        self._skip_catch_divert = True
+        try:
+            return self.run(max_seconds=max_seconds)
+        finally:
+            self._skip_catch_divert = False
+
     def _divert_wild_catch(self, reason, foe_name, max_seconds):
-        """Shared careful-capture divert (shiny / legendary / creator catch_now / Diglett keeper)."""
+        """Shared careful-capture divert (shiny / legendary / creator catch_now / Diglett keeper).
+        Diglett has Arena Trap — flee ALWAYS fails; a no_balls path that leaves the battle open
+        is the live RUN-spam livelock (2026-08-02 chalk). Always resolve the fight before return."""
+        if self._ball_count() <= 0 and reason not in ("shiny", "legendary"):
+            self.log(f"   [engine] WILD CATCH DIVERT skipped ({reason}) — no balls; fighting instead")
+            if reason == "creator_catch_now":
+                self._clear_creator_catch_order()
+            self._skip_catch_divert = True
+            try:
+                return self.run(max_seconds=max(120, max_seconds))
+            finally:
+                self._skip_catch_divert = False
         self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — {foe_name}: weaken+balls, never KO")
         res = self.catch_pokemon(max_seconds=max(150, max_seconds), weaken=True)
         if reason == "creator_catch_now":
             self._clear_creator_catch_order()
-        if res != "caught" and st.in_battle(self.b) and reason in ("shiny", "legendary"):
+        if res == "caught" or not st.in_battle(self.b):
+            return res
+        if reason in ("shiny", "legendary"):
             self.emit(f"I couldn't catch it ({res}) — I am NOT killing a {reason}, I'm backing out.",
                       beat=True, tier=3)
             self.log(f"   [engine] {reason} capture failed ({res}) — fleeing to avoid KOing it")
-            return self.flee(max_seconds=60)
-        return res
+            fled = self.flee(max_seconds=60)
+            if not st.in_battle(self.b):
+                return fled
+            # Arena Trap / Can't escape — must not abandon the battle open
+            self.emit("can't run — finishing the fight carefully.", beat=True, tier=2)
+        return self._resolve_open_battle(max_seconds=max(120, max_seconds))
 
     def _enemy_live_remaining(self):
         """F-7(c): how many LIVE mons remain in gEnemyParty (valid species, HP > 0). The party
@@ -867,8 +904,16 @@ class BattleAgent:
                 self.emit("I'm out of Poké Balls - I'll come back for this one", beat=True)
                 # 2026-07-06 WEDGE FIX: never walk away from a LIVE battle — an abandoned battle gets
                 # re-detected by travel as a fresh encounter forever (south_run1: 'stuck' ×27 spin).
-                # Resolve it first (flee the wild), THEN report no_balls.
+                # Resolve it first. Diglett/Arena Trap (and any Can't escape): flee FAILS — fight clear
+                # (2026-08-02 Diglett cave RUN-spam chalk).
                 self.flee(max_seconds=45)
+                if st.in_battle(self.b):
+                    self.log("   [engine] catch no_balls: flee failed (still in battle) — fighting clear")
+                    self._skip_catch_divert = True
+                    try:
+                        self.run(max_seconds=120)
+                    finally:
+                        self._skip_catch_divert = False
                 return "no_balls"
             self._settle()
             if not st.in_battle(self.b):
@@ -2755,23 +2800,26 @@ class BattleAgent:
                     self.emit(f"balls out. weaken it carefully — we are NOT knocking out a legendary.",
                               beat=True, tier=3)
                     return self._divert_wild_catch("legendary", foe, max_seconds)
-            elif _wild and self._peek_creator_catch_order():
+            elif _wild and self._peek_creator_catch_order() and not getattr(self, "_skip_catch_divert", False):
                 # Creator LAW (2026-08-02 Diglett chalk): "catch that!" must divert THIS battle — the
-                # conversational OK without a harness latch was the insta-kill loop on stream.
+                # conversational OK without a harness latch was the kill-loop. One battle only
+                # (_divert clears the latch); never re-ball every Diglett on the walk out.
                 self.emit(f"catch order — switching to balls on this {foe}. weaken, don't KO.",
                           beat=True, tier=2)
                 return self._divert_wild_catch("creator_catch_now", foe, max_seconds)
-            elif _wild and esp in _DIGLETT_LINE:
-                # Diglett's Cave keeper instinct: Diglett/Dugtrio are the Surge Ground answer — catch
-                # the first unowned one on sight instead of fighting through the cave (Flash cross).
+            elif _wild and esp in _DIGLETT_LINE and not getattr(self, "_skip_catch_divert", False):
+                # Diglett's Cave: catch the FIRST unowned Diglett/Dugtrio ONLY (dex bit = party∪box).
+                # Arena Trap makes flee impossible — after one is owned, FIGHT the rest.
                 try:
                     import travel as _tv
                     mid = tuple(_tv.map_id(self.b))
                 except Exception:
                     mid = (0, 0)
-                if mid in _DIGLETT_CAVE_MAPS and not self._party_owns_species(50) \
-                        and not self._party_owns_species(51):
-                    self.emit(f"a {foe} — Diglett's Cave keeper. catching this one for the Ground slot.",
+                _already = (self._dex_owns_species(50) or self._dex_owns_species(51)
+                            or self._party_owns_species(50) or self._party_owns_species(51))
+                if mid in _DIGLETT_CAVE_MAPS and not _already and self._ball_count() > 0:
+                    self.emit(f"a {foe} — Diglett's Cave keeper. catching ONE for the Ground slot, "
+                              f"then we're done balling Digletts.",
                               beat=True, tier=2)
                     return self._divert_wild_catch("diglett_keeper", foe, max_seconds)
 

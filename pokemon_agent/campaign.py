@@ -6076,6 +6076,20 @@ class Campaign:
         the wander SEEKS that ONE species — every non-target wild is FLED (no ball/PP waste, keep
         hunting) and the target is FORCE-caught (roster-judgment bypassed; it's on the plan, she's
         certain). None = the original judged forward-catch (roster_judgment picks keepers)."""
+        # Already-owned target (2026-08-02 Diglett chalk): never wander a cave hunting a dupe —
+        # Diglett's Arena Trap + re-catch loops emptied her balls and stuck the RUN menu.
+        if target_species:
+            _want = (target_species or "").lower()
+            _sid = next((k for k, v in st.SPECIES_NAME.items() if v == _want), None)
+            if _sid and (_sid in self._owned_species_ids()
+                         or ram.pokedex_owns(self.b, _sid) is True):
+                log(f"   CATCH: target {_want} already owned (dex/party/box) — skip wander")
+                return "already_owned"
+        # Creator get_flash / fight_gym: do not start a catch wander mid-errand.
+        _ord = self._creator_order(None)
+        if _ord and _ord.get("order") in ("get_flash", "fight_gym"):
+            log(f"   CATCH: creator order {_ord.get('order')} active — skipping catch wander")
+            return "order_override"
         t0 = time.time()
         cur0 = tv.coords(self.b)
         # Grid.grass is in BUFFER coords (save + MAP_OFFSET); travel's arrive_coord + coords() are
@@ -8162,9 +8176,19 @@ class Campaign:
                 data["badges_at_order"] = bc            # stamp the fulfillment baseline on first sight
                 with open(CREATOR_ORDER_JSON, "w", encoding="utf-8") as f:
                     _j.dump(data, f)
+            # get_flash fulfilled when HM05 is taught (not by badge).
+            if order == "get_flash":
+                try:
+                    if st.party_knows_move(self.b, 148, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is not None:
+                        os.remove(CREATOR_ORDER_JSON)
+                        log("   [order] creator get_flash FULFILLED (Flash taught) — released")
+                        self.on_event("Flash is mine — order done. moving on.", kind="order", tier=2)
+                        return None
+                except Exception:
+                    pass
             # Badge fulfillment is for fight_gym / stop-grind ONLY — catch_now stays live until a
             # catch settles (or TTL), otherwise "catch that Diglett" dies the moment she earns Erika.
-            if (order != "catch_now" and bc >= 0
+            if (order not in ("catch_now", "get_flash") and bc >= 0
                     and int(data.get("badges_at_order", bc)) < bc):
                 os.remove(CREATOR_ORDER_JSON)
                 log("   [order] creator order FULFILLED (badge earned since the order) — released")
@@ -8177,6 +8201,9 @@ class Campaign:
                 if order == "catch_now":
                     self.on_event("catch order locked in — next wild gets the ball treatment, "
                                   "not a KO. I'm listening.", kind="order", tier=3)
+                elif order == "get_flash":
+                    self.on_event("Flash order — stop balling Digletts, cross the cave, get the HM. "
+                                  "moving forward NOW.", kind="order", tier=3)
                 else:
                     self.on_event("okay okay — direct order from the boss. dropping everything else, "
                                   "we're doing it NOW.", kind="order", tier=3)
@@ -9227,26 +9254,28 @@ class Campaign:
                 f"catching or an off-errand route sweep, e.g. Route 24/25). Surfacing, not spinning.")
             return "flash_stuck"
 
-        # PHASE 3 — inside Diglett's Cave (non-overworld): TARGETED Diglett catch (no grass here —
-        # catch_one without target_species returned no_grass and then _cross_cave's fight-runner
-        # murdered every Diglett on the walk; 2026-08-02 Diglett chalk), then flee-cross to Route 2.
+        # PHASE 3 — inside Diglett's Cave (non-overworld): catch AT MOST ONE Diglett if unowned,
+        # then FIGHT-cross to Route 2. Diglett has Arena Trap — flee ALWAYS fails (2026-08-02 chalk:
+        # RUN-spam livelock after emptying balls on duplicate Digletts). Dex gaps past one Diglett
+        # are filled on Route 2 grass (Caterpie/Weedle), NOT by balling every Diglett in the cave.
         if cur[0] != 3:
-            _have_ground = any(sid in self._owned_species_ids() for sid in (50, 51))  # Diglett/Dugtrio
-            if ram.pokedex_owned_count(b) < 10 or not _have_ground:
-                for _try in range(3):
-                    if ram.pokedex_owned_count(b) >= 10 and any(
-                            sid in self._owned_species_ids() for sid in (50, 51)):
-                        break
-                    cr = self.catch_one(max_seconds=90, target_species="diglett")
-                    log(f"   [flash-errand] Diglett's Cave targeted catch -> {cr} "
-                        f"(dex={ram.pokedex_owned_count(b)}/10)")
-                    if cr == "caught":
-                        self._fulfill_catch_order()
-                        break
-                    if cr in ("no_balls", "no_reachable_target"):
-                        break
+            _have_ground = any(sid in self._owned_species_ids() for sid in (50, 51))
+            try:
+                _have_ground = _have_ground or ram.pokedex_owns(b, 50) or ram.pokedex_owns(b, 51)
+            except Exception:
+                pass
+            if not _have_ground and not getattr(self, "_flash_diglett_tried", False):
+                self._flash_diglett_tried = True
+                cr = self.catch_one(max_seconds=90, target_species="diglett")
+                log(f"   [flash-errand] Diglett's Cave ONE diglett catch -> {cr} "
+                    f"(dex={ram.pokedex_owned_count(b)}/10)")
+                if cr == "caught":
+                    self._fulfill_catch_order()
+            elif _have_ground:
+                log("   [flash-errand] Diglett/Dugtrio already owned — skipping cave catch, crossing")
             saved_runner = self.trav.battle_runner
-            self.trav.battle_runner = self._cave_runner   # flee remaining wilds; don't KO Digletts
+            # FIGHT wilds (Arena Trap). diglett_keeper in battle_agent catches only if still unowned.
+            self.trav.battle_runner = self.battle_runner
             try:
                 ok = self._cross_cave(None, ROUTE2)
             finally:
@@ -9261,7 +9290,12 @@ class Campaign:
             if ram.pokedex_owned_count(b) < 10 and ROUTE11 not in _legdone:
                 if _catch_to_10("Route 11", tries=3) == "exhausted":
                     _legdone.add(ROUTE11)
-            ok = self._cross_cave("north", ROUTE2)
+            saved_runner = self.trav.battle_runner
+            self.trav.battle_runner = self.battle_runner  # Arena Trap — never flee Diglett's Cave
+            try:
+                ok = self._cross_cave("north", ROUTE2)
+            finally:
+                self.trav.battle_runner = saved_runner
             return "flash_progress" if ok else "flash_stuck"
         # PHASE 4 — on Route 2 (aide's strip): top up dex if short, reach the gatehouse, talk, teach.
         if cur == ROUTE2:
