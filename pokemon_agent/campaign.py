@@ -9647,16 +9647,35 @@ class Campaign:
 
     def _cross_warp_maze(self, m0, budget_s=900):
         """Cross a PARTITIONED dark warp-maze (Rock Tunnel class: both mouths dest the SAME overworld
-        map, floors split into sections only linked by interior ladders). Ported verbatim from the
-        proven recon_rocktunnel strike (2026-07-07). Stronger than _cross_cave (the Diglett crosser):
-        reachability is a SECTION-relative grid BFS (a global 'unreachable' mark killed run-3 — the
-        south door, dead from the entry section, was never retried from the section that reaches it);
-        `rode` guards cycles; a dead-end section backtracks by re-riding the arrival warp; walking to a
-        warp AVOIDS the other warp tiles (the walk-through-fires trap). True once out on the overworld
-        (dest != m0 preferred — pass m0=(3,255) so BOTH real Route-10 mouths count as exits)."""
+        map, floors split into sections only linked by interior ladders). Ported from the proven
+        recon_rocktunnel strike (2026-07-07), plus the ENTRY-MOUTH BAN (2026-08-02 live chalk):
+        after Flash she stood next to the overworld exit she just walked in — nearest-exit picked
+        it and she climbed straight back out. Ban every overworld exit reachable at maze START
+        (the far mouth is partitioned off, so this only bans the entry); prefer FARTHEST exit
+        when multiple open; prefer interior ladders until an interior ride has happened."""
         b = self.b
         t0 = time.time()
         rode = set()
+        # Ban entry-side overworld mouth(s) so Flash → walk-out can't fire on tick 1.
+        entry_mid = tuple(tv.map_id(b))
+        entry_pos = tuple(tv.coords(b))
+        try:
+            _w0 = [(tuple(wxy), tuple(d)) for (wxy, d, _i) in tv.read_warps(b)]
+            _g0 = tv.Grid(b)
+            for (w, d) in _w0:
+                if d[0] != 3:
+                    continue
+                near = (w == entry_pos
+                        or abs(w[0] - entry_pos[0]) + abs(w[1] - entry_pos[1]) <= 2)
+                reach0 = near or bool(tv.bfs(
+                    _g0, entry_pos, lambda t, ww=w: t == ww, walkable=_g0.walkable))
+                if reach0:
+                    rode.add((entry_mid, w))
+                    log(f"   [tunnel] ENTRY mouth BANNED for re-exit: {w} -> {d} "
+                        f"(spawn={entry_pos} on {entry_mid})")
+        except Exception as _ee:
+            log(f"   [tunnel] entry-mouth ban skipped: {_ee}")
+        interior_rides = 0
         while tuple(tv.map_id(b))[0] != 3:
             if time.time() - t0 > budget_s:
                 log(f"   [tunnel] maze crossing TIMEOUT at {tv.map_id(b)}"); return False
@@ -9680,16 +9699,33 @@ class Campaign:
             if not exits:
                 exits = [w for (w, d) in warps if d[0] == 3 and w in reach
                          and (mid, w) not in rode and w != pos]
+            # Until she's ridden an interior ladder, refuse overworld exits entirely — forces
+            # depth into the maze instead of bouncing out the entry after Flash.
+            if interior_rides < 1 and exits:
+                log(f"   [tunnel] room {mid}: deferring {len(exits)} overworld EXIT(s) until an "
+                    f"interior ladder ride (anti bounce-out)")
+                exits = []
             backtrack = False
             if exits:
-                far = min(exits, key=dist)
-                log(f"   [tunnel] room {mid}: at {pos}, EXIT door {far} reachable (of {warps})")
+                # FARTHEST overworld door = Lavender-side mouth (nearest was the entry bounce).
+                far = max(exits, key=dist)
+                log(f"   [tunnel] room {mid}: at {pos}, EXIT door {far} (farthest of {exits})")
             else:
-                fresh = [w for w in reach if (mid, w) not in rode]
+                # Prefer interior warps (dest group != 3) over any leftover overworld.
+                interior = [w for (w, d) in warps if d[0] != 3 and w in reach
+                            and (mid, w) not in rode]
+                fresh = interior or [w for w in reach if (mid, w) not in rode]
                 if fresh:
                     far = max(fresh, key=dist)
                     log(f"   [tunnel] room {mid}: at {pos}, riding fresh warp {far} (reach={reach})")
                 elif any(w == pos for (w, d) in warps):
+                    # Never "backtrack" out the banned entry mouth before an interior ride —
+                    # that IS the Flash→walk-out bounce (standing on the door you came in).
+                    at_ow = any(w == pos and d[0] == 3 for (w, d) in warps)
+                    if at_ow and (mid, pos) in rode and interior_rides < 1:
+                        log(f"   [tunnel] room {mid}: refusing ENTRY-mouth backtrack at {pos} "
+                            f"(no interior ride yet) — failing section to retry")
+                        return False
                     far = pos; backtrack = True
                     log(f"   [tunnel] room {mid}: section exhausted — BACKTRACK via arrival warp {pos}")
                 else:
@@ -9697,6 +9733,7 @@ class Campaign:
             if not backtrack:
                 rode.add((mid, far))
             before = mid
+            before_dest = next((d for (w, d) in warps if w == far), None)
             if backtrack:
                 for d_ in ("UP", "DOWN", "LEFT", "RIGHT"):     # step off then back on to re-fire the ladder
                     b.press(d_, 10, 6, lambda: None, owner="agent")
@@ -9738,7 +9775,13 @@ class Campaign:
                         break
                     if tuple(tv.coords(b)) != far:
                         self.trav.travel(target_map=None, arrive_coord=far, max_steps=20)
-            if tuple(tv.map_id(b)) == before and not backtrack:
+            after = tuple(tv.map_id(b))
+            if after != before and not backtrack:
+                # Count interior ladder/floor changes (same dungeon group, new map) — unlocks exits.
+                if before_dest is not None and before_dest[0] != 3:
+                    interior_rides += 1
+                    log(f"   [tunnel] interior ride #{interior_rides}: {before} -> {after}")
+            if after == before and not backtrack:
                 log(f"   [tunnel] room {before}: warp {far} didn't fire despite reachability — next")
         return True
 
@@ -9804,6 +9847,8 @@ class Campaign:
             return None
         self.on_event(f"and there's light. okay, {_cave_here} — let's do this properly.",
                       kind="route", tier=2)
+        entry_overworld = cur0
+        entry_mouth = mouth
         saved_runner, saved_heal = self.trav.battle_runner, self._suppress_heal
         self.trav.battle_runner = self._cave_runner       # FLEE wilds / FIGHT trainers
         self._suppress_heal = True                         # no PC in a cave -> survive-or-blackout
@@ -9814,10 +9859,26 @@ class Campaign:
         if not ok:
             log(f"   [tunnel] maze crossing failed at {tv.map_id(b)}")
             return None
-        log(f"   [tunnel] OUT of the tunnel at {tv.map_id(b)} coords={tv.coords(b)}")
+        emerged = tuple(tv.map_id(b))
+        epos = tuple(tv.coords(b))
+        log(f"   [tunnel] OUT of the tunnel at {emerged} coords={epos}")
+        # BOUNCE-OUT DETECT (2026-08-02): maze returned True because she re-exited the ENTRY mouth
+        # onto the same Route 10 pocket she started from (near the north door). That is NOT a cross —
+        # refuse and surface so the next tick re-enters instead of "arriving" on the wrong side.
+        if emerged == entry_overworld:
+            try:
+                near_entry = abs(epos[0] - entry_mouth[0]) + abs(epos[1] - entry_mouth[1]) <= 6
+            except Exception:
+                near_entry = True
+            if near_entry:
+                log(f"   [tunnel] !! BOUNCE-OUT at {emerged}@{epos} near entry mouth "
+                    f"{entry_mouth} — NOT a far-side emerge; failing the leg (LOUD)")
+                self.on_event("wait — that's the door I came in. turning around. through the tunnel.",
+                              kind="route", tier=2)
+                return None
         # emerged on the far side of the re-emergence overworld map (Rock Tunnel -> Route 10 south);
         # the billed leg's edge (south) carries her into out_map (Lavender).
-        if out_dir and out_map and tuple(tv.map_id(b)) != tuple(out_map):
+        if out_dir and out_map and emerged != tuple(out_map):
             self._edge_travel(tuple(out_map), out_dir)
         if out_map and tuple(tv.map_id(b)) == tuple(out_map):
             _out_name = self._place_name(tuple(out_map), default="the far side")
