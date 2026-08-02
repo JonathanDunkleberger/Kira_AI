@@ -55,6 +55,17 @@ GYM_LEVEL_MARGIN     = int(os.getenv("POKEMON_GYM_LEVEL_MARGIN", "1"))
 # Wartortle walked in water-vs-water neutral against a fast Starmie and DIED — a pure level gap
 # lies in a neutral/resisted matchup. 8 keeps the mechanism for genuine overpowers only.
 GYM_DOMINANCE_MARGIN = int(os.getenv("POKEMON_GYM_DOMINANCE_MARGIN", "8"))
+# FIELDABLE BENCH (2026-08-02, Surge rematch chalk): Raichu one-shots L13–17 paper mons after
+# Blastoise drops the first two. A "fieldable" bench mon is within this many levels of the
+# leader's ace — enough to land one finishing hit (~L20 vs Surge ace L24). Softer than the
+# old paper gate (bench_max < ace) so a short grass farm unlocks the rematch without boxing
+# the whole party up to Raichu's level.
+FIELDABLE_BENCH_GAP = int(os.getenv("POKEMON_FIELDABLE_BENCH_GAP", "4"))
+# OVERLEVEL CARRY (same chalk): no ground Diglett yet, but Blastoise is ~14+ above Surge's ace
+# (L38 vs Raichu L24) AND the bench can survive one hit — walk in. Dominance still wants +8
+# over the grind bar (which rises after losses); this is the "couple more levels then crush it"
+# retry Jonny called for after the barely-lost Surge attempts.
+OVERLEVEL_CARRY_MARGIN = int(os.getenv("POKEMON_OVERLEVEL_CARRY_MARGIN", "14"))
 # MID-STAGE STARTERS (2026-08-01, the live Surge chalk): Wartortle L33 vs Raichu was called
 # DOMINANT (top >= ace+margin) and GO HARD marched a paper bench into one-shots. A mid-evo
 # starter is NOT dominant until its final form's evo level (or it has already evolved).
@@ -175,13 +186,29 @@ class StrategicPlanner:
                 _rest_lv = []
         _bench_max = _rest_lv[-1] if _rest_lv else 0
         _bench_floor = _rest_lv[0] if _rest_lv else 0
+        _fieldable_floor = max(1, ace_level - FIELDABLE_BENCH_GAP)
+        # Paper = nobody on the bench can take a hit / land a finisher. ONE fieldable mon
+        # is enough (2026-08-02 Surge chalk) — do NOT require the whole bench at the floor
+        # (spread alarm still nudges bench XP elsewhere; it must not block the rematch).
         _paper_bench = bool(
             not _rest_lv  # solo carry = paper
-            or _bench_max < ace_level
-            or ((top_level - _bench_floor) >= BENCH_SPREAD_ALARM and _bench_floor < ace_level)
+            or _bench_max < _fieldable_floor
         )
         dominant = bool(top_level and top_level >= level_target + GYM_DOMINANCE_MARGIN
                         and not _slugfest and not _mid_evo_block and not _paper_bench)
+        # Overlevel carry: ace far enough above the leader + a fieldable finisher — no type
+        # answer required (Blastoise L38 vs Surge with a ~L20 Spearow cleaning up Raichu).
+        _overlevel_carry = bool(
+            top_level and ace_level
+            and top_level >= ace_level + OVERLEVEL_CARRY_MARGIN
+            and top_level >= level_target
+            and not _paper_bench and not _mid_evo_block
+            and len(party) >= target_size
+        )
+        _answer_ready = bool(
+            has_answer and top_level >= level_target and len(party) >= target_size
+            and not _paper_bench
+        )
         return {
             "gym": gym_name, "ace": rec.get("ace"), "ace_level": ace_level,
             "level_target": level_target, "top_level": top_level, "underleveled": top_level < level_target,
@@ -191,7 +218,10 @@ class StrategicPlanner:
             "dominant": dominant,
             "mid_evo_block": _mid_evo_block,
             "paper_bench": _paper_bench,
-            "ready": (has_answer and top_level >= level_target and len(party) >= target_size) or dominant,
+            "fieldable_floor": _fieldable_floor,
+            "bench_max": _bench_max,
+            "overlevel_carry": _overlevel_carry,
+            "ready": _answer_ready or dominant or _overlevel_carry,
         }
 
     # ── threat selection ─────────────────────────────────────────────────────────────────────────────

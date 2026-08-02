@@ -584,7 +584,10 @@ MOMENTUM_ENABLED = os.getenv("POKEMON_MOMENTUM", "1") == "1"
 # Same dir pattern as momentum.json; cleared when the badge lands.
 GYM_PREP_BUMP_JSON = os.path.join(STATES_CAMPAIGN, "gym_prep_bump.json")
 # Squirtle-line rematch bar: after a gym loss, grind targets Blastoise (L36) before re-challenging.
+# Post-Blastoise rematch (2026-08-02): L36 still barely lost to Raichu — +2 more on the ace
+# plus a fieldable bench (~L20) is the short grass farm, not an infinite gym spam.
 BLASTOISE_EVO_LEVEL = 36
+BLASTOISE_REMATCH_LEVEL = int(os.getenv("POKEMON_BLASTOISE_REMATCH_LEVEL", "38"))
 _SQUIRTLE_LINE = frozenset(("squirtle", "wartortle", "blastoise"))
 MOMENTUM_ACE_HP_FRAC = float(os.getenv("POKEMON_MOMENTUM_ACE_HP", "0.60"))
 # MOMENTUM SEED (2026-07-31, Jonny: "she can go to vermillion now"): a repo-committed one-shot
@@ -4011,12 +4014,12 @@ class Campaign:
         """Fix B: on a gym LOSS, escalate the prep demand so the retry doesn't throw the SAME losing team
         back in — prep_for_gym reads this as extra levels to grind + a bigger team to field. Reset when the
         badge lands (the gym is done). PERSISTED to disk (2026-08-01) so resume_marathon cannot re-arm
-        DOMINANT/GO HARD. Squirtle-line: escalate far enough that level_target >= Blastoise (L36)."""
+        DOMINANT/GO HARD. Squirtle-line: escalate to Blastoise (L36); once she's Blastoise, to L38
+        (2026-08-02 — L36 still barely lost to Raichu; short grass farm, not gym spam)."""
         self._gym_prep_bump = getattr(self, "_gym_prep_bump", {}) or {}
         self._gym_prep_bump[gym_name] = self._gym_prep_bump.get(gym_name, 0) + step
-        # Squirtle-line rematch bar (2026-08-01, the live Surge chalk): Raichu one-shot the paper
-        # bench while Wartortle L33 was called DOMINANT. Coming back as Blastoise (L36) with a
-        # stronger bench is the real rematch — bump must make level_target >= 36.
+        # Squirtle-line rematch bar (2026-08-01/02): Wartortle → Blastoise L36 first; Blastoise
+        # rematch → L38 so the ace can finish Raichu (or leave scraps a ~L20 bench can clean).
         try:
             party = (self.read_live_state() or {}).get("party") or []
             top = max(party, key=lambda m: m.get("level", 0)) if party else None
@@ -4025,17 +4028,26 @@ class Campaign:
                 rec = (getattr(getattr(self, "planner", None), "threats", None) or {}).get(gym_name) or {}
                 band = rec.get("level_band") or [0, 0]
                 ace_level = int(band[-1] if band else 0)
-                need = max(0, BLASTOISE_EVO_LEVEL - (ace_level + GYM_LEVEL_MARGIN))
+                bar = (BLASTOISE_REMATCH_LEVEL if sp == "blastoise"
+                       else BLASTOISE_EVO_LEVEL)
+                need = max(0, bar - (ace_level + GYM_LEVEL_MARGIN))
                 if self._gym_prep_bump[gym_name] < need:
                     self._gym_prep_bump[gym_name] = need
                     log(f"   GYM-PREP: '{gym_name}' Squirtle-line rematch bar — bump raised to "
-                        f"{need} so grind targets Blastoise L{BLASTOISE_EVO_LEVEL} "
-                        f"(ace~L{ace_level}+margin)")
+                        f"{need} so grind targets L{bar} "
+                        f"(ace~L{ace_level}+margin; species={sp})")
                     try:
-                        self.on_event(
-                            "that hit hard — next time I'm walking in as Blastoise with a bench "
-                            "that can take a punch, not paper mons Raichu farms.",
-                            kind="gym", tier=2)
+                        if sp == "blastoise":
+                            self.on_event(
+                                "close — Blastoise needs a couple more levels and at least one "
+                                "bench mon that can take a hit from Raichu. grass farm, then we "
+                                "walk back in.",
+                                kind="gym", tier=2)
+                        else:
+                            self.on_event(
+                                "that hit hard — next time I'm walking in as Blastoise with a bench "
+                                "that can take a punch, not paper mons Raichu farms.",
+                                kind="gym", tier=2)
                     except Exception:
                         pass
         except Exception as e:
@@ -4081,15 +4093,25 @@ class Campaign:
                 self.on_event(f"no perfect type matchup for {gym.name}, but honestly? we're way past "
                               f"needing one. we're strong enough — let's just go win this.",
                               kind="gym", tier=2)
+            elif r.get("overlevel_carry") and not r["has_type_answer"]:
+                log(f"   GYM-PREP [{gym.name}]: OVERLEVEL CARRY — top L{r['top_level']} "
+                    f"(>= ace ~L{r['ace_level']}+14) + fieldable bench L{r.get('bench_max', 0)} "
+                    f"— going in without a type answer")
+                self.on_event(f"no ground type yet, but the lead is strong enough and the bench "
+                              f"can finish — time to take {gym.name}.",
+                              kind="gym", tier=2)
             else:
                 log(f"   GYM-PREP [{gym.name}]: READY — party {r['party_size']}, top L{r['top_level']} "
                     f">= L{r['level_target']}, type answer ✓")
             return "ready"
         log(f"   GYM-PREP [{gym.name}]: NOT ready (loss-bump {bump}) — party {r['party_size']}/"
             f"{r['target_size']}, topL {r['top_level']}/{r['level_target']}, type_answer={r['has_type_answer']}, "
-            f"want={r['want_types']} — prepping BEFORE the gym")
+            f"paper_bench={r.get('paper_bench')}, want={r['want_types']} — prepping BEFORE the gym")
         # her voice: ONE plan beat (soul-safe raw fact; the oracle colours it) — the endearing "did my homework"
-        if not r["has_type_answer"] and r["want_types"]:
+        if r.get("paper_bench") and not r["underleveled"]:
+            self.on_event(f"{gym.name}'s ace farms my bench — quick grass farm so someone besides "
+                          f"the lead can take a hit, then we knock.", kind="gym", tier=2)
+        elif not r["has_type_answer"] and r["want_types"]:
             self.on_event(f"{gym.name}'s a {r['ace']} wall — I really want a {' or '.join(r['want_types'][:2])} "
                           f"type before I knock. Let me go catch one.", kind="gym", tier=2)
         elif r["thin"]:
@@ -4123,9 +4145,14 @@ class Campaign:
                 log(f"   GYM-PREP [{gym.name}]: coverage-teach dispatch -> {_cvr}")
             except Exception as e:
                 log(f"   GYM-PREP [{gym.name}]: coverage-teach dispatch crashed ({e}) (LOUD)")
-        # 2) GRIND — bring the team up to the KB-derived level target (ace level + margin, escalated on loss)
-        if r["underleveled"]:
-            log(f"   GYM-PREP [{gym.name}]: grinding to L{r['level_target']} (ace ~L{r['ace_level']})")
+        # 2) GRIND — bring the team up to the KB-derived level target (ace level + margin, escalated
+        # on loss). Also grind when the bench is still paper (2026-08-02 Surge chalk): ace can be
+        # at the bar while Raichu still one-shots everyone else — field the weak ones in grass.
+        if r["underleveled"] or r.get("paper_bench"):
+            _why = ("underleveled" if r["underleveled"]
+                    else f"paper bench (max L{r.get('bench_max', 0)} < fieldable ~L{r.get('fieldable_floor', 0)})")
+            log(f"   GYM-PREP [{gym.name}]: grinding to L{r['level_target']} "
+                f"(ace ~L{r['ace_level']}; {_why})")
             try:
                 gr = self.grind(r["level_target"])
                 log(f"   GYM-PREP [{gym.name}]: grind -> {gr}")
@@ -7696,7 +7723,10 @@ class Campaign:
         """True when DOMINANT/MOMENTUM must NOT force head_to_gym. Creator order still wins (LAW).
         WHY (2026-08-01): Wartortle L33 + paper bench vs Surge was called DOMINANT and GO HARD
         marched her into Raichu; after loss, a missing bump / leftover momentum seed could re-latch.
-        Blocks while Squirtle-line is pre-Blastoise (<L36) OR a live prep bump says not ready."""
+        WHY (2026-08-02): Blastoise L36 + paper bench STILL rode Misty MOMENTUM into Surge
+        (bump was 0, so the old gate only blocked mid-evo). ALWAYS consult gym_readiness —
+        not ready (paper bench / underleveled rematch bar) means no GO HARD, even with live
+        momentum. Short grass farm, then rematch — never bang the gym forever."""
         try:
             ng = state.get("next_gym") if state else None
             if not ng:
@@ -7708,12 +7738,13 @@ class Campaign:
                 lv = int(top.get("level") or 0)
                 if sp in ("squirtle", "wartortle") and lv < BLASTOISE_EVO_LEVEL:
                     return True
+            if getattr(self, "planner", None) is None:
+                return False
             bump = getattr(self, "_gym_prep_bump", {}).get(ng["leader"], 0)
-            if bump and getattr(self, "planner", None) is not None:
-                r = self.planner.gym_readiness(
-                    ng["leader"], party, party_target=GYM_PARTY_TARGET, loss_bump=bump)
-                if r and not r.get("ready"):
-                    return True
+            r = self.planner.gym_readiness(
+                ng["leader"], party, party_target=GYM_PARTY_TARGET, loss_bump=bump)
+            if r and not r.get("ready"):
+                return True
             return False
         except Exception:
             return False
@@ -15818,10 +15849,11 @@ class Campaign:
                     want = str(self.soul.wants[-1])
             except Exception:
                 want = ""
-            # SURGE REMATCH PREP (2026-08-01): Wartortle/Squirtle below Blastoise, or a live Surge
-            # loss bump saying not ready — NEVER "You're ready — stop grinding". Evolve first, raise
-            # the bench so Raichu can't farm them, THEN re-take Thunder Badge.
+            # SURGE REMATCH PREP (2026-08-01/02): Wartortle below Blastoise, or readiness says
+            # not ready (paper bench / rematch bar) — NEVER "You're ready — stop grinding".
+            # Viewers-fine grass farm: Blastoise +1–2 and one bench ~L20, THEN retry.
             _surge_prep = False
+            _surge_blastoise = False
             try:
                 if ng and ng.get("leader") == "Lt. Surge":
                     _top_g = max(party, key=lambda m: m.get("level", 0)) if party else None
@@ -15831,13 +15863,21 @@ class Campaign:
                         _surge_prep = True
                     elif self._gym_go_hard_blocked(state):
                         _surge_prep = True
+                        _surge_blastoise = (_sp_g == "blastoise")
             except Exception:
                 _surge_prep = False
             if _surge_prep and ng:
-                short = (f"Evolve to Blastoise (L{BLASTOISE_EVO_LEVEL}) — level up Wartortle, "
-                         f"THEN re-challenge Lt. Surge")
-                medium = ("Raise the fieldable bench so they survive Raichu, then re-take the "
-                          "Thunder Badge — do not march in with paper mons")
+                if _surge_blastoise:
+                    short = (f"Grind Blastoise toward L{BLASTOISE_REMATCH_LEVEL} and raise one "
+                             f"bench mon to ~L20 in grass, THEN retry Lt. Surge")
+                    medium = ("Close last time — a short farm so Blastoise finishes Raichu "
+                              "(or a bench mon can), then re-take the Thunder Badge. Not "
+                              "infinite gym spam.")
+                else:
+                    short = (f"Evolve to Blastoise (L{BLASTOISE_EVO_LEVEL}) — level up Wartortle, "
+                             f"THEN re-challenge Lt. Surge")
+                    medium = ("Raise the fieldable bench so they survive Raichu, then re-take the "
+                              "Thunder Badge — do not march in with paper mons")
                 return {"short": short, "medium": medium, "long": long}
             # GO-HARD (dominant / creator order / force latch): never whisper "grind to L14" —
             # _prep_team_target may still re-arm a bench pin for road-bench-XP, but short goals
