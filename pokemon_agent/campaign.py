@@ -1908,6 +1908,14 @@ class Campaign:
         fights en route) blows the 300s default at half-distance (run-5: aborted at step 72,
         door 28 tiles away, 'no reachable door warped')."""
         before = tv.map_id(self.b)
+        # Clear a stale watchdog latch BEFORE the approach leg — grind/prep wedges latch it and
+        # then every 1-tile walk to the gym door instabails (2026-08-02 Erika door forever-loop).
+        try:
+            self._stuck_request = None
+            if self._stuckwatch is not None:
+                self._stuckwatch.reset()
+        except Exception:
+            pass
         doors = self._door_tiles()
         if not doors:
             log("   no door/warp tiles (0x6x) found on this map"); return "no_warp"
@@ -1958,12 +1966,52 @@ class Campaign:
             # route's south half. Same water-start law as _reachable_grass/_door_passthrough.
             grid = tv.Grid(self.b)
             _wk = grid.walkable_or_surf if self._surf_usable() else grid.walkable
+            _here = tv.coords(self.b)
+            # Already ON / near the approach tile — step in NOW. No travel.
+            # Erika chalk: she stood at (11,32)/(11,31) while travel→approach kept getting
+            # watchdog-bailed, so enter never pressed UP into (11,30).
+            _door_md = abs(_here[0] - approach[0]) + abs(_here[1] - approach[1])
+            if _here == approach or _here == tuple(door) or _door_md <= 2:
+                if _here != approach and _here != tuple(door):
+                    log(f"   door {door}: near approach ({_here}→{approach}, d={_door_md}) — short step")
+                    for _ in range(6):
+                        _h = tv.coords(self.b)
+                        if _h == approach or _h == tuple(door):
+                            break
+                        if _h[1] > approach[1]:
+                            self.b.press("UP", 8, 8, self.render, owner="agent")
+                        elif _h[1] < approach[1]:
+                            self.b.press("DOWN", 8, 8, self.render, owner="agent")
+                        elif _h[0] > approach[0]:
+                            self.b.press("LEFT", 8, 8, self.render, owner="agent")
+                        elif _h[0] < approach[0]:
+                            self.b.press("RIGHT", 8, 8, self.render, owner="agent")
+                        self._advance_dialogue(taps=1)
+                        if tv.map_id(self.b) != before:
+                            log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door} (short-step)")
+                            self._learn_transit()
+                            return "warped"
+                log(f"   door {door}: at {tv.coords(self.b)} (approach={approach}) — stepping {step_key} in")
+                for _ in range(10):
+                    self.b.press(step_key, 8, 8, self.render, owner="agent")
+                    self._advance_dialogue(taps=2)
+                    if tv.map_id(self.b) != before:
+                        log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door} (on-tile)")
+                        self._learn_transit()
+                        return "warped"
             if tv.bfs(grid, tv.coords(self.b), lambda t: t == approach,
                       walkable=_wk):
                 log(f"   reachable door {door}: walking to approach {approach}")
                 # max_steps 900 (was 300): a long-map approach (Route 12's ~100-row pier maze,
                 # sabrina_run2) burns 300 steps on obstacle re-routing and dies 26 rows short —
                 # a BUDGET failure misread as entry geometry. Wall-clock stays the real bound.
+                # Re-clear watchdog each approach — grind leftovers must not kill a 1-tile walk.
+                try:
+                    self._stuck_request = None
+                    if self._stuckwatch is not None:
+                        self._stuckwatch.reset()
+                except Exception:
+                    pass
                 r = self.trav.travel(target_map=None, arrive_coord=approach, max_steps=900,
                                      max_seconds=(budget_s or 300))
                 if r == "need_heal":
@@ -1971,8 +2019,8 @@ class Campaign:
                 if r == "timeout" and pick is not None:
                     log(f"   approach to {door} ran out of steps/time — retryable, NOT entry geometry")
                     return "no_reach"
-                if r == "arrived":
-                    for _ in range(5):                   # step INTO the doorway -> warp
+                if r == "arrived" or tv.coords(self.b) == approach:
+                    for _ in range(8):                   # step INTO the doorway -> warp
                         self.b.press(step_key, 8, 8, self.render, owner="agent")
                         self._advance_dialogue(taps=2)   # gate buildings may print a line
                         if tv.map_id(self.b) != before:
@@ -4117,6 +4165,23 @@ class Campaign:
             party = (self.read_live_state() or {}).get("party") or []
         except Exception as e:
             log(f"   GYM-PREP: state read failed ({e}) — skipping (LOUD)"); return "no_state"
+        # ACE-CARRIES MARCH (2026-08-02 Celadon door loop): Blastoise L42 already clears Erika's
+        # level bar, but paper_bench=True still sent her to grind. Celadon has NO reachable grass
+        # → grind wedges → watchdog latch → enter_warp bails forever at the gym door. If the ace
+        # carries (or dominates), SKIP catch/grind and walk in.
+        try:
+            _pst = {"party": party, "next_gym": {"leader": gym.name, "city": ""},
+                    "badge_count": sum(1 for i in range(8) if self.has_badge(0x820 + i)),
+                    "map": tuple(tv.map_id(self.b))}
+            if self._ace_carries_next_gym(_pst) or self._gym_dominant(_pst):
+                log(f"   GYM-PREP [{gym.name}]: ACE CARRIES / DOMINANT — skipping catch+grind "
+                    f"(no Celadon grass farm; walking into the gym NOW)")
+                self.on_event(f"bench is thin but the ace already clears {gym.name} — "
+                              f"we're walking in. they can catch XP on the road after.",
+                              kind="gym", tier=2)
+                return "ace_carries"
+        except Exception as _acx:
+            log(f"   GYM-PREP ace-carries check skipped: {_acx}")
         bump = self._gym_prep_bump.get(gym.name, 0)
         r = self.planner.gym_readiness(gym.name, party, party_target=GYM_PARTY_TARGET, loss_bump=bump)
         if not r:
@@ -4690,8 +4755,23 @@ class Campaign:
         self._ensure_move_room()
         _gym_interior = GYM_INTERIORS.get(name)
         if tv.map_id(self.b) == gym.city:
+            # Prep grind / dialogue can leave the watchdog latched — clear before the door walk.
+            try:
+                self._stuck_request = None
+                if self._stuckwatch is not None:
+                    self._stuckwatch.reset()
+            except Exception:
+                pass
             if self.enter_warp(pick=gym.door) != "warped":
-                log(f"   !! GYM: couldn't enter the {name} gym"); return "stuck"
+                # One hard retry with a fresh latch — the Celadon door loop's signature.
+                try:
+                    self._stuck_request = None
+                    if self._stuckwatch is not None:
+                        self._stuckwatch.reset()
+                except Exception:
+                    pass
+                if self.enter_warp(pick=gym.door) != "warped":
+                    log(f"   !! GYM: couldn't enter the {name} gym"); return "stuck"
         elif _gym_interior and tuple(tv.map_id(self.b)) == _gym_interior:
             log(f"   GYM: already inside {name}'s gym {_gym_interior} — staying (no re-enter/exit)")
         for _ in range(45):
@@ -13330,9 +13410,6 @@ class Campaign:
                                 "keeping force-pick so the puzzle solver re-arms")
                     except Exception:
                         pass
-                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and _gh_capped:
-                    log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
-                        f"{_ng3['leader']}; escape machinery owns the wedge now")
                 # Ice Beam is optional polish now (Water ace carries Erika). Never stand down
                 # GO-HARD for a Game Corner cash farm — that parked her in Celadon tourism.
                 self._ice_beam_cash_needed = 0
@@ -13359,9 +13436,26 @@ class Campaign:
                             self._dead_moves_structural.get(_cm, set()).discard("head_to_gym")
                         except Exception:
                             pass
+                        # Prep-grind false stucks must not exhaust the GO-HARD cap / park the gym.
+                        try:
+                            self._gym_stuck_streak.pop("Erika", None)
+                        except Exception:
+                            pass
+                        try:
+                            self._stuck_request = None
+                            if self._stuckwatch is not None:
+                                self._stuckwatch.reset()
+                        except Exception:
+                            pass
+                        # Prep/watchdog false stucks exhausted the GO-HARD cap; clear it THIS tick
+                        # so force-pick + travel-prune still fire (not just the flag alone).
+                        _gh_capped = False
                         self._force_gym_pick = True
                         log("   [roam] !! CELADON→ERIKA LOCK: force head_to_gym; unpark dead routes; "
                             f"prune grass/tourism (map={_cm})")
+                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and _gh_capped and not _cel_lock:
+                    log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
+                        f"{_ng3['leader']}; escape machinery owns the wedge now")
                 if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3 or _cel_lock) and not _gh_capped:
                     if "head_to_gym" not in a:
                         a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
@@ -16046,7 +16140,19 @@ class Campaign:
             # ROAD-BENCH-XP (PASS 3 NEW#1): on a forward-march leg with an under-milestone bench, lead
             # with the weak mon so it banks participation XP from this leg's road battles; the disarm in
             # the finally restores the ace so the weak lead never outlives the leg. Fail-safe throughout.
-            _road_xp = self._road_bench_xp_arm(pick, state)
+            # Skip when already IN the next gym's city and about to walk in — weak lead before
+            # beat_gym just fuelled paper_bench prep loops at Erika's door (2026-08-02).
+            _road_xp = False
+            try:
+                _gym_city_m = self._next_gym_city_map((state or {}).get("next_gym"))
+                _in_gym_city = (pick == "head_to_gym" and _gym_city_m
+                                and tuple((state or {}).get("map") or ()) == tuple(_gym_city_m))
+            except Exception:
+                _in_gym_city = False
+            if not _in_gym_city:
+                _road_xp = self._road_bench_xp_arm(pick, state)
+            else:
+                log("   [roam] ROAD-BENCH-XP: skipped — already at the gym city, ace leads the door")
             try:
                 out = self._route_action(pick, state)
             except Exception as _re:
