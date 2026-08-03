@@ -96,7 +96,11 @@ Say "== stopping any running Kira python processes =="
 taskkill /F /IM python.exe /T 2>&1 | Out-Null
 Start-Sleep -Seconds 2
 
-RunLogged "git pull" { git pull } | Out-Null
+# git writes fetch progress to STDERR; PowerShell turns that into a NativeCommandError inside
+# RunLogged (seen in soak 20260803_090134) and the report loses the ACTUAL pull result. Merge
+# streams and echo the result LOUD so every soak report proves which commit this session runs.
+RunLogged "git pull" { git pull 2>&1 | ForEach-Object { "$_" } } | Out-Null
+Say ("running commit: " + (git log -1 --format='%h %s' 2>&1))
 
 $activate = Join-Path $RepoRoot ".venv\Scripts\Activate.ps1"
 if (Test-Path $activate) { & $activate } else { Say "!! .venv not found - using system python" }

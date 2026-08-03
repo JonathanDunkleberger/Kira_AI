@@ -2458,7 +2458,12 @@ class BattleAgent:
             # counted, NO exile, NO famine switch — 70+ seconds of dead-move spam while the
             # rescue sat armed. Back-at-the-move-list = refusal, whatever the status byte says.
             _at_list = self._at_move_list()
-            _real_immob = pp0 > 0 and not _at_list and (_slp_frz or (_par and _ims < 6))
+            # BOUNDED for ALL statuses (09:04 photos: the 08:54 session STILL emitted 'fully
+            # paralyzed' repeats — the at-list probe can miss while the refusal box is up, and
+            # sleep/freeze had NO cap, so a lying status byte could eat laps forever). Six
+            # zero-change "immobilizations" in a row is not a thing a real battle produces;
+            # past that every non-fire counts as a refusal and feeds the futility breaker.
+            _real_immob = pp0 > 0 and not _at_list and (_slp_frz or _par) and _ims < 6
             if _real_immob:
                 self._immob_streak = _ims + 1
                 why = "asleep" if st1 & 0x07 else ("frozen" if st1 & 0x20 else "fully paralyzed")
