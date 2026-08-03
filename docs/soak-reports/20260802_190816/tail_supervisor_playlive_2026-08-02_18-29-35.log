@@ -1,0 +1,1500 @@
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_abandoned | pos (3, 4)(0, 11) -> (3, 4)(0, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_abandoned' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T2·savor· (want) 'Reach Fuchsia City and take down Koga'  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 20/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185644_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 21/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185645_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 22/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Lavender Town
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. ALREADY BESIDE YOU — your current team: ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 4), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Fuchsia City, level the bench en route'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Fuchsia City, level the bench en route'
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Fuchsia City, level the bench en route'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185651_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 23/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185652_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 24/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."  fired=True  [age 0.0s + post 4ms]
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185652_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 25/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 8
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 8 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 26), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [soul] ORACLE pick -> "reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [kira-voice] -> T2·savor· (want) "reach Fuchsia City and take Koga's badge"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [kira-voice] ·floor· (<1s since last) T1 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185657_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 26/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185658_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 27/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185659_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 28/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Lavender Town
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. ALREADY BESIDE YOU — your current team: ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 4), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [soul] ORACLE pick -> "reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [kira-voice] -> T2·savor· (want) "reach Fuchsia City and take Koga's badge"  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185703_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 29/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185704_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 30/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (FLAG_WOKE_UP_ROUTE_12_SNORLAX) — abandoning the errand; re-recognizing fresh
+
+   [kira-voice] ·floor· (<1s since last) T1 "hm — this plan's going nowhere from here. let me rethink."
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_abandoned | pos (3, 4)(0, 11) -> (3, 4)(0, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'questline_abandoned' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick30] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 31/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Lavender Town
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. ALREADY BESIDE YOU — your current team: ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 4), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Fuchsia City, beat Koga'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Fuchsia City, beat Koga'
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Fuchsia City, beat Koga'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185708_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 32/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185709_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 33/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."  fired=True  [age 0.0s + post 6ms]
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185709_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 34/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 8
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 8 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 26), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="Reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [soul] ORACLE pick -> "Reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (want) "Reach Fuchsia City and take Koga's badge"  fired=True  [age 0.0s + post 17ms]
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185714_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 35/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185715_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 36/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185716_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 37/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Lavender Town
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. ALREADY BESIDE YOU — your current team: ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 4), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [soul] ORACLE pick -> "reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [kira-voice] -> T2·savor· (want) "reach Fuchsia City and take Koga's badge"  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185721_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 38/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [travel] step 0: (71, 11)->(0, 11) map=(3, 26) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 26) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 4) coords=(0, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 26)(71, 11) -> (3, 4)(0, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185722_lavender-town_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 7 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 39/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=silph_scope (resolved=True)
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower' anchors on Celadon City and we're at Lavender Town — edge -> (3, 26) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need the Silph Scope — Team Rocket's boss keeps it in the hideout under Celadon's Game Corner. It unmasks the ghost haunting Pokémon Tower. Then the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax; then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."  fired=True  [age 0.0s + post 4ms]
+
+   [travel] start map=(3, 4) coords=(0, 11) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(0, 11) -> (3, 26)(71, 11) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_185722_route-8_4b_20h21m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'silph_scope' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 40/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L44, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,11) f3 -- badge4 $12154 party:cd62 bag:9a1f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 8
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 8 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 26), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'ekans the blastoise (L44), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Fuchsia City, beat Koga'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Fuchsia City, beat Koga'
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Fuchsia City, beat Koga'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 5 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — butterfree now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_WOKE_UP_ROUTE_12_SNORLAX' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 8 — billed leg east toward Lavender Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs east from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 11) -> map (3, 4) (budget 300s)
+
+   [travel] east connection band rows: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 5, L44) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->5 verified — blastoise now leads
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 99288 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 26) coords=(71, 11)  badge=True
+
+   [kira-voice] === 127 fired, 112 gated (0 failed) | by tier: T3=6 T2=84 T1=37 (incl ambient trickle) ===
+
+================================================================
+
