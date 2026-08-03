@@ -31,6 +31,28 @@ HM_ITEM = {"cut": 339, "fly": 340, "surf": 341, "strength": 342, "flash": 343,
 TM_FIRST = 289                   # ITEM_TM01
 HM_FIRST = 339                   # ITEM_HM01
 KEY_ITEMS_OFF, TM_CASE_OFF = 0x3B8, 0x464
+ITEMS_OFF = 0x310                # SaveBlock1 Items pocket (potions/cures), 42 slots
+P_STATUS, P_HP, PARTY_MON_SIZE = 0x50, 0x56, 100
+
+
+def items_pocket_rows(b):
+    """[(item_id, qty), ...] of the ITEMS pocket in DISPLAY order — hole-skipped (a zero-qty
+    slot mid-pocket is skipped by the game's list too), qty decrypted with the SB2 low-16 key.
+    Same doctrine as battle_agent._items_pocket (the run17 break-at-first-zero collapse)."""
+    sb1 = _sb1(b)
+    key = b.rd32(b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
+    out = []
+    for s in range(42):
+        slot = sb1 + ITEMS_OFF + s * 4
+        iid = b.rd16(slot)
+        qty = b.rd16(slot + 2) ^ key
+        if iid and qty:
+            out.append((iid, qty))
+    return out
+
+
+def items_pocket_qty(b, item_id):
+    return sum(q for i, q in items_pocket_rows(b) if i == item_id)
 
 
 def _sb1(b):
@@ -271,6 +293,90 @@ class TeachFlow:
             return "used"
         self._b_cascade()
         self.log(f"   [{label}] !! FAILED — field move never verified (LOUD)")
+        return "failed"
+
+    def field_cure(self, item_id, mon_slot, max_seconds=75):
+        """OVERWORLD status cure (2026-08-03: 'she's not removing poisons between battles!!').
+        START -> BAG -> Items pocket -> `item_id` -> USE -> party `mon_slot` -> A, then verify
+        by GROUND TRUTH ONLY: the item count DROPPED and the slot's status u32 CLEARED. The bag
+        list row is walked BLIND (UP-clamp home, then counted DOWNs) — same zero-RAM-trust
+        doctrine as the in-battle blind walks; the overworld cursor byte is never load-bearing.
+        Returns 'cured' | 'no_item' | 'failed' (fail-safe: B-cascade restores the overworld;
+        a wasted pass can never mis-report success)."""
+        t0 = time.time()
+        rows = [i for i, _q in items_pocket_rows(self.b)]
+        if item_id not in rows:
+            return "no_item"
+        row = rows.index(item_id)
+        if row > 9:
+            self.log(f"   [cure] item {item_id} sits at bag row {row} — too deep for the blind "
+                     f"walk, skipping (LOUD)")
+            return "failed"
+        qty0 = items_pocket_qty(self.b, item_id)
+        stat_addr = ram.GPLAYER_PARTY + mon_slot * PARTY_MON_SIZE + P_STATUS
+        if not (self.b.rd32(stat_addr) & 0xFF):
+            return "cured"                                   # already clean — nothing to do
+        self.b.set_input_owner("agent")
+        self.log(f"   [cure] field cure: item {item_id} (bag row {row}) -> party slot {mon_slot}")
+        # 1. START menu open-verify -> BAG (row 2). Same stale-cursor doctrine as teach().
+        opened = False
+        self._press("START", settle=60)
+        for _ in range(4):
+            c0 = self.b.rd8(START_CURSOR)
+            self._press("DOWN", settle=24)
+            if self.b.rd8(START_CURSOR) != c0:
+                opened = True
+                break
+            self._press("START", settle=60)
+        if not opened or not self._nav_byte(START_CURSOR, 2):
+            self.log("   [cure] !! START menu never opened — aborting (B out)")
+            self._b_cascade(); return "failed"
+        self._press("A", settle=80)                          # open the bag
+        # 2. Items pocket (0) — LEFT clamps at pocket 0, so doubled presses are idempotent.
+        for _ in range(4):
+            if self.b.rd8(BAG_POCKET) == 0:
+                break
+            self._press("LEFT", settle=20)
+        if self.b.rd8(BAG_POCKET) != 0:
+            self.log("   [cure] !! couldn't reach the Items pocket — aborting")
+            self._b_cascade(); return "failed"
+        # 3. BLIND row walk: UP x (row+8) clamps home to row 0 from any parked position (the
+        #    bag list remembers its row across opens), then DOWN x row lands the true row.
+        for _ in range(row + 8):
+            self._press("UP", settle=12)
+        for _ in range(row):
+            self._press("DOWN", settle=16)
+        self._press("A", settle=50)                          # select the item -> USE/GIVE/TOSS box
+        self._press("A", settle=90)                          # USE (top row default) -> party chooser
+        # 4. STATE MACHINE (bounded): party teal -> nav + pick; anything else -> A-drain the
+        #    cure dialogue. The loop's top status-check is the real done signal.
+        party_navved = False
+        for _ in range(40):
+            if not (self.b.rd32(stat_addr) & 0xFF) and items_pocket_qty(self.b, item_id) < qty0:
+                break
+            if time.time() - t0 > max_seconds:
+                break
+            scr = self._classify()
+            if scr == "party":
+                if not party_navved:
+                    if not self._party_goto(mon_slot):
+                        self.log("   [cure] !! party cursor never reached the slot — B out")
+                        break
+                    party_navved = True
+                    self._press("A", settle=90)              # pick the mon -> cure applies
+                else:
+                    self._press("A", settle=60)              # 'X was cured of its poisoning!' text
+            elif scr == "bag" and not party_navved:
+                self._press("A", settle=70)                  # USE press hadn't landed yet
+            else:
+                self._press("A", settle=50)                  # dialogue / transition
+        self._b_cascade()
+        cured = not (self.b.rd32(stat_addr) & 0xFF)
+        consumed = items_pocket_qty(self.b, item_id) < qty0
+        if cured and consumed:
+            self.log(f"   [cure] VERIFIED: slot {mon_slot} status cleared, item {item_id} consumed")
+            return "cured"
+        self.log(f"   [cure] !! NOT cured (status_clear={cured} consumed={consumed}) — failed LOUD")
         return "failed"
 
     def teach(self, hm_key, mon_slot, forget_idx=None, max_seconds=120,

@@ -9243,6 +9243,54 @@ class Campaign:
                 out.add(nm)
         return out
 
+    def _field_cure_tick(self):
+        """BETWEEN-BATTLES STATUS CURE (2026-08-03: 'she's not removing poisons!!'). Poison
+        ticks damage EVERY few overworld steps in FRLG and can faint the mon mid-march — if
+        she's carrying the cure, using it is physics, not personality. Scan the party, cure
+        the worst affliction she has an item for (poison outranks everything; then the lead;
+        one cure per tick — the next tick catches the rest). Failures latch 10 minutes so a
+        wedged bag flow can't loop (a Center heal clears status anyway). Best-effort + LOUD."""
+        try:
+            if time.time() < getattr(self, "_field_cure_backoff", 0):
+                return
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            afflicted = []                     # (priority, slot, status)
+            for s in range(min(cnt, 6)):
+                base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+                if self.b.rd16(base + P_HP) <= 0:
+                    continue
+                nm = decode_status(self.b.rd32(base + P_STATUS))
+                if not nm:
+                    continue
+                pri = 0 if nm == "poison" else (1 if s == 0 else 2)
+                afflicted.append((pri, s, nm))
+            if not afflicted:
+                return
+            afflicted.sort()
+            _, slot, status = afflicted[0]
+            cure = STATUS_CURE.get(status)
+            iid = None
+            if cure and self.bag_count(cure[0]) > 0:
+                iid = cure[0]
+            elif self.bag_count(23) > 0:                     # Full Heal cures everything
+                iid = 23
+            if iid is None:
+                return                                       # nothing in the bag — the Center run owns it
+            nm_mon = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), f"slot{slot}").title()
+            log(f"   [roam] 💊 FIELD CURE: {nm_mon} is {status} and the bag has "
+                f"{ITEM_NAMES.get(iid, iid)} — using it NOW (between-battles doctrine)")
+            self.on_event(f"hang on — {nm_mon} is {status} and I'm literally carrying the cure. "
+                          f"one sec.", kind="heal", tier=1)
+            import hm_teach as _ht
+            res = _ht.TeachFlow(self, log=log, on_event=self.on_event).field_cure(iid, slot)
+            if res == "cured":
+                self.on_event(f"there — {nm_mon} is back to fighting shape.", kind="heal", tier=1)
+            else:
+                self._field_cure_backoff = time.time() + 600
+                log(f"   [roam] field cure -> {res} — backing off 10 min (Center heal still cures)")
+        except Exception as _fcx:
+            log(f"   [roam] field-cure tick skipped: {_fcx}")
+
     def _mart_index(self):
         """TRUE BUY-list selection = selectedRow + scrollOffset (see MART_CURSOR/MART_SCROLL)."""
         return self.b.rd16(MART_CURSOR) + self.b.rd16(MART_SCROLL)
@@ -16141,6 +16189,10 @@ class Campaign:
             if newly - self._afflict_seen:
                 log(f"   [roam] afflicted by {sorted(newly - self._afflict_seen)} — remembering for a cure run")
             self._afflict_seen |= newly
+            # FIELD CURE (2026-08-03): don't just REMEMBER the affliction — if the cure is in
+            # the bag, USE it right here on the overworld (poison eats HP every few steps).
+            if newly:
+                self._field_cure_tick()
             # GATE-UNLOCK (PROACTIVE forward drive — ROOT FIX for the backward-grind): recognise the gate
             # on the FORWARD road to the next gym and OPEN/refresh the unlock questline BEFORE the action
             # set is built, so the errand is a dominant forward pull THIS tick instead of only firing
