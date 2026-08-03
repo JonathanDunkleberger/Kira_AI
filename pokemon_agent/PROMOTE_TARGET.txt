@@ -1,1 +1,0 @@
-CKPT celadon-city
