@@ -1,5 +1,0 @@
-# TELEPORT (one-shot; resume_marathon.ps1 consumes this file).
-# 2026-08-03 NUCLEAR: yank OUT of Pokemon↔Blastoise mid-fight thrash.
-# Route 13 = PAST the Route-12 Voltorb lip (overworld). Do NOT use newest
-# route-12 (070714/070916) — those ARE the wedged morning loop.
-CKPT 20260802_215247_route-13
