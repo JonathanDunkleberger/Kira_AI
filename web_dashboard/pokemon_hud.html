@@ -17,7 +17,9 @@
     --cream:#efe7ee; --muted:rgba(222,212,224,.55); --subtle:rgba(222,212,224,.32);
     --rose:#cf8fa6; --sage:#8fbf8f; --amber:#d9b56a;
     --hp-hi:#8fbf8f; --hp-mid:#d9b56a; --hp-lo:#cf7a6a;
-    --rail:158px;
+    /* 172px = the exact one-row badge fit: 8×15px badges + 7×4px gaps = 148px content,
+       + 2×10px padding + 4px breathing room. Wider than this is wasted stream real estate. */
+    --rail:172px;
   }
   html,body{margin:0;background:transparent;overflow:hidden;
     font-family:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif;

@@ -32,6 +32,17 @@ import world_fingerprint as wf      # MICRO watchdog: stop A-mashing an exhauste
 # progressing -> disengage (B, walk away). Tolerance is low (a real speech never repeats a line 3x).
 DIALOGUE_LOOP_REPEAT = int(os.getenv("POKEMON_DIALOGUE_LOOP_REPEAT", "3"))
 
+# MENU-PROMPT TEXTS (2026-08-03, the Route-13 Super-Potion loop): these strings are NEVER
+# conversation — they mean an ITEM/BAG/PARTY menu is open under the text band. A-driving them
+# "advances" the menu (selects the item, opens the party, re-selects...) forever. The ONLY
+# correct move is B-cascade out and hand the field back. Matched on the normalized lowercase line.
+_MENU_PROMPT_SNIPPETS = (
+    "is selected",              # "SUPER POTION is selected."
+    "use on which pok",         # "Use on which POKMON?" (accent byte varies)
+    "won't have any effect",    # full-HP / no-status apply refusal
+    "there's no pok",           # party-related refusals
+)
+
 # Bottom overworld message-box band: solid white while a box is open, dark (map) when closed.
 # Verified across misty_done (box up: 27-28/28 per row) vs cerulean/pewter/viridian (0/28).
 _BOX_ROWS = (126, 132, 138, 144)
@@ -248,6 +259,15 @@ class DialogueDriver:
                     # counter never trips). If any one line has now reappeared DIALOGUE_LOOP_REPEAT
                     # times this call, it's a loop, not progress -> disengage (don't read it again).
                     _k = " ".join(cur.lower().split())
+                    # MENU-PROMPT GUARD (2026-08-03 Route-13): this text means a bag/party MENU
+                    # is open, not a conversation. One more A here re-selects the item — the
+                    # infinite overworld Super-Potion loop. B-cascade out, never drive it.
+                    if any(s in _k for s in _MENU_PROMPT_SNIPPETS):
+                        self.log(f"   [dlg{(' ' + label) if label else ''}] !! MENU PROMPT under the "
+                                 f"text band ({cur.replace(chr(10), ' ')[:48]!r}) — a bag/party menu "
+                                 f"is open; B-closing, NEVER A-driving it (anti item-loop)")
+                        self._close_box()
+                        return "exhausted"
                     seen[_k] = seen.get(_k, 0) + 1
                     if seen[_k] >= DIALOGUE_LOOP_REPEAT:
                         self.log(f"   [dlg{(' ' + label) if label else ''}] !! LOOPING DIALOGUE — "

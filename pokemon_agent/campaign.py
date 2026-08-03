@@ -14380,13 +14380,27 @@ class Campaign:
         if fp is not None and not fp.battle_active:
             try:
                 if not ram.battle_cb2_dead(self.b):
-                    if not getattr(self, "_wd_scene", False):
-                        self._wd_scene = True
-                        log("   [roam] watchdog: SCENE callback owns the screen (evolution/naming/"
-                            "cutscene) — deliberate stillness, watch resets until the world returns")
-                    self._stuckwatch.feed(fp, now, text=text or "", progressed=True)
-                    return
-                self._wd_scene = False
+                    # SCENE-GATE HOLE (2026-08-03, the Route-13 dock loop): the overworld BAG /
+                    # PARTY menus ALSO run a non-overworld callback2, so a stuck open bag read as
+                    # a legit "scene" and PARKED the watch forever while the potion loop churned.
+                    # A stray menu is NEVER deliberate stillness — let the watch run so the trip
+                    # reaches the roam-top recovery (whose sweep B-closes it).
+                    if self._stray_menu_kind() is not None:
+                        if not getattr(self, "_wd_menu", False):
+                            self._wd_menu = True
+                            log("   [roam] watchdog: non-overworld callback is a stray BAG/PARTY "
+                                "menu — NOT a scene; the watch keeps counting (anti potion-loop)")
+                    else:
+                        self._wd_menu = False
+                        if not getattr(self, "_wd_scene", False):
+                            self._wd_scene = True
+                            log("   [roam] watchdog: SCENE callback owns the screen (evolution/naming/"
+                                "cutscene) — deliberate stillness, watch resets until the world returns")
+                        self._stuckwatch.feed(fp, now, text=text or "", progressed=True)
+                        return
+                else:
+                    self._wd_scene = False
+                    self._wd_menu = False
             except Exception:
                 pass
         if self._stuckwatch.feed(fp, now, text=text or "") and self._stuck_request is None:

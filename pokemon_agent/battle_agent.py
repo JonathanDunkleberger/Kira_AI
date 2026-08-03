@@ -1210,6 +1210,11 @@ class BattleAgent:
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
                 continue
             if self._at_action_menu():
+                # A settled action menu is one a blind A may hit (anti-wedge floor, stall mash) —
+                # park the cursor on FIGHT so that A can never re-open the BAG/POKEMON screen
+                # (2026-08-03 Route-13 fisherman: cursor left on BAG = infinite Super-Potion loop).
+                if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != ram.ACT_FIGHT:
+                    self._poke_action_cursor(ram.ACT_FIGHT)
                 return True
             if self._at_move_list():
                 # Back to action — ONE B only (don't A/B oscillate).
@@ -1322,8 +1327,28 @@ class BattleAgent:
         gated on the bag being GONE — the bag's USE/CANCEL box lights the same pixels (layer 8)."""
         for _ in range(10):
             if not st.in_battle(self.b) or (self._white_box() and not self._bag_screen()):
-                return
+                break
             self.b.press("B", 2, 12, self.render, owner=self.owner); self._wait(10)
+        self._rehome_fight_cursor()
+
+    def _rehome_fight_cursor(self):
+        """2026-08-03 THE FISHERMAN LOOP (Route 13 dock): after ANY bag/party trip the action-menu
+        cursor stays parked on BAG (FRLG remembers it), and the bag's list cursor stays on the last
+        item (Super Potion). Every later BLIND A — the anti-wedge floor's 'mash FIGHT+A', the wedge
+        bail, the stall mash — then RE-OPENS the bag on the potion: 'SUPER POTION is selected.' ->
+        'Use on which POKMON?' -> B-drain -> blind A -> forever, on stream, for minutes. Pitfall 13
+        applies to US too: never leave a cursor where a blind press detonates. Park it back on FIGHT
+        (RAM write + readback; d-pad fallback) every time we leave a bag/party screen."""
+        try:
+            if st.in_battle(self.b) and self._at_action_menu():
+                # RAM write ONLY — a d-pad fallback here can CONFIRM instead of move on this
+                # core (the _home_to_fight no-op lesson). A failed write just logs; the blind-A
+                # bans elsewhere still protect us.
+                if not self._poke_action_cursor(ram.ACT_FIGHT):
+                    self.log("   [engine] rehome-FIGHT: cursor write didn't verify (LOUD; "
+                             "blind-A bans still guard the bag)")
+        except Exception as e:
+            self.log(f"   [engine] rehome-FIGHT failed: {e} (LOUD)")
 
     def _true_active_party_hp(self):
         """Tear-safe HP for the mon currently OUT: gPlayerParty[gBattlerPartyIndexes[0]].
@@ -1341,6 +1366,31 @@ class BattleAgent:
             return hp, mx
         except Exception:
             return None, None
+
+    def _war_advance_press(self):
+        """ONE screen-aware press for the war-must-advance paths (anti-wedge floor, menu-wedge
+        bail, stall mash). The 2026-08-03 Route-13 fisherman loop: those paths pressed BLIND A,
+        the action cursor was parked on BAG after an item trip, so every 'mash FIGHT' RE-OPENED
+        the bag on Super Potion — an infinite selected/Use-on-which cycle their own counters
+        kept resetting. Rule: NEVER a blind A. Bag/party -> B. Action menu -> cursor to FIGHT
+        (RAM write, readback) THEN A. Move list -> A (fires the highlighted move — resolution).
+        Anything else -> advance text."""
+        if self._bag_screen() or self._party_screen():
+            self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(12)
+            return "B"
+        if self._at_action_menu():
+            if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != ram.ACT_FIGHT:
+                self._poke_action_cursor(ram.ACT_FIGHT)
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(14)
+            return "A@FIGHT"
+        if self._at_move_list():
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(16)
+            return "A@move"
+        self._advance_text()
+        return "text"
 
     def _note_battle_progress(self, why=""):
         """Real fight progress (not menu flicker) — resets the MENU WEDGE stall clock."""
@@ -1462,6 +1512,9 @@ class BattleAgent:
             # wedged against it forever (the run19 Lance livelock). _settle_action_menu now
             # demands cursor responsiveness and B-drains impostors, so route through it.
             self._settle_action_menu(tries=12)
+            # Cursor is parked on BAG after any item trip — re-home to FIGHT so no later
+            # blind A can re-open the bag (the Route-13 fisherman Super-Potion loop).
+            self._rehome_fight_cursor()
             return "used"
         self.log(f"   [engine] use_item: pocket={self.b.rd8(ram.GBAG_POCKET)} cursor={self.b.rd8(BAG_CURSOR)} "
                  f"scroll={self.b.rd16(BAG_SCROLL)} row={row} — selected but item {item_id} NOT consumed "
@@ -3181,7 +3234,7 @@ class BattleAgent:
         # any no_effect/failed heal this battle kills ALL further potion offers (not just one species).
         self._cure_blocked = False         # same class: Awakening spam after already awake (stream end)
         self._last_battle_progress_t = time.time()  # MENU WEDGE: stall clock, NOT battle-start clock
-        self._menu_wedge_fired = False
+        self._menu_wedge_n = 0                     # re-armable, bounded (was a one-shot latch)
         self._must_leave_tried = {}        # species -> tries: alive-but-stuck voluntary switch
         self._allow_pokemon_menu = False   # NUCLEAR: only force-switch (faint) may open POKEMON
         self._party_thrash_n = 0           # consecutive unexpected party-screen sightings
@@ -3797,12 +3850,12 @@ class BattleAgent:
                                  f"action={self._at_action_menu()} moves={self._at_move_list()} "
                                  f"bag={self._bag_screen()} party={self._party_screen()} ours_pp={_pp}]")
                         self._debug_snap("antiwedge_trainer")
-                        # NEVER return stuck (travel re-enters the same fight). Mash A on FIGHT.
-                        if self._at_action_menu() or self._white_box():
-                            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
-                            self._wait(14)
-                            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
-                            self._wait(20)
+                        # NEVER return stuck (travel re-enters the same fight). Screen-aware
+                        # presses ONLY — the old blind 'A A' here re-opened a BAG-parked cursor
+                        # forever (the Route-13 fisherman Super-Potion loop).
+                        p1 = self._war_advance_press()
+                        p2 = self._war_advance_press()
+                        self.log(f"   [engine] anti-wedge presses: {p1}, {p2}")
                         self._unresolved_turns = 0
                         stall = 0
                         continue
@@ -3813,26 +3866,29 @@ class BattleAgent:
             # BATTLE_MENU_WEDGE_S — NOT "battle older than 45s". The old t0 clock false-fired mid
             # multi-mon trainer fight ("menus are glitched") and killed the stream.
             _stall_for = time.time() - getattr(self, "_last_battle_progress_t", t0)
+            # RE-ARMABLE (2026-08-03): this was a ONE-SHOT latch — when the single bail's own
+            # blind A re-opened the bag (fisherman loop), NO escape could EVER fire again and
+            # the fight span minutes of Super-Potion theater. Bounded re-fires (each spaced by
+            # a full BATTLE_MENU_WEDGE_S of zero progress) keep it loud but never dead.
             if (BATTLE_MENU_WEDGE_S > 0 and _stall_for >= BATTLE_MENU_WEDGE_S
                     and not self._enemy_fainted and not self._we_fainted
-                    and not getattr(self, "_menu_wedge_fired", False)):
-                self._menu_wedge_fired = True
+                    and getattr(self, "_menu_wedge_n", 0) < 3):
+                self._menu_wedge_n = getattr(self, "_menu_wedge_n", 0) + 1
                 self.log(f"   [engine] !! MENU WEDGE {_stall_for:.0f}s with NO progress — escaping the "
-                         f"scroll theater (menu_up={int(self._menu_up())} "
-                         f"action={self._at_action_menu()} moves={self._at_move_list()})")
-                self.emit("menus are glitched — bailing this fight.", beat=True, tier=2)
+                         f"scroll theater (fire {self._menu_wedge_n}/3, menu_up={int(self._menu_up())} "
+                         f"action={self._at_action_menu()} moves={self._at_move_list()} "
+                         f"bag={self._bag_screen()} party={self._party_screen()})")
+                if self._menu_wedge_n == 1:
+                    self.emit("menus are glitched — bailing this fight.", beat=True, tier=2)
                 if not self._is_trainer_battle():
                     return self.flee(max_seconds=45)
-                # Trainer: B out of bag/party, mash FIGHT+A; reset stall clock so we don't
-                # re-emit every loop (one loud bail, then war-must-advance).
+                # Trainer: screen-aware presses only (B out of bag/party; A only on a FIGHT-homed
+                # action menu / move list). The old 'B then always A' alternation was itself the
+                # infinite selected/Use-on-which cycle.
                 for _ in range(8):
                     if not st.in_battle(self.b) or self._enemy_fainted:
                         break
-                    if self._bag_screen() or self._party_screen():
-                        self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
-                        self._wait(10)
-                    self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
-                    self._wait(16)
+                    self._war_advance_press()
                 self._unresolved_turns = 0
                 stall = 0
                 self._last_battle_progress_t = time.time()  # don't re-trigger every iteration
@@ -3844,9 +3900,9 @@ class BattleAgent:
                 if not self._is_trainer_battle():
                     self.log("   [engine] !! battle wedged stall≥30 WILD -> FLEE")
                     return self.flee(max_seconds=45)
-                self.log("   [engine] !! battle wedged stall≥30 TRAINER -> mash A, not stuck-abort")
-                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
-                self._wait(12)
+                self.log("   [engine] !! battle wedged stall≥30 TRAINER -> screen-aware press, "
+                         "not stuck-abort (never a blind A — the bag-parked-cursor lesson)")
+                self._war_advance_press()
                 stall = 0
                 continue
         # Budget exhausted: if the fight is already won, NEVER hand travel a timeout that
