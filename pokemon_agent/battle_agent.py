@@ -3289,11 +3289,18 @@ class BattleAgent:
                             # commentary then credited the wrong mon). Name BOTH parties from ground
                             # truth (the battle read + the verified ace slot) so voice matches screen.
                             try:
-                                _wk_nm = st.SPECIES_NAME.get(
-                                    (state.get("ours") or {}).get("species"), "the little one")
+                                _wk_sp = (state.get("ours") or {}).get("species")
+                                _wk_nm = st.SPECIES_NAME.get(_wk_sp, "the little one")
                                 _ace_nm = st.SPECIES_NAME.get(st.read_party_species(self.b, ace), "my ace")
-                                self.emit(f"{_wk_nm} showed up for the XP share — now {_ace_nm} takes it "
-                                          f"from here. that's how you train a rookie.", beat=True, tier=1)
+                                # Name Intimidate as the LEAD's ability so chat doesn't pin it on the ace
+                                # (2026-08-02: "Blastoise got Ekans's ability" after the turn-1 switch).
+                                if _wk_sp in (23, 24, 58, 59):
+                                    self.emit(f"that Intimidate was {_wk_nm}'s — {_ace_nm} is in now "
+                                              f"for the actual fight. bench XP, then the real hitters.",
+                                              beat=True, tier=1)
+                                else:
+                                    self.emit(f"{_wk_nm} showed up for the XP share — now {_ace_nm} takes it "
+                                              f"from here. that's how you train a rookie.", beat=True, tier=1)
                             except Exception:
                                 pass
                             self._acted_once = True

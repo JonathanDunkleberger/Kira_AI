@@ -167,6 +167,59 @@ def read_party_species(bridge, slot=0):
     return species
 
 
+# Plaintext battle-stats block in the 100-byte party struct (same offsets campaign uses).
+_PARTY_LEVEL_OFF, _PARTY_HP_OFF, _PARTY_MAXHP_OFF = 0x54, 0x56, 0x58
+
+
+def read_party_public(bridge, slot=0):
+    """HUD/oracle snapshot for party slot N: species, level, hp, maxhp.
+
+    Tear-guard (2026-08-02 stream chalk): mid-swap / mid-battle party-reorder reads once
+    produced impossible rows (ekans HP 115/40) — chat reads that as 'stats/abilities got
+    swapped between Blastoise and Ekans'. Two agreeing sane samples, else best effort.
+    Display-only — never writes RAM, never invents abilities (species table owns those)."""
+    def _sample():
+        base = ram.GPLAYER_PARTY + slot * PARTY_MON_SIZE
+        sp = read_party_species(bridge, slot)
+        lv = bridge.rd8(base + _PARTY_LEVEL_OFF)
+        hp = bridge.rd16(base + _PARTY_HP_OFF)
+        mx = bridge.rd16(base + _PARTY_MAXHP_OFF)
+        return sp, lv, hp, mx
+
+    def _sane(sp, lv, hp, mx):
+        return (1 <= sp <= 411 and 1 <= lv <= 100 and 1 <= mx <= 999 and 0 <= hp <= mx)
+
+    a = _sample()
+    b = _sample()
+    if a == b and _sane(*a):
+        sp, lv, hp, mx = a
+    else:
+        pick = None
+        for _ in range(3):
+            cur = _sample()
+            if _sane(*cur):
+                pick = cur
+                break
+        sp, lv, hp, mx = pick if pick is not None else (b if _sane(*b) else a)
+        # Last resort: clamp a torn HP so the HUD never shows 115/40.
+        if not _sane(sp, lv, hp, mx):
+            if not (1 <= mx <= 999):
+                mx = max(mx, hp, 1) if hp else 1
+            hp = max(0, min(hp, mx))
+            if not (1 <= lv <= 100):
+                lv = max(1, min(lv or 1, 100))
+            if not (1 <= sp <= 411):
+                sp = 0
+    return {
+        "species_id": sp,
+        "species": SPECIES_NAME.get(sp, f"species#{sp}" if sp else "?"),
+        "level": lv,
+        "hp": hp,
+        "maxhp": mx,
+        "types": species_types(sp),
+    }
+
+
 def read_enemy_species(bridge, slot=0):
     """Decrypt the species of ENEMY party slot N (gEnemyParty). Same struct/encryption as the player
     party — used to recognize a rival/Gary fight (his starter-line ace) at ANY encounter, not just by

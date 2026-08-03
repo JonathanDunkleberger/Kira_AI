@@ -3393,12 +3393,12 @@ class Campaign:
         cnt = b.rd8(ram.GPLAYER_PARTY_CNT)
         party = []
         for s in range(min(cnt, 6)):
-            sp = st.read_party_species(b, s)
-            base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
-            lvl = b.rd8(base + self._PARTY_LEVEL_OFF)
-            hp, mx = b.rd16(base + P_HP), b.rd16(base + P_MAXHP)   # PHASE 8 HUD: party-as-family HP bars
-            party.append({"species": st.SPECIES_NAME.get(sp, f"species#{sp}"), "level": lvl,
-                          "hp": hp, "maxhp": mx, "species_id": sp})
+            # Tear-safe public read (2026-08-02): never publish impossible HP like ekans 115/40
+            # that made chat think Blastoise/Ekans swapped stats/abilities.
+            pub = st.read_party_public(b, s)
+            party.append({"species": pub["species"], "level": pub["level"],
+                          "hp": pub["hp"], "maxhp": pub["maxhp"],
+                          "species_id": pub["species_id"]})
         try:                                      # current-map grass: does catch work HERE (vs needing to travel)?
             on_grass_map = bool(tv.Grid(b).grass)
         except Exception:
@@ -7993,11 +7993,13 @@ class Campaign:
         want_lead = st.read_party_species(self.b, j if i == 0 else i if j == 0 else 0)
         base = ram.GPLAYER_PARTY
         ai, aj = base + i * st.PARTY_MON_SIZE, base + j * st.PARTY_MON_SIZE
-        for k in range(st.PARTY_MON_SIZE // 4):           # 100 B = 25 u32 words
-            wi = self.b.rd32(ai + k * 4)
-            wj = self.b.rd32(aj + k * 4)
-            self.b.core.memory.u32.raw_write(ai + k * 4, wj)
-            self.b.core.memory.u32.raw_write(aj + k * 4, wi)
+        # Buffer both structs first, then write — never leave a half-swapped mon in RAM
+        # (a torn mid-swap read is what published ekans 115/40 on the stream HUD).
+        wi_buf = [self.b.rd32(ai + k * 4) for k in range(st.PARTY_MON_SIZE // 4)]
+        wj_buf = [self.b.rd32(aj + k * 4) for k in range(st.PARTY_MON_SIZE // 4)]
+        for k in range(st.PARTY_MON_SIZE // 4):
+            self.b.core.memory.u32.raw_write(ai + k * 4, wj_buf[k])
+            self.b.core.memory.u32.raw_write(aj + k * 4, wi_buf[k])
         # POST-SWAP VERIFY: read back who actually leads now; a mismatch is a real bug — say so LOUD.
         try:
             got = st.read_party_species(self.b, 0)
@@ -8921,6 +8923,25 @@ class Campaign:
             if not cand:
                 return False
             cand.sort()
+            # STREAM POLISH (2026-08-02): when the ace will switch in turn 1, do NOT lead with
+            # Intimidate mons (Ekans/Arbok/Growlithe/Arcanine). Chat sees "Intimidate!" then
+            # Blastoise and reports "Blastoise stole Ekans's ability" — pure optics, real game
+            # data is fine. Prefer any other under-target bench mon; fall through if that's all
+            # we have (XP still matters more than silence).
+            # FRLG Kanto Intimidate species only — ability is species-locked, never "swappable".
+            _INTIMIDATE = {23, 24, 58, 59}
+            if not _ql_leg and len(cand) > 1:
+                try:
+                    quiet = [(l, s) for (l, s) in cand
+                             if st.read_party_species(self.b, s) not in _INTIMIDATE]
+                    if quiet:
+                        if quiet[0][1] != cand[0][1]:
+                            log(f"   [roam] ROAD-BENCH-XP: skipping Intimidate lead "
+                                f"(slot {cand[0][1]}) — ace switches turn 1; chat misreads the "
+                                f"ability flash. Leading slot {quiet[0][1]} instead")
+                        cand = quiet
+                except Exception:
+                    pass
             wk = cand[0][1]                        # the weakest levelable under-target member
             # LEAD ROTATION (2026-07-31): if the same mon led the previous leg and the runner-up
             # candidate is within ROAD_XP_ROTATE_BAND levels, hand this leg to the runner-up so

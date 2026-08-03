@@ -212,7 +212,10 @@ function render(d){
 
   const party = d.party||[];
   el('party').innerHTML = party.length ? party.map(m=>{
-    const hp = m.hp!=null?m.hp:0, mx = m.maxhp||1, f = Math.max(0, Math.min(1, hp/mx));
+    // Clamp torn RAM snapshots (hp>maxhp) so bars never look like swapped stats.
+    const mx = Math.max(1, m.maxhp||1);
+    const hp = Math.max(0, Math.min(m.hp!=null?m.hp:0, mx));
+    const f = hp/mx;
     const fainted = hp<=0, nm = m.species||'?', id = m.species_id;
     const t0 = (m.types||[])[0], t1 = (m.types||[])[1];
     const rail = t0
