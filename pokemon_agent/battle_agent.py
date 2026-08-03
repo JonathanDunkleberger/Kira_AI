@@ -1291,21 +1291,40 @@ class BattleAgent:
                 return
             self.b.press("B", 2, 12, self.render, owner=self.owner); self._wait(10)
 
+    def _true_active_party_hp(self):
+        """Tear-safe HP for the mon currently OUT: gPlayerParty[gBattlerPartyIndexes[0]].
+        gBattleMons HP can tear (looks hurt while the bar is full) and was the 2026-08-02
+        LIVE Super-Potion-on-full-ace loop. Returns (hp, maxhp) or (None, None)."""
+        try:
+            pi = self.b.rd16(ram.GBATTLER_PARTY_IDX)
+            if not (0 <= pi < 6):
+                return None, None
+            base = ram.GPLAYER_PARTY + pi * 100
+            hp = self.b.rd16(base + 0x56)
+            mx = self.b.rd16(base + 0x58)
+            if not (1 <= mx <= 999 and 0 <= hp <= mx):
+                return None, None
+            return hp, mx
+        except Exception:
+            return None, None
+
     def use_item_in_battle(self, item_id, max_seconds=30, target=None):
         """Use one `item_id` from the Items pocket. Returns 'used' (count dropped) | 'no_item' |
-        'failed'. FAIL-SAFE: anything but 'used' leaves the battle fightable. `target` aims the
-        item's party screen: 'active' (the mon that is OUT — always menu row 0, the lead panel)
-        or 'fainted' (the strongest downed mon — Revive). The row is resolved by CONTENT at MENU
-        TIME (_menu_rows order law): run14 frame-proof — a Revive aimed at a PRE-menu slot index
-        confirmed the healthy active mon's panel, ate 'It won't have any effect.' boxes all night,
-        and never consumed. None keeps the legacy un-aimed walk; aim taps are party-screen-gated
-        (pixel truth) so a lagging party open never taps into the bag's USE/CANCEL sub-box."""
+        'failed' | 'no_effect'. FAIL-SAFE: anything but 'used' leaves the battle fightable. `target`
+        aims the item's party screen: 'active' (the mon that is OUT — always menu row 0, the lead
+        panel) or 'fainted' (the strongest downed mon — Revive). The row is resolved by CONTENT at
+        MENU TIME (_menu_rows order law): run14 frame-proof — a Revive aimed at a PRE-menu slot
+        index confirmed the healthy active mon's panel, ate 'It won't have any effect.' boxes all
+        night, and never consumed. None keeps the legacy un-aimed walk; aim taps are
+        party-screen-gated (pixel truth) so a lagging party open never taps into the bag's
+        USE/CANCEL sub-box."""
         ids = [i for i, _ in self._items_pocket()]
         if item_id not in ids:
             self.log(f"   [engine] use_item: item {item_id} NOT in pocket {ids[:8]} — no_item (LOUD)")
             return "no_item"
         row = ids.index(item_id)
         cnt0 = self._items_count(item_id)
+        _is_heal = item_id in _HEAL_ITEMS_PREF
         if not self._settle_action_menu():
             self.log("   [engine] use_item: couldn't reach the action menu — keep fighting (LOUD)")
             return "failed"
@@ -1358,6 +1377,16 @@ class BattleAgent:
                                  if r["hp"] == 0), 0)
                 else:                                      # 'active' -> the lead panel
                     _row = 0
+                    # 2026-08-02 LIVE: heal aimed at FULL ace (torn gBattleMons said hurt) —
+                    # "It won't have any effect." A-spam forever. Abort BEFORE confirming.
+                    if _is_heal and rows:
+                        lead = next((r for r in rows if r["row"] == 0), rows[0])
+                        if lead.get("maxhp") and lead.get("hp", 0) >= lead["maxhp"]:
+                            self.log(f"   [engine] use_item: lead {st.SPECIES_NAME.get(lead.get('species'), '?')} "
+                                     f"is FULL HP ({lead['hp']}/{lead['maxhp']}) — aborting potion "
+                                     f"(no_effect; was the full-ace Super Potion loop)")
+                            self._exit_bag()
+                            return "no_effect"
                 if not self._party_goto_slot(_row):
                     self.log(f"   [engine] use_item: aim couldn't reach menu row {_row} "
                              f"— confirming where the cursor is (fail-safe)")
@@ -1404,7 +1433,23 @@ class BattleAgent:
         # cleared per battle, per species, only after a PROVEN failure (a working heal never latches).
         if HEAL_FAIL_LATCH and (ours.get("species") in self._heal_failed):
             return False
+        if getattr(self, "_potion_blocked", False):
+            # Still allow cure/revive/ether below — only potions are blocked after no_effect.
+            pass
         frac = _hp_frac(ours)
+        # 2026-08-02 LIVE: gBattleMons HP tore (looked crit) while party + HUD said FULL —
+        # she opened Super Potion on the ace forever. Trust party struct over battle mons.
+        _php, _pmx = self._true_active_party_hp()
+        if _pmx and _php is not None:
+            _party_frac = _php / _pmx
+            if _party_frac >= 0.99 and frac < 0.99:
+                self.log(f"   [engine] HP-TEAR GUARD: gBattleMons says {ours.get('hp')}/{ours.get('maxhp')} "
+                         f"but party active is FULL {_php}/{_pmx} — trusting party (no potion)")
+                frac = _party_frac
+            elif abs(frac - _party_frac) >= 0.20:
+                self.log(f"   [engine] HP-TEAR GUARD: battle frac={frac:.2f} vs party "
+                         f"{_php}/{_pmx} ({_party_frac:.2f}) — trusting party")
+                frac = _party_frac
         offers, plan = {}, {}
         # MATCHUP-AWARE HEAL THRESHOLD (general, E4-critical): a foe that hits us SUPER-EFFECTIVELY can
         # 2HKO from high HP, so the 30% crit floor heals too LATE (one more hit faints us). Against such a
@@ -1442,7 +1487,8 @@ class BattleAgent:
         foe_mx = foe.get("maxhp") or 0
         foe_frac = (foe.get("hp", 0) / foe_mx) if foe_mx else 1.0
         finishable = foe_frac <= 0.25 and frac > BATTLE_CRIT_FRAC
-        if frac <= heal_frac and not finishable:
+        if (frac <= heal_frac and not finishable
+                and not getattr(self, "_potion_blocked", False)):
             # ACE-FIRST POTION ECONOMY (2026-07-31, the Misty chalk Jonny watched): the aim is
             # always the ACTIVE mon (correct — never a bench row), but after the ace faints the
             # game FORCE-SWITCHES fodder in, and this offer then spent the whole potion stock
@@ -1548,6 +1594,12 @@ class BattleAgent:
                     self.log(f"   [engine] HEAL-FAIL LATCH: item {item} did not consume ({res}) -> "
                              f"suppressing further in-battle item offers for species {sp} this battle "
                              f"(anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)")
+                # Full-ace / no_effect: block ALL potions this battle (species latch alone didn't
+                # stop the loop when gBattleMons kept lying about a different "hurt" reading).
+                if pick == "use_potion" or res == "no_effect":
+                    self._potion_blocked = True
+                    self.log("   [engine] POTION-BLOCK: no more heal-item offers this battle "
+                             "(full-HP / no_effect abort)")
             return res == "used"
         self.log(f"   [engine] ITEM-INSTINCT pick -> {pick!r} (keep fighting)")
         return False
@@ -2921,6 +2973,8 @@ class BattleAgent:
         # but one flaky menu nav no longer dooms a moveless mon to spam its failing move all battle).
         self._heal_failed = set()          # HEAL-CONSUME-FAILED LATCH: active species whose in-battle
         # item use PROVED it won't consume this battle (bag USE/CANCEL non-consume) -> stop re-offering.
+        self._potion_blocked = False       # 2026-08-02 LIVE: Super Potion on FULL ace forever —
+        # any no_effect/failed heal this battle kills ALL further potion offers (not just one species).
         self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
         self._whiff_recovering = None      # ace species we switched OUT to reset accuracy (switch back next)
         self._whiff_recoveries = 0         # bounded accuracy-resets this battle (never a switch-loop)
