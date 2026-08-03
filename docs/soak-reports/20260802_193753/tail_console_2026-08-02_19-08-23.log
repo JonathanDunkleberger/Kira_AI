@@ -1,0 +1,300 @@
+   [TurnTiming] 19:35:14.223 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~26027ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+>>> You said: You need some kind of strat. It's up to you.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="You need some kind of strat. It's up to you." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=33ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=14030ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1603ms
+   [TTS] Speaking: Kadabra....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Kadabra.' (2 words)
+   [TurnTiming] 19:35:16.268 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:35:18.047 TTS STOP — playback finished (span ~1779ms)
+   [TTS] Speaking: Psychic hits his ground types and he's fast enough...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Psychic hits his ground types and he's f' (16 words)
+   [TurnTiming] 19:35:18.056 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:35:22.407 TTS STOP — playback finished (span ~4351ms)
+   [TTS] Speaking: Lead with Kadabra, keep Blastoise in reserve for c...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Lead with Kadabra, keep Blastoise in res' (11 words)
+   [TurnTiming] 19:35:22.413 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:35:25.971 TTS STOP — playback finished (span ~3557ms)
+
+   [TIMING] voice: llm=11462ms(sonnet-stream(llm+tts)) tts=0ms total=11462ms
+   [LATENCY] vad_close=1200ms stt=251ms stt_wait=0ms salience=0ms triage=bypassed memory=33ms prompt_build=2ms ttft=1224ms tts_first_chunk=379ms audio_out=150ms TOTAL=2039ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → MOODY
+   [VTS] Emotion transition → MOODY (mapped: 'My Animation 3')
+   [VTS] Emotion MOODY → triggered 'My Animation 3' (success)
+   [Intensity] → CALM  (silence=0s  audio="")
+   [TurnTiming] 19:35:26.360 DIRECTOR HOLD (fresh-min-silence) — since_mic=13.4s silence=0.4s fresh_ok=True dead_air=False
+   [TurnTiming] 19:35:28.604 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~40408ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 19:35:32.365 DIRECTOR HOLD (post-speech-hold) — since_mic=5.0s silence=3.8s fresh_ok=True dead_air=False
+   [VRAM] 19:35:33 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 19:35:36.366 DIRECTOR FIRE — silence=7.8s since_mic=9.0s fresh_ok=True dead_air=False eff_min_gap=10s gap=128s
+   [Director] FIRE (noticing) — gap=128s silence=8s fresh=vision
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=30ms fetch=61ms rank=0ms)
+   [SmartMem]     dist=0.921 conf=0.9 type=episodic blend=0.183 lane=KNOW
+   [SmartMem]     dist=0.951 conf=? type=session_summary blend=0.164 lane=STREAM
+   [SmartMem]     dist=0.961 conf=0.9 type=episodic blend=0.158 lane=KNOW
+   >>> Kira (Bored): Okay, Kadabra leads — already said it, standing by it. You good to try it?
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Okay, Kadabra leads — already said it, standing by...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay, Kadabra leads — already said it, s' (13 words)
+   [TurnTiming] 19:35:45.080 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:35:49.107 TTS STOP — playback finished (span ~4027ms)
+   [TTS] Speaking: You good to try it?...
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You good to try it?' (6 words)
+   [TurnTiming] 19:35:49.378 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:35:51.152 TTS STOP — playback finished (span ~1774ms)
+   [TIMING] interjection: vision=2330ms llm=5910ms(sonnet) tts=6448ms total=14785ms
+   [LAG] sense→speak: total=29.2s (content_age=16.2s, prep=2.4s, llm=5.9s, tts_wait+synth=4.7s)
+   [TurnTiming] 19:35:52.158 DIRECTOR HOLD (fresh-min-silence) — since_mic=24.8s silence=1.0s fresh_ok=True dead_air=False
+🎤 Recording...
+   [TurnTiming] 19:35:53.094 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 19:35:57.019 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3925ms since onset)
+>>> You said: I'm good to try it, but he's gonna need some more levels.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I'm good to try it, but he's gonna need some more levels." fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=0.952 conf=0.8 type=episodic blend=0.164 lane=VAGUE
+   [SmartMem]     dist=1.008 conf=0.85 type=episodic blend=0.129 lane=KNOW
+   [SmartMem]     dist=1.125 conf=0.9 type=episodic blend=0.057 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   (Kira's current emotion is: MOODY)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=22t  moment=calm)
+   [PromptSize] dynamic_context=14737ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1420ms
+   [TTS] Speaking: How far behind is he?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'How far behind is he?' (6 words)
+   [TurnTiming] 19:35:59.010 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 1596s) — auto-resuming in 5s
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [TurnTiming] 19:36:00.893 TTS STOP — playback finished (span ~1883ms)
+
+   [TIMING] voice: llm=3702ms(sonnet-stream(llm+tts)) tts=0ms total=3702ms
+   [LATENCY] vad_close=1200ms stt=221ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=17ms ttft=1186ms tts_first_chunk=234ms audio_out=301ms TOTAL=1982ms
+   ✨ Emotion: MOODY → EMOTIONAL
+   [TurnTiming] 19:36:02.148 DIRECTOR HOLD (post-speech-hold) — since_mic=6.4s silence=1.2s fresh_ok=True dead_air=False
+   [TurnTiming] 19:36:04.142 DIRECTOR FIRE — silence=3.2s since_mic=8.4s fresh_ok=True dead_air=False eff_min_gap=10s gap=28s
+   [Director] FIRE (noticing) — gap=28s silence=3s fresh=vision
+   [LoadShed] Skipping fresh vision capture (under_load=False, cache_age=1.8s, mw_age=999.0s)
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=1ms fetch=55ms rank=0ms)
+   [SmartMem]     dist=0.905 conf=? type=session_summary blend=0.193 lane=STREAM
+   [SmartMem]     dist=0.934 conf=0.9 type=episodic blend=0.175 lane=KNOW
+   [SmartMem]     dist=0.967 conf=0.9 type=episodic blend=0.157 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   >>> Kira (Bored): A few levels of grinding, then. Honestly fine — Kadabra's worth the investment.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: A few levels of grinding, then....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'A few levels of grinding, then.' (8 words)
+   [TurnTiming] 19:36:07.209 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:36:09.640 TTS STOP — playback finished (span ~2431ms)
+   [TTS] Speaking: Honestly fine — Kadabra's worth the investment....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Honestly fine — Kadabra's worth the inve' (8 words)
+   [TurnTiming] 19:36:09.939 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:36:13.025 TTS STOP — playback finished (span ~3086ms)
+   [TIMING] interjection: vision=0ms llm=2662ms(sonnet) tts=6162ms total=8882ms
+   [LAG] sense→speak: total=7.6s (content_age=1.8s, prep=0.1s, llm=2.7s, tts_wait+synth=3.1s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 19:36:14.032 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=1.0s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 19:36:16.723 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~23628ms since onset)
+>>> You said: He's pretty far behind. He's pretty far behind.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="He's pretty far behind. He's pretty far behind." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=14002ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [VRAM] 19:36:18 (periodic) kira_process=0.00GB card=9.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TIMING] first-word: 1998ms
+   [TTS] Speaking: Okay, grind time....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Okay, grind time.' (5 words)
+   [TurnTiming] 19:36:19.336 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:36:21.292 TTS STOP — playback finished (span ~1956ms)
+   [TTS] Speaking: Where are you thinking — trainers in the Rocket hi...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Where are you thinking — trainers in the' (14 words)
+   [TurnTiming] 19:36:21.298 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:36:25.050 TTS STOP — playback finished (span ~3752ms)
+
+   [TIMING] voice: llm=7978ms(sonnet-stream(llm+tts)) tts=0ms total=7978ms
+   [LATENCY] vad_close=1200ms stt=315ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=3ms ttft=1343ms tts_first_chunk=655ms audio_out=259ms TOTAL=2605ms
+   ✨ Emotion: EMOTIONAL → HYPERACTIVE
+   [VTS] Emotion transition → HYPERACTIVE (mapped: 'My Animation 2')
+   [VTS] Emotion HYPERACTIVE → triggered 'My Animation 2' (success)
+   [TurnTiming] 19:36:26.023 DIRECTOR HOLD (fresh-min-silence) — since_mic=10.5s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 19:36:29.012 DIRECTOR FIRE — silence=4.0s since_mic=13.5s fresh_ok=True dead_air=False eff_min_gap=10s gap=25s
+   [Director] FIRE (noticing) — gap=25s silence=4s fresh=vision
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 139ms — 0 accepted, 1 filtered (rms=0.017)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=35ms fetch=70ms rank=0ms)
+   [SmartMem]     dist=0.903 conf=? type=session_summary blend=0.194 lane=STREAM
+   [SmartMem]     dist=0.947 conf=0.9 type=episodic blend=0.167 lane=KNOW
+   [SmartMem]     dist=0.990 conf=0.95 type=episodic blend=0.140 lane=KNOW
+   >>> Kira (Bored): Wait, the Pokémon's gone and you've switched to deep work music — did you just bench Kadabra mid-crisis?
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Wait, the Pokémon's gone and you've switched to de...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Wait, the Pokémon's gone and you've swit' (20 words)
+   [TurnTiming] 19:36:34.927 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:36:40.543 TTS STOP — playback finished (span ~5616ms)
+   [TIMING] interjection: vision=3065ms llm=2248ms(sonnet) tts=6111ms total=11531ms
+   [LAG] sense→speak: total=32.5s (content_age=26.6s, prep=3.2s, llm=2.2s, tts_wait+synth=0.5s)
+   [DroppedInput] LOST ~113 frame(s) (~3390ms, ~3.4s) of your speech while she held the turn.
+   [TurnTiming] 19:36:41.545 DIRECTOR HOLD (fresh-min-silence) — since_mic=8.1s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 19:36:43.553 DIRECTOR FIRE — silence=3.0s since_mic=10.2s fresh_ok=True dead_air=False eff_min_gap=10s gap=15s
+   [Director] FIRE (noticing) — gap=15s silence=3s fresh=vision
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 126ms — 0 accepted, 1 filtered (rms=0.017)
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=2ms fetch=53ms rank=0ms)
+   [SmartMem]     dist=0.751 conf=? type=session_summary blend=0.287 lane=STREAM
+   [SmartMem]     dist=0.872 conf=0.9 type=episodic blend=0.213 lane=KNOW
+   [SmartMem]     dist=0.872 conf=? type=session_summary blend=0.213 lane=STREAM
+   [Phrases] Throttling: "did you just" (3rd use this session)
+   >>> Kira (Bored): So Kadabra's deep in the bench and you're staring at terminal logs — he's basically doing deep work music too right now. Same energy, honestly.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: So Kadabra's deep in the bench and you're staring ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'So Kadabra's deep in the bench and you'r' (23 words)
+   [TurnTiming] 19:36:49.279 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:36:55.276 TTS STOP — playback finished (span ~5996ms)
+   [TTS] Speaking: Same energy, honestly....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Same energy, honestly.' (5 words)
+   [TurnTiming] 19:36:55.606 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:36:57.855 TTS STOP — playback finished (span ~2249ms)
+   [TIMING] interjection: vision=2214ms llm=2704ms(sonnet) tts=9327ms total=14301ms
+   [LAG] sense→speak: total=24.2s (content_age=12.2s, prep=2.3s, llm=2.7s, tts_wait+synth=7.1s)
+   [TurnTiming] 19:36:58.869 DIRECTOR HOLD (fresh-min-silence) — since_mic=25.5s silence=1.0s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0127 · gate=0.003 · 3 accepted
+   [TurnTiming] 19:37:00.862 DIRECTOR FIRE — silence=3.0s since_mic=27.5s fresh_ok=True dead_air=False eff_min_gap=10s gap=17s
+   [Director] FIRE (noticing) — gap=17s silence=3s fresh=vision
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=35ms fetch=49ms rank=0ms)
+   [SmartMem]     dist=0.927 conf=? type=session_summary blend=0.179 lane=STREAM
+   [SmartMem]     dist=0.931 conf=0.9 type=episodic blend=0.177 lane=KNOW
+   [SmartMem]     dist=0.937 conf=0.9 type=episodic blend=0.173 lane=KNOW
+   [Phrases] Throttling: "deep work music" (3rd use this session)
+   [VRAM] 19:37:03 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   >>> Kira (Bored): So Kadabra's basically in a training montage offscreen while you stare at terminal logs. I respect the parallel discipline.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: So Kadabra's basically in a training montage offsc...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'So Kadabra's basically in a training mon' (15 words)
+   [TurnTiming] 19:37:05.866 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:37:10.644 TTS STOP — playback finished (span ~4778ms)
+   [TTS] Speaking: I respect the parallel discipline....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I respect the parallel discipline.' (6 words)
+   [TurnTiming] 19:37:10.927 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:37:13.264 TTS STOP — playback finished (span ~2336ms)
+   [TIMING] interjection: vision=2472ms llm=2030ms(sonnet) tts=7810ms total=12401ms
+   [LAG] sense→speak: total=25.7s (content_age=15.6s, prep=2.6s, llm=2.0s, tts_wait+synth=5.5s)
+   [TurnTiming] 19:37:14.265 DIRECTOR HOLD (fresh-min-silence) — since_mic=40.9s silence=1.0s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 115ms — 0 accepted, 1 filtered (rms=0.005)
+   [TurnTiming] 19:37:16.267 DIRECTOR FIRE — silence=3.0s since_mic=42.9s fresh_ok=True dead_air=False eff_min_gap=10s gap=15s
+   [Director] FIRE (noticing) — gap=15s silence=3s fresh=vision
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=54ms rank=0ms)
+   [SmartMem]     dist=0.921 conf=0.9 type=episodic blend=0.183 lane=KNOW
+   [SmartMem]     dist=0.955 conf=? type=session_summary blend=0.162 lane=STREAM
+   [SmartMem]     dist=0.978 conf=0.9 type=episodic blend=0.148 lane=KNOW
+   [Phrases] Throttling: "at terminal logs" (3rd use this session)
+   [Phrases] Throttling: "you stare at" (3rd use this session)
+   [LoopbackSTT] tick 123ms — 0 accepted, 1 filtered (rms=0.015)
+   >>> Kira (Bored): So Kadabra is just... out there, levels behind, waiting, while you stare at logs. Honestly I think he knows. I think he's sitting in the PC feeling judged.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: So Kadabra is just......
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'So Kadabra is just...' (5 words)
+   [TurnTiming] 19:37:22.108 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:37:24.262 TTS STOP — playback finished (span ~2154ms)
+   [TTS] Speaking: out there, levels behind, waiting, while you stare...
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'out there, levels behind, waiting, while' (14 words)
+   [TurnTiming] 19:37:24.641 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:37:28.604 TTS STOP — playback finished (span ~3962ms)
+   [TTS] Speaking: Honestly I think he knows....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Honestly I think he knows.' (6 words)
+   [TurnTiming] 19:37:28.927 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:37:31.165 TTS STOP — playback finished (span ~2238ms)
+   [TTS] Speaking: I think he's sitting in the PC feeling judged....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I think he's sitting in the PC feeling j' (10 words)
+   [TurnTiming] 19:37:31.486 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 19:37:34.386 TTS STOP — playback finished (span ~2900ms)
+   [TIMING] interjection: vision=2175ms llm=3333ms(sonnet) tts=12554ms total=18118ms
+   [LAG] sense→speak: total=28.7s (content_age=13.5s, prep=2.2s, llm=3.3s, tts_wait+synth=9.7s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 19:37:35.396 DIRECTOR HOLD (post-speech-hold) — since_mic=0.2s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 19:37:36.724 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~103629ms since onset)
+>>> You said: Yeah, shut the fuck up. Shut the fuck up.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Yeah, shut the fuck up. Shut the fuck up.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HYPERACTIVE)
+   [Phrases] Throttling: "while you stare at" (3rd use this session)
+   [PromptSize] dynamic_context=12469ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1324ms
+   [TTS] Speaking: Fair....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Fair.' (2 words)
+   [TurnTiming] 19:37:38.475 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:37:40.248 TTS STOP — playback finished (span ~1773ms)
+
+   [TIMING] voice: llm=3243ms(sonnet-stream(llm+tts)) tts=0ms total=3243ms
+   [LATENCY] vad_close=1200ms stt=247ms stt_wait=0ms salience=1ms triage=bypassed memory=30ms prompt_build=2ms ttft=1240ms tts_first_chunk=84ms audio_out=140ms TOTAL=1744ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: HYPERACTIVE → EMOTIONAL
+   [TurnTiming] 19:37:41.388 DIRECTOR HOLD (post-speech-hold) — since_mic=5.9s silence=1.1s fresh_ok=True dead_air=False
+   [TurnTiming] 19:37:41.463 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~108369ms since onset)
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 19:37:45.389 DIRECTOR FIRE — silence=3.9s since_mic=9.9s fresh_ok=True dead_air=False eff_min_gap=10s gap=29s
+   [Director] FIRE (noticing) — gap=29s silence=4s fresh=vision
