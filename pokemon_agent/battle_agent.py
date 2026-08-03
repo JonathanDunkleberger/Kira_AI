@@ -64,7 +64,14 @@ _ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures l
 # dropping, so a wrong id simply doesn't fire -> 'failed' -> keep fighting, never a wrong action).
 _HEAL_ITEMS_PREF = (19, 20, 21, 22, 13)   # Full Restore, Max, Hyper, Super, Potion (strongest usable first)
 _REVIVE_ITEMS_PREF = (25, 24)             # Max Revive, Revive
-_ETHER_ITEMS_PREF = (37, 36, 35, 34)      # Max Elixir, Elixir, Max Ether, Ether (all-move first)
+# CHEAPEST-FIRST ether order (2026-08-03 potion-economics pass): an Ether (10 PP, one move)
+# almost always un-famines the workhorse slot — burning the Max Elixir first was hoard-in-reverse.
+_ETHER_ITEMS_PREF = (34, 36, 35, 37)      # Ether, Elixir, Max Ether, Max Elixir
+# How much each potion tier heals (Gen 3): the right-sized-potion picker's fact table.
+_POTION_HEALS = {13: 20, 22: 50, 21: 200, 20: 9999, 19: 9999}
+ITEM_QTY_NAMES = {13: "a Potion", 22: "a Super Potion", 21: "a Hyper Potion", 20: "a Max Potion",
+                  19: "a Full Restore", 14: "an Antidote", 15: "a Burn Heal", 16: "an Ice Heal",
+                  17: "an Awakening", 18: "a Parlyz Heal", 23: "a Full Heal"}
 # Kanto species whose ability is ALWAYS Levitate -> Ground does NOTHING despite the chart's x2
 # (Agatha's gengars: EQ 'connects' on paper, so chart-only famine never fires while EQ has PP).
 # Game-knowledge inline (portability debt: belongs in gamedata/ when the ability layer generalizes).
@@ -1832,6 +1839,17 @@ class BattleAgent:
         foe_mx = foe.get("maxhp") or 0
         foe_frac = (foe.get("hp", 0) / foe_mx) if foe_mx else 1.0
         finishable = foe_frac <= 0.25 and frac > BATTLE_CRIT_FRAC
+        # Status of the mon actually OUT — decoded HERE (above the potion branch) so the
+        # right-sized potion picker can prefer a Full Restore on a hurt+statused ace.
+        # gBattleMons decode CROSS-CHECKED against the party struct (STATUS-TEAR GUARD,
+        # 2026-08-03: torn status1 decoded POISON on a PARALYZED Blastoise -> Antidote
+        # confirmed into 'It won't have any effect.' forever).
+        status = _decode_status((state.get("ours") or {}).get("status1", 0) or 0)
+        _pstatus, _pok = self._true_active_party_status()
+        if _pok and _pstatus != status:
+            self.log(f"   [engine] STATUS-TEAR GUARD: gBattleMons says {status!r} but the party "
+                     f"struct says {_pstatus!r} — trusting party (anti wrong-medicine loop)")
+            status = _pstatus
         if (frac <= heal_frac and not finishable
                 and not getattr(self, "_potion_blocked", False)):
             # ACE-FIRST POTION ECONOMY (2026-07-31, the Misty chalk Jonny watched): the aim is
@@ -1856,31 +1874,35 @@ class BattleAgent:
                          f"team's L{_top_lv} carry — NOT offering a heal on it (the potions are "
                          f"for the ace, not L8-13 bench mons)")
             else:
-                heal = next((i for i in _HEAL_ITEMS_PREF if self._items_count(i) > 0), None)
+                _missing = max(0, int(round((1.0 - frac) * (ours.get("maxhp") or 0))))
+                heal = self._pick_heal_item(_missing, status)
                 if heal is not None:
                     plan["use_potion"] = (heal, aim)
-                    offers["use_potion"] = (f"use a healing item — you're at {ours['hp']}/{ours['maxhp']} HP, "
-                                            f"about to faint, and you HAVE one in the bag")
+                    offers["use_potion"] = (f"use {ITEM_QTY_NAMES.get(heal, 'a healing item')} — "
+                                            f"you're at {ours['hp']}/{ours['maxhp']} HP, about to "
+                                            f"faint, and it's sized to the damage")
         elif finishable and frac <= heal_frac:
             self.log(f"   [engine] FINISH-THE-FOE: foe at {int(foe_frac*100)}% (<=25%), us {int(frac*100)}% "
                      f"(> crit) -> no heal, land the KO instead")
-        # Status of the mon actually OUT — gBattleMons decode CROSS-CHECKED against the party
-        # struct (STATUS-TEAR GUARD, 2026-08-03: torn gBattleMons status1 decoded POISON on a
-        # PARALYZED Blastoise -> Antidote confirmed into "It won't have any effect." forever).
-        # The party struct for the active index is the same truth the HP-tear guard trusts.
-        # (The old _lead_status read gPlayerParty[0] unconditionally — wrong mon post-switch,
-        # run16; this reads gPlayerParty[gBattlerPartyIndexes[0]], the mon actually out.)
-        status = _decode_status((state.get("ours") or {}).get("status1", 0) or 0)
-        _pstatus, _pok = self._true_active_party_status()
-        if _pok and _pstatus != status:
-            self.log(f"   [engine] STATUS-TEAR GUARD: gBattleMons says {status!r} but the party "
-                     f"struct says {_pstatus!r} — trusting party (anti wrong-medicine loop)")
-            status = _pstatus
-        if status and not getattr(self, "_cure_blocked", False):
+        # CURE TIMING (2026-08-03 13:04 'she doesn't know WHEN to use antidotes'): a status
+        # cure costs the turn. Against a nearly-dead foe, landing the KO beats curing —
+        # UNLESS the status stops her from acting at all (sleep/freeze; full-para is a
+        # gamble but she can still move). Poison/burn chip is survivable for one finishing hit.
+        _cure_now = status and not getattr(self, "_cure_blocked", False)
+        if _cure_now and finishable and status not in ("sleep", "freeze"):
+            self.log(f"   [engine] CURE TIMING: {status} can wait — foe at {int(foe_frac*100)}% "
+                     f"is one hit from down; KO first, cure after (or the Center does it free)")
+            _cure_now = False
+        if _cure_now:
             cure = self._STATUS_CURE_for(status)
+            # HURT + STATUSED = the Full Restore case (one turn fixes both). Only when
+            # genuinely hurt — a Full Restore on a scratched-but-paralyzed mon is a waste.
+            if frac <= 0.65 and self._items_count(19) > 0:
+                cure = 19
             if cure is not None:
                 plan["use_cure"] = (cure, aim)
-                offers["use_cure"] = f"use the cure for {status} — it's hurting you and you have the item"
+                offers["use_cure"] = (f"use {ITEM_QTY_NAMES.get(cure, 'the cure')} for {status} — "
+                                      f"it's hurting you and you have the item")
         elif status and getattr(self, "_cure_blocked", False):
             self.log(f"   [engine] CURE-BLOCK: status={status} but cures latched off this battle "
                      f"(anti Awakening re-open loop)")
@@ -2069,6 +2091,23 @@ class BattleAgent:
                 self.log("   [engine] revive-check: LAST-BODY INSURANCE armed "
                          f"(alive=1 at {hp}/{mx}, revives x{n_rev})")
                 return best[0]
+        return None
+
+    def _pick_heal_item(self, missing_hp, status=None):
+        """RIGHT-SIZED POTION (2026-08-03 13:04 'she doesn't know WHEN to use super potions...
+        I want her OP'): Bulbapedia-nerd item economics. Hurt AND statused -> Full Restore
+        (one turn fixes both, the endgame play). Otherwise the SMALLEST potion that covers
+        the missing HP — a Potion on a 15-HP dent, a Hyper on a 150-HP crater — so the big
+        bottles survive for the fights that need them. Nothing covers it fully -> the biggest
+        bottle in the bag (max value for the turn). None = bag has no heals at all."""
+        if status and self._items_count(19) > 0:
+            return 19
+        for iid in (13, 22, 21, 20, 19):                    # smallest sufficient tier
+            if self._items_count(iid) > 0 and _POTION_HEALS[iid] >= missing_hp:
+                return iid
+        for iid in (19, 20, 21, 22, 13):                    # nothing covers -> biggest available
+            if self._items_count(iid) > 0:
+                return iid
         return None
 
     def _STATUS_CURE_for(self, status):
