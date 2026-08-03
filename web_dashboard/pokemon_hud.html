@@ -1,140 +1,159 @@
 <!DOCTYPE html>
-<!-- Kira's Pokémon STREAM HUD (OBS browser source) — SHANGRI-LA EDITION (2026-07-29).
-     Ink + brass, matched to the web app's design language (KiraDashboard): midnight-ink cards,
-     hairline brass borders, serif brand line, letter-spaced small caps, tabular numerals. Calm,
-     refined, readable in 3 seconds — no neon, no glow-soup.
-     Same data contract as before: re-skins /pokemon_hud.json (health snapshot). Real Gen-3 sprites
-     (assets/pokemon/<species_id>.png) + real Kanto badge icons (inline SVG, lit/dim) + per-mon cards
-     + playthrough timer, now-state, objective, want, 3-tier goals. Transparent bg; 1920x1080,
-     pins bottom-left. NO token/runtime counters, NO reasoning transcript — that's Jonny's cockpit.
-     VISIBILITY (the mid-run vanish, 2026-07-29): shown when running OR party data exists — the
-     server's `running` used to read false for script-launched (non-dashboard) supervisors. -->
+<!-- Kira's Pokémon STREAM HUD (OBS browser source) — SLIM COLUMN (2026-08-02).
+     Half-width rethink of the Shangri-La ink+brass HUD (~186px vs 372px). Same
+     /pokemon_hud.json contract. Density tricks: one card shell, badge icons only,
+     type as a left accent rail (no pills), HP as bar+% , goals as a micro timeline,
+     active mon slightly emphasized. Transparent bg; pins bottom-left. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <title>Kira · Pokémon HUD</title>
 <style>
   :root{
-    /* Shangri-La — ink + brass (web app globals.css, night) */
     --ink:#0a090b;
-    --card:rgba(10,9,11,.84); --card2:rgba(255,255,255,.03);
-    --hairline:rgba(212,190,160,.16); --hairline-soft:rgba(212,190,160,.09);
-    --brass:#d4bea0; --brass-bg:rgba(212,190,160,.12); --brass-dim:rgba(212,190,160,.45);
+    --card:rgba(10,9,11,.88); --card2:rgba(255,255,255,.035);
+    --hairline:rgba(212,190,160,.18); --hairline-soft:rgba(212,190,160,.10);
+    --brass:#d4bea0; --brass-bg:rgba(212,190,160,.14); --brass-dim:rgba(212,190,160,.45);
     --cream:#efe7ee; --muted:rgba(222,212,224,.58); --subtle:rgba(222,212,224,.36);
     --rose:#cf8fa6; --sage:#8fbf8f; --amber:#d9b56a;
     --hp-hi:#8fbf8f; --hp-mid:#d9b56a; --hp-lo:#cf7a6a;
+    --rail:186px;
   }
   html,body{margin:0;background:transparent;overflow:hidden;
-    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
-  #hud{position:fixed;left:28px;bottom:28px;width:372px;opacity:0;transition:opacity .8s ease;
-    color:var(--cream);text-shadow:0 1px 2px rgba(0,0,0,.5);}
+    font-family:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif;
+    -webkit-font-smoothing:antialiased;}
+  #hud{position:fixed;left:22px;bottom:22px;width:var(--rail);opacity:0;
+    transition:opacity .8s ease;color:var(--cream);
+    text-shadow:0 1px 2px rgba(0,0,0,.55);}
   #hud.on{opacity:1;}
-  .panel{background:var(--card);border:1px solid var(--hairline);border-radius:12px;
-    backdrop-filter:blur(10px);box-shadow:0 6px 24px rgba(0,0,0,.35);}
 
-  /* ── header ── */
-  .head{padding:14px 16px 13px;margin-bottom:8px;}
-  .row1{display:flex;align-items:center;gap:9px;}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--brass);
-    box-shadow:0 0 8px rgba(212,190,160,.55);flex:none;}
-  .brand{font-family:Georgia,'Times New Roman',serif;font-weight:400;letter-spacing:.14em;
-    font-size:13.5px;text-transform:uppercase;color:var(--cream);}
-  .state{margin-left:auto;font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
-    padding:3px 10px;border-radius:999px;background:var(--brass-bg);color:var(--brass);
-    border:1px solid var(--hairline);white-space:nowrap;}
-  .state.battle{background:rgba(207,143,166,.12);color:var(--rose);border-color:rgba(207,143,166,.28);}
-  .state.healing{background:rgba(143,191,143,.10);color:var(--sage);border-color:rgba(143,191,143,.26);}
-  .state.shopping{background:rgba(217,181,106,.10);color:var(--amber);border-color:rgba(217,181,106,.26);}
-  .meta{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:var(--muted);}
-  .meta .place{color:var(--cream);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .meta .sep{opacity:.35;}
-  .meta #timer{font-variant-numeric:tabular-nums;color:var(--subtle);}
-  .obj{margin-top:9px;font-size:11px;color:var(--brass);display:flex;align-items:center;gap:6px;
-    font-weight:400;line-height:1.35;}
-  .obj svg{flex:none;}
-  .want{margin-top:5px;font-size:10.5px;font-style:italic;color:var(--muted);
-    font-family:Georgia,'Times New Roman',serif;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  /* ── 3-tier goal (short / medium / long) — "stuck vs strategizing" at a glance ── */
+  /* one shell — less chrome than three stacked panels */
+  .shell{background:var(--card);border:1px solid var(--hairline);border-radius:14px;
+    backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(0,0,0,.4);
+    overflow:hidden;}
+
+  /* ── masthead ── */
+  .mast{padding:11px 12px 10px;border-bottom:1px solid var(--hairline-soft);}
+  .row1{display:flex;align-items:center;gap:7px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--brass);
+    box-shadow:0 0 7px rgba(212,190,160,.5);flex:none;}
+  .brand{font-weight:400;letter-spacing:.16em;font-size:11px;text-transform:uppercase;
+    color:var(--cream);line-height:1;}
+  .state{margin-left:auto;font-family:'Segoe UI',system-ui,sans-serif;font-size:8px;
+    font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:2px 7px;
+    border-radius:999px;background:var(--brass-bg);color:var(--brass);
+    border:1px solid var(--hairline);white-space:nowrap;line-height:1.4;}
+  .state.battle{background:rgba(207,143,166,.14);color:var(--rose);border-color:rgba(207,143,166,.3);}
+  .state.healing{background:rgba(143,191,143,.12);color:var(--sage);border-color:rgba(143,191,143,.28);}
+  .state.shopping{background:rgba(217,181,106,.12);color:var(--amber);border-color:rgba(217,181,106,.28);}
+
+  .place-row{display:flex;align-items:baseline;gap:6px;margin-top:7px;
+    font-family:'Segoe UI',system-ui,sans-serif;}
+  .place{font-size:11px;font-weight:600;color:var(--cream);overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;}
+  #timer{font-size:9.5px;font-variant-numeric:tabular-nums;color:var(--subtle);flex:none;}
+
+  .obj{margin-top:7px;font-family:'Segoe UI',system-ui,sans-serif;font-size:10.5px;
+    color:var(--brass);line-height:1.3;display:flex;gap:5px;align-items:flex-start;}
+  .obj .mark{flex:none;margin-top:1px;opacity:.85;}
+  .obj span{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .want{margin-top:4px;font-size:10px;font-style:italic;color:var(--muted);line-height:1.3;
+    overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+
+  /* micro timeline — denser than NOW/NEXT/GOAL word columns */
   .goals{margin-top:9px;padding-top:8px;border-top:1px solid var(--hairline-soft);
-    display:flex;flex-direction:column;gap:3px;}
-  .goal{font-size:10.5px;color:var(--cream);display:flex;gap:7px;align-items:baseline;line-height:1.3;}
-  .goal b{flex:none;font-size:8px;font-weight:600;letter-spacing:.12em;width:34px;
-    color:var(--brass);text-transform:uppercase;}
-  .goal.med b{color:var(--brass-dim);} .goal.long b{color:var(--subtle);}
-  .goal span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);}
-  .goal.now span{color:var(--cream);}
-
-  /* ── badges ── */
-  .badges{display:flex;gap:4px;padding:11px 13px 9px;margin-bottom:8px;align-items:center;}
-  .badge{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
-  .badge svg{width:25px;height:25px;filter:grayscale(1) brightness(.42) opacity(.5);transition:filter .6s ease;}
-  .badge.lit svg{filter:none;}
-  .badge .lbl{font-size:7.5px;letter-spacing:.08em;color:var(--subtle);text-transform:uppercase;}
-  .badge.lit .lbl{color:var(--brass);}
-  .bcount{display:flex;align-items:baseline;gap:2px;margin-left:auto;font-size:12px;font-weight:600;
-    color:var(--brass);font-variant-numeric:tabular-nums;}
-  .bcount span{color:var(--subtle);font-size:10px;font-weight:400;}
-
-  /* ── party cards ── */
-  .party{padding:11px 13px 12px;}
-  .ttl{display:flex;align-items:center;font-size:9px;letter-spacing:.2em;color:var(--subtle);
-    text-transform:uppercase;margin-bottom:9px;font-weight:500;}
-  .mon{display:flex;align-items:center;gap:11px;padding:8px 9px;border-radius:9px;
-    background:var(--card2);border:1px solid var(--hairline-soft);margin-bottom:6px;}
-  .mon:last-child{margin-bottom:0;}
-  .mon .sprite{width:52px;height:52px;flex:none;image-rendering:pixelated;
-    image-rendering:crisp-edges;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));}
-  .mon .ph{width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;
-    font-size:20px;font-weight:700;color:var(--ink);border-radius:9px;}
-  .mon .info{flex:1;min-width:0;}
-  .mon .top{display:flex;align-items:baseline;gap:7px;}
-  .mon .nm{font-weight:600;font-size:13.5px;color:var(--cream);text-transform:capitalize;
+    display:flex;flex-direction:column;gap:0;font-family:'Segoe UI',system-ui,sans-serif;}
+  .goal{display:grid;grid-template-columns:10px 1fr;gap:7px;align-items:start;
+    padding:3px 0;position:relative;}
+  .goal .tick{width:7px;height:7px;border-radius:50%;margin-top:3px;flex:none;
+    border:1.5px solid var(--brass);background:transparent;position:relative;z-index:1;}
+  .goal.now .tick{background:var(--brass);box-shadow:0 0 6px rgba(212,190,160,.45);}
+  .goal.med .tick{border-color:var(--brass-dim);}
+  .goal.long .tick{border-color:var(--subtle);}
+  .goal:not(:last-child)::before{content:"";position:absolute;left:3px;top:12px;bottom:-3px;
+    width:1px;background:linear-gradient(to bottom,var(--hairline),transparent);}
+  .goal .body{min-width:0;}
+  .goal .lbl{font-size:7.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--brass);line-height:1;}
+  .goal.med .lbl{color:var(--brass-dim);} .goal.long .lbl{color:var(--subtle);}
+  .goal .txt{font-size:10px;color:var(--muted);line-height:1.25;margin-top:2px;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .mon .lv{margin-left:auto;font-size:10.5px;font-weight:500;color:var(--brass);flex:none;
+  .goal.now .txt{color:var(--cream);font-weight:500;}
+
+  /* ── badges: icons only, count as a gem ── */
+  .badges{display:flex;flex-wrap:wrap;gap:5px 4px;padding:9px 11px 8px;
+    border-bottom:1px solid var(--hairline-soft);align-items:center;}
+  .badge{width:16px;height:16px;display:flex;align-items:center;justify-content:center;}
+  .badge svg{width:16px;height:16px;filter:grayscale(1) brightness(.4) opacity(.45);
+    transition:filter .5s ease;}
+  .badge.lit svg{filter:none;}
+  .bcount{margin-left:auto;font-family:'Segoe UI',system-ui,sans-serif;
+    font-size:11px;font-weight:700;color:var(--brass);font-variant-numeric:tabular-nums;
+    letter-spacing:.02em;}
+  .bcount span{color:var(--subtle);font-weight:400;font-size:9.5px;}
+
+  /* ── party: compact stack, type as left rail ── */
+  .party{padding:8px 9px 9px;}
+  .ttl{font-family:'Segoe UI',system-ui,sans-serif;font-size:8px;letter-spacing:.2em;
+    color:var(--subtle);text-transform:uppercase;margin:0 2px 7px;font-weight:600;}
+  .mon{display:grid;grid-template-columns:34px 1fr;gap:7px;align-items:center;
+    padding:6px 7px 6px 6px;border-radius:9px;background:var(--card2);
+    border:1px solid var(--hairline-soft);margin-bottom:5px;position:relative;
+    overflow:hidden;}
+  .mon:last-child{margin-bottom:0;}
+  .mon .rail{position:absolute;left:0;top:0;bottom:0;width:3px;opacity:.9;}
+  .mon .sprite{width:34px;height:34px;flex:none;image-rendering:pixelated;
+    image-rendering:crisp-edges;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));
+    justify-self:center;}
+  .mon .ph{width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+    font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;font-weight:700;
+    color:var(--ink);border-radius:7px;}
+  .mon .info{min-width:0;}
+  .mon .top{display:flex;align-items:baseline;gap:4px;font-family:'Segoe UI',system-ui,sans-serif;}
+  .mon .nm{font-weight:650;font-size:11.5px;color:var(--cream);text-transform:capitalize;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+  .mon .lv{margin-left:auto;font-size:9.5px;font-weight:600;color:var(--brass);flex:none;
     font-variant-numeric:tabular-nums;}
-  .types{display:flex;gap:4px;margin:4px 0 5px;}
-  .type{font-size:8px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-    padding:2px 6px;border-radius:4px;color:rgba(255,255,255,.92);
-    text-shadow:0 1px 1px rgba(0,0,0,.4);opacity:.88;}
-  .hpwrap{display:flex;align-items:center;gap:7px;}
-  .bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;}
-  .fill{height:100%;border-radius:3px;transition:width .5s ease,background .5s ease;}
-  .hpnum{font-size:9.5px;color:var(--muted);font-variant-numeric:tabular-nums;flex:none;
-    min-width:46px;text-align:right;}
-  .mon.fainted{opacity:.4;}
-  /* the mon ACTUALLY fighting right now (mid-battle) — brass edge + ON FIELD tag, so a faint or a
-     mid-battle switch can never make the top card read as "who's out" (2026-07-30 fix) */
-  .mon.active{border-color:rgba(212,190,160,.55);box-shadow:0 0 0 1px rgba(212,190,160,.25);}
-  .onfield{font-size:7.5px;font-weight:700;letter-spacing:.14em;color:#0d0c0e;background:var(--brass);
-    border-radius:3px;padding:1.5px 5px;margin-left:6px;flex:none;text-transform:uppercase;}
-  .empty{color:var(--muted);font-size:11.5px;font-style:italic;padding:4px 2px;
-    font-family:Georgia,'Times New Roman',serif;}
+  .onfield{font-family:'Segoe UI',system-ui,sans-serif;font-size:6.5px;font-weight:800;
+    letter-spacing:.1em;color:#0d0c0e;background:var(--brass);border-radius:2px;
+    padding:1px 4px;flex:none;text-transform:uppercase;align-self:center;}
+  .hpwrap{display:flex;align-items:center;gap:5px;margin-top:4px;}
+  .bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;}
+  .fill{height:100%;border-radius:2px;transition:width .5s ease,background .5s ease;}
+  .hpnum{font-family:'Segoe UI',system-ui,sans-serif;font-size:8.5px;color:var(--muted);
+    font-variant-numeric:tabular-nums;flex:none;min-width:28px;text-align:right;}
+  .mon.fainted{opacity:.38;}
+  .mon.fainted .fill{width:0!important;}
+  .mon.active{border-color:rgba(212,190,160,.55);
+    box-shadow:inset 0 0 0 1px rgba(212,190,160,.18),0 0 12px rgba(212,190,160,.12);
+    background:rgba(212,190,160,.06);}
+  .mon.active .sprite{width:38px;height:38px;}
+  .empty{font-size:11px;font-style:italic;color:var(--muted);padding:6px 4px;}
 </style>
 </head>
 <body>
 <div id="hud">
-  <div class="panel head">
-    <div class="row1"><span class="dot"></span><span class="brand">Kira · the climb</span>
-      <span class="state" id="state">Exploring</span></div>
-    <div class="meta"><span class="place" id="place">—</span>
-      <span class="sep" id="sepT">·</span><span id="timer"></span></div>
-    <div class="obj" id="objWrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-      stroke="#d4bea0" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.6" fill="#d4bea0"/></svg>
-      <span id="obj"></span></div>
-    <div class="want" id="want"></div>
-    <div class="goals" id="goals">
-      <div class="goal now"><b>Now</b><span id="gShort"></span></div>
-      <div class="goal med"><b>Next</b><span id="gMed"></span></div>
-      <div class="goal long"><b>Goal</b><span id="gLong"></span></div>
+  <div class="shell">
+    <div class="mast">
+      <div class="row1"><span class="dot"></span><span class="brand">Kira</span>
+        <span class="state" id="state">Exploring</span></div>
+      <div class="place-row"><span class="place" id="place">—</span><span id="timer"></span></div>
+      <div class="obj" id="objWrap"><svg class="mark" width="9" height="9" viewBox="0 0 24 24" fill="none"
+        stroke="#d4bea0" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.6" fill="#d4bea0"/></svg>
+        <span id="obj"></span></div>
+      <div class="want" id="want"></div>
+      <div class="goals" id="goals">
+        <div class="goal now"><span class="tick"></span><div class="body"><div class="lbl">Now</div><div class="txt" id="gShort"></div></div></div>
+        <div class="goal med"><span class="tick"></span><div class="body"><div class="lbl">Next</div><div class="txt" id="gMed"></div></div></div>
+        <div class="goal long"><span class="tick"></span><div class="body"><div class="lbl">Goal</div><div class="txt" id="gLong"></div></div></div>
+      </div>
     </div>
+    <div class="badges" id="badges"></div>
+    <div class="party"><div class="ttl">the team</div><div id="party"></div></div>
   </div>
-  <div class="panel badges" id="badges"></div>
-  <div class="panel party"><div class="ttl">the team</div><div id="party"></div></div>
 </div>
 <script>
 const BADGES = ["Boulder","Cascade","Thunder","Rainbow","Soul","Marsh","Volcano","Earth"];
-// Real Kanto badge icons as inline SVG (their actual shapes + official colours), lit when earned.
 const BADGE_SVG = {
   Boulder:`<polygon points="12,2 20,7 20,17 12,22 4,17 4,7" fill="#9b9486" stroke="#cfc7b6" stroke-width="1.2"/>`,
   Cascade:`<path d="M12 2 C12 2 4 12 4 16 a8 8 0 0 0 16 0 C20 12 12 2 12 2Z" fill="#4fa8e0" stroke="#bfe4fb" stroke-width="1.2"/>`,
@@ -151,63 +170,81 @@ const TYPE_COLOR = {normal:"#9aa0a8",fire:"#ff9d55",water:"#4d90d5",electric:"#e
 const SPRITE = id => `/web_dashboard/assets/pokemon/${id}.png`;
 function hpColor(f){ return f>0.5?'var(--hp-hi)':f>0.2?'var(--hp-mid)':'var(--hp-lo)'; }
 function el(id){ return document.getElementById(id); }
-function fmtTime(s){ if(s==null) return ''; s=Math.floor(s); const h=Math.floor(s/3600), m=Math.floor((s%3600)/60);
-  return h>0 ? `${h}h ${m}m` : `${m}m`; }
+function fmtTime(s){
+  if(s==null) return '';
+  s=Math.floor(s);
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60);
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+// Short place labels for the slim rail (still readable at a glance).
+function shortPlace(p){
+  if(!p) return '—';
+  return String(p)
+    .replace(/\bPok[eé]mon\b/gi,'PkMn')
+    .replace(/\bDepartment Store\b/gi,'Dept')
+    .replace(/\bGame Corner\b/gi,'Game Corner')
+    .replace(/\bRocket Hideout\b/gi,'Hideout')
+    .replace(/\bCity\b/g,'').replace(/\bTown\b/g,'').replace(/\s+/g,' ').trim() || p;
+}
 
 function render(d){
-  // Visible when running OR game data exists — `running` reads false for runs the dashboard
-  // didn't spawn itself (marathon script's supervisor), which vanished the HUD mid-stream.
   const alive = !!d.running || ((d.party||[]).length > 0);
   el('hud').classList.toggle('on', alive);
-  // now-state pill
   const stt = (d.now_state||'EXPLORING').toUpperCase();
-  const sEl = el('state'); sEl.textContent = stt.charAt(0)+stt.slice(1).toLowerCase();
+  const sEl = el('state');
+  sEl.textContent = stt.charAt(0)+stt.slice(1).toLowerCase();
   sEl.className = 'state ' + ({BATTLE:'battle',HEALING:'healing',SHOPPING:'shopping'}[stt]||'');
-  el('place').textContent = d.place || '—';
-  // Label the journey total so a NEW viewer reads it instantly as run time, not session/uptime
-  // (2026-07-31: the raw "8h 12m" was ambiguous — whose 8 hours?).
-  const t = fmtTime(d.playthrough_s); el('timer').textContent = t ? `run time ${t}` : '';
-  el('sepT').style.display = t?'':'none';
+  el('place').textContent = shortPlace(d.place);
+  el('place').title = d.place || '';
+  // Compact timer — "12h 4m" reads as run time next to place; drop the "run time" words.
+  const t = fmtTime(d.playthrough_s);
+  el('timer').textContent = t;
+  el('timer').title = t ? `playthrough ${t}` : '';
   el('obj').textContent = d.objective || '';
   el('objWrap').style.display = d.objective ? '' : 'none';
   el('want').textContent = d.want ? `“${d.want}”` : '';
   el('want').style.display = d.want ? '' : 'none';
-  // 3-tier goal (short/medium/long): what she's doing now, the obstacle she's prepping for, the milestone
   const g = d.goals || {};
   el('gShort').textContent = g.short || '';
   el('gMed').textContent   = g.medium || '';
   el('gLong').textContent  = g.long || '';
   el('goals').style.display = (g.short || g.medium || g.long) ? '' : 'none';
+  // Hide empty tiers so the timeline doesn't show hollow ticks.
+  el('goals').querySelectorAll('.goal').forEach((node, i)=>{
+    const key = ['short','medium','long'][i];
+    node.style.display = g[key] ? '' : 'none';
+  });
 
-  // badge row — lit by count (canonical order), real badge graphics
   const n = d.badge_count||0;
   el('badges').innerHTML = BADGES.map((b,i)=>
-    `<div class="badge ${i<n?'lit':''}"><svg viewBox="0 0 24 24">${BADGE_SVG[b]}</svg><div class="lbl">${b}</div></div>`
+    `<div class="badge ${i<n?'lit':''}" title="${b}${i<n?' — earned':''}"><svg viewBox="0 0 24 24">${BADGE_SVG[b]}</svg></div>`
   ).join('') + `<div class="bcount">${n}<span>/8</span></div>`;
 
-  // party cards — real sprite + name + level + type badges + HP bar
   const party = d.party||[];
   el('party').innerHTML = party.length ? party.map(m=>{
     const hp = m.hp!=null?m.hp:0, mx = m.maxhp||1, f = Math.max(0, Math.min(1, hp/mx));
     const fainted = hp<=0, nm = m.species||'?', id = m.species_id;
-    const types = (m.types||[]).map(t=>
-      `<span class="type" style="background:${TYPE_COLOR[t]||'#777'}">${t}</span>`).join('');
-    const phColor = TYPE_COLOR[(m.types||[])[0]] || '#d4bea0';
+    const t0 = (m.types||[])[0], t1 = (m.types||[])[1];
+    const rail = t0
+      ? `<span class="rail" style="background:${t1
+          ? `linear-gradient(${TYPE_COLOR[t0]||'#777'},${TYPE_COLOR[t1]||'#777'})`
+          : (TYPE_COLOR[t0]||'#777')}" title="${(m.types||[]).join(' / ')}"></span>`
+      : '';
+    const phColor = TYPE_COLOR[t0] || '#d4bea0';
     const letter = (nm[0]||'?').toUpperCase();
-    // sprite with a clean fallback: on load-error hide the img and reveal the letter placeholder.
     const art = id
       ? `<img class="sprite" src="${SPRITE(id)}" alt="${nm}"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
          <div class="ph" style="display:none;background:${phColor}">${letter}</div>`
       : `<div class="ph" style="background:${phColor}">${letter}</div>`;
-    return `<div class="mon ${fainted?'fainted':''} ${m.active?'active':''}">
-      ${art}
+    const hpLabel = fainted ? 'KO' : `${Math.round(f*100)}%`;
+    return `<div class="mon ${fainted?'fainted':''} ${m.active?'active':''}" title="${nm} · ${(m.types||[]).join('/') || '—'}${fainted?' · fainted':''}">
+      ${rail}${art}
       <div class="info">
-        <div class="top"><span class="nm">${nm}</span>${m.active?'<span class="onfield">on field</span>':''}<span class="lv">Lv ${m.level||'?'}</span></div>
-        <div class="types">${types}</div>
+        <div class="top"><span class="nm">${nm}</span>${m.active?'<span class="onfield">out</span>':''}<span class="lv">L${m.level||'?'}</span></div>
         <div class="hpwrap">
           <div class="bar"><div class="fill" style="width:${(f*100).toFixed(0)}%;background:${hpColor(f)}"></div></div>
-          <span class="hpnum">${hp}/${mx}</span>
+          <span class="hpnum">${hpLabel}</span>
         </div>
       </div></div>`;
   }).join('') : `<div class="empty">just getting started…</div>`;
