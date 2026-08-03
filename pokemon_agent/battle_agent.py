@@ -2338,6 +2338,13 @@ class BattleAgent:
                 # Back at ACTION menu (menu_up==1) with no change = turn didn't leave.
                 if self._at_action_menu() and stable >= 20:
                     break
+                # Parked back at the MOVE LIST with no change = the game REFUSED the pick
+                # ("no PP left" bounce). Don't burn the whole 600-frame budget per refusal —
+                # that made the (working) exile->famine->switch ladder take minutes on stream
+                # (2026-08-03 08:56: "the exact same loop"). Bail fast; the failure branch
+                # counts the refusal.
+                if self._at_move_list() and stable >= 30:
+                    break
             # Advance text without B while white (B flees / closes menus).
             if not self._white_box():
                 self.b.press("A", 2, 8, self.render, owner=self.owner)
