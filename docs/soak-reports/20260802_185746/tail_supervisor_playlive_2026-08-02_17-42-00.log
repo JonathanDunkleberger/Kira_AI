@@ -1,0 +1,1500 @@
+   [campaign]    [roam] ROAD to Celadon City: off-road at (1, 33) — steering toward road anchor Celadon City (warp (5, 8))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(7, 4) -> coord (5, 8) (budget 300s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 33) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    door (5, 8): at (5, 8) (approach=(5, 9)) — stepping UP in
+
+   [dialogue] +++ 'I heard a sleepy POK.MON appeared out near CELADON CITY, too.'  tags=['PLACE']
+
+   [kira-voice]    (dialogue tags: place)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I heard a sleepy POK.MON appeared out near CELADON CITY, too."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(5, 7) -> coord (6, 7) (budget 60s)
+
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    WARPED (1, 33) -> (3, 25) via mat-row door (6, 8)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 33)(7, 4) -> (3, 25)(7, 15) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 25) coords=(7, 15) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_180647_route-7_3b_19h33m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 7 (7, 15) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 25) (7,15) f1 -- badge3 $18044 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 7
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 7 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L43), ekans (L16), spearow (L17), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 25), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L43), ekans (L16), spearow (L17), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': "Your ace already clears Erika's level bar — march to Celadon City; train the bench on the road (not parked grass)", 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Eevee from Celadon City'
+
+   [campaign]    [soul] ORACLE pick -> 'Eevee from Celadon City'
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:exeggcute: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:exeggcute: team floor < L25 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L25) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Celadon City: on Route 7 — billed leg west toward Celadon City
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the road to Celadon City runs west from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (want) 'Eevee from Celadon City'  fired=True  [age 0.0s + post 12ms]
+
+   [travel] start map=(3, 25) coords=(7, 15) -> map (3, 6) (budget 300s)
+
+   [travel] west connection band rows: [2, 3, 4, 5]
+
+   [travel] step 0: (7, 15)->(8, 15) map=(3, 25) (path 24 to exit)
+
+   [travel] step 10: (9, 9)->(8, 9) map=(3, 25) (path 14 to exit)
+
+   [travel] step 20: (3, 5)->(2, 5) map=(3, 25) (path 4 to exit)
+
+   [travel] MAP TRANSITION (3, 25) -> (3, 6)
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 22, 23, 24, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 6) coords=(59, 15)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L43) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 25)(7, 15) -> (3, 6)(59, 15) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 6) coords=(59, 15) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_180652_celadon-city_3b_19h33m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 25) toward Route 7 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! CELADON→ERIKA LOCK: force head_to_gym; unpark dead routes; prune grass/tourism (map=(3, 6))
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: Celadon City (59, 15) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 6) (59,15) f3 -- badge3 $18044 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:exeggcute: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:exeggcute: team floor < L25 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipped — already at the gym city, ace leads the door
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Erika's city (3, 6) — ENTERING the gym to take the badge
+
+   [campaign]    GYM-PREP [Erika]: Ice Beam errand OFF (default) — walking into the gym NOW
+
+   [kira-voice] -> T2·savor· (gym) "okay. Erika's gym — and this is the wall that's been beating me. deep breath. this is the one. here we go."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    GYM-PREP [Erika]: ACE CARRIES / DOMINANT — skipping catch+grind (no Celadon grass farm; walking into the gym NOW)
+
+   [kira-voice] ·floor· (<1s since last) T2 "bench is thin but the ace already clears Erika — we're walking in. they can catch XP on the road after."
+
+   [campaign]    12 door(s); candidates (chosen order): [(11, 30)]
+
+   [campaign]    reachable door (11, 30): walking to approach (11, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(59, 15) -> coord (11, 31) (budget 300s)
+
+   [travel] step 0: (59, 15)->(58, 15) map=(3, 6) (path 93 to exit)
+
+   [travel] step 10: (51, 17)->(50, 17) map=(3, 6) (path 83 to exit)
+
+   [travel] step 20: (43, 19)->(43, 20) map=(3, 6) (path 73 to exit)
+
+   [travel] step 30: (39, 25)->(38, 25) map=(3, 6) (path 63 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 6) coords=(31, 27) elapsed=5s
+
+   [travel] step 40: (31, 27)->(31, 28) map=(3, 6) (path 53 to exit)
+
+   [travel] step 50: (35, 33)->(36, 33) map=(3, 6) (path 43 to exit)
+
+   [travel] path blocked at (40, 34) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (40, 34); NPC-allowing path EXISTS (len 37), blocker NPC tile=(40, 35), npcs nearby=[(40, 31), (40, 35)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 6)@(40, 34) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 19ms]
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "RATTATA used CUT!"'
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (40, 35) on (3, 6) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    12 door(s); candidates (chosen order): [(11, 30)]
+
+   [campaign]    reachable door (11, 30): walking to approach (11, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(40, 34) -> coord (11, 31) (budget 300s)
+
+   [travel] step 0: (40, 34)->(40, 35) map=(3, 6) (path 37 to exit)
+
+   [travel] step 10: (32, 36)->(31, 36) map=(3, 6) (path 27 to exit)
+
+   [travel] step 20: (23, 35)->(22, 35) map=(3, 6) (path 17 to exit)
+
+   [travel] step 30: (14, 34)->(13, 34) map=(3, 6) (path 7 to exit)
+
+   [travel] reached target coord (11, 31)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 16) via door (11, 30)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 16): (5, 18)->(3, 6), (6, 18)->(3, 6), (7, 18)->(3, 6)
+
+   [campaign]    GYM: inside (10, 16) at (6, 18) - clearing junior trainers
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 18) -> coord (6, 5) (budget 90s)
+
+   [travel] step 0: (6, 18)->(6, 17) map=(10, 16) (path 14 to exit)
+
+   [travel] releasing 1 stale NPC block(s) [(7, 10)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] path blocked at (6, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (6, 9); NPC-allowing path EXISTS (len 5), blocker NPC tile=(6, 8), npcs nearby=[(2, 6), (3, 5), (3, 11), (5, 4), (6, 4), (6, 8), (7, 4), (8, 7), (9, 6), (9, 10), (10, 7)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (10, 16)@(6, 9) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "RATTATA used CUT!"'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (6, 8) on (10, 16) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj9 at (5, 4) (facing 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 9) -> coord (5, 5) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 9) -> coord (6, 4) (budget 90s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (6, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (6, 9); NPC-allowing path EXISTS (len 6), blocker NPC tile=(6, 4), npcs nearby=[(2, 6), (3, 5), (3, 11), (5, 4), (6, 4), (7, 4), (8, 7), (9, 6), (9, 10), (10, 7)] -> approaching to interact/trigger
+
+   [dialogue] +++ "Hello.. Lovely weather, isn't it? It's so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a student of the art of flower arranging. M"  tags=['GYM_LEADER', 'PLACE']
+
+   [kira-voice]    (dialogue tags: gym_leader, place)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a student of the art of flower arranging. M"'  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (10, 16)@(6, 5) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [travel-uwatch] fp[(10, 16) (6,5) f2 D- badge3 $18044 party:86a6 bag:d727] blocker box re-check same=True (limit 2)
+
+   [travel] chokepoint blocker (6, 4) on (10, 16) is a PLAIN NPC (dialogue, no battle) -> added to shared block memory (3 total) + routing around (LAYER A)
+
+   [travel] !! NO ROUTE around plain-NPC blocker (6, 4) on (10, 16) -> no_route_npc_blocked (oracle should pick differently)
+
+   [campaign]    GYM: junior obj9 didn't engage (try 1/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj9 at (5, 4) (facing 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) "the only way through is blocked by someone who won't budge — I'll have to find another way or do something else."  fired=True  [age 0.0s + post 6ms]
+
+   [travel] start map=(10, 16) coords=(6, 5) -> coord (5, 5) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 5) -> coord (6, 4) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    GYM: junior obj9 didn't engage (try 2/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj9 at (5, 4) (facing 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 5) -> coord (5, 5) (budget 90s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (6, 5) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (6, 5); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(2, 6), (3, 5), (3, 11), (5, 4), (6, 4), (7, 4), (8, 7), (9, 6), (9, 10), (10, 7)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 13ms]
+
+   [play-live] battle context: trainer=True foe=exeggcute rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against victreebel — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'kadabra eats grass/poison types for breakfast — super-effective, switching in. the type chart never lies.'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'your kadabra took a big hit'
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra took a big hit'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra used Confusion - a super-effective hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra fainted'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'spearow eats grass/poison types for breakfast — super-effective, switching in. the type chart never lies.'  fired=True  [age 0.0s + post 91ms]
+
+   [kira-voice] -> T2·savor· (event) 'your spearow took a big hit'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) 'your spearow fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) 'butterfree eats grass/poison types for breakfast — super-effective, switching in. the type chart never lies.'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'your butterfree took a big hit'
+
+   [kira-voice] -> T2·savor· (event) 'your butterfree took a big hit'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your butterfree fainted'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's victreebel fainted — your blastoise took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out tangela'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) "ekans, you're up — that's a grass/grass type and you hit it DOUBLE super-effective. this is just bullying."  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'your ekans took a big hit'
+
+   [kira-voice] -> T2·savor· (event) 'your ekans took a big hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your ekans fainted'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 43'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's tangela fainted — your blastoise took it down"  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out vileplume'  fired=True  [age 0.0s + post 11ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise fainted'  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay this is bad — I'm down to my last one. everyone else is out. if this one drops, we're done. come on…"
+
+   [travel] blocker battle outcome=timeout; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+
+   [play-live] battle context: trainer=True foe=vileplume rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. and we're going in HURT — this could get scary."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against vileplume — your rattata is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata used move#158 - a STAB hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata took a big hit'  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata used move#158 - a STAB hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your rattata fainted'  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] -> T3·BIG· (event) 'you lost - your rattata fainted'  fired=True  [age 0.0s + post 15ms]
+
+   [dialogue] +++ 'KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm.."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [strat] LOSS recorded vs trainer:the Celadon Gym:tangela+victreebel+vileplume (now 1x) at map=(10, 16) — SPATIAL wall active (gated until stronger)
+
+   [campaign]    GYM: junior trainer -> loss
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'First, you should restore your POK.MON to full health.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "First, you should restore your POK.MON to full health."'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [dlg trainer] 'First, you should restore your POK.MON to full health.'
+
+   [campaign]    [dlg-uwatch trainer] fp[(8, 0) (7,4) f2 D- badge3 $16496 party:86a6 bag:d727] same line, frozen world x15/90
+
+   [dialogue] +++ 'Your POK.MON have been healed to perfect health. We hope you excel!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your POK.MON have been healed to perfect health. We hope you excel!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg trainer] 'Your POK.MON have been healed to perfect health. We hope you excel!'
+
+   [campaign]    [dlg-pace trainer] box 'First, you should restore your POK.MON to full h' visible 7.77s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace trainer] box 'Your POK.MON have been healed to perfect health.' visible 4.23s (sink 0ms, hold 0.11s, end=closed)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(8, 0) coords=(7, 4) -> coord (6, 5) (budget 90s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(8, 0) (path 3 to exit)
+
+   [travel] reached target coord (6, 5)
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [9])
+
+   [campaign]    GYM: no longer in the gym ((8, 0) != (10, 16)) - blackout during the juniors; caller recovers + retries the gym
+
+   [campaign]    GYM-PREP: 'Erika' loss -> prep demand escalated (+2 → bump 10); the retry grinds/teams up higher
+
+   [campaign]    [roam] RESULT: head_to_gym -> battle_loss | pos (3, 6)(59, 15) -> (8, 0)(6, 5) (MOVED)
+
+   [campaign]    [soul] note_faint FIRE -> blastoise; note_outcome FIRE -> won=False
+
+   [kira-voice] ·floor· (<1s since last) T2 "blastoise is down - I've got you, take a rest"
+
+   [kira-voice] ·floor· (<1s since last) T1 'we went down'
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(8, 0) coords=(6, 5) badges=3 party=6)
+
+   [kira-voice] -> T2·savor· (gym) 'no — no, we lost it. Erika got me. okay… that one hurts. I need to come back stronger.'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_181628_the-lavender-pok-mon-center_3b_19h43m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] whiteout relocated her (10, 16) -> (8, 0) after a loss (party healed) -> clearing _ql_inside_target (let the stranded-in-building recovery exit her to the overworld)
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (8, 0)@(6, 5) — exiting to the overworld to re-orient
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(8, 0) coords=(6, 5) -> coord (7, 7) (budget 60s)
+
+   [travel] step 0: (6, 5)->(6, 6) map=(8, 0) (path 4 to exit)
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    EXIT-BUILDING: (8, 0) -> (3, 4)@(6, 6)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 26) toward Route 8 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (6, 6) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (6,6) f1 -- badge3 $16496 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 2 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — spearow now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Celadon City: on Lavender Town — billed leg west toward Route 8
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (route) 'the road to Celadon City runs west from here — onward.'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] start map=(3, 4) coords=(6, 6) -> map (3, 26) (budget 300s)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] step 0: (6, 6)->(6, 7) map=(3, 4) (path 10 to exit)
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+
+   [travel] ARRIVED at target map (3, 26) coords=(71, 9)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 2, L43) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(6, 6) -> (3, 26)(71, 9) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(71, 9) badges=3 party=6)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 22ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_181640_route-8_3b_19h43m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,25', 'travel:3,27', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (71, 9) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (71,9) f3 -- badge3 $16496 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 8
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 8 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L43), ekans (L16), spearow (L17), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 26), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L43), ekans (L16), spearow (L17), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': "Your ace already clears Erika's level bar — march to Celadon City; train the bench on the road (not parked grass)", 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Celadon City, grab that Eevee'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Celadon City, grab that Eevee'
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Celadon City, grab that Eevee'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_GOT_TEA → steps=['FLAG_GOT_TEA'] actionable=FLAG_GOT_TEA (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron's gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron)."
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron's gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron)' anchors on Celadon City and we're at Route 8 — warp -> (1, 35) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 9) -> coord (13, 4) (budget 300s)
+
+   [travel] path blocked at (71, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (71, 9) AND no NPC-allowing path (npcs nearby=[(62, 14)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (71, 9) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    6 door(s); candidates (chosen order): [(13, 4)]
+
+   [campaign]    reachable door (13, 4): walking to approach (13, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 26) coords=(71, 9) -> coord (13, 5) (budget 300s)
+
+   [travel] step 0: (71, 9)->(71, 10) map=(3, 26) (path 89 to exit)
+
+   [travel] step 10: (67, 15)->(66, 15) map=(3, 26) (path 79 to exit)
+
+   [travel] step 20: (58, 14)->(57, 14) map=(3, 26) (path 69 to exit)
+
+   [travel] step 30: (55, 7)->(54, 7) map=(3, 26) (path 59 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 26) coords=(45, 7) elapsed=5s
+
+   [travel] step 40: (45, 7)->(44, 7) map=(3, 26) (path 49 to exit)
+
+   [travel] step 50: (35, 7)->(34, 7) map=(3, 26) (path 39 to exit)
+
+   [travel] step 60: (32, 14)->(31, 14) map=(3, 26) (path 29 to exit)
+
+   [travel] step 70: (22, 14)->(21, 14) map=(3, 26) (path 19 to exit)
+
+   [travel] HEARTBEAT step=80 map=(3, 26) coords=(18, 8) elapsed=11s
+
+   [travel] step 80: (18, 8)->(18, 7) map=(3, 26) (path 9 to exit)
+
+   [travel] reached target coord (13, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 26) -> (1, 35) via door (13, 4)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L43) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (3, 26)(71, 9) -> (1, 35)(6, 8) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 35) coords=(6, 8) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_181701_the-underground-path_3b_19h43m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 35)@(6, 8) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 11/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (6, 8) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 35) (6,8) f2 -- badge3 $16496 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Celadon City: off-road at (1, 35) — steering toward road anchor Celadon City (warp (7, 4))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (7, 4) (budget 300s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 35) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [campaign]    2 door(s); candidates (chosen order): [(7, 4)]
+
+   [campaign]    door (7, 4): at (7, 4) (approach=(7, 5)) — stepping UP in
+
+   [campaign]    reachable door (7, 4): walking to approach (7, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(7, 2) -> coord (7, 5) (budget 300s)
+
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 35) (path 4 to exit)
+
+   [travel] reached target coord (7, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(7, 2) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 35) (path 4 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    WARPED (1, 35) -> (1, 34) via directional door (7, 4)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 35)(6, 8) -> (1, 34)(76, 3) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 34) coords=(76, 3) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_181722_the-underground-path_3b_19h44m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 34)@(76, 3) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 12/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (76, 3) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 34) (76,3) f3 -- badge3 $16496 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Celadon City: off-road at (1, 34) — steering toward road anchor Celadon City (warp (3, 4))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(76, 3) -> coord (3, 4) (budget 300s)
+
+   [travel] step 0: (76, 3)->(76, 4) map=(1, 34) (path 75 to exit)
+
+   [travel] step 10: (67, 4)->(66, 4) map=(1, 34) (path 65 to exit)
+
+   [travel] step 20: (57, 4)->(56, 4) map=(1, 34) (path 55 to exit)
+
+   [travel] step 30: (47, 4)->(46, 4) map=(1, 34) (path 45 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(37, 4) elapsed=5s
+
+   [travel] step 40: (37, 4)->(36, 4) map=(1, 34) (path 35 to exit)
+
+   [travel] step 50: (27, 4)->(26, 4) map=(1, 34) (path 25 to exit)
+
+   [travel] step 60: (17, 4)->(16, 4) map=(1, 34) (path 15 to exit)
+
+   [travel] step 70: (7, 4)->(6, 4) map=(1, 34) (path 5 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [campaign]    5 door(s); candidates (chosen order): [(3, 4)]
+
+   [campaign]    door (3, 4): at (3, 4) (approach=(3, 5)) — stepping UP in
+
+   [campaign]    reachable door (3, 4): walking to approach (3, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(3, 2) -> coord (3, 5) (budget 300s)
+
+   [travel] step 0: (3, 2)->(3, 3) map=(1, 34) (path 4 to exit)
+
+   [travel] reached target coord (3, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(3, 2) -> coord (4, 4) (budget 60s)
+
+   [travel] step 0: (3, 2)->(3, 3) map=(1, 34) (path 4 to exit)
+
+   [travel] reached target coord (4, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (3, 4) (behavior 0x6d) entered via LEFT
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    WARPED (1, 34) -> (1, 33) via directional door (3, 4)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 34)(76, 3) -> (1, 33)(7, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 33) coords=(7, 4) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_181751_the-underground-path_3b_19h44m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 33)@(7, 4) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 13/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (7, 4) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 33) (7,4) f4 -- badge3 $16496 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> the Underground Path
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in the Underground Path — indoors, inside a building (rooms and doors — NOT a cave).. ALREADY BESIDE YOU — your current team: blastoise (L43), ekans (L16), spearow (L17), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 33), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L43), ekans (L16), spearow (L17), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': "Your ace already clears Erika's level bar — march to Celadon City; train the bench on the road (not parked grass)", 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='eevee'
+
+   [campaign]    [soul] ORACLE pick -> 'eevee'
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [kira-voice] -> T2·savor· (want) 'eevee'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Celadon City: off-road at (1, 33) — steering toward road anchor Celadon City (warp (5, 8))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(7, 4) -> coord (5, 8) (budget 300s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 33) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    door (5, 8): at (5, 8) (approach=(5, 9)) — stepping UP in
+
+   [dialogue] +++ 'I heard a sleepy POK.MON appeared out near CELADON CITY, too.'  tags=['PLACE']
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "I heard a sleepy POK.MON appeared out near CELADON CITY, too."'
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(5, 7) -> coord (6, 7) (budget 60s)
+
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    WARPED (1, 33) -> (3, 25) via mat-row door (6, 8)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 33)(7, 4) -> (3, 25)(7, 15) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 25) coords=(7, 15) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_181816_route-7_3b_19h45m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'travel:3,43', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 14/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 7 (7, 15) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 25) (7,15) f1 -- badge3 $16496 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 2 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — spearow now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L30) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Celadon City: on Route 7 — billed leg west toward Celadon City
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the road to Celadon City runs west from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(7, 15) -> map (3, 6) (budget 300s)
+
+   [travel] west connection band rows: [2, 3, 4, 5]
+
+   [travel] step 0: (7, 15)->(8, 15) map=(3, 25) (path 24 to exit)
+
+   [travel] step 10: (9, 9)->(8, 9) map=(3, 25) (path 14 to exit)
+
+   [travel] step 20: (3, 5)->(2, 5) map=(3, 25) (path 4 to exit)
+
+   [travel] MAP TRANSITION (3, 25) -> (3, 6)
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 22, 23, 24, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 6) coords=(59, 15)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 2, L43) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 25)(7, 15) -> (3, 6)(59, 15) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 6) coords=(59, 15) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_181820_celadon-city_3b_19h45m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 25) toward Route 7 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_TEA' errand, not Erika's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! CELADON→ERIKA LOCK: force head_to_gym; unpark dead routes; prune grass/tourism (map=(3, 6))
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Erika); pruned ['travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 15/100000000 --
+
+   [campaign]    [roam] STATE IN: Celadon City (59, 15) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L43, ekans L16, spearow L17, rattata L18, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 6) (59,15) f3 -- badge3 $16496 party:86a6 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:the Celadon Gym:tangela+victreebel+vileplume: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:the Celadon Gym:tangela+victreebel+vileplume: team floor < L30 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipped — already at the gym city, ace leads the door
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Erika's city (3, 6) — ENTERING the gym to take the badge
+
+   [campaign]    GYM-PREP [Erika]: Ice Beam errand OFF (default) — walking into the gym NOW
+
+   [kira-voice] -> T2·savor· (gym) "okay. Erika's gym — and this is the wall that's been beating me. deep breath. this is the one. here we go."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    GYM-PREP [Erika]: ACE CARRIES / DOMINANT — skipping catch+grind (no Celadon grass farm; walking into the gym NOW)
+
+   [kira-voice] ·floor· (<1s since last) T2 "bench is thin but the ace already clears Erika — we're walking in. they can catch XP on the road after."
+
+   [campaign]    12 door(s); candidates (chosen order): [(11, 30)]
+
+   [campaign]    reachable door (11, 30): walking to approach (11, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(59, 15) -> coord (11, 31) (budget 300s)
+
+   [travel] step 0: (59, 15)->(58, 15) map=(3, 6) (path 93 to exit)
+
+   [travel] step 10: (51, 17)->(50, 17) map=(3, 6) (path 83 to exit)
+
+   [travel] step 20: (43, 19)->(43, 20) map=(3, 6) (path 73 to exit)
+
+   [travel] step 30: (39, 25)->(38, 25) map=(3, 6) (path 63 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 6) coords=(31, 27) elapsed=5s
+
+   [travel] step 40: (31, 27)->(31, 28) map=(3, 6) (path 53 to exit)
+
+   [travel] step 50: (35, 33)->(36, 33) map=(3, 6) (path 43 to exit)
+
+   [travel] path blocked at (40, 34) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (40, 34); NPC-allowing path EXISTS (len 37), blocker NPC tile=(40, 35), npcs nearby=[(40, 31), (40, 35)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'  fired=True  [age 0.0s + post 20ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 6)@(40, 34) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "RATTATA used CUT!"'
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.79s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (40, 35) on (3, 6) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    12 door(s); candidates (chosen order): [(11, 30)]
+
+   [campaign]    reachable door (11, 30): walking to approach (11, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(40, 34) -> coord (11, 31) (budget 300s)
+
+   [travel] step 0: (40, 34)->(40, 35) map=(3, 6) (path 37 to exit)
+
+   [travel] step 10: (32, 36)->(31, 36) map=(3, 6) (path 27 to exit)
+
+   [travel] step 20: (23, 35)->(22, 35) map=(3, 6) (path 17 to exit)
+
+   [travel] step 30: (14, 34)->(13, 34) map=(3, 6) (path 7 to exit)
+
+   [travel] reached target coord (11, 31)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 16) via door (11, 30)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 16): (5, 18)->(3, 6), (6, 18)->(3, 6), (7, 18)->(3, 6)
+
+   [campaign]    GYM: inside (10, 16) at (6, 18) - clearing junior trainers
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 18) -> coord (6, 5) (budget 90s)
+
+   [travel] step 0: (6, 18)->(6, 17) map=(10, 16) (path 14 to exit)
+
+   [travel] path blocked at (6, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (6, 9); NPC-allowing path EXISTS (len 5), blocker NPC tile=(6, 8), npcs nearby=[(2, 6), (3, 5), (3, 11), (5, 4), (6, 4), (6, 8), (7, 4), (8, 7), (9, 6), (9, 10), (10, 7)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (10, 16)@(6, 9) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "RATTATA used CUT!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (6, 8) on (10, 16) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj9 at (5, 4) (facing 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 9) -> coord (5, 5) (budget 90s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 9) -> coord (6, 4) (budget 90s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (6, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (6, 9) AND no NPC-allowing path (npcs nearby=[(2, 6), (3, 5), (3, 11), (5, 4), (6, 4), (7, 4), (8, 7), (9, 6), (9, 10), (10, 7)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (6, 9) map=(10, 16) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    GYM: junior obj9 didn't engage (try 1/4) - re-scanning, will retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: engaging junior trainer obj9 at (5, 4) (facing 1)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 9) -> coord (5, 5) (budget 90s)
+
+   [travel] step 0: (6, 9)->(6, 8) map=(10, 16) (path 6 to exit)
+
+   [travel] reached target coord (5, 5)
+
+   [dialogue] +++ 'Pleased to meet you. My hobby is POK.MON training.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Pleased to meet you. My hobby is POK.MON training."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg junior-talk] 'Pleased to meet you. My hobby is POK.MON training.'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [dlg junior-talk] battle opened mid-drain -> handing off (battle engine owns that UI)
+
+   [play-live] battle context: trainer=True foe=vileplume rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against exeggcute — your blastoise is up front'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's exeggcute went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 44'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Oh! Splendid!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Oh! Splendid!"'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    GYM: junior trainer -> win
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(5, 5) -> coord (6, 5) (budget 90s)
+
+   [travel] step 0: (5, 5)->(6, 5) map=(10, 16) (path 2 to exit)
+
+   [travel] reached target coord (6, 5)
+
+   [campaign]    GYM: all junior trainers cleared (beaten obj [9])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 5) -> coord (6, 5) (budget 90s)
+
+   [travel] reached target coord (6, 5)
+
+   [campaign]    GYM: at (6, 5) (leader front (6, 5)) - engaging Erika [lead blastoise Lv44, party=6]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 5) -> coord (6, 6) (budget 90s)
+
+   [travel] step 0: (6, 5)->(6, 6) map=(10, 16) (path 2 to exit)
+
+   [travel] reached target coord (6, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 6) -> coord (6, 5) (budget 90s)
+
+   [travel] step 0: (6, 6)->(6, 5) map=(10, 16) (path 2 to exit)
+
+   [travel] reached target coord (6, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 5) -> coord (5, 5) (budget 90s)
+
+   [travel] step 0: (6, 5)->(5, 5) map=(10, 16) (path 2 to exit)
+
+   [travel] reached target coord (5, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(5, 5) -> coord (6, 5) (budget 90s)
+
+   [travel] step 0: (5, 5)->(6, 5) map=(10, 16) (path 2 to exit)
+
+   [travel] reached target coord (6, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 5) -> coord (7, 5) (budget 90s)
+
+   [travel] step 0: (6, 5)->(7, 5) map=(10, 16) (path 2 to exit)
+
+   [travel] reached target coord (7, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(7, 5) -> coord (6, 5) (budget 90s)
+
+   [travel] step 0: (7, 5)->(6, 5) map=(10, 16) (path 2 to exit)
+
+   [travel] reached target coord (6, 5)
+
+   [dialogue] +++ "Hello.. Lovely weather, isn't it? It's so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a student of the art of flower arranging. M"  tags=['GYM_LEADER', 'PLACE']
+
+   [kira-voice]    (dialogue tags: gym_leader, place)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a student of the art of flower arranging. M"'  fired=True  [age 0.0s + post 33ms]
+
+   [campaign]    [dlg Erika-challenge] "Hello.. Lovely weather, isn't it? It's so pleasant.. ..Oh, dear.. I must"
+
+   [campaign]    [hints] + heard something actionable: "Hello.. Lovely weather, isn't it? It's so pleasant.. ..Oh, dear.. I must have do" (at (10, 16))
+
+   [campaign]    [dlg-uwatch Erika-challenge] fp[(10, 16) (6,5) f2 D- badge3 $18224 party:375e bag:d727] same line, frozen world x15/90
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (10, 16)@(6, 5) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [dlg-uwatch Erika-challenge] fp[(10, 16) (6,5) f2 D- badge3 $18224 party:375e bag:d727] same line, frozen world x30/90
+
+   [campaign]    [dlg-uwatch Erika-challenge] fp[(10, 16) (6,5) f2 D- badge3 $18224 party:375e bag:d727] same line, frozen world x45/90
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [dlg-pace Erika-challenge] box "Hello.. Lovely weather, isn't it? It's so pleasa" visible 15.22s (sink 1ms, hold 0.11s, end=stopped)
+
+   [play-live] battle context: trainer=True foe=exeggcute rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against victreebel — your blastoise is up front'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out victreebel'
+
+   [kira-voice] -> T2·savor· (event) 'kadabra eats grass/poison types for breakfast — super-effective, switching in. the type chart never lies.'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'your kadabra took a big hit'
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra used Confusion - a super-effective hit'  fired=True  [age 0.0s + post 4ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 601; bursts here = audible crackle)
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra took a big hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra used Confusion - a super-effective hit'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'spearow eats grass/poison types for breakfast — super-effective, switching in. the type chart never lies.'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'your spearow took a big hit'
+
+   [kira-voice] -> T2·savor· (event) 'your spearow fainted'  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'butterfree eats grass/poison types for breakfast — super-effective, switching in. the type chart never lies.'  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) 'your butterfree took a big hit'  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] -> T2·savor· (event) 'your butterfree fainted'  fired=True  [age 0.0s + post 11ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's victreebel fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out tangela'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "ekans, you're up — that's a grass/grass type and you hit it DOUBLE super-effective. this is just bullying."  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'your ekans took a big hit'
+
+   [kira-voice] -> T2·savor· (event) 'your ekans took a big hit'  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] -> T2·savor· (event) 'your ekans used move#40 - a super-effective hit'  fired=True  [age 0.0s + post 31ms]
+
+   [kira-voice] -> T2·savor· (event) 'your ekans fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's tangela fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out vileplume'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [strat] WIN/clear vs trainer:the Celadon Gym:tangela+victreebel+vileplume — wall lifted
+
+   [campaign]    GYM: ERIKA -> timeout
+
+   [campaign]    [roam] !! drain 'Erika-award' requested during a LIVE battle -> skipping (battle engine owns that UI)
+
+   [campaign]    !! GYM: paced award didn't set the badge - A-mash backstop
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 165688 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(10, 16) coords=(6, 5)  badge=True
+
+   [kira-voice] === 207 fired, 55 gated (0 failed) | by tier: T3=8 T2=160 T1=39 (incl ambient trickle) ===
+
+================================================================
+
