@@ -1,0 +1,4 @@
+# 2026-08-02 LIVE: TP out of the wedged Route-12 battle loop.
+# Lavender Town (post-Tower / with Flute) — overworld, at a Center, BEFORE the
+# Snorlax no_path + menu-thrash lip. Newest matching lavender checkpoint wins.
+CKPT lavender-town

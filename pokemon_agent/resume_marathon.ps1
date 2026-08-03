@@ -295,6 +295,13 @@ if (Test-Path $targetFile) {
             Copy-Item $liveSave (Join-Path $campaign "replaced_$ts.state") -ErrorAction SilentlyContinue
             Copy-Item $ckptState $liveSave -Force
             Say "CKPT promoted: $($ckptDir.Name) -> kira_campaign.state (old save backed up as replaced_$ts.state)"
+            # Drop stuck LAW orders (e.g. catch_now Snorlax) so a TP doesn't re-wedge into the
+            # same force-gym / catch thrash that made Jonny ask for the teleport (2026-08-02).
+            $ord = Join-Path $campaign "creator_order.json"
+            if (Test-Path $ord) {
+                Remove-Item $ord -Force -ErrorAction SilentlyContinue
+                Say "cleared creator_order.json (stuck LAW order would re-wedge the TP)"
+            }
             $promoteOk = $true; $launchApproved = $true
         } else {
             Say "!! CKPT: no checkpoint matching '*$ckptPat*' with a kira_campaign.state - nothing changed, NOT launching."

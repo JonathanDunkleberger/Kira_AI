@@ -186,6 +186,30 @@ def main():
             b.set_input_owner("agent")
             log(f"⛰️  RESUMING CAMPAIGN from campaign/{CAMPAIGN_SAVE}: map={tv.map_id(b)} "
                 f"coords={tv.coords(b)} — she keeps climbing from here  url={args.url}")
+            # BOOT-IN-BATTLE ABORT (2026-08-02 LIVE): a mid-fight bank / wedged save must NOT
+            # reopen the Fight↔menu thrash. Mash flee/A until overworld — she opens her eyes
+            # OUT of the broken battle. Prefer a CKPT teleport; this is the belt-and-suspenders.
+            try:
+                if st.in_battle(b):
+                    log("!! BOOT INTO LIVE BATTLE — soft-aborting so she wakes in overworld "
+                        "(not the menu thrash). Prefer CKPT teleport next time.")
+                    from battle_agent import BattleAgent as _BA
+                    _ag = _BA(b, on_event=lambda *a, **k: None, render=lambda: None, log=log)
+                    try:
+                        _ag.flee(max_seconds=30)
+                    except Exception:
+                        pass
+                    for _ in range(80):
+                        if not st.in_battle(b):
+                            break
+                        b.press("B", 2, 10, lambda: None, owner="agent")
+                        b.press("A", 2, 10, lambda: None, owner="agent")
+                        for _f in range(8):
+                            b.run_frame()
+                    log(f"   boot-battle abort done: in_battle={st.in_battle(b)} "
+                        f"map={tv.map_id(b)}@{tv.coords(b)}")
+            except Exception as _bbe:
+                log(f"!! boot-battle abort skipped: {_bbe}")
         else:
             boot_path = resolve_state(args.boot)
             if not boot_path:
