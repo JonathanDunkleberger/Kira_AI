@@ -1296,18 +1296,59 @@ class BattleAgent:
         return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_FIGHT
 
     def _struggle(self):
-        """ZERO PP anywhere in a can't-flee battle: A on FIGHT — the game substitutes Struggle
-        ("X has no moves left!"), which passes the turn and lets the battle actually resolve.
-        Returns 'done' if the confirm fired, else 'no_usable_move' (rides the anti-wedge floor)."""
+        """ZERO usable moves in a can't-flee battle: A on FIGHT — if ALL moves are truly dry the
+        game substitutes Struggle ("X has no moves left!") and the turn resolves. 2026-08-03
+        HARDENING (the Tackle-spam endgame): when OUR ledger says every slot is dry/exiled but
+        the game still OPENS the move list (our PP reads were the liars, not the game), the old
+        code returned 'done' having done NOTHING — a silent per-turn no-op that upgraded into the
+        anti-wedge A-mash. Now we do what a human does: WALK the list and try each slot (readback
+        nav), skipping exiled ones first; the game fires whichever really has PP. A slot the game
+        refuses gets exiled on the spot (text is truth). Only if every slot refuses do we return
+        'no_usable_move' (the anti-wedge floor owns it)."""
         if not self._settle_action_menu() or not self._goto_fight():
             return "no_usable_move"
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
         self._wait(30)
-        for _ in range(6):                                # drain the "no moves left!" text
-            if not st.in_battle(self.b) or self._white_box():
-                break
-            self._advance_text()
-        return "done"
+        if not self._at_move_list():
+            for _ in range(6):                            # true zero-PP: drain "no moves left!" text
+                if not st.in_battle(self.b) or self._white_box():
+                    break
+                self._advance_text()
+            return "done"
+        # Move list opened — the game thinks something is usable. Try slots, least-refused first.
+        order = sorted(range(4), key=lambda i: self._move_refused.get(i, 0))
+        for slot in order:
+            if not st.in_battle(self.b):
+                return "done"
+            if not self._at_move_list():
+                return "done"                             # something fired / battle moved on
+            self._goto_move(slot)
+            before = self._bstate()
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(20)
+            for _fn in range(240):                        # ~4s: did the turn actually leave?
+                if not st.in_battle(self.b):
+                    return "done"
+                _bt = self._battle_text() if _fn % 12 == 0 else ""
+                if _bt and any(sn in _bt for sn in self._MOVE_REFUSAL_SNIPPETS):
+                    self._move_refused[slot] = max(self._move_refused.get(slot, 0), 2)
+                    self.log(f"   [engine] struggle-walk: game refused slot {slot} — exiled, "
+                             f"trying the next")
+                    self._wait(20)                        # let the refusal box clear
+                    break
+                cur = st.read_battle(self.b)
+                if cur:
+                    hp = (cur["enemy"]["hp"], cur["ours"]["hp"])
+                    if before and hp != before:
+                        self.log(f"   [engine] struggle-walk: slot {slot} FIRED (the PP ledger "
+                                 f"was lying) — turn resolved")
+                        self._note_battle_progress(f"struggle-walk slot {slot}")
+                        return "done"
+                if not self._white_box():
+                    self.b.press("A", 2, 8, self.render, owner=self.owner)
+                self.b.run_frame(); self.render()
+        self.log("   [engine] struggle-walk: every slot refused — no_usable_move (LOUD)")
+        return "no_usable_move"
 
     def _open_bag(self, tries=4):
         """From the ACTION menu: cursor->BAG (verified by readback) -> A. The bag is open iff the white
@@ -1371,6 +1412,25 @@ class BattleAgent:
         except Exception:
             return None, None
 
+    def _battle_text(self):
+        """Best-effort read of the ACTIVE game message (gStringVar3, the dialogue-reader
+        address — battle bag/refusal strings were observed flowing through it live).
+        Lowercased/normalized; '' when unreadable. GROUND TRUTH accelerant only — every
+        caller must also work when this returns '' (the struct-timeout path still counts
+        refusals)."""
+        try:
+            from dialogue_reader import decode, DialogueReader
+            s, junk = decode(self.b.read_bytes(DialogueReader.ACTIVE_MSG, 0xC0))
+            if not s or junk > 0.3:
+                return ""
+            return " ".join(s.lower().split())
+        except Exception:
+            return ""
+
+    # The game's own move-rejection strings — authoritative: the slot is DEAD this battle
+    # no matter what the (tear-prone) PP byte claims.
+    _MOVE_REFUSAL_SNIPPETS = ("no pp left", "is disabled")
+
     def _war_advance_press(self):
         """ONE screen-aware press for the war-must-advance paths (anti-wedge floor, menu-wedge
         bail, stall mash). The 2026-08-03 Route-13 fisherman loop: those paths pressed BLIND A,
@@ -1390,6 +1450,13 @@ class BattleAgent:
             self._wait(14)
             return "A@FIGHT"
         if self._at_move_list():
+            # Never confirm a slot the game already refused (the highlighted move IS the
+            # refused one after a refusal bounce) — steer to the least-refused slot first.
+            _ref = getattr(self, "_move_refused", {})
+            if _ref:
+                _best = min(range(4), key=lambda i: _ref.get(i, 0))
+                if _ref.get(self.b.rd8(MOVE_CURSOR), 0) > _ref.get(_best, 0):
+                    self._goto_move(_best)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
             self._wait(16)
             return "A@move"
@@ -2242,9 +2309,19 @@ class BattleAgent:
         self._last_desc, self._last_eff = desc, eff
         result = None
         last_hp, stable = before, 0
-        for _ in range(600):                          # was 900 — shorter wait, faster retry if miss
+        for _vn in range(600):                        # was 900 — shorter wait, faster retry if miss
             if not st.in_battle(self.b):
                 result = "done"; break
+            # GAME-TEXT REFUSAL (2026-08-03, the Tackle spam): "There's no PP left..." /
+            # "X is disabled!" is the game itself vetoing this slot — exile INSTANTLY
+            # (don't burn the 600-frame timeout twice before the famine switch can fire).
+            if _vn % 12 == 0:
+                _bt = self._battle_text()
+                if _bt and any(sn in _bt for sn in self._MOVE_REFUSAL_SNIPPETS):
+                    self._move_refused[idx] = max(self._move_refused.get(idx, 0), 2)
+                    self.log(f"   [engine] GAME REFUSED slot {idx} ({_bt[:48]!r}) -> instant "
+                             f"exile this battle (text is truth; PP byte was lying)")
+                    break                             # result stays None -> failure branch
             cur = st.read_battle(self.b)
             if cur:
                 self._emit_diffs(self._prev, cur); self._prev = cur
