@@ -2354,7 +2354,15 @@ class BattleAgent:
             _slp_frz = st1 & 0x27
             _par = st1 & 0x40
             _ims = getattr(self, "_immob_streak", 0)
-            _real_immob = pp0 > 0 and (_slp_frz or (_par and _ims < 6))
+            # PARALYSIS MASK (2026-08-03 08:50 live — "paralyzed + no PP + won't swap"): a MENU
+            # REFUSAL ("There's no PP left...") bounces straight back to the MOVE LIST — the turn
+            # never ran, the foe never acted. A real immobilization RUNS the turn (animations,
+            # foe attacks) and never parks us back on the move list. The old classifier called
+            # every non-fire on a paralyzed mon "immobilization" for 6 laps, so NO refusal was
+            # counted, NO exile, NO famine switch — 70+ seconds of dead-move spam while the
+            # rescue sat armed. Back-at-the-move-list = refusal, whatever the status byte says.
+            _at_list = self._at_move_list()
+            _real_immob = pp0 > 0 and not _at_list and (_slp_frz or (_par and _ims < 6))
             if _real_immob:
                 self._immob_streak = _ims + 1
                 why = "asleep" if st1 & 0x07 else ("frozen" if st1 & 0x20 else "fully paralyzed")
