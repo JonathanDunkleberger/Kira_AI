@@ -8848,6 +8848,17 @@ class Campaign:
             return False
         if pick != "head_to_gym" and not str(pick).startswith("travel:"):
             return False
+        # GO-HARD / PRE-SCOPE / FORCE-GYM (2026-08-02): never open the party menu to put Ekans
+        # (or any paper bench) in slot 0. That swap-theater every tick IS the "keeps picking Ekans
+        # over and over" stream look — and a paper lead into Hideout Giovanni is a wipe. Ace leads.
+        if getattr(self, "_force_gym_pick", False):
+            return False
+        try:
+            if (self._creator_order(state) or self._gym_dominant(state)
+                    or self._ace_carries_next_gym(state)):
+                return False
+        except Exception:
+            pass
         # QUESTLINE GUARD, MAP-TYPE-RELAXED (2026-07-13 — fresh_go_2 ace-runaway root). Errands do
         # nav-critical traversal: the Flash errand crosses pitch-dark Diglett's Cave, dungeon strikes cross
         # gauntlet interiors — a demoted ace LIVELOCKS there (the weak lead can't clear an L29 cave Dugtrio

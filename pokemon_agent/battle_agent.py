@@ -279,6 +279,7 @@ class BattleAgent:
                                        # _finish must not voice the same win again 5-15s later.
         self._catching = False         # F-7(c) guard: KOing a CATCH target is a failure, never a
                                        # "you won" beat — set for the catch_pokemon flow.
+        self._switch_fail_n = 0        # voluntary matchup-switch fails this battle (latch at 2)
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -1713,27 +1714,45 @@ class BattleAgent:
         return self._in_move_list()
 
     def _movelist_open_verified(self):
-        """_movelist_open + a CURSOR-RESPONSE cross-check. THE immortal-Ekans wedge (2026-07-05 look-ahead):
-        after an in-battle ITEM use, MENU_MODE reads a STALE 2, so the open-check short-circuited True
-        BEFORE the FIGHT-opening A was ever pressed — the move list was never open, _goto_move's presses
-        landed on the action menu, MOVE_CURSOR never moved, the flee also failed against the phantom
-        state, and travel re-entered the SAME battle ~50x (ekans 27/27 every time). Doctrine (the
-        cursor-desync lesson): trust CURSOR-RESPONSE, not a state byte. The list counts as open only if
-        MOVE_CURSOR actually responds to a probe press (probe toward a neighbor, readback, restore).
-        Known edge: a 1-move mon's cursor can't move (probe reads as closed) → the caller presses A,
-        which on a truly-open 1-move list just fires slot 0 — the only move, harmless.
-        2026-07-06 (run-14, the post-item-use A/B livelock): the byte can be stale LOW just as it was
-        stale HIGH — gating the probe on _movelist_open() made a GENUINELY-open list read as closed,
-        so the caller's wrong-submenu B closed it, the next A reopened it, ×12 → 'stuck' forever at
-        the Route-6 gauntlet. The RESPONSE PROBE alone is the ground truth — no byte gate either way.
-        (A stray probe on the ACTION menu just nudges its cursor; the caller re-homes with UP+LEFT.)"""
+        """Is the FIGHT move list actually open? Prefer PIXEL + MENU_MODE agreement (no probe).
+
+        History:
+          • Immortal-Ekans (2026-07-05): MENU_MODE stale-HIGH (=2) after an item use short-circuited
+            True before A ever opened the list → presses landed on the action menu forever.
+          • Route-6 A/B livelock (2026-07-06): gating the probe on MENU_MODE made a real open list
+            read closed → B closed it, A reopened it, ×12.
+          • Stream chalk (2026-08-02): the RESPONSE PROBE alone false-negatives under lag / 1-move
+            mons → caller B-outs a REAL open list, A reopens, Fight↔moves thrash for ~90s on screen.
+
+        Doctrine now: when PIXEL says move-list AND MENU_MODE is not clearly the action menu (1),
+        trust open with NO probe. Probe ONLY the stale-HIGH case (mode==2 but pixel says action).
+        Ambiguous → probe. Probe miss → closed."""
+        pixel = False
+        try:
+            pixel = self._in_move_list()
+        except Exception:
+            pixel = False
+        try:
+            mode = self.b.rd8(MENU_MODE)
+        except Exception:
+            mode = None
+        # Clean open — both signals agree. Never probe (probe is what caused the 90s thrash).
+        if pixel and mode == 2:
+            return True
+        # Pixel says move names are up; mode isn't the action menu. Trust pixel.
+        if pixel and mode != 1:
+            return True
+        # Clearly on the action menu (FIGHT/BAG/POKEMON/RUN) — closed.
+        if not pixel and mode == 1:
+            return False
+        # Stale-HIGH MENU_MODE (immortal-Ekans class) OR ambiguous: cursor-response probe.
         cur = self.b.rd8(MOVE_CURSOR)
         probe = "RIGHT" if cur % 2 == 0 else "LEFT"
         back = "LEFT" if probe == "RIGHT" else "RIGHT"
         self._tap(probe); self._wait(8)
-        if self.b.rd8(MOVE_CURSOR) == cur:            # cursor didn't respond -> not open (or 1-move edge)
+        if self.b.rd8(MOVE_CURSOR) == cur:            # no response -> not open (or 1-move edge)
             return False
-        self._tap(back); self._wait(8)                # restore the cursor (readback nav re-verifies anyway)
+        self._tap(back); self._wait(8)
         return True
 
     def _goto_move(self, idx, tries=12):
@@ -1966,39 +1985,70 @@ class BattleAgent:
         except Exception:
             self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
                      f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
-        # OPEN THE MOVE LIST ROBUSTLY: home to FIGHT, A, pixel-confirm the list opened; retry the
-        # A if it was eaten (still at the white action menu); if a wrong submenu opened (bag/
-        # POKEMON - NOT the white action panel) back out with B and re-home. Bounded.
-        def _open_move_list():
+        # OPEN THE MOVE LIST ROBUSTLY: home to FIGHT, A, confirm open. Cap retries LOW — a 12-try
+        # A/B dance is the "Blastoise hits FIGHT for 90 seconds" stream look (2026-08-02).
+        def _open_move_list(tries=4):
             self._home_to_fight()
-            for _ in range(12):
-                # VERIFIED open (cursor-response, not just the MENU_MODE byte): a stale-2 byte after an
-                # item use short-circuited this check before A was ever pressed = the immortal-Ekans wedge.
+            for _ in range(tries):
                 if self._movelist_open_verified():
                     return True
                 self._home_to_fight()                 # a failed probe may have nudged the ACTION cursor
-                #                                       (RIGHT lands on BAG) — re-home so A opens FIGHT
                 self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
                 if self._movelist_open_verified():
                     return True
-                if not (self._white_box() or self._movelist_open()):   # a wrong submenu opened -> back out
+                # Wrong submenu (bag/party) — B out. Do NOT B when the white action panel is up
+                # (that just toggles FIGHT↔nothing and feeds the thrash).
+                if self._bag_screen() or self._party_screen():
+                    self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+                    self._home_to_fight()
+                elif not self._white_box() and not self._movelist_open():
                     self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
                     self._home_to_fight()
             return False
         opened = _open_move_list()
         if not opened:
-            # WHITE-BOX IMPOSTOR (2026-07-12, the Diglett's-Cave livelock): _white_box() is True but the
-            # move list won't open after 12 A-tries -> a dangling message/animation box masks as the action
-            # menu (same white pixels, DEAD action cursor). Every press A just re-advances the box, so the
-            # foe HP never moves ("move#N logged, diglett 30/30 forever") -> 3 unresolved turns -> a WILD
-            # flee that ALSO can't navigate the impostor -> eternal 'stuck', 0 map-transitions (trapped in
-            # the cave). ROOT-KILL: drain the impostor to the REAL menu with the proven B-drainer, then
-            # retry the open ONCE. Byte-inert on a normal menu (this whole block only runs after the open
-            # already FAILED); bounded (settle tries=30, one open retry) so it can never itself livelock.
+            # WHITE-BOX IMPOSTOR (2026-07-12): dangling message masks as the action menu. Drain once,
+            # retry once — then COMMIT rather than spin (trainer battles can't flee the thrash).
             if self._settle_action_menu():
-                opened = _open_move_list()
+                opened = _open_move_list(tries=3)
         if not opened:
-            return "stuck"                            # still can't open -> clean retry (re-settle)
+            # COMMIT FALLBACK (2026-08-02): stop the Fight↔moves theater. Trainer battles can't
+            # flee the thrash — fire FIGHT+A (chosen slot if the list opened, else slot 0 /
+            # Struggle) so the turn advances. Wild → stuck (anti-wedge flees).
+            if self._is_trainer_battle():
+                self.log("   [engine] !! move list won't open cleanly — COMMIT FIGHT+A "
+                         "(no more A/B thrash; war-must-advance)")
+                _pp0 = ours["moves"][idx].get("pp", 0) if 0 <= idx < 4 else 0
+                _hp0 = (enemy["hp"], ours["hp"])
+                self._home_to_fight()
+                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
+                if self._movelist_open() or self._in_move_list():
+                    self._goto_move(idx)
+                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
+                self._last_desc, self._last_eff = desc, eff
+                for _ in range(500):
+                    if not st.in_battle(self.b):
+                        self._skip_streak.clear()
+                        return "done"
+                    cur = st.read_battle(self.b)
+                    if cur:
+                        self._emit_diffs(self._prev, cur); self._prev = cur
+                        try:
+                            if cur["ours"]["moves"][idx].get("pp", 0) < _pp0:
+                                self._skip_streak.clear()
+                                return "done"
+                        except Exception:
+                            pass
+                        if (cur["enemy"]["hp"], cur["ours"]["hp"]) != _hp0:
+                            self._skip_streak.clear()
+                            return "done"
+                    if self._white_box() and not self._in_move_list():
+                        # Back at the action menu — turn resolved (or never left). Don't spin.
+                        return "done"
+                    self._advance_text()
+                    self._wait(4)
+                return "done"
+            return "stuck"
         if not self._goto_move(idx):                  # RAM-readback nav (verify each press moved the cursor)
             self.log(f"   [engine] move-cursor didn't reach slot {idx} (now {self.b.rd8(MOVE_CURSOR)}) "
                      f"-> clean retry")
@@ -2679,12 +2729,18 @@ class BattleAgent:
 
     def _voluntary_switch(self, state):
         """Mid-battle switch to a better-matchup reserve. GATED + FAIL-SAFE. Returns 'switched' or False."""
+        # FAIL LATCH (2026-08-02): two failed party-menu attempts in one battle = stop opening the
+        # switch menu. The stream look was "keeps picking Ekans / the wrong mon over and over"
+        # while SHIFT never confirmed — every turn re-opened POKEMON and re-selected chaff.
+        if getattr(self, "_switch_fail_n", 0) >= 2:
+            return False
         slot = self._best_switch_slot(state)
         if slot is None:
             return False
         self.log(f"   [engine] MATCHUP SWITCH: active is out-typed -> trying party slot {slot}")
         r = self._switch_to_slot(slot, state.get("ours", {}).get("species"))
         if r == "switched":
+            self._switch_fail_n = 0
             # SAY THE TYPE MATH (2026-07-31, Jonny: "she needs to know what's good vs what — and
             # SAY it"): name who's coming in and WHY in type-chart terms, from the same reads the
             # scorer used — so the stream hears "Spearow eats bugs for breakfast", not a vague
@@ -2713,7 +2769,9 @@ class BattleAgent:
                 self.emit("switching it up — this is a better matchup", beat=True, tier=2)
             self._skip_streak.clear()
             return "switched"
-        self.log("   [engine] matchup switch did not confirm -> fighting instead (fail-safe, no wedge)")
+        self._switch_fail_n = getattr(self, "_switch_fail_n", 0) + 1
+        self.log(f"   [engine] matchup switch did not confirm "
+                 f"(fail {self._switch_fail_n}/2) -> fighting instead (fail-safe, no wedge)")
         return False
 
     def _active_pp_famine(self, state):
