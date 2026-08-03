@@ -9105,6 +9105,15 @@ class Campaign:
                 return self.b.rd16(slot + 2) ^ key
         return 0
 
+    def _key_item_owned(self, item_id):
+        """True if `item_id` is in the KEY ITEMS pocket (Silph Scope 359, Poké Flute 350, …).
+        bag_count / _item_count only see the Items pocket and will ALWAYS miss these."""
+        try:
+            import hm_teach as ht
+            return item_id in ht.pocket_items(self.b, ht.KEY_ITEMS_OFF, 30)
+        except Exception:
+            return False
+
     def party_statuses(self):
         """Set of status NAMES currently afflicting any party member (decode_status of each STATUS1 @
         +0x50). Drives PART C's 'buy the cure for what hurt me' (sampled each free-roam tick) and is
@@ -9509,21 +9518,17 @@ class Campaign:
         blocked pre-Flute (the ONLY pre-Flute road to Lavender is ROCK TUNNEL — gamedata/frlg_gates.json
         roads['Celadon City']). She wedged at the Snorlax (13,70). Avoid the gated maps so the graph route
         falls through to the billed road (Rock Tunnel). Post-Flute (item 350) they clear and become roads.
-        Also folds cleared-dungeon avoid (post-Cascade Mt. Moon)."""
+        Also folds cleared-dungeon avoid (post-Cascade Mt. Moon).
+        PRE-SCOPE LAVENDER (2026-08-02): without Silph Scope the Tower/Flute chain is locked — graph
+        hops into Lavender from Route 8 reopen the Lavender↔Route 8 border thrash. Ban Lavender until
+        Scope (or Flute) is owned; SRC-map always escapes if she resumed ON Lavender."""
         cleared = self._cleared_dungeon_avoid(state)
-        try:
-            # ITEM_POKE_FLUTE (350) is a KEY item — _item_count/bag_count only scan the ITEMS pocket
-            # (0x310) and can NEVER see it, so the old `_item_count(350)>0` never fired and Route 12/16
-            # stayed avoided even POST-Flute (the docstring's "roads open" never actually happened). Read
-            # the KEY-ITEMS pocket (where the Flute lives) so the avoid clears once she can wake the
-            # Snorlaxes. (NS#11: this latent bug blocked ALL post-Flute routing TO Fuchsia — the only learned
-            # graph path south runs through Route 12 — which the proactive Surf questline is the first to need.)
-            import hm_teach as ht
-            if 350 in ht.pocket_items(self.b, ht.KEY_ITEMS_OFF, 30):
-                return set(cleared)
-        except Exception:
-            pass
-        return set(self._FLUTE_GATED_MAPS) | cleared
+        if self._key_item_owned(350):                 # Poké Flute — coastal Snorlax roads open
+            return set(cleared)
+        out = set(self._FLUTE_GATED_MAPS) | cleared
+        if not self._key_item_owned(359):             # Silph Scope — Tower chain still locked
+            out.add(LAVENDER)
+        return out
 
     def _keeper_hard_gate_avoid(self, state):
         """NS#43 — the KEEPER ROUTER (only) must not offer a keeper reachable only ACROSS a hard gate she
@@ -11742,6 +11747,22 @@ class Campaign:
                              "Team Rocket fell. It's a long surf north from Cinnabar past Pallet to get there.",
                        detail={"flag": "FLAG_BADGE08_GET", "gym": "Giovanni"})
 
+    def _silph_scope_gate(self):
+        """PRE-KOGA ROAD BLOCKER (2026-08-02): Fuchsia's billed road runs Celadon→R7→R8→Lavender→R12,
+        but Lavender→R12 is Snorlax-locked until the Poké Flute, and the Flute needs Silph Scope from
+        Celadon's Rocket Hideout. Without a proactive Scope gate, head_to_gym marches east into
+        Lavender while GO-HARD parks the Lavender-south Snorlax questline (gate.missing is the outer
+        FLAG_WOKE_UP_…, not flash/cut) — she paces the Lavender↔Route 8 blank line forever.
+        missing='silph_scope' resolves through frlg_gates.json to confirm_item 359 + hideout_strike.
+        Returns a Gate or None (already own Scope or Flute)."""
+        if self._key_item_owned(359) or self._key_item_owned(350):
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="silph_scope", where=tuple(CELADON),
+                       human="the Silph Scope — Team Rocket's boss keeps it in the hideout under "
+                             "Celadon's Game Corner. Without it Lavender's Tower (and the Flute that "
+                             "wakes the Route 12 Snorlax) stays locked.",
+                       detail={"confirm_item": 359, "gym": "Koga"})
+
     def _head_to_league(self, state):
         """ENDGAME (NS#15): all 8 badges, not yet at Indigo — dispatch the Victory Road strike. It drives its
         OWN road (Viridian -> Route 22 [Gary] -> the gate -> Route 23 -> the VR boulder floors -> the Indigo
@@ -12299,6 +12320,16 @@ class Campaign:
                         log("   [roam] ⛰️ PROACTIVE EARTH-BADGE: badge 7 done — Giovanni's gym is a sea road "
                             "north; opening the Viridian Gym errand (its own crossing bypasses the nav gap)")
                         return
+            # PROACTIVE SILPH-SCOPE (2026-08-02): next gym is Koga but she has no Scope/Flute —
+            # Fuchsia's road past Lavender is Snorlax-locked. Open the Hideout errand HERE so
+            # head_to_gym drives WEST to Celadon Game Corner instead of pacing Lavender↔Route 8.
+            ng = state.get("next_gym")
+            if ng and ng.get("leader") == "Koga":
+                sg = self._silph_scope_gate()
+                if sg is not None and self._open_questline(sg, state):
+                    log("   [roam] 🔭 PROACTIVE SILPH-SCOPE: no Scope yet — Rocket Hideout under "
+                        "Celadon Game Corner FIRST (Lavender/Route 8 eastbound is a dead loop)")
+                    return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
             # head_to_gym drives THAT and the action-set reframes around it.
@@ -13642,10 +13673,51 @@ class Campaign:
                         self._force_gym_pick = True
                         log("   [roam] !! CELADON→ERIKA LOCK: force head_to_gym; unpark dead routes; "
                             f"prune grass/tourism (map={_cm})")
-                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and _gh_capped and not _cel_lock:
+                # LAVENDER↔ROUTE 8 PRE-SCOPE LOCK (2026-08-02): without Silph Scope the Tower/
+                # Flute chain is locked. Fuchsia-road eastbound + Scope errand westbound paced
+                # the blank line forever. Open the Scope questline, force head_to_gym (which
+                # WAIVES GO-HARD park for silph_scope — see _ROAD_BLOCKERS), ban Lavender tourism.
+                _scope_lock = False
+                try:
+                    _cm_s = tuple(state.get("map") or ())
+                    _ROUTE8 = (3, 26)
+                    if ((_ng3 and _ng3.get("leader") == "Koga")
+                            and not self._key_item_owned(359)
+                            and not self._key_item_owned(350)
+                            and _cm_s in (tuple(LAVENDER), _ROUTE8, (3, 25), tuple(CELADON))):
+                        _scope_lock = True
+                        _sg = self._silph_scope_gate()
+                        if _sg is not None:
+                            self._open_questline(_sg, state)
+                        if "head_to_gym" not in a:
+                            a["head_to_gym"] = ("Celadon Rocket Hideout — Silph Scope FIRST "
+                                                "(Lavender Tower is locked without it)")
+                        for _k in list(a):
+                            if _k.startswith("travel:"):
+                                try:
+                                    _tg = tuple(int(x) for x in _k.split(":", 1)[1].split(","))
+                                except Exception:
+                                    _tg = ()
+                                if _tg == tuple(LAVENDER) or _tg == _ROUTE8:
+                                    a.pop(_k, None)
+                        for _k in ("wander_catch", "explore", "battle", "leave_building"):
+                            a.pop(_k, None)
+                        self._dead_moves.discard("head_to_gym")
+                        self._nomove_streak = 0
+                        self._seam_nogo = getattr(self, "_seam_nogo", set()) | {tuple(LAVENDER)}
+                        self._force_gym_pick = True
+                        _gh_capped = False
+                        log(f"   [roam] !! PRE-SCOPE LOCK: no Silph Scope — Celadon Hideout NOW; "
+                            f"Lavender is NO-GO (map={_cm_s})")
+                        self.on_event("Lavender's a dead end without the Silph Scope — back to "
+                                      "Celadon, Rocket Hideout under the Game Corner. THEN the tower.",
+                                      kind="route", tier=2)
+                except Exception as _psx:
+                    log(f"   [roam] pre-scope lock skipped: {_psx}")
+                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and _gh_capped and not _cel_lock and not _scope_lock:
                     log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
                         f"{_ng3['leader']}; escape machinery owns the wedge now")
-                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3 or _cel_lock) and not _gh_capped:
+                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3 or _cel_lock or _scope_lock) and not _gh_capped:
                     if "head_to_gym" not in a:
                         a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
                         log("   [roam] !! restoring head_to_gym (was pruned earlier) — gym is GO")
@@ -14401,6 +14473,30 @@ class Campaign:
             nbr = self.world.edge_neighbor(legs[i]["map"], go)
             if nbr:
                 legs[i + 1]["map"] = nbr
+        # PRE-SCOPE FUCHSIA ROAD CAP (2026-08-02): billed Fuchsia road is
+        # Celadon→R7→R8→Lavender→R12… but Lavender→R12 is Snorlax-locked until Flute, and Flute
+        # needs Silph Scope from Celadon's Rocket Hideout. Marching past Celadon without Scope
+        # makes head_to_gym pull EAST into Lavender while the Scope errand pulls WEST — she paces
+        # the Lavender↔Route 8 blank line forever. Cap the road at Celadon until Scope/Flute.
+        if (ng.get("city") == "Fuchsia City"
+                and not self._key_item_owned(359)
+                and not self._key_item_owned(350)):
+            capped = []
+            for leg in legs:
+                capped.append(dict(leg))
+                if tuple(leg["map"]) == tuple(CELADON):
+                    capped[-1]["go"] = None              # destination, not a hop east
+                    log("   [roam] ROAD to Fuchsia: CAPPED at Celadon — no Silph Scope yet "
+                        "(Hideout first; Lavender/Route 8 eastbound is a dead loop)")
+                    return capped
+            # Road list didn't include Celadon (weird) — still drop Lavender+east legs.
+            capped = [dict(l) for l in legs
+                      if tuple(l["map"]) not in (tuple(LAVENDER), (3, 30), (3, 31), (3, 32),
+                                                   (3, 33), (3, 34))]
+            if capped:
+                capped[-1] = {**capped[-1], "go": None}
+                log("   [roam] ROAD to Fuchsia: CAPPED (dropped Lavender+coast; no Silph Scope)")
+                return capped
         return legs
 
     # ── ROAD-ANCHOR PARKING (2026-07-08 night shift 6, the banked_SCOPE twedge=271 class) ────────
@@ -14721,15 +14817,27 @@ class Campaign:
                 _go_hard_now = False
             if QUESTLINE_ENABLED and self._active_questline is not None:
                 _ql_miss = getattr(self._active_questline.gate, "missing", None)
-                _road_blocker = _ql_miss in ("flash", "cut")
+                _ql_step = getattr(getattr(self._active_questline, "actionable", None),
+                                   "missing", None)
+                # ON-ROAD blockers (not detours): Flash/Cut on the billed spine, AND the whole
+                # pre-Koga Scope→Flute→Snorlax chain. GO-HARD must NOT park these — PRE-SCOPE LOCK
+                # sets _force_gym_pick, and parking FLAG_WOKE_UP_ROUTE_12_SNORLAX (or silph_scope)
+                # was the Lavender↔Route 8 blank-line thrash (2026-08-02). Check BOTH gate.missing
+                # (outer gate) and actionable.missing (current prereq step).
+                _ROAD_BLOCKERS = {
+                    "flash", "cut", "silph_scope",
+                    "FLAG_GOT_POKE_FLUTE", "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
+                }
+                _road_blocker = (_ql_miss in _ROAD_BLOCKERS) or (_ql_step in _ROAD_BLOCKERS)
                 if _go_hard_now and not _road_blocker:
                     log("   [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack "
-                        f"('{_ql_miss}' errand parked, not cleared) — driving THE GYM DOOR, "
-                        f"not the errand")
+                        f"('{_ql_miss}'/step={_ql_step} errand parked, not cleared) — driving "
+                        f"THE GYM DOOR, not the errand")
                 else:
                     if _go_hard_now and _road_blocker:
-                        log(f"   [roam] !! GO-HARD WAIVES questline park — '{_ql_miss}' is ON "
-                            f"the billed road (not a detour); running the unlock errand")
+                        log(f"   [roam] !! GO-HARD WAIVES questline park — "
+                            f"'{_ql_miss}'/step={_ql_step} is ON the billed road "
+                            f"(not a detour); running the unlock errand")
                     return self._run_questline_step(state)
             # BATCH 6 PHASE 1 — SHE ACTUALLY CLIMBS. The loop's whole point: when she's AT the next gym's
             # city, don't just mill around — ENTER the gym, clear its junior trainers, beat the leader,
@@ -15040,6 +15148,17 @@ class Campaign:
                         f"{cur_map} but the road leg produced no move — road is AUTHORITATIVE here; "
                         f"REFUSING the world-graph fallback (it can only lead backward off the road)")
                     return "no_gym_route"
+            # PRE-SCOPE: capped road ends at Celadon — never graph-route toward Fuchsia (that
+            # re-opens Celadon→R7→R8→Lavender and the blank-line thrash). Drive the Scope errand
+            # (overwrite a parked Tea/detour — Scope is the only forward job until Flute).
+            if (ng and ng.get("leader") == "Koga"
+                    and not self._key_item_owned(359)
+                    and not self._key_item_owned(350)):
+                _sg = self._silph_scope_gate()
+                if _sg is not None and QUESTLINE_ENABLED and self._open_questline(_sg, state):
+                    log("   [roam] 🔭 PRE-SCOPE: refusing Fuchsia graph-route — running "
+                        "Silph Scope / Rocket Hideout errand")
+                    return self._run_questline_step(state)
             target_city = self._next_gym_city_map(ng)
             if target_city and target_city != cur_map:
                 # SAFFRON BYPASS (2026-07-09 shift 3): Saffron's gatehouses are GUARD-BLOCKED (a static
@@ -16450,9 +16569,19 @@ class Campaign:
                                 def _fwd_score(m):
                                     """Which side of the seam reads FORWARD: the objective itself,
                                     the next gym's city, a map on its billed road, or a town (base
-                                    camp) — the other side is the backward pull to ban."""
+                                    camp) — the other side is the backward pull to ban.
+                                    PRE-SCOPE: Lavender is NEVER forward (Tower chain locked) —
+                                    Celadon/Route 7 win so we ban the east thrash side."""
                                     s = 0
                                     try:
+                                        _pre_scope = (not self._key_item_owned(359)
+                                                      and not self._key_item_owned(350))
+                                        if _pre_scope and m == tuple(LAVENDER):
+                                            return -10
+                                        if _pre_scope and m == tuple(CELADON):
+                                            s += 6
+                                        if _pre_scope and m == (3, 25):   # Route 7 → Celadon
+                                            s += 4
                                         if m == self._forward_objective_map(state):
                                             s += 4
                                         _ngx = state.get("next_gym")
