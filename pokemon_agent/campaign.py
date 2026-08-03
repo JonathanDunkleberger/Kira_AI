@@ -830,6 +830,17 @@ VERMILION_PC_DOOR, VERMILION_MART_DOOR = (15, 6), (29, 17)
 # beat_gym runs env_puzzle.TrashCanPuzzle BEFORE the junior clear (FLAG_BOTH 0x264).
 VERMILION_GYM_DOOR, SURGE_FRONT = (14, 25), (5, 3)
 VERMILION_GYM_INTERIOR = (9, 7)   # live-verified; head_to_gym must re-enter beat_gym when standing here
+CELADON_GYM_INTERIOR = (10, 16)   # live-verified (place table); Erika — same ALREADY-INSIDE contract
+CERULEAN_GYM_INTERIOR = (7, 5)
+SAFFRON_GYM_INTERIOR = (14, 3)
+# Next-gym interior maps: standing HERE must call beat_gym, NEVER route "to city" (that walks
+# her out the door — 2026-08-02 Celadon chalk: enter gym → false blackout/stranded eject).
+GYM_INTERIORS = {
+    "Misty": CERULEAN_GYM_INTERIOR,
+    "Lt. Surge": VERMILION_GYM_INTERIOR,
+    "Erika": CELADON_GYM_INTERIOR,
+    "Sabrina": SAFFRON_GYM_INTERIOR,
+}
 # FLAG_BADGE0x_GET in the SaveBlock1 flag array (base + 0x0EE0): Boulder 0x820, Cascade 0x821.
 FLAG_BADGE_BOULDER, FLAG_BADGE_CASCADE = 0x820, 0x821
 FLAG_BADGE_THUNDER = 0x822
@@ -4596,23 +4607,34 @@ class Campaign:
         # Giovanni/Lance. Idempotent. Broke → arm a cash farm (trainers/wilds), defer the gym
         # door until she can afford the prize (a human doesn't skip the TM and walk in empty).
         if name == "Erika":
-            try:
-                from game_corner import IceBeamErrand, ice_beam_cash_shortfall
-                _ibr = IceBeamErrand(self, log=log).run()
-                log(f"   GYM-PREP [Erika]: ice-beam errand -> {_ibr}")
-                if _ibr == "broke":
-                    _need = ice_beam_cash_shortfall(self)
-                    self._ice_beam_cash_needed = max(int(_need or 0), 1)
-                    log(f"   GYM-PREP [Erika]: need ¥{self._ice_beam_cash_needed} more for Ice Beam "
-                        f"— deferring gym door; earn cash on the road then retry")
-                    self.on_event("Ice Beam's at the Game Corner but I'm short on cash — "
-                                  "gonna knock out some trainers, then buy it.",
-                                  kind="gym", tier=2)
-                    return "need_cash_for_tm"
-                if _ibr in ("taught", "have_ice_beam"):
-                    self._ice_beam_cash_needed = 0
-            except Exception as e:
-                log(f"   !! GYM-PREP ice-beam errand crashed ({e}) — entering Erika as-is (LOUD)")
+            # Already inside the gym → NEVER leave for Game Corner (that was the enter→walk-out
+            # tourism loop). Soft-broke: enter anyway — Blastoise Water carries Erika without TM13.
+            _already_in_erika = tuple(tv.map_id(self.b)) == CELADON_GYM_INTERIOR
+            if _already_in_erika:
+                log("   GYM-PREP [Erika]: already inside Celadon Gym — skipping Ice Beam street errand")
+            else:
+                try:
+                    from game_corner import IceBeamErrand, ice_beam_cash_shortfall
+                    _ibr = IceBeamErrand(self, log=log).run()
+                    log(f"   GYM-PREP [Erika]: ice-beam errand -> {_ibr}")
+                    if _ibr == "broke":
+                        _need = ice_beam_cash_shortfall(self)
+                        log(f"   GYM-PREP [Erika]: short ¥{max(int(_need or 0), 1)} for Ice Beam — "
+                            f"ENTERING ANYWAY (Water ace carries; TM is optional polish)")
+                        self._ice_beam_cash_needed = 0
+                        self.on_event("skipping the Game Corner detour — Blastoise already eats grass. "
+                                      "straight to Erika.", kind="gym", tier=2)
+                    elif _ibr in ("taught", "have_ice_beam"):
+                        self._ice_beam_cash_needed = 0
+                except Exception as e:
+                    log(f"   !! GYM-PREP ice-beam errand crashed ({e}) — entering Erika as-is (LOUD)")
+        # Deliberate gym interiority: junior fights must NOT trip the stranded/blackout eject
+        # (2026-08-02 Celadon: fight a junior → next tick "BLACKOUT/STRANDED" walks her out).
+        try:
+            self._ql_inside_target = True
+            self._ql_inside_map = tuple(tv.map_id(self.b))
+        except Exception:
+            pass
         # Fix B: ENFORCED pre-gym readiness (catch a team / type answer / level) BEFORE entering — she
         # must never solo a gym underleveled. Best-effort; a crash here never blocks the gym (LOUD).
         try:
@@ -4668,12 +4690,20 @@ class Campaign:
         # makes it UNIVERSAL — if the lead is still at 4 moves, free ONE slot so any learn auto-fills
         # (her pick via the soul, never the best/super-effective move). No-op if she already has room.
         self._ensure_move_room()
+        _gym_interior = GYM_INTERIORS.get(name)
         if tv.map_id(self.b) == gym.city:
             if self.enter_warp(pick=gym.door) != "warped":
                 log(f"   !! GYM: couldn't enter the {name} gym"); return "stuck"
+        elif _gym_interior and tuple(tv.map_id(self.b)) == _gym_interior:
+            log(f"   GYM: already inside {name}'s gym {_gym_interior} — staying (no re-enter/exit)")
         for _ in range(45):
             self.b.run_frame()
         gym_map = tv.map_id(self.b)                             # the gym interior we just entered
+        try:
+            self._ql_inside_target = True
+            self._ql_inside_map = tuple(gym_map) if gym_map else self._ql_inside_map
+        except Exception:
+            pass
         # CINNABAR QUIZ-DOOR GYM (NS#13): the general junior-clear + leader-engage below can't beat Blaine —
         # the leader sits behind SIX quiz doors the general handler never opens (it sees one accessible
         # trainer, calls the juniors "cleared", then A-taps a leader it can't reach). blaine_gym.run_gym does
@@ -13305,29 +13335,26 @@ class Campaign:
                 if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and _gh_capped:
                     log(f"   [roam] !! GO-HARD: force-pick STANDS DOWN — beat_gym stuck x5+ on "
                         f"{_ng3['leader']}; escape machinery owns the wedge now")
-                # ICE-BEAM CASH FARM (2026-08-02): short on Game Corner coins money — keep
-                # battle on the menu (trainers = yen), soft-stand-down force-gym until she can
-                # afford TM13. Human play: earn, buy Ice Beam, THEN Erika.
-                _cash_tm = int(getattr(self, "_ice_beam_cash_needed", 0) or 0)
-                if _cash_tm > 0 and _ng3 and _ng3.get("leader") == "Erika":
-                    try:
-                        from game_corner import ice_beam_cash_shortfall as _ib_short
-                        _left = _ib_short(self)
-                    except Exception:
-                        _left = _cash_tm
-                    if _left <= 0:
-                        self._ice_beam_cash_needed = 0
-                        log("   [roam] !! Ice Beam cash farm DONE — wallet covers TM13; gym is GO")
-                    else:
-                        self._ice_beam_cash_needed = _left
-                        a["battle"] = (f"EARN CASH for Ice Beam — need ~¥{_left} more, then Game "
-                                       f"Corner → TM13 → Erika. Fight trainers / wilds for money; "
-                                       f"this is the shop run, not a level park.")
-                        self._force_gym_pick = False
-                        log(f"   [roam] !! ICE-BEAM CASH FARM: keeping battle (need ¥{_left}); "
-                            f"GO-HARD force-gym stood down until she can buy TM13")
-                _cash_blocking = int(getattr(self, "_ice_beam_cash_needed", 0) or 0) > 0
-                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3) and not _gh_capped and not _cash_blocking:
+                # Ice Beam is optional polish now (Water ace carries Erika). Never stand down
+                # GO-HARD for a Game Corner cash farm — that parked her in Celadon tourism.
+                self._ice_beam_cash_needed = 0
+                # CELADON → ERIKA LOCK (2026-08-02): in Celadon city / gym / any Celadon interior,
+                # force the gym. Random mansion/dept leave_building tourism is banned while the
+                # Rainbow Badge is the open job.
+                _cel_lock = False
+                if _ng3 and _ng3.get("leader") == "Erika":
+                    _cm = tuple(state.get("map") or ())
+                    if _cm == tuple(CELADON) or _cm == CELADON_GYM_INTERIOR or (
+                            len(_cm) == 2 and _cm[0] == CELADON_GYM_INTERIOR[0]):
+                        _cel_lock = True
+                        if "head_to_gym" not in a:
+                            a["head_to_gym"] = "Erika's gym — Rainbow Badge NOW"
+                        for _k in ("leave_building", "talk_npc", "wander_catch", "explore"):
+                            a.pop(_k, None)
+                        self._force_gym_pick = True
+                        log("   [roam] !! CELADON→ERIKA LOCK: force head_to_gym; prune tourism "
+                            f"(map={_cm})")
+                if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3 or _cel_lock) and not _gh_capped:
                     if "head_to_gym" not in a:
                         a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
                         log("   [roam] !! restoring head_to_gym (was pruned earlier) — gym is GO")
@@ -14423,12 +14450,30 @@ class Campaign:
             # do NOT warp-route OUT to the city (that left her thrashing cans / parking head_to_gym).
             ng = state.get("next_gym")
             gym = GYMS.get(ng["leader"]) if ng else None
-            _in_surge_gym = (ng is not None and ng.get("leader") == "Lt. Surge"
-                             and tuple(state["map"]) == VERMILION_GYM_INTERIOR)
-            if gym is not None and (state["map"] == gym.city or _in_surge_gym):
-                if _in_surge_gym:
-                    log(f"   [roam] ⛰️  ALREADY INSIDE {ng['leader']}'s gym {tuple(state['map'])} — "
-                        f"re-entering beat_gym (puzzle / juniors / leader), NOT exiting")
+            _here_mid = tuple(state["map"])
+            _in_target_gym = bool(
+                ng and gym and _here_mid == GYM_INTERIORS.get(ng.get("leader")))
+            # Wrong Celadon building while Erika is next (mansion/dept/Game Corner tourism):
+            # eject to the street so the next beat is the gym door, not leave_building wander.
+            if (ng and ng.get("leader") == "Erika" and gym is not None
+                    and _here_mid[0] == CELADON_GYM_INTERIOR[0]
+                    and not _in_target_gym and _here_mid[0] != 3):
+                log(f"   [roam] !! CELADON TOURISM at {_here_mid} — Erika's gym is the job; "
+                    f"exiting building to the street (NOT exploring random rooms)")
+                self.on_event("wrong building — Erika's gym is the one. back to the street.",
+                              kind="gym", tier=1)
+                self._ql_inside_target = False
+                self._exit_to_overworld()
+                self._wait_overworld()
+                state = self.read_live_state()
+                _here_mid = tuple(state["map"])
+                _in_target_gym = False
+            if gym is not None and (_here_mid == tuple(gym.city) or _in_target_gym):
+                if _in_target_gym:
+                    log(f"   [roam] ⛰️  ALREADY INSIDE {ng['leader']}'s gym {_here_mid} — "
+                        f"re-entering beat_gym (juniors / Cut trees / leader), NOT exiting")
+                    self._ql_inside_target = True
+                    self._ql_inside_map = _here_mid
                 else:
                     log(f"   [roam] ⛰️  AT {ng['leader']}'s city {gym.city} — ENTERING the gym to take the badge")
                 # SURF-POISON CLEAR (2026-08-01 live): a beach water gate near Vermilion gym armed a
@@ -14436,7 +14481,7 @@ class Campaign:
                 # parked — next non-GO tick / discovery exile walks her onto Route 6 / UGP. When the
                 # next gym's door is HERE in this city, discard that poison immediately.
                 if (ng.get("leader") == "Lt. Surge"
-                        and (tuple(state["map"]) == VERMILION or _in_surge_gym)
+                        and (_here_mid == tuple(VERMILION) or _in_target_gym)
                         and self._active_questline is not None
                         and getattr(getattr(self._active_questline, "gate", None), "missing", None)
                         == "surf"):
@@ -15371,6 +15416,22 @@ class Campaign:
             # (group != 3) and EXIT to the overworld so a real objective can re-establish from the Center
             # (a known-good anchor) — never leave her parked where nothing can succeed. The faint itself
             # is felt via _soul_after_objective(battle_loss); this is the explicit "I came to" beat.
+            # GYM-INTERIOR SANCTUARY (2026-08-02 Celadon chalk): standing in the NEXT gym after a
+            # junior fight looks exactly like a Center whiteout (indoors + battle_ran) — the old
+            # branch ejected her mid-gauntlet. Never treat an unearned target-gym map as blackout.
+            _tick_mid = tuple(tv.map_id(self.b))
+            _ng_live = None
+            try:
+                _ng_live = (self.read_live_state() or {}).get("next_gym")
+            except Exception:
+                _ng_live = None
+            _in_unearned_gym = bool(
+                _ng_live and _tick_mid == GYM_INTERIORS.get((_ng_live or {}).get("leader")))
+            if _in_unearned_gym:
+                self._ql_inside_target = True
+                self._ql_inside_map = _tick_mid
+                log(f"   [roam] GYM SANCTUARY: inside {_tick_mid} ({(_ng_live or {}).get('leader')}'s "
+                    f"gym, badge not earned) — NOT a blackout; staying for beat_gym")
             if (tv.map_id(self.b)[0] != 3 and not getattr(self, "_ql_inside_target", False)
                     and not getattr(self, "_battle_ran_this_action", False)):
                 # EVIDENCE GATE (run-9 ghost-vileplume class): being indoors at tick top is NOT proof of
@@ -15382,7 +15443,8 @@ class Campaign:
                 # rebuilt the hut hop-loop. No battle -> normal transit -> continue from inside.
                 log(f"   [roam] tick opened inside interior {tv.map_id(self.b)}@{tv.coords(self.b)} "
                     f"with no battle since last tick — NOT a blackout; continuing (mid-route interior)")
-            elif tv.map_id(self.b)[0] != 3 and not getattr(self, "_ql_inside_target", False):
+            elif (tv.map_id(self.b)[0] != 3 and not getattr(self, "_ql_inside_target", False)
+                    and not _in_unearned_gym):
                 # (…unless she's INSIDE a questline-target building on purpose — `_ql_inside_target`. The
                 # destination-interaction layer entered Bill's cottage to talk him; don't eject her before
                 # she does. It clears the marker itself on a wrong building / when the questline completes.)
