@@ -1,0 +1,300 @@
+   [Chess] BLUNDER by opponent after Be2. Now: Kira has a forced mate.
+   [Chess] Kira played Ne4 (developing the position). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Ne4 — developing the position. Positi
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:36:58.465 TTS STOP — playback finished (span ~2994ms)
+
+   [TIMING] voice: llm=9072ms(sonnet-stream(llm+tts)) tts=0ms total=9073ms
+   [LATENCY] vad_close=1200ms stt=305ms stt_wait=0ms salience=0ms triage=bypassed memory=37ms prompt_build=17ms ttft=1905ms tts_first_chunk=340ms audio_out=249ms TOTAL=2853ms
+🎤 Recording... (recovered opening words)
+   [Chess] Kira played Qg1+ (a check). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Qg1+ — a check. Position: Kira has a 
+   [Memory] Extracted: Jonny plays chess (conf: 0.95)
+   [Memory] Upserting Fact: Jonny plays chess (Conf: 0.95)
+   [TurnTiming] 14:37:01.099 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~191746ms since onset)
+   [Chess] Kira played Qf2+ (a check). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Qf2+ — a check. Position: Kira has a 
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 14:37:01.904 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.52 [terse=0.62 gap=0.25 silence=0.99 intensity=0.60 chat=0.13] target=0.99 mult=0.98 -> min_gap=5s dead_air=20s
+   [Pokemon] SELF WANT: 'get to Saffron City and take Sabrina down'
+   [Chess] Kira played Qb2 (developing the position). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Qb2 — developing the position. Positi
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Chess] Kira played Qxa1+ (a capture). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Qxa1+ — a capture. Position: Kira has
+   [Chess] Kira played Qxb1+ (a capture). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Qxb1+ — a capture. Position: Kira has
+   [Chess] Kira played Rb2+ (a check). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Rb2+ — a check. Position: Kira has a 
+   [RoomRead] energy=0.46 [terse=0.62 gap=0.25 silence=0.68 intensity=0.60 chat=0.13] target=1.07 mult=1.00 -> min_gap=5s dead_air=20s
+   [VRAM] 14:37:21 (periodic) kira_process=0.00GB card=9.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 141ms — 0 accepted, 1 filtered (rms=0.019)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Chess] Kira played Qe4# (a check). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Qe4# — a check. Position: Kira has a 
+   [Chess] GAME OVER — Kira WON vs zoink69 (status=mate). Final: Kira has a forced mate.
+   [Chess] Chat → game/yjprQGfi: gg, thanks for the game!
+   [Chess] on_react fired (bypass=True): The game just ended — Kira WON (mate). Final position: Kira has a forc
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   [SmartMem] q='chess game' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=0.739 conf=0.95 type=profile_fact blend=0.545 lane=KNOW
+   [SmartMem]     dist=0.884 conf=0.9 type=episodic blend=0.205 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [Chess] Accepting casual correspondence challenge from zoink69 — game starting!
+   [Chess] Game f1Rg4yUU started — opening state stream.
+   [Chess] Playing White vs zoink69.
+   [Chess] GAME STARTED vs zoink69 (1500) — spectate: https://lichess.org/f1Rg4yUU
+   [Chess] Chat → game/f1Rg4yUU: gl hf! heads up — I'm an AI VTuber and this game is being streamed live.
+   [Chess] Kira played c4 (a pawn push). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played c4 — a pawn push. Position: Kira has 
+   >>> Kira (Bored): Checkmate. I'm 2-0 on the night and I have no notes, no regrets, and zero mercy.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Checkmate....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Checkmate.' (2 words)
+   [TurnTiming] 14:37:25.374 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 14:37:27.158 TTS STOP — playback finished (span ~1784ms)
+   [TTS] Speaking: I'm 2-0 on the night and I have no notes, no regre...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm 2-0 on the night and I have no notes' (18 words)
+   [TurnTiming] 14:37:27.561 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Nf3 (developing the position). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played Nf3 — developing the position. Positi
+[YouTube Chat] @zekromite4572: how do i play her in chess?
+   [BrainWorker] Got youtube msg from @zekromite4572: how do i play her in chess? → buffering for chat_batch_worker
+   [Chess] Kira played Nc3 (developing the position). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played Nc3 — developing the position. Positi
+   [Pokemon] SELF WANT: 'get the Tea, get into Saffron, take Sabrina down'
+   [TurnTiming] 14:37:32.404 TTS STOP — playback finished (span ~4843ms)
+   [TIMING] interjection: vision=0ms llm=2618ms(sonnet) tts=7215ms total=9866ms
+   [LAG] sense→speak: total=5.0s (content_age=0.0s, prep=0.0s, llm=2.6s, tts_wait+synth=2.4s)
+   [Arbiter] pausing pending-interjection drain — user spoke recently (yielding the floor; backlog resumes after the hold window)
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~62 frame(s) (~1860ms, ~1.9s) of your speech while she held the turn.
+   [Chess] Kira played e3 (a pawn push). Kira is slightly better.
+   [Chess] React suppressed (throttle): You (Kira) just played e3 — a pawn push. Position: Kira is s
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<how do i play her in chess?' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=40ms rank=0ms)
+   [SmartMem]     dist=1.019 conf=0.95 type=profile_fact blend=0.372 lane=KNOW
+   [SmartMem]     dist=0.912 conf=0.9 type=episodic blend=0.188 lane=KNOW
+   [SmartMem]     dist=0.986 conf=0.9 type=episodic blend=0.143 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 1): Zack — lichess.org/@/DuchessSterling, open challenges when I'm free. Come find out if the coaching translates.
+   [TTS] Speaking: Zack — lichess.org/@/DuchessSterling, open challen...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack — lichess.org/@/DuchessSterling, op' (9 words)
+   [TurnTiming] 14:37:37.211 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Bxc4 (a capture). Kira is clearly better.
+   [Chess] React suppressed (throttle): You (Kira) just played Bxc4 — a capture. Position: Kira is c
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 14:37:42.174 TTS STOP — playback finished (span ~4962ms)
+   [TTS] Speaking: Come find out if the coaching translates....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Come find out if the coaching translates' (8 words)
+   [TurnTiming] 14:37:42.578 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played e4 (a pawn push). Kira is slightly better.
+   [Chess] React suppressed (throttle): You (Kira) just played e4 — a pawn push. Position: Kira is s
+   [TurnTiming] 14:37:45.108 TTS STOP — playback finished (span ~2530ms)
+   [Cookies] +1 × 1 (batch response); shared=8/30
+   [ChatAge] @zekromite4572 age=16.8s batch=1 preempted=none
+   [Arbiter] Dropping stale buffered interjection (>15s old)
+🎤 Recording... (recovered opening words)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Chess] BLUNDER by opponent after b5. Now: Kira is clearly better.
+   [TurnTiming] 14:37:46.794 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~44889ms since onset)
+   [Chess] on_react fired (bypass=True): zoink69 just blundered with b5. Position swung — now Kira is clearly b
+   [SmartMem] q='chess game' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=1ms fetch=37ms rank=0ms)
+   [SmartMem]     dist=0.739 conf=0.95 type=profile_fact blend=0.544 lane=KNOW
+   [SmartMem]     dist=0.884 conf=0.9 type=episodic blend=0.205 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [Phrases] Throttling: "lichess org duchesssterling open" (3rd use this session)
+   [Phrases] Throttling: "find out if" (3rd use this session)
+   [ChatterMem] Stored: @zekromite4572 — Wants to play Kira in chess on Lichess [challenging]
+   [Chess] Kira played Bd5 (developing the position). Kira is clearly better.
+   [Chess] React suppressed (throttle): You (Kira) just played Bd5 — developing the position. Positi
+   >>> Kira (Bored): b5 just opened the a-file for me as a gift. zoink wrapped it and everything.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: b5 just opened the a-file for me as a gift....
+   [STT] lock-wait 2045ms before transcribe (contention, not Whisper); transcribe=242ms
+>>> You said: We need the sixth badge and we need EV.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='We need the sixth badge and we need EV.' fetched=10 dropped_by_floor=5 kept=5 survivors=3 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   [SmartMem]     dist=1.072 conf=0.9 type=episodic blend=0.179 lane=KNOW
+   [SmartMem]     dist=0.988 conf=0.95 type=episodic blend=0.143 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=31ms
+   [Triage] RESPOND
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'b5 just opened the a-file for me as a gi' (11 words)
+   [TurnTiming] 14:37:49.203 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Chess] BLUNDER by opponent after f6. Now: Kira is winning.
+   [Chess] Kira played exf5 (a capture). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played exf5 — a capture. Position: Kira is w
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 14:37:52.386 TTS STOP — playback finished (span ~3182ms)
+   [BargeIn] voice turn ready — yielding at sentence boundary (finished current sentence, dropping the rest).
+   [TIMING] interjection: vision=0ms llm=2004ms(sonnet) tts=3546ms total=5591ms
+   [LAG] sense→speak: total=2.4s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=0.4s)
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "just opened the" (3rd use this session)
+   [PromptSize] dynamic_context=15505ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Chess] Kira played Bxa8 (a capture). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Bxa8 — a capture. Position: Kira is w
+   [Pokemon] SELF WANT: 'get Fly from Route 16 first, then Saffron'
+   [TIMING] first-word: 4947ms
+   [TTS] Speaking: Saffron first, then Eevee....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Saffron first, then Eevee.' (6 words)
+   [TurnTiming] 14:37:57.665 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Qb3+ (a check). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Qb3+ — a check. Position: Kira is win
+   [TurnTiming] 14:38:00.190 TTS STOP — playback finished (span ~2524ms)
+   [TTS] Speaking: In that order — Sabrina before the consolation pri...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'In that order — Sabrina before the conso' (10 words)
+   [TurnTiming] 14:38:00.197 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 14:38:03.847 TTS STOP — playback finished (span ~3650ms)
+
+   [TIMING] voice: llm=11449ms(sonnet-stream(llm+tts)) tts=0ms total=11449ms
+   [LATENCY] vad_close=1200ms stt=242ms stt_wait=2045ms salience=0ms triage=bypassed memory=31ms prompt_build=3ms ttft=4645ms tts_first_chunk=302ms audio_out=312ms TOTAL=5535ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 14:38:05.062 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~63158ms since onset)
+   [VRAM] 14:38:06 (periodic) kira_process=0.00GB card=9.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [Chess] BLUNDER by opponent after Nd5. Now: Kira is winning.
+   [Chess] on_react fired (bypass=True): zoink69 just blundered with Nd5. Position swung — now Kira is winning.
+   [SmartMem] q='chess game' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=38ms rank=0ms)
+   [SmartMem]     dist=0.739 conf=0.95 type=profile_fact blend=0.544 lane=KNOW
+   [SmartMem]     dist=0.884 conf=0.9 type=episodic blend=0.205 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [Chess] Kira played Nxd5 (a capture). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Nxd5 — a capture. Position: Kira is w
+   >>> Kira (Bored): Up a rook and a half and zoink's still out here moving pieces around. This ends soon.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Up a rook and a half and zoink's still out here mo...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Up a rook and a half and zoink's still o' (15 words)
+   [TurnTiming] 14:38:09.356 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Chess] Kira played Nc3 (developing the position). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Nc3 — developing the position. Positi
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 14:38:13.110 TTS STOP — playback finished (span ~3753ms)
+   [TTS] Speaking: This ends soon....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This ends soon.' (4 words)
+   [TurnTiming] 14:38:13.339 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] BLUNDER by opponent after Nc6. Now: Kira is winning.
+   [TurnTiming] 14:38:15.122 TTS STOP — playback finished (span ~1783ms)
+   [TIMING] interjection: vision=0ms llm=2025ms(sonnet) tts=6161ms total=8227ms
+   [LAG] sense→speak: total=6.4s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=4.4s)
+🎤 Recording... (recovered opening words)
+   [Chess] Kira played Bxc6 (a capture). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Bxc6 — a capture. Position: Kira is w
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Chess] Kira played Qxb5 (a capture). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Qxb5 — a capture. Position: Kira is w
+[YouTube Chat] @Detective_Jones: how many cookies for you to forget the yandare program?
+   [BrainWorker] Got youtube msg from @Detective_Jones: how many cookies for you to forget the yandare program? → buffering for chat_batch_worker
+   [Chess] Kira played Be4 (developing the position). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Be4 — developing the position. Positi
+   [TurnTiming] 14:38:24.463 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~82559ms since onset)
+>>> You said: I don't know she's stuck, but... How do you play her in chess? You go to the link, and if you type, like, uh, Explanation Point Chess in the chat, it'll give you the link and you hook, you go to the link and you hit, like, the...
+   [Objective] SET — "I don't know she's stuck, but... How do you play her in chess? You go to the lin" (will act after silence if Jonny goes quiet)
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I don't know she's stuck, but... How do you play her in ches" fetched=10 dropped_by_floor=4 kept=6 survivors=3 direct=0 | timing(direct=0ms fetch=53ms rank=0ms)
+   [SmartMem]     dist=1.207 conf=0.95 type=episodic blend=0.245 lane=KNOW
+   [SmartMem]     dist=1.088 conf=0.9 type=episodic blend=0.080 lane=KNOW
+   [SmartMem]     dist=1.105 conf=0.95 type=episodic blend=0.070 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=55ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "and a half" (3rd use this session)
+   [PromptSize] dynamic_context=15653ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Chess] Kira played Kf1 (developing the position). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Kf1 — developing the position. Positi
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 2214ms
+   [TTS] Speaking: Hit the challenge button, yeah....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Hit the challenge button, yeah.' (7 words)
+   [TurnTiming] 14:38:27.828 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 14:38:30.080 TTS STOP — playback finished (span ~2252ms)
+   [TTS] Speaking: lichess.org/@/DuchessSterling — it's in chat too....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'lichess.org/@/DuchessSterling — it's in ' (7 words)
+   [TurnTiming] 14:38:30.086 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Qe2 (developing the position). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Qe2 — developing the position. Positi
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Chess] Kira played Nxd2 (a capture). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Nxd2 — a capture. Position: Kira is w
+   [TurnTiming] 14:38:34.389 TTS STOP — playback finished (span ~4303ms)
+   [TTS] Speaking: Just don't expect mercy because Jonny vouched for ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Just don't expect mercy because Jonny vo' (10 words)
+   [TurnTiming] 14:38:34.395 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Chess] Kira played Nc4 (developing the position). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Nc4 — developing the position. Positi
+   [TurnTiming] 14:38:37.581 TTS STOP — playback finished (span ~3185ms)
+
+   [TIMING] voice: llm=12296ms(sonnet-stream(llm+tts)) tts=0ms total=12296ms
+   [LATENCY] vad_close=1200ms stt=765ms stt_wait=0ms salience=0ms triage=bypassed memory=55ms prompt_build=17ms ttft=1763ms tts_first_chunk=451ms audio_out=308ms TOTAL=3359ms
+🎤 Recording... (recovered opening words)
+   [Chess] Kira played Bxf5 (a capture). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Bxf5 — a capture. Position: Kira is w
+   [Pokemon] SELF WANT: 'Eevee from Celadon'
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny plays chess on lichess.org
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<how many cookies for you ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [Bits] Callback: Jonny That's Just Parenting
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TurnTiming] 14:38:41.776 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~99872ms since onset)
+   [Chess] Kira played Bd2 (developing the position). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Bd2 — developing the position. Positi
+>>> You said: fucking cross swords and then you just hit yeah challenge fucking how fuck me
+   [Objective] cleared (jonny spoke again) — was "I don't know she's stuck, but... How do you play her in ches"
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='fucking cross swords and then you just hit yeah challenge fu' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   >>> Kira (Chat Batch of 1): Detective Jones, there is no number of cookies. The programme is load-bearing. I'm a better person for the trauma.
+   [TTS] Speaking: Detective Jones, there is no number of cookies....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones, there is no number of c' (10 words)
+   [TurnTiming] 14:38:42.563 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Be3 (developing the position). Kira is winning.
+   [Chess] React suppressed (throttle): You (Kira) just played Be3 — developing the position. Positi
+   [TurnTiming] 14:38:45.655 TTS STOP — playback finished (span ~3092ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=9/30
+   [ChatAge] @Detective_Jones age=25.2s batch=1 preempted=none
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=15250ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Chess] Engine move failed: engine process died unexpectedly (exit code: 3221225786)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1565ms
