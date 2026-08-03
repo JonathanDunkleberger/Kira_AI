@@ -1316,18 +1316,29 @@ class BattleAgent:
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
         self._wait(30)
         if not self._at_move_list():
-            for _ in range(6):                            # true zero-PP: drain "no moves left!" text
-                if not st.in_battle(self.b) or self._white_box():
-                    break
-                self._advance_text()
-            return "done"
+            # FROZEN-DETECTOR GUARD (2026-08-03 11:49 logs: "ZERO PP anywhere -> FIGHT+A"
+            # spammed for minutes): moves=False here CAN be a lie — the battle-UI RAM block
+            # desyncs for whole battles. If pixels say a white menu is up, the list very
+            # likely opened (the game only opens it when SOMETHING has PP) — fall through
+            # to the slot walk below with BLIND nav instead of returning a silent no-op.
+            if not self._white_box():
+                for _ in range(6):                        # true zero-PP: drain "no moves left!" text
+                    if not st.in_battle(self.b) or self._white_box():
+                        break
+                    self._advance_text()
+                return "done"
+            self.log("   [engine] struggle-walk: RAM says no move list but pixels say white "
+                     "menu — BLIND-WALKING the slots (frozen-detector guard)")
         # Move list opened — the game thinks something is usable. Try slots, least-refused first.
+        _ram_list = self._at_move_list()                  # False here = frozen detectors; go blind
         order = sorted(range(4), key=lambda i: self._move_refused.get(i, 0))
         for slot in order:
             if not st.in_battle(self.b):
                 return "done"
-            if not self._at_move_list():
+            if _ram_list and not self._at_move_list():
                 return "done"                             # something fired / battle moved on
+            if not _ram_list and not self._white_box():
+                return "done"                             # blind mode: white menu gone = resolved
             # FUTILITY GATE (09:07): if the list has already proven itself a tar pit, bench-switch
             # instead of feeding it more confirms.
             if (getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX
@@ -1336,10 +1347,13 @@ class BattleAgent:
                 self._wait(14)
                 if self._futility_bench_switch():
                     return "done"
-            self._goto_move(slot)
+            if _ram_list:
+                self._goto_move(slot)
+            else:
+                self._blind_goto_move(slot)               # zero RAM trust (frozen-detector battle)
             # Attribute to the slot ACTUALLY under the cursor — nav can fail/lie (the 09:07
             # parked-on-Tackle loop tallied refusals on slots that were never pressed).
-            _cs = self.b.rd8(MOVE_CURSOR)
+            _cs = self.b.rd8(MOVE_CURSOR) if _ram_list else slot
             pressed = _cs if 0 <= _cs < 4 else slot
             if pressed != slot:
                 self.log(f"   [engine] struggle-walk: nav to slot {slot} didn't verify — cursor "
@@ -1466,6 +1480,19 @@ class BattleAgent:
             self._wait(12)
             return "B"
         if self._at_action_menu():
+            # FROZEN-DETECTOR GUARD (11:49 logs: action=True held for a WHOLE battle while the
+            # move list was open — every 'A@FIGHT' here actually confirmed the parked slot).
+            # Once the futility floor is breached, stop trusting this byte: blind-walk to the
+            # least-refused slot and A. Real action menu: worst case the walk confirms FIGHT
+            # and then navigates the list it opened — still fires the intended slot.
+            if getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX:
+                _ref = getattr(self, "_move_refused", {})
+                _best = min(range(4), key=lambda i: _ref.get(i, 0))
+                self._blind_goto_move(_best)
+                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(16)
+                self._amove_futile += 1
+                return f"A@blind{_best}"
             if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != ram.ACT_FIGHT:
                 self._poke_action_cursor(ram.ACT_FIGHT)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
@@ -2158,6 +2185,23 @@ class BattleAgent:
             self._wait(8)
         return self.b.rd8(MOVE_CURSOR) == idx
 
+    def _blind_goto_move(self, idx):
+        """Move-list navigation with ZERO RAM trust (2026-08-03: the frozen-detector battle —
+        MENU_MODE/cursor bytes desynced for a whole fight; every readback-based layer failed
+        while the real list sat open on screen). The FRLG move grid is 2x2 with NO wraparound,
+        so clamping makes doubled presses idempotent: LEFT,LEFT,UP,UP homes to slot 0 from any
+        start even if half the presses are eaten; DOWN,DOWN / RIGHT,RIGHT then reach any slot
+        deterministically. Safe everywhere: on a text box d-pads are no-ops; on the action menu
+        the worst case is confirming FIGHT (which opens the list this walk then navigates)."""
+        for d in ("LEFT", "LEFT", "UP", "UP"):
+            self._tap(d)
+            self._wait(6)
+        steps = {0: (), 1: ("RIGHT", "RIGHT"), 2: ("DOWN", "DOWN"),
+                 3: ("DOWN", "DOWN", "RIGHT", "RIGHT")}.get(int(idx) & 3, ())
+        for d in steps:
+            self._tap(d)
+            self._wait(6)
+
     def _goto_party_slot(self, slot, tries=10):
         """Walk the in-battle party-list cursor to `slot` by RAM READBACK of PARTY_CURSOR (gPartyMenu.slotId)
         — DOWN increments, UP decrements; verify each press moved it (an eaten press is retried), so the
@@ -2397,7 +2441,19 @@ class BattleAgent:
             if not self._goto_move(idx):
                 self._nav_move(idx)
         else:
-            self.log("   [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)")
+            # 2026-08-03 11:49 LIVE ROOT (finally, from the un-muted logs): action=True
+            # moves=False for an ENTIRE battle while the operator's photos showed the move
+            # list OPEN — the battle-UI RAM block (menu mode + cursors) can freeze/desync,
+            # and this branch then fired a BLIND A into the highlighted slot (Tackle, 0 PP)
+            # every turn, forever. The old comment said "slot0/Struggle" — it was neither.
+            # BLIND-WALK the 2x2 grid instead: no wraparound means LEFT,LEFT,UP,UP always
+            # homes to slot 0 from ANY start even with eaten presses (clamping = idempotent),
+            # then doubled DOWN/RIGHT deterministically reaches the chosen slot. Zero RAM
+            # trust. If we're actually on a text box these d-pads are no-ops and the A
+            # advances it — strictly better than A-spam in every reachable state.
+            self.log(f"   [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK "
+                     f"to slot {idx} (detectors frozen; pixels say a menu is up)")
+            self._blind_goto_move(idx)
         # The slot the game will ACTUALLY select is whatever the cursor byte says NOW — if nav
         # didn't verify, that may not be `idx`. Attribute any refusal to THIS slot, not the
         # intended one (2026-08-03 09:07: refusals tallied on Bite/Water Pulse while every A
