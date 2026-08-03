@@ -96,7 +96,7 @@ def run():
     st_w = {"next_gym": {"leader": "Erika", "city": "Celadon City"},
             "party": _party_wartortle_paper(), "badge_count": 3}
 
-    check("3a ace carries Erika (paper OK — no bring_cures on Erika)",
+    check("3a ace carries Erika (paper OK — poison/sleep cures don't block march)",
           camp._ace_carries_next_gym(st_e), True)
     check("3b does NOT ace-carry Surge (bring_cures paralysis + paper)",
           camp._ace_carries_next_gym(st_s), False)

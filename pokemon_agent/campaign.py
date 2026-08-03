@@ -851,6 +851,14 @@ FLAG_BADGE_RAINBOW = 0x823
 CELADON = (3, 6)
 CELADON_PC_DOOR = (48, 11)
 CELADON_GYM_DOOR = (11, 30)
+# Celadon has NO Poké Mart — the Department Store 2F items clerk IS the Mart (pret
+# CeladonCity_DepartmentStore_2F scripts.inc). Door/stairs/clerk from recon_tm_errand
+# (live 2026-07-07) + IndoorCeladon group index 10 → 1F=(10,0) 2F=(10,1).
+CELADON_DEPT_DOOR = (11, 14)          # overworld → Dept 1F
+CELADON_DEPT_STAIRS_1F = (4, 2)       # 1F → 2F
+CELADON_DEPT_STAIRS_2F = (3, 2)       # 2F → 1F
+CELADON_DEPT_2F = (10, 1)
+CELADON_DEPT_ITEMS_FRONT = (3, 8)     # customer side of counter; items clerk at (1,8)
 LAVENDER = (3, 4)                 # the graph gateway to Route 7/8/Celadon, reached only across Rock Tunnel (Flash-gated)
 # Fuchsia (badge 5, Koga) — door/NPC coords from the disasm (FuchsiaCity/FuchsiaCity_Gym
 # map.json, 2026-07-07); the CITY MAP ID is the city-block extrapolation (Pallet 3,0 ..
@@ -1041,6 +1049,7 @@ CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR,
                    FUCHSIA: FUCHSIA_MART_DOOR,
                    # Saffron Mart (night-shift 4) — the pre-Silph Hyper-Potion stock-up (Gary/Charizard).
                    SAFFRON: SAFFRON_MART_DOOR}
+# Celadon "Mart" = Dept Store 2F items clerk (no CITY_MART_DOORS entry — buy_at_celadon_dept owns it).
 
 # DOOR APPROACH WAYPOINTS (game-knowledge, rule 14): some Mart/building doors sit in a pocket the
 # direct BFS-travel OSCILLATES into and never reaches (Fuchsia's central ponds wall the Mart door
@@ -1074,6 +1083,11 @@ MART_STOCK = {
     # pret SaffronCity_Mart scripts.inc pokemart list (2026-07-10). Hyper Potion(21) is row 1 — the
     # NS4 pre-Silph stock-up target; buy_at_mart's per-purchase bag-delta guards any mis-row LOUD.
     SAFFRON: [3, 21, 24, 23, 85, 88],
+    # Celadon Dept Store 2F items clerk (pret CeladonCity_DepartmentStore_2F_Items):
+    # GreatBall, SuperPotion, Revive, Antidote, ParlyzHeal, Awakening, BurnHeal, IceHeal, SuperRepel.
+    # Keyed by overworld CELADON so _cure_item_on_shelf / _best_potion_for_sale see the shelf;
+    # actual buys go through buy_at_celadon_dept (stairs + items clerk), not buy_at_mart.
+    CELADON: [3, 22, 24, 14, 18, 17, 15, 16, 87],
 }
 MART_CURSOR = 0x02039940   # u16 sShopData.selectedRow (pret sym 0x02039934+0xC) — the WINDOW row only
 MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above the window
@@ -1083,12 +1097,15 @@ MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above t
 # Shopping policy (named, tunable): top potions up to this; buy this many of each needed cure; keep this
 # much money in reserve (never drain the wallet). Quantities are sensible, not min-max hoarding.
 SHOP_POTION_TARGET = 6
+# Baseline potions EVERY gym gets before the door (2026-08-02 Erika chalk — she walked into
+# Celadon Gym empty-handed and blacked out). Stall gyms override with a deeper stock.
+GYM_POTION_TARGET = int(os.getenv("POKEMON_GYM_POTION_TARGET", "8"))
 # POTION-STALL gyms (night-shift 1): a leader that is an ATTRITION wall for a solo-carry — Koga's
 # 4-mon poison gauntlet (~390 HP) out-damages a lone L53 Venusaur that has NO healing items (shift-17:
 # 5+ straight losses without potions; WINS with them). A real player stocks Super Potions at the
 # gym-city Mart and heals through it. gym.name -> how many potions to carry into the fight. Game-fact
 # isolated here (rule 14); the pre-gym stock-up leg buys up to this from the gym-city Mart.
-POTION_STALL_GYMS = {"Koga": 30}
+POTION_STALL_GYMS = {"Koga": 30, "Erika": 12}
 # PRE-SILPH HYPER-POTION target (night-shift 4): Gary's Silph gauntlet ends on a Charizard (Fire/Flying)
 # that 2x-burns solo Venusaur while QUAD-resisting her Grass — she can only chip with weak Cut, so the
 # ONLY winning line is to OUT-HEAL the Fire. Super Potions (50 HP) ~= Charizard's chip (tread water ->
@@ -4264,21 +4281,14 @@ class Campaign:
         return "prepped"
 
     def _stock_potions_for_gym(self, gym):
-        """PRE-GYM POTION-STALL STOCK-UP (night-shift 1, badge-5 Koga). Some leaders beat a solo-carry by
-        ATTRITION, not type: Koga's 4-mon poison gauntlet out-damages a lone L53 Venusaur with no heals
-        (verified 5+ losses w/o potions, WINS with them). A real player buys Super Potions at the gym-city
-        Mart and heals through it. For a POTION_STALL_GYMS gym, if she's short of the target, buy the
-        shortfall (strongest potion on the shelf) from the current city's Mart. Best-effort + bounded; the
-        buy_at_mart bag-delta guards every purchase, and a no-mart / too-poor case just enters as-is (LOUD).
-        Returns a short status string. General resource/economy bedrock #6; game-facts in POTION_STALL_GYMS."""
-        target = POTION_STALL_GYMS.get(gym.name)
+        """PRE-GYM POTION STOCK-UP. Every gym gets at least GYM_POTION_TARGET heals before the door
+        (2026-08-02 Erika chalk: empty bag → blackout). Stall gyms (Koga/Erika) buy deeper.
+        Celadon has no Poké Mart — buys go through the Dept Store 2F items clerk. Best-effort +
+        bounded; bag-delta guards; no-shop / too-poor → enter as-is (LOUD)."""
+        target = POTION_STALL_GYMS.get(gym.name, GYM_POTION_TARGET)
         if not target:
             return "not_flagged"
         city = tv.map_id(self.b)
-        door = CITY_MART_DOORS.get(city)
-        if door is None:
-            log(f"   POTION-STALL [{gym.name}]: not standing in a Mart city ({city}) — can't stock here (LOUD)")
-            return "no_mart"
         have = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
         if have >= target:
             log(f"   POTION-STALL [{gym.name}]: already carrying {have} potion(s) (>= {target}) — good to go")
@@ -4288,11 +4298,14 @@ class Campaign:
             log(f"   POTION-STALL [{gym.name}]: too poor ({self.money()}) to stock potions — entering as-is (LOUD)")
             return "too_poor"
         need = target - have
-        self.on_event(f"{gym.name}'s a war of attrition — I'm not tanking that gauntlet on one Pokémon with "
-                      f"an empty bag. Quick Mart run for potions first.", kind="gym", tier=2)
+        self.on_event(f"not walking into {gym.name}'s gym with an empty bag — quick shop for potions, "
+                      f"THEN we take the badge.", kind="gym", tier=2)
         log(f"   POTION-STALL [{gym.name}]: have {have}/{target} — buying {need}x "
-            f"{ITEM_NAMES.get(pot, pot)} at {city} Mart before the fight")
-        bought = self.buy_at_mart(door, [(pot, need)])
+            f"{ITEM_NAMES.get(pot, pot)} before the fight")
+        bought = self._shop_for_gym([(pot, need)])
+        if bought is None:
+            log(f"   POTION-STALL [{gym.name}]: no shop at {city} — can't stock here (LOUD)")
+            return "no_mart"
         got = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
         log(f"   POTION-STALL [{gym.name}]: bought {bought} — now carrying {got} potion(s)")
         return "bought" if bought else "buy_failed"
@@ -4312,6 +4325,10 @@ class Campaign:
         if not cure:
             return None
         city = city if city is not None else tv.map_id(self.b)
+        try:
+            city = tuple(city)
+        except Exception:
+            pass
         stock = MART_STOCK.get(city, [])
         if cure[0] in stock:
             return cure[0]
@@ -4337,10 +4354,6 @@ class Campaign:
         if not statuses:
             return "not_flagged"
         city = tv.map_id(self.b)
-        door = CITY_MART_DOORS.get(city)
-        if door is None:
-            log(f"   CURE-KIT [{gym.name}]: not standing in a Mart city ({city}) — can't stock here (LOUD)")
-            return "no_mart"
         buy = []
         names = []
         for status in statuses:
@@ -4365,14 +4378,198 @@ class Campaign:
         who = ", ".join(names)
         self.on_event(
             f"{gym.name}'s gym is built to lock you down — I'm not walking in without {who}. "
-            f"quick Mart run, then we take the badge.",
+            f"quick shop, then we take the badge.",
             kind="gym", tier=2)
-        log(f"   CURE-KIT [{gym.name}]: buying {buy} at {city} Mart before the fight "
+        log(f"   CURE-KIT [{gym.name}]: buying {buy} before the fight "
             f"(KB bring_cures={statuses})")
-        bought = self.buy_at_mart(door, buy)
+        bought = self._shop_for_gym(buy)
+        if bought is None:
+            log(f"   CURE-KIT [{gym.name}]: no shop at {city} — can't stock here (LOUD)")
+            return "no_mart"
         got = {s: self._status_cure_have(s) for s in statuses}
         log(f"   CURE-KIT [{gym.name}]: bought {bought} — now carrying {got}")
         return "bought" if bought else "buy_failed"
+
+    def _shop_for_gym(self, shopping_list):
+        """Buy `shopping_list` at the gym-city shop. Celadon → Dept Store 2F; else Poké Mart.
+        Returns {item_id: qty} or None if this city has no shop mapping."""
+        city = tuple(tv.map_id(self.b))
+        if city == tuple(CELADON):
+            return self.buy_at_celadon_dept(shopping_list)
+        door = CITY_MART_DOORS.get(city) or CITY_MART_DOORS.get(tv.map_id(self.b))
+        if door is None:
+            return None
+        return self.buy_at_mart(door, shopping_list)
+
+    def _stock_pre_gym_kit(self, gym):
+        """ONE shop trip: potions (stall/baseline) + KB status cures. Celadon Dept is multi-floor —
+        combining avoids a double enter before Erika (2026-08-02). Returns a short status string."""
+        city = tv.map_id(self.b)
+        buy = []
+        # Potions
+        pot_target = POTION_STALL_GYMS.get(gym.name, GYM_POTION_TARGET)
+        have_p = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
+        if pot_target and have_p < pot_target:
+            pot = self._best_potion_for_sale() or 22
+            if self.money() >= SHOP_MONEY_FLOOR + 700:
+                buy.append((pot, pot_target - have_p))
+            else:
+                log(f"   PRE-GYM-KIT [{gym.name}]: too poor for potions ({self.money()})")
+        elif pot_target:
+            log(f"   PRE-GYM-KIT [{gym.name}]: potions ok ({have_p}>={pot_target})")
+        # Status cures
+        statuses = self._kb_bring_cures(gym.name)
+        cure_names = []
+        for status in statuses:
+            have = self._status_cure_have(status)
+            if have >= GYM_CURE_TARGET:
+                continue
+            iid = self._cure_item_on_shelf(status, city)
+            if iid is None:
+                log(f"   PRE-GYM-KIT [{gym.name}]: no {status} cure on shelf — skip (LOUD)")
+                continue
+            buy.append((iid, GYM_CURE_TARGET - have))
+            cure_names.append(ITEM_NAMES.get(iid, str(iid)))
+        if not buy:
+            log(f"   PRE-GYM-KIT [{gym.name}]: already stocked — walking in")
+            return "already_stocked"
+        bits = []
+        if any(i in (ITEM_POTION, 22, 21, 20, 19) for i, _ in buy):
+            bits.append("potions")
+        if cure_names:
+            bits.append(", ".join(cure_names))
+        self.on_event(
+            f"not walking into {gym.name}'s gym empty-handed — grabbing {' + '.join(bits)} first.",
+            kind="gym", tier=2)
+        log(f"   PRE-GYM-KIT [{gym.name}]: shopping list {buy} (cures KB={statuses})")
+        bought = self._shop_for_gym(buy)
+        if bought is None:
+            log(f"   PRE-GYM-KIT [{gym.name}]: no shop at {city} — entering as-is (LOUD)")
+            return "no_mart"
+        got_p = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
+        got_c = {s: self._status_cure_have(s) for s in statuses} if statuses else {}
+        log(f"   PRE-GYM-KIT [{gym.name}]: bought {bought} — potions={got_p} cures={got_c}")
+        return "bought" if bought else "buy_failed"
+
+    def buy_at_celadon_dept(self, shopping_list):
+        """Celadon Dept Store 2F items clerk — the city's only real Mart (no street Poké Mart).
+        Enter door (11,14) → stairs to 2F → stand (3,8) facing the items clerk → BUY list with
+        the same bag-delta verify as buy_at_mart → exit to overworld. Ground truth: pret
+        CeladonCity_DepartmentStore_2F_Items + recon_tm_errand (2026-07-07). Best-effort; LOUD
+        abort never silent-misbuys. Returns {item_id: bought}."""
+        stock = MART_STOCK.get(CELADON) or []
+        if not stock:
+            log("   !! DEPT: no CELADON MART_STOCK — can't shop"); return {}
+        # Already on 2F (retry / mid-errand) — skip the approach.
+        if tuple(tv.map_id(self.b)) != CELADON_DEPT_2F:
+            if tuple(tv.map_id(self.b)) != tuple(CELADON):
+                log(f"   !! DEPT: not in Celadon ({tv.map_id(self.b)}) — can't reach Dept Store")
+                return {}
+            try:
+                self._stuck_request = None
+                if self._stuckwatch is not None:
+                    self._stuckwatch.reset()
+            except Exception:
+                pass
+            if self.enter_warp(pick=CELADON_DEPT_DOOR) != "warped":
+                log("   !! DEPT: couldn't enter Dept Store 1F"); return {}
+            for _ in range(60):
+                self.b.run_frame()
+            if self.enter_warp(pick=CELADON_DEPT_STAIRS_1F) != "warped":
+                log("   !! DEPT: couldn't take stairs to 2F"); self._exit_to_overworld(); return {}
+            for _ in range(60):
+                self.b.run_frame()
+            if tuple(tv.map_id(self.b)) != CELADON_DEPT_2F:
+                log(f"   !! DEPT: expected 2F {CELADON_DEPT_2F}, got {tv.map_id(self.b)} — abort LOUD")
+                self._exit_to_overworld(); return {}
+        # Walk to the items clerk (not the TM clerk at y=6).
+        if (self.trav.travel(target_map=None, arrive_coord=CELADON_DEPT_ITEMS_FRONT,
+                             max_steps=80, max_seconds=60) != "arrived"
+                and not self._step_to(CELADON_DEPT_ITEMS_FRONT)):
+            log(f"   !! DEPT: couldn't reach items clerk front {CELADON_DEPT_ITEMS_FRONT}")
+            self._exit_to_overworld(); return {}
+        self.b.set_input_owner("agent")
+        guard = self.money()
+        opened = False
+        for _ in range(8):
+            self.b.press("LEFT", 8, 8, self.render, owner="agent")
+            self.b.press("A", 8, 10, self.render, owner="agent")
+            for _ in range(40):
+                self.b.run_frame()
+                if dd_box_open(self.b):
+                    opened = True
+                    break
+            if opened:
+                break
+        if not opened:
+            log("   !! DEPT: items clerk never opened a dialog — abort LOUD")
+            self._exit_to_overworld(); return {}
+        stable = 0
+        for _ in range(30):
+            if dd_box_open(self.b):
+                stable = 0
+                self.b.press("A", 8, 12, self.render, owner="agent")
+                for _ in range(20):
+                    self.b.run_frame()
+            else:
+                stable += 1
+                if stable >= 2:
+                    break
+                for _ in range(20):
+                    self.b.run_frame()
+        # Dept clerks often drop straight into the BUY list — only tap BUY if cursor is dead.
+        c0 = self._mart_index()
+        self.b.press("DOWN", 8, 10, self.render, owner="agent")
+        for _ in range(20):
+            self.b.run_frame()
+        list_live = self._mart_index() != c0
+        if list_live:
+            self._mart_goto_row(0)
+        else:
+            self.b.press("A", 8, 10, self.render, owner="agent")  # BUY on BUY/SELL
+            for _ in range(120):
+                self.b.run_frame()
+            c0 = self._mart_index()
+            self.b.press("DOWN", 8, 10, self.render, owner="agent")
+            for _ in range(20):
+                self.b.run_frame()
+            if self._mart_index() == c0:
+                log("   !! DEPT: BUY list didn't confirm — abort LOUD")
+                self._exit_to_overworld(); return {}
+            self._mart_goto_row(0)
+        if self.money() < guard:
+            log(f"   !! DEPT: money dropped during entry ({guard}->{self.money()}) — abort LOUD")
+            self._exit_to_overworld(); return {}
+        bought = {}
+        for item_id, qty in shopping_list:
+            nm = ITEM_NAMES.get(item_id, f"item#{item_id}")
+            if item_id not in stock:
+                log(f"   DEPT: {nm} not sold on 2F — skipping"); continue
+            row = stock.index(item_id)
+            for _ in range(qty):
+                if self.money() < SHOP_MONEY_FLOOR:
+                    log(f"   DEPT: at money floor ({self.money()}) — stopping"); break
+                before = self._item_count(item_id)
+                if not self._mart_goto_row(row):
+                    log(f"   !! DEPT: couldn't reach {nm} row {row} — abort {nm} LOUD"); break
+                price = self._mart_buy_one()
+                if price == 0 or self._item_count(item_id) != before + 1:
+                    log(f"   !! DEPT: buy-verify FAILED for {nm} (price={price}, "
+                        f"x{before}->x{self._item_count(item_id)}) — abort {nm} LOUD"); break
+                bought[item_id] = bought.get(item_id, 0) + 1
+            if bought.get(item_id):
+                log(f"   DEPT: bought {bought[item_id]}x {nm}")
+        for _ in range(8):
+            self.b.press("B", 6, 12, self.render, owner="agent")
+            for _ in range(14):
+                self.b.run_frame()
+        # Exit 2F → 1F → Celadon (south mats).
+        if self.enter_warp(pick=CELADON_DEPT_STAIRS_2F) == "warped":
+            for _ in range(40):
+                self.b.run_frame()
+        self._exit_to_overworld()
+        log(f"   DEPT: shopping done — {bought} (money now {self.money()})")
+        return bought
 
     def stock_hyper_potions(self, hyper_target=SILPH_HYPER_TARGET, revive_target=SILPH_REVIVE_TARGET):
         """Pre-Silph SILPH KIT stock-up (night-shift 4). Gary's Silph gauntlet ends on a Charizard
@@ -4704,24 +4901,13 @@ class Campaign:
             self.prep_for_gym(gym)
         except Exception as e:
             log(f"   !! GYM-PREP crashed ({e}) — walking into {name} unprepped (LOUD)")
-        # POTION-STALL STOCK-UP (night-shift 1, the badge-5 Koga attrition wall): for gyms flagged as a
-        # solo-carry attrition wall, buy a stall stock of Super Potions at the gym-city Mart BEFORE
-        # entering, so the in-battle item instinct can heal her ace through the gauntlet (the proven
-        # potion-stall win). Runs here (not inside prep_for_gym) so it fires even on a goal-pinned watch
-        # — prep_for_gym returns "pinned" and skips its body. Best-effort + bounded; a crash never blocks
-        # the gym (LOUD). Resource/economy bedrock #6; game-facts isolated to POTION_STALL_GYMS.
+        # PRE-GYM KIT (potions + KB bring_cures) in ONE shop trip — Celadon Dept is a multi-floor
+        # errand; never enter twice for potions then Antidotes (2026-08-02 empty-bag blackouts).
+        # Fires even when prep_for_gym is pinned. Best-effort; never blocks the gym (LOUD).
         try:
-            self._stock_potions_for_gym(gym)
+            self._stock_pre_gym_kit(gym)
         except Exception as e:
-            log(f"   !! GYM potion-stall stock-up crashed ({e}) — entering {name} as-is (LOUD)")
-        # STATUS-CURE KIT (2026-08-02): KB `bring_cures` foresight — Surge Thunder Wave /
-        # Koga Toxic etc. Buy Parlyz Heal / Antidote at the city Mart BEFORE the door so
-        # in-battle item instinct can un-lock the ace. Same beat_gym seam as potion-stall
-        # (fires even when prep_for_gym is pinned). Best-effort; never blocks the gym.
-        try:
-            self._stock_status_cures_for_gym(gym)
-        except Exception as e:
-            log(f"   !! GYM status-cure stock-up crashed ({e}) — entering {name} as-is (LOUD)")
+            log(f"   !! GYM pre-kit stock-up crashed ({e}) — entering {name} as-is (LOUD)")
         # HEAL-BEFORE-THE-GYM GATE (2026-07-07, erika_run2): she walked into Erika's gauntlet with
         # two fainted mons and a PP-dry lead and status-moved her way to a 12-battle futility wall.
         # A human ALWAYS taps the Center first — gym cities always have one and heal_at_center
@@ -8134,9 +8320,9 @@ class Campaign:
 
         PAPER + STATUS-GYM GUARD: Blastoise L36 vs Surge ALSO clears the raw level bar, but
         Thunder Wave / Raichu farm a paper bench — that rematch chalk must keep GO-HARD blocked.
-        KB `bring_cures` marks status-heavy gyms (Surge paralysis, Koga poison): with a paper
-        bench those stay a short farm, not a march. Erika has no bring_cures → Celadon chalk
-        marches when the level bar is cleared (credits > Route-6 montage)."""
+        KB `bring_cures` with paralysis (Surge Thunder Wave) + paper bench stays a short farm.
+        Poison/sleep (Erika) do NOT block the march — the pre-gym Dept kit stocks Antidote/
+        Awakening, and the ace already clears the level bar."""
         try:
             ng = state.get("next_gym") if state else None
             if not ng or getattr(self, "planner", None) is None:
@@ -8155,7 +8341,10 @@ class Campaign:
                 return False
             if r.get("paper_bench"):
                 rec = (self.planner.threats or {}).get(ng["leader"]) or {}
-                if rec.get("bring_cures"):
+                # Only STATUS-LOCK cures (paralysis) block the march — Thunder Wave strands the
+                # ace mid-turn. Poison/sleep (Erika) are healable mid-fight once the Dept kit is
+                # stocked; don't park a Celadon grass farm for Antidotes (2026-08-02).
+                if "paralysis" in (rec.get("bring_cures") or []):
                     return False
             return True
         except Exception:

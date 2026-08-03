@@ -1,9 +1,9 @@
 """recon_gym_cure_kit_check.py — headless verifier for KB bring_cures / pre-gym cure kit.
 
 Proves WITHOUT an emulator:
-  (1) frlg_strategy.json lists bring_cures for Lt. Surge (paralysis) and Koga (poison)
-  (2) campaign source wires _stock_status_cures_for_gym into beat_gym
-  (3) shopping_list foresight pulls KB cures (source contract)
+  (1) frlg_strategy.json lists bring_cures for Surge / Erika / Koga
+  (2) campaign source wires _stock_pre_gym_kit into beat_gym (potions+cures, one trip)
+  (3) Celadon Dept Store stock + buy path exist
   (4) Discord diary is PARKED by default
 
 RUN:  python -u recon_gym_cure_kit_check.py
@@ -36,21 +36,26 @@ def run():
     threats = kb.get("threats") or {}
 
     surge = threats.get("Lt. Surge") or {}
+    erika = threats.get("Erika") or {}
     koga = threats.get("Koga") or {}
     check("1a Surge bring_cures has paralysis",
           "paralysis" in (surge.get("bring_cures") or []), True)
-    check("1b Koga bring_cures has poison",
+    check("1b Erika bring_cures has poison+sleep",
+          set(erika.get("bring_cures") or []) >= {"poison", "sleep"}, True)
+    check("1c Koga bring_cures has poison",
           "poison" in (koga.get("bring_cures") or []), True)
 
     camp = open(os.path.join(_HERE, "campaign.py"), encoding="utf-8").read()
-    check("2a _stock_status_cures_for_gym defined",
-          "def _stock_status_cures_for_gym" in camp, True)
-    check("2b beat_gym calls cure stock",
-          "self._stock_status_cures_for_gym(gym)" in camp, True)
-    check("2c shopping foresight uses _kb_bring_cures",
+    check("2a _stock_pre_gym_kit defined",
+          "def _stock_pre_gym_kit" in camp, True)
+    check("2b beat_gym calls pre-gym kit",
+          "self._stock_pre_gym_kit(gym)" in camp, True)
+    check("2c Celadon Dept buy path",
+          "def buy_at_celadon_dept" in camp and "CELADON_DEPT_DOOR" in camp, True)
+    check("2d Celadon shelf has Super Potion+Antidote",
+          "CELADON: [3, 22, 24, 14, 18, 17, 15, 16, 87]" in camp, True)
+    check("2e shopping foresight uses _kb_bring_cures",
           "_kb_bring_cures" in camp and "GYM_CURE_TARGET" in camp, True)
-    check("2d Vermilion sells Parlyz Heal (18)",
-          "VERMILION: [4, 22, 16, 17, 18, 86]" in camp, True)
 
     cfg = open(os.path.join(_ROOT, "kira", "config.py"), encoding="utf-8").read()
     check("3a DISCORD_DIARY_PARKED in config", "DISCORD_DIARY_PARKED" in cfg, True)
@@ -72,7 +77,7 @@ def run():
     if fails:
         print(f"FAIL: {len(fails)} case(s): {fails}")
         sys.exit(1)
-    print("ALL PASS — Surge/Koga cure kit in KB; beat_gym stocks; Discord diary parked.")
+    print("ALL PASS — Surge/Erika/Koga cure kit in KB; pre-gym kit + Celadon Dept wired.")
 
 
 if __name__ == "__main__":

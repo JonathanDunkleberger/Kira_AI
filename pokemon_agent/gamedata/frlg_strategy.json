@@ -39,8 +39,9 @@
    "types": ["grass", "poison"], "ace": "vileplume", "level_band": [29, 29],
    "weak_to": ["fire", "flying", "psychic", "ice"],
    "answer_types": ["fire", "flying", "psychic"], "answer_species": ["growlithe", "charmander", "pidgeotto", "abra"],
+   "bring_cures": ["poison", "sleep"],
    "counter": "Grass/Poison melts to Fire and to Flying/Psychic — a Growlithe or a Fire move is a clean sweep",
-   "folklore": "the flower lady — GRASS and poison; fire melts her garden, flyers do fine too"
+   "folklore": "the flower lady — GRASS and poison; Sleep Powder + PoisonPowder lock you down — Antidotes and Awakenings at the Dept Store BEFORE you walk in; fire melts her garden"
   },
   "Koga": {
    "order": 5, "kind": "gym", "city": "Fuchsia City",
