@@ -15526,9 +15526,17 @@ class Campaign:
                 # sets _force_gym_pick, and parking FLAG_WOKE_UP_ROUTE_12_SNORLAX (or silph_scope)
                 # was the Lavender↔Route 8 blank-line thrash (2026-08-02). Check BOTH gate.missing
                 # (outer gate) and actionable.missing (current prereq step).
+                # SAFFRON PAIR (2026-08-03 LIVE, the Route-8 hut in/out loop Jonny watched): the
+                # badge-6 road is DOUBLE-gated — the gate guard wants the TEA, then Sabrina's own
+                # door is Rocket-blocked until Silph falls. Neither was listed here, so GO-HARD
+                # (ace-carries latched on L54 Blastoise) IGNORED the tea errand and drove "THE GYM
+                # DOOR" — which pre-Tea is a wall — while the errand's ANCHOR-FIRST walked her back
+                # into the UGP hut. One controller in, one controller out, every tick, forever.
+                # Tea/Silph are Flash-class (the road itself), not Bill-class (a detour).
                 _ROAD_BLOCKERS = {
                     "flash", "cut", "silph_scope",
                     "FLAG_GOT_POKE_FLUTE", "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
+                    "FLAG_GOT_TEA", "FLAG_HIDE_SAFFRON_ROCKETS",
                 }
                 _road_blocker = (_ql_miss in _ROAD_BLOCKERS) or (_ql_step in _ROAD_BLOCKERS)
                 if _go_hard_now and not _road_blocker:
