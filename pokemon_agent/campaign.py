@@ -9185,6 +9185,15 @@ class Campaign:
             _balls = self._ball_count()
             _co = self._creator_order(state)
             _catch = bool(_co and _co.get("order") == "catch_now")
+            # 2026-08-02 LIVE: waking with 0 balls + catch_now made battle_runner FIGHT-clear
+            # and Blastoise KO'd Snorlax. Mart FIRST, then wake.
+            if _catch and _balls <= 0:
+                log("   [roam] !! catch_now Snorlax but ZERO balls — refusing wake "
+                    "(would KO it). Mart / stock_up FIRST.")
+                self.on_event("catch order is live but I've got ZERO balls — "
+                              "I'm not waking Snorlax just to Surf it. Mart first.",
+                              kind="route", tier=3)
+                return "snorlax_need_balls"
             log(f"   [roam] !! Route 12 Snorlax is THE roadblock — Poké Flute wake NOW "
                 f"(not head_to_gym no_path thrash); balls={_balls}"
                 + ("; catch_now LAW → weaken+ball, don't KO" if _catch else ""))

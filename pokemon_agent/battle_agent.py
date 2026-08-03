@@ -373,12 +373,32 @@ class BattleAgent:
 
     def _divert_wild_catch(self, reason, foe_name, max_seconds):
         """Shared careful-capture divert (shiny / legendary / creator catch_now / Diglett keeper).
-        Diglett has Arena Trap — flee ALWAYS fails; a no_balls path that leaves the battle open
-        is the live RUN-spam livelock (2026-08-02 chalk). Always resolve the fight before return."""
-        if self._ball_count() <= 0 and reason not in ("shiny", "legendary"):
+
+        2026-08-02 LIVE: catch_now + ZERO balls used to fall through to `run()` (= FIGHT) and
+        Blastoise one-shot the Route-12 Snorlax Jonny ordered caught. Creator / shiny / legendary
+        NEVER fight-clear on empty balls — flee, keep the order live, Mart first."""
+        _never_ko = reason in ("shiny", "legendary", "creator_catch_now")
+        if self._ball_count() <= 0:
+            if _never_ko:
+                self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — ZERO balls; "
+                         f"FLEEING (NOT fighting — that KOs the catch target)")
+                self.emit(f"I've got ZERO Poké Balls — I am NOT killing this {foe_name}. "
+                          f"backing out. Mart first, then we catch.", beat=True, tier=3)
+                # KEEP catch_now live — clearing it made the next wake/fight a free KO.
+                fled = self.flee(max_seconds=60)
+                if not st.in_battle(self.b):
+                    return "no_balls"
+                if self._foe_blocks_flee():
+                    # Diglett Arena Trap + 0 balls + catch order: can't flee, can't catch.
+                    # Fighting is the only exit — LOUD. (Snorlax is fleeable; never hits here.)
+                    self.log("   [engine] catch_now + 0 balls + Arena Trap — must fight clear (LOUD)")
+                    self._skip_catch_divert = True
+                    try:
+                        return self.run(max_seconds=max(120, max_seconds))
+                    finally:
+                        self._skip_catch_divert = False
+                return "no_balls"
             self.log(f"   [engine] WILD CATCH DIVERT skipped ({reason}) — no balls; fighting instead")
-            if reason == "creator_catch_now":
-                self._clear_creator_catch_order()
             self._skip_catch_divert = True
             try:
                 return self.run(max_seconds=max(120, max_seconds))
@@ -386,18 +406,28 @@ class BattleAgent:
                 self._skip_catch_divert = False
         self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — {foe_name}: weaken+balls, never KO")
         res = self.catch_pokemon(max_seconds=max(150, max_seconds), weaken=True)
-        if reason == "creator_catch_now":
+        if reason == "creator_catch_now" and res == "caught":
             self._clear_creator_catch_order()
+        elif reason == "creator_catch_now" and res in ("fainted",):
+            # KO'd the catch target — LOUD failure, clear so she doesn't re-latch forever.
+            self.log("   [engine] !! catch_now FAILED — target fainted (KO). order cleared.")
+            self.emit(f"no — I knocked out the {foe_name}. that was the catch order. I'm an idiot.",
+                      beat=True, tier=3)
+            self._clear_creator_catch_order()
+        elif reason == "creator_catch_now" and res in ("no_balls", "cant_weaken", "fled", "stuck"):
+            # Keep order — she still owes the catch after Mart / retry.
+            self.log(f"   [engine] catch_now unresolved ({res}) — LAW order KEPT for retry")
         if res == "caught" or not st.in_battle(self.b):
             return res
-        if reason in ("shiny", "legendary"):
+        if _never_ko:
             self.emit(f"I couldn't catch it ({res}) — I am NOT killing a {reason}, I'm backing out.",
                       beat=True, tier=3)
             self.log(f"   [engine] {reason} capture failed ({res}) — fleeing to avoid KOing it")
             fled = self.flee(max_seconds=60)
             if not st.in_battle(self.b):
                 return fled
-            # Arena Trap / Can't escape — must not abandon the battle open
+            if reason == "creator_catch_now" and not self._foe_blocks_flee():
+                return "no_balls"
             self.emit("can't run — finishing the fight carefully.", beat=True, tier=2)
         return self._resolve_open_battle(max_seconds=max(120, max_seconds))
 
@@ -990,10 +1020,12 @@ class BattleAgent:
                          f"on its first free turn — skipping weaken, ball-on-sight")
                 self.emit(f"{_fname} teleports away the second it gets a turn — no time to weaken it, "
                           f"I have to throw RIGHT NOW and pray.", beat=True, tier=1)
-            elif weaken and _rb0 and (_rb0["ours"].get("level", 0) - _rb0["enemy"].get("level", 0)) >= 10:
+            elif weaken and _rb0 and (
+                    (_rb0["ours"].get("level", 0) - _rb0["enemy"].get("level", 0)) >= 10
+                    or _foe_sp0 == 143):  # Snorlax: Surf/Hydro from Blastoise OHKOs — never chip
                 status_only = True
-                self.log("   [engine] catch: foe is 10+ levels under the lead — no chipping (would KO); "
-                         "SLEEP-then-throw if a sleep move is up, else a CHIPPER SWITCH")
+                self.log("   [engine] catch: foe is 10+ levels under the lead (or Snorlax) — "
+                         "no chipping (would KO); SLEEP-then-throw / CHIPPER, never ace Surf")
         except Exception:
             pass
 
@@ -1009,9 +1041,13 @@ class BattleAgent:
                 return _ended()
             if self._ball_count() <= 0:
                 self.emit("I'm out of Poké Balls - I'll come back for this one", beat=True)
-                # 2026-07-06 WEDGE FIX: never walk away from a LIVE battle. Diglett Arena Trap:
-                # skip RUN entirely — flee() now fights Diglett, but go straight to FIGHT here too.
-                if self._foe_blocks_flee():
+                # NEVER fight-clear a catch_now / Snorlax / shiny / legendary — that was the
+                # 2026-08-02 LIVE KO of Jonny's ordered Snorlax (Blastoise Surf, zero balls).
+                _foe_sp = (st.read_battle(self.b) or {}).get("enemy", {}).get("species")
+                _protect = (self._peek_creator_catch_order()
+                            or _foe_sp in (143, 144, 145, 146, 150, 151)  # snorlax + legendaries
+                            or st.enemy_is_shiny(self.b))
+                if self._foe_blocks_flee() and not _protect:
                     self.log("   [engine] catch no_balls + Arena Trap — FIGHTING clear (no RUN attempt)")
                     self._skip_catch_divert = True
                     try:
@@ -1019,10 +1055,15 @@ class BattleAgent:
                     finally:
                         self._skip_catch_divert = False
                 else:
+                    self.log("   [engine] catch no_balls — FLEEING (protect catch target from KO)")
                     self.flee(max_seconds=45)
-                    if st.in_battle(self.b):
+                    if st.in_battle(self.b) and not _protect:
                         self.log("   [engine] catch no_balls: flee failed — fighting clear")
                         self._resolve_open_battle(max_seconds=120)
+                    elif st.in_battle(self.b) and _protect:
+                        self.log("   [engine] !! catch no_balls + protected target still in battle "
+                                 "— refusing fight-clear KO; fleeing again")
+                        self.flee(max_seconds=30)
                 return "no_balls"
             self._settle()
             if not st.in_battle(self.b):
