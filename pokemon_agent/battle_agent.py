@@ -2926,23 +2926,37 @@ class BattleAgent:
         return not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
                        and self._move_connects(m, state) for m in mv)
 
+    def _crushing_lead(self, state):
+        """True when the active massively out-levels the foe and still has a connecting attack.
+        2026-08-03 Voltorb chalk: L48 Blastoise vs Electric fodder does NOT need matchup-switch,
+        potion-bag theater, or must-leave — JUST FIGHT. Hierarchy gate for the whole turn loop."""
+        ours = state.get("ours") or {}
+        enemy = state.get("enemy") or {}
+        act_lv = ours.get("level") or 0
+        foe_lv = enemy.get("level") or 0
+        if not (act_lv and foe_lv and act_lv >= foe_lv + 8):
+            return False
+        mv = ours.get("moves") or []
+        return any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
+                   and self._move_connects(m, state) for m in mv)
+
     def _must_leave_active(self, state):
-        """Alive but shouldn't stay in — the 'Blastoise half-HP, can't move, bench has 3 live'
-        case (2026-08-03). Sleep/freeze lock the turn; PP famine can't win; skip-streak exhausted
-        every usable move. Distinct from force-switch (fainted): the active still has HP>0 so the
-        engine used to refuse to leave and loop menus."""
+        """Alive but shouldn't stay in — sleep/freeze lock, or true PP famine (no connecting damage).
+
+        2026-08-03 FIX: do NOT treat skip_streak exhaustion as must-leave. Menu thrash marks every
+        move 'failed to fire' without spending PP → skip_streak full → we opened the party and
+        looked like 'switching Blastoise for no reason' vs Voltorb with no status. Skip-streak
+        belongs to war-must-advance / Struggle, not a voluntary switch."""
         ours = state.get("ours") or {}
         if (ours.get("hp") or 0) <= 0:
             return False
+        # Crushing lead: stay in and swing (unless hard-locked by sleep/freeze).
         status = _decode_status(ours.get("status1", 0) or 0)
         if status in ("sleep", "freeze"):
             return True
+        if self._crushing_lead(state):
+            return False
         if self._active_pp_famine(state):
-            return True
-        mv = ours.get("moves") or []
-        usable = [i for i in range(min(4, len(mv)))
-                  if mv[i].get("id") and mv[i].get("pp", 0) > 0]
-        if usable and usable and all(i in self._skip_streak for i in usable):
             return True
         return False
 
@@ -3467,17 +3481,30 @@ class BattleAgent:
                             self._unresolved_turns = 0
                             continue
                         self.log("   [engine] load-share switch did not confirm -> heal/fight (fail-safe)")
+                # JUST FIGHT (2026-08-03): crushing level lead + connecting damage → skip bag /
+                # switch theater entirely. Voltorb/Electrode logs: no status, Blastoise half-HP,
+                # Water Pulse ending them — potion/POKEMON menus were pure watchability poison.
+                _just_fight = bool(state and self._crushing_lead(state)
+                                   and _hp_frac(state.get("ours") or {}) > BATTLE_CRIT_FRAC
+                                   and _decode_status((state.get("ours") or {}).get("status1", 0) or 0)
+                                   not in ("sleep", "freeze"))
+                if _just_fight and getattr(self, "_just_fight_logged", None) != id(state):
+                    self._just_fight_logged = id(state)
+                    _o, _e = state.get("ours") or {}, state.get("enemy") or {}
+                    self.log(f"   [engine] JUST FIGHT: L{_o.get('level')} vs L{_e.get('level')} "
+                             f"+ connecting damage — skipping bag/switch hierarchy this turn")
                 # PART B: SURVIVAL INSTINCT FIRST — if a mon is crit-low/afflicted with a matching item,
                 # offer the bag to the oracle. If she uses one, the turn is spent (skip move selection).
                 # Any non-use falls through to the proven move path (fail-safe; never wedges).
-                if state and not (self._enemy_fainted or self._we_fainted) and self._maybe_use_item(state):
+                if (state and not _just_fight and not (self._enemy_fainted or self._we_fainted)
+                        and self._maybe_use_item(state)):
                     self._acted_once = True
                     stall = 0
                     continue
                 # ALIVE-BUT-STUCK SWITCH (2026-08-03 Jonny: Blastoise vs Voltorb — half HP, can't
                 # move / sleep-freeze / move theater, 3 live on bench, kept "switching" into himself).
                 # Force a voluntary leave to a DIFFERENT living species; never row-0 / same species.
-                if (state and not (self._enemy_fainted or self._we_fainted)
+                if (state and not _just_fight and not (self._enemy_fainted or self._we_fainted)
                         and self._must_leave_active(state)):
                     _asp = state.get("ours", {}).get("species")
                     if self._must_leave_tried.get(_asp, 0) < FAMINE_SWITCH_TRIES:
@@ -3617,7 +3644,7 @@ class BattleAgent:
                 # the ace STAYS and tanks — no matchup churn.
                 # Skip matchup switch once a turn already failed to resolve — opening POKEMON
                 # mid-thrash is more menu theater (2026-08-02 LIVE).
-                if (BATTLE_SWITCH_ENABLED and not PROTECT_LEAD_GRIND
+                if (BATTLE_SWITCH_ENABLED and not PROTECT_LEAD_GRIND and not _just_fight
                         and getattr(self, "_unresolved_turns", 0) < 1
                         and state and not (self._enemy_fainted or self._we_fainted)
                         and self._voluntary_switch(state) == "switched"):
