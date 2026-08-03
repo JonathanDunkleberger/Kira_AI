@@ -1,0 +1,408 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 4) coords=(0, 11) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 1 blocked tile(s), 9 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=17344).
+
+   [soul] continuity loaded: 12 roster bond(s), 577 want(s)
+
+   [campaign]    [strat] continuity loaded: 10 remembered wall(s); active grudge vs a trainer at Pokémon Tower (1x)
+
+   [campaign]    [world] mental map loaded: 122 place(s) known, 219 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 4) coords=(0, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260802_213235_lavender-town_4b_22h28m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_WOKE_UP_ROUTE_12_SNORLAX → steps=['silph_scope', 'FLAG_GOT_POKE_FLUTE', 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'] actionable=FLAG_GOT_POKE_FLUTE (resolved=True)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need the Poké Flute — Mr. Fuji's thank-you for rescuing him from the Tower. It's the only thing that wakes a sleeping Snorlax. Then the road south of Lavender is blocked by a snoring Snorlax — the Poké Flute wakes it (and it's a heck of a catch if I'm quick)."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 28) toward Route 10 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] ACE-CARRIES: prep-to-L27 stands down — ace clears the next gym's level bar; MARCH (bench XP on the road), not parked Route grass
+
+   [kira-voice] ·floor· (<1s since last) T1 "bench is thin, but my ace already clears the next gym's level — we're marching; they'll catch XP on the road."
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_POKE_FLUTE' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,22', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'wander_catch']; oracle SKIPPED this tick
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (4, 6, 12, 133) @ Lavender Town (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (0, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L45, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (0,11) f4 -- badge4 $17838 party:d27f bag:5b3f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Lavender Town
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. ALREADY BESIDE YOU — your current team: blastoise (L45), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 4), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L45), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=10, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='bench levels on the road to Fuchsia'
+
+   [campaign]    [soul] ORACLE pick -> 'bench levels on the road to Fuchsia'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:Pokémon Tower:drowzee: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:Pokémon Tower:drowzee: team floor < L27 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [kira-voice] -> T2·savor· (want) 'bench levels on the road to Fuchsia'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [strat] roster size = 6
+
+   [campaign]    [teamplan] next action: catch_keeper (pikachu -> raichu answers Lorelei, Lance, Champion) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'/step=FLAG_GOT_POKE_FLUTE is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [roam] 🚪 QUESTLINE DOOR-HINT: the top of Pokémon Tower in Lavender — rescue Mr. Fuji from Team Rocket (the Silph Scope gets you past the ghost Marowak on floor 6) is IN town — entering the billed door (18, 6) on (3, 4)
+
+   [campaign]    6 door(s); candidates (chosen order): [(18, 6)]
+
+   [campaign]    reachable door (18, 6): walking to approach (18, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(0, 11) -> coord (18, 7) (budget 900s)
+
+   [dialogue] +++ 'The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?'  tags=['PLACE', 'ITEM']
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?"'
+
+   [travel] step 0: (0, 11)->(0, 10) map=(3, 4) (path 23 to exit)
+
+   [travel] step 10: (7, 8)->(8, 8) map=(3, 4) (path 13 to exit)
+
+   [travel] step 20: (16, 7)->(17, 7) map=(3, 4) (path 3 to exit)
+
+   [travel] reached target coord (18, 7)
+
+   [dialogue] +++ 'POK.MON TOWER'  tags=[]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POK.MON TOWER"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    WARPED (3, 4) -> (1, 88) via door (18, 6)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 88): (10, 19)->(3, 4), (11, 18)->(3, 4), (12, 19)->(3, 4), (18, 9)->(1, 89)
+
+   [campaign]    [roam] 🚪 QUESTLINE ENTER (door-hint): inside (1, 88)
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_entered | pos (3, 4)(0, 11) -> (1, 88)(11, 18) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 88) coords=(11, 18) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260802_213248_pok-mon-tower_4b_22h29m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (1, 88): (10, 19)->(3, 4), (11, 18)->(3, 4), (12, 19)->(3, 4), (18, 9)->(1, 89)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 88): (10, 19)->(3, 4), (11, 18)->(3, 4), (12, 19)->(3, 4), (18, 9)->(1, 89)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — it drives the 'FLAG_GOT_POKE_FLUTE' errand, not Koga's door (the errand route IS the strengthening)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['travel:3,22', 'travel:3,26', 'travel:3,27', 'travel:3,28']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Pokémon Tower (11, 18) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L45, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 88) (11,18) f2 -- badge4 $17838 party:d27f bag:5b3f]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:Pokémon Tower:drowzee: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:Pokémon Tower:drowzee: team floor < L27 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! SPATIAL WALL: folding gate-awareness (route blocked until stronger)
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'FLAG_WOKE_UP_ROUTE_12_SNORLAX'/step=FLAG_GOT_POKE_FLUTE is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Pokémon Tower (Poké Flute) — attempt 1/3 from (1, 88)
+
+   [campaign]    2 door(s); candidates (chosen order): [(18, 9)]
+
+   [campaign]    reachable door (18, 9): walking to approach (18, 10)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 88) coords=(11, 18) -> coord (18, 10) (budget 300s)
+
+   [travel] step 0: (11, 18)->(11, 17) map=(1, 88) (path 16 to exit)
+
+   [travel] step 10: (13, 10)->(14, 10) map=(1, 88) (path 6 to exit)
+
+   [travel] reached target coord (18, 10)
+
+   [dialogue] +++ 'I am a CHANNELER. There are spirits up to mischief. I sense them high in the TOWER.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I am a CHANNELER. There are spirits up to mischief. I sense them high in the TOWER."'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 88) coords=(18, 8) -> coord (17, 9) (budget 60s)
+
+   [travel] reached target coord (17, 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (18, 9) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 89): (4, 10)->(1, 90), (18, 10)->(1, 88)
+
+   [campaign]    WARPED (1, 88) -> (1, 89) via directional door (18, 9)
+
+   [campaign]    [floor1-up] (1, 88) -> (1, 89) @ (18, 10)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 89) coords=(18, 10) -> coord (16, 6) (budget 120s)
+
+   [travel] step 0: (18, 10)->(18, 9) map=(1, 89) (path 7 to exit)
+
+   [travel] reached target coord (16, 6)
+
+   [dialogue] +++ "GARY. Hey, KIRA! What brings you here? Is your POK.MON dead? Hey! It's alive! I can at least make them faint! Let's go!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "GARY. Hey, KIRA! What brings you here? Is your POK.MON dead? Hey! It\'s alive! I can at least make them faint! Let\'s go!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [strat] !! gEnemyParty UNCONFIRMED (slot0=95 != active foe 115) — party-SIZE reads DISABLED (loss-learning still works on the verified active-foe read)
+
+   [play-live] battle context: trainer=True foe=kangaskhan rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against pidgeotto — your blastoise is up front'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out pidgeotto'
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pidgeotto fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 46'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out ivysaur'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'menus are glitched — bailing this fight.'  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now "snorlags, but we just have to replay this. She will try to catch him hopefully and then won't get stuck."
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] ORACLE kind=battle_item options=['use_cure', 'keep_fighting'] -> pick='use_cure'
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'BLASTOISE woke up. .'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE woke up. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) "used an item — that's better"
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 10ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 21ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 15ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 17ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 306ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 19ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 6ms]
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 13461 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(1, 89) coords=(16, 6)  badge=True
+
+   [kira-voice] === 45 fired, 4 gated (0 failed) | by tier: T3=1 T2=41 T1=3 (incl ambient trickle) ===
+
+================================================================
+

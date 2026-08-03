@@ -1,4 +1,0 @@
-# 2026-08-02 LIVE: yank out of Super-Potion mid-fight. Pin Route 12 OVERWORLD at the
-# Snorlax lip (9,88 era) — AFTER Fuji/Flute, BEFORE the wedged fight. Exact stamp so
-# we don't grab Tower/Lavender (newest) or the early north-gate 203942 entry.
-CKPT 20260802_212905_route-12
