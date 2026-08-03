@@ -1,0 +1,264 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 31) coords=(43, 10) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 1 blocked tile(s), 4 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=11704).
+
+   [soul] continuity loaded: 12 roster bond(s), 582 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 122 place(s) known, 219 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 31) coords=(43, 10) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260803_083458_route-13_4b_23h15m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] afflicted by ['paralysis'] — remembering for a cure run
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now "A legendary, yeah, she's, she's, if she catches, he's legendary, she's supposed to catch it, but like, I'm assuming she'll actually kill it."
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 19ms]
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (4, 6, 12, 137) @ Route 13 (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 13 (43, 10) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L49, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 31) (43,10) f2 -- badge4 $34586 party:ef78 bag:f9be]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'heal', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Route 13
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 13 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L49), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 31), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L49), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="Reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [soul] ORACLE pick -> "Reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Blastoise is hurt (68/153 HP) — topping up at a Pokémon Center would be smart before pushing on.' — surfacing 'heal' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 6
+
+   [kira-voice] -> T2·savor· (want) "Reach Fuchsia City and take Koga's badge"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [teamplan] next action: catch_keeper (pikachu -> raichu answers Lorelei, Lance, Champion) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 13 — billed leg west toward Route 14
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs west from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 31) coords=(43, 10) -> map (3, 32) (budget 300s)
+
+   [travel] west connection band rows: [5, 7, 9, 11, 13]
+
+   [dialogue] +++ 'Oh! You little beast!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "Oh! You little beast!"'
+
+   [travel] step 0: (43, 10)->(43, 11) map=(3, 31) (path 65 to exit)
+
+   [travel] path blocked at (35, 11) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'Wow! Your BADGES are too cool!'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Wow! Your BADGES are too cool!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] no clean path from (35, 11); NPC-allowing path EXISTS (len 56), blocker NPC tile=(35, 10), npcs nearby=[(29, 11), (35, 10), (42, 7), (43, 9), (44, 5)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [strat] gEnemyParty CONFIRMED (slot0=60 == active foe) — roster reads live
+
+   [play-live] battle context: trainer=True foe=poliwag rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against poliwag — your blastoise is up front'  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's poliwag fainted — your blastoise took it down"  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out poliwag'  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [kira-voice] -> T2·savor· (event) 'menus are glitched — bailing this fight.'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) "the enemy's poliwag went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 5ms]
+
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+
+   [campaign]    [roam] RESULT: head_to_gym -> need_heal | pos (3, 31)(43, 10) -> (3, 31)(35, 11) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(3, 31) coords=(35, 11) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260803_083749_route-13_4b_23h17m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 13 (35, 11) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L49, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 31) (35,11) f3 -- badge4 $35186 party:8dfd bag:f9be]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'heal', 'talk_npc']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Blastoise is hurt (52/153 HP) — topping up at a Pokémon Center would be smart before pushing on.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 13 — billed leg west toward Route 14
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs west from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 31) coords=(35, 11) -> map (3, 32) (budget 300s)
+
+   [travel] west connection band rows: [5, 7, 9, 11, 13]
+
+   [travel] step 0: (35, 11)->(34, 11) map=(3, 31) (path 56 to exit)
+
+   [travel] step 10: (27, 9)->(26, 9) map=(3, 31) (path 46 to exit)
+
+   [travel] step 20: (29, 7)->(30, 7) map=(3, 31) (path 36 to exit)
+
+   [travel] step 30: (25, 5)->(24, 5) map=(3, 31) (path 26 to exit)
+
+   [travel] path blocked at (19, 5) (NPC on the gap?) - waiting
+
+   [dialogue] +++ "I'm not going to lose. Not when the wind's blowing my way!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I\'m not going to lose. Not when the wind\'s blowing my way!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] HEARTBEAT step=40 map=(3, 31) coords=(19, 5) elapsed=7s
+
+   [travel] no clean path from (19, 5); NPC-allowing path EXISTS (len 20), blocker NPC tile=(18, 5), npcs nearby=[(14, 8), (18, 5), (29, 11)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 2ms]
+
+   [play-live] battle context: trainer=True foe=poliwag rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against spearow — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out spearow'
+
+   [kira-voice] -> T1·brisk· (event) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T1·brisk· (event) "no — Bite didn't happen, I'm fully paralyzed! hang in there…"  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] -> T2·savor· (event) 'menus are glitched — bailing this fight.'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Bite didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] -> T1·brisk· (event) "no — Water Pulse didn't happen, I'm fully paralyzed! hang in there…"  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Bite didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Bite didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Bite didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Bite didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Bite didn't happen, I'm fully paralyzed! hang in there…"
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Bite didn't happen, I'm fully paralyzed! hang in there…"
+
