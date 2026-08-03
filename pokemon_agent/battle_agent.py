@@ -1392,6 +1392,23 @@ class BattleAgent:
         self._advance_text()
         return "text"
 
+    def _true_active_party_status(self):
+        """Tear-safe STATUS for the mon currently OUT — gPlayerParty[gBattlerPartyIndexes[0]]
+        status u32 at +0x50, decoded to 'sleep'/'poison'/'burn'/'freeze'/'paralysis'/None.
+        2026-08-03 LIVE (the Antidote-on-paralyzed-Blastoise loop): gBattleMons status1 tore
+        and decoded as POISON while the game (and chat) knew he was PARALYZED — she confirmed
+        Antidote into 'It won't have any effect.' over and over. Same lying struct as the HP
+        tear; same cure: the party struct is the truth. Returns (decoded, ok) — ok=False means
+        the read failed and callers must NOT trust either source."""
+        try:
+            pi = self.b.rd16(ram.GBATTLER_PARTY_IDX)
+            if not (0 <= pi < 6):
+                return None, False
+            s = self.b.rd32(ram.GPLAYER_PARTY + pi * 100 + 0x50)
+            return _decode_status(s & 0xFF), True
+        except Exception:
+            return None, False
+
     def _note_battle_progress(self, why=""):
         """Real fight progress (not menu flicker) — resets the MENU WEDGE stall clock."""
         self._last_battle_progress_t = time.time()
@@ -1479,13 +1496,29 @@ class BattleAgent:
                                      f"(no_effect; was the full-ace Super Potion loop)")
                             self._exit_bag()
                             return "no_effect"
-                    # Cure on already-clear status (Awakening after "BLASTOISE woke up") — same loop.
+                    # Cure verification at MENU TIME (party struct first — the tear-safe truth):
+                    # (a) no status at all -> the Awakening re-open loop; (b) WRONG MEDICINE —
+                    # 2026-08-03 LIVE: Antidote confirmed on a PARALYZED Blastoise, "It won't
+                    # have any effect." forever. The item must treat the LIVE status (exact
+                    # match or Full Heal) or we abort before the confirm.
                     if _is_cure:
-                        _st = st.read_battle(self.b) or {}
-                        _cur_status = _decode_status((_st.get("ours") or {}).get("status1", 0) or 0)
+                        _cur_status, _sok = self._true_active_party_status()
+                        if not _sok:
+                            _st = st.read_battle(self.b) or {}
+                            _cur_status = _decode_status((_st.get("ours") or {}).get("status1", 0) or 0)
                         if not _cur_status:
                             self.log("   [engine] use_item: active has NO status — aborting cure "
                                      "(no_effect; was the Awakening re-open loop)")
+                            self._exit_bag()
+                            return "no_effect"
+                        _needed = _STATUS_CURE_ITEM.get(_cur_status)
+                        if item_id != _FULL_HEAL and item_id != _needed:
+                            self.log(f"   [engine] use_item: WRONG MEDICINE — item {item_id} does not "
+                                     f"treat {_cur_status!r} (needs {_needed} or Full Heal {_FULL_HEAL}) "
+                                     f"— aborting BEFORE the confirm (no_effect; was the Antidote-on-"
+                                     f"paralysis loop)")
+                            self.emit(f"wrong medicine — that won't fix {_cur_status}. fighting on.",
+                                      beat=True, tier=2)
                             self._exit_bag()
                             return "no_effect"
                 if not self._party_goto_slot(_row):
@@ -1624,10 +1657,18 @@ class BattleAgent:
         elif finishable and frac <= heal_frac:
             self.log(f"   [engine] FINISH-THE-FOE: foe at {int(foe_frac*100)}% (<=25%), us {int(frac*100)}% "
                      f"(> crit) -> no heal, land the KO instead")
-        # Status of the mon actually OUT (gBattleMons ground truth via read_battle) — the old
-        # _lead_status read gPlayerParty[0], so post-switch a sleep-locked FODDER never got a
-        # cure offer while the dead ace's 'none' was consulted instead (run16 attempts 2+).
+        # Status of the mon actually OUT — gBattleMons decode CROSS-CHECKED against the party
+        # struct (STATUS-TEAR GUARD, 2026-08-03: torn gBattleMons status1 decoded POISON on a
+        # PARALYZED Blastoise -> Antidote confirmed into "It won't have any effect." forever).
+        # The party struct for the active index is the same truth the HP-tear guard trusts.
+        # (The old _lead_status read gPlayerParty[0] unconditionally — wrong mon post-switch,
+        # run16; this reads gPlayerParty[gBattlerPartyIndexes[0]], the mon actually out.)
         status = _decode_status((state.get("ours") or {}).get("status1", 0) or 0)
+        _pstatus, _pok = self._true_active_party_status()
+        if _pok and _pstatus != status:
+            self.log(f"   [engine] STATUS-TEAR GUARD: gBattleMons says {status!r} but the party "
+                     f"struct says {_pstatus!r} — trusting party (anti wrong-medicine loop)")
+            status = _pstatus
         if status and not getattr(self, "_cure_blocked", False):
             cure = self._STATUS_CURE_for(status)
             if cure is not None:
