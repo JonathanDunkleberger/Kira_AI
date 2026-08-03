@@ -96,8 +96,12 @@ _FULL_HEAL = 23
 BATTLE_FLEE_FLOOR = os.getenv("POKEMON_BATTLE_FLEE_FLOOR", "1") == "1"
 # Was 3 — on LIVE stream menu thrash, 3 unresolved turns ≈ minutes of scrolling. Bail at 2.
 UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "2"))
-# Hard wall-clock escape when menu understanding is wedged (seconds in battle with no PP drop).
-BATTLE_MENU_WEDGE_S = float(os.getenv("POKEMON_BATTLE_MENU_WEDGE_S", "45"))
+# Hard wall-clock escape when menu understanding is wedged (seconds since LAST real progress —
+# PP drop / HP change / faint / item consume). Was "45s from battle start" which false-fired
+# mid-Gary and killed the stream with "menus are glitched" on a progressing fight (2026-08-02).
+BATTLE_MENU_WEDGE_S = float(os.getenv("POKEMON_BATTLE_MENU_WEDGE_S", "60"))
+# Force-switch wall-clock: party scroll theater must not eat 60–90s of stream (2026-08-02 docks).
+FSWITCH_BUDGET_S = float(os.getenv("POKEMON_FSWITCH_BUDGET_S", "5"))
 # PP-FAMINE SWITCH RETRIES (2026-07-31, Jonny stream debrief — the 10-minute Teleport-Abra fight):
 # the famine switch used to be ONE-SHOT per species per battle, and the try was consumed even when
 # the switch nav FAILED to confirm — so a Teleport-only Abra whose single try misfired was doomed
@@ -1308,6 +1312,12 @@ class BattleAgent:
         except Exception:
             return None, None
 
+    def _note_battle_progress(self, why=""):
+        """Real fight progress (not menu flicker) — resets the MENU WEDGE stall clock."""
+        self._last_battle_progress_t = time.time()
+        if why:
+            self.log(f"   [engine] battle-progress: {why}")
+
     def use_item_in_battle(self, item_id, max_seconds=30, target=None):
         """Use one `item_id` from the Items pocket. Returns 'used' (count dropped) | 'no_item' |
         'failed' | 'no_effect'. FAIL-SAFE: anything but 'used' leaves the battle fightable. `target`
@@ -1325,6 +1335,7 @@ class BattleAgent:
         row = ids.index(item_id)
         cnt0 = self._items_count(item_id)
         _is_heal = item_id in _HEAL_ITEMS_PREF
+        _is_cure = item_id in set(_STATUS_CURE_ITEM.values()) | {_FULL_HEAL}
         if not self._settle_action_menu():
             self.log("   [engine] use_item: couldn't reach the action menu — keep fighting (LOUD)")
             return "failed"
@@ -1362,7 +1373,8 @@ class BattleAgent:
         # Count drop is the only truth; a mis-aim just exhausts the walk -> 'failed' ->
         # keep fighting (fail-safe, never a wedge).
         aimed = target is None                             # no aim requested = nothing to do
-        for n in range(10):
+        # Cap A-walk: 10 was enough to A-spam "won't have any effect" / Awakening for ~90s on stream.
+        for n in range(4):
             if self._items_count(item_id) < cnt0:
                 break
             if not aimed and self._party_screen():
@@ -1387,6 +1399,15 @@ class BattleAgent:
                                      f"(no_effect; was the full-ace Super Potion loop)")
                             self._exit_bag()
                             return "no_effect"
+                    # Cure on already-clear status (Awakening after "BLASTOISE woke up") — same loop.
+                    if _is_cure:
+                        _st = st.read_battle(self.b) or {}
+                        _cur_status = _decode_status((_st.get("ours") or {}).get("status1", 0) or 0)
+                        if not _cur_status:
+                            self.log("   [engine] use_item: active has NO status — aborting cure "
+                                     "(no_effect; was the Awakening re-open loop)")
+                            self._exit_bag()
+                            return "no_effect"
                 if not self._party_goto_slot(_row):
                     self.log(f"   [engine] use_item: aim couldn't reach menu row {_row} "
                              f"— confirming where the cursor is (fail-safe)")
@@ -1400,6 +1421,7 @@ class BattleAgent:
         if self._items_count(item_id) < cnt0:
             self.log(f"   [engine] use_item: USED item {item_id} (count {cnt0}->{self._items_count(item_id)})")
             self.emit("used an item — that's better", beat=True)
+            self._note_battle_progress(f"item {item_id} consumed")
             # LAYER 8 FIX: close the BAG first — the old drain exited on _white_box(), but the bag's
             # USE/CANCEL sub-box LIGHTS those pixels, so 'used' could return with the bag still open
             # and the next turn's presses landed in it forever (caterpie 7/40, walk 3).
@@ -1523,11 +1545,14 @@ class BattleAgent:
         # _lead_status read gPlayerParty[0], so post-switch a sleep-locked FODDER never got a
         # cure offer while the dead ace's 'none' was consulted instead (run16 attempts 2+).
         status = _decode_status((state.get("ours") or {}).get("status1", 0) or 0)
-        if status:
+        if status and not getattr(self, "_cure_blocked", False):
             cure = self._STATUS_CURE_for(status)
             if cure is not None:
                 plan["use_cure"] = (cure, aim)
                 offers["use_cure"] = f"use the cure for {status} — it's hurting you and you have the item"
+        elif status and getattr(self, "_cure_blocked", False):
+            self.log(f"   [engine] CURE-BLOCK: status={status} but cures latched off this battle "
+                     f"(anti Awakening re-open loop)")
         # REVIVE INSTINCT (night shift #13): the fallen-ace case that killed e4_run3 at Lance —
         # Revives rode the bag unused while bench-warmers tanked on. Offer resurrection only when
         # the fainted mon out-levels everything still standing (fodder fainting never triggers it).
@@ -1596,10 +1621,14 @@ class BattleAgent:
                              f"(anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)")
                 # Full-ace / no_effect: block ALL potions this battle (species latch alone didn't
                 # stop the loop when gBattleMons kept lying about a different "hurt" reading).
-                if pick == "use_potion" or res == "no_effect":
+                if pick == "use_potion" or (res == "no_effect" and pick == "use_potion"):
                     self._potion_blocked = True
                     self.log("   [engine] POTION-BLOCK: no more heal-item offers this battle "
                              "(full-HP / no_effect abort)")
+                if pick == "use_cure" or (res == "no_effect" and pick == "use_cure"):
+                    self._cure_blocked = True
+                    self.log("   [engine] CURE-BLOCK: no more status-cure offers this battle "
+                             "(already-clear / no_effect abort)")
             return res == "used"
         self.log(f"   [engine] ITEM-INSTINCT pick -> {pick!r} (keep fighting)")
         return False
@@ -2322,14 +2351,24 @@ class BattleAgent:
         Walk to a HEALTHY row and confirm SEND OUT. CRITICAL (2026-08-02 gym chalk): never press
         the confirm-A unless the SEND OUT submenu is actually open — A on a corpse just loops
         "X has no energy left to battle!" for 60–180s while 1–2 bench mons are still alive.
-        Returns True once a healthy mon is active."""
+        Returns True once a healthy mon is active.
+
+        2026-08-02 docks chalk: pixel submenu false-negatives + 10 retries still looked like a
+        60–90s party scroll. Hard wall-clock budget; on expiry do ONE blind send of the strongest
+        live row (LEFT/RIGHT/DOWN*n, A, A) and return."""
         if self._healthy_reserve_slot() is None:
             return False
         _skip_rows = set()                                # rows that refused SEND OUT this menu
         _tried_sp = set()                                 # species that got submenu but didn't swap
+        _t0 = time.time()
         for _attempt in range(10):
+            if time.time() - _t0 >= FSWITCH_BUDGET_S:
+                self.log(f"   [engine] fswitch: BUDGET {FSWITCH_BUDGET_S:.0f}s hit — "
+                         f"blind-sending strongest live (anti 60–90s party theater)")
+                break
             cur = st.read_battle(self.b)
             if cur and cur["ours"]["hp"] > 0:
+                self._note_battle_progress("force-switch seated")
                 return True                               # a healthy mon is active -> switched
             self._wait(10)                                # let the party menu settle
             if not self._party_screen():
@@ -2362,14 +2401,18 @@ class BattleAgent:
                 if not cands:
                     return False                          # nothing standing on the bench
             tgt = max(cands, key=lambda r: r["level"])     # send the strongest thing standing
+            # Prefer RAM party cursor match over pixel border when available.
+            _ram_cur = self.b.rd8(PARTY_CURSOR)
             if _attempt >= 1:
                 self.log(f"   [engine] fswitch retry {_attempt}: target row {tgt['row']} "
-                         f"sp={tgt['species']} skip_rows={sorted(_skip_rows)} menu_rows="
+                         f"sp={tgt['species']} skip_rows={sorted(_skip_rows)} "
+                         f"party_cur={_ram_cur} menu_rows="
                          f"{[(r['species'], r['hp']) for r in rows]}")
             reached = self._party_goto_slot(tgt["row"])
-            if not reached:
+            if not reached and self.b.rd8(PARTY_CURSOR) != tgt["row"]:
                 self.log(f"   [engine] fswitch: border goto missed row {tgt['row']} "
-                         f"(cursor={self._party_cursor_slot()}) -> blind walk")
+                         f"(cursor={self._party_cursor_slot()} ram={self.b.rd8(PARTY_CURSOR)}) "
+                         f"-> blind walk")
                 self._party_blind_goto(tgt["row"])
             # Re-check content at the row we're about to A — never knowingly pick a corpse.
             rows = self._menu_rows()
@@ -2385,9 +2428,25 @@ class BattleAgent:
                 if self._party_submenu():
                     submenu = True
                     break
+                # RAM-cursor path: if we selected a live row and party cursor stuck on it,
+                # a second A often IS Send Out even when pixels miss the submenu.
                 self._wait(6)
             if not submenu:
-                # CORPSE / cursor-miss: "has no energy left" — do NOT press A again (that was the
+                # Live-row second chance: one confirm-A if RAM cursor still on the live target
+                # (pixel submenu false-negative). Corpse rows stay skipped (hp check above).
+                if self.b.rd8(PARTY_CURSOR) == tgt["row"] and rows[tgt["row"]]["hp"] > 0:
+                    self.log(f"   [engine] fswitch: no pixel submenu but RAM cursor on live "
+                             f"row {tgt['row']} — one SEND OUT confirm-A")
+                    self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                    self._wait(16)
+                    for _ in range(14):
+                        cur = st.read_battle(self.b)
+                        if cur and cur["ours"]["hp"] > 0:
+                            self._note_battle_progress("force-switch seated (ram confirm)")
+                            return True
+                        self._advance_text()
+                        self._wait(6)
+                # CORPSE / cursor-miss: "has no energy left" — do NOT keep confirm-A (that was the
                 # 60–180s loop). Skip this row, B-dismiss the message, try the next alive mon.
                 self.log(f"   [engine] fswitch: no SEND OUT submenu after A on row {tgt['row']} "
                          f"sp={tgt['species']} — corpse/miss, skipping (NOT confirm-A)")
@@ -2408,6 +2467,7 @@ class BattleAgent:
             for _ in range(14):
                 cur = st.read_battle(self.b)
                 if cur and cur["ours"]["hp"] > 0:
+                    self._note_battle_progress("force-switch seated")
                     return True
                 self._advance_text()
                 self._wait(6)
@@ -2415,6 +2475,30 @@ class BattleAgent:
             _tried_sp.add(tgt["species"])
             self.log(f"   [engine] fswitch: SEND OUT on sp={tgt['species']} didn't seat a "
                      f"healthy active -> rotate")
+        # BUDGET / attempt exhaust — ONE blind send of strongest live (stream must move).
+        try:
+            if self._party_screen():
+                rows = self._menu_rows()
+                live = [r for r in rows if r["hp"] > 0 and r["row"] > 0] or \
+                       [r for r in rows if r["hp"] > 0]
+                if live:
+                    tgt = max(live, key=lambda r: r["level"])
+                    self.log(f"   [engine] fswitch BLIND: row {tgt['row']} "
+                             f"{st.SPECIES_NAME.get(tgt['species'], '?')} L{tgt['level']}")
+                    self._party_blind_goto(tgt["row"])
+                    self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                    self._wait(14)
+                    self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                    self._wait(20)
+                    for _ in range(20):
+                        cur = st.read_battle(self.b)
+                        if cur and cur["ours"]["hp"] > 0:
+                            self._note_battle_progress("force-switch seated (blind)")
+                            return True
+                        self._advance_text()
+                        self._wait(6)
+        except Exception as e:
+            self.log(f"   [engine] fswitch blind path error: {e}")
         cur = st.read_battle(self.b)
         return bool(cur and cur["ours"]["hp"] > 0)
 
@@ -2975,6 +3059,9 @@ class BattleAgent:
         # item use PROVED it won't consume this battle (bag USE/CANCEL non-consume) -> stop re-offering.
         self._potion_blocked = False       # 2026-08-02 LIVE: Super Potion on FULL ace forever —
         # any no_effect/failed heal this battle kills ALL further potion offers (not just one species).
+        self._cure_blocked = False         # same class: Awakening spam after already awake (stream end)
+        self._last_battle_progress_t = time.time()  # MENU WEDGE: stall clock, NOT battle-start clock
+        self._menu_wedge_fired = False
         self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
         self._whiff_recovering = None      # ace species we switched OUT to reset accuracy (switch back next)
         self._whiff_recoveries = 0         # bounded accuracy-resets this battle (never a switch-loop)
@@ -3491,6 +3578,12 @@ class BattleAgent:
                     self._whiff_prev_fired = _dmg_pp_now < _dmg_pp_pre
                     self._whiff_prev_hp = _enemy_hp_pre
                     self._whiff_prev_sp = (state.get("enemy") or {}).get("species") if state else None
+                    # Only real PP/HP change counts as progress (STREAM COMMIT returns "done" on miss).
+                    _ehp = (_cur or {}).get("enemy", {}).get("hp")
+                    if self._whiff_prev_fired or (_ehp is not None and _enemy_hp_pre is not None
+                                                  and _ehp != _enemy_hp_pre):
+                        self._note_battle_progress(
+                            "move resolved" if self._whiff_prev_fired else "foe HP changed")
                 else:
                     stall += 1                        # menu up but flaky -> settle re-checks, retry
                     # ANTI-WEDGE FLOOR — the run-existential one. `stall` resets on ANY screen change,
@@ -3531,18 +3624,22 @@ class BattleAgent:
             else:
                 self._advance_text()                  # BLUE dialogue/animation box -> advance it
                 stall += 1
-            # WALL-CLOCK MENU WEDGE (2026-08-02 LIVE): get OUT — wild flee / trainer mash.
-            if (BATTLE_MENU_WEDGE_S > 0 and time.time() - t0 >= BATTLE_MENU_WEDGE_S
+            # STALL-CLOCK MENU WEDGE (2026-08-03): fire only when NOTHING real has happened for
+            # BATTLE_MENU_WEDGE_S — NOT "battle older than 45s". The old t0 clock false-fired mid
+            # multi-mon trainer fight ("menus are glitched") and killed the stream.
+            _stall_for = time.time() - getattr(self, "_last_battle_progress_t", t0)
+            if (BATTLE_MENU_WEDGE_S > 0 and _stall_for >= BATTLE_MENU_WEDGE_S
                     and not self._enemy_fainted and not self._we_fainted
                     and not getattr(self, "_menu_wedge_fired", False)):
                 self._menu_wedge_fired = True
-                self.log(f"   [engine] !! MENU WEDGE {BATTLE_MENU_WEDGE_S:.0f}s — escaping the "
+                self.log(f"   [engine] !! MENU WEDGE {_stall_for:.0f}s with NO progress — escaping the "
                          f"scroll theater (menu_up={int(self._menu_up())} "
                          f"action={self._at_action_menu()} moves={self._at_move_list()})")
                 self.emit("menus are glitched — bailing this fight.", beat=True, tier=2)
                 if not self._is_trainer_battle():
                     return self.flee(max_seconds=45)
-                # Trainer: keep mashing FIGHT+A until budget ends (never stuck→re-enter).
+                # Trainer: B out of bag/party, mash FIGHT+A; reset stall clock so we don't
+                # re-emit every loop (one loud bail, then war-must-advance).
                 for _ in range(8):
                     if not st.in_battle(self.b) or self._enemy_fainted:
                         break
@@ -3553,6 +3650,7 @@ class BattleAgent:
                     self._wait(16)
                 self._unresolved_turns = 0
                 stall = 0
+                self._last_battle_progress_t = time.time()  # don't re-trigger every iteration
             if stall >= 30:                           # genuine wedge -> loud abort, never silent
                 if self._decided_win():
                     self.log("   [engine] !! stall≥30 but win DECIDED — finishing victory chain "
@@ -3607,6 +3705,7 @@ class BattleAgent:
             self.emit(f"your {mine} used {desc}", beat=(getattr(self, "_last_eff", 1.0) >= 2))
         if ce["hp"] == 0 and pe["hp"] > 0:
             self._enemy_fainted = True
+            self._note_battle_progress("enemy fainted")
             # F-7(c) SPECULATIVE PREFETCH (the certain-win early beat): when THIS faint leaves no
             # live mon anywhere in gEnemyParty, the battle is DECIDED at this frame — but the win
             # line used to fire only after the whole victory drain (faint anim → EXP → level-up,
@@ -3630,6 +3729,7 @@ class BattleAgent:
                       f"your {mine} took it down", beat=True)
         if co["hp"] == 0 and po["hp"] > 0:
             self._we_fainted = True
+            self._note_battle_progress("our mon fainted")
             self.emit(f"your {mine} fainted", beat=True)
         elif co["maxhp"] and (po["hp"] - co["hp"]) > 0.4 * co["maxhp"]:
             self.emit(f"your {mine} took a big hit", beat=True)
