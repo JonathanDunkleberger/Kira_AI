@@ -4602,13 +4602,11 @@ class Campaign:
         gym = GYMS.get(name)
         if gym is None:
             log(f"   !! GYM: no spec for '{name}'"); return "stuck"
-        # ICE BEAM ERRAND (2026-08-02, Celadon chalk): before Erika, Game Corner cash→coins→
-        # TM13 → teach the ace. Human let's-play tech (Ice into Grass); same TM later hits
-        # Giovanni/Lance. Idempotent. Broke → arm a cash farm (trainers/wilds), defer the gym
-        # door until she can afford the prize (a human doesn't skip the TM and walk in empty).
-        if name == "Erika":
-            # Already inside the gym → NEVER leave for Game Corner (that was the enter→walk-out
-            # tourism loop). Soft-broke: enter anyway — Blastoise Water carries Erika without TM13.
+        # ICE BEAM ERRAND — DEFAULT OFF (2026-08-02 stream chalk): "broke" returned need_cash_for_tm,
+        # marked head_to_gym a dead route on Celadon, and she farmed grass for ¥66k instead of
+        # walking into Erika. Blastoise Water already carries the gym. Opt-in:
+        # POKEMON_ICE_BEAM_BEFORE_ERIKA=1. Never defer the door for cash.
+        if name == "Erika" and os.getenv("POKEMON_ICE_BEAM_BEFORE_ERIKA", "0") == "1":
             _already_in_erika = tuple(tv.map_id(self.b)) == CELADON_GYM_INTERIOR
             if _already_in_erika:
                 log("   GYM-PREP [Erika]: already inside Celadon Gym — skipping Ice Beam street errand")
@@ -4618,16 +4616,16 @@ class Campaign:
                     _ibr = IceBeamErrand(self, log=log).run()
                     log(f"   GYM-PREP [Erika]: ice-beam errand -> {_ibr}")
                     if _ibr == "broke":
-                        _need = ice_beam_cash_shortfall(self)
-                        log(f"   GYM-PREP [Erika]: short ¥{max(int(_need or 0), 1)} for Ice Beam — "
-                            f"ENTERING ANYWAY (Water ace carries; TM is optional polish)")
-                        self._ice_beam_cash_needed = 0
-                        self.on_event("skipping the Game Corner detour — Blastoise already eats grass. "
-                                      "straight to Erika.", kind="gym", tier=2)
-                    elif _ibr in ("taught", "have_ice_beam"):
-                        self._ice_beam_cash_needed = 0
+                        log(f"   GYM-PREP [Erika]: short ¥{max(int(ice_beam_cash_shortfall(self) or 0), 1)} "
+                            f"for Ice Beam — ENTERING ANYWAY (never defer the gym for TM cash)")
+                        self.on_event("skipping the Game Corner detour — straight to Erika.",
+                                      kind="gym", tier=2)
+                    self._ice_beam_cash_needed = 0
                 except Exception as e:
                     log(f"   !! GYM-PREP ice-beam errand crashed ({e}) — entering Erika as-is (LOUD)")
+        elif name == "Erika":
+            self._ice_beam_cash_needed = 0
+            log("   GYM-PREP [Erika]: Ice Beam errand OFF (default) — walking into the gym NOW")
         # Deliberate gym interiority: junior fights must NOT trip the stranded/blackout eject
         # (2026-08-02 Celadon: fight a junior → next tick "BLACKOUT/STRANDED" walks her out).
         try:
@@ -13349,11 +13347,21 @@ class Campaign:
                         _cel_lock = True
                         if "head_to_gym" not in a:
                             a["head_to_gym"] = "Erika's gym — Rainbow Badge NOW"
-                        for _k in ("leave_building", "talk_npc", "wander_catch", "explore"):
+                        for _k in ("leave_building", "talk_npc", "wander_catch", "explore",
+                                   "battle", "regroup"):
                             a.pop(_k, None)
+                        # UNPARK: Ice Beam cash-farm marked head_to_gym dead / no-move on Celadon
+                        # (need_cash_for_tm ×N). Clear so FORCE GYM can fire again.
+                        self._dead_moves.discard("head_to_gym")
+                        self._nomove_streak = 0
+                        try:
+                            self._dead_moves_structural.get(tuple(CELADON), set()).discard("head_to_gym")
+                            self._dead_moves_structural.get(_cm, set()).discard("head_to_gym")
+                        except Exception:
+                            pass
                         self._force_gym_pick = True
-                        log("   [roam] !! CELADON→ERIKA LOCK: force head_to_gym; prune tourism "
-                            f"(map={_cm})")
+                        log("   [roam] !! CELADON→ERIKA LOCK: force head_to_gym; unpark dead routes; "
+                            f"prune grass/tourism (map={_cm})")
                 if _ng3 and (_ord3 or _dom3 or _mom3 or _ace3 or _cel_lock) and not _gh_capped:
                     if "head_to_gym" not in a:
                         a["head_to_gym"] = f"go fight {_ng3['leader']} in {_ng3['city']} NOW"
@@ -16074,7 +16082,9 @@ class Campaign:
                              "questline_flash", "questline_catch",   # the Flash errand IS the work
                              "questline_strike_done", "questline_strike_exit_wip",  # the strike IS the work
                              "questline_prefight_heal",   # pre-rival Center tap IS the work (night shift 4)
-                             "need_heal", "healed_retry")
+                             "need_heal", "healed_retry",
+                             # Never park head_to_gym as dead because of a TM shop detour
+                             "need_cash_for_tm")
             if _is_move_pick and not _moved and out not in _benign_still:
                 self._nomove_streak += 1
                 self._dead_moves.add(pick)
