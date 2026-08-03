@@ -1,0 +1,300 @@
+   [SmartMem]     dist=1.194 conf=0.95 type=profile_fact blend=0.263 lane=KNOW
+   [SmartMem]     dist=1.209 conf=0.95 type=episodic blend=0.005 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise doesn't need a pit stop — we're marching straight to Fuchsia."
+   [TurnTiming] 12:03:12.900 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~30573ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   >>> Kira (Chat Batch of 2): Nait tried to time out Streamlabs — that's the most mod thing I've ever heard. Zekromite, yes, I know, and you're fired again.
+   [TTS] Speaking: Nait tried to time out Streamlabs — that's the mos...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+>>> You said: I don't think we can get that one in this game. Timeout, stream labs, yeah. Yeah, they're not in this game.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I don't think we can get that one in this game. Timeout, str" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=38ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=37ms
+   [Triage] RESPOND
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait tried to time out Streamlabs — that' (16 words)
+   [TurnTiming] 12:03:13.875 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise doesn't need a pit stop. We're pushing through."
+   [TurnTiming] 12:03:18.189 TTS STOP — playback finished (span ~4313ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 2 (batch response); shared=2/30
+   [ChatAge] @NaitHaunter age=27.1s batch=2 preempted=none
+   [ChatAge] @zekromite4572 age=8.1s batch=2 preempted=none
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=13962ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [ChatterMem] Stored: @NaitHaunter — First thing they did as mod was try to time out Streamlabs [chaotic]
+   [TIMING] first-word: 2177ms
+   [TTS] Speaking: Eevee's in FireRed, but the evolutions depend on w...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Eevee's in FireRed, but the evolutions d' (16 words)
+   [TurnTiming] 12:03:20.788 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @zekromite4572 — Has been 'fired' by Kira for pointing out Umbreon and Espeon [playful]
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Alright, Koga's not going to beat himself. Time to walk."
+   [TurnTiming] 12:03:25.374 TTS STOP — playback finished (span ~4585ms)
+   [TTS] Speaking: Umbreon needs friendship and nighttime — and I don...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Umbreon needs friendship and nighttime —' (15 words)
+   [TurnTiming] 12:03:25.381 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Eevee's not even in this game — not picking up a ghost. Time to actually march on Fuchsia and take Koga's badge."
+   [TurnTiming] 12:03:29.685 TTS STOP — playback finished (span ~4303ms)
+
+   [TIMING] voice: llm=11482ms(sonnet-stream(llm+tts)) tts=0ms total=11484ms
+   [LATENCY] vad_close=1200ms stt=429ms stt_wait=0ms salience=0ms triage=bypassed memory=37ms prompt_build=14ms ttft=1454ms tts_first_chunk=723ms audio_out=386ms TOTAL=3043ms
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~3 frame(s) (~90ms, ~0.1s) of your speech while she held the turn.
+   ✨ Emotion: SASSY → EMOTIONAL
+   [VRAM] 12:03:30 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TurnTiming] 12:03:31.106 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~48779ms since onset)
+>>> You said: So what are our options in this game?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='So what are our options in this game?' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=33ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=4t  moment=tense)
+   [PromptSize] dynamic_context=14179ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1838ms
+   [TTS] Speaking: Vaporeon, Jolteon, Flareon....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Vaporeon, Jolteon, Flareon.' (6 words)
+   [TurnTiming] 12:03:33.569 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 12:03:36.371 TTS STOP — playback finished (span ~2801ms)
+   [TTS] Speaking: Water Stone, Thunder Stone, Fire Stone....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Water Stone, Thunder Stone, Fire Stone.' (9 words)
+   [TurnTiming] 12:03:36.377 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:03:39.749 TTS STOP — playback finished (span ~3371ms)
+   [TTS] Speaking: That's the whole menu in FireRed....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's the whole menu in FireRed.' (7 words)
+   [TurnTiming] 12:03:39.754 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:03:42.002 TTS STOP — playback finished (span ~2247ms)
+
+   [TIMING] voice: llm=10606ms(sonnet-stream(llm+tts)) tts=0ms total=10606ms
+   [LATENCY] vad_close=1200ms stt=254ms stt_wait=0ms salience=1ms triage=bypassed memory=33ms prompt_build=3ms ttft=1400ms tts_first_chunk=438ms audio_out=327ms TOTAL=2456ms
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Vaporeon, Jolteon, Flareon — Water Stone, Thunder Stone, Fire Stone. Those are my options here.\n\nUmbreon's off the table, and honestly? Vaporeon's probably the move. Surf coverage on my ace is already there, but a dedicated water type with actual bulk? Could be useful."
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise doesn't need an ether top-up to walk through Koga's gym. We're moving."
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Okay, Fuchsia it is. Blastoise is way over-leveled for Koga anyway — I'm just delaying the inevitable at this point."
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise doesn't need a top-up to walk into Fuchsia City and dismantle Koga. We're moving."
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0257 · gate=0.003 · 1 accepted
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise has enough left in the tank. We're not burning an Ether here when we're this close to Fuchsia."
+🎤 Recording...
+   [TurnTiming] 12:04:05.643 VOICE ONSET — mic speech started
+   [TurnTiming] 12:04:08.705 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3062ms since onset)
+🎤 Recording...
+   [TurnTiming] 12:04:09.532 VOICE ONSET — mic speech started
+[YouTube Chat] @zekromite4572: not this again
+   [BrainWorker] Got youtube msg from @zekromite4572: not this again → buffering for chat_batch_worker
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Okay, Blastoise has done enough heavy lifting for one Route — I'm not burning an Ether here when Fuchsia City is right there."
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<not this again>>>' fetched=10 dropped_by_floor=3 kept=7 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=2ms)
+   [SmartMem]     dist=1.051 conf=0.95 type=profile_fact blend=0.351 lane=KNOW
+   [SmartMem]     dist=1.119 conf=0.9 type=episodic blend=0.061 lane=KNOW
+   [SmartMem]     dist=1.129 conf=0.75 type=episodic blend=0.054 lane=VAGUE
+   >>> Kira (Chat Batch of 1): zekromite4572 you literally started this by asking if I wanted an Eevee. Own it.
+   [TTS] Speaking: zekromite4572 you literally started this by asking...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [VRAM] 12:04:15 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'zekromite4572 you literally started this' (13 words)
+   [TurnTiming] 12:04:15.988 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Okay, Blastoise is carrying enough firepower to walk to Fuchsia City without me babying his PP. We're marching."
+   [TurnTiming] 12:04:20.763 TTS STOP — playback finished (span ~4775ms)
+   [TTS] Speaking: Own it....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Own it.' (3 words)
+   [TurnTiming] 12:04:20.937 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise has carried this route long enough — time to actually move. Fuchsia's right there and Koga's not going to badge me through the mail."
+[YouTube Chat] @zekromite4572: kiras what is pp in pokemon?
+   [BrainWorker] Got youtube msg from @zekromite4572: kiras what is pp in pokemon? → buffering for chat_batch_worker
+   [TurnTiming] 12:04:22.734 TTS STOP — playback finished (span ~1796ms)
+   [Cookies] +1 × 1 (batch response); shared=3/30
+   [ChatAge] @zekromite4572 age=12.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 12:04:23.959 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~14427ms since onset)
+🎤 Recording...
+   [TurnTiming] 12:04:24.337 VOICE ONSET — mic speech started
+   [ChatterMem] Stored: @zekromite4572 — Started a conversation by asking Kira if she wanted an Eevee [playful]
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise is fine, we're moving. Fuchsia City, let's go."
+   [TurnTiming] 12:04:27.223 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2885ms since onset)
+🎤 Recording...
+   [TurnTiming] 12:04:27.641 VOICE ONSET — mic speech started
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<kiras what is pp in pokemon' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=0.971 conf=0.9 type=episodic blend=0.152 lane=KNOW
+   [SmartMem]     dist=1.009 conf=0.95 type=episodic blend=0.129 lane=KNOW
+   [SmartMem]     dist=1.016 conf=0.95 type=episodic blend=0.124 lane=KNOW
+   [TurnTiming] 12:04:28.946 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1304ms since onset)
+🎤 Recording...
+   [TurnTiming] 12:04:29.187 VOICE ONSET — mic speech started
+   [TurnTiming] 12:04:30.468 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1280ms since onset)
+🎤 Recording...
+   [TurnTiming] 12:04:30.631 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 1): PP is Power Points — it's how many times you can use a move before you run out and have to rest or use an Ether.
+
+zekromite4572 asking the innocent questions after the Eevee discourse. Sure.
+   [TTS] Speaking: PP is Power Points — it's how many times you can u...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Alright, Blastoise is carrying this whole route anyway — I'm not burning an Ether here, I'll just push through and save it for when I actually need it against Koga."
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'PP is Power Points — it's how many times' (27 words)
+   [TurnTiming] 12:04:31.772 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise is plenty — I'm not waiting around on Route 13 any longer, Fuchsia City is right there and Koga's not going to badge me from a distance."
+   [TurnTiming] 12:04:37.536 TTS STOP — playback finished (span ~5763ms)
+   [TTS] Speaking: zekromite4572 asking the innocent questions after ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'zekromite4572 asking the innocent questi' (10 words)
+   [TurnTiming] 12:04:37.965 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:04:42.845 TTS STOP — playback finished (span ~4879ms)
+   [TTS] Speaking: Sure....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Sure.' (2 words)
+   [TurnTiming] 12:04:43.098 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:04:44.878 TTS STOP — playback finished (span ~1780ms)
+   [Cookies] +1 × 1 (batch response); shared=4/30
+   [ChatAge] @zekromite4572 age=22.6s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 12:04:46.108 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~15476ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+>>> You said: solve the
+   [Objective] SET — "solve the" (will act after silence if Jonny goes quiet)
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='solve the' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=5t  moment=tense)
+   [PromptSize] dynamic_context=13228ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [ChatterMem] Stored: @zekromite4572 — Asked what PP means in Pokémon, noted for asking 'innocent q [playful]
+   [TIMING] first-word: 1513ms
+   [TTS] Speaking: ......
+   [TTS] backend=azure (prefetched)
+   [TTS] Speaking: hm....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'hm.' (2 words)
+   [TurnTiming] 12:04:48.177 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:04:49.951 TTS STOP — playback finished (span ~1774ms)
+
+   [TIMING] voice: llm=3625ms(sonnet-stream(llm+tts)) tts=0ms total=3626ms
+   [LATENCY] vad_close=1200ms stt=186ms stt_wait=0ms salience=1ms triage=bypassed memory=27ms prompt_build=16ms ttft=1513ms tts_first_chunk=0ms audio_out=318ms TOTAL=2061ms
+🎤 Recording... (recovered opening words)
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Alright, Blastoise is stacked enough — I'm done stalling on Route 13, Fuchsia's right there."
+   [TurnTiming] 12:04:51.435 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~20803ms since onset)
+🎤 Recording...
+   [TurnTiming] 12:04:51.599 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise has been steamrolling everything, honestly. I'm not burning an Ether on a route trainer — she can tough it out."
+   [TurnTiming] 12:04:57.162 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~5562ms since onset)
+>>> You said: Kira, use a, use water pulse.
+   [Objective] cleared (jonny spoke again) — was "solve the"
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q='Kira, use a, use water pulse.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=29ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13014ch  hist=20turns  moment=tense
+>>> Kira (streaming): [YouTube Chat] @zekromite4572: and what is the pp on tackle?
+   [TIMING] first-word: 1943ms
+   [TTS] Speaking: On it — blastoise, go....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'On it — blastoise, go.' (7 words)
+   [TurnTiming] 12:04:59.667 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: 'Water Pulse it is — Blastoise, wash this thing.'
+   [VRAM] 12:05:00 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 12:05:02.292 TTS STOP — playback finished (span ~2624ms)
+
+   [TIMING] voice: llm=4886ms(sonnet-stream(llm+tts)) tts=0ms total=4887ms
+   [LATENCY] vad_close=1200ms stt=210ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=2ms ttft=1710ms tts_first_chunk=233ms audio_out=312ms TOTAL=2496ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → HYPERACTIVE
+   [VTS] Emotion transition → HYPERACTIVE (mapped: 'My Animation 2')
+   [VTS] Emotion HYPERACTIVE → triggered 'My Animation 2' (success)
+   [BrainWorker] Got youtube msg from @zekromite4572: and what is the pp on tackle? → buffering for chat_batch_worker
+   [TurnTiming] 12:05:04.020 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12420ms since onset)
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<and what is the pp on tackl' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [Pokemon] SELF CHOSE (battle_item): use_ether
+   [Pokemon] her reasoning: 'Blastoise has done enough heavy lifting for one route — slap the Ether on and keep her fresh for Koga.'
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 1): Tackle has 35 PP. zekromite4572 is absolutely coaching by installment today — first Eevee, now the PP audit.
+   [TTS] Speaking: Tackle has 35 PP....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Tackle has 35 PP.' (5 words)
+   [TurnTiming] 12:05:07.994 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:05:10.332 TTS STOP — playback finished (span ~2337ms)
+   [TTS] Speaking: zekromite4572 is absolutely coaching by installmen...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'zekromite4572 is absolutely coaching by ' (16 words)
+   [TurnTiming] 12:05:10.905 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 12:05:17.563 TTS STOP — playback finished (span ~6657ms)
+   [Cookies] +1 × 1 (batch response); shared=5/30
+   [ChatAge] @zekromite4572 age=14.4s batch=1 preempted=none
+   [ChatterMem] Stored: @zekromite4572 — Tends to ask Pokémon mechanics questions one at a time, earn [playful]
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 12:05:24.353 VOICE ONSET — mic speech started
+   [TurnTiming] 12:05:28.022 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3669ms since onset)
+>>> You said: I told you I solved it Zechromite and I lied you.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I told you I solved it Zechromite and I lied you.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=29ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HYPERACTIVE)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=7t  moment=tense)
+   [PromptSize] dynamic_context=13172ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1689ms
+   [TTS] Speaking: Honesty is the first step....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Honesty is the first step.' (6 words)
+   [TurnTiming] 12:05:30.287 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 12:05:32.341 TTS STOP — playback finished (span ~2054ms)
+
+   [TIMING] voice: llm=4058ms(sonnet-stream(llm+tts)) tts=0ms total=4058ms
+   [LATENCY] vad_close=1200ms stt=231ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=15ms ttft=1444ms tts_first_chunk=245ms audio_out=295ms TOTAL=2259ms
+   ✨ Emotion: HYPERACTIVE → EMOTIONAL
+   [System] Running Garbage Collection...
+🎤 Recording...
+   [TurnTiming] 12:05:34.492 VOICE ONSET — mic speech started
