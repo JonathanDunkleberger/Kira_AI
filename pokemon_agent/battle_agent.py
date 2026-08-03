@@ -279,7 +279,7 @@ class BattleAgent:
                                        # _finish must not voice the same win again 5-15s later.
         self._catching = False         # F-7(c) guard: KOing a CATCH target is a failure, never a
                                        # "you won" beat — set for the catch_pokemon flow.
-        self._switch_fail_n = 0        # voluntary matchup-switch fails this battle (latch at 2)
+        self._switch_fail_n = 0        # voluntary matchup-switch fails this battle (latch at 1)
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -1145,14 +1145,17 @@ class BattleAgent:
         STALE GBATTLE_ACTION_CURSOR forever and the abort->re-enter cycle never pressed A/B.
         Pixel truth is not enough: the action menu is only REAL if the cursor RESPONDS. Tap
         toward a horizontal neighbour and demand the readback moves (retry — single taps get
-        eaten on this core). Leaves the cursor one step over; all callers walk by readback."""
+        eaten on this core). ALWAYS restores the original cell — leaving the cursor on BAG after
+        a probe was the 2026-08-02 LIVE stream look (Fight↔Bag scroll for minutes)."""
         c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
         if c not in (ram.ACT_FIGHT, ram.ACT_BAG, ram.ACT_POKEMON, ram.ACT_RUN):
             return False
         t = "RIGHT" if c in (ram.ACT_FIGHT, ram.ACT_POKEMON) else "LEFT"
+        back = "LEFT" if t == "RIGHT" else "RIGHT"
         for _ in range(probes):
             self._tap(t); self._wait(5)
             if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != c:
+                self._tap(back); self._wait(5)          # restore — never leave cursor parked on BAG
                 return True
         return False
 
@@ -1714,19 +1717,19 @@ class BattleAgent:
         return self._in_move_list()
 
     def _movelist_open_verified(self):
-        """Is the FIGHT move list actually open? Prefer PIXEL + MENU_MODE agreement (no probe).
+        """Is the FIGHT move list actually open? PIXEL / MENU_MODE only — NEVER a d-pad probe.
 
         History:
           • Immortal-Ekans (2026-07-05): MENU_MODE stale-HIGH (=2) after an item use short-circuited
             True before A ever opened the list → presses landed on the action menu forever.
-          • Route-6 A/B livelock (2026-07-06): gating the probe on MENU_MODE made a real open list
+          • Route-6 A/B livelock (2026-07-06): gating a probe on MENU_MODE made a real open list
             read closed → B closed it, A reopened it, ×12.
-          • Stream chalk (2026-08-02): the RESPONSE PROBE alone false-negatives under lag / 1-move
-            mons → caller B-outs a REAL open list, A reopens, Fight↔moves thrash for ~90s on screen.
+          • Stream chalk (2026-08-02 a.m.): RESPONSE PROBE false-negatives → Fight↔moves thrash.
+          • Stream chalk (2026-08-02 p.m., LIVE): the probe's LEFT/RIGHT taps land on the ACTION
+            menu (FIGHT↔BAG scrolling) when the list isn't open — unwatchable for minutes while
+            Blastoise "thinks". Probe is banned. Stale-HIGH (mode==2, pixel closed) → closed.
 
-        Doctrine now: when PIXEL says move-list AND MENU_MODE is not clearly the action menu (1),
-        trust open with NO probe. Probe ONLY the stale-HIGH case (mode==2 but pixel says action).
-        Ambiguous → probe. Probe miss → closed."""
+        Doctrine: pixel open + mode not clearly action (1) → open. Else closed. Zero taps."""
         pixel = False
         try:
             pixel = self._in_move_list()
@@ -1736,24 +1739,11 @@ class BattleAgent:
             mode = self.b.rd8(MENU_MODE)
         except Exception:
             mode = None
-        # Clean open — both signals agree. Never probe (probe is what caused the 90s thrash).
         if pixel and mode == 2:
             return True
-        # Pixel says move names are up; mode isn't the action menu. Trust pixel.
         if pixel and mode != 1:
             return True
-        # Clearly on the action menu (FIGHT/BAG/POKEMON/RUN) — closed.
-        if not pixel and mode == 1:
-            return False
-        # Stale-HIGH MENU_MODE (immortal-Ekans class) OR ambiguous: cursor-response probe.
-        cur = self.b.rd8(MOVE_CURSOR)
-        probe = "RIGHT" if cur % 2 == 0 else "LEFT"
-        back = "LEFT" if probe == "RIGHT" else "RIGHT"
-        self._tap(probe); self._wait(8)
-        if self.b.rd8(MOVE_CURSOR) == cur:            # no response -> not open (or 1-move edge)
-            return False
-        self._tap(back); self._wait(8)
-        return True
+        return False
 
     def _goto_move(self, idx, tries=12):
         """Walk the move-list cursor to slot idx by RAM READBACK of MOVE_CURSOR (0..3 in the 2x2 grid:
@@ -1985,131 +1975,63 @@ class BattleAgent:
         except Exception:
             self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
                      f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
-        # OPEN THE MOVE LIST ROBUSTLY: home to FIGHT, A, confirm open. Cap retries LOW — a 12-try
-        # A/B dance is the "Blastoise hits FIGHT for 90 seconds" stream look (2026-08-02).
-        def _open_move_list(tries=4):
+        # STREAM COMMIT (2026-08-02 LIVE chalk): ONE decisive FIGHT→move→A. No settle-probe
+        # (those LEFT/RIGHT taps ARE the FIGHT↔BAG scroll viewers hate), no B-dance, no 4-try
+        # open theater. Home → A → nav if list open → A → wait for PP/HP. Trainer battles always
+        # take this path; wild too (stuck still rides the anti-wedge flee floor).
+        self.log(f"   [engine] STREAM COMMIT: {desc} slot {idx} (no menu probe / no A/B thrash)")
+        self._home_to_fight()
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(14)
+        # Wrong submenu only — NEVER B the white action panel (feeds the thrash).
+        if self._bag_screen() or self._party_screen():
+            self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
             self._home_to_fight()
-            for _ in range(tries):
-                if self._movelist_open_verified():
-                    return True
-                self._home_to_fight()                 # a failed probe may have nudged the ACTION cursor
-                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-                if self._movelist_open_verified():
-                    return True
-                # Wrong submenu (bag/party) — B out. Do NOT B when the white action panel is up
-                # (that just toggles FIGHT↔nothing and feeds the thrash).
-                if self._bag_screen() or self._party_screen():
-                    self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-                    self._home_to_fight()
-                elif not self._white_box() and not self._movelist_open():
-                    self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-                    self._home_to_fight()
-            return False
-        opened = _open_move_list()
-        if not opened:
-            # WHITE-BOX IMPOSTOR (2026-07-12): dangling message masks as the action menu. Drain once,
-            # retry once — then COMMIT rather than spin (trainer battles can't flee the thrash).
-            if self._settle_action_menu():
-                opened = _open_move_list(tries=3)
-        if not opened:
-            # COMMIT FALLBACK (2026-08-02): stop the Fight↔moves theater. Trainer battles can't
-            # flee the thrash — fire FIGHT+A (chosen slot if the list opened, else slot 0 /
-            # Struggle) so the turn advances. Wild → stuck (anti-wedge flees).
-            if self._is_trainer_battle():
-                self.log("   [engine] !! move list won't open cleanly — COMMIT FIGHT+A "
-                         "(no more A/B thrash; war-must-advance)")
-                _pp0 = ours["moves"][idx].get("pp", 0) if 0 <= idx < 4 else 0
-                _hp0 = (enemy["hp"], ours["hp"])
-                self._home_to_fight()
-                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
-                if self._movelist_open() or self._in_move_list():
-                    self._goto_move(idx)
-                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-                self._last_desc, self._last_eff = desc, eff
-                for _ in range(500):
-                    if not st.in_battle(self.b):
-                        self._skip_streak.clear()
-                        return "done"
-                    cur = st.read_battle(self.b)
-                    if cur:
-                        self._emit_diffs(self._prev, cur); self._prev = cur
-                        try:
-                            if cur["ours"]["moves"][idx].get("pp", 0) < _pp0:
-                                self._skip_streak.clear()
-                                return "done"
-                        except Exception:
-                            pass
-                        if (cur["enemy"]["hp"], cur["ours"]["hp"]) != _hp0:
-                            self._skip_streak.clear()
-                            return "done"
-                    if self._white_box() and not self._in_move_list():
-                        # Back at the action menu — turn resolved (or never left). Don't spin.
-                        return "done"
-                    self._advance_text()
-                    self._wait(4)
-                return "done"
-            return "stuck"
-        if not self._goto_move(idx):                  # RAM-readback nav (verify each press moved the cursor)
-            self.log(f"   [engine] move-cursor didn't reach slot {idx} (now {self.b.rd8(MOVE_CURSOR)}) "
-                     f"-> clean retry")
-            return "stuck"
-        pp0 = ours["moves"][idx].get("pp", 0)
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(14)
+        if self._movelist_open() or self._in_move_list() or self._movelist_open_verified():
+            if not self._goto_move(idx):
+                self._nav_move(idx)                    # blind grid walk if readback stalls
+        else:
+            # List didn't advertise open — second A still fires slot-0 / Struggle; better than spin.
+            self.log("   [engine] STREAM COMMIT: list signal quiet after FIGHT — firing A anyway")
+        pp0 = ours["moves"][idx].get("pp", 0) if 0 <= idx < 4 else 0
         before = self._bstate()
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
         self._last_desc, self._last_eff = desc, eff   # narrated when the hit actually lands
-        # VERIFY the move EXECUTED. The old fixed 220-frame window was TOO SHORT for a full trainer
-        # turn (when we're slower, our hit lands AFTER the foe's move + animations) -> it timed out
-        # on WORKING moves and (with benching) exiled them, losing winnable fights. Now we wait for
-        # the TURN TO RESOLVE: a PP drop or ANY HP change = it fired (damage dealt or taken means a
-        # move went off); battle ending = it fired (KO). Only if the turn settles back at the menu
-        # with NO PP drop and NO HP change is it a true non-fire (Disable / can't-act).
+        # VERIFY the move EXECUTED. Wait for TURN TO RESOLVE: PP drop / HP change / battle end.
+        # Back at action menu with nothing changed = true non-fire (Disable / can't-act).
         result = None
         last_hp, stable = before, 0
         for _ in range(900):
             if not st.in_battle(self.b):
-                result = "done"; break                # battle ended (KO) = our move resolved
+                result = "done"; break
             cur = st.read_battle(self.b)
             if cur:
                 self._emit_diffs(self._prev, cur); self._prev = cur
-                if cur["ours"]["moves"][idx].get("pp", 0) < pp0:      # our chosen move's PP dropped
-                    result = "done"; break
+                try:
+                    if 0 <= idx < 4 and cur["ours"]["moves"][idx].get("pp", 0) < pp0:
+                        result = "done"; break
+                except Exception:
+                    pass
                 hp = (cur["enemy"]["hp"], cur["ours"]["hp"])
-                if before and hp != before:           # ANY HP moved this turn -> a move executed
+                if before and hp != before:
                     result = "done"; break
                 stable = stable + 1 if hp == last_hp else 0
                 last_hp = hp
-                if self._white_box() and stable >= 30:   # settled back at the menu, nothing happened
-                    break                                 # = the move never fired (Disabled/blocked)
+                if self._white_box() and not self._in_move_list() and stable >= 30:
+                    break
             self.b.run_frame(); self.render()
         if result == "done":
-            self._skip_streak.clear()                  # a move FIRED -> whole moveset eligible again
-            #                                            (resets the streak; never permanently benches)
-            self._immob_streak = 0                     # a resolved turn breaks any paralysis-spin count
+            self._skip_streak.clear()
+            self._immob_streak = 0
         else:
-            # 2026-07-06 THE BUTTERFREE SLEEP WEDGE: if OUR mon is ASLEEP/FROZEN/paralysis-skipped, the
-            # turn RESOLVED — we just didn't act (no PP drop, and a Sleep-Powder/Harden foe changes no
-            # HP either). Counting that as "didn't fire" benched every move, aborted the unfleeable
-            # trainer battle, and travel re-entered it forever (Route 6, Butterfree 54/54 ×∞). An
-            # immobilized turn is a REAL turn: report it resolved, keep the moveset eligible, and let
-            # the fight continue — she wakes in 1-4 turns and Peck ends it.
+            # Immobilization (sleep/freeze/par) is a REAL turn — don't bench the moveset.
             try:
                 cur = st.read_battle(self.b)
                 st1 = (cur or {}).get("ours", {}).get("status1", 0)
             except Exception:
                 st1 = 0
-            # IMMOBILIZATION vs a MASKED FAILURE (2026-07-10, night shift 8 — the S.S. Anne Gary
-            # paralysis LIVELOCK): a set status bit does NOT prove THIS turn failed BECAUSE of it.
-            # Paralysis (0x40) immobilizes only ~25% of turns, so a move that never fires while merely
-            # paralysis-FLAGGED is really failing for another reason — almost always 0-PP (a PP-famine
-            # move masked by the bit). VERIFIED: 183 turns of "fully paralyzed" vs a full-HP Kadabra
-            # with 0 damage was a 0-PP Tackle spinning forever, because the paralysis branch swallowed
-            # the 0-PP rotation. TWO GUARDS: (a) if the chosen move had 0 PP it CANNOT have fired
-            # regardless of status -> it's a 0-PP non-fire, rotate; (b) cap CONSECUTIVE paralysis
-            # attributions — >6 in a row is statistically impossible for real 25% paralysis, so stop
-            # trusting the bit and rotate/flee. Sleep(0x07)/freeze(0x20) legitimately immobilize many
-            # turns in a row, so they keep the old trust-indefinitely behaviour (guard (a) still applies).
-            _slp_frz = st1 & 0x27                      # sleep | freeze — legitimately multi-turn
-            _par = st1 & 0x40                          # paralysis — at most ~25%/turn
+            _slp_frz = st1 & 0x27
+            _par = st1 & 0x40
             _ims = getattr(self, "_immob_streak", 0)
             _real_immob = pp0 > 0 and (_slp_frz or (_par and _ims < 6))
             if _real_immob:
@@ -2119,13 +2041,14 @@ class BattleAgent:
                          f"fighting on (she'll come around)")
                 self.emit(f"no — {desc} didn't happen, I'm {why}! hang in there…", beat=True, tier=1)
                 return "done"
-            self._immob_streak = 0                     # not (or no longer) a trusted immobilization
-            # didn't fire (no PP drop, no HP change) = 0-PP / Disabled / couldn't act: add to the streak
-            # so the NEXT pick rotates to a move she hasn't tried — and once all are tried, she flees
-            # rather than re-spamming. The streak is per-no-progress-run, cleared on any successful fire.
+            self._immob_streak = 0
             self._skip_streak.add(idx)
             self.log(f"   [engine] move slot {idx} didn't fire (0-PP / disabled / blocked) -> rotating "
                      f"to an untried move (streak now {sorted(self._skip_streak)})")
+            # TRAINER: never hand the outer loop a 'stuck' that re-settles+probes the action
+            # menu (more FIGHT↔BAG scroll). Report done so the next turn picks a fresh move.
+            if self._is_trainer_battle():
+                return "done"
         return result or "stuck"
 
     def _advance_text(self, force_b=False):
@@ -2729,11 +2652,19 @@ class BattleAgent:
 
     def _voluntary_switch(self, state):
         """Mid-battle switch to a better-matchup reserve. GATED + FAIL-SAFE. Returns 'switched' or False."""
-        # FAIL LATCH (2026-08-02): two failed party-menu attempts in one battle = stop opening the
-        # switch menu. The stream look was "keeps picking Ekans / the wrong mon over and over"
-        # while SHIFT never confirmed — every turn re-opened POKEMON and re-selected chaff.
-        if getattr(self, "_switch_fail_n", 0) >= 2:
+        # FAIL LATCH (2026-08-02 LIVE): ONE failed party-menu attempt = stop. Party-list DOWN
+        # probes look like "scrolling forever" on stream; two tries was still unwatchable.
+        if getattr(self, "_switch_fail_n", 0) >= 1:
             return False
+        # LEVEL-DOMINANCE (stream): Blastoise L48 vs Route-12 trash must NOT open POKEMON to
+        # "optimize" — just Surf. Crushing lead = fight, no menu theater.
+        try:
+            _al = (state.get("ours") or {}).get("level") or 0
+            _fl = (state.get("enemy") or {}).get("level") or 0
+            if _al and _fl and _al >= _fl + 8 and _hp_frac(state.get("ours") or {}) > 0.35:
+                return False
+        except Exception:
+            pass
         slot = self._best_switch_slot(state)
         if slot is None:
             return False
@@ -2771,7 +2702,7 @@ class BattleAgent:
             return "switched"
         self._switch_fail_n = getattr(self, "_switch_fail_n", 0) + 1
         self.log(f"   [engine] matchup switch did not confirm "
-                 f"(fail {self._switch_fail_n}/2) -> fighting instead (fail-safe, no wedge)")
+                 f"(fail {self._switch_fail_n}/1) -> fighting instead (fail-safe, no wedge)")
         return False
 
     def _active_pp_famine(self, state):
