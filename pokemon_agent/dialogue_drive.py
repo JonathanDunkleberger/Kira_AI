@@ -40,6 +40,7 @@ _BOX_XS = tuple(range(16, 226, 10))           # ~21 samples per row
 
 _OB0 = 0x02036E38               # object-event 0 = the player
 _FACE_OFF = 0x18                # facing direction nibble (1=down 2=up 3=left 4=right)
+_START_CURSOR = 0x020370F4      # START-menu cursor row (same address hm_teach nav uses)
 
 
 def box_open(b):
@@ -110,6 +111,31 @@ class DialogueDriver:
         self._wait(6)
         return player_facing(self.b) != f0 or _player_coords(self.b) != c0
 
+    def _keyboard_escape(self):
+        """KEYBOARD-CLASS ESCAPE, now GUARDED (2026-08-03 Route-12 'Super Potion on a full team
+        forever'): the old bare START+A was fired on ANY misdetected lock — but when the field
+        was actually FREE, START opened the START MENU and A opened whatever the cursor was on
+        (BAG). The drive loop then A-'advanced' the bag like dialogue: Super Potion → USE →
+        party → \"It won't have any effect.\" → A → pick again — the infinite overworld potion
+        loop Jonny filmed. So: press START, then PROBE — if the START-menu cursor byte responds
+        to a DOWN, a menu actually opened (the field was free all along) → B it closed, control
+        is back. Only a dead cursor (a true keyboard/cutscene, which eats START) earns the A."""
+        self.b.press("START", 6, 12, self.render, owner=self.owner)
+        self._hold_s(0.05)
+        c0 = self.b.rd8(_START_CURSOR)
+        self.b.press("DOWN", 4, 10, self.render, owner=self.owner)
+        self._hold_s(0.04)
+        if self.b.rd8(_START_CURSOR) != c0:
+            self.log("   [dlg] escape probe: START MENU opened (field was FREE, lock was "
+                     "misdetected) — B-closing it, NOT pressing A (anti bag-potion loop)")
+            for _ in range(3):
+                self.b.press("B", 4, 10, self.render, owner=self.owner)
+                self._hold_s(0.04)
+            return True
+        self.b.press("A", 6, 12, self.render, owner=self.owner)
+        self._hold_s(0.05)
+        return not box_open(self.b) and self._control_returned()
+
     def _close_box(self, max_tries=12):
         """Bounded B-mash to dismiss an EXHAUSTED/looping dialogue box once the micro-watchdog has
         decided more A-pressing is futile: stop pushing A (which kept re-initiating the NPC), tap B
@@ -121,16 +147,11 @@ class DialogueDriver:
                 return True
             self.b.press("B", 4, 10, self.render, owner=self.owner)
             self._hold_s(0.03)
-        # LAST RESORT — KEYBOARD-CLASS ESCAPE (the Celadon Eevee wedge, night shift 8): the naming
-        # KEYBOARD eats B (B only deletes typed letters), so a B-mash can never close it. START
-        # jumps the cursor to OK, A confirms; an empty name keeps the species name — a clean
-        # decline. Inert if the lock is a cutscene (START/A are eaten), so always safe to try.
-        self.b.press("START", 6, 12, self.render, owner=self.owner)
-        self._hold_s(0.05)
-        self.b.press("A", 6, 12, self.render, owner=self.owner)
-        self._hold_s(0.05)
-        if not box_open(self.b) and self._control_returned():
-            self.log("   [dlg] keyboard-class escape (START+A) regained control")
+        # LAST RESORT — the guarded keyboard-class escape (Celadon Eevee wedge, night shift 8):
+        # the naming KEYBOARD eats B, so only START(+A) can close it. Guarded: never A into an
+        # accidentally-opened START menu (the overworld bag-potion loop).
+        if self._keyboard_escape():
+            self.log("   [dlg] keyboard-class escape regained control")
             return True
         self.log(f"   [dlg] !! B-close did not regain control after {max_tries} tries - LOUD "
                  f"(stopping the mash anyway; caller re-paths away)")
@@ -297,10 +318,10 @@ class DialogueDriver:
                     # = species name kept = a clean decline).
                     if blind % 24 == 0:
                         self.log(f"   [dlg{(' ' + label) if label else ''}] !! blind-locked "
-                                 f"x{blind} (no box, no control) -> START+A keyboard-class escape")
-                        self.b.press("START", 6, 12, self.render, owner=self.owner)
-                        self._hold_s(0.05)
-                        self.b.press("A", 6, 12, self.render, owner=self.owner)
+                                 f"x{blind} (no box, no control) -> GUARDED keyboard-class escape")
+                        if self._keyboard_escape():
+                            _pace_close("closed")
+                            return "closed"
                     else:
                         self.b.press("B", 4, 10, self.render, owner=self.owner)
                 else:

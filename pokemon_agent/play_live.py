@@ -225,6 +225,27 @@ def main():
                             b.run_frame()
                     log(f"   boot-battle abort done: in_battle={st.in_battle(b)} "
                         f"map={tv.map_id(b)}@{tv.coords(b)}")
+                else:
+                    # BOOT STRAY-MENU SWEEP (2026-08-03, the overworld Super-Potion loop): the
+                    # save can bank MID-MENU (bag/party open on the road). B-cascade it closed —
+                    # never A (A is what applied potions to a full team forever).
+                    def _menu_px():
+                        p = b.frame_rgb().load()
+                        teal = sum(1 for x, y in ((30, 110), (60, 115), (20, 90), (70, 108))
+                                   if p[x, y][0] < 100 and p[x, y][1] > 120 and p[x, y][2] > 120
+                                   and abs(p[x, y][1] - p[x, y][2]) < 40)
+                        yellow = sum(1 for x, y in ((160, 30), (200, 60), (120, 10))
+                                     if p[x, y][0] > 240 and p[x, y][1] > 240 and 180 < p[x, y][2] < 230)
+                        return teal >= 3 or yellow >= 2
+                    if _menu_px():
+                        log("!! BOOT INTO OPEN MENU (bag/party banked mid-flow) — B-closing before roam")
+                        for _ in range(12):
+                            if not _menu_px():
+                                break
+                            b.press("B", 4, 12, lambda: None, owner="agent")
+                            for _f in range(10):
+                                b.run_frame()
+                        log(f"   boot-menu sweep done: menu_open={_menu_px()}")
             except Exception as _bbe:
                 log(f"!! boot-battle abort skipped: {_bbe}")
         else:

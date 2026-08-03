@@ -375,6 +375,13 @@ class TeachFlow:
                 else:
                     self._press("A", settle=50)                  # select the row -> sub-box
             elif scr == "party":
+                if not sub_seen:
+                    # WRONG FLOW (2026-08-03): a party chooser BEFORE the case sub-box means the
+                    # USE landed on a NON-TM bag item (heal/potion — stale cursor/pocket byte).
+                    # A-ing forward from here is the 'Super Potion on a full team' loop — abort.
+                    self.log("   [teach] !! party chooser opened WITHOUT the TM-case sub-box — "
+                             "a non-TM item got selected (stale bag cursor). ABORT, B out (LOUD)")
+                    break
                 if not party_navved:
                     if not self._party_goto(mon_slot):           # closed-loop (the menu REMEMBERS its
                         self.log("   [teach] !! party cursor never reached the slot — B out")

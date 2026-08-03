@@ -712,8 +712,11 @@ GYM_PREP_CATCH_TRIES = int(os.getenv("POKEMON_GYM_PREP_CATCH_TRIES", "3")) # bou
 GYM_COVERAGE_TEACH   = os.getenv("POKEMON_GYM_COVERAGE_TEACH", "1") == "1" # teach the ace a coverage move
 # BAG-TM TEACH (2026-08-02): opportunistic — TMs sitting in the case go onto the neediest
 # compatible mon (Teleport-only Abra, plan teach targets), not only the ace at a type wall.
-# Single-use: ROM tm_compatible before every teach. Revert: POKEMON_BAG_TM_TEACH=0.
-BAG_TM_TEACH_ENABLED = os.getenv("POKEMON_BAG_TM_TEACH", "1") == "1"
+# Single-use: ROM tm_compatible before every teach.
+# 2026-08-03 NUCLEAR: DEFAULT OFF. New unattended overworld menu nav shipped mid-marathon =
+# exactly the loop class that wrecked the morning (bag opens on the road, stale cursor bytes,
+# no wrong-item abort). Re-arm POKEMON_BAG_TM_TEACH=1 only after an attended smoke.
+BAG_TM_TEACH_ENABLED = os.getenv("POKEMON_BAG_TM_TEACH", "0") == "1"
 BAG_TM_TEACH_MAX = int(os.getenv("POKEMON_BAG_TM_TEACH_MAX", "1"))  # per dispatch (badge / action)
 
 # COVERAGE-TEACH KB (2026-07-10, the Erika grass wall) — when the ACE's whole offense is RESISTED by a
@@ -14530,6 +14533,42 @@ class Campaign:
         except Exception as _e:
             log(f"   [roam] wedge memory save skipped: {_e}")
 
+    def _stray_menu_kind(self):
+        """PIXEL truth (TeachFlow._classify probes, native 240x160): which full-screen menu is up
+        right now — 'party' (teal panels) / 'bag'/'case' (pale-yellow list) — or None. Read-only."""
+        p = self.b.frame_rgb().load()
+        teal_hits = sum(1 for x, y in ((30, 110), (60, 115), (20, 90), (70, 108))
+                        if p[x, y][0] < 100 and p[x, y][1] > 120 and p[x, y][2] > 120
+                        and abs(p[x, y][1] - p[x, y][2]) < 40)
+        if teal_hits >= 3:
+            return "party"
+        yellow_hits = sum(1 for x, y in ((160, 30), (200, 60), (120, 10))
+                          if p[x, y][0] > 240 and p[x, y][1] > 240 and 180 < p[x, y][2] < 230)
+        if yellow_hits >= 2:
+            return "bag/case"
+        return None
+
+    def _sweep_stray_menus(self, max_b=10):
+        """2026-08-03 NUCLEAR (the overworld Super-Potion loop): at a point where NO flow should
+        own the screen, close any stray bag/party/case menu with B (never A — A is what walked the
+        bag onto a potion and the party onto a mon forever). Bounded, re-checked between presses."""
+        if st.in_battle(self.b):
+            return False
+        kind = self._stray_menu_kind()
+        if not kind:
+            return False
+        log(f"   [roam] !! STRAY MENU at tick top: {kind} screen open with no flow active — "
+            f"B-closing it (anti overworld potion/party loop)")
+        for _ in range(max_b):
+            self.b.press("B", 4, 12, self.render, owner="agent")
+            for _f in range(10):
+                self.b.run_frame(); self.render()
+            if not self._stray_menu_kind():
+                log("   [roam] stray menu closed")
+                return True
+        log("   [roam] !! stray menu would NOT close after B-cascade (LOUD)")
+        return False
+
     def _wait_overworld(self, max_frames=900):
         """Settle to overworld-idle (not in battle, no open dialogue box) before reading state / acting."""
         from dialogue_drive import box_open
@@ -16131,6 +16170,13 @@ class Campaign:
             log(f"   [roam] STATE IN: {state['place']} {state['coords']} | badges={state['badge_count']} "
                 f"({', '.join(state['badges']) or 'none'}) | party=[{party_str}] | {state['progress']}")
             log(f"   [roam] PROGRESS: {macro} (unchanged {ledger.stuck} ticks) | {wf.brief(fp)}")
+            # STRAY-MENU SWEEP (2026-08-03 nuclear, the overworld Super-Potion loop): no flow is
+            # active at the tick top, so ANY bag/party/case screen here is an accident (a mis-fired
+            # START, an abandoned item flow) — B it closed before it eats the tick. Bounded + LOUD.
+            try:
+                self._sweep_stray_menus()
+            except Exception as _sme:
+                log(f"   [roam] stray-menu sweep skipped: {_sme}")
             # PHASE 7 cockpit: stamp the time a badge lands, then publish the health snapshot this tick.
             if state.get("badge_count", 0) > _prev_badges:
                 last_badge_ts = time.time()
