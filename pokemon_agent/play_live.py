@@ -479,10 +479,15 @@ def main():
         # drains; 180s was exhausting mid-victory and travel re-entered the same fight
         # (2026-08-02 stream: win → rewind into last seconds). Wilds stay at 180.
         _budget = 420 if trainer else 180
+        # log=REAL (2026-08-03 11:24 recon): this was `lambda m: None` — every [engine] line from
+        # every on-stream battle was DISCARDED. Weeks of menu-loop forensics ran on voice lines
+        # and phone photos of the monitor while the engine's own confession ("GAME REFUSED slot",
+        # "CURSOR MISMATCH", famine/futility counters) went to /dev/null. Never mute the one
+        # subsystem that wedges.
         out = BattleAgent(b, on_event=voice.emit, render=render,
                           pace=(None if args.no_pace else pace),
                           choose=voice.choose,          # PART B: in-battle "use your items" instinct -> her
-                          log=lambda m: None).run(max_seconds=_budget)
+                          log=log).run(max_seconds=_budget)
         voice.clear_context()
         _end_beat = False       # P-3: did a bigger beat already own this battle's ending?
         # HIGHLIGHT (Phase 4): a CLUTCH win — she pulled it out at a sliver of HP. Post-battle the lead

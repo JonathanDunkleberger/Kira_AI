@@ -170,6 +170,17 @@ Get-ChildItem $supDir -File -ErrorAction SilentlyContinue |
             Set-Content (Join-Path $report ("tail_supervisor_" + $_.Name))
         Say "tailed supervisor log: $($_.Name)"
     }
+# BATTLE-ENGINE FORENSICS (2026-08-03): the [engine]/[travel]/[dlg] lines are the menu-loop
+# confession — pull the last 600 of them from the two newest supervisor logs into ONE file so
+# every soak report can answer "what did the battle engine actually do" without the PC.
+$engineOut = Join-Path $report "engine_tail.log"
+Get-ChildItem $supDir -File -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending | Select-Object -First 2 | ForEach-Object {
+        "===== $($_.Name) =====" | Add-Content $engineOut
+        Select-String -Path $_.FullName -Pattern '\[engine\]|\[travel\]|\[dlg' -ErrorAction SilentlyContinue |
+            Select-Object -Last 600 | ForEach-Object { $_.Line } | Add-Content $engineOut
+    }
+Say "extracted engine forensics -> engine_tail.log"
 
 # 2) FULL sandbox + canonical inventory (by newest FILE time, not folder time)
 $watchRoot = Join-Path $env:TEMP "kira_watch"

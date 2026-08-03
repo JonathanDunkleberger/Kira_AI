@@ -2861,10 +2861,10 @@ class Campaign:
         it) so the leg progresses. Costs a little HP but never wedges; byte-neutral where flee wins.
         GENERAL (rule 14): fixes ANY unescapable-wild retreat, not just Seafoam."""
         out = BattleAgent(self.b, on_event=lambda s, **k: self.on_event(s),
-                          render=self.render, log=lambda m: None).flee(max_seconds=90)
+                          render=self.render, log=log).flee(max_seconds=90)
         if out == "stuck" and st.in_battle(self.b):
             out = BattleAgent(self.b, on_event=lambda s, **k: self.on_event(s),
-                              render=self.render, log=lambda m: None).run(max_seconds=120)
+                              render=self.render, log=log).run(max_seconds=120)
         return out
 
     def level_check(self, min_level, leader="Brock"):

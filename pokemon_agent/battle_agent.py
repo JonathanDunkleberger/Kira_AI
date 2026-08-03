@@ -1560,6 +1560,7 @@ class BattleAgent:
         """Real fight progress (not menu flicker) — resets the MENU WEDGE stall clock."""
         self._last_battle_progress_t = time.time()
         self._amove_futile = 0             # the move list produced something real again
+        self._immob_streak = 0             # real progress = the stillness streak is over too
         if why:
             self.log(f"   [engine] battle-progress: {why}")
 
@@ -2466,12 +2467,22 @@ class BattleAgent:
             _real_immob = pp0 > 0 and not _at_list and (_slp_frz or _par) and _ims < 6
             if _real_immob:
                 self._immob_streak = _ims + 1
+                # An "immobilization" here means the 600-frame verify saw ZERO change (a real
+                # full-para turn almost always moves HP — the foe attacks). It's evidence-free
+                # stillness, so it ALSO feeds the futility breaker (soak 091711: WP/Bite immob
+                # emits interleaved with refusal laps for minutes — the breaker must converge
+                # on total dead laps, not on how each lap got classified).
+                self._amove_futile = getattr(self, "_amove_futile", 0) + 1
                 why = "asleep" if st1 & 0x07 else ("frozen" if st1 & 0x20 else "fully paralyzed")
                 self.log(f"   [engine] turn resolved by IMMOBILIZATION ({why}) — not a dead move; "
-                         f"fighting on (she'll come around)")
+                         f"fighting on (futility {self._amove_futile}/{FUTILE_AMOVE_MAX})")
                 self.emit(f"no — {desc} didn't happen, I'm {why}! hang in there…", beat=True, tier=1)
                 return "done"
-            self._immob_streak = 0
+            # DO NOT reset _immob_streak here (2026-08-03 11:24 forensics): refusal laps and
+            # immob laps INTERLEAVE (WP-immob, Bite-refusal, WP-immob...), and the old reset
+            # re-armed the immob classifier every time a refusal lap landed between — the 6-lap
+            # cap never engaged and 'fully paralyzed' theater ran for minutes. The streak only
+            # resets when a move REALLY fires (the result=='done' branch above).
             self._skip_streak.add(idx)
             self._move_refused[_pressed] = self._move_refused.get(_pressed, 0) + 1
             self._amove_futile = getattr(self, "_amove_futile", 0) + 1
