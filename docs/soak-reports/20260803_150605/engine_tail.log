@@ -1,0 +1,877 @@
+===== playlive_2026-08-03_14-55-21.log =====
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+===== playlive_2026-08-03_14-02-07.log =====
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 78/78 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L52 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 2/78 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=19,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L52 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs kadabra 65/65 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=18,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L52 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 78/78 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=17,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L52 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 3/78 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=16,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] !! WALL-CLOCK BUDGET BLOWN (148s > 90s) at (13, 11) map=(11, 3) step=10 - ABORT LOUD (grinding / wedged, not progressing fast)
+   [travel] start map=(11, 3) coords=(13, 11) -> coord (11, 12) (budget 90s)
+   [travel] step 0: (13, 11)->(13, 12) map=(11, 3) (path 4 to exit)
+   [travel] reached target coord (11, 12)
+   [travel] start map=(11, 3) coords=(11, 10) -> coord (12, 12) (budget 90s)
+   [travel] step 0: (11, 10)->(11, 11) map=(11, 3) (path 4 to exit)
+   [travel] reached target coord (12, 12)
+   [travel] start map=(11, 3) coords=(12, 12) -> coord (11, 12) (budget 90s)
+   [travel] step 0: (12, 12)->(11, 12) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (11, 12)
+   [travel] start map=(11, 3) coords=(11, 12) -> coord (11, 10) (budget 90s)
+   [travel] step 0: (11, 12)->(11, 11) map=(11, 3) (path 3 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(11, 3) coords=(11, 12) -> coord (11, 9) (budget 90s)
+   [travel] step 0: (11, 12)->(11, 11) map=(11, 3) (path 4 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(11, 3) coords=(11, 9) -> coord (11, 10) (budget 90s)
+   [travel] step 0: (11, 9)->(11, 10) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(11, 3) coords=(11, 10) -> coord (12, 10) (budget 90s)
+   [travel] step 0: (11, 10)->(12, 10) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(11, 3) coords=(12, 10) -> coord (11, 10) (budget 90s)
+   [travel] step 0: (12, 10)->(11, 10) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(11, 3) coords=(11, 10) -> coord (13, 11) (budget 90s)
+   [travel] step 0: (11, 10)->(12, 10) map=(11, 3) (path 4 to exit)
+   [travel] reached target coord (13, 11)
+   [campaign]    [dlg junior-talk] "Even though I've lost, I will keep training according to the teachings o"
+   [campaign]    [dlg-pace junior-talk] box "Even though I've lost, I will keep training acco" visible 3.48s (sink 0ms, hold 0.11s, end=closed)
+   [travel] start map=(11, 3) coords=(13, 11) -> coord (13, 5) (budget 90s)
+   [travel] step 0: (13, 11)->(13, 10) map=(11, 3) (path 7 to exit)
+   [travel] path blocked at (13, 6) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 6); NPC-allowing path EXISTS (len 2), blocker NPC tile=(13, 5), npcs nearby=[(4, 6), (7, 13), (12, 11), (13, 5)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L52 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs arbok 83/83 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=15,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L52 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs arbok 23/83 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=15,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L52 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a super-effective hit -> slot 2 (eff x4) vs sandslash 93/93 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=15,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=360)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L52 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs arbok 83/83 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=15,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=9,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L52 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs arbok 15/83 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=15,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] !! WALL-CLOCK BUDGET BLOWN (145s > 90s) at (13, 6) map=(11, 3) step=10 - ABORT LOUD (grinding / wedged, not progressing fast)
+   [travel] start map=(11, 3) coords=(13, 6) -> coord (13, 3) (budget 90s)
+   [travel] step 0: (13, 6)->(14, 6) map=(11, 3) (path 6 to exit)
+   [travel] reached target coord (13, 3)
+   [campaign]    [dlg junior-talk] 'I still have much to learn.'
+   [campaign]    [dlg-pace junior-talk] box 'I still have much to learn.' visible 1.43s (sink 0ms, hold 0.05s, end=closed)
+   [travel] start map=(11, 3) coords=(13, 4) -> coord (7, 14) (budget 90s)
+   [travel] step 0: (13, 4)->(13, 3) map=(11, 3) (path 31 to exit)
+   [travel] step 10: (10, 7)->(9, 7) map=(11, 3) (path 21 to exit)
+   [travel] step 20: (3, 10)->(2, 10) map=(11, 3) (path 11 to exit)
+   [travel] reached target coord (7, 14)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (12, 17) (budget 90s)
+   [travel] step 0: (7, 14)->(6, 14) map=(11, 3) (path 45 to exit)
+   [travel] step 10: (3, 10)->(4, 10) map=(11, 3) (path 35 to exit)
+   [travel] step 20: (8, 5)->(9, 5) map=(11, 3) (path 25 to exit)
+   [travel] step 30: (12, 5)->(12, 6) map=(11, 3) (path 15 to exit)
+   [travel] HEARTBEAT step=40 map=(11, 3) coords=(13, 14) elapsed=11s
+   [travel] step 40: (13, 14)->(13, 15) map=(11, 3) (path 5 to exit)
+   [travel] reached target coord (12, 17)
+   [campaign]    [dlg junior-talk] "So, you mix brawn with brains? Good strategy! That's remarkable for a ch"
+   [campaign]    [dlg-pace junior-talk] box 'So, you mix brawn with brains? Good strategy! Th' visible 3.98s (sink 0ms, hold 0.11s, end=closed)
+   [travel] start map=(11, 3) coords=(12, 17) -> coord (12, 17) (budget 90s)
+   [travel] reached target coord (12, 17)
+   [campaign]    [dlg junior-talk] "So, you mix brawn with brains? Good strategy! That's remarkable for a ch"
+   [campaign]    [dlg-pace junior-talk] box 'So, you mix brawn with brains? Good strategy! Th' visible 3.99s (sink 0ms, hold 0.11s, end=closed)
+   [travel] start map=(11, 3) coords=(12, 17) -> coord (7, 14) (budget 90s)
+   [travel] step 0: (12, 17)->(13, 17) map=(11, 3) (path 45 to exit)
+   [travel] step 10: (13, 8)->(13, 7) map=(11, 3) (path 35 to exit)
+   [travel] step 20: (10, 3)->(10, 4) map=(11, 3) (path 25 to exit)
+   [travel] step 30: (7, 10)->(6, 10) map=(11, 3) (path 15 to exit)
+   [travel] HEARTBEAT step=40 map=(11, 3) coords=(4, 13) elapsed=11s
+   [travel] step 40: (4, 13)->(4, 14) map=(11, 3) (path 5 to exit)
+   [travel] reached target coord (7, 14)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (2, 17) (budget 90s)
+   [travel] step 0: (7, 14)->(6, 14) map=(11, 3) (path 55 to exit)
+   [travel] step 10: (3, 10)->(4, 10) map=(11, 3) (path 45 to exit)
+   [travel] step 20: (8, 5)->(9, 5) map=(11, 3) (path 35 to exit)
+   [travel] step 30: (12, 5)->(12, 6) map=(11, 3) (path 25 to exit)
+   [travel] HEARTBEAT step=40 map=(11, 3) coords=(13, 14) elapsed=11s
+   [travel] step 40: (13, 14)->(13, 15) map=(11, 3) (path 15 to exit)
+   [travel] step 50: (6, 17)->(5, 17) map=(11, 3) (path 5 to exit)
+   [travel] reached target coord (2, 17)
+   [campaign]    [dlg junior-talk] "Let's see you beat my special techniques!"
+   [campaign]    [dlg junior-talk] battle opened mid-drain -> handing off (battle engine owns that UI)
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L52 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 84/84 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=15,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=7,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L52 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 35/84 | [0]Tackle(p35,pp=31,ref=0,sc=33.25) [1]Bite(p60,pp=15,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=7,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L52 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs kadabra 71/71 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=15,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=7,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(11, 3) coords=(2, 17) -> coord (7, 14) (budget 90s)
+   [travel] step 0: (2, 17)->(3, 17) map=(11, 3) (path 55 to exit)
+   [travel] step 10: (12, 17)->(13, 17) map=(11, 3) (path 45 to exit)
+   [travel] step 20: (13, 8)->(13, 7) map=(11, 3) (path 35 to exit)
+   [travel] step 30: (10, 3)->(10, 4) map=(11, 3) (path 25 to exit)
+   [travel] HEARTBEAT step=40 map=(11, 3) coords=(7, 10) elapsed=10s
+   [travel] step 40: (7, 10)->(6, 10) map=(11, 3) (path 15 to exit)
+   [travel] step 50: (4, 13)->(4, 14) map=(11, 3) (path 5 to exit)
+   [travel] reached target coord (7, 14)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (1, 9) (budget 90s)
+   [travel] step 0: (7, 14)->(6, 14) map=(11, 3) (path 12 to exit)
+   [travel] step 10: (1, 10)->(1, 9) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (1, 9)
+   [campaign]    [dlg junior-talk] 'Master KOGA comes from a long line of ninjas. What did you descend from?'
+   [campaign]    [dlg junior-talk] battle opened mid-drain -> handing off (battle engine owns that UI)
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L53 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 84/84 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=14,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=7,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L53 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 35/84 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=14,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=7,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L53 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs hypno 101/101 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=13,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=7,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L53 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs hypno 41/101 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=12,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=7,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(11, 3) coords=(1, 9) -> coord (7, 14) (budget 90s)
+   [travel] step 0: (1, 9)->(1, 10) map=(11, 3) (path 12 to exit)
+   [travel] step 10: (6, 14)->(7, 14) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (7, 14)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (12, 17) (budget 90s)
+   [travel] step 0: (7, 14)->(6, 14) map=(11, 3) (path 45 to exit)
+   [travel] step 10: (3, 10)->(4, 10) map=(11, 3) (path 35 to exit)
+   [travel] step 20: (8, 5)->(9, 5) map=(11, 3) (path 25 to exit)
+   [travel] step 30: (12, 5)->(12, 6) map=(11, 3) (path 15 to exit)
+   [travel] HEARTBEAT step=40 map=(11, 3) coords=(13, 14) elapsed=11s
+   [travel] step 40: (13, 14)->(13, 15) map=(11, 3) (path 5 to exit)
+   [travel] reached target coord (12, 17)
+   [campaign]    [dlg junior-talk] "So, you mix brawn with brains? Good strategy! That's remarkable for a ch"
+   [campaign]    [dlg-pace junior-talk] box 'So, you mix brawn with brains? Good strategy! Th' visible 3.98s (sink 0ms, hold 0.11s, end=closed)
+   [travel] start map=(11, 3) coords=(12, 17) -> coord (7, 14) (budget 90s)
+   [travel] step 0: (12, 17)->(13, 17) map=(11, 3) (path 45 to exit)
+   [travel] step 10: (13, 8)->(13, 7) map=(11, 3) (path 35 to exit)
+   [travel] step 20: (10, 3)->(10, 4) map=(11, 3) (path 25 to exit)
+   [travel] step 30: (7, 10)->(6, 10) map=(11, 3) (path 15 to exit)
+   [travel] HEARTBEAT step=40 map=(11, 3) coords=(4, 13) elapsed=11s
+   [travel] step 40: (4, 13)->(4, 14) map=(11, 3) (path 5 to exit)
+   [travel] reached target coord (7, 14)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (7, 14) (budget 90s)
+   [travel] reached target coord (7, 14)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (7, 15) (budget 90s)
+   [travel] step 0: (7, 14)->(7, 15) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (7, 15)
+   [travel] start map=(11, 3) coords=(7, 15) -> coord (7, 14) (budget 90s)
+   [travel] step 0: (7, 15)->(7, 14) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (7, 14)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (6, 14) (budget 90s)
+   [travel] step 0: (7, 14)->(6, 14) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (6, 14)
+   [travel] start map=(11, 3) coords=(6, 14) -> coord (7, 14) (budget 90s)
+   [travel] step 0: (6, 14)->(7, 14) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (7, 14)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (8, 14) (budget 90s)
+   [travel] step 0: (7, 14)->(8, 14) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (8, 14)
+   [travel] start map=(11, 3) coords=(8, 14) -> coord (7, 14) (budget 90s)
+   [travel] step 0: (8, 14)->(7, 14) map=(11, 3) (path 2 to exit)
+   [travel] reached target coord (7, 14)
+   [campaign]    [dlg Koga-challenge] 'KOGA. Fwahahaha! A mere child like you dares to challenge me? The very i'
+   [campaign]    [dlg-uwatch Koga-challenge] fp[(11, 3) (7,14) f2 D- badge4 $23206 party:54cd bag:979d] same line, frozen world x15/90
+   [campaign]    [dlg-uwatch Koga-challenge] fp[(11, 3) (7,14) f2 D- badge4 $23206 party:54cd bag:979d] same line, frozen world x30/90
+   [campaign]    [dlg-pace Koga-challenge] box 'KOGA. Fwahahaha! A mere child like you dares to ' visible 12.71s (sink 3ms, hold 0.11s, end=stopped)
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L53 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 76/76 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=11,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=7,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L53 vs L39 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs muk 130/130 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=11,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=6,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L53 vs L39 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs muk 83/130 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=11,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=5,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L53 vs L39 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs muk 33/130 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=11,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=4,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L53 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 76/76 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=11,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=3,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L53 vs L43 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs weezing 108/108 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=11,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=2,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L53 vs L43 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs weezing 52/108 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=11,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=1,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [campaign]    [dlg Koga-award] 'Now that you have the SOULBADGE, the DEFENSE of your POK.MON rises. It a'
+   [campaign]    [dlg-uwatch Koga-award] fp[(11, 3) (7,14) f2 D- badge5 $27506 party:c3eb bag:979d] same line, frozen world x15/90
+   [campaign]    [dlg Koga-award] 'KIRA received TM06 from KOGA.'
+   [campaign]    [dlg-pace Koga-award] box 'Now that you have the SOULBADGE, the DEFENSE of ' visible 5.53s (sink 3ms, hold 0.11s, end=next_box)
+   [campaign]    [dlg Koga-award] 'KIRA put the TM06 in the TM CASE.'
+   [campaign]    [dlg-pace Koga-award] box 'KIRA received TM06 from KOGA.' visible 2.23s (sink 0ms, hold 0.05s, end=next_box)
+   [campaign]    [dlg Koga-award] 'Sealed within that TM06 lies TOXIC! It is a secret technique dating back'
+   [campaign]    [dlg-pace Koga-award] box 'KIRA put the TM06 in the TM CASE.' visible 1.73s (sink 3ms, hold 0.06s, end=next_box)
+   [campaign]    [dlg-uwatch Koga-award] fp[(11, 3) (7,14) f2 D- badge5 $27506 party:c3eb bag:014a] same line, frozen world x15/90
+   [campaign]    [dlg-pace Koga-award] box 'Sealed within that TM06 lies TOXIC! It is a secr' visible 4.73s (sink 1ms, hold 0.11s, end=closed)
+   [travel] start map=(11, 3) coords=(7, 14) -> coord (7, 20) (budget 60s)
+   [travel] step 0: (7, 14)->(6, 14) map=(11, 3) (path 53 to exit)
+   [travel] step 10: (3, 10)->(4, 10) map=(11, 3) (path 43 to exit)
+   [travel] step 20: (8, 5)->(9, 5) map=(11, 3) (path 33 to exit)
+   [travel] step 30: (12, 5)->(12, 6) map=(11, 3) (path 23 to exit)
+   [travel] HEARTBEAT step=40 map=(11, 3) coords=(13, 14) elapsed=11s
+   [travel] step 40: (13, 14)->(13, 15) map=(11, 3) (path 13 to exit)
+   [travel] step 50: (9, 20)->(8, 20) map=(11, 3) (path 3 to exit)
+   [travel] reached target coord (7, 20)
+   [travel] start map=(3, 7) coords=(9, 33) -> coord (25, 32) (budget 120s)
+   [travel] step 0: (9, 33)->(10, 33) map=(3, 7) (path 18 to exit)
+   [travel] step 10: (18, 32)->(19, 32) map=(3, 7) (path 8 to exit)
+   [travel] reached target coord (25, 32)
+   [travel] start map=(11, 5) coords=(7, 4) -> coord (7, 7) (budget 60s)
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(3, 8), (7, 2), (12, 5), (13, 3)] -> approaching to interact/trigger
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 7) coords=(25, 32) -> coord (9, 33) (budget 120s)
+   [travel] step 0: (25, 32)->(25, 33) map=(3, 7) (path 18 to exit)
+   [travel] step 10: (16, 33)->(15, 33) map=(3, 7) (path 8 to exit)
+   [travel] reached target coord (9, 33)
+   [travel] start map=(3, 7) coords=(9, 33) -> map (3, 33) (budget 300s)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (9, 33)->(10, 33) map=(3, 7) (path 50 to exit)
+   [travel] step 10: (18, 32)->(19, 32) map=(3, 7) (path 40 to exit)
+   [travel] step 20: (28, 32)->(29, 32) map=(3, 7) (path 31 to exit)
+   [travel] step 30: (29, 23)->(29, 22) map=(3, 7) (path 21 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 7) coords=(38, 22) elapsed=5s
+   [travel] step 40: (38, 22)->(39, 22) map=(3, 7) (path 11 to exit)
+   [travel] MAP TRANSITION (3, 7) -> (3, 33)
+   [travel] east connection band rows: [7, 10, 11, 12, 13, 14, 16]
+   [travel] ARRIVED at target map (3, 33) coords=(0, 12)
+   [travel] start map=(3, 33) coords=(0, 12) -> map (3, 32) (budget 300s)
+   [travel] east connection band rows: [7, 10, 11, 12, 13, 14, 16]
+   [travel] path blocked at (0, 12) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 12) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 12) map=(3, 33) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 33) coords=(0, 12) -> coord (9, 12) (budget 240s)
+   [travel] step 0: (0, 12)->(1, 12) map=(3, 33) (path 10 to exit)
+   [travel] reached target coord (9, 12)
+   [travel] start map=(3, 33) coords=(9, 9) -> coord (8, 11) (budget 60s)
+   [travel] step 0: (9, 9)->(9, 10) map=(3, 33) (path 4 to exit)
+   [travel] reached target coord (8, 11)
+   [travel] start map=(24, 0) coords=(1, 6) -> coord (9, 10) (budget 110s)
+   [travel] step 0: (1, 6)->(1, 7) map=(24, 0) (path 13 to exit)
+   [travel] step 10: (8, 9)->(8, 10) map=(24, 0) (path 3 to exit)
+   [travel] reached target coord (9, 10)
+   [travel] start map=(24, 1) coords=(10, 9) -> coord (11, 9) (budget 60s)
+   [travel] step 0: (10, 9)->(11, 9) map=(24, 1) (path 2 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(24, 0) coords=(9, 10) -> coord (10, 6) (budget 60s)
+   [travel] step 0: (9, 10)->(9, 9) map=(24, 0) (path 6 to exit)
+   [travel] reached target coord (10, 6)
+   [travel] start map=(3, 33) coords=(16, 11) -> map (3, 32) (budget 300s)
+   [travel] east connection band rows: [7, 10, 11, 12, 13, 14, 16]
+   [travel] step 0: (16, 11)->(16, 12) map=(3, 33) (path 58 to exit)
+   [travel] step 10: (24, 13)->(25, 13) map=(3, 33) (path 49 to exit)
+   [travel] step 20: (34, 13)->(35, 13) map=(3, 33) (path 39 to exit)
+   [travel] step 30: (44, 13)->(45, 13) map=(3, 33) (path 29 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 33) coords=(54, 13) elapsed=5s
+   [travel] step 40: (54, 13)->(55, 13) map=(3, 33) (path 19 to exit)
+   [travel] step 50: (63, 14)->(64, 14) map=(3, 33) (path 10 to exit)
+   [travel] MAP TRANSITION (3, 33) -> (3, 32)
+   [travel] east connection band rows: [5, 7, 9, 11, 13, 14, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+   [travel] ARRIVED at target map (3, 32) coords=(0, 54)
+   [travel] start map=(3, 32) coords=(0, 54) -> map (3, 31) (budget 300s)
+   [travel] east connection band rows: [5, 7, 9, 11, 13, 14, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+   [travel] step 0: (0, 54)->(0, 53) map=(3, 32) (path 68 to exit)
+   [travel] step 10: (2, 46)->(2, 45) map=(3, 32) (path 58 to exit)
+   [travel] step 20: (7, 41)->(7, 40) map=(3, 32) (path 48 to exit)
+   [travel] step 30: (7, 45)->(7, 46) map=(3, 32) (path 54 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 32) coords=(14, 44) elapsed=5s
+   [travel] step 40: (14, 44)->(14, 43) map=(3, 32) (path 44 to exit)
+   [travel] step 50: (14, 34)->(14, 33) map=(3, 32) (path 34 to exit)
+   [travel] step 60: (14, 24)->(14, 23) map=(3, 32) (path 24 to exit)
+   [travel] step 70: (14, 14)->(14, 13) map=(3, 32) (path 14 to exit)
+   [travel] HEARTBEAT step=80 map=(3, 32) coords=(21, 11) elapsed=11s
+   [travel] step 80: (21, 11)->(22, 11) map=(3, 32) (path 4 to exit)
+   [travel] MAP TRANSITION (3, 32) -> (3, 31)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 31) coords=(0, 11)
+   [travel] start map=(3, 31) coords=(0, 11) -> map (3, 30) (budget 300s)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 62, 63, 72]
+   [travel] step 0: (0, 11)->(1, 11) map=(3, 31) (path 86 to exit)
+   [travel] step 10: (8, 9)->(9, 9) map=(3, 31) (path 76 to exit)
+   [travel] step 20: (16, 7)->(16, 6) map=(3, 31) (path 66 to exit)
+   [travel] step 30: (24, 5)->(25, 5) map=(3, 31) (path 56 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 31) coords=(32, 7) elapsed=5s
+   [travel] step 40: (32, 7)->(33, 7) map=(3, 31) (path 46 to exit)
+   [travel] step 50: (40, 7)->(39, 7) map=(3, 31) (path 70 to exit)
+   [travel] step 60: (30, 7)->(29, 7) map=(3, 31) (path 60 to exit)
+   [travel] step 70: (26, 9)->(27, 9) map=(3, 31) (path 50 to exit)
+   [travel] HEARTBEAT step=80 map=(3, 31) coords=(34, 11) elapsed=11s
+   [travel] step 80: (34, 11)->(35, 11) map=(3, 31) (path 40 to exit)
+   [travel] step 90: (44, 11)->(45, 11) map=(3, 31) (path 30 to exit)
+   [travel] step 100: (53, 12)->(54, 12) map=(3, 31) (path 23 to exit)
+   [travel] step 110: (62, 11)->(62, 10) map=(3, 31) (path 13 to exit)
+   [travel] path blocked at (62, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (62, 8); NPC-allowing path EXISTS (len 9), blocker NPC tile=(62, 7), npcs nearby=[(54, 11), (62, 7), (62, 12)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L53 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 1 (eff x1) vs goldeen 63/63 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L53 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 1 (eff x1) vs goldeen 22/63 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L53 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 1 (eff x1) vs poliwag 60/60 | [0]Tackle(p35,pp=33,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L53 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 1 (eff x1) vs horsea 54/54 | [0]Tackle(p35,pp=33,ref=0,sc=33.25) [1]Bite(p60,pp=24,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] HEARTBEAT step=120 map=(3, 31) coords=(63, 7) elapsed=114s
+   [travel] step 120: (63, 7)->(63, 6) map=(3, 31) (path 8 to exit)
+   [travel] MAP TRANSITION (3, 31) -> (3, 30)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(15, 119)
+   [travel] start map=(3, 30) coords=(15, 119) -> coord (12, 87) (budget 240s)
+   [travel] step 0: (15, 119)->(15, 118) map=(3, 30) (path 48 to exit)
+   [travel] step 10: (16, 110)->(17, 110) map=(3, 30) (path 38 to exit)
+   [travel] step 20: (16, 106)->(15, 106) map=(3, 30) (path 30 to exit)
+   [travel] step 30: (15, 97)->(15, 96) map=(3, 30) (path 20 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 30) coords=(10, 92) elapsed=5s
+   [travel] step 40: (10, 92)->(9, 92) map=(3, 30) (path 10 to exit)
+   [travel] step 50: (10, 87)->(11, 87) map=(3, 30) (path 3 to exit)
+   [travel] reached target coord (12, 87)
+   [travel] start map=(23, 2) coords=(3, 7) -> coord (2, 8) (budget 110s)
+   [travel] path blocked at (3, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (3, 7) AND no NPC-allowing path (npcs nearby=[(4, 4)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (3, 7) map=(23, 2) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(23, 2) coords=(3, 7) -> coord (3, 6) (budget 60s)
+   [travel] step 0: (3, 7)->(3, 6) map=(23, 2) (path 2 to exit)
+   [travel] reached target coord (3, 6)
+   [travel] start map=(3, 30) coords=(12, 87) -> coord (14, 22) (budget 240s)
+   [travel] step 0: (12, 87)->(13, 87) map=(3, 30) (path 116 to exit)
+   [travel] step 10: (18, 83)->(18, 82) map=(3, 30) (path 106 to exit)
+   [travel] step 20: (15, 76)->(15, 75) map=(3, 30) (path 96 to exit)
+   [travel] step 30: (14, 67)->(14, 66) map=(3, 30) (path 86 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 30) coords=(9, 62) elapsed=5s
+   [travel] step 40: (9, 62)->(9, 61) map=(3, 30) (path 76 to exit)
+   [travel] step 50: (11, 54)->(12, 54) map=(3, 30) (path 66 to exit)
+   [travel] step 60: (16, 57)->(16, 56) map=(3, 30) (path 56 to exit)
+   [travel] step 70: (15, 48)->(15, 47) map=(3, 30) (path 46 to exit)
+   [travel] HEARTBEAT step=80 map=(3, 30) coords=(11, 42) elapsed=11s
+   [travel] step 80: (11, 42)->(10, 42) map=(3, 30) (path 36 to exit)
+   [travel] step 90: (9, 36)->(10, 36) map=(3, 30) (path 28 to exit)
+   [travel] step 100: (14, 31)->(15, 31) map=(3, 30) (path 18 to exit)
+   [travel] step 110: (17, 26)->(16, 26) map=(3, 30) (path 8 to exit)
+   [travel] reached target coord (14, 22)
+   [travel] start map=(23, 0) coords=(5, 11) -> coord (6, 1) (budget 110s)
+   [travel] path blocked at (5, 11) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 11) AND no NPC-allowing path (npcs nearby=[(1, 5)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (5, 11) map=(23, 0) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(23, 0) coords=(5, 11) -> coord (6, 2) (budget 90s)
+   [travel] step 0: (5, 11)->(5, 10) map=(23, 0) (path 11 to exit)
+   [travel] reached target coord (6, 2)
+   [travel] start map=(23, 0) coords=(6, 2) -> coord (5, 1) (budget 110s)
+   [travel] step 0: (6, 2)->(5, 2) map=(23, 0) (path 3 to exit)
+   [travel] reached target coord (5, 1)
+   [travel] start map=(3, 30) coords=(14, 15) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] step 0: (14, 15)->(14, 14) map=(3, 30) (path 18 to exit)
+   [travel] step 10: (12, 7)->(12, 6) map=(3, 30) (path 8 to exit)
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 26) (budget 300s)
+   [travel] west connection band rows: [9, 10, 11]
+   [travel] step 0: (12, 19)->(12, 18) map=(3, 4) (path 21 to exit)
+   [travel] step 10: (4, 17)->(3, 17) map=(3, 4) (path 11 to exit)
+   [travel] MAP TRANSITION (3, 4) -> (3, 26)
+   [travel] west connection band rows: [6, 8, 9, 10, 11, 13]
+   [travel] ARRIVED at target map (3, 26) coords=(71, 11)
+   [travel] start map=(3, 26) coords=(71, 11) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (71, 11) (NPC on the gap?) - waiting
+   [travel] no clean path from (71, 11) AND no NPC-allowing path (npcs nearby=[(62, 14)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (71, 11) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 26) coords=(71, 11) -> coord (13, 5) (budget 300s)
+   [travel] step 0: (71, 11)->(70, 11) map=(3, 26) (path 87 to exit)
+   [travel] step 10: (65, 15)->(64, 15) map=(3, 26) (path 77 to exit)
+   [travel] step 20: (56, 14)->(55, 14) map=(3, 26) (path 67 to exit)
+   [travel] step 30: (53, 7)->(52, 7) map=(3, 26) (path 57 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 26) coords=(43, 7) elapsed=5s
+   [travel] step 40: (43, 7)->(42, 7) map=(3, 26) (path 47 to exit)
+   [travel] step 50: (33, 7)->(33, 8) map=(3, 26) (path 37 to exit)
+   [travel] step 60: (30, 14)->(29, 14) map=(3, 26) (path 27 to exit)
+   [travel] step 70: (20, 14)->(19, 14) map=(3, 26) (path 17 to exit)
+   [travel] HEARTBEAT step=80 map=(3, 26) coords=(18, 6) elapsed=11s
+   [travel] step 80: (18, 6)->(17, 6) map=(3, 26) (path 7 to exit)
+   [travel] reached target coord (13, 5)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 7) (budget 45s)
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
