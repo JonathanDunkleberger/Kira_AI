@@ -10999,6 +10999,24 @@ class Campaign:
                 and not getattr(self, "_ql_past_anchor", False)):
             _pc2 = state.get("party_count")
             _pl2 = state["party"][0]["level"] if state.get("party") else None
+            # LIVE-EDGE SHORTCUT (2026-08-03 LIVE, the full-tunnel ping-pong): the anchor can be
+            # the LITERAL NEXT MAP OVER — Route 7's west connection IS Celadon — but this timeline
+            # never walked that border, so the learned-graph router below read 'no route', fell to
+            # dir/bend discovery, re-entered the UGP hut (the only door on Route 7), and the hut
+            # walk carried her all the way back east: a full tunnel crossing UNDONE every cycle.
+            # Map connections are ground truth from the live header (_map_connections), no learning
+            # required — when the anchor is directly attached, just walk the edge.
+            try:
+                _lw = {"N": "north", "S": "south", "E": "east", "W": "west"}
+                _lc = next((_lw[dd] for dd, m in self._map_connections()
+                            if tuple(m) == tuple(step_anchor)), None)
+            except Exception:
+                _lc = None
+            if _lc and not self.strat.is_gated(tuple(step_anchor), _pc2, _pl2):
+                log(f"   [roam] 🧭 QUESTLINE ANCHOR-FIRST: {self.world.name(step_anchor)} is the "
+                    f"live {_lc} connection of {self.world.name(cur_map)} — walking the edge "
+                    f"(ground truth beats the learned graph)")
+                return self._edge_travel(step_anchor, _lc)
             # WARP-AWARE routing (flute_run3: next_hop is EDGE-only, so Lavender->Celadon — a road
             # that crosses the Underground Path — read 'no route' and she fell into dir noise).
             # next_step routes THROUGH learned warps, executed exactly like head_to_gym's warp-route.
