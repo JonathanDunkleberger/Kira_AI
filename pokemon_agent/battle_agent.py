@@ -109,6 +109,12 @@ FSWITCH_BUDGET_S = float(os.getenv("POKEMON_FSWITCH_BUDGET_S", "5"))
 # Bounded retries keep the anti-churn intent (never an infinite switch loop) while making one flaky
 # menu nav non-fatal.
 FAMINE_SWITCH_TRIES = int(os.getenv("POKEMON_FAMINE_SWITCH_TRIES", "3"))
+# FUTILITY BREAKER (2026-08-03 09:07, the parked-on-Tackle photo evidence): total fruitless
+# move-list confirms per battle before the engine stops trusting the move list entirely and
+# bench-switches. This is the slot-agnostic floor UNDER the per-slot refusal ledger: when the
+# cursor readback and the drawn cursor disagree, refusals get tallied on the wrong slots and
+# the ledger never converges — this counter converges anyway, because it counts EVENTS not slots.
+FUTILE_AMOVE_MAX = int(os.getenv("POKEMON_FUTILE_AMOVE_MAX", "4"))
 # NS#12 — HEAL-CONSUME-FAILED LATCH (the Route-10/Rock-Tunnel bag-USE/CANCEL livelock). An in-battle
 # heal can open the bag, reach "ITEM is selected -> USE/CANCEL", and FAIL to consume (count never drops)
 # — _bag_screen() doesn't fingerprint that sub-box, so the turn-top close is bypassed and every "pick a
@@ -1322,7 +1328,22 @@ class BattleAgent:
                 return "done"
             if not self._at_move_list():
                 return "done"                             # something fired / battle moved on
+            # FUTILITY GATE (09:07): if the list has already proven itself a tar pit, bench-switch
+            # instead of feeding it more confirms.
+            if (getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX
+                    and self._is_trainer_battle()):
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(14)
+                if self._futility_bench_switch():
+                    return "done"
             self._goto_move(slot)
+            # Attribute to the slot ACTUALLY under the cursor — nav can fail/lie (the 09:07
+            # parked-on-Tackle loop tallied refusals on slots that were never pressed).
+            _cs = self.b.rd8(MOVE_CURSOR)
+            pressed = _cs if 0 <= _cs < 4 else slot
+            if pressed != slot:
+                self.log(f"   [engine] struggle-walk: nav to slot {slot} didn't verify — cursor "
+                         f"is on {pressed}; that's the slot this confirm fires")
             before = self._bstate()
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
             self._wait(20)
@@ -1331,9 +1352,10 @@ class BattleAgent:
                     return "done"
                 _bt = self._battle_text() if _fn % 12 == 0 else ""
                 if _bt and any(sn in _bt for sn in self._MOVE_REFUSAL_SNIPPETS):
-                    self._move_refused[slot] = max(self._move_refused.get(slot, 0), 2)
-                    self.log(f"   [engine] struggle-walk: game refused slot {slot} — exiled, "
-                             f"trying the next")
+                    self._move_refused[pressed] = max(self._move_refused.get(pressed, 0), 2)
+                    self._amove_futile = getattr(self, "_amove_futile", 0) + 1
+                    self.log(f"   [engine] struggle-walk: game refused slot {pressed} — exiled, "
+                             f"trying the next (futility {self._amove_futile}/{FUTILE_AMOVE_MAX})")
                     self._wait(20)                        # let the refusal box clear
                     break
                 cur = st.read_battle(self.b)
@@ -1450,6 +1472,19 @@ class BattleAgent:
             self._wait(14)
             return "A@FIGHT"
         if self._at_move_list():
+            # FUTILITY BREAKER (2026-08-03 09:07, the parked-on-Tackle photos): if the move list
+            # has already eaten FUTILE_AMOVE_MAX confirms this battle with zero real progress,
+            # one more A here is theater — the cursor readback is lying or every slot the game
+            # will actually select is dry. Stop touching the list: B out and bench-switch (the
+            # party path verifies by the active SPECIES flipping — move RAM can't lie to it).
+            if (getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX
+                    and self._is_trainer_battle()):
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(14)
+                if self._futility_bench_switch():
+                    return "SWITCHED(futility)"
+                # no bench / didn't confirm -> fall through and A anyway (Struggle path)
+            self._amove_futile = getattr(self, "_amove_futile", 0) + 1
             # Never confirm a slot the game already refused (the highlighted move IS the
             # refused one after a refusal bounce) — steer to the least-refused slot first.
             _ref = getattr(self, "_move_refused", {})
@@ -1462,6 +1497,47 @@ class BattleAgent:
             return "A@move"
         self._advance_text()
         return "text"
+
+    def _futility_bench_switch(self):
+        """LAST-RESORT resolver for a move list that eats every confirm (the 09:07 Tackle loop:
+        cursor readback said 'nav ok', the drawn cursor never left TACKLE, refusals tallied on
+        the WRONG slots, famine never tripped). Uses only reads proven live: party HP/species
+        from gPlayerParty and the species-flip-verified _switch_to_slot. Bounded per battle."""
+        if getattr(self, "_futility_switches", 0) >= 2:
+            return False
+        try:
+            pi = self.b.rd16(ram.GBATTLER_PARTY_IDX)
+            active_sp = st.read_party_species(self.b, pi) if 0 <= pi < 6 else None
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            best, best_lv = None, -1
+            for s in range(min(cnt, 6)):
+                if s == pi or self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                    continue
+                sp = st.read_party_species(self.b, s)
+                if not sp or sp == active_sp:
+                    continue
+                lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+                if lv > best_lv:
+                    best, best_lv = s, lv
+            if best is None:
+                self.log("   [engine] FUTILITY BREAKER: no live bench mon — the move list is all "
+                         "we have (Struggle/whiteout owns it)")
+                return False
+            self._futility_switches = getattr(self, "_futility_switches", 0) + 1
+            self.log(f"   [engine] !! FUTILITY BREAKER: {self._amove_futile} fruitless move-list "
+                     f"confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active "
+                     f"for party slot {best} (L{best_lv}) — switch verifies by species flip, "
+                     f"not move RAM (use {self._futility_switches}/2)")
+            if self._switch_to_slot(best, active_sp) == "switched":
+                self.emit("my moves are jammed — tagging in someone who can actually swing.",
+                          beat=True, tier=2)
+                self._note_battle_progress("futility bench switch")
+                self._skip_streak.clear()
+                return True
+            self.log("   [engine] FUTILITY BREAKER: switch did not confirm (fail-safe, fighting on)")
+        except Exception as e:
+            self.log(f"   [engine] FUTILITY BREAKER failed: {e} (LOUD)")
+        return False
 
     def _true_active_party_status(self):
         """Tear-safe STATUS for the mon currently OUT — gPlayerParty[gBattlerPartyIndexes[0]]
@@ -1483,6 +1559,7 @@ class BattleAgent:
     def _note_battle_progress(self, why=""):
         """Real fight progress (not menu flicker) — resets the MENU WEDGE stall clock."""
         self._last_battle_progress_t = time.time()
+        self._amove_futile = 0             # the move list produced something real again
         if why:
             self.log(f"   [engine] battle-progress: {why}")
 
@@ -2303,6 +2380,16 @@ class BattleAgent:
                 self._nav_move(idx)
         else:
             self.log("   [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)")
+        # The slot the game will ACTUALLY select is whatever the cursor byte says NOW — if nav
+        # didn't verify, that may not be `idx`. Attribute any refusal to THIS slot, not the
+        # intended one (2026-08-03 09:07: refusals tallied on Bite/Water Pulse while every A
+        # fired the parked-on-TACKLE cursor — Tackle never exiled, famine never tripped).
+        _pressed = self.b.rd8(MOVE_CURSOR) if self._at_move_list() else idx
+        if not (0 <= _pressed < 4):
+            _pressed = idx
+        if _pressed != idx:
+            self.log(f"   [engine] !! CURSOR MISMATCH: intended slot {idx}, cursor byte says "
+                     f"{_pressed} — the confirm fires {_pressed}; refusals will tally there")
         pp0 = ours["moves"][idx].get("pp", 0) if 0 <= idx < 4 else 0
         before = self._bstate()
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
@@ -2318,9 +2405,11 @@ class BattleAgent:
             if _vn % 12 == 0:
                 _bt = self._battle_text()
                 if _bt and any(sn in _bt for sn in self._MOVE_REFUSAL_SNIPPETS):
-                    self._move_refused[idx] = max(self._move_refused.get(idx, 0), 2)
-                    self.log(f"   [engine] GAME REFUSED slot {idx} ({_bt[:48]!r}) -> instant "
-                             f"exile this battle (text is truth; PP byte was lying)")
+                    self._move_refused[_pressed] = max(self._move_refused.get(_pressed, 0), 2)
+                    self._amove_futile = getattr(self, "_amove_futile", 0) + 1
+                    self.log(f"   [engine] GAME REFUSED slot {_pressed} ({_bt[:48]!r}) -> instant "
+                             f"exile this battle (text is truth; PP byte was lying; "
+                             f"futility {self._amove_futile}/{FUTILE_AMOVE_MAX})")
                     break                             # result stays None -> failure branch
             cur = st.read_battle(self.b)
             if cur:
@@ -2379,10 +2468,11 @@ class BattleAgent:
                 return "done"
             self._immob_streak = 0
             self._skip_streak.add(idx)
-            self._move_refused[idx] = self._move_refused.get(idx, 0) + 1
-            self.log(f"   [engine] move slot {idx} didn't fire (0-PP / disabled / blocked) -> rotating "
-                     f"to an untried move (streak now {sorted(self._skip_streak)}, "
-                     f"refusals {self._move_refused})")
+            self._move_refused[_pressed] = self._move_refused.get(_pressed, 0) + 1
+            self._amove_futile = getattr(self, "_amove_futile", 0) + 1
+            self.log(f"   [engine] move slot {_pressed} didn't fire (0-PP / disabled / blocked) -> "
+                     f"rotating to an untried move (streak now {sorted(self._skip_streak)}, "
+                     f"refusals {self._move_refused}, futility {self._amove_futile}/{FUTILE_AMOVE_MAX})")
             # Always 'done' to the outer loop — never 'stuck' (stuck re-settles and re-probes).
             return "done"
         return result or "done"
@@ -3176,6 +3266,11 @@ class BattleAgent:
         status = _decode_status(ours.get("status1", 0) or 0)
         if status in ("sleep", "freeze"):
             return True
+        # FUTILITY (2026-08-03 09:07): the move list has eaten FUTILE_AMOVE_MAX confirms with zero
+        # progress — whatever the per-slot ledger/PP bytes claim, staying in cannot win. This is the
+        # turn-loop's route to the same bench switch the war paths reach via the futility breaker.
+        if getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX:
+            return True
         if self._crushing_lead(state):
             return False
         if self._active_pp_famine(state):
@@ -3402,6 +3497,16 @@ class BattleAgent:
         # skip_streak alone can't hold it because war-must-advance CLEARS the streak when it's the only
         # candidate. >=2 refusals = EXILED for this battle whatever its PP byte says: dropped from move
         # picks AND counted as dry by the famine test (so the famine switch — the real rescue — fires).
+        self._amove_futile = 0             # 2026-08-03 09:07 (the parked-on-Tackle photos): count EVERY
+        # fruitless move-list confirm this battle, whoever pressed it (turn loop, struggle-walk, war
+        # paths). The per-slot ledger can be poisoned when the cursor readback and the DRAWN cursor
+        # disagree (nav "succeeds", A fires TACKLE, the refusal is tallied on the slot we INTENDED) —
+        # then Tackle never exiles, famine never trips, and every escape path steers back to the
+        # "least-refused" slot: Tackle, forever, on stream. This counter doesn't care WHICH slot lied:
+        # >= FUTILE_AMOVE_MAX fruitless confirms = the move list itself is a tar pit -> STOP touching
+        # it and bench-switch (party nav is verified by species-flip, not by move RAM). Reset only by
+        # _note_battle_progress (real progress).
+        self._futility_switches = 0        # bounded uses of the futility bench switch per battle
         self._prev = st.read_battle(self.b)
         # 2026-07-06 RE-ENTRY CORPSE GUARD (the Route-6 gauntlet livelock): a previous engagement can
         # abort mid-faint (budget/stuck), and travel re-enters the SAME battle with the foe already at
