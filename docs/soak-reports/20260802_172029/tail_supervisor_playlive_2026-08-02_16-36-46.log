@@ -1,0 +1,1500 @@
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — spearow now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L22) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Erika's city (3, 6) — ENTERING the gym to take the badge
+
+   [campaign]    [icebeam] !! skip — need ¥80000+floor for 4000 more coins (have ¥14344)
+
+   [campaign]    GYM-PREP [Erika]: ice-beam errand -> broke
+
+   [campaign]    GYM-PREP [Erika]: need ¥66156 more for Ice Beam — deferring gym door; earn cash on the road then retry
+
+   [kira-voice] ·floor· (<1s since last) T2 "Ice Beam's at the Game Corner but I'm short on cash — gonna knock out some trainers, then buy it."
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 2, L42) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> need_cash_for_tm | pos (3, 6)(39, 32) -> (3, 6)(39, 32) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'need_cash_for_tm' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T2·savor· (gym) "alright, Erika's gym. this is it — I'm actually a little nervous. okay. let's climb."  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 25) toward Route 7 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! ICE-BEAM CASH FARM: keeping battle (need ¥66156); GO-HARD force-gym stood down until she can buy TM13
+
+   [campaign]    [roam] !! FORWARD-DRIVE (questline): head_to_gym reframed as the dominant forward pull, pruned backward-grind ['battle', 'travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'wander_catch']
+
+   [campaign] -- ROAM TICK 26/100000000 --
+
+   [campaign]    [roam] STATE IN: Celadon City (39, 32) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L42, ekans L16, spearow L17, rattata L17, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 6) (39,32) f1 -- badge3 $14344 party:1376 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Celadon City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. From here: EAST → Route 7 — wild Pokémon to catch/train; WEST → an unexplored area (BLOCKED — you can\'t get past there yet). Places you\'ve been with wild Pokémon you can walk back to: Route 8; Route 10; Route 9. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Okay — to get past this I need the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron).. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Erika, the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron) — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Erika is step two, not a competing choice. ⚡ JONNY\'S DIRECT ORDER (LAW): "It says stop grinding and head to sell it on City, so she\'s stuck in the cave for a little bit or what?" — Jonny told you this OUT LOUD, and his word outranks every prep instinct, every grind plan, and everything chat says. Do it NOW; training can wait. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['head_to_gym']
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym'] -> pick='head_to_gym'
+
+   [campaign]    [soul] ORACLE pick -> 'head_to_gym'
+
+   [campaign]    [roam] DECISION THINK: 4427ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L22) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Erika's city (3, 6) — ENTERING the gym to take the badge
+
+   [campaign]    [icebeam] !! skip — need ¥80000+floor for 4000 more coins (have ¥14344)
+
+   [campaign]    GYM-PREP [Erika]: ice-beam errand -> broke
+
+   [campaign]    GYM-PREP [Erika]: need ¥66156 more for Ice Beam — deferring gym door; earn cash on the road then retry
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L42) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> need_cash_for_tm | pos (3, 6)(39, 32) -> (3, 6)(39, 32) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'need_cash_for_tm' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T2·savor· (gym) "Ice Beam's at the Game Corner but I'm short on cash — gonna knock out some trainers, then buy it."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick26] -> campaign/kira_campaign.state  (map=(3, 6) coords=(39, 32) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 25) toward Route 7 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! ICE-BEAM CASH FARM: keeping battle (need ¥66156); GO-HARD force-gym stood down until she can buy TM13
+
+   [campaign]    [roam] !! FORWARD-DRIVE (questline): head_to_gym reframed as the dominant forward pull, pruned backward-grind ['battle', 'travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'wander_catch']
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 27/100000000 --
+
+   [campaign]    [roam] STATE IN: Celadon City (39, 32) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L42, ekans L16, spearow L17, rattata L17, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 6) (39,32) f1 -- badge3 $14344 party:1376 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Celadon City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. From here: EAST → Route 7 — wild Pokémon to catch/train; WEST → an unexplored area (BLOCKED — you can\'t get past there yet). Places you\'ve been with wild Pokémon you can walk back to: Route 8; Route 10; Route 9. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Okay — to get past this I need the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron).. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Erika, the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron) — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Erika is step two, not a competing choice. ⚡ JONNY\'S DIRECT ORDER (LAW): "It says stop grinding and head to sell it on City, so she\'s stuck in the cave for a little bit or what?" — Jonny told you this OUT LOUD, and his word outranks every prep instinct, every grind plan, and everything chat says. Do it NOW; training can wait. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2577ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Celadon City for the Rainbow Badge. then on to Celadon City for Erika
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(39, 32) -> coord (48, 12) (budget 90s)
+
+   [travel] step 0: (39, 32)->(39, 31) map=(3, 6) (path 46 to exit)
+
+   [travel] step 10: (31, 30)->(31, 29) map=(3, 6) (path 36 to exit)
+
+   [travel] step 20: (35, 24)->(36, 24) map=(3, 6) (path 26 to exit)
+
+   [travel] step 30: (41, 20)->(41, 19) map=(3, 6) (path 16 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 6) coords=(43, 12) elapsed=5s
+
+   [travel] step 40: (43, 12)->(44, 12) map=(3, 6) (path 6 to exit)
+
+   [travel] reached target coord (48, 12)
+
+   [campaign]    [roam] REGROUP: walked to the Center anchor (48, 12) on (3, 6)
+
+   [campaign]    [roam] RESULT: regroup -> regrouped | pos (3, 6)(39, 32) -> (3, 6)(48, 12) (MOVED)
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 25) toward Route 7 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! ICE-BEAM CASH FARM: keeping battle (need ¥66156); GO-HARD force-gym stood down until she can buy TM13
+
+   [campaign]    [roam] !! FORWARD-DRIVE (questline): head_to_gym reframed as the dominant forward pull, pruned backward-grind ['battle', 'travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'wander_catch']
+
+   [campaign] -- ROAM TICK 28/100000000 --
+
+   [campaign]    [roam] STATE IN: Celadon City (48, 12) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L42, ekans L16, spearow L17, rattata L17, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 6) (48,12) f4 -- badge3 $14344 party:1376 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Celadon City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Celadon City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 6), 'badges': ['Boulder', 'Cascade', 'Thunder'], 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find the Eevee in Celadon City'
+
+   [campaign]    [soul] ORACLE pick -> 'find the Eevee in Celadon City'
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Celadon City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. From here: EAST → Route 7 — wild Pokémon to catch/train; WEST → an unexplored area (BLOCKED — you can\'t get past there yet). Places you\'ve been with wild Pokémon you can walk back to: Route 8; Route 10; Route 9. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Okay — to get past this I need the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron).. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Erika, the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron) — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Erika is step two, not a competing choice. ⚡ JONNY\'S DIRECT ORDER (LAW): "It says stop grinding and head to sell it on City, so she\'s stuck in the cave for a little bit or what?" — Jonny told you this OUT LOUD, and his word outranks every prep instinct, every grind plan, and everything chat says. Do it NOW; training can wait. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['head_to_gym']
+
+   [kira-voice] -> T2·savor· (want) 'find the Eevee in Celadon City'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym'] -> pick='head_to_gym'
+
+   [campaign]    [soul] ORACLE pick -> 'head_to_gym'
+
+   [campaign]    [roam] DECISION THINK: 2592ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: rotating the lead — slot 1 rode the last leg, slot 2 (L17) takes this one
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — spearow now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L17 bench mon (target L22) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Erika's city (3, 6) — ENTERING the gym to take the badge
+
+   [campaign]    [icebeam] !! skip — need ¥80000+floor for 4000 more coins (have ¥14344)
+
+   [campaign]    GYM-PREP [Erika]: ice-beam errand -> broke
+
+   [campaign]    GYM-PREP [Erika]: need ¥66156 more for Ice Beam — deferring gym door; earn cash on the road then retry
+
+   [kira-voice] ·floor· (<1s since last) T2 "Ice Beam's at the Game Corner but I'm short on cash — gonna knock out some trainers, then buy it."
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 2, L42) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> need_cash_for_tm | pos (3, 6)(48, 12) -> (3, 6)(48, 12) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'need_cash_for_tm' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T2·savor· (gym) "alright, Erika's gym. this is it — I'm actually a little nervous. okay. let's climb."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick28] -> campaign/kira_campaign.state  (map=(3, 6) coords=(48, 12) badges=3 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_170911_celadon-city_3b_18h47m_periodic  (4 bundle file(s))
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 25) toward Route 7 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! ICE-BEAM CASH FARM: keeping battle (need ¥66156); GO-HARD force-gym stood down until she can buy TM13
+
+   [campaign]    [roam] !! FORWARD-DRIVE (questline): head_to_gym reframed as the dominant forward pull, pruned backward-grind ['battle', 'travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'wander_catch']
+
+   [campaign] -- ROAM TICK 29/100000000 --
+
+   [campaign]    [roam] STATE IN: Celadon City (48, 12) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L42, ekans L16, spearow L17, rattata L17, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 6) (48,12) f4 -- badge3 $14344 party:1376 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Celadon City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. From here: EAST → Route 7 — wild Pokémon to catch/train; WEST → an unexplored area (BLOCKED — you can\'t get past there yet). Places you\'ve been with wild Pokémon you can walk back to: Route 8; Route 10; Route 9. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Okay — to get past this I need the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron).. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Erika, the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron) — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Erika is step two, not a competing choice. ⚡ JONNY\'S DIRECT ORDER (LAW): "It says stop grinding and head to sell it on City, so she\'s stuck in the cave for a little bit or what?" — Jonny told you this OUT LOUD, and his word outranks every prep instinct, every grind plan, and everything chat says. Do it NOW; training can wait. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['head_to_gym']
+
+   [kira-voice] ORACLE kind=action options=['head_to_gym'] -> pick='head_to_gym'
+
+   [campaign]    [soul] ORACLE pick -> 'head_to_gym'
+
+   [campaign]    [roam] DECISION THINK: 2547ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Celadon City: You're ready — stop grinding and head to Celadon City for the Rainbow Badge.
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — ekans now leads
+
+   [campaign]    [roam] ROAD-BENCH-XP: leading with the weak L16 bench mon (target L22) so it banks participation XP on this overworld-questline leg — weak mon fights it itself (no switch)
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('FLAG_GOT_TEA' errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ⛰️  AT Erika's city (3, 6) — ENTERING the gym to take the badge
+
+   [campaign]    [icebeam] !! skip — need ¥80000+floor for 4000 more coins (have ¥14344)
+
+   [campaign]    GYM-PREP [Erika]: ice-beam errand -> broke
+
+   [campaign]    GYM-PREP [Erika]: need ¥66156 more for Ice Beam — deferring gym door; earn cash on the road then retry
+
+   [campaign]    GRIND-WEAK: restoring the ace (slot 1, L42) to lead
+
+   [campaign]    GRIND-WEAK: swap 0<->1 verified — blastoise now leads
+
+   [campaign]    [roam] RESULT: head_to_gym -> need_cash_for_tm | pos (3, 6)(48, 12) -> (3, 6)(48, 12) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'need_cash_for_tm' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T2·savor· (gym) "Ice Beam's at the Game Corner but I'm short on cash — gonna knock out some trainers, then buy it."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 25) toward Route 7 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)
+
+   [campaign]    [roam] !! ICE-BEAM CASH FARM: keeping battle (need ¥66156); GO-HARD force-gym stood down until she can buy TM13
+
+   [campaign]    [roam] !! FORWARD-DRIVE (questline): head_to_gym reframed as the dominant forward pull, pruned backward-grind ['battle', 'travel:3,25', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'wander_catch']
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 30/100000000 --
+
+   [campaign]    [roam] STATE IN: Celadon City (48, 12) | badges=3 (Boulder, Cascade, Thunder) | party=[blastoise L42, ekans L16, spearow L17, rattata L17, kadabra L19, butterfree L17] | 3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 6) (48,12) f4 -- badge3 $14344 party:1376 bag:d727]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Celadon City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. From here: EAST → Route 7 — wild Pokémon to catch/train; WEST → an unexplored area (BLOCKED — you can\'t get past there yet). Places you\'ve been with wild Pokémon you can walk back to: Route 8; Route 10; Route 9. You can walk to anywhere you\'ve already been. Field moves ready: CUT, FLASH.. Okay — to get past this I need the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron).. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 4 of 8 — next is Erika in Celadon City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Celadon City. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Erika, the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron\'s gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron) — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Erika is step two, not a competing choice. ⚡ JONNY\'S DIRECT ORDER (LAW): "It says stop grinding and head to sell it on City, so she\'s stuck in the cave for a little bit or what?" — Jonny told you this OUT LOUD, and his word outranks every prep instinct, every grind plan, and everything chat says. Do it NOW; training can wait. Word on the road about Erika: the flower lady — GRASS and poison; fire melts her garden, flyers do fine too YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): You\'ve beaten Brock (Boulder), Misty (Cascade), and Lt. Surge in Vermilion for the Thunder Badge — that\'s THREE gyms done. You have Cut and can clear trees on the road. Next is Erika in Celadon City (Rainbow Badge).. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA"; "Hi! Remember me? I\'m one of PROF. OAK\'s AIDES. If your POK.DEX has complete data on ten species, I\'m supposed to give you a reward. PROF. OAK entrusted me with "; "Oh, wow, that\'s the BOULDERBADGE! You got it from BROCK, didn\'t you? BROCK is cool. He\'s not just tough. People like and respect him. I want to become a GYM LEA". YOUR PLAN — right now: You\'re ready — stop grinding and head to Celadon City for the Rainbow Badge. Next: You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Celadon City, beat Erika for the Rainbow Badge. Your team right now: blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "3 badge(s) earned (Boulder, Cascade, Thunder). Next gym: Erika of Celadon City. Pokédex: 12 caught. She's three badges — over a third of the way there (of 8 badges, then the Elite Four).", 'party': 'blastoise (L42), ekans (L16), spearow (L17), rattata (L17), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Celadon City for the Rainbow Badge", 'medium': 'You CRUSHED Lt. Surge — ride the momentum: Erika in Celadon City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Celadon City, beat Erika for the Rainbow Badge'}} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2446ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Celadon City for the Rainbow Badge. then on to Celadon City for Erika
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 13 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    12 door(s); candidates (chosen order): [(48, 11)]
+
+   [campaign]    reachable door (48, 11): walking to approach (48, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(48, 12) -> coord (48, 12) (budget 240s)
+
+   [travel] reached target coord (48, 12)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 12) via door (48, 11)
+
+   [campaign]    [world] learned 4 warp(s) on (10, 12): (6, 8)->(3, 6), (7, 8)->(3, 6), (8, 8)->(3, 6), (1, 6)->(10, 13)
+
+   [campaign]    [world] learned 4 warp(s) on (10, 12): (6, 8)->(3, 6), (7, 8)->(3, 6), (8, 8)->(3, 6), (1, 6)->(10, 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 12) coords=(7, 8) -> coord (1, 6) (budget 110s)
+
+   [travel] step 0: (7, 8)->(7, 7) map=(10, 12) (path 9 to exit)
+
+   [travel] reached target coord (1, 6)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 3 warp(s) on (10, 13): (1, 6)->(10, 12), (5, 1)->(0, 4), (9, 1)->(0, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 13) coords=(1, 6) -> coord (9, 1) (budget 110s)
+
+   [travel] path blocked at (1, 6) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 6) AND no NPC-allowing path (npcs nearby=[(2, 2), (6, 2), (10, 2)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 6) map=(10, 13) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    3 door(s); candidates (chosen order): [(9, 1)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 13) coords=(2, 6) -> coord (5, 1) (budget 110s)
+
+   [travel] path blocked at (2, 6) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 6) AND no NPC-allowing path (npcs nearby=[(2, 2), (6, 2), (10, 2)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 6) map=(10, 13) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    3 door(s); candidates (chosen order): [(5, 1)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    PASSTHROUGH: (48, 11) dead-ends inside ((10, 13)) — backing out
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 13) coords=(2, 6) -> coord (2, 6) (budget 60s)
+
+   [travel] reached target coord (2, 6)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (1, 6) (behavior 0x6b) entered via LEFT
+
+   [campaign]    [world] learned 4 warp(s) on (10, 12): (6, 8)->(3, 6), (7, 8)->(3, 6), (8, 8)->(3, 6), (1, 6)->(10, 13)
+
+   [campaign]    EXIT-BUILDING: (10, 13) -> (10, 12)@(1, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 12) coords=(1, 6) -> coord (7, 7) (budget 60s)
+
+   [travel] step 0: (1, 6)->(2, 6) map=(10, 12) (path 8 to exit)
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    EXIT-BUILDING: (10, 12) -> (3, 6)@(48, 12)
+
+   [campaign]    12 door(s); candidates (chosen order): [(39, 20)]
+
+   [campaign]    reachable door (39, 20): walking to approach (39, 21)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(48, 12) -> coord (39, 21) (budget 240s)
+
+   [travel] step 0: (48, 12)->(48, 13) map=(3, 6) (path 21 to exit)
+
+   [travel] step 10: (43, 17)->(43, 18) map=(3, 6) (path 11 to exit)
+
+   [travel] reached target coord (39, 21)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 15) via door (39, 20)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 15): (3, 9)->(3, 6), (4, 8)->(3, 6), (5, 9)->(3, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 15): (3, 9)->(3, 6), (4, 8)->(3, 6), (5, 9)->(3, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 15) coords=(4, 8) -> coord (3, 9) (budget 110s)
+
+   [travel] path blocked at (4, 8) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (4, 8) AND no NPC-allowing path (npcs nearby=[(2, 2), (2, 5), (4, 2), (6, 2), (6, 7)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (4, 8) map=(10, 15) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    1 door(s); candidates (chosen order): [(3, 9)]
+
+   [campaign]    pick (3, 9) failed — trying adjacent actuatable door (4, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 15) coords=(4, 8) -> coord (4, 7) (budget 60s)
+
+   [travel] step 0: (4, 8)->(4, 7) map=(10, 15) (path 2 to exit)
+
+   [travel] reached target coord (4, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    WARPED (10, 15) -> (3, 6) via mat-row door (4, 8)
+
+   [campaign]    PASSTHROUGH: door (39, 20) popped out beside the entry ((39, 21)) — not a crossing
+
+   [campaign]    12 door(s); candidates (chosen order): [(49, 29)]
+
+   [campaign]    reachable door (49, 29): walking to approach (49, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(39, 21) -> coord (49, 30) (budget 240s)
+
+   [travel] step 0: (39, 21)->(39, 22) map=(3, 6) (path 30 to exit)
+
+   [travel] step 10: (48, 22)->(49, 22) map=(3, 6) (path 20 to exit)
+
+   [travel] step 20: (44, 22)->(43, 22) map=(3, 6) (path 40 to exit)
+
+   [travel] step 30: (37, 25)->(36, 25) map=(3, 6) (path 30 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 6) coords=(31, 29) elapsed=5s
+
+   [travel] step 40: (31, 29)->(31, 30) map=(3, 6) (path 20 to exit)
+
+   [travel] step 50: (40, 30)->(41, 30) map=(3, 6) (path 10 to exit)
+
+   [travel] reached target coord (49, 30)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 19) via door (49, 29)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 19): (3, 10)->(3, 6), (4, 9)->(3, 6), (5, 10)->(3, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 19): (3, 10)->(3, 6), (4, 9)->(3, 6), (5, 10)->(3, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 19) coords=(4, 9) -> coord (3, 10) (budget 110s)
+
+   [travel] path blocked at (4, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (4, 9) AND no NPC-allowing path (npcs nearby=[(2, 6), (3, 6), (5, 4), (8, 7)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (4, 9) map=(10, 19) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    1 door(s); candidates (chosen order): [(3, 10)]
+
+   [campaign]    pick (3, 10) failed — trying adjacent actuatable door (4, 9) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 19) coords=(4, 9) -> coord (4, 8) (budget 60s)
+
+   [travel] step 0: (4, 9)->(4, 8) map=(10, 19) (path 2 to exit)
+
+   [travel] reached target coord (4, 8)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 9) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    WARPED (10, 19) -> (3, 6) via mat-row door (4, 9)
+
+   [campaign]    PASSTHROUGH: door (49, 29) popped out beside the entry ((49, 30)) — not a crossing
+
+   [campaign]    12 door(s); candidates (chosen order): [(41, 29)]
+
+   [campaign]    reachable door (41, 29): walking to approach (41, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(49, 30) -> coord (41, 30) (budget 240s)
+
+   [travel] step 0: (49, 30)->(48, 30) map=(3, 6) (path 9 to exit)
+
+   [travel] reached target coord (41, 30)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 18) via door (41, 29)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 18): (3, 7)->(3, 6), (4, 7)->(3, 6), (5, 7)->(3, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 18): (3, 7)->(3, 6), (4, 7)->(3, 6), (5, 7)->(3, 6)
+
+   [campaign]    PASSTHROUGH: (41, 29) dead-ends inside ((10, 18)) — backing out
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 18) coords=(4, 7) -> coord (4, 6) (budget 60s)
+
+   [travel] step 0: (4, 7)->(4, 6) map=(10, 18) (path 2 to exit)
+
+   [travel] reached target coord (4, 6)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 7) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    EXIT-BUILDING: (10, 18) -> (3, 6)@(41, 30)
+
+   [campaign]    12 door(s); candidates (chosen order): [(37, 29)]
+
+   [campaign]    reachable door (37, 29): walking to approach (37, 30)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(41, 30) -> coord (37, 30) (budget 240s)
+
+   [travel] step 0: (41, 30)->(40, 30) map=(3, 6) (path 5 to exit)
+
+   [travel] reached target coord (37, 30)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 17) via door (37, 29)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 17): (5, 9)->(3, 6), (6, 9)->(3, 6), (7, 9)->(3, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 17): (5, 9)->(3, 6), (6, 9)->(3, 6), (7, 9)->(3, 6)
+
+   [campaign]    PASSTHROUGH: (37, 29) dead-ends inside ((10, 17)) — backing out
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 17) coords=(6, 9) -> coord (6, 8) (budget 60s)
+
+   [travel] step 0: (6, 9)->(6, 8) map=(10, 17) (path 2 to exit)
+
+   [travel] reached target coord (6, 8)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 9) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    EXIT-BUILDING: (10, 17) -> (3, 6)@(37, 30)
+
+   [campaign]    12 door(s); candidates (chosen order): [(11, 30)]
+
+   [campaign]    reachable door (11, 30): walking to approach (11, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(37, 30) -> coord (11, 31) (budget 240s)
+
+   [travel] path blocked at (37, 30) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (37, 30); NPC-allowing path EXISTS (len 44), blocker NPC tile=(40, 35), npcs nearby=[(30, 24), (39, 31), (40, 35), (47, 24)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "RATTATA used CUT!"'
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.04s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (40, 35) on (3, 6) CLEARED with cut — continuing the leg
+
+   [travel] step 10: (36, 36)->(35, 36) map=(3, 6) (path 31 to exit)
+
+   [kira-voice] -> T1·brisk· (beat) 'Celadon City — the big city: department store, game corner, crowds moving with somewhere to be'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] step 20: (26, 36)->(25, 36) map=(3, 6) (path 21 to exit)
+
+   [travel] step 30: (18, 34)->(17, 34) map=(3, 6) (path 11 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 6) coords=(11, 31) elapsed=18s
+
+   [travel] reached target coord (11, 31)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 16) via door (11, 30)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 16): (5, 18)->(3, 6), (6, 18)->(3, 6), (7, 18)->(3, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 16): (5, 18)->(3, 6), (6, 18)->(3, 6), (7, 18)->(3, 6)
+
+   [campaign]    PASSTHROUGH: (11, 30) dead-ends inside ((10, 16)) — backing out
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 16) coords=(6, 18) -> coord (6, 17) (budget 60s)
+
+   [travel] step 0: (6, 18)->(6, 17) map=(10, 16) (path 2 to exit)
+
+   [travel] reached target coord (6, 17)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 18) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    EXIT-BUILDING: (10, 16) -> (3, 6)@(11, 31)
+
+   [campaign]    12 door(s); candidates (chosen order): [(30, 11)]
+
+   [campaign]    reachable door (30, 11): walking to approach (30, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(11, 31) -> coord (30, 12) (budget 240s)
+
+   [travel] step 0: (11, 31)->(11, 32) map=(3, 6) (path 86 to exit)
+
+   [travel] step 10: (16, 36)->(17, 36) map=(3, 6) (path 77 to exit)
+
+   [travel] step 20: (26, 36)->(27, 36) map=(3, 6) (path 67 to exit)
+
+   [travel] step 30: (36, 36)->(37, 36) map=(3, 6) (path 57 to exit)
+
+   [travel] path blocked at (40, 36) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (40, 36); NPC-allowing path EXISTS (len 53), blocker NPC tile=(40, 35), npcs nearby=[(39, 31), (40, 35)] -> approaching to interact/trigger
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 6)@(40, 36) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "that little tree's in my way — good thing I carry Cut now. TIMBER!"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'RATTATA used CUT!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "RATTATA used CUT!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg hm-cut] 'RATTATA used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'RATTATA used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (40, 35) on (3, 6) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(40, 36) -> coord (31, 5) (budget 240s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(40, 36) -> coord (29, 5) (budget 240s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (40, 36) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (40, 36) AND no NPC-allowing path (npcs nearby=[(40, 31)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (40, 36) map=(3, 6) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    12 door(s); candidates (chosen order): [(30, 4)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(40, 36) -> coord (30, 3) (budget 60s)
+
+   [travel] step 0: (40, 36)->(40, 35) map=(3, 6) (path 84 to exit)
+
+   [travel] step 10: (36, 30)->(35, 30) map=(3, 6) (path 74 to exit)
+
+   [travel] step 20: (31, 25)->(31, 24) map=(3, 6) (path 64 to exit)
+
+   [travel] step 30: (40, 24)->(41, 24) map=(3, 6) (path 54 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 6) coords=(41, 15) elapsed=5s
+
+   [travel] step 40: (41, 15)->(41, 14) map=(3, 6) (path 44 to exit)
+
+   [travel] step 50: (48, 12)->(49, 12) map=(3, 6) (path 34 to exit)
+
+   [travel] step 60: (50, 6)->(49, 6) map=(3, 6) (path 24 to exit)
+
+   [travel] step 70: (40, 6)->(39, 6) map=(3, 6) (path 14 to exit)
+
+   [travel] HEARTBEAT step=80 map=(3, 6) coords=(33, 3) elapsed=11s
+
+   [travel] step 80: (33, 3)->(32, 3) map=(3, 6) (path 4 to exit)
+
+   [travel] reached target coord (30, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (30, 4) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (10, 7): (11, 19)->(3, 6), (12, 18)->(3, 6), (13, 19)->(3, 6), (4, 2)->(10, 8), (12, 2)->(10, 8), (2, 1)->(3, 6)
+
+   [campaign]    WARPED (3, 6) -> (10, 7) via directional door (30, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (10, 7): (11, 19)->(3, 6), (12, 18)->(3, 6), (13, 19)->(3, 6), (4, 2)->(10, 8), (12, 2)->(10, 8), (2, 1)->(3, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 7) coords=(2, 2) -> coord (13, 19) (budget 110s)
+
+   [travel] path blocked at (2, 2) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 2) AND no NPC-allowing path (npcs nearby=[(1, 9), (2, 9), (5, 7)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 2) map=(10, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    4 door(s); candidates (chosen order): [(13, 19)]
+
+   [campaign]    pick (13, 19) failed — trying adjacent actuatable door (12, 18) (mat-row)
+
+   [campaign]    directional warp (12, 18): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 7) coords=(2, 2) -> coord (11, 19) (budget 110s)
+
+   [travel] path blocked at (2, 2) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 2) AND no NPC-allowing path (npcs nearby=[(1, 9), (2, 9), (5, 7)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 2) map=(10, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    4 door(s); candidates (chosen order): [(11, 19)]
+
+   [campaign]    pick (11, 19) failed — trying adjacent actuatable door (12, 18) (mat-row)
+
+   [campaign]    directional warp (12, 18): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 7) coords=(2, 2) -> coord (12, 18) (budget 110s)
+
+   [travel] path blocked at (2, 2) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 2) AND no NPC-allowing path (npcs nearby=[(1, 9), (2, 9), (6, 7)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 2) map=(10, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    directional warp (12, 18): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    4 door(s); candidates (chosen order): [(12, 18)]
+
+   [campaign]    directional warp (12, 18): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 7) coords=(2, 2) -> coord (12, 2) (budget 110s)
+
+   [travel] path blocked at (2, 2) (NPC on the gap?) - waiting
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.1s at (10, 7)@(2, 2) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    directional warp (12, 2): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    4 door(s); candidates (chosen order): [(12, 2)]
+
+   [campaign]    directional warp (12, 2): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 7) coords=(2, 2) -> coord (4, 2) (budget 110s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 7) coords=(2, 2) -> coord (3, 2) (budget 60s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (2, 2)->(3, 2) map=(10, 7) (path 2 to exit)
+
+   [travel] reached target coord (3, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 2) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 4 warp(s) on (10, 8): (4, 2)->(10, 7), (2, 2)->(10, 9), (11, 2)->(10, 9), (12, 2)->(10, 7)
+
+   [campaign]    [world] learned 4 warp(s) on (10, 8): (4, 2)->(10, 7), (2, 2)->(10, 9), (11, 2)->(10, 9), (12, 2)->(10, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 8) coords=(4, 2) -> coord (12, 2) (budget 110s)
+
+   [travel] path blocked at (4, 2) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (4, 2) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (4, 2) map=(10, 8) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    directional warp (12, 2): no stand/neighbor reachable from (4, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    4 door(s); candidates (chosen order): [(12, 2)]
+
+   [campaign]    directional warp (12, 2): no stand/neighbor reachable from (4, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    pick (12, 2) failed — trying adjacent actuatable door (11, 2) (mat-row)
+
+   [campaign]    directional warp (11, 2): no stand/neighbor reachable from (4, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 8) coords=(4, 2) -> coord (11, 2) (budget 110s)
+
+   [travel] path blocked at (4, 2) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (4, 2) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (4, 2) map=(10, 8) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    directional warp (11, 2): no stand/neighbor reachable from (4, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    4 door(s); candidates (chosen order): [(11, 2)]
+
+   [campaign]    directional warp (11, 2): no stand/neighbor reachable from (4, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    pick (11, 2) failed — trying adjacent actuatable door (12, 2) (mat-row)
+
+   [campaign]    directional warp (12, 2): no stand/neighbor reachable from (4, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 8) coords=(4, 2) -> coord (2, 2) (budget 110s)
+
+   [travel] step 0: (4, 2)->(3, 2) map=(10, 8) (path 3 to exit)
+
+   [travel] reached target coord (2, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (10, 9): (2, 2)->(10, 8), (4, 2)->(10, 10), (12, 2)->(10, 10), (11, 2)->(10, 8)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 9) coords=(2, 2) -> coord (12, 2) (budget 110s)
+
+   [travel] path blocked at (2, 2) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 2) AND no NPC-allowing path (npcs nearby=[(0, 10), (3, 8), (4, 10)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 2) map=(10, 9) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    directional warp (12, 2): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    4 door(s); candidates (chosen order): [(12, 2)]
+
+   [campaign]    directional warp (12, 2): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    pick (12, 2) failed — trying adjacent actuatable door (11, 2) (mat-row)
+
+   [campaign]    directional warp (11, 2): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 9) coords=(2, 2) -> coord (11, 2) (budget 110s)
+
+   [travel] path blocked at (2, 2) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 2) AND no NPC-allowing path (npcs nearby=[(0, 10), (3, 8), (4, 10)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 2) map=(10, 9) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    directional warp (11, 2): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    4 door(s); candidates (chosen order): [(11, 2)]
+
+   [campaign]    directional warp (11, 2): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    pick (11, 2) failed — trying adjacent actuatable door (12, 2) (mat-row)
+
+   [campaign]    directional warp (12, 2): no stand/neighbor reachable from (2, 2) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 9) coords=(2, 2) -> coord (4, 2) (budget 110s)
+
+   [travel] step 0: (2, 2)->(3, 2) map=(10, 9) (path 3 to exit)
+
+   [travel] reached target coord (4, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 3 warp(s) on (10, 10): (4, 2)->(10, 9), (10, 2)->(10, 9), (2, 12)->(10, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 10) coords=(4, 2) -> coord (2, 12) (budget 110s)
+
+   [travel] step 0: (4, 2)->(4, 3) map=(10, 10) (path 17 to exit)
+
+   [travel] step 10: (5, 11)->(5, 12) map=(10, 10) (path 7 to exit)
+
+   [travel] reached target coord (2, 12)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 3 warp(s) on (10, 11): (3, 8)->(10, 10), (4, 7)->(10, 10), (5, 8)->(10, 10)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 11) coords=(4, 7) -> coord (3, 8) (budget 110s)
+
+   [travel] path blocked at (4, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (4, 7) AND no NPC-allowing path (npcs nearby=[(3, 5), (7, 3)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (4, 7) map=(10, 11) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    1 door(s); candidates (chosen order): [(3, 8)]
+
+   [campaign]    pick (3, 8) failed — trying adjacent actuatable door (4, 7) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 11) coords=(4, 7) -> coord (4, 6) (budget 60s)
+
+   [travel] step 0: (4, 7)->(4, 6) map=(10, 11) (path 2 to exit)
+
+   [travel] reached target coord (4, 6)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 7) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (10, 10): (4, 2)->(10, 9), (10, 2)->(10, 9), (2, 12)->(10, 11)
+
+   [campaign]    WARPED (10, 11) -> (10, 10) via mat-row door (4, 7)
+
+   [campaign]    [world] learned 3 warp(s) on (10, 10): (4, 2)->(10, 9), (10, 2)->(10, 9), (2, 12)->(10, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 10) coords=(2, 13) -> coord (10, 2) (budget 110s)
+
+   [travel] path blocked at (2, 13) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 13) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 13) map=(10, 10) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    directional warp (10, 2): no stand/neighbor reachable from (2, 13) — sealed pocket, skipping (0 legs)
+
+   [campaign]    3 door(s); candidates (chosen order): [(10, 2)]
+
+   [campaign]    directional warp (10, 2): no stand/neighbor reachable from (2, 13) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 10) coords=(2, 13) -> coord (4, 2) (budget 110s)
+
+   [travel] step 0: (2, 13)->(3, 13) map=(10, 10) (path 16 to exit)
+
+   [travel] step 10: (5, 6)->(5, 5) map=(10, 10) (path 6 to exit)
+
+   [travel] reached target coord (4, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    PASSTHROUGH: (30, 4) dead-ends inside ((10, 9)) — backing out
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 9) coords=(4, 2) -> coord (3, 2) (budget 60s)
+
+   [travel] step 0: (4, 2)->(3, 2) map=(10, 9) (path 2 to exit)
+
+   [travel] reached target coord (3, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (2, 2) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 4 warp(s) on (10, 8): (4, 2)->(10, 7), (2, 2)->(10, 9), (11, 2)->(10, 9), (12, 2)->(10, 7)
+
+   [campaign]    EXIT-BUILDING: (10, 9) -> (10, 8)@(2, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 8) coords=(2, 2) -> coord (3, 2) (budget 60s)
+
+   [travel] step 0: (2, 2)->(3, 2) map=(10, 8) (path 2 to exit)
+
+   [travel] reached target coord (3, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 2) (behavior 0x6e) entered via RIGHT
+
+   [campaign]    [world] learned 6 warp(s) on (10, 7): (11, 19)->(3, 6), (12, 18)->(3, 6), (13, 19)->(3, 6), (4, 2)->(10, 8), (12, 2)->(10, 8), (2, 1)->(3, 6)
+
+   [campaign]    EXIT-BUILDING: (10, 8) -> (10, 7)@(4, 2)
+
+   [campaign]    EXIT: door (12, 18) walk-unreachable from (4, 2) — skipped (sealed pocket)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 7) coords=(4, 2) -> coord (2, 1) (budget 60s)
+
+   [travel] step 0: (4, 2)->(3, 2) map=(10, 7) (path 4 to exit)
+
+   [travel] reached target coord (2, 1)
+
+   [campaign]    4 door(s); candidates (chosen order): [(2, 1)]
+
+   [campaign]    reachable door (2, 1): walking to approach (2, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 7) coords=(2, 1) -> coord (2, 2) (budget 60s)
+
+   [travel] step 0: (2, 1)->(30, 4) map=(10, 7) (path 2 to exit)
+
+   [travel] MAP TRANSITION (10, 7) -> (3, 6)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [travel] coord leg ended by the transition -> (3, 6) (target (2, 2) was the old map's frame)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT-BUILDING: (10, 7) -> (3, 6)@(30, 4)
+
+   [campaign]    12 door(s); candidates (chosen order): [(15, 14)]
+
+   [campaign]    reachable door (15, 14): walking to approach (15, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(30, 4) -> coord (15, 15) (budget 240s)
+
+   [travel] step 0: (30, 4)->(30, 3) map=(3, 6) (path 71 to exit)
+
+   [travel] step 10: (38, 4)->(38, 5) map=(3, 6) (path 61 to exit)
+
+   [travel] step 20: (45, 7)->(46, 7) map=(3, 6) (path 51 to exit)
+
+   [travel] step 30: (51, 11)->(51, 12) map=(3, 6) (path 41 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 6) coords=(46, 16) elapsed=5s
+
+   [travel] step 40: (46, 16)->(45, 16) map=(3, 6) (path 33 to exit)
+
+   [travel] step 50: (37, 15)->(36, 15) map=(3, 6) (path 23 to exit)
+
+   [travel] step 60: (27, 15)->(26, 15) map=(3, 6) (path 13 to exit)
+
+   [travel] step 70: (17, 15)->(16, 15) map=(3, 6) (path 3 to exit)
+
+   [travel] reached target coord (15, 15)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 0) via door (15, 14)
+
+   [campaign]    [world] learned 8 warp(s) on (10, 0): (1, 15)->(3, 6), (2, 14)->(3, 6), (3, 15)->(3, 6), (9, 15)->(3, 6), (10, 14)->(3, 6), (11, 15)->(3, 6)
+
+   [campaign]    [world] learned 8 warp(s) on (10, 0): (1, 15)->(3, 6), (2, 14)->(3, 6), (3, 15)->(3, 6), (9, 15)->(3, 6), (10, 14)->(3, 6), (11, 15)->(3, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 0) coords=(10, 14) -> coord (4, 2) (budget 110s)
+
+   [travel] step 0: (10, 14)->(10, 13) map=(10, 0) (path 19 to exit)
+
+   [travel] step 10: (9, 5)->(9, 4) map=(10, 0) (path 9 to exit)
+
+   [travel] reached target coord (4, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 3 warp(s) on (10, 1): (6, 1)->(10, 6), (3, 2)->(10, 0), (9, 2)->(10, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 1) coords=(3, 2) -> coord (9, 2) (budget 110s)
+
+   [travel] step 0: (3, 2)->(4, 2) map=(10, 1) (path 7 to exit)
+
+   [travel] reached target coord (9, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 3 warp(s) on (10, 2): (6, 1)->(10, 6), (9, 2)->(10, 1), (3, 2)->(10, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 2) coords=(9, 2) -> coord (3, 2) (budget 110s)
+
+   [travel] step 0: (9, 2)->(8, 2) map=(10, 2) (path 7 to exit)
+
+   [travel] reached target coord (3, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 3 warp(s) on (10, 3): (6, 1)->(10, 6), (3, 2)->(10, 2), (9, 2)->(10, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 3) coords=(3, 2) -> coord (9, 2) (budget 110s)
+
+   [travel] step 0: (3, 2)->(4, 2) map=(10, 3) (path 7 to exit)
+
+   [travel] reached target coord (9, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 3 warp(s) on (10, 4): (6, 1)->(10, 6), (9, 2)->(10, 3), (3, 2)->(10, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 4) coords=(9, 2) -> coord (3, 2) (budget 110s)
+
+   [travel] step 0: (9, 2)->(8, 2) map=(10, 4) (path 7 to exit)
+
+   [travel] reached target coord (3, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 1 warp(s) on (10, 5): (15, 6)->(10, 4)
+
+   [campaign]    PASSTHROUGH: (15, 14) dead-ends inside ((10, 5)) — backing out
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 5) coords=(15, 6) -> coord (14, 6) (budget 60s)
+
+   [travel] step 0: (15, 6)->(14, 6) map=(10, 5) (path 2 to exit)
+
+   [travel] reached target coord (14, 6)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (15, 6) (behavior 0x62) entered via RIGHT
+
+   [campaign]    [world] learned 3 warp(s) on (10, 4): (6, 1)->(10, 6), (9, 2)->(10, 3), (3, 2)->(10, 5)
+
+   [campaign]    EXIT-BUILDING: (10, 5) -> (10, 4)@(3, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 4) coords=(3, 2) -> coord (8, 2) (budget 60s)
+
+   [travel] step 0: (3, 2)->(4, 2) map=(10, 4) (path 6 to exit)
+
+   [travel] reached target coord (8, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 2) (behavior 0x6e) entered via RIGHT
+
+   [campaign]    [world] learned 3 warp(s) on (10, 3): (6, 1)->(10, 6), (3, 2)->(10, 2), (9, 2)->(10, 4)
+
+   [campaign]    EXIT-BUILDING: (10, 4) -> (10, 3)@(9, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 3) coords=(9, 2) -> coord (4, 2) (budget 60s)
+
+   [travel] step 0: (9, 2)->(8, 2) map=(10, 3) (path 6 to exit)
+
+   [travel] reached target coord (4, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (3, 2) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 3 warp(s) on (10, 2): (6, 1)->(10, 6), (9, 2)->(10, 1), (3, 2)->(10, 3)
+
+   [campaign]    EXIT-BUILDING: (10, 3) -> (10, 2)@(3, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 2) coords=(3, 2) -> coord (8, 2) (budget 60s)
+
+   [travel] step 0: (3, 2)->(4, 2) map=(10, 2) (path 6 to exit)
+
+   [travel] reached target coord (8, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 2) (behavior 0x6e) entered via RIGHT
+
+   [campaign]    [world] learned 3 warp(s) on (10, 1): (6, 1)->(10, 6), (3, 2)->(10, 0), (9, 2)->(10, 2)
+
+   [campaign]    EXIT-BUILDING: (10, 2) -> (10, 1)@(9, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 1) coords=(9, 2) -> coord (4, 2) (budget 60s)
+
+   [travel] step 0: (9, 2)->(8, 2) map=(10, 1) (path 6 to exit)
+
+   [travel] reached target coord (4, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (3, 2) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 8 warp(s) on (10, 0): (1, 15)->(3, 6), (2, 14)->(3, 6), (3, 15)->(3, 6), (9, 15)->(3, 6), (10, 14)->(3, 6), (11, 15)->(3, 6)
+
+   [campaign]    EXIT-BUILDING: (10, 1) -> (10, 0)@(4, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 0) coords=(4, 2) -> coord (2, 13) (budget 60s)
+
+   [travel] step 0: (4, 2)->(4, 3) map=(10, 0) (path 14 to exit)
+
+   [travel] step 10: (2, 10)->(2, 11) map=(10, 0) (path 4 to exit)
+
+   [travel] reached target coord (2, 13)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (2, 14) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 13 warp(s) on (3, 6): (34, 21)->(10, 14), (11, 14)->(10, 0), (15, 14)->(10, 0), (30, 11)->(10, 7), (48, 11)->(10, 12), (39, 20)->(10, 15)
+
+   [campaign]    EXIT-BUILDING: (10, 0) -> (3, 6)@(11, 15)
+
+   [campaign]    12 door(s); candidates (chosen order): [(11, 14)]
+
+   [campaign]    reachable door (11, 14): walking to approach (11, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 6) coords=(11, 15) -> coord (11, 15) (budget 240s)
+
+   [travel] reached target coord (11, 15)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 6) -> (10, 0) via door (11, 14)
+
+   [campaign]    [world] learned 8 warp(s) on (10, 0): (1, 15)->(3, 6), (2, 14)->(3, 6), (3, 15)->(3, 6), (9, 15)->(3, 6), (10, 14)->(3, 6), (11, 15)->(3, 6)
+
+   [campaign]    [world] learned 8 warp(s) on (10, 0): (1, 15)->(3, 6), (2, 14)->(3, 6), (3, 15)->(3, 6), (9, 15)->(3, 6), (10, 14)->(3, 6), (11, 15)->(3, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 0) coords=(2, 14) -> coord (6, 1) (budget 110s)
+
+   [travel] path blocked at (2, 14) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (2, 14) AND no NPC-allowing path (npcs nearby=[(6, 10)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 14) map=(10, 0) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    4 door(s); candidates (chosen order): [(6, 1)]
+
+   [campaign]    reachable door (6, 1): walking to approach (6, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 0) coords=(2, 14) -> coord (6, 2) (budget 90s)
+
+   [travel] step 0: (2, 14)->(2, 13) map=(10, 0) (path 17 to exit)
+
+   [travel] step 10: (3, 5)->(4, 5) map=(10, 0) (path 7 to exit)
+
+   [travel] reached target coord (6, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (10, 0) -> (10, 6) via door (6, 1)
+
+   [campaign]    [world] learned 2 warp(s) on (10, 6): (2, 5)->(127, 127), (2, 6)->(127, 127)
+
+   [campaign]    [world] learned 2 warp(s) on (10, 6): (2, 5)->(127, 127), (2, 6)->(127, 127)
+
+   [campaign]    PASSTHROUGH: (11, 14) dead-ends inside ((10, 6)) — backing out
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    EXIT: elevator car (10, 6) — riding the panel (row 0)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (10, 6)@(1, 3) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'Which floor do you want?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Which floor do you want?"'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [elev] ride(row=0): dynamic dest unchanged ((10, 0)) — selection didn't take, staying aboard
+
+   [campaign]    EXIT: elevator car (10, 6) — riding the panel (row 1)
+
+   [campaign]    [elev] ride(row=1): dynamic dest unchanged ((10, 0)) — selection didn't take, staying aboard
+
+   [campaign]    EXIT: elevator car (10, 6) — riding the panel (row 2)
+
+   [campaign]    1 door(s); candidates (chosen order): [(2, 5)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 6) coords=(0, 3) -> coord (2, 4) (budget 60s)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (86s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] step 0: (0, 3)->(0, 4) map=(10, 6) (path 4 to exit)
+
+   [travel] reached target coord (2, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (2, 5) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (10, 4): (6, 1)->(10, 6), (9, 2)->(10, 3), (3, 2)->(10, 5)
+
+   [campaign]    WARPED (10, 6) -> (10, 4) via directional door (2, 5)
+
+   [campaign]    [elev] ride(row=2) retargeted (10, 0) -> (10, 4); landed (10, 4) @ (6, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 4) coords=(6, 2) -> coord (8, 2) (budget 60s)
+
+   [travel] step 0: (6, 2)->(7, 2) map=(10, 4) (path 3 to exit)
+
+   [travel] reached target coord (8, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 2) (behavior 0x6e) entered via RIGHT
+
+   [campaign]    [world] learned 3 warp(s) on (10, 3): (6, 1)->(10, 6), (3, 2)->(10, 2), (9, 2)->(10, 4)
+
+   [campaign]    EXIT-BUILDING: (10, 4) -> (10, 3)@(9, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(10, 3) coords=(9, 2) -> coord (4, 2) (budget 60s)
+
+   [travel] step 0: (9, 2)->(8, 2) map=(10, 3) (path 6 to exit)
+
+   [travel] reached target coord (4, 2)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 145001 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(10, 3) coords=(3, 2)  badge=True
+
+   [kira-voice] === 138 fired, 82 gated (0 failed) | by tier: T3=1 T2=80 T1=57 (incl ambient trickle) ===
+
+================================================================
+
