@@ -128,7 +128,11 @@ HEAL_FAIL_LATCH = os.getenv("POKEMON_HEAL_FAIL_LATCH", "1") == "1"
 # the canon 3-mon fixture — SWITCHED ivysaur->spearow). The wedge was a WRONG-ADDRESS derivation (the old
 # PARTY_CURSOR=0x2020777 was a shadow byte); the real nav is BLIND DOWN*(slot+1) like the working
 # _force_switch (live cursor is a heap struct). Fail-safe B-out on any miss = never wedges, so default-on is safe.
-BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
+# 2026-08-03 NUCLEAR: DEFAULT OFF. Voluntary POKEMON menu (matchup/grind/must-leave) was the
+# Blastoise↔POKEMON thrash on stream — open party, cursor on ace, A, cancel, repeat. Force-switch
+# on faint still works (party already open; does not use _goto_pokemon). Re-arm only after an
+# attended smoke: POKEMON_BATTLE_SWITCH=1.
+BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "0") == "1"
 # ── NS23: LOAD-SHARE between two SE attackers (the E4-Champion team-depth lever). The anti-churn rule
 # (an SE attacker >=2x STAYS and swings, _best_switch_slot) is load-bearing but makes a LONE specialist
 # solo a whole gauntlet to death while a healthy party-mate that is ALSO SE idles — e4_tactical_v2:
@@ -185,8 +189,8 @@ WHIFF_RESERVE_LEVEL_BAND = int(os.getenv("POKEMON_WHIFF_RESERVE_BAND", "15"))  #
 # fix is bigger: route the weak-grind to a SAFE MAP (Route 3: flat, L3-6, Center-reachable via Pewter) rather
 # than Route 4 at all, OR make a true strand (heal 'stuck', no reachable Center) force an escape-hatch reload
 # that recovers. Flagged in STATE §0 as the top rebuild item. Switch MECHANISM + BATTLE_SWITCH stay armed/verified.
-GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "1") != "0"   # DEFAULT-ON 2026-07-05: chain
-#   proven end-to-end (bench L8/10->16 via participation XP -> Gary first-try -> bridge -> Bill -> TICKET)
+# 2026-08-03 NUCLEAR: DEFAULT OFF with BATTLE_SWITCH — same party-menu thrash class.
+GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "0") == "1"
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
 # SELECTIVE SOLO (2026-07-11 NS#26 — the bench-leveling KILL-XP lever, the frontier #2). The participation
 # GRIND SWITCH hands the KO to the ace, so the fielded weak lead banks only a SHARE of participation XP —
@@ -2384,9 +2388,17 @@ class BattleAgent:
         live row (LEFT/RIGHT/DOWN*n, A, A) and return."""
         if self._healthy_reserve_slot() is None:
             return False
+        # Only legal opener of the POKEMON menu this battle (voluntary paths are banned).
+        self._allow_pokemon_menu = True
         _skip_rows = set()                                # rows that refused SEND OUT this menu
         _tried_sp = set()                                 # species that got submenu but didn't swap
         _t0 = time.time()
+        try:
+            return self._force_switch_inner(_skip_rows, _tried_sp, _t0)
+        finally:
+            self._allow_pokemon_menu = False
+
+    def _force_switch_inner(self, _skip_rows, _tried_sp, _t0):
         for _attempt in range(10):
             if time.time() - _t0 >= FSWITCH_BUDGET_S:
                 self.log(f"   [engine] fswitch: BUDGET {FSWITCH_BUDGET_S:.0f}s hit — "
@@ -2532,7 +2544,14 @@ class BattleAgent:
     def _goto_pokemon(self, tries=10):
         """Park the action cursor on POKEMON (ACT_POKEMON=2). Prefer RAM write over d-pad —
         DOWN from FIGHT on this core can confirm Fight and open the move list, which looks
-        exactly like 'she's trying to switch but keeps checking attacks' (stream-end docks)."""
+        exactly like 'she's trying to switch but keeps checking attacks' (stream-end docks).
+
+        2026-08-03 NUCLEAR: refused unless BATTLE_SWITCH is armed OR `_allow_pokemon_menu`
+        (force-switch path). Default env is OFF — that was the Pokemon→Blastoise thrash."""
+        if not BATTLE_SWITCH_ENABLED and not getattr(self, "_allow_pokemon_menu", False):
+            self.log("   [engine] POKEMON menu BANNED (POKEMON_BATTLE_SWITCH=0 — "
+                     "anti Blastoise thrash). Faint→force-switch still works.")
+            return False
         for _ in range(tries):
             if self._at_move_list():
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
@@ -2738,6 +2757,9 @@ class BattleAgent:
         on the wrong mon after any earlier switch). A = select -> sub-menu (cursor defaults to SHIFT),
         A = SHIFT -> the swap; then PURE-A advance the "Come back X! / Go Y!" text until the active
         SPECIES flips to the TARGET (the ground-truth success signal)."""
+        # NUCLEAR: voluntary POKEMON off unless operator armed BATTLE_SWITCH (or force-switch allow).
+        if not BATTLE_SWITCH_ENABLED and not getattr(self, "_allow_pokemon_menu", False):
+            return False
         want_sp = st.read_party_species(self.b, slot)             # identity survives the reorder
         if not want_sp or want_sp == before_sp:
             self.log(f"   [engine] switch: refused — want_sp={want_sp} is already active "
@@ -3161,6 +3183,8 @@ class BattleAgent:
         self._last_battle_progress_t = time.time()  # MENU WEDGE: stall clock, NOT battle-start clock
         self._menu_wedge_fired = False
         self._must_leave_tried = {}        # species -> tries: alive-but-stuck voluntary switch
+        self._allow_pokemon_menu = False   # NUCLEAR: only force-switch (faint) may open POKEMON
+        self._party_thrash_n = 0           # consecutive unexpected party-screen sightings
         self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
         self._whiff_recovering = None      # ace species we switched OUT to reset accuracy (switch back next)
         self._whiff_recoveries = 0         # bounded accuracy-resets this battle (never a switch-loop)
@@ -3440,6 +3464,24 @@ class BattleAgent:
                 self.log("   [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it")
                 self._close_bag_screen()
                 continue
+            # 2026-08-03 NUCLEAR: party open while OUR active is ALIVE = Pokemon↔Blastoise thrash.
+            # B out only — A re-selects the ace and is the sticky loop Jonny filmed.
+            if self._party_screen():
+                _cur = st.read_battle(self.b)
+                if _cur and (_cur.get("ours") or {}).get("hp", 0) > 0:
+                    self._party_thrash_n = getattr(self, "_party_thrash_n", 0) + 1
+                    self.log(f"   [engine] !! PARTY THRASH #{self._party_thrash_n}: open but "
+                             f"active ALIVE — B-closing (never A)")
+                    for _ in range(8):
+                        if not self._party_screen():
+                            break
+                        self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                        self._wait(12)
+                    if self._party_thrash_n >= 3:
+                        self._allow_pokemon_menu = False
+                        self._switch_fail_n = 99
+                        self.log("   [engine] PARTY THRASH latch — voluntary POKEMON banned this battle")
+                    continue
             glob = self._bstate()
             if glob != last_glob:                     # real progress -> reset the wedge guard
                 last_glob, stall = glob, 0
@@ -3504,7 +3546,9 @@ class BattleAgent:
                 # ALIVE-BUT-STUCK SWITCH (2026-08-03 Jonny: Blastoise vs Voltorb — half HP, can't
                 # move / sleep-freeze / move theater, 3 live on bench, kept "switching" into himself).
                 # Force a voluntary leave to a DIFFERENT living species; never row-0 / same species.
-                if (state and not _just_fight and not (self._enemy_fainted or self._we_fainted)
+                # NUCLEAR: dead while POKEMON_BATTLE_SWITCH=0 (default) — was the thrash opener.
+                if (BATTLE_SWITCH_ENABLED and state and not _just_fight
+                        and not (self._enemy_fainted or self._we_fainted)
                         and self._must_leave_active(state)):
                     _asp = state.get("ours", {}).get("species")
                     if self._must_leave_tried.get(_asp, 0) < FAMINE_SWITCH_TRIES:
@@ -3539,7 +3583,8 @@ class BattleAgent:
                 # (a forced re-entry of the same dry mon gets one more try, never a churn loop). Fail-safe:
                 # an unconfirmed switch just fights on; no reserve -> log LOUD and let the anti-wedge
                 # floor + the campaign's needs_heal gate own it.
-                if (state and not (self._enemy_fainted or self._we_fainted)
+                if (BATTLE_SWITCH_ENABLED and state
+                        and not (self._enemy_fainted or self._we_fainted)
                         and self._active_pp_famine(state)
                         and self._famine_tried.get(state.get("ours", {}).get("species"), 0)
                         < FAMINE_SWITCH_TRIES):

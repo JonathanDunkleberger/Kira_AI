@@ -195,15 +195,32 @@ def main():
                         "(not the menu thrash). Prefer CKPT teleport next time.")
                     from battle_agent import BattleAgent as _BA
                     _ag = _BA(b, on_event=lambda *a, **k: None, render=lambda: None, log=log)
-                    try:
-                        _ag.flee(max_seconds=30)
-                    except Exception:
-                        pass
-                    for _ in range(80):
+                    # Party open + alive active: NEVER A (A re-selects Blastoise = the sticky loop).
+                    for _ in range(40):
                         if not st.in_battle(b):
                             break
-                        b.press("B", 2, 10, lambda: None, owner="agent")
-                        b.press("A", 2, 10, lambda: None, owner="agent")
+                        if _ag._party_screen():
+                            log("   boot-battle: party screen open — B only (anti Blastoise thrash)")
+                            for _b in range(10):
+                                if not _ag._party_screen():
+                                    break
+                                b.press("B", 2, 10, lambda: None, owner="agent")
+                                for _f in range(6):
+                                    b.run_frame()
+                            continue
+                        break
+                    try:
+                        _ag.flee(max_seconds=25)
+                    except Exception:
+                        pass
+                    for _ in range(60):
+                        if not st.in_battle(b):
+                            break
+                        if _ag._party_screen():
+                            b.press("B", 2, 10, lambda: None, owner="agent")
+                        else:
+                            b.press("B", 2, 10, lambda: None, owner="agent")
+                            b.press("A", 2, 10, lambda: None, owner="agent")
                         for _f in range(8):
                             b.run_frame()
                     log(f"   boot-battle abort done: in_battle={st.in_battle(b)} "
