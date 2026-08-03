@@ -2364,9 +2364,14 @@ class BattleAgent:
                 if not _m.get("id"):
                     continue
                 _sc = pol.move_score(_m, enemy["types"], _our_types)
+                # pp= is the LIE DETECTOR (2026-08-03): print what the decision function BELIEVES
+                # each slot's PP is, next to ref= (times the game refused it). A slot with pp>0
+                # and ref>=2 in the same line is gBattleMons caught lying, in the soak report,
+                # with no phone photos needed.
                 _board.append(
                     f"[{_i}]{_m.get('name','?')}(p{_m.get('power',0)}"
                     f"{'*STAB' if pol.stab_mult(_m.get('type'), _our_types) > 1 else ''}"
+                    f",pp={_m.get('pp', '?')},ref={self._move_refused.get(_i, 0)}"
                     f",sc={_sc:g})")
             self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
                      f"{st.SPECIES_NAME.get(enemy['species'], '?')} "
