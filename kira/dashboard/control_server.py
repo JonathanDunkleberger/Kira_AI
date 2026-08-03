@@ -462,7 +462,12 @@ async def _card_overlay_handler():
 # health.json the campaign already publishes (no token/runtime counters, no reasoning transcript).
 @app.get("/pokemon_hud")
 async def _pokemon_hud_handler():
-    return FileResponse(str(_REPO_ROOT / "web_dashboard" / "pokemon_hud.html"))
+    # Serve under /web_dashboard/ so relative asset paths (and OBS CEF) resolve the same
+    # way as card_overlay — absolute /web_dashboard/assets/pokemon/*.png still work too.
+    return FileResponse(
+        str(_REPO_ROOT / "web_dashboard" / "pokemon_hud.html"),
+        headers={"Cache-Control": "no-store"},
+    )
 
 # SAVE-FILE CARD (couch close-out 2026-07-08): a Game Boy / FireRed "CONTINUE" save-select
 # screen — pure presentation over the SAME /pokemon_hud.json state (badges / Pokédex / play

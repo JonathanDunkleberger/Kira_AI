@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- Kira's Pokémon STREAM HUD (OBS browser source) — SIDEBAR RAIL (2026-08-02).
-     ~98px wide (half of the prior slim column). Quiet ink+brass strip, less chrome,
-     more glass — sits beside the game instead of covering it. Same /pokemon_hud.json. -->
+<!-- Kira's Pokémon STREAM HUD (OBS browser source) — SIDEBAR RAIL (2026-08-03).
+     ~158px: readable goals + real Gen-3 sprites, still a slim strip beside the game.
+     Same /pokemon_hud.json. Sprites: assets/pokemon/<id>.png (RGBA). -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -9,32 +9,32 @@
 <style>
   :root{
     --ink:#0a090b;
-    --card:rgba(10,9,11,.72);
+    --card:rgba(10,9,11,.78);
     --card2:rgba(255,255,255,.04);
-    --hairline:rgba(212,190,160,.14);
-    --hairline-soft:rgba(212,190,160,.08);
+    --hairline:rgba(212,190,160,.16);
+    --hairline-soft:rgba(212,190,160,.09);
     --brass:#d4bea0; --brass-bg:rgba(212,190,160,.12); --brass-dim:rgba(212,190,160,.42);
     --cream:#efe7ee; --muted:rgba(222,212,224,.55); --subtle:rgba(222,212,224,.32);
     --rose:#cf8fa6; --sage:#8fbf8f; --amber:#d9b56a;
     --hp-hi:#8fbf8f; --hp-mid:#d9b56a; --hp-lo:#cf7a6a;
-    --rail:98px;
+    --rail:158px;
   }
   html,body{margin:0;background:transparent;overflow:hidden;
     font-family:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif;
     -webkit-font-smoothing:antialiased;}
-  #hud{position:fixed;left:14px;bottom:14px;width:var(--rail);opacity:0;
+  #hud{position:fixed;left:16px;bottom:16px;width:var(--rail);opacity:0;
     transition:opacity .7s ease;color:var(--cream);
     text-shadow:0 1px 2px rgba(0,0,0,.55);}
   #hud.on{opacity:1;}
 
-  .shell{background:var(--card);border:1px solid var(--hairline);border-radius:11px;
+  .shell{background:var(--card);border:1px solid var(--hairline);border-radius:12px;
     backdrop-filter:blur(14px) saturate(1.05);
-    box-shadow:0 4px 18px rgba(0,0,0,.28);overflow:hidden;}
+    box-shadow:0 6px 22px rgba(0,0,0,.32);overflow:hidden;}
 
   /* ── mast: monogram + state pip ── */
-  .mast{padding:8px 8px 7px;border-bottom:1px solid var(--hairline-soft);}
-  .row1{display:flex;align-items:center;justify-content:space-between;gap:4px;}
-  .brand{font-weight:400;letter-spacing:.22em;font-size:10px;text-transform:uppercase;
+  .mast{padding:9px 10px 8px;border-bottom:1px solid var(--hairline-soft);}
+  .row1{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+  .brand{font-weight:400;letter-spacing:.2em;font-size:10.5px;text-transform:uppercase;
     color:var(--cream);line-height:1;padding-left:1px;}
   .pip{width:7px;height:7px;border-radius:50%;background:var(--brass);flex:none;
     box-shadow:0 0 6px rgba(212,190,160,.4);}
@@ -42,62 +42,66 @@
   .pip.healing{background:var(--sage);box-shadow:0 0 6px rgba(143,191,143,.4);}
   .pip.shopping{background:var(--amber);box-shadow:0 0 6px rgba(217,181,106,.4);}
 
-  .place{margin-top:6px;font-family:'Segoe UI',system-ui,sans-serif;font-size:9.5px;
+  .place{margin-top:6px;font-family:'Segoe UI',system-ui,sans-serif;font-size:11px;
     font-weight:600;color:var(--cream);overflow:hidden;text-overflow:ellipsis;
     white-space:nowrap;line-height:1.2;}
   #timer{display:block;margin-top:2px;font-family:'Segoe UI',system-ui,sans-serif;
-    font-size:8.5px;font-variant-numeric:tabular-nums;color:var(--subtle);letter-spacing:.02em;}
+    font-size:9px;font-variant-numeric:tabular-nums;color:var(--subtle);letter-spacing:.02em;}
 
-  .obj{margin-top:6px;font-family:'Segoe UI',system-ui,sans-serif;font-size:9px;
-    color:var(--brass);line-height:1.25;overflow:hidden;display:-webkit-box;
+  .obj{margin-top:6px;font-family:'Segoe UI',system-ui,sans-serif;font-size:10px;
+    color:var(--brass);line-height:1.3;overflow:hidden;display:-webkit-box;
     -webkit-line-clamp:2;-webkit-box-orient:vertical;}
-  .want{display:none;} /* sidebar: want folds into obj title via JS if needed */
+  .want{display:none;}
 
-  .goals{margin-top:6px;padding-top:6px;border-top:1px solid var(--hairline-soft);
-    font-family:'Segoe UI',system-ui,sans-serif;}
-  .goal{display:none;}
-  .goal.now{display:block;}
-  .goal .lbl{font-size:7px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  .goals{margin-top:7px;padding-top:7px;border-top:1px solid var(--hairline-soft);
+    font-family:'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column;gap:5px;}
+  .goal{display:block;}
+  .goal .lbl{font-size:7.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
     color:var(--brass);line-height:1;}
-  .goal .txt{font-size:9px;color:var(--cream);line-height:1.2;margin-top:2px;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500;}
+  .goal.med .lbl{color:var(--brass-dim);}
+  .goal .txt{font-size:10px;color:var(--cream);line-height:1.3;margin-top:2px;
+    overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+    font-weight:500;}
+  .goal.med .txt{color:var(--muted);font-weight:400;-webkit-line-clamp:2;}
+  .goal.long{display:none!important;}
 
-  /* ── badges: 4×2 grid ── */
-  .badges{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 3px;
-    padding:7px 8px 4px;border-bottom:1px solid var(--hairline-soft);}
-  .badge{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;}
-  .badge svg{width:13px;height:13px;filter:grayscale(1) brightness(.38) opacity(.4);
+  /* ── badges: row + count ── */
+  .badges{display:flex;flex-wrap:wrap;gap:5px 4px;padding:8px 10px 7px;
+    border-bottom:1px solid var(--hairline-soft);align-items:center;}
+  .badge{width:15px;height:15px;display:flex;align-items:center;justify-content:center;}
+  .badge svg{width:15px;height:15px;filter:grayscale(1) brightness(.38) opacity(.4);
     transition:filter .5s ease;}
   .badge.lit svg{filter:none;}
-  .bcount{grid-column:1/-1;text-align:center;font-family:'Segoe UI',system-ui,sans-serif;
-    font-size:9px;font-weight:700;color:var(--brass);font-variant-numeric:tabular-nums;
-    padding-bottom:2px;letter-spacing:.04em;}
+  .bcount{margin-left:auto;font-family:'Segoe UI',system-ui,sans-serif;
+    font-size:10px;font-weight:700;color:var(--brass);font-variant-numeric:tabular-nums;
+    letter-spacing:.04em;}
   .bcount span{color:var(--subtle);font-weight:400;}
 
-  /* ── party: sprite-led stack ── */
-  .party{padding:6px 6px 7px;}
-  .ttl{font-family:'Segoe UI',system-ui,sans-serif;font-size:7px;letter-spacing:.18em;
-    color:var(--subtle);text-transform:uppercase;margin:0 1px 5px;font-weight:600;
-    text-align:center;}
-  .mon{position:relative;padding:5px 5px 6px;border-radius:8px;background:var(--card2);
-    border:1px solid var(--hairline-soft);margin-bottom:4px;overflow:hidden;
-    text-align:center;}
+  /* ── party: sprite LEFT + text (not letter chips) ── */
+  .party{padding:7px 8px 8px;}
+  .ttl{font-family:'Segoe UI',system-ui,sans-serif;font-size:7.5px;letter-spacing:.18em;
+    color:var(--subtle);text-transform:uppercase;margin:0 1px 6px;font-weight:600;}
+  .mon{display:grid;grid-template-columns:36px 1fr;gap:7px;align-items:center;
+    padding:5px 6px 5px 5px;border-radius:8px;background:var(--card2);
+    border:1px solid var(--hairline-soft);margin-bottom:4px;position:relative;
+    overflow:hidden;}
   .mon:last-child{margin-bottom:0;}
   .mon .rail{position:absolute;left:0;top:0;bottom:0;width:2px;opacity:.85;}
-  .mon .sprite{width:28px;height:28px;image-rendering:pixelated;image-rendering:crisp-edges;
-    filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));display:block;margin:0 auto;}
-  .mon .ph{width:28px;height:28px;margin:0 auto;display:flex;align-items:center;
-    justify-content:center;font-family:'Segoe UI',system-ui,sans-serif;font-size:12px;
-    font-weight:700;color:var(--ink);border-radius:6px;}
-  .mon .nm{font-family:'Segoe UI',system-ui,sans-serif;font-weight:650;font-size:9px;
-    color:var(--cream);text-transform:capitalize;overflow:hidden;text-overflow:ellipsis;
-    white-space:nowrap;margin-top:3px;line-height:1.15;padding:0 1px;}
-  .mon .meta{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:2px;}
-  .mon .lv{font-family:'Segoe UI',system-ui,sans-serif;font-size:8px;font-weight:600;
-    color:var(--brass);font-variant-numeric:tabular-nums;}
-  .onfield{font-family:'Segoe UI',system-ui,sans-serif;font-size:6px;font-weight:800;
+  .mon .art{width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
+  .mon .sprite{width:36px;height:36px;image-rendering:pixelated;image-rendering:crisp-edges;
+    filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));display:block;}
+  .mon .ph{width:36px;height:36px;display:none;align-items:center;justify-content:center;
+    font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;font-weight:700;
+    color:var(--ink);border-radius:7px;}
+  .mon .info{min-width:0;}
+  .mon .top{display:flex;align-items:baseline;gap:4px;font-family:'Segoe UI',system-ui,sans-serif;}
+  .mon .nm{font-weight:650;font-size:11px;color:var(--cream);text-transform:capitalize;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+  .mon .lv{margin-left:auto;font-size:9px;font-weight:600;color:var(--brass);flex:none;
+    font-variant-numeric:tabular-nums;}
+  .onfield{font-family:'Segoe UI',system-ui,sans-serif;font-size:6.5px;font-weight:800;
     letter-spacing:.08em;color:#0d0c0e;background:var(--brass);border-radius:2px;
-    padding:1px 3px;text-transform:uppercase;}
+    padding:1px 3px;flex:none;text-transform:uppercase;align-self:center;}
   .bar{height:3px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden;
     margin-top:4px;}
   .fill{height:100%;border-radius:2px;transition:width .5s ease,background .5s ease;}
@@ -106,11 +110,10 @@
   .mon.active{border-color:rgba(212,190,160,.5);
     box-shadow:inset 0 0 0 1px rgba(212,190,160,.14);
     background:rgba(212,190,160,.07);}
-  .mon.active .sprite{width:32px;height:32px;}
+  .mon.active .sprite,.mon.active .ph{width:40px;height:40px;}
+  .mon.active{grid-template-columns:40px 1fr;}
+  .mon.active .art{width:40px;height:40px;}
   .empty{font-size:9px;font-style:italic;color:var(--muted);padding:4px 2px;text-align:center;}
-
-  /* hide unused timeline tiers in DOM without JS fighting display */
-  .goal.med,.goal.long{display:none!important;}
 </style>
 </head>
 <body>
@@ -147,7 +150,30 @@ const BADGE_SVG = {
 const TYPE_COLOR = {normal:"#9aa0a8",fire:"#ff9d55",water:"#4d90d5",electric:"#e8c531",grass:"#63bc5a",
   ice:"#73cec0",fighting:"#ce4266",poison:"#ab6ac8",ground:"#d8794a",flying:"#8fa8dd",psychic:"#f97176",
   bug:"#90c12f",rock:"#c5b787",ghost:"#5a6fb0",dragon:"#1f73c4",dark:"#5d5566",steel:"#5a8ea1",fairy:"#ec8fe6"};
-const SPRITE = id => `/web_dashboard/assets/pokemon/${id}.png`;
+/* Name→dex fallback when species_id is missing (letter tiles = last resort only). */
+const NAME_ID = {bulbasaur:1,ivysaur:2,venusaur:3,charmander:4,charmeleon:5,charizard:6,
+  squirtle:7,wartortle:8,blastoise:9,caterpie:10,metapod:11,butterfree:12,weedle:13,kakuna:14,
+  beedrill:15,pidgey:16,pidgeotto:17,pidgeot:18,rattata:19,raticate:20,spearow:21,fearow:22,
+  ekans:23,arbok:24,pikachu:25,raichu:26,sandshrew:27,sandslash:28,nidoranf:29,nidorina:30,
+  nidoqueen:31,nidoranm:32,nidorino:33,nidoking:34,clefairy:35,clefable:36,vulpix:37,ninetales:38,
+  jigglypuff:39,wigglytuff:40,zubat:41,golbat:42,oddish:43,gloom:44,vileplume:45,paras:46,
+  parasect:47,venonat:48,venomoth:49,diglett:50,dugtrio:51,meowth:52,persian:53,psyduck:54,
+  golduck:55,mankey:56,primeape:57,growlithe:58,arcanine:59,poliwag:60,poliwhirl:61,poliwrath:62,
+  abra:63,kadabra:64,alakazam:65,machop:66,machoke:67,machamp:68,bellsprout:69,weepinbell:70,
+  victreebel:71,tentacool:72,tentacruel:73,geodude:74,graveler:75,golem:76,ponyta:77,rapidash:78,
+  slowpoke:79,slowbro:80,magnemite:81,magneton:82,farfetchd:83,"farfetch'd":83,doduo:84,dodrio:85,
+  seel:86,dewgong:87,grimer:88,muk:89,shellder:90,cloyster:91,gastly:92,haunter:93,gengar:94,
+  onix:95,drowzee:96,hypno:97,krabby:98,kingler:99,voltorb:100,electrode:101,exeggcute:102,
+  exeggutor:103,cubone:104,marowak:105,hitmonlee:106,hitmonchan:107,lickitung:108,koffing:109,
+  weezing:110,rhyhorn:111,rhydon:112,chansey:113,tangela:114,kangaskhan:115,horsea:116,seadra:117,
+  goldeen:118,seaking:119,staryu:120,starmie:121,mrmime:122,"mr. mime":122,scyther:123,jynx:124,
+  electabuzz:125,magmar:126,pinsir:127,tauros:128,magikarp:129,gyarados:130,lapras:131,ditto:132,
+  eevee:133,vaporeon:134,jolteon:135,flareon:136,porygon:137,omanyte:138,omastar:139,kabuto:140,
+  kabutops:141,aerodactyl:142,snorlax:143,articuno:144,zapdos:145,moltres:146,dratini:147,
+  dragonair:148,dragonite:149,mewtwo:150,mew:151};
+
+/* Resolve under /web_dashboard/ so OBS never depends on the short /pokemon_hud alias root. */
+const SPRITE = id => `/web_dashboard/assets/pokemon/${id}.png?v=rgba1`;
 function hpColor(f){ return f>0.5?'var(--hp-hi)':f>0.2?'var(--hp-mid)':'var(--hp-lo)'; }
 function el(id){ return document.getElementById(id); }
 function fmtTime(s){
@@ -167,13 +193,26 @@ function shortPlace(p){
     .replace(/\bCity\b/g,'').replace(/\bTown\b/g,'').replace(/\bRoute\b/g,'R')
     .replace(/\s+/g,' ').trim() || p;
 }
-function shortName(nm){
-  if(!nm) return '?';
-  nm = String(nm);
-  // Sidebar: keep short species readable; trim long ones.
-  if(nm.length <= 9) return nm;
-  return nm.slice(0,8)+'…';
+function resolveId(m){
+  let id = Number(m && m.species_id);
+  if(id > 0 && id <= 151) return id;
+  const key = String((m && m.species) || '').toLowerCase().replace(/\s+/g,'');
+  return NAME_ID[key] || NAME_ID[String((m && m.species) || '').toLowerCase()] || 0;
 }
+function artHtml(m, nm, phColor, letter){
+  const id = resolveId(m);
+  if(!id){
+    return `<div class="art"><div class="ph" style="display:flex;background:${phColor}">${letter}</div></div>`;
+  }
+  return `<div class="art">
+    <img class="sprite" src="${SPRITE(id)}" alt="${nm}" width="36" height="36"
+         onerror="this.style.display='none';var p=this.nextElementSibling;if(p)p.style.display='flex'">
+    <div class="ph" style="background:${phColor}">${letter}</div>
+  </div>`;
+}
+
+let _partySig = '';
+let _badgeN = -1;
 
 function render(d){
   const alive = !!d.running || ((d.party||[]).length > 0);
@@ -191,32 +230,41 @@ function render(d){
   el('timer').textContent = t;
   el('timer').title = t ? `playthrough ${t}` : '';
 
-  // Prefer objective; if missing, fall back to want (still one brass line).
   const obj = d.objective || (d.want ? `“${d.want}”` : '');
   el('obj').textContent = obj;
   el('obj').style.display = obj ? '' : 'none';
   el('obj').title = obj;
-  el('want').textContent = '';
 
   const g = d.goals || {};
   el('gShort').textContent = g.short || '';
   el('gMed').textContent = g.medium || '';
   el('gLong').textContent = g.long || '';
-  el('goals').style.display = g.short ? '' : 'none';
+  el('goals').style.display = (g.short || g.medium) ? '' : 'none';
+  el('goals').querySelector('.goal.now').style.display = g.short ? '' : 'none';
+  el('goals').querySelector('.goal.med').style.display = g.medium ? '' : 'none';
   el('gShort').title = [g.short, g.medium, g.long].filter(Boolean).join(' · ');
 
   const n = d.badge_count||0;
-  el('badges').innerHTML = BADGES.map((b,i)=>
-    `<div class="badge ${i<n?'lit':''}" title="${b}${i<n?' — earned':''}"><svg viewBox="0 0 24 24">${BADGE_SVG[b]}</svg></div>`
-  ).join('') + `<div class="bcount">${n}<span>/8</span></div>`;
+  if(n !== _badgeN){
+    _badgeN = n;
+    el('badges').innerHTML = BADGES.map((b,i)=>
+      `<div class="badge ${i<n?'lit':''}" title="${b}${i<n?' — earned':''}"><svg viewBox="0 0 24 24">${BADGE_SVG[b]}</svg></div>`
+    ).join('') + `<div class="bcount">${n}<span>/8</span></div>`;
+  }
 
   const party = d.party||[];
+  // Don't rebuild <img> every 2s — OBS CEF reloads thrash into onerror → letter tiles.
+  const sig = party.map(m => [
+    resolveId(m), m.species, m.level, m.hp, m.maxhp, !!m.active
+  ].join(':')).join('|');
+  if(sig === _partySig) return;
+  _partySig = sig;
+
   el('party').innerHTML = party.length ? party.map(m=>{
-    // Clamp torn RAM snapshots (hp>maxhp) so bars never look like swapped stats.
     const mx = Math.max(1, m.maxhp||1);
     const hp = Math.max(0, Math.min(m.hp!=null?m.hp:0, mx));
     const f = hp/mx;
-    const fainted = hp<=0, nm = m.species||'?', id = m.species_id;
+    const fainted = hp<=0, nm = m.species||'?';
     const t0 = (m.types||[])[0], t1 = (m.types||[])[1];
     const rail = t0
       ? `<span class="rail" style="background:${t1
@@ -225,17 +273,13 @@ function render(d){
       : '';
     const phColor = TYPE_COLOR[t0] || '#d4bea0';
     const letter = (nm[0]||'?').toUpperCase();
-    const art = id
-      ? `<img class="sprite" src="${SPRITE(id)}" alt="${nm}"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-         <div class="ph" style="display:none;background:${phColor}">${letter}</div>`
-      : `<div class="ph" style="background:${phColor}">${letter}</div>`;
     const tip = `${nm} · L${m.level||'?'} · ${hp}/${mx}${fainted?' · fainted':''}${(m.types||[]).length?' · '+(m.types||[]).join('/'):''}`;
     return `<div class="mon ${fainted?'fainted':''} ${m.active?'active':''}" title="${tip}">
-      ${rail}${art}
-      <div class="nm">${shortName(nm)}</div>
-      <div class="meta"><span class="lv">L${m.level||'?'}</span>${m.active?'<span class="onfield">out</span>':''}</div>
-      <div class="bar"><div class="fill" style="width:${(f*100).toFixed(0)}%;background:${hpColor(f)}"></div></div>
+      ${rail}${artHtml(m, nm, phColor, letter)}
+      <div class="info">
+        <div class="top"><span class="nm">${nm}</span>${m.active?'<span class="onfield">out</span>':''}<span class="lv">L${m.level||'?'}</span></div>
+        <div class="bar"><div class="fill" style="width:${(f*100).toFixed(0)}%;background:${hpColor(f)}"></div></div>
+      </div>
     </div>`;
   }).join('') : `<div class="empty">…</div>`;
 }
