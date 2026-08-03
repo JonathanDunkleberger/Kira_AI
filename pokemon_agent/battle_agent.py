@@ -2129,10 +2129,22 @@ class BattleAgent:
         return self._at_move_list()
 
     def _goto_move(self, idx, tries=12):
-        """Walk the move-list cursor to slot idx by RAM READBACK of MOVE_CURSOR (0..3 in the 2x2 grid:
-        index = row*2 + col), VERIFYING each press actually moved the cursor — an eaten d-pad press on
-        the long core is simply retried (it can never silently land on the wrong move). Mirrors
-        _goto_bag/_mart_goto_row. Returns True on arrival."""
+        """Park the move-list cursor on slot idx. 2026-08-03 11:43 (the third parked-on-Tackle
+        photo set): d-pad walking this cursor was observed NOT MOVING IT for minutes at a time
+        (eaten presses and/or a read that already claimed arrival) — every confirm fired the
+        drawn slot (Tackle, 0 PP) forever. The action cursor had the IDENTICAL disease and the
+        proven cure is a RAM WRITE + readback (_poke_action_cursor, verified live): the game's
+        confirm reads gMoveSelectionCursor — the byte IS the selection, whatever the pixels
+        show. Write first; d-pad walk only as fallback; return False LOUD (callers attribute
+        refusals to the cursor byte, never assume arrival)."""
+        try:
+            if self.b.rd8(MOVE_CURSOR) != idx:
+                self.b.core.memory.u8.raw_write(MOVE_CURSOR, int(idx) & 0xFF)
+                self._wait(2)
+            if self.b.rd8(MOVE_CURSOR) == idx:
+                return True
+        except Exception as e:
+            self.log(f"   [engine] move-cursor write failed: {e} (falling back to d-pad)")
         for _ in range(tries):
             cur = self.b.rd8(MOVE_CURSOR)
             if cur == idx:
@@ -3259,6 +3271,11 @@ class BattleAgent:
         potion-bag theater, or must-leave — JUST FIGHT. Hierarchy gate for the whole turn loop."""
         ours = state.get("ours") or {}
         enemy = state.get("enemy") or {}
+        # A crushing level lead means nothing when the move list eats every confirm — the 11:43
+        # loop: L49 vs L25 kept _just_fight True (stale PP said Bite/WP usable), which skipped
+        # the must-leave/famine hierarchy forever. Futility overrides chalk.
+        if getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX:
+            return False
         act_lv = ours.get("level") or 0
         foe_lv = enemy.get("level") or 0
         if not (act_lv and foe_lv and act_lv >= foe_lv + 8):
@@ -3853,6 +3870,23 @@ class BattleAgent:
                 # JUST FIGHT (2026-08-03): crushing level lead + connecting damage → skip bag /
                 # switch theater entirely. Voltorb/Electrode logs: no status, Blastoise half-HP,
                 # Water Pulse ending them — potion/POKEMON menus were pure watchability poison.
+                # UNGATED FUTILITY CHECK — ABOVE every gate (2026-08-03 11:43, the third
+                # parked-on-Tackle photo set): the 09:18 session proved the breaker can be
+                # starved by its OWN gates — crushing-lead (_just_fight) skipped must-leave
+                # because stale PP bytes said Bite/WP were usable, so the only routes to the
+                # breaker were the 60s menu wedge's war presses, which kept landing on refusal
+                # boxes ("text") instead of the move list. A battle whose move list has eaten
+                # FUTILE_AMOVE_MAX confirms with zero change gets a bench switch attempt at the
+                # TOP of every turn, ungated by level leads, item offers, or ledger state.
+                if (getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX
+                        and self._is_trainer_battle()
+                        and not (self._enemy_fainted or self._we_fainted)
+                        and getattr(self, "_futility_switches", 0) < 2):
+                    if self._futility_bench_switch():
+                        self._acted_once = True
+                        stall = 0
+                        self._unresolved_turns = 0
+                        continue
                 _just_fight = bool(state and self._crushing_lead(state)
                                    and _hp_frac(state.get("ours") or {}) > BATTLE_CRIT_FRAC
                                    and _decode_status((state.get("ours") or {}).get("status1", 0) or 0)
