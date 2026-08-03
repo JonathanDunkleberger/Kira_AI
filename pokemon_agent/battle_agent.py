@@ -128,11 +128,15 @@ HEAL_FAIL_LATCH = os.getenv("POKEMON_HEAL_FAIL_LATCH", "1") == "1"
 # the canon 3-mon fixture — SWITCHED ivysaur->spearow). The wedge was a WRONG-ADDRESS derivation (the old
 # PARTY_CURSOR=0x2020777 was a shadow byte); the real nav is BLIND DOWN*(slot+1) like the working
 # _force_switch (live cursor is a heap struct). Fail-safe B-out on any miss = never wedges, so default-on is safe.
-# 2026-08-03 NUCLEAR: DEFAULT OFF. Voluntary POKEMON menu (matchup/grind/must-leave) was the
-# Blastoise↔POKEMON thrash on stream — open party, cursor on ace, A, cancel, repeat. Force-switch
-# on faint still works (party already open; does not use _goto_pokemon). Re-arm only after an
-# attended smoke: POKEMON_BATTLE_SWITCH=1.
-BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "0") == "1"
+# 2026-08-03 NUCLEAR (morning): DEFAULT OFF after the Blastoise↔POKEMON thrash on stream.
+# 2026-08-03 RE-ARMED (same day, 08:28 live): the thrash's REAL root is now fixed at the source —
+# the blind-A/cursor-parking disease (every settled action menu re-homes to FIGHT; no escape path
+# presses a blind A; the party-thrash guard hard-bans voluntary POKEMON after 3 sightings). With
+# the ban still on, a PP-dry mon had NO winning line: Jonny watched her re-fire a refused Tackle
+# forever because the famine/must-leave switches — the exact rescue for that state — were gated
+# off. The switch nav itself is recon-verified (recon_switch3.py, 2026-07-05) and fail-safe
+# (non-confirm -> B-out -> fight). Killing the rescue was the wrong nuke; default back ON.
+BATTLE_SWITCH_ENABLED = os.getenv("POKEMON_BATTLE_SWITCH", "1") == "1"
 # ── NS23: LOAD-SHARE between two SE attackers (the E4-Champion team-depth lever). The anti-churn rule
 # (an SE attacker >=2x STAYS and swings, _best_switch_slot) is load-bearing but makes a LONE specialist
 # solo a whole gauntlet to death while a healthy party-mate that is ALSO SE idles — e4_tactical_v2:
@@ -2022,8 +2026,12 @@ class BattleAgent:
         idx, desc, low = pol.choose_move(
             ours["moves"], enemy["types"], _hp_frac(ours), our_types=_our_types)
 
-        def _usable(i):                                # a real move with PP
+        def _usable(i):                                # a real move with PP the game hasn't disproven
             m = ours["moves"][i]
+            # A slot the GAME refused >=2 times is dry whatever its (tear-prone) PP byte says —
+            # the Tackle re-fire loop: stale pp>0 + war-must-advance streak-clear = forever.
+            if self._move_refused.get(i, 0) >= 2:
+                return False
             return m.get("id", 0) != 0 and m.get("pp", 0) > 0
 
         def _dmg_score(i):
@@ -2079,7 +2087,7 @@ class BattleAgent:
         # matchup) / else flees. Capability-not-script: she still chooses among the moves that work.
         def _useful(i):
             m = ours["moves"][i]
-            if m.get("id", 0) == 0 or m.get("pp", 0) <= 0 or i in self._skip_streak:
+            if not _usable(i) or i in self._skip_streak:
                 return False
             return not (m.get("power", 0) > 0 and _eff(m, enemy) == 0)
         if 0 <= idx < 4 and ours["moves"][idx].get("power", 0) > 0 and eff == 0:
@@ -2279,8 +2287,10 @@ class BattleAgent:
                 return "done"
             self._immob_streak = 0
             self._skip_streak.add(idx)
+            self._move_refused[idx] = self._move_refused.get(idx, 0) + 1
             self.log(f"   [engine] move slot {idx} didn't fire (0-PP / disabled / blocked) -> rotating "
-                     f"to an untried move (streak now {sorted(self._skip_streak)})")
+                     f"to an untried move (streak now {sorted(self._skip_streak)}, "
+                     f"refusals {self._move_refused})")
             # Always 'done' to the outer loop — never 'stuck' (stuck re-settles and re-probes).
             return "done"
         return result or "done"
@@ -3037,10 +3047,13 @@ class BattleAgent:
         move (e4_run7 Agatha: Venusaur with only Normal-type PP vs Gengar burned ~10
         war-must-advance turns + 2 Full Restores while Persian's Bite sat on the bench —
         immune-only PP is famine vs THIS foe, and the famine switch is the only winning line).
-        Unknown foe types count as connecting (never over-trigger)."""
+        Unknown foe types count as connecting (never over-trigger).
+        2026-08-03: a slot the GAME refused >=2 times counts as DRY whatever its (tear-prone)
+        PP byte says — that's what lets the famine switch rescue the stale-PP Tackle loop."""
         mv = (state.get("ours") or {}).get("moves") or []
         return not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
-                       and self._move_connects(m, state) for m in mv)
+                       and getattr(self, "_move_refused", {}).get(i, 0) < 2
+                       and self._move_connects(m, state) for i, m in enumerate(mv))
 
     def _crushing_lead(self, state):
         """True when the active massively out-levels the foe and still has a connecting attack.
@@ -3054,7 +3067,8 @@ class BattleAgent:
             return False
         mv = ours.get("moves") or []
         return any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
-                   and self._move_connects(m, state) for m in mv)
+                   and getattr(self, "_move_refused", {}).get(i, 0) < 2
+                   and self._move_connects(m, state) for i, m in enumerate(mv))
 
     def _must_leave_active(self, state):
         """Alive but shouldn't stay in — sleep/freeze lock, or true PP famine (no connecting damage).
@@ -3290,6 +3304,12 @@ class BattleAgent:
         # all are exhausted. CLEARED on any successful fire -> a working move is never permanently exiled
         # (the PoisonPowder-spam lesson: don't permanently bench a move, just rotate off it this streak).
         # Cleared the instant any move fires.
+        self._move_refused = {}            # 2026-08-03 (the Tackle re-fire loop): slot -> times the GAME
+        # refused it ("There's no PP left..." — no PP drop, no HP change). gBattleMons PP can read STALE
+        # (the same lying struct as the HP/status tears), so a truly-dry move can look usable forever;
+        # skip_streak alone can't hold it because war-must-advance CLEARS the streak when it's the only
+        # candidate. >=2 refusals = EXILED for this battle whatever its PP byte says: dropped from move
+        # picks AND counted as dry by the famine test (so the famine switch — the real rescue — fires).
         self._prev = st.read_battle(self.b)
         # 2026-07-06 RE-ENTRY CORPSE GUARD (the Route-6 gauntlet livelock): a previous engagement can
         # abort mid-faint (budget/stuck), and travel re-enters the SAME battle with the foe already at
