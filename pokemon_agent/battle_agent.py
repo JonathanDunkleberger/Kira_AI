@@ -2251,66 +2251,116 @@ class BattleAgent:
             cur = 0
         return cur == target
 
+    def _party_blind_goto(self, target):
+        """Best-effort party-list walk without trusting pixel/RAM cursors: LEFT homes the lead
+        panel, RIGHT enters the right column, DOWN*(target-1) lands the row. Used when orange-
+        border readback can't see the selection (half-dead benches, fade frames)."""
+        self._tap("LEFT"); self._wait(12)
+        if target == 0:
+            return True
+        self._tap("RIGHT"); self._wait(12)
+        for _ in range(max(0, int(target) - 1)):
+            self._tap("DOWN"); self._wait(12)
+        return True
+
     def _force_switch(self):
         """Lead fainted with a healthy reserve -> the 'Choose a POKéMON' party menu is up.
-        Walk the cursor CLOSED-LOOP (border readback) to the first healthy slot and confirm
-        SEND OUT (the select submenu defaults to SEND OUT). Returns True once a healthy mon
-        is active. Last-resort attempts fall back to the legacy blind DOWN*slot walk (covers
-        a palette/geometry miss on the readback — it logs which path ran)."""
+        Walk to a HEALTHY row and confirm SEND OUT. CRITICAL (2026-08-02 gym chalk): never press
+        the confirm-A unless the SEND OUT submenu is actually open — A on a corpse just loops
+        "X has no energy left to battle!" for 60–180s while 1–2 bench mons are still alive.
+        Returns True once a healthy mon is active."""
         if self._healthy_reserve_slot() is None:
             return False
-        _tried = set()                                    # SPECIES that failed 2x -> rotate past them
-        _fails = {}                                       # (species-keyed: display rows move between
-        #                                                    menu opens, species identity doesn't)
-        for _attempt in range(8):
+        _skip_rows = set()                                # rows that refused SEND OUT this menu
+        _tried_sp = set()                                 # species that got submenu but didn't swap
+        for _attempt in range(10):
             cur = st.read_battle(self.b)
             if cur and cur["ours"]["hp"] > 0:
                 return True                               # a healthy mon is active -> switched
-            self._wait(18)                                # let the party menu settle
+            self._wait(10)                                # let the party menu settle
             if not self._party_screen():
                 self._advance_text()                      # faint text still playing -> drain a beat
                 continue
+            # Sub-menu or "no energy" box still up from a prior miss — B it clear FIRST.
+            if self._party_submenu():
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(14)
             # LIST FOCUS first (sub-menu/message tap-eaters), then resolve the target row by
             # CONTENT at menu time — the order law: row i IS gPlayerParty[i] only while the
             # menu is open; any slot picked before it opened is in a different order.
             if not self._party_focus():
                 self.log("   [engine] fswitch: party list never regained focus -> retry")
-                self._debug_snap(f"fswitch_nofocus{_attempt}")
+                # Don't burn the whole budget on focus — blind-B and continue.
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(12)
                 continue
             rows = self._menu_rows()
-            live = [r for r in rows if r["row"] > 0 and r["hp"] > 0
-                    and r["species"] not in _tried]
-            if not live:
-                _tried.clear()
-                live = [r for r in rows if r["row"] > 0 and r["hp"] > 0]
-                if not live:
+            live = [r for r in rows if r["hp"] > 0 and r["row"] not in _skip_rows
+                    and r["species"] not in _tried_sp]
+            # Prefer the right-column bench (row>0); allow row 0 only if it's the sole survivor.
+            bench = [r for r in live if r["row"] > 0]
+            cands = bench if bench else live
+            if not cands:
+                _skip_rows.clear()
+                _tried_sp.clear()
+                cands = [r for r in rows if r["hp"] > 0 and r["row"] > 0] or \
+                        [r for r in rows if r["hp"] > 0]
+                if not cands:
                     return False                          # nothing standing on the bench
-            tgt = max(live, key=lambda r: r["level"])     # send the strongest thing standing
-            if _attempt >= 1:                             # retry forensics
+            tgt = max(cands, key=lambda r: r["level"])     # send the strongest thing standing
+            if _attempt >= 1:
                 self.log(f"   [engine] fswitch retry {_attempt}: target row {tgt['row']} "
-                         f"sp={tgt['species']} menu_rows="
+                         f"sp={tgt['species']} skip_rows={sorted(_skip_rows)} menu_rows="
                          f"{[(r['species'], r['hp']) for r in rows]}")
-                self._debug_snap(f"fswitch_retry{_attempt}")
-            _fails[tgt["species"]] = _fails.get(tgt["species"], 0) + 1
-            if _fails[tgt["species"]] > 2:
-                _tried.add(tgt["species"])
-            if not self._party_goto_slot(tgt["row"]):
-                self.log(f"   [engine] fswitch: cursor readback couldn't reach row {tgt['row']} "
-                         f"(cursor={self._party_cursor_slot()}) -> retry")
+            reached = self._party_goto_slot(tgt["row"])
+            if not reached:
+                self.log(f"   [engine] fswitch: border goto missed row {tgt['row']} "
+                         f"(cursor={self._party_cursor_slot()}) -> blind walk")
+                self._party_blind_goto(tgt["row"])
+            # Re-check content at the row we're about to A — never knowingly pick a corpse.
+            rows = self._menu_rows()
+            if tgt["row"] >= len(rows) or rows[tgt["row"]]["hp"] <= 0:
+                self.log(f"   [engine] fswitch: row {tgt['row']} is dead at confirm — skip")
+                _skip_rows.add(tgt["row"])
                 continue
-            self.log(f"   [engine] fswitch: cursor confirmed on row {tgt['row']} "
-                     f"(sp={tgt['species']}, menu-time content)")
+            self.log(f"   [engine] fswitch: selecting row {tgt['row']} "
+                     f"(sp={tgt['species']} L{tgt['level']} hp={rows[tgt['row']]['hp']})")
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # select mon
-            for _ in range(8):                            # WAIT for the sub-menu to draw — an early
-                if self._party_submenu():                 # 2nd A used to land back on the LIST and
-                    break                                 # leave the sub-menu dangling (run14 churn)
-                self._wait(8)
-            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)  # -> SEND OUT
-            self._wait(20)
-            cur = st.read_battle(self.b)
-            if cur and cur["ours"]["hp"] > 0:
-                return True
-            self._advance_text()                          # send-out text -> drain a beat, re-check
+            submenu = False
+            for _ in range(12):                           # WAIT for the SEND OUT sub-menu
+                if self._party_submenu():
+                    submenu = True
+                    break
+                self._wait(6)
+            if not submenu:
+                # CORPSE / cursor-miss: "has no energy left" — do NOT press A again (that was the
+                # 60–180s loop). Skip this row, B-dismiss the message, try the next alive mon.
+                self.log(f"   [engine] fswitch: no SEND OUT submenu after A on row {tgt['row']} "
+                         f"sp={tgt['species']} — corpse/miss, skipping (NOT confirm-A)")
+                _skip_rows.add(tgt["row"])
+                for _ in range(5):
+                    if self._party_submenu():
+                        self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                        self._wait(12)
+                        break
+                    if not self._party_screen():
+                        break
+                    self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                    self._wait(12)
+                continue
+            # Submenu is up — confirm SEND OUT (default top row).
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(16)
+            for _ in range(14):
+                cur = st.read_battle(self.b)
+                if cur and cur["ours"]["hp"] > 0:
+                    return True
+                self._advance_text()
+                self._wait(6)
+            # Submenu confirmed but swap didn't take — don't hammer the same species forever.
+            _tried_sp.add(tgt["species"])
+            self.log(f"   [engine] fswitch: SEND OUT on sp={tgt['species']} didn't seat a "
+                     f"healthy active -> rotate")
         cur = st.read_battle(self.b)
         return bool(cur and cur["ours"]["hp"] > 0)
 
@@ -2542,10 +2592,21 @@ class BattleAgent:
                     break
             return False
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)   # select -> sub-menu
-        for _ in range(8):
+        submenu = False
+        for _ in range(12):
             if self._party_submenu():
+                submenu = True
                 break
-            self._wait(8)
+            self._wait(6)
+        if not submenu:
+            # Same corpse-loop class as _force_switch: A without SEND OUT/SHIFT just eats time.
+            self.log("   [engine] switch: no SHIFT submenu after select -> B out (fail-safe)")
+            for _ in range(4):
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(12)
+                if self._white_box() and not self._party_screen():
+                    break
+            return False
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(18)  # confirm SHIFT
         for _adv in range(16):                                    # advance swap text until the SPECIES flips
             cur = st.read_battle(self.b)
