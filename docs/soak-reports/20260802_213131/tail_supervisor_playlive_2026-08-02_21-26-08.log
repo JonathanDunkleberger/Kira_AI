@@ -1,0 +1,390 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 30) coords=(9, 88) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 1 blocked tile(s), 9 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=5876).
+
+   [soul] continuity loaded: 12 roster bond(s), 576 want(s)
+
+   [campaign]    [strat] continuity loaded: 10 remembered wall(s); active grudge vs a trainer at Pokémon Tower (1x)
+
+   [campaign]    [world] mental map loaded: 122 place(s) known, 219 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot2 FAINTED (0/47), slot5 FAINTED (0/49) — likely to blackout soon
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 30) coords=(9, 88) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260802_212610_route-12_4b_22h25m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [order] creator order expired (30m TTL) — released
+
+   [campaign]    [roam] ACE-CARRIES: prep-to-L27 stands down — ace clears the next gym's level bar; MARCH (bench XP on the road), not parked Route grass
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [kira-voice] -> T1·brisk· (grind) "bench is thin, but my ace already clears the next gym's level — we're marching; they'll catch XP on the road."  fired=True  [age 0.0s + post 14ms]
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (9, 88) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L48, ekans L17, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 30) (9,88) f1 -- badge4 $31082 party:f821 bag:85a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'heal']
+
+   [campaign]    [soul] surface_want FIRE -> Route 12
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L48), ekans (L17), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 30), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L48), ekans (L17), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=10, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Fuchsia City and beat Koga for the Soul Badge'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Fuchsia City and beat Koga for the Soul Badge'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Spearow is down (2 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:Pokémon Tower:drowzee: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:Pokémon Tower:drowzee: team floor < L27 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [strat] roster size = 6
+
+   [kira-voice] -> T2·savor· (want) 'reach Fuchsia City and beat Koga for the Soul Badge'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [teamplan] next action: catch_keeper (pikachu -> raichu answers Lorelei, Lance, Champion) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 12 — billed leg south toward Route 13
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs south from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(9, 88) -> map (3, 31) (budget 300s)
+
+   [travel] south connection band cols: [14, 15, 24]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 7ms]
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] -> T1·brisk· (beat) 'you walk on under open sky, the next town somewhere past the horizon'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] static obstacle at (8, 88) (failed 3x, not an NPC) - marking impassable, routing around
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] HEARTBEAT step=40 map=(3, 30) coords=(9, 88) elapsed=52s
+
+   [travel] !! NO PATH from (9, 88) to the exit after waiting ~10s for NPCs to clear - ABORT LOUD
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 30)(9, 88) -> (3, 30)(9, 88) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T1·brisk· (event) "there's someone blocking the way and they won't move - stuck"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! STRUCTURAL DEAD-ROUTE: ['head_to_gym'] proven dead on this map — pruned until she leaves it (or a questline arms); remaining: ['heal']
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (9, 88) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L48, ekans L17, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 30) (9,88) f1 -- badge4 $31082 party:f821 bag:85a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Spearow is down (2 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:Pokémon Tower:drowzee: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:Pokémon Tower:drowzee: team floor < L27 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: NORTH → Lavender Town — a Pokémon Center; SOUTH → an unexplored area — wild Pokémon to catch/train; WEST → Route 11 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 10; Route 8; an unfamiliar area. You can walk to anywhere you\'ve already been. Field moves ready: CUT. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. Spearow is down (2 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.. That one stung — that trainer (their lead was drowzee, psychic/psychic-type and they had a full team) at Pokémon Tower just put you down. Be honest about WHY before you charge back in: their psychic/psychic lead may have the type edge on you. The fix here isn\'t trying again harder, it\'s coming back stronger — leveling up or grabbing a teammate for backup and type coverage is the real play. You CAN retry once if you\'re feeling it, but going in unchanged ends the same way. (Your call.). ekans, spearow, rattata, kadabra and butterfree are too weak for those trainers (drowzee lead, a full team) at Pokémon Tower — so before I push through, I\'m going to level the weak ones up to about L27 (field THEM in the grass, not my strongest — that\'s how the whole team gets stronger). Then I go back and cross. (My call — but charging in under-levelled just blacks me out again.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 5 of 8 — next is Koga in Fuchsia City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Fuchsia City. Never just circle the same grass. Word on the road about Koga: a literal ninja — POISON and confusion tricks; bring antidotes and patience YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Four badges: Brock, Misty, Lt. Surge, and Erika in Celadon (Rainbow). You\'ve been through the early Kanto road — next is Koga in Fuchsia for the Soul Badge.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a stude"; "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a stude"; "I didn\'t bring my best POK.MON. Wait until next time!"; "We only use GRASS-type POK.MON at our GYM. Why? We also use them for making flower arrangements!". YOUR PLAN — right now: You\'re ready — stop grinding and head to Fuchsia City for the Soul Badge. Next: Your ace already clears Koga\'s level bar — march to Fuchsia City; train the bench on the road (not parked grass). Bigger picture: Reach Fuchsia City, beat Koga for the Soul Badge. Your team right now: blastoise (L48), ekans (L17), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L48), ekans (L17), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['heal']
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 2933ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to Fuchsia City for Koga.
+
+   [campaign]    HEAL: ADJACENT city Lavender Town (N) band UNREACHABLE from feet (split map, Route-23 class) — skipping the excursion
+
+   [campaign]    HEAL: no local Center mapped for (3, 30) — world-graph routing to Lavender Town's Center (multi-hop, fleeing wilds)
+
+   [campaign]    !! HEAL: graph hop (3, 30)->(3, 4) (north) band UNREACHABLE from feet (split map) — abandoning the graph route (LOUD)
+
+   [campaign]    !! HEAL: no graph route to any known Center from (3, 30) — FALLBACK to a cross-region Viridian heal (FIX: add (3, 30)'s PC door to CITY_PC_DOORS)
+
+   [campaign]    HEAL-RETURN: lead at (66, 150) - routing south to Viridian to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(9, 88) -> map (3, 1) (budget 300s)
+
+   [travel] south connection band cols: [14, 15, 24]
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you walk on under open sky, the next town somewhere past the horizon'
+
+   [travel] static obstacle at (8, 88) (failed 3x, not an NPC) - marking impassable, routing around
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] HEARTBEAT step=40 map=(3, 30) coords=(9, 88) elapsed=52s
+
+   [travel] !! NO PATH from (9, 88) to the exit after waiting ~10s for NPCs to clear - ABORT LOUD
+
+   [campaign]    HEAL-RETURN leg 0: no south edge on map (3, 30) - warping south
+
+   [campaign]    7 door(s); candidates (chosen order): [(12, 86), (-7, 70), (14, 21), (14, 15), (10, -4), (5, -4), (20, -5)]
+
+   [campaign]    directional warp (-7, 70): no stand/neighbor reachable from (9, 88) — sealed pocket, skipping (0 legs)
+
+   [campaign]    directional warp (14, 15): no stand/neighbor reachable from (9, 88) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    !! HEAL-RETURN stuck on map (3, 30) (no south edge, no south warp)
+
+   [campaign]    [roam] !! HEAL stuck ((3, 30)@(9, 88) -> (3, 30)@(9, 88)) — marked heal-dead (critical-heal freeze breaker armed; she'll push to the next Center)
+
+   [campaign]    [roam] RESULT: heal -> stuck | pos (3, 30)(9, 88) -> (3, 30)(9, 88) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(3, 30) coords=(9, 88) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (9, 88) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L48, ekans L17, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 30) (9,88) f1 -- badge4 $31082 party:f821 bag:85a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Spearow is down (2 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:Pokémon Tower:drowzee: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:Pokémon Tower:drowzee: team floor < L27 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 12 — billed leg south toward Route 13
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (route) 'the road to Fuchsia City runs south from here — onward.'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] start map=(3, 30) coords=(9, 88) -> map (3, 31) (budget 300s)
+
+   [travel] south connection band cols: [14, 15, 24]
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you walk on under open sky, the next town somewhere past the horizon'
+
+   [travel] static obstacle at (8, 88) (failed 3x, not an NPC) - marking impassable, routing around
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 44), blocker NPC tile=(9, 89), npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] HEARTBEAT step=40 map=(3, 30) coords=(9, 88) elapsed=52s
+
+   [travel] !! NO PATH from (9, 88) to the exit after waiting ~10s for NPCs to clear - ABORT LOUD
+
+   [kira-voice] ·dedup· (repeat text, T0, looping?) "there's someone blocking the way and they won't move - stuck"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 30)(9, 88) -> (3, 30)(9, 88) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(3, 30) coords=(9, 88) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260802_212905_route-12_4b_22h28m_periodic  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (9, 88) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L48, ekans L17, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 30) (9,88) f1 -- badge4 $31082 party:f821 bag:85a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] surface_want FIRE -> Route 12
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L48), ekans (L17), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 30), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L48), ekans (L17), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Reach Fuchsia City and beat Koga'
+
+   [campaign]    [soul] ORACLE pick -> 'Reach Fuchsia City and beat Koga'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Spearow is down (2 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to head to gym but the world hasn't changed in 3 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! STRATEGY wall vs trainer:Pokémon Tower:drowzee: feeding loss-awareness to the oracle
+
+   [campaign]    [roam] !! UNDERLEVEL-PREP vs trainer:Pokémon Tower:drowzee: team floor < L27 — folding the 'level the weak ones, field THEM' plan into her decision ctx
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: NORTH → Lavender Town — a Pokémon Center; SOUTH → an unexplored area — wild Pokémon to catch/train; WEST → Route 11 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 10; Route 8; an unfamiliar area. You can walk to anywhere you\'ve already been. Field moves ready: CUT. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. Spearow is down (2 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.. You keep trying to head to gym but the world hasn\'t changed in 3 turns - it went \'no_path\', and you don\'t seem to be getting anywhere.. That one stung — that trainer (their lead was drowzee, psychic/psychic-type and they had a full team) at Pokémon Tower just put you down. Be honest about WHY before you charge back in: their psychic/psychic lead may have the type edge on you. The fix here isn\'t trying again harder, it\'s coming back stronger — leveling up or grabbing a teammate for backup and type coverage is the real play. You CAN retry once if you\'re feeling it, but going in unchanged ends the same way. (Your call.). ekans, spearow, rattata, kadabra and butterfree are too weak for those trainers (drowzee lead, a full team) at Pokémon Tower — so before I push through, I\'m going to level the weak ones up to about L27 (field THEM in the grass, not my strongest — that\'s how the whole team gets stronger). Then I go back and cross. (My call — but charging in under-levelled just blacks me out again.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 5 of 8 — next is Koga in Fuchsia City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Fuchsia City. Never just circle the same grass. Word on the road about Koga: a literal ninja — POISON and confusion tricks; bring antidotes and patience YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Four badges: Brock, Misty, Lt. Surge, and Erika in Celadon (Rainbow). You\'ve been through the early Kanto road — next is Koga in Fuchsia for the Soul Badge.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a stude"; "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a stude"; "I didn\'t bring my best POK.MON. Wait until next time!"; "We only use GRASS-type POK.MON at our GYM. Why? We also use them for making flower arrangements!". YOUR PLAN — right now: You\'re ready — stop grinding and head to Fuchsia City for the Soul Badge. Next: Your ace already clears Koga\'s level bar — march to Fuchsia City; train the bench on the road (not parked grass). Bigger picture: Reach Fuchsia City, beat Koga for the Soul Badge. Your team right now: blastoise (L48), ekans (L17), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L48), ekans (L17), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['regroup']
+
+   [kira-voice] -> T2·savor· (want) 'Reach Fuchsia City and beat Koga'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 3790ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Fuchsia City for the Soul Badge. then on to Fuchsia City for Koga
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 2 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    7 door(s); candidates (chosen order): [(12, 86)]
+
+   [campaign]    reachable door (12, 86): walking to approach (12, 87)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(9, 88) -> coord (12, 87) (budget 240s)
+
+   [travel] path blocked at (9, 88) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 88); NPC-allowing path EXISTS (len 5), blocker NPC tile=None, npcs nearby=[(9, 89)] -> approaching to interact/trigger
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 11739 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 30) coords=(9, 88)  badge=True
+
+   [kira-voice] === 8 fired, 9 gated (0 failed) | by tier: T3=0 T2=2 T1=6 (incl ambient trickle) ===
+
+================================================================
+

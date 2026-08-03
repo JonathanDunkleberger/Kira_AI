@@ -1,0 +1,300 @@
+   [Captions] Pushed frame: 'What level is she up against?' (7 words)
+   [TurnTiming] 21:26:29.177 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:26:31.332 TTS STOP — playback finished (span ~2155ms)
+
+   [TIMING] voice: llm=3805ms(sonnet-stream(llm+tts)) tts=0ms total=3805ms
+   [LATENCY] vad_close=1200ms stt=208ms stt_wait=0ms salience=0ms triage=bypassed memory=20ms prompt_build=12ms ttft=1116ms tts_first_chunk=225ms audio_out=294ms TOTAL=1875ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 21:26:32.555 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~35562ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:26:33.879 VOICE ONSET — mic speech started
+   [TurnTiming] 21:26:35.677 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1797ms since onset)
+   [TwitchChat][IRC] :twitch_scout!twitch_scout@twitch_scout.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat][IRC] :caiyul!caiyul@caiyul.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat][IRC] :streamlabs!streamlabs@streamlabs.tmi.twitch.tv JOIN #thekiraagency
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 21:26:43.813 VOICE ONSET — mic speech started
+   [TurnTiming] 21:26:46.495 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2681ms since onset)
+>>> You said: That's funny, I didn't know that.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="That's funny, I didn't know that." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [JonnyBond] warm nudge → warmth -0.39→-0.05
+   [Shape] → TERSE  (one_word_count=1  tangent_since=101t  moment=calm)
+   [PromptSize] dynamic_context=12745ch  hist=6turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 4048ms
+   [TTS] Speaking: What did you learn?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What did you learn?' (5 words)
+   [TurnTiming] 21:26:51.103 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 21:26:51 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 21:26:52.888 TTS STOP — playback finished (span ~1784ms)
+
+   [TIMING] voice: llm=6185ms(sonnet-stream(llm+tts)) tts=0ms total=6186ms
+   [LATENCY] vad_close=1200ms stt=183ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=11ms ttft=3838ms tts_first_chunk=210ms audio_out=336ms TOTAL=4602ms
+🎤 Recording... (recovered opening words)
+   [EmotionSwing] holding EMOTIONAL (3 turn(s) left) instead of reverting
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 21:26:58.695 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~14881ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: Kira, come on. Yeah, I could try that, salty.
+   [DroppedInput] LOST ~1 frame(s) (~30ms, ~0.0s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 21:26:58.953 VOICE ONSET — mic speech started
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q='Kira, come on. Yeah, I could try that, salty.' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [SmartMem]     dist=0.889 conf=0.95 type=episodic blend=0.202 lane=KNOW
+   [SmartMem]     dist=0.946 conf=0.95 type=episodic blend=0.167 lane=KNOW
+   [SmartMem]     dist=0.957 conf=0.95 type=episodic blend=0.161 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=12851ch  hist=8turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1789ms
+   [TTS] Speaking: Try the salty thing....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Try the salty thing.' (5 words)
+   [TurnTiming] 21:27:00.997 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 21:27:02.785 TTS STOP — playback finished (span ~1788ms)
+   [TTS] Speaking: What's the worst that happens....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What's the worst that happens.' (6 words)
+   [TurnTiming] 21:27:02.788 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:27:04.936 TTS STOP — playback finished (span ~2147ms)
+
+   [TIMING] voice: llm=5956ms(sonnet-stream(llm+tts)) tts=0ms total=5958ms
+   [LATENCY] vad_close=1200ms stt=257ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=1ms ttft=1503ms tts_first_chunk=286ms audio_out=224ms TOTAL=2295ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurnTiming] 21:27:06.166 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~7212ms since onset)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [YTAutoSearch] No live broadcast found (attempt 2, 839s remaining)
+🎤 Recording...
+   [TurnTiming] 21:27:07.165 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:09.087 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1921ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:09.359 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:10.841 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1481ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:12.623 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (action): heal
+   [Pokemon] her reasoning: "Spearow's down and I've got a soft bench — before I march into Fuchsia I should at least patch everyone up so I'm not walking in half-dead."
+   [TurnTiming] 21:27:13.959 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1336ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:14.592 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:19.365 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4773ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:21.144 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:24.231 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3087ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:24.998 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:27.003 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2005ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:27.105 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.59 [terse=0.37 gap=0.86 silence=0.99 intensity=0.60 chat=0.00] target=0.97 mult=0.98 -> min_gap=10s dead_air=20s
+   [TurnTiming] 21:27:28.437 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1331ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:28.594 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:29.871 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1277ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:30.090 VOICE ONSET — mic speech started
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0249 · gate=0.003 · 0 accepted
+   [TurnTiming] 21:27:32.509 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2419ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:33.472 VOICE ONSET — mic speech started
+   [Intensity] → TENSE  (silence=2s  audio="")
+   [TurnTiming] 21:27:34.991 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1519ms since onset)
+   [VRAM] 21:27:36 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 21:27:37.363 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:38.716 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1352ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:40.537 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:41.826 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1289ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:43.123 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:44.389 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1265ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:44.931 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:46.320 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1388ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:50.703 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:51.993 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1289ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:53.604 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:54.921 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1317ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:55.650 VOICE ONSET — mic speech started
+   [TurnTiming] 21:27:57.886 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2235ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:27:59.506 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:04.397 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4890ms since onset)
+   [YTAutoSearch] No live broadcast found (attempt 3, 779s remaining)
+🎤 Recording...
+   [TurnTiming] 21:28:08.091 VOICE ONSET — mic speech started
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 21:28:09.405 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1314ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:28:09.813 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:11.338 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1524ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:28:12.232 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:13.634 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1401ms since onset)
+   [VRAM] 21:28:21 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 21:28:22.334 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:25.254 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2919ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:28:26.370 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:27.923 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1553ms since onset)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0244 · gate=0.003 · 0 accepted
+🎤 Recording...
+   [TurnTiming] 21:28:31.885 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:36.262 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4376ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:28:37.471 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:38.742 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1271ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:28:38.969 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:40.309 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1340ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:28:41.825 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:44.164 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2338ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:28:45.974 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:47.554 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1579ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:28:56.134 VOICE ONSET — mic speech started
+   [TurnTiming] 21:28:58.322 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2187ms since onset)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 21:29:06 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [YTAutoSearch] No live broadcast found (attempt 4, 719s remaining)
+🎤 Recording...
+   [TurnTiming] 21:29:07.827 VOICE ONSET — mic speech started
+   [Pokemon] SELF WANT: 'Reach Fuchsia City and beat Koga'
+   [TurnTiming] 21:29:09.110 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1282ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:29:12.033 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay, Spearow's down and I'm not catching anything with zero Balls — makes zero sense to hang around. Pokémon Center first, then we're actually moving toward Fuchsia."
+   [TurnTiming] 21:29:13.326 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1292ms since onset)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0179 · gate=0.003 · 0 accepted
+🎤 Recording...
+   [TurnTiming] 21:29:32.909 VOICE ONSET — mic speech started
+   [TurnTiming] 21:29:34.200 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1291ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:29:42.171 VOICE ONSET — mic speech started
+   [TurnTiming] 21:29:43.493 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1321ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:29:44.140 VOICE ONSET — mic speech started
+   [TurnTiming] 21:29:46.626 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2486ms since onset)
+   [VRAM] 21:29:51 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 21:30:02.499 VOICE ONSET — mic speech started
+   [TurnTiming] 21:30:03.793 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1293ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:30:03.969 VOICE ONSET — mic speech started
+   [TurnTiming] 21:30:05.232 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1263ms since onset)
+   [YTAutoSearch] No live broadcast found (attempt 5, 659s remaining)
+   [LoopbackSTT] tick 131ms — 0 accepted, 1 filtered (rms=0.017)
+🎤 Recording...
+   [TurnTiming] 21:30:12.378 VOICE ONSET — mic speech started
+   [TurnTiming] 21:30:16.171 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3792ms since onset)
+   [LoopbackSTT] tick 127ms — 0 accepted, 1 filtered (rms=0.016)
+🎤 Recording...
+   [TurnTiming] 21:30:16.970 VOICE ONSET — mic speech started
+   [TurnTiming] 21:30:18.265 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1294ms since onset)
+🎤 Recording...
+   [TurnTiming] 21:30:18.639 VOICE ONSET — mic speech started
+   [TurnTiming] 21:30:22.640 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4001ms since onset)
+>>> You said: Yeah, she's sick of it.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yeah, she's sick of it." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=21ms rank=1ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11566ch  hist=10turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1528ms
+   [TTS] Speaking: Good....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Good.' (2 words)
+   [TurnTiming] 21:30:24.516 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:30:26.292 TTS STOP — playback finished (span ~1776ms)
+   [TTS] Speaking: Get her out of there before she files a formal com...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Get her out of there before she files a ' (12 words)
+   [TurnTiming] 21:30:26.296 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 21:30:29.386 TTS STOP — playback finished (span ~3089ms)
+
+   [TIMING] voice: llm=6559ms(sonnet-stream(llm+tts)) tts=0ms total=6559ms
+   [LATENCY] vad_close=1200ms stt=164ms stt_wait=0ms salience=0ms triage=bypassed memory=22ms prompt_build=1ms ttft=1212ms tts_first_chunk=316ms audio_out=156ms TOTAL=1871ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 21:30:30.593 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~11954ms since onset)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [RoomRead] energy=0.42 [terse=0.34 gap=0.33 silence=0.97 chat=0.00] target=1.16 mult=1.00 -> min_gap=10s dead_air=20s
+   [VRAM] 21:30:36 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [RoomRead] energy=0.40 [terse=0.34 gap=0.33 silence=0.90 chat=0.00] target=1.19 mult=1.02 -> min_gap=10s dead_air=20s   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0145 · gate=0.003 · 0 accepted
+
+🎤 Recording...
+   [TurnTiming] 21:30:39.476 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.39 [terse=0.34 gap=0.33 silence=0.83 chat=0.00] target=1.22 mult=1.05 -> min_gap=10s dead_air=21s
+   [RoomRead] energy=0.38 [terse=0.34 gap=0.33 silence=0.77 chat=0.00] target=1.25 mult=1.07 -> min_gap=11s dead_air=21s
+   [TurnTiming] 21:30:45.277 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~5801ms since onset)
+>>> You said: She wants to chill and watch a movie or something. Probably some, like, paprika.
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='She wants to chill and watch a movie or something. Probably ' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.079 conf=0.9 type=episodic blend=0.319 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=11735ch  hist=12turns  moment=tense
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 2376ms
+   [TTS] Speaking: Paprika's a solid call....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Paprika's a solid call.' (5 words)
+   [TurnTiming] 21:30:48.269 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:30:50.325 TTS STOP — playback finished (span ~2055ms)
+   [TTS] Speaking: She has excellent taste....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'She has excellent taste.' (5 words)
+   [TurnTiming] 21:30:50.329 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:30:52.301 TTS STOP — playback finished (span ~1972ms)
+
+   [TIMING] voice: llm=6746ms(sonnet-stream(llm+tts)) tts=0ms total=6746ms
+   [LATENCY] vad_close=1200ms stt=251ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=2ms ttft=2121ms tts_first_chunk=255ms audio_out=333ms TOTAL=2986ms
+🎤 Recording... (recovered opening words)
+   [EmotionSwing] holding EMOTIONAL (3 turn(s) left) instead of reverting
+   [TurnTiming] 21:30:55.331 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~15855ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 21:30:57.435 VOICE ONSET — mic speech started
+   [TurnTiming] 21:30:58.756 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1319ms since onset)
+   [YTAutoSearch] No live broadcast found (attempt 6, 599s remaining)
+   [LoopbackSTT] tick 120ms — 0 accepted, 1 filtered (rms=0.020)
+   [RoomRead] energy=0.41 [terse=0.39 gap=0.41 silence=0.75 chat=0.00] target=1.17 mult=1.09 -> min_gap=11s dead_air=22s
+🎤 Recording...
+   [TurnTiming] 21:31:20.053 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.39 [terse=0.39 gap=0.41 silence=0.64 chat=0.00] target=1.23 mult=1.12 -> min_gap=11s dead_air=22s
+   [TurnTiming] 21:31:21.341 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1287ms since onset)
+   [VRAM] 21:31:21 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 120ms — 0 accepted, 1 filtered (rms=0.022)
+🎤 Recording...
+   [TurnTiming] 21:31:24.261 VOICE ONSET — mic speech started
+   [TurnTiming] 21:31:25.539 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1278ms since onset)
