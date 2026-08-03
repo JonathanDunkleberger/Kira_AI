@@ -1347,17 +1347,12 @@ class BattleAgent:
                 self._wait(14)
                 if self._futility_bench_switch():
                     return "done"
-            if _ram_list:
+            # BLIND-FIRST (12:07 relapse): deterministic walk owns positioning; the RAM write
+            # runs after only as a correction when the byte is still readable and disagrees.
+            self._blind_goto_move(slot)
+            if _ram_list and self.b.rd8(MOVE_CURSOR) != slot:
                 self._goto_move(slot)
-            else:
-                self._blind_goto_move(slot)               # zero RAM trust (frozen-detector battle)
-            # Attribute to the slot ACTUALLY under the cursor — nav can fail/lie (the 09:07
-            # parked-on-Tackle loop tallied refusals on slots that were never pressed).
-            _cs = self.b.rd8(MOVE_CURSOR) if _ram_list else slot
-            pressed = _cs if 0 <= _cs < 4 else slot
-            if pressed != slot:
-                self.log(f"   [engine] struggle-walk: nav to slot {slot} didn't verify — cursor "
-                         f"is on {pressed}; that's the slot this confirm fires")
+            pressed = slot
             before = self._bstate()
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
             self._wait(20)
@@ -1632,10 +1627,24 @@ class BattleAgent:
             self._tap("DOWN" if _sel() < row else "UP"); self._wait(10)
         self._wait(8)                                        # settle scroll animation, then re-verify
         if _sel() != row:
-            self.log(f"   [engine] use_item: couldn't reach true row {row} "
-                     f"(cursor={self.b.rd8(BAG_CURSOR)} scroll={self.b.rd16(BAG_SCROLL)}) — "
-                     f"keep fighting (LOUD)")
-            self._exit_bag(); return "failed"
+            # BLIND BAG WALK (2026-08-03 12:07: 'couldn't reach true row 4 (cursor=1 scroll=0)'
+            # killed the one Ether attempt of the whole loop): the bag cursor/scroll bytes have
+            # the same frozen-RAM disease as the battle cursors. The list CLAMPS at the top, so
+            # UP x (row+6) homes to row 0 from any position even with eaten presses, then
+            # DOWN x row lands the true row with zero RAM trust. Count-drop stays the only
+            # consume-truth, and a mis-select just exhausts the A-walk -> 'failed' (fail-safe).
+            if row <= 8:
+                self.log(f"   [engine] use_item: RAM says row {_sel()} wanted {row} — bytes may "
+                         f"be frozen; BLIND bag walk (clamp-home + DOWN x{row})")
+                for _ in range(row + 6):
+                    self._tap("UP"); self._wait(8)
+                for _ in range(row):
+                    self._tap("DOWN"); self._wait(8)
+            else:
+                self.log(f"   [engine] use_item: couldn't reach true row {row} "
+                         f"(cursor={self.b.rd8(BAG_CURSOR)} scroll={self.b.rd16(BAG_SCROLL)}) — "
+                         f"too deep for a blind walk; keep fighting (LOUD)")
+                self._exit_bag(); return "failed"
         # CONFIRMED in the Items pocket on the right row -> A walks select->USE->target->apply.
         # A#0 selects the item, A#1 hits USE (party screen opens); then AIM ONCE — focus the
         # list, resolve the row by MENU-TIME CONTENT ('active' = row 0, the lead panel IS the
@@ -1899,13 +1908,39 @@ class BattleAgent:
                     plan["use_ether"] = (ether, aim)
                     offers["use_ether"] = ("restore PP with your Ether — you're out of moves that can "
                                            "hit this foe and it puts your best move back in the fight")
+        # REFUSAL-PROVEN FAMINE (2026-08-03 12:07): the PP bytes can lie (frozen-RAM battles
+        # read pp>0 on slots the game refuses every turn), so the RAM famine gate above can
+        # miss the exact fight that needs the Ether most. If the GAME ITSELF has refused
+        # confirms past the futility floor, the famine is proven by behavior — offer it.
+        _refusal_famine = (getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX
+                           and sum(1 for v in getattr(self, "_move_refused", {}).values()
+                                   if v >= 2) >= 1)
+        if "use_ether" not in plan and _refusal_famine:
+            ether = next((i for i in _ETHER_ITEMS_PREF if self._items_count(i) > 0), None)
+            if ether is not None:
+                plan["use_ether"] = (ether, aim)
+                offers["use_ether"] = ("restore PP with your Ether — the game keeps refusing your "
+                                       "attacks (out of PP); this is the only way to keep hitting")
         if not offers:
             return False
         offers["keep_fighting"] = "keep attacking — push through it"
         ctx = {"hp": f"{ours['hp']}/{ours['maxhp']}", "status": status or "none",
                "foe": st.SPECIES_NAME.get(state["enemy"]["species"], "the foe")}
+        if "use_ether" in plan:
+            ctx["pp"] = ("OUT OF PP — the game is refusing your attacks; you CANNOT keep "
+                         "attacking without restoring PP or switching out")
         self.log(f"   [engine] ITEM-INSTINCT offer: {list(offers)} ctx={ctx}")
-        pick = self.choose("battle_item", offers, ctx)
+        # FORCED PICK (12:07 logs): her oracle chose 'keep_fighting' FIFTEEN times in a row
+        # ("saving the Ether for Koga") while zero of her attacks could fire — the persona
+        # can flavor the line, but it doesn't get to veto physics. Refusal-proven famine +
+        # an Ether in the bag = the Ether gets used, no vote.
+        if "use_ether" in plan and _refusal_famine:
+            pick = "use_ether"
+            self.log("   [engine] ITEM-INSTINCT FORCED -> use_ether (refusal-proven famine; "
+                     "oracle bypassed — she cannot attack at all)")
+            self.emit("okay, no more juice in my moves — Ether time, no debate.", beat=True, tier=1)
+        else:
+            pick = self.choose("battle_item", offers, ctx)
         if pick and pick in plan:
             item, kind = plan[pick]
             self.log(f"   [engine] ITEM-INSTINCT pick -> {pick} (item {item}, aim={kind})")
@@ -2437,33 +2472,27 @@ class BattleAgent:
         elif not self._at_move_list() and self._white_box():
             # Ambiguous white — try A once (opens fight or confirms if already on list).
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
-        if self._at_move_list():
-            if not self._goto_move(idx):
-                self._nav_move(idx)
-        else:
-            # 2026-08-03 11:49 LIVE ROOT (finally, from the un-muted logs): action=True
-            # moves=False for an ENTIRE battle while the operator's photos showed the move
-            # list OPEN — the battle-UI RAM block (menu mode + cursors) can freeze/desync,
-            # and this branch then fired a BLIND A into the highlighted slot (Tackle, 0 PP)
-            # every turn, forever. The old comment said "slot0/Struggle" — it was neither.
-            # BLIND-WALK the 2x2 grid instead: no wraparound means LEFT,LEFT,UP,UP always
-            # homes to slot 0 from ANY start even with eaten presses (clamping = idempotent),
-            # then doubled DOWN/RIGHT deterministically reaches the chosen slot. Zero RAM
-            # trust. If we're actually on a text box these d-pads are no-ops and the A
-            # advances it — strictly better than A-spam in every reachable state.
-            self.log(f"   [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK "
-                     f"to slot {idx} (detectors frozen; pixels say a menu is up)")
-            self._blind_goto_move(idx)
-        # The slot the game will ACTUALLY select is whatever the cursor byte says NOW — if nav
-        # didn't verify, that may not be `idx`. Attribute any refusal to THIS slot, not the
-        # intended one (2026-08-03 09:07: refusals tallied on Bite/Water Pulse while every A
-        # fired the parked-on-TACKLE cursor — Tackle never exiled, famine never tripped).
-        _pressed = self.b.rd8(MOVE_CURSOR) if self._at_move_list() else idx
-        if not (0 <= _pressed < 4):
-            _pressed = idx
-        if _pressed != idx:
-            self.log(f"   [engine] !! CURSOR MISMATCH: intended slot {idx}, cursor byte says "
-                     f"{_pressed} — the confirm fires {_pressed}; refusals will tally there")
+        # BLIND-FIRST NAV (2026-08-03 12:07 relapse): the RAM-verified path re-poisons the
+        # whole battle the moment the cursor byte lies while the detector says fine — the
+        # write-then-readback "verifies" against dead memory, A fires the parked slot, and
+        # the refusal is tallied on the slot we INTENDED (ledger poisoning, round 3). The
+        # blind walk is deterministic with ZERO RAM trust (2x2 grid, no wrap, doubled taps
+        # clamp), so it is now the PRIMARY nav on every commit; the RAM write runs after
+        # only as a correction when it can still be read (healthy RAM: both agree, no-op).
+        self._blind_goto_move(idx)
+        if self._at_move_list() and self.b.rd8(MOVE_CURSOR) != idx:
+            self.log(f"   [engine] STREAM COMMIT: RAM cursor disagrees after blind walk "
+                     f"(reads {self.b.rd8(MOVE_CURSOR)}, want {idx}) — RAM-correcting")
+            self._goto_move(idx)
+        # ATTRIBUTION (2026-08-03 12:07, blind-first era): the blind walk is deterministic —
+        # the real cursor IS on `idx` regardless of what the byte claims (frozen-RAM battles
+        # read garbage here; trusting the byte was ledger-poisoning round 3). Attribute
+        # refusals to idx. A disagreeing byte is now a frozen-RAM SIGNAL, not the truth.
+        _pressed = idx
+        _byte = self.b.rd8(MOVE_CURSOR)
+        if self._at_move_list() and 0 <= _byte < 4 and _byte != idx:
+            self.log(f"   [engine] !! CURSOR BYTE DISAGREES post-blind-walk (byte={_byte}, "
+                     f"blind={idx}) — RAM block likely frozen; trusting the blind walk")
         pp0 = ours["moves"][idx].get("pp", 0) if 0 <= idx < 4 else 0
         before = self._bstate()
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
@@ -3152,6 +3181,28 @@ class BattleAgent:
             if self._party_screen():
                 break
             self._wait(8)
+        if not self._party_screen() or not self._party_focus():
+            # BLIND POKEMON FALLBACK (2026-08-03 12:07: frozen-RAM battles — _goto_pokemon
+            # "verified" against a dead cursor byte, A opened the MOVE LIST instead, and
+            # every switch path died here). B back to the action menu, then DOWN,DOWN + A:
+            # DOWN is NOT in the confirm-hazard set (only UP/LEFT/RIGHT confirm FIGHT on
+            # this core) and the 2x2 grid clamps, so from the FIGHT home this deterministically
+            # lands POKEMON. Worst case (cursor was in the right column) it lands RUN and the
+            # game answers "Can't escape!" — drained below, harmless. _party_screen() is
+            # pixel truth, so the success check works even when every RAM byte lies.
+            self.log("   [engine] switch: party didn't open via RAM nav — BLIND fallback "
+                     "(B out, DOWN DOWN A)")
+            for _ in range(3):
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(12)
+            for d in ("DOWN", "DOWN"):
+                self._tap(d); self._wait(8)
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(30)
+            for _ in range(8):
+                if self._party_screen():
+                    break
+                self._wait(8)
         if not self._party_screen() or not self._party_focus():
             self.log("   [engine] switch: party screen never took focus -> B out (fail-safe)")
             self._exit_bag()
