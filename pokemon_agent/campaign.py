@@ -11378,6 +11378,70 @@ class Campaign:
             _mp_key = tuple(tv.map_id(self.b))
             talks = self._ql_talks_map.get(_mp_key, 0)
             chatted_out = talks >= talk_budget
+            # PURE-TRANSIT INTERIOR (2026-08-03, the UGP-hut girl loop): the Underground Path huts/
+            # tunnels exist only to CONNECT two routes — their occupants are decorative (the Route-8
+            # east-hut girl: 'Do you go there very often?' — no flag, no item, no script). Post-Koga
+            # the Tea/Fly errands route Lavender→Route 8→UGP→Celadon and the TALK-FIRST doctrine
+            # chatted the girl on repeat while the GO-DEEPER tour, built for target-deeper-INSIDE
+            # buildings (the ship captain), structurally CANNOT finish a through-crossing: it
+            # excludes overworld-bound warps (dest[0]!=3) AND 'exit lobby' rooms — which is exactly
+            # what the far hut is. KB-listed transit rooms skip BOTH layers and run the passthrough's
+            # proven hop-walk instead: keep taking the farthest non-arrival warp until we pop out on
+            # the overworld on the FAR side (hut → tunnel → hut → route, 3 hops).
+            try:
+                _transit = ",".join(str(x) for x in _mp_key) in set(
+                    (self._gate_recognizer.kb.get("transit_rooms") or {}).get("maps", []))
+            except Exception:
+                _transit = False
+            if _transit:
+                log("   [roam] 🚇 questline: pure-transit interior (KB transit_rooms) — no chatting; "
+                    "walking the crossing to the far side")
+                def _tsettle(frames):
+                    for _ in range(frames):
+                        self.b.run_frame()
+                        self.render()
+                    return tuple(tv.map_id(self.b))
+                for _hop in range(6):
+                    m_in = tuple(tv.map_id(self.b))
+                    if m_in[0] == 3:
+                        break                             # popped out on the overworld — crossed
+                    self._learn_transit()                 # fold the hut/tunnel into the mental map
+                    spawn = tuple(tv.coords(self.b) or (0, 0))
+                    moved = False
+                    for wt in sorted((tuple(w[0]) for w in tv.read_warps(self.b)),
+                                     key=lambda t: -(abs(t[0] - spawn[0]) + abs(t[1] - spawn[1]))):
+                        if abs(wt[0] - spawn[0]) + abs(wt[1] - spawn[1]) <= 1:
+                            continue                      # the warp we arrived by — skip
+                        self.trav.travel(target_map=None, arrive_coord=wt,
+                                         max_steps=260, max_seconds=110)
+                        if _tsettle(30) != m_in:
+                            moved = True
+                            break                         # walking onto the mat warped us
+                        if tuple(tv.coords(self.b) or ()) == wt:
+                            for key in ("UP", "DOWN", "LEFT", "RIGHT"):
+                                self.b.press(key, 8, 8, self.render, owner="agent")
+                                if _tsettle(36) != m_in:
+                                    break
+                            if tuple(tv.map_id(self.b)) != m_in:
+                                moved = True
+                                break
+                        if self._enter_directional_warp(tuple(wt)) \
+                                and tuple(tv.map_id(self.b)) != m_in:
+                            moved = True
+                            break
+                        if self.enter_warp(pick=tuple(wt), budget_s=90) == "warped" \
+                                and tuple(tv.map_id(self.b)) != m_in:
+                            moved = True
+                            break
+                    if not moved:
+                        log("   [roam] questline: transit walk found no onward warp — backing out "
+                            "to the overworld LOUD")
+                        self._exit_to_overworld()
+                        break
+                if tuple(tv.map_id(self.b))[0] == 3:
+                    log(f"   [roam] 🚇 QUESTLINE TRANSIT: surfaced at {tuple(tv.map_id(self.b))}"
+                        f"@{tuple(tv.coords(self.b) or ())} — the errand continues from here")
+                return "questline_deeper"
             if chatted_out:
                 log(f"   [roam] questline: room chatted out ({talks}/{talk_budget} talks) — moving the tour on")
             # She's inside a building she ENTERED for the quest (the blackout-recovery leaves her be while
@@ -12181,6 +12245,29 @@ class Campaign:
                              "wakes the Route 12 Snorlax) stays locked.",
                        detail={"confirm_item": 359, "gym": "Koga"})
 
+    def _tea_gate(self, state):
+        """POST-KOGA TEA (2026-08-03, the Route-8 UGP-hut girl loop): the moment Koga falls, the
+        war road runs to Sabrina in SAFFRON — and every Saffron gatehouse guard is parched until
+        she hands over the TEA (FLAG_GOT_TEA 0x2A6, pret-verified) from the Celadon Condominiums
+        old lady. The reactive recognizer only arms this when she physically bonks the Route-8
+        gate; by then the fly/eevee luxury gates (also badge-5) may already own the errand slot
+        and the road they route is the SAME blocked crossing. Opening Tea proactively — and FIRST —
+        makes the story unlock own the slot: tea → then fly → then Eevee, all of it Celadon.
+        Returns a Gate while badges>=5 and FLAG_GOT_TEA is unset, else None."""
+        try:
+            if (state.get("badge_count") or 0) < 5:
+                return None
+            if fm.read_flag(self.b, 0x2A6):          # FLAG_GOT_TEA — guard already waved through
+                return None
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="FLAG_GOT_TEA", where=tuple(CELADON),
+                       human="the TEA — Saffron's gate guards are dying of thirst and won't let "
+                             "anyone through. An old lady on the Celadon Condominiums ground floor "
+                             "gives it away; with it, every road into Saffron opens — and Sabrina "
+                             "is badge six.",
+                       detail={"flag": "FLAG_GOT_TEA"})
+
     def _fly_gate(self, state):
         """POST-KOGA FLY FETCH (2026-08-03, chat's call: 'she needs to get Fly after beating
         Koga'). Fly never BLOCKS a road, so no gate ever demanded it and she'd have walked the
@@ -12823,6 +12910,15 @@ class Campaign:
                     log("   [roam] 🔭 PROACTIVE SILPH-SCOPE: no Scope yet — Rocket Hideout under "
                         "Celadon Game Corner FIRST (Lavender/Route 8 eastbound is a dead loop)")
                     return
+            # PROACTIVE TEA (2026-08-03, the UGP-hut loop): the badge-6 WAR ROAD unlock — Saffron's
+            # thirsty guards want the Celadon Tea. Fires BEFORE fly/eevee: a story gate on the
+            # forward road outranks luxury detours (and all three share the Celadon anchor anyway,
+            # so tea-first costs zero extra walking).
+            tg = self._tea_gate(state)
+            if tg is not None and self._open_questline(tg, state):
+                log("   [roam] 🍵 PROACTIVE TEA: Koga is done and Saffron's guards are parched — "
+                    "fetching the Celadon old lady's Tea before anything else")
+                return
             # PROACTIVE FLY-FETCH (2026-08-03): badge 5 banked, HM02 unowned, Cut in hand —
             # detour to the Route 16 hidden house before the Saffron push. Fly collapses the
             # endgame's walking (and makes heal-retreats nearly free), so a real player grabs

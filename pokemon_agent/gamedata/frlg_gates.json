@@ -464,6 +464,8 @@
         "npc": "the old lady",
         "from": "3,6",
         "dir": "north",
+        "door": [30, 11],
+        "_door_note": "Condominiums FRONT door on Celadon (pret CeladonCity/map.json warp 30,11 -> CONDOMINIUMS_1F id 1) — lands in the lobby where the tea lady stands. NOT the back-door cluster 29-31,4-5 (warp id 5, the eevee strike's stairwell, warp-partitioned from the lobby).",
         "place_name": "Celadon Mansion's ground floor (the big building by the Center) — the old woman hands her Tea to a polite trainer",
         "prereq": null,
         "sets_flag": "FLAG_GOT_TEA",
@@ -823,6 +825,17 @@
       "1,87",
       "17,0",
       "17,1"
+    ]
+  },
+  "transit_rooms": {
+    "_doc": "PURE-TRANSIT interiors (2026-08-03, the UGP-hut girl loop): rooms that exist only to CONNECT two places — the four Underground Path entrance huts and the two tunnels. Their occupants are decorative (the Route-8 east-hut girl: 'The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?' — pret UndergroundPath_EastEntrance/text.inc, no flag, no item, no script). The questline interior layer's TALK-FIRST doctrine (right for Bill's cottage, the tea lady, the captain) is a trap here: post-Koga the Tea/Fly errands route Lavender->Route 8->UGP->Celadon, and she chatted the hut girl on repeat instead of taking the stairs. Listed maps skip the talk/bg-sweep layers entirely and go straight to the GO-DEEPER pass-through tour. pret map_groups group 1: 30=NorthEntrance(R5) 31=NorthSouthTunnel 32=SouthEntrance(R6) 33=WestEntrance(R7) 34=EastWestTunnel 35=EastEntrance(R8).",
+    "maps": [
+      "1,30",
+      "1,31",
+      "1,32",
+      "1,33",
+      "1,34",
+      "1,35"
     ]
   },
   "interior_routes": {
