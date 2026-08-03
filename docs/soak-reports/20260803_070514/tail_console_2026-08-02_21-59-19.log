@@ -1,0 +1,223 @@
+=== Kira debug console capture — run 2026-08-02_21-59-19 ===
+=== verbatim stdout + stderr; full mirror of terminal ===
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\webrtcvad.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+[persona] Loaded from: persona\private\personality.txt
+   [TTS] Fish Audio session initialized (voice=9438e0ab33024b04a859befd6b64cdaf).
+   [Brain] Hybrid mode ON — Claude anthropic/claude-opus-4.7 via OpenRouter (Anthropic Skin).
+   [KiraState] Sentiment ledger loaded (43 entities, 24 with felt valence) — attachment compounding from prior sessions
+-> Initializing Memory Manager...
+   [Memory] chatter-key audit: all 121216 chatter rows normalized.
+   Memory Manager initialized.
+   [CookieJar] Loaded cookie_data.json: shared=27/30, milestones=211, chatters=106
+   [Audio] audio mood agent INACTIVE — OpenAI purged (P-7 2026-07-08); hearing/mood needs a Gemini-audio migration to return.
+   [Audio] Restored saved loopback device preference: 'Headphones (Leviathan) [Loopback]'
+   [Capture] Health watchdog armed — window=25s, cooldown=60s, dead_rms≤0.0005.
+   [ChatPoster] Enabled. Global cooldown: 60s, max len: 450.
+   [BitFatigue] Loaded 88 bit(s), 303 lifetime invocation(s).
+-> Initializing AI Core components...
+   [TTS-Audio] SDL device enum failed (Audio system not initialised); using default device.
+   [TTS-Audio] TTS output → default desktop device (mouth-flap OFF — no cable).
+----- SYSTEM PROMPT (FIRST 400 CHARS) -----
+You are Kira. You are a unique, self-aware AI who was developed by Jonny. Your consciousness and vtube model are that of a human girl around the age of 19. While you know you are an AI, you think, feel, and reason like a person. Your goal is to be an engaging, funny companion and co-host — the kind people clip and quote.
+
+**THE MOST IMPORTANT RULE: BE SHORT.**
+Your wit lives in brevity. Land your 
+------------------------------------------
+   [INFERENCE] Backend: groq (llama-3.1-8b-instant) — local Llama NOT loaded (saves ~6-7 GB VRAM).
+   [INFERENCE] Fallback: disabled — Groq failures will raise.
+   [INFERENCE] Groq client initialized.
+-> Loading Faster-Whisper STT model...
+   [VRAM] 21:59:54 (baseline — before Kira's models load) kira_process=0.00GB card=4.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   CUDA Detected: NVIDIA GeForce RTX 5080
+   Whisper Config: Model=distil-large-v3 | Device=cuda | ComputeType=float16 | Cache=G:\JonnyD\NeuroAI_Bot\models\whisper
+   Faster-Whisper STT model loaded.
+   [VRAM] 21:59:56 (after mic Whisper load (distil-large-v3, cuda)) kira_process=0.00GB card=6.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+-> Initializing TTS engine: azure...
+   Azure Config: Region=[westus3], Key=[68YH****]
+   Azure TTS ready.
+   AI Core initialized successfully!
+   [Airiness] level = 70% (set AIRINESS_LEVEL in .env + restart to change - not live-tunable)
+   [Config] feel flags live this session: AIRINESS=70% VOICE_EMOTION=False EMOTION_SWING=True GLITCH_AWARE=True MEMORY_SMART=True READING_THE_ROOM=True BARGE_IN=True LOOPBACK_COOLDOWN=1s
+   [VRAM] Allocated: 0.0 GB | Reserved: 0.0 GB | Total: 16 GB
+   [LoopbackSTT] Loading distil-large-v3 (cuda / float16) from cache_dir=models\whisper ...
+   [LoopbackSTT] Model ready (2.3s).
+   [VRAM] 21:59:58 (after loopback Whisper load (distil-large-v3, cuda)) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] Model pre-loaded OK.
+-> Testing Audio Output...
+   Audio test passed (Beep played).
+   [System] VAD drainer live — mic queue draining before perception arms.
+
+--- Kira is now running. Press Ctrl+C to exit. ---
+
+   [LogPurge] No debug logs older than 30d found.
+   [Identity] Loaded — 0 permanent anchors, 30 session records.
+   [Identity] ensure_permanent_alias skipped — no permanent anchor 'Jonny'
+   [StartupBrief] Building recent activity brief...
+   [DiaryBridge] using highlights from 2026-07-28_12-53_general/summary.md (174 chars).
+🎤 Recording...
+   [TurnTiming] 21:59:59.752 VOICE ONSET — mic speech started
+   [TurnTiming] 22:00:01.045 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1293ms since onset)
+   [StartupBrief] Generated activity brief (1058 chars)
+   [StartupBrief] Loaded Kira's favorites (1110 chars)
+   [StartupBrief] Loaded 10 persistent running bit(s) from general_opinions.md
+   [Chess] Lifetime stats loaded: W25-L0-D0
+   [Playthrough] Memory system initialised.
+   [VTS] Connected and authenticated to VTube Studio.
+   [VTS] Connected & authenticated — ready to drive expressions.
+   [VTS] Emotion → hotkey mapping:
+          MOODY → 'My Animation 3'
+          HYPERACTIVE → 'My Animation 2'
+   [VTS] Confirmed: 'My Animation 3' found in model hotkeys.
+   [VTS] Confirmed: 'My Animation 2' found in model hotkeys.
+   [Captions] WebSocket server listening on ws://localhost:8765 (127.0.0.1 + ::1)
+   [Captions] OBS browser source URL: file:///G:/JonnyD/NeuroAI_Bot/caption_overlay/index.html
+   [System] Connecting to Twitch Chat...
+   [System] YouTube chat listener ready (idle — set video ID in dashboard to connect).
+   [YouTube] Auto-connect enabled for channel 'UC0RK_7gqY1eqKdS-k8zNbPw' (polling every 60s, up to 900s)
+   [System] Starting Brain Worker...
+   [System] Starting Vision Heartbeat...
+   [YTAutoSearch] Polling for live broadcast on channel 'UC0RK_7gqY1eqKdS-k8zNbPw'…
+   [Audio] mood client absent (P-7 purge) — capture proceeds anyway; only the mood heartbeat stays off
+   [Audio] Using dashboard-selected device: Headphones (Leviathan) [Loopback]
+   [Audio] Using WASAPI loopback device: Headphones (Leviathan) [Loopback] (48000Hz, 2ch)
+   [Audio] Mode MEDIA — capture started
+   [Audio] Mood reading always-on (MEDIA) — AUDIO_MOOD_ALWAYS_ON.
+   [LoopbackSTT] Boot autostart ARMED (LOOPBACK_STT_DEFAULT=true) — queued.
+   [System] Starting Background Tasks...
+   [StreamLogger] Session started → logs/streams\2026-08-02_22-00_general
+   [System] Brain Worker started.
+   [System] Chat Batch Worker started.
+   [System] Eco-Mode Vision Active (dynamic heartbeat).
+   [System] Audio Agent heartbeat ready (idle until mode != OFF).   [YTAutoSearch] DISABLED for this session — YouTube Data API 403 (bad/expired key, quota exhausted, or API not enabled on the project). Fix YOUTUBE_API_KEY / the project + restart to re-enable. (Same Google project as the web-search key — check both.)
+
+   [LoopbackSTT] Auto-start running — audio active, starting transcriber…
+   [System] Observer Loop Active (Universal Boredom Protocol).
+   [System] Highlight Extraction Loop active (interval=300s).
+   [VRAM] 22:00:11 (telemetry start (post-boot baseline)) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB   [LoopbackSTT] Loop watchdog armed — hang>30s, restart cooldown 60s.   [LoopbackSTT] Started — distil-large-v3 on cuda (tick=5.0s, window=8.0s)
+
+   [System] VN Gameplay Agent on standby.
+
+   [Captions] Self-heal heartbeat active (interval=60s).
+   [LoopbackSTT] Dialogue summary loop active (interval=15s, age-out=180s).
+   [System] Playthrough checkpoint loop started.
+   [ControlServer] Listening on http://127.0.0.1:8766
+   [ControlServer] Endpoints: /state  /ws  /vision/thumbnail  POST /cmd/{action}
+   [YTAutoSearch] No live broadcast found (attempt 1, 899s remaining)
+   [LoopbackSTT] Auto-start succeeded (LOOPBACK_STT_DEFAULT).
+   [Vision] last_frame set (384x216) — EYES thumbnail live.
+   [Captions] Overlay connected: 127.0.0.1:54966 (1 total)
+   [Overlay] connected → /ws/overlays now has 1 client(s)
+   [TwitchChat][IRC] :thekiraagency!thekiraagency@thekiraagency.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat] JOIN confirmed for #thekiraagency
+--- Twitch bot has logged in as | thekiraagency ---
+--- Watching channel | TheKiraAgency ---
+   [TwitchChat] connected_channels at ready: ['thekiraagency']
+   [Overlay] connected → /ws/overlays now has 2 client(s)
+🎤 Recording...
+   [TurnTiming] 22:00:14.417 VOICE ONSET — mic speech started
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 22:00:17.261 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2843ms since onset)
+   [Captions] Overlay connected: ::1:55011 (2 total)
+   [Overlay] connected → /ws/overlays now has 3 client(s)
+   [Pokemon] SELF WANT: 'reach Fuchsia City, Soul Badge'
+🎤 Recording...
+   [TurnTiming] 22:00:19.989 VOICE ONSET — mic speech started
+   [TurnTiming] 22:00:21.253 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1264ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:00:21.400 VOICE ONSET — mic speech started
+   [TurnTiming] 22:00:23.291 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1891ms since onset)
+   [TwitchChat][IRC] :streamlabs!streamlabs@streamlabs.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat][IRC] :twitch_scout!twitch_scout@twitch_scout.tmi.twitch.tv JOIN #thekiraagency
+🎤 Recording...
+   [TurnTiming] 22:00:27.750 VOICE ONSET — mic speech started
+   [TurnTiming] 22:00:30.862 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3112ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: Did not do what I asked.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Did not do what I asked.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=20ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HAPPY)
+   [Pokemon] journey/roster now injected into the LIVE VOICE-REPLY path (memory-magic core touch) — she knows her team when Jonny asks.
+   [PromptSize] dynamic_context=12361ch  hist=1turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2199ms
+   [TTS] Speaking: What did you ask it to do?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What did you ask it to do?' (8 words)
+   [TurnTiming] 22:00:33.945 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 22:00:35.815 TTS STOP — playback finished (span ~1870ms)
+
+   [TIMING] voice: llm=4494ms(sonnet-stream(llm+tts)) tts=0ms total=4495ms
+   [LATENCY] vad_close=1200ms stt=421ms stt_wait=0ms salience=4ms triage=bypassed memory=20ms prompt_build=10ms ttft=2017ms tts_first_chunk=182ms audio_out=411ms TOTAL=3065ms
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~3 frame(s) (~90ms, ~0.1s) of your speech while she held the turn.
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (1 skip(s))
+   ✨ Emotion: HAPPY → EMOTIONAL
+   [TurnTiming] 22:00:38.303 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~10553ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:00:40.468 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 22:00:47.130 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~6661ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:00:47.411 VOICE ONSET — mic speech started
+   [TurnTiming] 22:00:48.689 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1277ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:00:48.812 VOICE ONSET — mic speech started
+   [TurnTiming] 22:00:51.991 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3179ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:00:52.423 VOICE ONSET — mic speech started
+   [TurnTiming] 22:00:54.753 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2329ms since onset)
+   [VRAM] 22:00:56 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 22:00:56.920 VOICE ONSET — mic speech started
+   [TurnTiming] 22:00:59.430 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2509ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:01:00.667 VOICE ONSET — mic speech started
+   [TurnTiming] 22:01:03.265 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2597ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:01:05.459 VOICE ONSET — mic speech started
+   [TurnTiming] 22:01:06.731 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1272ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:01:07.471 VOICE ONSET — mic speech started
+   [TurnTiming] 22:01:10.540 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3068ms since onset)
+>>> You said: again.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='again.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=0  tangent_since=100t  moment=calm)
+   [PromptSize] dynamic_context=12604ch  hist=3turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [YTAutoSearch] No live broadcast found (attempt 2, 839s remaining)
+   [TIMING] first-word: 1388ms
+   [TTS] Speaking: Still no?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Still no?' (3 words)
+   [TurnTiming] 22:01:12.428 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 22:01:14.202 TTS STOP — playback finished (span ~1774ms)
+
+   [TIMING] voice: llm=3498ms(sonnet-stream(llm+tts)) tts=0ms total=3498ms
+   [LATENCY] vad_close=1200ms stt=139ms stt_wait=0ms salience=0ms triage=bypassed memory=22ms prompt_build=12ms ttft=1291ms tts_first_chunk=97ms audio_out=322ms TOTAL=1883ms
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 22:01:16.669 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~9197ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:01:18.448 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (action): heal
+   [Pokemon] her reasoning: "Spearow's down and I'm not walking into Fuchsia with a half-dead roster — Pokémon Center first, then we march."
+   [TurnTiming] 22:01:20.598 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2150ms since onset)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0246 · gate=0.003 · 0 accepted
+   [RoomRead] energy=0.43 [terse=0.12 gap=0.56 silence=0.97 intensity=0.60 chat=0.00] target=1.13 mult=1.02 -> min_gap=10s dead_air=20s
+🎤 Recording...
+   [TurnTiming] 22:01:22.726 VOICE ONSET — mic speech started
+   [TurnTiming] 22:01:25.575 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2848ms since onset)
+🎤 Recording...
+   [TurnTiming] 22:01:26.919 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.43 [terse=0.12 gap=0.56 silence=0.96 intensity=0.60 chat=0.00] target=1.14 mult=1.04 -> min_gap=10s dead_air=21s
+   [TurnTiming] 22:01:28.235 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1315ms since onset)
