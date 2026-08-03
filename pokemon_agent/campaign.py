@@ -9163,6 +9163,56 @@ class Campaign:
         except Exception:
             return False
 
+    def _try_wake_route12_snorlax(self, state=None):
+        """Wake the Route-12 Snorlax (Poké Flute strike) when she's on the map and it's asleep.
+
+        2026-08-02 LIVE: catch_now + ACE-CARRIES GO HARD forced head_to_gym into the body at
+        (9,88) → no_path thrash; heal then tried Viridian south and failed the same way. The
+        wake ritual is the ONLY forward move. Returns a roam-result string, or None if N/A.
+        catch_now stays live → BattleAgent diverts the wake fight to balls (weaken, don't KO)."""
+        try:
+            mid = tuple((state or {}).get("map") or tv.map_id(self.b))
+            if mid != (3, 30):
+                return None
+            import field_moves as fm
+            if fm.read_flag(self.b, 0x253):
+                return None
+            if not self._key_item_owned(350):
+                log("   [roam] !! Route 12 Snorlax sleeping but NO Poké Flute — Tower first "
+                    "(can't wake without it)")
+                return None
+            from snorlax_strike import run_strike
+            _balls = self._ball_count()
+            _co = self._creator_order(state)
+            _catch = bool(_co and _co.get("order") == "catch_now")
+            log(f"   [roam] !! Route 12 Snorlax is THE roadblock — Poké Flute wake NOW "
+                f"(not head_to_gym no_path thrash); balls={_balls}"
+                + ("; catch_now LAW → weaken+ball, don't KO" if _catch else ""))
+            self.on_event(
+                ("catch order — waking Snorlax with the Flute, then balls. do NOT KO it."
+                 if _catch else
+                 "Snorlax is still snoring across the road — Poké Flute. wake it."),
+                kind="route", tier=2)
+            # Unpark dead routes so the next tick can march south after the body leaves.
+            self._dead_moves.discard("head_to_gym")
+            self._nomove_streak = 0
+            try:
+                self._dead_moves_structural.get((3, 30), set()).discard("head_to_gym")
+            except Exception:
+                pass
+            r = run_strike(self, log)
+            log(f"   [roam] snorlax wake strike -> {r}")
+            if r == "woke_snorlax":
+                self.on_event("road's clear — Snorlax's up. south to Fuchsia is open.",
+                              kind="route", tier=2)
+                return "snorlax_woke"
+            if r == "not_here":
+                return None
+            return "snorlax_wake_failed"
+        except Exception as e:
+            log(f"   [roam] snorlax wake skipped: {e}")
+            return None
+
     def party_statuses(self):
         """Set of status NAMES currently afflicting any party member (decode_status of each STATUS1 @
         +0x50). Drives PART C's 'buy the cure for what hurt me' (sampled each free-roam tick) and is
@@ -13513,7 +13563,10 @@ class Campaign:
                     _ql_spare = _ql is not None and getattr(_ql, "actionable", None) is not None
                     # CREATOR ORDER (2026-07-31, LAW): Jonny ordered the gym fight out loud — the
                     # readiness floor may not prune the one action that obeys him.
-                    if self._creator_order(state):
+                    # catch_now is NOT a gym order (2026-08-02): sparing head_to_gym under
+                    # "catch Snorlax" just forced the Route-12 no_path thrash.
+                    _co_rf = self._creator_order(state)
+                    if _co_rf and _co_rf.get("order") not in ("catch_now", "get_flash"):
                         log("   [roam] GYM-READINESS FLOOR: SPARED head_to_gym — CREATOR ORDER (LAW)")
                         rf = None
                     elif _pb_live:
@@ -13639,7 +13692,16 @@ class Campaign:
             # while the gym is in the same city is the pacing bug Jonny is watching.
             try:
                 _ng3 = state.get("next_gym")
-                _ord3 = self._creator_order(state) if _ng3 else None
+                _ord3_raw = self._creator_order(state) if _ng3 else None
+                # catch_now / get_flash are NOT gym marches (2026-08-02 LIVE): forcing
+                # head_to_gym under "catch Snorlax" made her no_path thrash into the sleeping
+                # body at Route 12 (9,88) forever. Only fight-style orders arm GO HARD.
+                _ord3 = (_ord3_raw if (_ord3_raw and _ord3_raw.get("order")
+                                       not in ("catch_now", "get_flash"))
+                         else None)
+                if _ord3_raw and _ord3 is None:
+                    log(f"   [roam] !! CREATOR ORDER '{_ord3_raw.get('order')}' is NOT a gym "
+                        f"march — refusing GO HARD / force head_to_gym (would thrash the blocker)")
                 _dom3 = self._gym_dominant(state) if _ng3 else False
                 # MOMENTUM (2026-07-31): a decisive last win is a third GO trigger — same prune +
                 # force as dominance, but the QUESTLINE HIJACK stays LIVE for it (_route_action's
@@ -13661,6 +13723,22 @@ class Campaign:
                     _dom3 = False
                     _mom3 = False
                     _ace3 = False
+                # ROUTE-12 SNORLAX (2026-08-02 LIVE): while the body still sleeps, ACE-CARRIES /
+                # DOMINANT GO HARD only no_paths into it. Stand those down; the wake strike owns
+                # the tile. (catch_now already refused GO HARD above.)
+                try:
+                    import field_moves as _fm_sx
+                    if (tuple(state.get("map") or ()) == (3, 30)
+                            and not _fm_sx.read_flag(self.b, 0x253)):
+                        if _dom3 or _mom3 or _ace3:
+                            log("   [roam] !! Route 12 Snorlax still sleeping — standing down "
+                                "ACE/DOMINANT/MOMENTUM GO HARD (wake it; don't thrash the body)")
+                        _dom3 = False
+                        _mom3 = False
+                        _ace3 = False
+                        self._force_gym_pick = False
+                except Exception:
+                    pass
                 # GO-HARD RETRY CAP (2026-07-31, the live Misty loop): beat_gym stuck 5+ ticks in a
                 # row on this leader means the interior genuinely has her beat — stop re-forcing the
                 # pick (which would override the structural park forever) and let the normal
@@ -14859,11 +14937,18 @@ class Campaign:
             # forever (motives flip every seam). Bill-before-Misty was a DETOUR; Flash is the road.
             _go_hard_now = False
             try:
-                _go_hard_now = bool(self._creator_order(state) or self._gym_dominant(state)
+                _co_gh = self._creator_order(state)
+                _co_gym = bool(_co_gh and _co_gh.get("order") not in ("catch_now", "get_flash"))
+                _go_hard_now = bool(_co_gym or self._gym_dominant(state)
                                     or self._ace_carries_next_gym(state)
                                     or getattr(self, "_force_gym_pick", False))
             except Exception:
                 _go_hard_now = False
+            # ROUTE-12 SNORLAX UNBLOCK (2026-08-02 LIVE): wake BEFORE any south march. Without
+            # this, head_to_gym / heal both no_path into the sleeping body forever.
+            _wake = self._try_wake_route12_snorlax(state)
+            if _wake is not None:
+                return _wake
             if QUESTLINE_ENABLED and self._active_questline is not None:
                 _ql_miss = getattr(self._active_questline.gate, "missing", None)
                 _ql_step = getattr(getattr(self._active_questline, "actionable", None),
@@ -16431,6 +16516,22 @@ class Campaign:
                     self._nav_watch = None
             except Exception as _nwx:
                 log(f"   [roam] wander-tripwire skipped: {_nwx}")
+            # ROUTE-12 SNORLAX: wake BEFORE force-gym / heal thrash (2026-08-02 LIVE).
+            try:
+                _ws = self._try_wake_route12_snorlax(state)
+                if _ws is not None:
+                    log(f"   [roam] !! FORCE SNORLAX WAKE (not gym/heal): {_ws}")
+                    self._force_gym_pick = False
+                    _forced_pick = None
+                    # Execute the wake as this tick's action result path — already ran inside
+                    # _try_wake_*; publish + continue like a completed pick.
+                    ledger.note_action("wake_snorlax", _ws)
+                    self._last_action_pick = "wake_snorlax"
+                    self._rationale = "Waking the Route 12 Snorlax with the Poké Flute — the road south is blocked until it moves."
+                    self._publish_health(macro, state, last_badge_ts, run_start_ts)
+                    continue
+            except Exception as _wsx:
+                log(f"   [roam] snorlax force-wake skipped: {_wsx}")
             # HARD FORCE GYM (2026-07-31): DOMINANT→GO / CREATOR→GO latched _force_gym_pick while
             # building the menu. If head_to_gym is still available, SKIP the oracle — she is not
             # asked. Heal-only menus (hurt, gym option absent) leave the latch for the next tick

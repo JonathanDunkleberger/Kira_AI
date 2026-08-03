@@ -94,14 +94,34 @@ class SnorlaxStrike:
                 L("!! snorlax: gate pass-through didn't land on the south road — abort")
                 return "failed"
 
-        # 2. find the Snorlax body (disasm (14,70), else nearest PRESENT template within 4)
+        # 2. find the Snorlax body. Classic disasm tile is (14,70) — but the LIVE present
+        # template can sit elsewhere (2026-08-02 chalk: she stood at (9,88) with the blocker
+        # at (9,89); a radius-4 search around (14,70) missed it → battled=False → head_to_gym
+        # no_path thrash forever). Prefer: classic tile → any PRESENT template within 2 of
+        # her feet (she's on its face) → nearest to classic within 12.
         cur = tuple(tv.coords(b))
         present = {t for t, _g, p in tv.read_object_templates(b) if p}
-        body = SNORLAX if SNORLAX in present else next(
-            (t for t in sorted(present, key=lambda t: abs(t[0] - SNORLAX[0]) + abs(t[1] - SNORLAX[1]))
-             if abs(t[0] - SNORLAX[0]) + abs(t[1] - SNORLAX[1]) <= 4), None)
+        body = None
+        if SNORLAX in present:
+            body = SNORLAX
+        else:
+            near_me = [t for t in present
+                       if abs(t[0] - cur[0]) + abs(t[1] - cur[1]) <= 2]
+            if near_me:
+                body = min(near_me,
+                           key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]))
+                L(f"   snorlax: classic {SNORLAX} absent — using adjacent present {body} "
+                  f"(she's on its face)")
+            else:
+                body = next(
+                    (t for t in sorted(
+                        present,
+                        key=lambda t: abs(t[0] - SNORLAX[0]) + abs(t[1] - SNORLAX[1]))
+                     if abs(t[0] - SNORLAX[0]) + abs(t[1] - SNORLAX[1]) <= 12),
+                    None)
         if body is None:
-            L(f"!! snorlax: no present template near {SNORLAX} — already woken? flag={self.woke()}")
+            L(f"!! snorlax: no present template near {SNORLAX} or her feet {cur} — "
+              f"already woken? flag={self.woke()} present={sorted(present)[:12]}")
             return "woke_snorlax" if self.woke() else "failed"
         L(f"   SNORLAX body at {body} (she is at {cur})")
 
