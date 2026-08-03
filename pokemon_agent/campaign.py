@@ -172,6 +172,18 @@ OVERWORLD_SAFE_QUESTLINES = frozenset({
     "FLAG_HIDE_SAFFRON_ROCKETS",      # Sabrina — the long Fuchsia->Saffron open-route march (Silph Co. building
     #                                   is a SEPARATE strike, live-guarded; mirrors the listed earth_badge march)
 })
+# DUNGEON STRIKE STEPS (2026-08-02): even when the OUTER gate is allowlisted (e.g. Lavender-south
+# FLAG_WOKE_UP_ROUTE_12_SNORLAX), the CURRENT actionable prereq can be a multi-floor combat dungeon
+# (silph_scope → Rocket Hideout Giovanni + L29 Kangaskhan). ROAD-BENCH-XP wraps the WHOLE head_to_gym
+# tick — weak lead persists into the strike → paper L16 Ekans walks into Giovanni and dies. If the
+# actionable step is one of these, keep the true ace leading (mirrors seafoam's ace-leads-gauntlet).
+DUNGEON_QUESTLINE_STEPS = frozenset({
+    "silph_scope",                    # Rocket Hideout under Celadon Game Corner
+    "FLAG_GOT_POKE_FLUTE",            # Pokémon Tower (ghost floors)
+    "FLAG_HIDE_SAFFRON_ROCKETS",      # Silph Co. liberation (Giovanni #2)
+    "secret_key",                     # Pokémon Mansion
+    "seafoam",                        # Seafoam interior (if ever re-armed)
+})
 # CAVE STEP-ENCOUNTER GRIND (2026-07-11, PASS 3 NS#16 — the endgame grind-spot-adequacy unblock). The
 # binding wall for a fresh-GO E4-ready team: near Viridian/Indigo the only adequate high-level GRASS is
 # Route 23 (split-map/Surf-gated), while Victory Road (L36-46, cave) sits ON THE PATH but grind() bailed
@@ -8809,6 +8821,11 @@ class Campaign:
             return True                                           # no questline -> caller's normal path
         key = getattr(getattr(q, "gate", None), "missing", None)
         if key not in OVERWORLD_SAFE_QUESTLINES:
+            return False
+        # Outer gate can be allowlisted (Snorlax) while the CURRENT step is a dungeon strike
+        # (silph_scope). Weak lead into Hideout Giovanni = Kangaskhan wipe (2026-08-02).
+        step = getattr(getattr(q, "actionable", None), "missing", None)
+        if step in DUNGEON_QUESTLINE_STEPS:
             return False
         return self._on_overworld_now()
 

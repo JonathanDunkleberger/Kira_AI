@@ -59,7 +59,42 @@ class HideoutStrike:
 
     # ── low-level helpers (ported verbatim from recon_hideout.py) ───────────────────────────────
     def fight(self):
-        return self.camp.battle_runner()
+        r = self.camp.battle_runner()
+        self._last_fight = r
+        return r
+
+    def _fight_was_loss(self):
+        """True if the most recent battle_runner result was a wipe (whiteout / loss)."""
+        return getattr(self, "_last_fight", None) in ("loss", "blackout", "whiteout")
+
+    def _party_can_boss(self):
+        """Ready for Hideout Giovanni (Onix 25 / Rhyhorn 24 / Kangaskhan 29)? Need the ace
+        conscious in slot 0 (or any high-level mon leading) plus at least one backup alive.
+        Fail-OPEN on read errors — never block a healthy party on a flake."""
+        b = self.b
+        try:
+            n = b.rd8(ram.GPLAYER_PARTY_CNT)
+            alive = 0
+            lead_hp = lead_max = lead_lv = 0
+            for s in range(min(n, 6)):
+                base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+                hp = b.rd16(base + 0x56)
+                mx = b.rd16(base + 0x58)
+                lv = b.rd8(base + 0x54)
+                if hp > 0:
+                    alive += 1
+                if s == 0:
+                    lead_hp, lead_max, lead_lv = hp, mx, lv
+            if alive < 2 or lead_hp <= 0:
+                return False
+            # Kangaskhan is L29 — a lead under ~28 with <50% HP is paper; ace at L40+ is fine even dinged.
+            if lead_lv < 28 and lead_max and (lead_hp / lead_max) < 0.50:
+                return False
+            if lead_lv < 22:
+                return False
+            return True
+        except Exception:
+            return True
 
     def key_items(self):
         return ht.pocket_items(self.b, ht.KEY_ITEMS_OFF, 30)
@@ -247,6 +282,20 @@ class HideoutStrike:
         for gx, gy in ((19, 14), (16, 14)):
             rg = self.engage((gx, gy + 1), "UP", f"door-grunt{gx}")
             L(f"   door grunt ({gx},{gy}) -> {rg}")
+            if rg == "battled" and self._fight_was_loss():
+                L("!! door grunt wiped the party — aborting before Giovanni (LOUD)")
+                return "failed"
+        # ACE + HEALTH before Giovanni (2026-08-02): door grunts chip the lead; ROAD-BENCH can
+        # still have left a paper mon in slot 0 for this whole tick. Kangaskhan (L29 Normal, bulky
+        # Mega Punch) deletes a L16 lead — restore the true ace and refuse a hollow party.
+        try:
+            camp._restore_ace()
+            L("   hideout: ace restored before Giovanni")
+        except Exception as e:
+            L(f"   hideout: pre-Giovanni _restore_ace skipped ({e})")
+        if not self._party_can_boss():
+            L("!! party too thin/hurt for Giovanni's Kangaskhan — abort to surface/heal (LOUD)")
+            return "failed"
         # GIOVANNI — retry the engage: the beaten door-grunt BODIES wall the direct path so the
         # first goto to (19,5) fails from (16,15), but a re-travel from her shifted position DOES
         # reach it (shift 7, run4-confirmed: reached (19,5) on the 2nd approach from (20,7)). The
@@ -258,6 +307,9 @@ class HideoutStrike:
             L(f"   giovanni engage[{gtry}] -> {r}")
             self.drain()
             if r == "battled":
+                if self._fight_was_loss():
+                    L("!! Giovanni wiped us (Kangaskhan) — abort; next tick heals + retries (LOUD)")
+                    return "failed"
                 break
         self.snap("60_post_giovanni")
 
@@ -506,21 +558,45 @@ def run_strike(camp, log, dbg_dir=None):
             return "got_scope" if hs.exit_to_celadon() == "out" else "in_hideout"
         return "not_here"                     # holding it and somewhere else — leave it to the loop
 
+    # ACE LEADS THE HIDEOUT (2026-08-02): ROAD-BENCH-XP can leave a paper L16 lead for the WHOLE
+    # head_to_gym tick (outer gate FLAG_WOKE_UP is allowlisted; actionable is silph_scope). Giovanni's
+    # L29 Kangaskhan deletes that lead. Restore the true ace BEFORE heal/descend — same belt as seafoam.
+    try:
+        camp._restore_ace()
+        log("   hideout strike: ace restored to lead (Kangaskhan gauntlet — no paper bench)")
+    except Exception as e:
+        log(f"   hideout strike: _restore_ace skipped ({e}) — proceeding as-is (LOUD)")
+
     # need the Scope: HEAL TO FULL first (HP + PP — a Center restores both), THEN descend. There is
     # NO Center below Giovanni's 3-mon boss fight, and the banked frontier can enter with a worn
     # lead (erika_done: Venusaur 76/135 = 56%). A worn lead + dungeon chip damage gets swept — the
     # loss the run4/5 STALL blamed on "underlevel" was really an un-healed L43 Venusaur (shift 7).
-    try:
-        lead_cur = b.rd16(ram.GPLAYER_PARTY + 0x56)
-        lead_max = b.rd16(ram.GPLAYER_PARTY + 0x58)
-        frac = (lead_cur / lead_max) if lead_max else 1.0
-    except Exception:
-        frac = 0.0
-    if here in (GC, CELADON) and frac < 0.95:
+    # ALWAYS Center when on Celadon/GC (not only frac<95%): PP famine after Erika/road also loses
+    # to Kangaskhan even at full HP.
+    if here in (GC, CELADON):
+        try:
+            lead_cur = b.rd16(ram.GPLAYER_PARTY + 0x56)
+            lead_max = b.rd16(ram.GPLAYER_PARTY + 0x58)
+            frac = (lead_cur / lead_max) if lead_max else 1.0
+        except Exception:
+            frac = 0.0
         hr = camp.heal_nearest()
-        log(f"   hideout strike: pre-dungeon heal (lead {frac:.0%}) -> {hr} "
+        log(f"   hideout strike: pre-dungeon heal (lead was {frac:.0%}) -> {hr} "
             f"(now {tv.map_id(b)}@{tv.coords(b)})")
         here = tuple(tv.map_id(b))
+        # Stock Super Potions for in-battle heals vs Kangaskhan attrition (no Center below).
+        # buy_at_celadon_dept exits back to the Celadon street.
+        try:
+            here = tuple(tv.map_id(b))
+            have = sum(camp.bag_count(i) for i in (13, 22, 21, 20, 19))
+            if have < 8 and here == CELADON and camp.money() >= 7000:
+                need = 8 - have
+                log(f"   hideout strike: stocking {need}x Super Potion for Giovanni "
+                    f"(have {have} heals) at Celadon Dept")
+                camp.buy_at_celadon_dept([(22, need)])
+                here = tuple(tv.map_id(b))
+        except Exception as e:
+            log(f"   hideout strike: potion stock skipped ({e}) — entering with bag as-is (LOUD)")
 
     # descend from Celadon / the Game Corner
     if here == CELADON:
