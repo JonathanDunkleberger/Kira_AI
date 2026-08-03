@@ -332,14 +332,28 @@ class TeachFlow:
             self.log("   [cure] !! START menu never opened — aborting (B out)")
             self._b_cascade(); return "failed"
         self._press("A", settle=80)                          # open the bag
-        # 2. Items pocket (0) — LEFT clamps at pocket 0, so doubled presses are idempotent.
-        for _ in range(4):
-            if self.b.rd8(BAG_POCKET) == 0:
-                break
+        # 2. Items pocket (0). POCKET LIVENESS PROBE first (the mid-fight Teachy-TV/Helix-
+        #    Fossil hover, 13:01): a frozen pocket byte reads 0 while the REAL pocket is Key
+        #    Items. A healthy byte must RESPOND to a press; a mute one -> BLIND LEFT x4
+        #    (the pocket strip clamps at Items).
+        _p0 = self.b.rd8(BAG_POCKET)
+        self._press("RIGHT", settle=20)
+        _live = self.b.rd8(BAG_POCKET) != _p0
+        if not _live:
             self._press("LEFT", settle=20)
-        if self.b.rd8(BAG_POCKET) != 0:
-            self.log("   [cure] !! couldn't reach the Items pocket — aborting")
-            self._b_cascade(); return "failed"
+            _live = self.b.rd8(BAG_POCKET) != _p0
+        if _live:
+            for _ in range(4):
+                if self.b.rd8(BAG_POCKET) == 0:
+                    break
+                self._press("LEFT", settle=20)
+            if self.b.rd8(BAG_POCKET) != 0:
+                self.log("   [cure] !! couldn't reach the Items pocket — aborting")
+                self._b_cascade(); return "failed"
+        else:
+            self.log("   [cure] pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4")
+            for _ in range(4):
+                self._press("LEFT", settle=20)
         # 3. BLIND row walk: UP x (row+8) clamps home to row 0 from any parked position (the
         #    bag list remembers its row across opens), then DOWN x row lands the true row.
         for _ in range(row + 8):

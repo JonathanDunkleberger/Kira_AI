@@ -1610,23 +1610,45 @@ class BattleAgent:
         if not self._open_bag():
             self.log("   [engine] use_item: bag wouldn't open (eaten RIGHT?) — keep fighting (LOUD)")
             self._exit_bag(); return "failed"
-        for _ in range(8):                                   # steer GBAG_POCKET to the Items pocket (0)
-            if self.b.rd8(ram.GBAG_POCKET) == 0:
-                break
+        # POCKET LIVENESS PROBE (2026-08-03 13:01 — 'hovering over Teachy TV and Helix Fossil
+        # mid fight'): Teachy TV/Helix Fossil live in the KEY ITEMS pocket. The pocket byte
+        # read 0 (Items) while the REAL pocket was Key Items — frozen-RAM disease — so zero
+        # LEFTs were pressed and the row walk selected key items. A healthy byte must RESPOND
+        # to a d-pad press before steering trusts it (the START-menu open-verify doctrine);
+        # a mute byte = frozen -> BLIND clamp: LEFT x4 (the pocket strip clamps at Items).
+        _p0 = self.b.rd8(ram.GBAG_POCKET)
+        self._tap("RIGHT"); self._wait(12)
+        _live = self.b.rd8(ram.GBAG_POCKET) != _p0
+        if not _live:
             self._tap("LEFT"); self._wait(12)
-        if self.b.rd8(ram.GBAG_POCKET) != 0:
-            self.log("   [engine] use_item: couldn't reach the Items pocket — keep fighting (LOUD)")
-            self._exit_bag(); return "failed"
+            _live = self.b.rd8(ram.GBAG_POCKET) != _p0
+        if _live:
+            for _ in range(8):                               # steer GBAG_POCKET to the Items pocket (0)
+                if self.b.rd8(ram.GBAG_POCKET) == 0:
+                    break
+                self._tap("LEFT"); self._wait(12)
+            if self.b.rd8(ram.GBAG_POCKET) != 0:
+                self.log("   [engine] use_item: couldn't reach the Items pocket — keep fighting (LOUD)")
+                self._exit_bag(); return "failed"
+        else:
+            self.log("   [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp "
+                     "LEFT x4 to the Items pocket")
+            for _ in range(4):
+                self._tap("LEFT"); self._wait(12)
         def _sel():
             # TRUE selection = cursor + scrollOffset (the mart-list law, recon_bagscroll-verified).
             # The raw cursor byte alone LIES after any scrolled visit — the list remembers both.
             return self.b.rd8(BAG_CURSOR) + self.b.rd16(BAG_SCROLL)
-        for _ in range(14):                                  # nav to the item's TRUE row (cursor+scroll)
-            if _sel() == row:
-                break
-            self._tap("DOWN" if _sel() < row else "UP"); self._wait(10)
-        self._wait(8)                                        # settle scroll animation, then re-verify
-        if _sel() != row:
+        if _live:
+            for _ in range(14):                              # nav to the item's TRUE row (cursor+scroll)
+                if _sel() == row:
+                    break
+                self._tap("DOWN" if _sel() < row else "UP"); self._wait(10)
+            self._wait(8)                                    # settle scroll animation, then re-verify
+        # Mute pocket byte = the whole bag RAM block is suspect: a frozen _sel() that happens
+        # to equal `row` would FALSE-PASS and select the wrong item — skip readback nav
+        # entirely and let the blind walk below own positioning.
+        if not _live or _sel() != row:
             # BLIND BAG WALK (2026-08-03 12:07: 'couldn't reach true row 4 (cursor=1 scroll=0)'
             # killed the one Ether attempt of the whole loop): the bag cursor/scroll bytes have
             # the same frozen-RAM disease as the battle cursors. The list CLAMPS at the top, so
