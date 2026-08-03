@@ -1111,10 +1111,13 @@ MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above t
 # exited the shop and the buy-mash re-entered and bought row 0). Every shop nav reads the SUM.
 # Shopping policy (named, tunable): top potions up to this; buy this many of each needed cure; keep this
 # much money in reserve (never drain the wallet). Quantities are sensible, not min-max hoarding.
-SHOP_POTION_TARGET = 6
+# 2026-08-03 creator doctrine ("make yourself broke so that she's stocked up"): a lost gym-road
+# battle with a near-empty bag proved 6 was a snack, not a kit. Money exists to be converted
+# into not-losing; the SHOP_MONEY_FLOOR still guards true bankruptcy.
+SHOP_POTION_TARGET = 12
 # Baseline potions EVERY gym gets before the door (2026-08-02 Erika chalk — she walked into
 # Celadon Gym empty-handed and blacked out). Stall gyms override with a deeper stock.
-GYM_POTION_TARGET = int(os.getenv("POKEMON_GYM_POTION_TARGET", "8"))
+GYM_POTION_TARGET = int(os.getenv("POKEMON_GYM_POTION_TARGET", "12"))
 # POTION-STALL gyms (night-shift 1): a leader that is an ATTRITION wall for a solo-carry — Koga's
 # 4-mon poison gauntlet (~390 HP) out-damages a lone L53 Venusaur that has NO healing items (shift-17:
 # 5+ straight losses without potions; WINS with them). A real player stocks Super Potions at the
@@ -1137,11 +1140,11 @@ SILPH_REVIVE_TARGET = 5
 # BATCH 6 PHASE 2 — FORESIGHT target: when she's up against a wall she can't beat yet, a real player
 # stocks up DEEPER before pushing on (she has $7-9k here). Bumps the buy-to target so "stock up before
 # I take that bridge" is a live, characterful option — not only a restock when she's already empty.
-SHOP_POTION_FORESIGHT = 10
-SHOP_CURE_QTY = 2
+SHOP_POTION_FORESIGHT = 16
+SHOP_CURE_QTY = 3
 # Pre-gym Bulbapedia kit (2026-08-02): how many of each KB `bring_cures` status cure to
 # carry into the fight (Parlyz Heal vs Surge, Antidote vs Koga). Tunable; not a hoard.
-GYM_CURE_TARGET = int(os.getenv("POKEMON_GYM_CURE_TARGET", "3"))
+GYM_CURE_TARGET = int(os.getenv("POKEMON_GYM_CURE_TARGET", "4"))
 ITEM_FULL_HEAL = 23
 # BATCH 6 PHASE 3 — Poké Ball FORESIGHT: a teammate is the answer to a wall (Phase 2), and you can't
 # catch one with an empty bag. When she's running a thin team and low on balls, "grab some Poké Balls"
@@ -11874,6 +11877,30 @@ class Campaign:
                              "wakes the Route 12 Snorlax) stays locked.",
                        detail={"confirm_item": 359, "gym": "Koga"})
 
+    def _fly_gate(self, state):
+        """POST-KOGA FLY FETCH (2026-08-03, chat's call: 'she needs to get Fly after beating
+        Koga'). Fly never BLOCKS a road, so no gate ever demanded it and she'd have walked the
+        whole endgame — but the back half (Saffron, Cinnabar loops, heal-and-return trips) is
+        transformed by fast travel, and Fly makes the retreat-to-heal doctrine nearly free.
+        Everything else is already wired: frlg_gates.json bills the Route 16 hidden house
+        (Cut prereq), 'fly' is in OVERWORLD_SAFE_QUESTLINES, gives_cap flows to the world
+        model, and travel prefers fly-to between visited towns the moment she owns it.
+        Returns a Gate once badges>=5 with HM02 unowned and Cut in hand, else None."""
+        try:
+            if (state.get("badge_count") or 0) < 5:
+                return None
+            if fm.read_flag(self.b, 568):           # FLAG_GOT_HM02 — already own Fly
+                return None
+            if not self.world.has_cap("cut"):
+                return None                          # can't reach the house yet
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="fly", where=tuple(CELADON),
+                       human="HM Fly — the girl in the hidden house on Route 16, just west of "
+                             "Celadon behind a cuttable tree. Fast travel between every town "
+                             "I've visited: the endgame shrinks to minutes.",
+                       detail={"flag": "FLAG_GOT_HM02"})
+
     def _head_to_league(self, state):
         """ENDGAME (NS#15): all 8 badges, not yet at Indigo — dispatch the Victory Road strike. It drives its
         OWN road (Viridian -> Route 22 [Gary] -> the gate -> Route 23 -> the VR boulder floors -> the Indigo
@@ -12441,6 +12468,15 @@ class Campaign:
                     log("   [roam] 🔭 PROACTIVE SILPH-SCOPE: no Scope yet — Rocket Hideout under "
                         "Celadon Game Corner FIRST (Lavender/Route 8 eastbound is a dead loop)")
                     return
+            # PROACTIVE FLY-FETCH (2026-08-03): badge 5 banked, HM02 unowned, Cut in hand —
+            # detour to the Route 16 hidden house before the Saffron push. Fly collapses the
+            # endgame's walking (and makes heal-retreats nearly free), so a real player grabs
+            # it the moment Koga falls.
+            fg = self._fly_gate(state)
+            if fg is not None and self._open_questline(fg, state):
+                log("   [roam] 🕊️ PROACTIVE FLY-FETCH: Koga is done and HM02 is a short Celadon "
+                    "detour away — grabbing Fly before the Saffron push")
+                return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
             # head_to_gym drives THAT and the action-set reframes around it.
@@ -16605,11 +16641,57 @@ class Campaign:
             # building the menu. If head_to_gym is still available, SKIP the oracle — she is not
             # asked. Heal-only menus (hurt, gym option absent) leave the latch for the next tick
             # so we never deadlock on a forced pick that isn't there.
-            if getattr(self, "_force_gym_pick", False) and "head_to_gym" in avail:
+            # HEAL OUTRANKS THE WAR DRUM (2026-08-03, the lost gym-road battle): the 11:40
+            # session surfaced "SURVIVAL HURT: Blastoise 52/153" AND knew about the paralysis,
+            # then ACE-CARRIES GO HARD force-marched her past the Center into the fight that
+            # ended the run. Doctrine: a hurt or statused ACE turns around and heals FIRST —
+            # the gym march resumes next tick at full strength. Only the true creator order
+            # ("Jonny said go") may still override, and it does so LOUD.
+            if getattr(self, "_force_gym_pick", False) and "heal" in avail:
+                try:
+                    _sev, _ = self._hurt_severity()
+                    _statused = bool(self.party_statuses())
+                    _ph = self.party_health() or []
+                    _lead_frac = next((f for sl, h, m, f in _ph if sl == 0), 1.0)
+                    if _sev == "critical" or _statused or _lead_frac < 0.6:
+                        if self._creator_order(state):
+                            log("   [roam] !! GO HARD stands despite hurt/status — CREATOR ORDER "
+                                "(LAW); marching anyway (LOUD)")
+                        else:
+                            _forced_pick = "heal"
+                            self._force_gym_pick = False   # re-derived next tick, at full HP
+                            log(f"   [roam] !! FORCE HEAL over GO HARD: sev={_sev} "
+                                f"statused={_statused} lead_frac={_lead_frac:.2f} — a real player "
+                                f"heals BEFORE the war, not during the obituary")
+                            self.on_event("no no — we heal FIRST, then we go start the war. "
+                                          "marching in hurt is how runs end.", kind="heal", tier=2)
+                except Exception as _fhx:
+                    log(f"   [roam] force-heal check skipped: {_fhx}")
+            if (_forced_pick is None and getattr(self, "_force_gym_pick", False)
+                    and "head_to_gym" in avail):
                 _forced_pick = "head_to_gym"
                 self._force_gym_pick = False
                 log("   [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED "
                     "(dominant / creator order; grass is OFF the menu)")
+            # FORCE STOCK-UP (2026-08-03, the crucial battle lost with an empty-ish bag):
+            # standing IN a mart town, wallet healthy, carrying almost no heals = shopping is
+            # not a personality question. A real player tops up before walking back into the
+            # meat grinder — "make yourself broke so you're stocked" (creator doctrine). The
+            # oracle keeps its vote whenever she has a working kit; below the survival floor
+            # the pick is made for her. Gym force still outranks (its pre-gym legs stock too).
+            if _forced_pick is None and "stock_up" in avail:
+                try:
+                    _pots = sum(self.bag_count(i) for i in (ITEM_POTION, 22, 21, 20, 19))
+                    if _pots < 4 and self.money() > SHOP_MONEY_FLOOR + 700:
+                        _forced_pick = "stock_up"
+                        log(f"   [roam] !! FORCE STOCK-UP: only {_pots} potion(s) in the bag at a "
+                            f"mart town with ${self.money()} — oracle SKIPPED (survival doctrine: "
+                            f"never leave a shop under-stocked)")
+                        self.on_event("hold on — my bag is basically empty and there's a Mart "
+                                      "RIGHT there. shopping spree first, war after.",
+                                      kind="shop", tier=2)
+                except Exception as _fsx:
+                    log(f"   [roam] force stock-up check skipped: {_fsx}")
             # ZERO-INPUT THINK GUARANTEE (void-core batch): the watch-rig pump runs frames while the
             # LLM decides — if any prior handler left a key held (an abort path that skipped its
             # release), she WALKS during the think (the intra-tick position-jump class the QW-4 log

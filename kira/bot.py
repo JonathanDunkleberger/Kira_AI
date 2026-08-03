@@ -888,6 +888,8 @@ class VTubeBot:
         self._chaos_mode_task = None  # asyncio.Task handle for the chaos timer
         self._speech_constraint_task = None  # asyncio.Task handle for the speech-constraint timer
         self._accent_mode_task = None  # asyncio.Task handle for the accent-mode timer
+        self._persona_mode_task = None  # asyncio.Task handle for wheel timed-persona timer
+        self._persona_end_line: str = ""  # spoken when the active persona window ends
 
         # Wheel state
         self._wheel_vetoed: bool = False          # set by dashboard veto action
@@ -908,7 +910,7 @@ class VTubeBot:
     # is now one slice among equals. Banner names the tipper.
     COOKIE_MILESTONE_ANNOUNCE = [
         "Chat. You filled the whole jar. {tipper} put the last one in. The Wheel has been summoned.",
-        "Jar full. {tipper} tipped it over. The Wheel of Fortune appears — let's see what you've all earned.",
+        "Jar full. {tipper} tipped it over. The Wheel of Time appears — let's see what you've all earned.",
         "{cap} cookies — milestone {n}. {tipper} sealed it. Spinning the wheel now.",
         "The jar overflows. {tipper} gets credit. The Wheel turns. Whatever it lands on, we're doing it.",
     ]
@@ -1015,7 +1017,7 @@ class VTubeBot:
             # Banner with tipper name
             try:
                 from kira.dashboard.control_server import push_banner_show
-                banner_text = f"🍪 JAR FULL — tipped by {tipper_disp} — THE WHEEL"
+                banner_text = f"🍪 JAR FULL — tipped by {tipper_disp} — THE WHEEL OF TIME"
                 asyncio.ensure_future(push_banner_show(banner_text, 10))
             except Exception:
                 pass
@@ -1130,6 +1132,31 @@ class VTubeBot:
         if slice_id == "accent_mode":
             if self.timed_modifiers.can_activate("accent"):
                 self._start_accent_vote()
+            return
+
+        # ── timed_persona: generic 5-minute persona takeover (Dragon Queen,
+        #    Villain Arc, ...). ONE branch for all of them: the slice carries its
+        #    own directive/duration/announce/end_line, and the registry enforces
+        #    one-at-a-time + cooldown under the shared name "persona". If the
+        #    registry is busy, degrade to a one-shot performance of the same
+        #    directive (the wheel never lands on a dead wedge). ──
+        if slice_type == "timed_persona":
+            label = slice_def.get("label", slice_id)
+            announce = slice_def.get("announce",
+                                     f"The Wheel of Time — {label}. For the next five minutes.")
+            try:
+                await self.ai_core.speak_text(announce, priority=1)
+                self.conversation_history.append({"role": "assistant", "content": announce})
+                self._log_session_turn(role="assistant", content=announce, speaker_name="Kira")
+            except Exception:
+                pass
+            if self.timed_modifiers.can_activate("persona"):
+                self._activate_persona_mode(slice_def)
+            else:
+                print(f"   [Wheel] persona registry busy — running '{label}' as a one-shot bit")
+            # Perform the opening beat NOW either way (the announced-then-silent bug):
+            # the registry keeps the persona alive for later turns; this is the entrance.
+            await self._perform_wheel_segment(directive, label=label, slice_id=slice_id)
             return
 
         # ── duchess_challenge: open chess gauntlet ───────────────────────
@@ -1456,6 +1483,66 @@ class VTubeBot:
             await _cs.send_chaos(active=active, remaining=int(remaining))
         except Exception as e:
             print(f"   [Chaos] Overlay broadcast failed: {e}")
+
+    # ── Timed Persona (Wheel of Time takeovers: Dragon Queen, Villain Arc…) ──
+    # Generic rider on the TimedModifierRegistry spine, mirroring chaos's
+    # activate/timer/deactivate shape. ONE registry name ("persona") covers every
+    # persona wedge — one-at-a-time and the shared cooldown come for free.
+    def _activate_persona_mode(self, slice_def: dict) -> None:
+        """Activate a wheel persona as a TimedModifier. The slice carries its own
+        directive/duration/cooldown/end_line — bot.py stays persona-agnostic."""
+        from kira.timed_modifier import TimedModifier
+        duration = int(slice_def.get("duration_s", 300))
+        cooldown = int(slice_def.get("cooldown_s", 900))
+        label    = slice_def.get("label", slice_def.get("id", "persona"))
+        self._persona_end_line = slice_def.get(
+            "end_line", f"...and the {label} window closes. Back to regular me.")
+        self.timed_modifiers.start(
+            TimedModifier("persona", slice_def.get("directive", ""), duration, cooldown)
+        )
+        print(f"   [Persona] 👑 {label} ACTIVE for {duration}s")
+        try:
+            self.stream_logger.log("persona_start", persona=slice_def.get("id"), duration=duration)
+        except Exception:
+            pass
+        try:
+            if self._persona_mode_task and not self._persona_mode_task.done():
+                self._persona_mode_task.cancel()
+        except Exception:
+            pass
+        self._persona_mode_task = asyncio.create_task(self._persona_mode_timer(duration))
+
+    async def _persona_mode_timer(self, duration: int) -> None:
+        """Sleep for the persona duration, then deactivate. Cancellable."""
+        try:
+            await asyncio.sleep(duration)
+            await self._deactivate_persona_mode()
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            print(f"   [Persona] Timer error: {e}")
+
+    async def _deactivate_persona_mode(self) -> None:
+        """End the persona window: clear state (arms cooldown), speak the end line."""
+        if not self.timed_modifiers.is_active("persona"):
+            return
+        self.timed_modifiers.end()
+        print("   [Persona] Persona window ended.")
+        try:
+            self.stream_logger.log("persona_end")
+        except Exception:
+            pass
+        try:
+            for _ in range(30):
+                if not self.ai_core.is_speaking:
+                    break
+                await asyncio.sleep(0.1)
+            line = self._persona_end_line or "The persona window closes. I'm me again — mostly."
+            await self.ai_core.speak_text(line, priority=1)
+            self.conversation_history.append({"role": "assistant", "content": line})
+            self._log_session_turn(role="assistant", content=line, speaker_name="Kira")
+        except Exception as e:
+            print(f"   [Persona] End TTS error: {e}")
 
     # ── Speech Constraint (timed mode #2) ────────────────────────────────
     # Second rider on the TimedModifierRegistry spine, mirroring chaos's

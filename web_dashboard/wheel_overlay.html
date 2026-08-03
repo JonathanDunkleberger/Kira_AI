@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  wheel_overlay.html — The Wheel of Fortune (cookie jar payoff ceremony)
+  wheel_overlay.html — The Wheel of Time (cookie jar payoff ceremony)
   OBS Browser Source: 1920 × 1080, transparent background.
   Connects to ws://localhost:8766/ws/overlays
   Events: wheel_spin · wheel_veto · overlay_vis
@@ -120,7 +120,7 @@ html, body {
 <div id="wheel-root">
   <div id="title-banner">
     <div class="t-main">The Wheel</div>
-    <div class="t-sub" id="title-sub">of Fortune</div>
+    <div class="t-sub" id="title-sub">of Time</div>
   </div>
   <canvas id="wheel-canvas"></canvas>
   <svg id="pointer" width="44" height="56" viewBox="0 0 44 56">
@@ -194,14 +194,16 @@ const BUILD = '2026-06-18 · wheel 8-slot v2';
 /* Wheel wedges — MUST stay id/label-synced with kira/memory/wheel_slices.py
    (the spin animation maps the landed slice_id to its wedge). 8-slot redesign. */
 const SLICES = [
-  { id: 'accent_mode',         label: 'Accent Mode',       tier: 'common',   color: '#e8d8c0', textColor: '#4a2e30' },
-  { id: 'speech_constraint',   label: 'Speech Constraint', tier: 'common',   color: '#f5e6d0', textColor: '#4a2e30' },
-  { id: 'targeted_roast',      label: 'Targeted Roast',    tier: 'common',   color: '#f0d8d0', textColor: '#4a2e30' },
-  { id: 'hype_man',            label: 'Hype-Man',          tier: 'uncommon', color: '#d8f0e0', textColor: '#105030' },
-  { id: 'chat_writes_her_line',label: 'Chat Writes My Line',tier: 'uncommon',color: '#d8e0f0', textColor: '#2030a0' },
-  { id: 'truth_or_dare',       label: 'Truth or Dare',     tier: 'uncommon', color: '#e8d0f0', textColor: '#501080' },
-  { id: 'lore_drop',           label: 'Lore Drop',         tier: 'rare',     color: '#f0e0a0', textColor: '#604000' },
   { id: 'chaos_mode',          label: 'CHAOS MODE',        tier: 'common',   color: '#f0c8b8', textColor: '#8b2010' },
+  { id: 'accent_mode',         label: 'Accent Mode',       tier: 'common',   color: '#e8d8c0', textColor: '#4a2e30' },
+  { id: 'dragon_queen',        label: 'The Dragon Queen',  tier: 'uncommon', color: '#2a1a3a', textColor: '#e8c060' },
+  { id: 'villain_arc',         label: 'Villain Arc',       tier: 'uncommon', color: '#3a1520', textColor: '#f08090' },
+  { id: 'targeted_roast',      label: 'Targeted Roast',    tier: 'common',   color: '#f0d8d0', textColor: '#4a2e30' },
+  { id: 'prophecy',            label: 'The Prophecy',      tier: 'uncommon', color: '#d8e0f0', textColor: '#2030a0' },
+  { id: 'kiras_court',         label: "Kira's Court",      tier: 'common',   color: '#e8d0f0', textColor: '#501080' },
+  { id: 'conspiracy_corner',   label: 'Conspiracy Corner', tier: 'common',   color: '#d8f0e0', textColor: '#105030' },
+  { id: 'confession_booth',    label: 'Confession Booth',  tier: 'uncommon', color: '#f5e6d0', textColor: '#7a3a10' },
+  { id: 'lore_drop',           label: 'Lore Drop',         tier: 'rare',     color: '#f0e0a0', textColor: '#604000' },
 ];
 
 const TIER_RING = { common: '#c8a880', uncommon: '#9090d0', rare: '#d0a020' };

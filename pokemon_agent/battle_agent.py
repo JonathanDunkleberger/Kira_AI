@@ -1939,6 +1939,18 @@ class BattleAgent:
             self.log("   [engine] ITEM-INSTINCT FORCED -> use_ether (refusal-proven famine; "
                      "oracle bypassed — she cannot attack at all)")
             self.emit("okay, no more juice in my moves — Ether time, no debate.", beat=True, tier=1)
+        # FORCED POTION (2026-08-03 12:42 — the crucial gym-road battle lost with potions in
+        # the bag): a potion offer only exists when the active mon is genuinely hurt AND not
+        # fodder next to the carry (ace-first economy already filtered that). If it's ALSO at
+        # the hard crit floor, one more hit ends the fight — that heal is physics, not a
+        # persona choice. The oracle keeps its vote in the 30-50% early-heal comfort zone;
+        # below the floor the potion just happens.
+        elif "use_potion" in plan and frac <= BATTLE_CRIT_FRAC:
+            pick = "use_potion"
+            self.log(f"   [engine] ITEM-INSTINCT FORCED -> use_potion (active at {int(frac*100)}% "
+                     f"<= crit floor {int(BATTLE_CRIT_FRAC*100)}% — a faint loses the fight; "
+                     f"oracle bypassed)")
+            self.emit("nope, I'm about to drop — potion FIRST, pride later.", beat=True, tier=1)
         else:
             pick = self.choose("battle_item", offers, ctx)
         if pick and pick in plan:
