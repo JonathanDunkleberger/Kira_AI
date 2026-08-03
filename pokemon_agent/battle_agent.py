@@ -1218,25 +1218,51 @@ class BattleAgent:
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
         return self._at_action_menu()
 
+    def _poke_action_cursor(self, want):
+        """Write GBATTLE_ACTION_CURSOR and verify. On this libmgba core, d-pad from FIGHT can
+        CONFIRM Fight (open the move list) instead of moving the cursor — that was the
+        'alive Blastoise can't leave / switch loop' theater (2026-08-03 Jonny: Voltorb docks).
+        Returns True iff the byte reads back as `want` while still on the action menu."""
+        if not self._at_action_menu():
+            return False
+        try:
+            self.b.core.memory.u8.raw_write(ram.GBATTLE_ACTION_CURSOR, int(want) & 0xFF)
+        except Exception as e:
+            self.log(f"   [engine] action-cursor write failed: {e}")
+            return False
+        self._wait(2)
+        return self._at_action_menu() and self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == want
+
     def _goto_bag(self, tries=10):
-        """Walk the action cursor to BAG (top-right, ACT_BAG=1) by READBACK, not a blind RIGHT — the
-        live look-ahead proved a blind _tap('RIGHT') gets EATEN on this long core, so A landed on FIGHT
-        and the bag never opened ('eaten RIGHT'), and she could never heal through a fight. Mirror of
-        _goto_pokemon: grid FIGHT(0,TL) BAG(1,TR) / POKEMON(2,BL) RUN(3,BR). Confirms ACT_BAG before A."""
+        """Park the action cursor on BAG (ACT_BAG=1). Prefer RAM write; d-pad is fallback only
+        and must B-out immediately if it opens the move list (Fight confirm)."""
         for _ in range(tries):
+            if self._at_move_list():
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(12)
+                continue
+            if not self._at_action_menu():
+                return False
             c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
             if c == ram.ACT_BAG:
                 return True
+            if self._poke_action_cursor(ram.ACT_BAG):
+                return True
+            # Fallback d-pad once — if it confirmed FIGHT, B back next iter.
             if c == ram.ACT_FIGHT:
                 self._tap("RIGHT")
             elif c == ram.ACT_RUN:
                 self._tap("UP")
             elif c == ram.ACT_POKEMON:
-                self._tap("UP")                           # -> FIGHT, then RIGHT next iter -> BAG
+                self._tap("UP")
             else:
-                return False                              # not the action menu
+                return False
             self._wait(3)
-        return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_BAG
+            if self._at_move_list():
+                self.log("   [engine] _goto_bag: d-pad confirmed FIGHT — B out, retry write")
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(12)
+        return self._at_action_menu() and self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_BAG
 
     def _goto_fight(self, tries=10):
         """Walk the action cursor to FIGHT (top-left, ACT_FIGHT=0) by readback. Mirror of _goto_bag;
@@ -2504,11 +2530,20 @@ class BattleAgent:
 
     # ── B-1: TYPE-MATCHUP AWARENESS + VOLUNTARY SWITCH (the E4-critical verb) ────
     def _goto_pokemon(self, tries=10):
-        """Walk the action cursor to POKEMON (bottom-left, ACT_POKEMON=2). Mirror of _goto_run; grid is
-        FIGHT(0,TL) BAG(1,TR) / POKEMON(2,BL) RUN(3,BR). Returns True only when confirmed on POKEMON."""
+        """Park the action cursor on POKEMON (ACT_POKEMON=2). Prefer RAM write over d-pad —
+        DOWN from FIGHT on this core can confirm Fight and open the move list, which looks
+        exactly like 'she's trying to switch but keeps checking attacks' (stream-end docks)."""
         for _ in range(tries):
+            if self._at_move_list():
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(12)
+                continue
+            if not self._at_action_menu():
+                return False
             c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
             if c == ram.ACT_POKEMON:
+                return True
+            if self._poke_action_cursor(ram.ACT_POKEMON):
                 return True
             if c == ram.ACT_FIGHT:
                 self._tap("DOWN")
@@ -2517,9 +2552,13 @@ class BattleAgent:
             elif c == ram.ACT_RUN:
                 self._tap("LEFT")
             else:
-                return False                              # not the action menu
+                return False
             self._wait(3)
-        return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_POKEMON
+            if self._at_move_list():
+                self.log("   [engine] _goto_pokemon: d-pad confirmed FIGHT — B out, retry write")
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(12)
+        return self._at_action_menu() and self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_POKEMON
 
     @staticmethod
     def _matchup_def(my_types, enemy_types):
@@ -2701,6 +2740,8 @@ class BattleAgent:
         SPECIES flips to the TARGET (the ground-truth success signal)."""
         want_sp = st.read_party_species(self.b, slot)             # identity survives the reorder
         if not want_sp or want_sp == before_sp:
+            self.log(f"   [engine] switch: refused — want_sp={want_sp} is already active "
+                     f"(before={before_sp}); never 'switch Blastoise for Blastoise'")
             return False
         if not self._settle_action_menu():
             self.log("   [engine] switch: couldn't reach a clean action menu")
@@ -2718,11 +2759,14 @@ class BattleAgent:
             self.log("   [engine] switch: party screen never took focus -> B out (fail-safe)")
             self._exit_bag()
             return False
+        # NEVER row 0 — after rearrange that panel IS the mon already out. Picking it is the
+        # 'switch him out for himself' loop Jonny described (alive but can't fight).
         row = next((r["row"] for r in self._menu_rows()
-                    if r["species"] == want_sp and r["hp"] > 0), None)
+                    if r["species"] == want_sp and r["hp"] > 0 and r["row"] != 0), None)
         self.log(f"   [engine] switch: target party slot {slot} sp={want_sp} -> menu row {row}")
-        if row is None or row == 0 or not self._party_goto_slot(row):
-            self.log("   [engine] switch: target row unreachable -> B out (fail-safe)")
+        if row is None or not self._party_goto_slot(row):
+            self.log("   [engine] switch: target row unreachable (or only on active panel) "
+                     "-> B out (fail-safe)")
             for _ in range(4):
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
                 self._wait(12)
@@ -2881,6 +2925,46 @@ class BattleAgent:
         mv = (state.get("ours") or {}).get("moves") or []
         return not any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
                        and self._move_connects(m, state) for m in mv)
+
+    def _must_leave_active(self, state):
+        """Alive but shouldn't stay in — the 'Blastoise half-HP, can't move, bench has 3 live'
+        case (2026-08-03). Sleep/freeze lock the turn; PP famine can't win; skip-streak exhausted
+        every usable move. Distinct from force-switch (fainted): the active still has HP>0 so the
+        engine used to refuse to leave and loop menus."""
+        ours = state.get("ours") or {}
+        if (ours.get("hp") or 0) <= 0:
+            return False
+        status = _decode_status(ours.get("status1", 0) or 0)
+        if status in ("sleep", "freeze"):
+            return True
+        if self._active_pp_famine(state):
+            return True
+        mv = ours.get("moves") or []
+        usable = [i for i in range(min(4, len(mv)))
+                  if mv[i].get("id") and mv[i].get("pp", 0) > 0]
+        if usable and usable and all(i in self._skip_streak for i in usable):
+            return True
+        return False
+
+    def _alive_bench_slot(self, state):
+        """Strongest HP>0 party member that is NOT the active species. Never returns the mon
+        already out — that was the 'switch him for himself' failure mode."""
+        active_sp = (state.get("ours") or {}).get("species")
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        best, best_lv = None, -1
+        for s in range(min(cnt, 6)):
+            if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                continue
+            try:
+                sp = st.read_party_species(self.b, s)
+            except Exception:
+                continue
+            if not sp or sp == active_sp:
+                continue
+            lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
+            if lv > best_lv:
+                best, best_lv = s, lv
+        return best
 
     def _move_connects(self, m, state):
         """Can this move DAMAGE the current foe at all? (_eff = type chart + the ability layer;
@@ -3062,6 +3146,7 @@ class BattleAgent:
         self._cure_blocked = False         # same class: Awakening spam after already awake (stream end)
         self._last_battle_progress_t = time.time()  # MENU WEDGE: stall clock, NOT battle-start clock
         self._menu_wedge_fired = False
+        self._must_leave_tried = {}        # species -> tries: alive-but-stuck voluntary switch
         self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
         self._whiff_recovering = None      # ace species we switched OUT to reset accuracy (switch back next)
         self._whiff_recoveries = 0         # bounded accuracy-resets this battle (never a switch-loop)
@@ -3389,6 +3474,34 @@ class BattleAgent:
                     self._acted_once = True
                     stall = 0
                     continue
+                # ALIVE-BUT-STUCK SWITCH (2026-08-03 Jonny: Blastoise vs Voltorb — half HP, can't
+                # move / sleep-freeze / move theater, 3 live on bench, kept "switching" into himself).
+                # Force a voluntary leave to a DIFFERENT living species; never row-0 / same species.
+                if (state and not (self._enemy_fainted or self._we_fainted)
+                        and self._must_leave_active(state)):
+                    _asp = state.get("ours", {}).get("species")
+                    if self._must_leave_tried.get(_asp, 0) < FAMINE_SWITCH_TRIES:
+                        if self._bag_screen():
+                            self._close_bag_screen()
+                            continue
+                        self._must_leave_tried[_asp] = self._must_leave_tried.get(_asp, 0) + 1
+                        _bs = self._alive_bench_slot(state)
+                        if _bs is not None:
+                            self.log(f"   [engine] MUST-LEAVE: active alive but stuck "
+                                     f"(status/famine/exhausted) -> bench slot {_bs} "
+                                     f"(NOT re-picking species {_asp})")
+                            if self._switch_to_slot(_bs, _asp) == "switched":
+                                self.emit("this one's stuck — switching to someone who can still fight.",
+                                          beat=True, tier=2)
+                                self._skip_streak.clear()
+                                self._acted_once = True
+                                stall = 0
+                                self._unresolved_turns = 0
+                                self._note_battle_progress("must-leave switch")
+                                continue
+                            self.log("   [engine] must-leave switch did not confirm -> fight/Struggle")
+                        else:
+                            self.log("   [engine] MUST-LEAVE but no other live bench — Struggle/fight")
                 # PP-FAMINE SWITCH (2026-07-07, erika_run2 postmortem — the gym-gauntlet PP wall): the
                 # active mon can be ALIVE but WINLESS — every damaging move at 0 PP after a long gauntlet,
                 # leaving only status moves that can never KO (Fearow Growl/Leer'd a 60/60 Gloom until the
