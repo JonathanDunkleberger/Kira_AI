@@ -1,0 +1,628 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 31) coords=(63, 0) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 1 blocked tile(s), 4 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=15460).
+
+   [soul] continuity loaded: 12 roster bond(s), 580 want(s)
+
+   [campaign]    [strat] continuity loaded: 10 remembered wall(s); active grudge vs a trainer at Pokémon Tower (1x)
+
+   [campaign]    [world] mental map loaded: 122 place(s) known, 219 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot0 28/153 (18%) — likely to blackout soon
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 31) coords=(63, 0) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260803_074817_route-13_4b_22h56m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (4, 6, 12, 137) @ Route 13 (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 13 (63, 0) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L49, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 31) (63,0) f1 -- badge4 $32642 party:6696 bag:3a0e]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [soul] surface_want FIRE -> Route 13
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 13 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L49), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 31), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow'], 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L49), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [soul] ORACLE pick -> "reach Fuchsia City and take Koga's badge"
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Blastoise is at 28/153 HP. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [roam] !!!! READINESS → GO vs trainer:Pokémon Tower:drowzee: prep bar crossed — surfacing the 'go back and take the wall' pull (the grind now has an exit)
+
+   [campaign]    [strat] roster size = 6
+
+   [campaign]    [teamplan] next action: catch_keeper (pikachu -> raichu answers Lorelei, Lance, Champion) — folding a forward-plan beat
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 13 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: NORTH → Route 12 — wild Pokémon to catch/train; WEST → an unexplored area — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 11; an unfamiliar area; Route 10. You can walk to anywhere you\'ve already been. Field moves ready: CUT. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. Your team is badly hurt — Blastoise is at 28/153 HP. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.. THIS IS THE MOMENT — you\'re ready now: you\'re up to L49 (from L47 when they beat you). You strengthened up exactly so you could take a trainer (drowzee lead, a full team) at Pokémon Tower — so stop circling the grass and GO. Head back and take that wall; this time you\'ve got what you didn\'t before. (Still your call — but the prep is done, the move now is to go finish it.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 5 of 8 — next is Koga in Fuchsia City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Fuchsia City. Never just circle the same grass. Word on the road about Koga: a literal ninja — POISON and confusion tricks; bring antidotes and patience YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Four badges: Brock, Misty, Lt. Surge, and Erika in Celadon (Rainbow). You\'ve been through the early Kanto road — next is Koga in Fuchsia for the Soul Badge.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a stude"; "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a stude"; "I didn\'t bring my best POK.MON. Wait until next time!"; "We only use GRASS-type POK.MON at our GYM. Why? We also use them for making flower arrangements!". YOUR PLAN — right now: You\'re ready — stop grinding and head to Fuchsia City for the Soul Badge. Next: Your ace already clears Koga\'s level bar — march to Fuchsia City; train the bench on the road (not parked grass). Bigger picture: Reach Fuchsia City, beat Koga for the Soul Badge. Your team right now: blastoise (L49), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L49), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['heal']   [kira-voice] -> T2·savor· (want) "reach Fuchsia City and take Koga's badge"  fired=True  [age 0.0s + post 4ms]
+
+
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick=None
+
+   [campaign]    [soul] ORACLE pick -> None
+
+   [campaign]    [roam] DECISION THINK: 2412ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK: (oracle returned nothing — no bot / unparsable) -> idle this tick
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 13 (63, 0) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L49, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 31) (63,0) f1 -- badge4 $32642 party:6696 bag:3a0e]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Blastoise is at 28/153 HP. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !!!! READINESS → GO vs trainer:Pokémon Tower:drowzee: prep bar crossed — surfacing the 'go back and take the wall' pull (the grind now has an exit)
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 13 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: NORTH → Route 12 — wild Pokémon to catch/train; WEST → an unexplored area — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 11; an unfamiliar area; Route 10. You can walk to anywhere you\'ve already been. Field moves ready: CUT. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. Your team is badly hurt — Blastoise is at 28/153 HP. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.. THIS IS THE MOMENT — you\'re ready now: you\'re up to L49 (from L47 when they beat you). You strengthened up exactly so you could take a trainer (drowzee lead, a full team) at Pokémon Tower — so stop circling the grass and GO. Head back and take that wall; this time you\'ve got what you didn\'t before. (Still your call — but the prep is done, the move now is to go finish it.). HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 5 of 8 — next is Koga in Fuchsia City. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Fuchsia City. Never just circle the same grass. Word on the road about Koga: a literal ninja — POISON and confusion tricks; bring antidotes and patience YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Four badges: Brock, Misty, Lt. Surge, and Erika in Celadon (Rainbow). You\'ve been through the early Kanto road — next is Koga in Fuchsia for the Soul Badge.. Next on my list: catch an pikachu around Viridian Forest (rare) / Power Plant later. It grows into my raichu — that\'s my answer for Lorelei AND Lance down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a stude"; "Hello.. Lovely weather, isn\'t it? It\'s so pleasant.. ..Oh, dear.. I must have dozed off. Welcome. My name is ERIKA. I am the LEADER of CELADON GYM. I am a stude"; "I didn\'t bring my best POK.MON. Wait until next time!"; "We only use GRASS-type POK.MON at our GYM. Why? We also use them for making flower arrangements!". YOUR PLAN — right now: You\'re ready — stop grinding and head to Fuchsia City for the Soul Badge. Next: Your ace already clears Koga\'s level bar — march to Fuchsia City; train the bench on the road (not parked grass). Bigger picture: Reach Fuchsia City, beat Koga for the Soul Badge. Your team right now: blastoise (L49), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).", 'party': 'blastoise (L49), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Fuchsia City for the Soul Badge", 'medium': "Your ace already clears Koga's level bar — march to Fuchsia City; train the bench on the road (not parked grass)", 'long': 'Reach Fuchsia City, beat Koga for the Soul Badge'}} options=['heal']
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 2040ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to Fuchsia City for Koga.
+
+   [campaign]    HEAL: no local Center mapped for (3, 31) — world-graph routing to Lavender Town's Center (multi-hop, fleeing wilds)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 31) coords=(63, 0) -> map (3, 30) (budget 300s)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 62, 63, 72]
+
+   [travel] MAP TRANSITION (3, 31) -> (3, 30)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [travel] north connection band cols: [11, 12, 24]
+
+   [travel] ARRIVED at target map (3, 30) coords=(15, 119)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    !! HEAL: graph hop (3, 30)->(3, 4) (north) band UNREACHABLE from feet (split map) — abandoning the graph route (LOUD)
+
+   [campaign]    !! HEAL: no graph route to any known Center from (3, 31) — FALLBACK to a cross-region Viridian heal (FIX: add (3, 31)'s PC door to CITY_PC_DOORS)
+
+   [campaign]    HEAL-RETURN: lead at (28, 153) - routing south to Viridian to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(15, 119) -> map (3, 1) (budget 300s)
+
+   [travel] south connection band cols: [14, 15, 24]
+
+   [travel] MAP TRANSITION (3, 30) -> (3, 31)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
+
+   [travel] path blocked at (63, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (63, 0) AND no NPC-allowing path (npcs nearby=[(63, 5)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (63, 0) map=(3, 31) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    HEAL-RETURN leg 0: no south edge on map (3, 30) - warping south
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    no door/warp tiles (0x6x) found on this map
+
+   [campaign]    !! HEAL-RETURN stuck on map (3, 30) (no south edge, no south warp)
+
+   [campaign]    [roam] !! HEAL stuck ((3, 31)@(63, 0) -> (3, 31)@(63, 0)) — marked heal-dead (critical-heal freeze breaker armed; she'll push to the next Center)
+
+   [campaign]    [roam] RESULT: heal -> stuck | pos (3, 31)(63, 0) -> (3, 31)(63, 0) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(3, 31) coords=(63, 0) badges=4 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] survival-critical BUT heal proven-dead on this map — NOT freezing on only-'heal'; offering the forward push to the next town's Center instead
+
+   [campaign]    [roam] ACE-CARRIES: prep-to-L52 stands down — ace clears the next gym's level bar; MARCH (bench XP on the road), not parked Route grass
+
+   [kira-voice] ·floor· (<1s since last) T1 "bench is thin, but my ace already clears the next gym's level — we're marching; they'll catch XP on the road."
+
+   [campaign]    [strat] WALL RETIRED: trainer:Pokémon Tower:drowzee (1x losses) — readiness crossed + region advanced past it; a fresh loss re-records
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Koga); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 13 (63, 0) | badges=4 (Boulder, Cascade, Thunder, Rainbow) | party=[blastoise L49, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 4 badge(s) earned (Boulder, Cascade, Thunder, Rainbow). Next gym: Koga of Fuchsia City. Pokédex: 12 caught. She's four badges — halfway to the League now (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 31) (63,0) f1 -- badge4 $32642 party:6696 bag:3a0e]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Blastoise is at 28/153 HP. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Fuchsia City: You're ready — stop grinding and head to Fuchsia City for the Soul Badge.
+
+   [campaign]    [roam] ROAD to Fuchsia City: on Route 13 — billed leg west toward Route 14
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Fuchsia City runs west from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 31) coords=(63, 0) -> map (3, 32) (budget 300s)
+
+   [travel] west connection band rows: [5, 7, 9, 11, 13]
+
+   [travel] step 0: (63, 0)->(63, 1) map=(3, 31) (path 81 to exit)
+
+   [travel] path blocked at (63, 4) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'I found CARBOS in a cave once while I was spelunking.'  tags=['PLACE']
+
+   [kira-voice] ·system-box· (not narrated) 'I found CARBOS in a cave once while I was spelunking.'
+
+   [travel] no clean path from (63, 4); NPC-allowing path EXISTS (len 77), blocker NPC tile=(63, 5), npcs nearby=[(54, 11), (63, 5), (63, 12)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [strat] !! gEnemyParty UNCONFIRMED (slot0=118 != active foe 129) — party-SIZE reads DISABLED (loss-learning still works on the verified active-foe read)
+
+   [play-live] battle context: trainer=True foe=magikarp rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. and we're going in HURT — this could get scary."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against goldeen — your blastoise is up front'  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out goldeen'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ORACLE kind=battle_item options=['use_potion', 'keep_fighting'] -> pick='use_potion'
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) "used an item — that's better"
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 50 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 50 point.s.. ."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 14ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 50 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 50 point.s.. ."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 35 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 35 point.s.. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [kira-voice] -> T2·savor· (event) 'menus are glitched — bailing this fight.'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 14ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 18ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 17ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 12ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 15ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 6ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 17ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 8ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 15ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'SUPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "SUPER POTION is selected."'  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 26ms]
+
