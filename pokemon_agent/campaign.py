@@ -152,6 +152,8 @@ OVERWORLD_SAFE_QUESTLINES = frozenset({
     "FLAG_WOKE_UP_ROUTE_12_SNORLAX",  # Route 12 bridge (Poke Flute used on the overworld bridge)
     "fly",                            # Route 16 house
     "FLAG_GOT_TEA",                   # Celadon (town)
+    "eevee",                          # Celadon (town) — the Condominiums gift ball (interior is a strike)
+    "exp_share",                      # Fuchsia -> Route 15 west gate (open road; the gatehouse is a strike)
     "bike", "FLAG_GOT_BIKE_VOUCHER",  # Cerulean / Vermilion (towns)
     # RUN-5 (2026-07-14) — the badge-6..8 back-half keys. fresh_go_1..4 all froze the bench ~L25-29 while
     # the ace soloed to L63+ across these questline-dense legs, because their gate.missing keys were NOT
@@ -300,10 +302,13 @@ KEEPER_CAVE_FLOOR_WANDER_S = int(os.getenv("POKEMON_KEEPER_CAVE_FLOOR_WANDER_S",
 # party<6, so a full team of early-catch chaff (erika_done: Venusaur + Rattata/Spearow/Ekans/Meowth/Pidgey)
 # can NEVER swap in a planned coverage keeper (abra/diglett). box_chaff deposits the lowest-value off-plan
 # chaff at the current city's Center PC -> party 6->5 -> the router's room-gate opens -> the keeper is added.
-# DEFAULT OFF: the PC deposit menu is menu-nav-on-the-long-core (wedge-prone); arm with POKEMON_PCBOX=1 after
-# a live grab-and-look confirms the actuation on the show build. Decision/selection logic + a headless deposit
-# are verified in recon_deposit_check.py. Never boxes an on-plan line (planner._is_target_line) or the lead.
-PCBOX_ENABLED = os.getenv("POKEMON_PCBOX", "0") != "0"
+# DEFAULT ON (2026-08-03, the OP-team pass — Jonny: "sacrifice the weak ones for her strongest ones"): her
+# party is SIX low-20s chaff around a L49 ace, and every planned upgrade (fetch_keeper room-gate, the boxed
+# gift Eevee, an auto-boxed legendary) is DEAD without the swap loop — the box IS the bench-for-keeper play.
+# Decision/selection + headless deposit verified in recon_deposit_check.py; gates stay conservative (mapped-
+# Center city only, never hurt, on-plan keeper genuinely fetchable). Disarm with POKEMON_PCBOX=0 if the live
+# PC menu wedges on the show build. Never boxes an on-plan line (planner._is_target_line) or the lead.
+PCBOX_ENABLED = os.getenv("POKEMON_PCBOX", "1") != "0"
 # NS#11: the SAFARI ZONE STRIKE (HM03 Surf + HM04 Strength via safari_strike.run_strike) + the PROACTIVE
 # Blaine Surf-prereq recognition. DEFAULT OFF — recognition + strike are useless/harmful apart and the
 # whole chain needs a live look-ahead before default-ON (a mis-timed Surf questline poisons her ctx). When
@@ -330,6 +335,19 @@ SEAFOAM_STRIKE_ENABLED = os.getenv("POKEMON_SEAFOAM_STRIKE", "1") != "0"
 # POKEMON_MANSION_STRIKE=0. NB the Cinnabar gym LEADER (quiz-door gym) doesn't fire via general beat_gym =
 # the next gate (recon_blaine.py extract, same pattern).
 MANSION_STRIKE_ENABLED = os.getenv("POKEMON_MANSION_STRIKE", "1") != "0"
+# 2026-08-03 (the OP-team pass — "cute Pokémon like Eevee"): the CELADON GIFT-EEVEE strike
+# (eevee_fetch.run_strike — back door -> stairwell -> roof room -> the givemon ball -> back out). The
+# gentlest interior in the game (no puzzles, no locked doors), built on the Mansion strike's proven
+# primitives + pret ground truth. Party-full is handled by the GAME (the script auto-PCs the gift);
+# the PCBOX swap_keeper loop fields it later. Recognized PROACTIVELY at badge>=4 while FLAG_GOT_EEVEE
+# (0x263) is unset. Disable with POKEMON_EEVEE_FETCH=0.
+EEVEE_FETCH_ENABLED = os.getenv("POKEMON_EEVEE_FETCH", "1") != "0"
+# 2026-08-03 (OP-team pass): the EXP. SHARE claim (expshare_fetch.run_strike — the Route 15 west
+# gate 2F aide, ITEM 182 at >=50 CAUGHT species, FLAG 0x256). The bench-development engine: the
+# holder banks XP from every fight without taking the field. The gate (_expshare_gate) only opens
+# at dex>=50; below the bar the strategist brief runs the DEX PUSH doctrine (catch every NEW
+# species crossed, never wander for it). Disable with POKEMON_EXPSHARE_FETCH=0.
+EXPSHARE_FETCH_ENABLED = os.getenv("POKEMON_EXPSHARE_FETCH", "1") != "0"
 # NS#13: the CINNABAR GYM strike (Blaine, badge 7). Cinnabar is FRLG's SIX quiz-door gym — the general
 # beat_gym clears juniors but never opens the quiz doors, so the leader battle never fires (the bounce the
 # mansion look-ahead surfaced). blaine_gym.run_gym does the FULL tour (quiz chain -> Blaine -> badge ->
@@ -874,6 +892,21 @@ CELADON_DEPT_STAIRS_1F = (4, 2)       # 1F → 2F
 CELADON_DEPT_STAIRS_2F = (3, 2)       # 2F → 1F
 CELADON_DEPT_2F = (10, 1)
 CELADON_DEPT_ITEMS_FRONT = (3, 8)     # customer side of counter; items clerk at (1,8)
+# 2026-08-03 (OP-team pass, the Jolteon rite): the 4F "Wiseman Gifts" stone counter. Ground truth
+# pret CeladonCity_DepartmentStore_3F/4F map JSONs: 2F stairs-up (9,2) -> 3F (10,2); 3F stairs-up
+# (3,2) -> 4F (10,3); clerk at (3,13) behind the counter -> customer stands (5,13) facing LEFT
+# (same one-tile-counter shape as the 2F items clerk). Stock order (scripts.inc, row = list index):
+# 0 Poke Doll, 1 Retro Mail, 2 Fire Stone, 3 THUNDER STONE, 4 Water Stone, 5 Leaf Stone.
+CELADON_DEPT_3F = (10, 2)
+CELADON_DEPT_4F = (10, 3)
+CELADON_DEPT_STAIRS_2F_UP = (9, 2)    # 2F → 3F
+CELADON_DEPT_STAIRS_3F_UP = (3, 2)    # 3F → 4F
+CELADON_DEPT_STAIRS_4F_DOWN = (3, 2)  # 4F → 3F
+CELADON_DEPT_STAIRS_3F_DOWN = (9, 2)  # 3F → 2F
+CELADON_DEPT_STONE_FRONT = (5, 13)    # customer side; stones clerk at (3,13)
+ITEM_THUNDER_STONE = 96
+DEPT4F_ROW_THUNDER_STONE = 3
+SPECIES_EEVEE_N, SPECIES_JOLTEON_N = 133, 135
 LAVENDER = (3, 4)                 # the graph gateway to Route 7/8/Celadon, reached only across Rock Tunnel (Flash-gated)
 # Fuchsia (badge 5, Koga) — door/NPC coords from the disasm (FuchsiaCity/FuchsiaCity_Gym
 # map.json, 2026-07-07); the CITY MAP ID is the city-block extrapolation (Pallet 3,0 ..
@@ -4588,6 +4621,199 @@ class Campaign:
         self._exit_to_overworld()
         log(f"   DEPT: shopping done — {bought} (money now {self.money()})")
         return bought
+
+    def buy_thunder_stone(self):
+        """Celadon Dept 4F stone counter — buy ONE Thunder Stone (2100) for the Jolteon rite
+        (2026-08-03 OP-team pass). Same proven rails as buy_at_celadon_dept, two floors higher:
+        door -> 1F -> 2F -> 3F -> 4F, stand (5,13) facing the clerk, BUY row 3, bag-delta verify,
+        stairs back down, out. Returns the number bought (0 = failed LOUD, never silent)."""
+        here = tuple(tv.map_id(self.b))
+        if here != CELADON_DEPT_4F:
+            if here == tuple(CELADON):
+                try:
+                    self._stuck_request = None
+                    if self._stuckwatch is not None:
+                        self._stuckwatch.reset()
+                except Exception:
+                    pass
+                if self.enter_warp(pick=CELADON_DEPT_DOOR) != "warped":
+                    log("   !! STONE: couldn't enter Dept Store 1F"); return 0
+                for _ in range(60):
+                    self.b.run_frame()
+                if self.enter_warp(pick=CELADON_DEPT_STAIRS_1F) != "warped":
+                    log("   !! STONE: couldn't take stairs to 2F"); self._exit_to_overworld(); return 0
+                for _ in range(60):
+                    self.b.run_frame()
+            if tuple(tv.map_id(self.b)) == CELADON_DEPT_2F:
+                if self.enter_warp(pick=CELADON_DEPT_STAIRS_2F_UP) != "warped":
+                    log("   !! STONE: couldn't take stairs to 3F"); self._exit_to_overworld(); return 0
+                for _ in range(60):
+                    self.b.run_frame()
+            if tuple(tv.map_id(self.b)) == CELADON_DEPT_3F:
+                if self.enter_warp(pick=CELADON_DEPT_STAIRS_3F_UP) != "warped":
+                    log("   !! STONE: couldn't take stairs to 4F"); self._exit_to_overworld(); return 0
+                for _ in range(60):
+                    self.b.run_frame()
+            if tuple(tv.map_id(self.b)) != CELADON_DEPT_4F:
+                log(f"   !! STONE: expected 4F {CELADON_DEPT_4F}, got {tv.map_id(self.b)} — abort LOUD")
+                self._exit_to_overworld(); return 0
+        if (self.trav.travel(target_map=None, arrive_coord=CELADON_DEPT_STONE_FRONT,
+                             max_steps=80, max_seconds=60) != "arrived"
+                and not self._step_to(CELADON_DEPT_STONE_FRONT)):
+            log(f"   !! STONE: couldn't reach the stone clerk front {CELADON_DEPT_STONE_FRONT}")
+            self._exit_to_overworld(); return 0
+        self.b.set_input_owner("agent")
+        guard = self.money()
+        opened = False
+        for _ in range(8):
+            self.b.press("LEFT", 8, 8, self.render, owner="agent")
+            self.b.press("A", 8, 10, self.render, owner="agent")
+            for _ in range(40):
+                self.b.run_frame()
+                if dd_box_open(self.b):
+                    opened = True
+                    break
+            if opened:
+                break
+        if not opened:
+            log("   !! STONE: the 4F clerk never opened a dialog — abort LOUD")
+            self._exit_to_overworld(); return 0
+        stable = 0
+        for _ in range(30):
+            if dd_box_open(self.b):
+                stable = 0
+                self.b.press("A", 8, 12, self.render, owner="agent")
+                for _ in range(20):
+                    self.b.run_frame()
+            else:
+                stable += 1
+                if stable >= 2:
+                    break
+                for _ in range(20):
+                    self.b.run_frame()
+        c0 = self._mart_index()
+        self.b.press("DOWN", 8, 10, self.render, owner="agent")
+        for _ in range(20):
+            self.b.run_frame()
+        if self._mart_index() == c0:
+            self.b.press("A", 8, 10, self.render, owner="agent")  # BUY on BUY/SELL
+            for _ in range(120):
+                self.b.run_frame()
+            c0 = self._mart_index()
+            self.b.press("DOWN", 8, 10, self.render, owner="agent")
+            for _ in range(20):
+                self.b.run_frame()
+            if self._mart_index() == c0:
+                log("   !! STONE: BUY list didn't confirm — abort LOUD")
+                self._exit_to_overworld(); return 0
+        if self.money() < guard:
+            log(f"   !! STONE: money dropped during entry ({guard}->{self.money()}) — abort LOUD")
+            self._exit_to_overworld(); return 0
+        bought = 0
+        before = self._item_count(ITEM_THUNDER_STONE)
+        if self._mart_goto_row(DEPT4F_ROW_THUNDER_STONE):
+            price = self._mart_buy_one()
+            if price > 0 and self._item_count(ITEM_THUNDER_STONE) == before + 1:
+                bought = 1
+                log(f"   STONE: bought a Thunder Stone (paid ~{price}; money now {self.money()})")
+            else:
+                log(f"   !! STONE: buy-verify FAILED (price={price}, "
+                    f"x{before}->x{self._item_count(ITEM_THUNDER_STONE)}) — abort LOUD")
+        else:
+            log(f"   !! STONE: couldn't reach BUY row {DEPT4F_ROW_THUNDER_STONE} — abort LOUD")
+        for _ in range(8):
+            self.b.press("B", 6, 12, self.render, owner="agent")
+            for _ in range(14):
+                self.b.run_frame()
+        # Exit 4F → 3F → 2F → 1F → Celadon.
+        for pick in (CELADON_DEPT_STAIRS_4F_DOWN, CELADON_DEPT_STAIRS_3F_DOWN, CELADON_DEPT_STAIRS_2F):
+            if self.enter_warp(pick=pick) == "warped":
+                for _ in range(40):
+                    self.b.run_frame()
+        self._exit_to_overworld()
+        return bought
+
+    def _jolteon_tick(self):
+        """THE JOLTEON RITE (2026-08-03 OP-team pass — 'cute Pokémon like Eevee... I want her OP').
+        Closes the loop the eevee_fetch strike opens: Eevee in the PARTY + a Thunder Stone in the
+        bag -> stone_evolve NOW (a big on-stream moment); Eevee claimed (flag 0x263) but stone-less
+        -> buy one at the Dept 4F next time she stands in Celadon. Failures latch a backoff so a
+        wedged menu flow can never loop the run. Best-effort + LOUD; one cheap RAM scan per tick."""
+        if not EEVEE_FETCH_ENABLED or time.time() < getattr(self, "_jolteon_backoff", 0):
+            return
+        try:
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            species = [st.read_party_species(self.b, s) for s in range(min(cnt, 6))]
+            if SPECIES_JOLTEON_N in species:
+                return                                       # rite complete
+            slot = species.index(SPECIES_EEVEE_N) if SPECIES_EEVEE_N in species else None
+            stones = self._item_count(ITEM_THUNDER_STONE)
+            if slot is not None and stones > 0:
+                log(f"   [roam] ⚡ JOLTEON RITE: Eevee (slot {slot}) + a Thunder Stone in the bag "
+                    f"— evolving NOW")
+                self.on_event("okay okay okay — Thunder Stone, meet Eevee. chat, WITNESS this.",
+                              kind="evolve", tier=3)
+                import hm_teach as _ht
+                r = _ht.TeachFlow(self, log=log, on_event=self.on_event).stone_evolve(
+                    ITEM_THUNDER_STONE, slot, SPECIES_JOLTEON_N)
+                if r == "evolved":
+                    self.on_event("JOLTEON!! fastest thing this team has ever fielded — Lorelei "
+                                  "and Lance just inherited a PROBLEM.", kind="evolve", tier=3)
+                else:
+                    self._jolteon_backoff = time.time() + 600
+                    log(f"   [roam] jolteon rite -> {r} — backing off 10 min (LOUD)")
+                return
+            # BUY leg: claimed Eevee (party OR box — the flag is the truth), no stone, standing in
+            # Celadon with a healthy wallet, and no boxed Jolteon (box names are best-effort).
+            _boxed = getattr(self.team_planner, "_owned_box_names", None) or set()
+            if (stones == 0 and "jolteon" not in _boxed
+                    and tuple(tv.map_id(self.b)) == tuple(CELADON)
+                    and fm.read_flag(self.b, 0x263)
+                    and self.money() > SHOP_MONEY_FLOOR + 2100):
+                log("   [roam] ⚡ THUNDER-STONE ERRAND: Eevee claimed, no stone in the bag, and "
+                    "the Dept Store is RIGHT THERE — buying one (4F)")
+                self.on_event("Dept Store run — there's a Thunder Stone on the fourth floor with "
+                              "my Eevee's name on it.", kind="shop", tier=2)
+                if self.buy_thunder_stone() <= 0:
+                    self._jolteon_backoff = time.time() + 900
+        except Exception as e:
+            log(f"   [roam] jolteon tick skipped: {e}")
+
+    def _expshare_equip_tick(self):
+        """EXP. SHARE EQUIP (2026-08-03, the Route-15 aide claim's second half): an Exp. Share
+        sitting in the BAG banks nothing — it has to RIDE on a mon. The moment the item is in the
+        Items pocket, hand it to the LOWEST-level healthy non-lead party member (the exact mon the
+        bench-development doctrine wants growing; never the ace — the ace earns its XP on the
+        field). One give per run: once the bag count reads 0 the item lives on a mon (or was never
+        claimed) and this never fires again. Failure latches a backoff so a wedged bag flow can't
+        loop the run (the menu-disease doctrine). Cheap: one bag scan per tick."""
+        if not EXPSHARE_FETCH_ENABLED or time.time() < getattr(self, "_expshare_backoff", 0):
+            return
+        try:
+            if self.bag_count(182) <= 0:                     # ITEM_EXP_SHARE — not in the bag
+                return
+            ph = self.party_health() or []
+            cands = []                                       # (level, slot) — healthy, non-lead
+            for slot, hp, _mx, _f in ph:
+                if slot == 0 or hp <= 0:
+                    continue
+                lvl = self.b.rd8(ram.GPLAYER_PARTY + slot * st.PARTY_MON_SIZE + 0x54)
+                cands.append((lvl, slot))
+            if not cands:
+                return                                       # solo/fainted bench — retry later
+            lvl, slot = min(cands)
+            nm = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), f"slot{slot}").title()
+            log(f"   [roam] 📈 EXP-SHARE EQUIP: giving the Exp. Share to {nm} (L{lvl}, slot {slot}) "
+                f"— the bench's lowest healthy member")
+            self.on_event(f"Exp. Share goes to {nm} — grow, little one. every fight feeds you now.",
+                          kind="item", tier=2)
+            import hm_teach as _ht
+            r = _ht.TeachFlow(self, log=log, on_event=self.on_event).give_item(182, slot)
+            if r != "given":
+                self._expshare_backoff = time.time() + 600
+                log(f"   [roam] exp-share equip -> {r} — backing off 10 min (LOUD)")
+        except Exception as e:
+            log(f"   [roam] exp-share equip tick skipped: {e}")
 
     def stock_hyper_potions(self, hyper_target=SILPH_HYPER_TARGET, revive_target=SILPH_REVIVE_TARGET):
         """Pre-Silph SILPH KIT stock-up (night-shift 4). Gary's Silph gauntlet ends on a Charizard
@@ -11693,6 +11919,14 @@ class Campaign:
                 from giovanni_gym import GIOVANNI_ANCHORS, run_gym
                 return run_gym, GIOVANNI_ANCHORS, ("badge",), "giovanni_probe"
 
+            def _eevee():
+                from eevee_fetch import EEVEE_ANCHORS, run_strike
+                return run_strike, EEVEE_ANCHORS, ("got_eevee",), "eevee_probe"
+
+            def _expshare():
+                from expshare_fetch import EXPSHARE_ANCHORS, run_strike
+                return run_strike, EXPSHARE_ANCHORS, ("got_expshare",), "expshare_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
@@ -11741,6 +11975,24 @@ class Campaign:
                     "the Viridian Gym (Giovanni — Earth Badge, badge 8)",
                     "Giovanni's down and the Earth Badge is mine — that's all eight. Victory Road and the "
                     "Elite Four are all that's left now.", _giovanni),
+                # 2026-08-03 (OP-team pass): the Celadon gift-Eevee step derives success
+                # ('flag','FLAG_GOT_EEVEE') (0x263, set by the givemon script in every branch).
+                # Door-less flag step keyed to Celadon (from '3,6') -> fires via FIRE-FIRST while
+                # she's in town; the strike climbs the Condominiums back stairwell to the roof-room
+                # ball. Flag-gated (EEVEE_FETCH_ENABLED).
+                ("flag", "FLAG_GOT_EEVEE"): (
+                    "the Celadon Condominiums roof room (the gift Eevee)",
+                    "an EEVEE! straight off the roof of the Condominiums — one of a kind, and a "
+                    "Thunder Stone turns it into Jolteon. the team just got cuter AND scarier.", _eevee),
+                # 2026-08-03 (OP-team pass): the Route-15 Exp. Share claim derives success
+                # ('flag','FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE') (0x256, set only on a real
+                # hand-over). Door-less flag step keyed to Route 15 (from '3,33') -> fires via
+                # FIRE-FIRST on the road; the strike climbs the west gate's two floors to the
+                # aide. Flag-gated (EXPSHARE_FETCH_ENABLED); the 50-caught bar lives in the gate.
+                ("flag", "FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE"): (
+                    "the Route 15 west gate 2F (Oak's aide — the Exp. Share)",
+                    "the EXP. SHARE is mine — fifty caught and the aide pays out. the whole bench "
+                    "levels off every fight from here to the League.", _expshare),
             }
             if succ not in registry:
                 return None
@@ -11752,6 +12004,10 @@ class Campaign:
                 return None                     # mansion strike flag-gated OFF -> fall through
             if succ == ("flag", "FLAG_BADGE08_GET") and not GIOVANNI_GYM_ENABLED:
                 return None                     # giovanni gym strike flag-gated OFF -> fall through
+            if succ == ("flag", "FLAG_GOT_EEVEE") and not EEVEE_FETCH_ENABLED:
+                return None                     # eevee fetch flag-gated OFF -> fall through
+            if succ == ("flag", "FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE") and not EXPSHARE_FETCH_ENABLED:
+                return None                     # exp-share fetch flag-gated OFF -> fall through
             label, done_msg, importer = registry[succ]
             run_fn, anchors, good, dbg_sub = importer()
             if here not in anchors:
@@ -11948,6 +12204,57 @@ class Campaign:
                              "Celadon behind a cuttable tree. Fast travel between every town "
                              "I've visited: the endgame shrinks to minutes.",
                        detail={"flag": "FLAG_GOT_HM02"})
+
+    def _eevee_gate(self, state):
+        """CELADON GIFT-EEVEE (2026-08-03, the OP-team pass — 'seeking out an OP as fuck team with
+        cute Pokémon like Eevee'). A guaranteed L25 Eevee sits in a Poké Ball in the Condominiums
+        roof room, in a city she cleared at badge 4 — the team plan's electric slot (-> Jolteon via
+        Thunder Stone) with zero RNG. Nothing story-blocks on it, so no recognizer would ever demand
+        it; this proactive gate opens the errand once Celadon is hers. Party-full is a NON-issue:
+        the FRLG script auto-transfers the gift to the PC (swap_keeper fields it later). Returns a
+        Gate while badges>=4 and FLAG_GOT_EEVEE (0x263) is unset, else None."""
+        if not EEVEE_FETCH_ENABLED:
+            return None
+        try:
+            if (state.get("badge_count") or 0) < 4:
+                return None
+            if fm.read_flag(self.b, 0x263):          # FLAG_GOT_EEVEE — already claimed
+                return None
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="eevee", where=tuple(CELADON),
+                       human="the gift Eevee — a Poké Ball on a table in the Celadon Condominiums "
+                             "roof room (in through the back door, up the stairwell). One of a "
+                             "kind, and a Thunder Stone from the Dept. Store makes it Jolteon: "
+                             "the electric answer my plan wants for Lorelei and Lance.",
+                       detail={"flag": "FLAG_GOT_EEVEE"})
+
+    def _expshare_gate(self, state):
+        """ROUTE-15 EXP. SHARE (2026-08-03, 'she needs exp share with 50 species caught'). Oak's
+        aide upstairs in the Route 15 west gate pays out ITEM_EXP_SHARE (182) at >=50 CAUGHT
+        species — the bench-development engine (the holder banks XP from every fight it never
+        takes the field for), exactly what the E4's no-Center gauntlet demands. Nothing
+        story-blocks on it, so it must open proactively, same as Fly/Eevee — but ONLY once the
+        dex bar is actually met: below 50 the errand would be a wasted march (the aide refuses),
+        so the strategist brief carries the DEX PUSH doctrine instead and this returns None.
+        Returns a Gate while badges>=5, dex>=50 and FLAG 0x256 is unset, else None."""
+        if not EXPSHARE_FETCH_ENABLED:
+            return None
+        try:
+            if (state.get("badge_count") or 0) < 5:      # Fuchsia (badge 5) puts Route 15 next door
+                return None
+            if fm.read_flag(self.b, 0x256):              # FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE
+                return None
+            if (self.pokedex_count() or 0) < 50:         # the aide's bar — no early wasted march
+                return None
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="exp_share", where=(3, 33),
+                       human="the Exp. Share — fifty species caught means Oak's aide upstairs in "
+                             "the Route 15 west gate (right by Fuchsia) pays out. Whoever holds "
+                             "it levels off every fight without taking a hit: my whole bench "
+                             "grows on the road from here to the League.",
+                       detail={"flag": "FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE"})
 
     def _head_to_league(self, state):
         """ENDGAME (NS#15): all 8 badges, not yet at Indigo — dispatch the Victory Road strike. It drives its
@@ -12524,6 +12831,25 @@ class Campaign:
             if fg is not None and self._open_questline(fg, state):
                 log("   [roam] 🕊️ PROACTIVE FLY-FETCH: Koga is done and HM02 is a short Celadon "
                     "detour away — grabbing Fly before the Saffron push")
+                return
+            # PROACTIVE EEVEE-FETCH (2026-08-03, the OP-team pass): badge 4+ and the Condominiums
+            # roof-room gift ball unclaimed — a GUARANTEED Eevee (the team plan's electric slot via
+            # Thunder Stone) in a city she already owns. No story gate ever demands it, so it must
+            # be opened proactively, same as Fly. Fires AFTER the scope/fly blocks: war errands and
+            # endgame mobility outrank a (spectacular) luxury detour.
+            eg = self._eevee_gate(state)
+            if eg is not None and self._open_questline(eg, state):
+                log("   [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is "
+                    "unclaimed — climbing the back stairwell for the roof-room ball")
+                return
+            # PROACTIVE EXP-SHARE (2026-08-03): the dex just crossed 50 caught and the Route 15
+            # aide's Exp. Share is unclaimed — the single biggest bench-development item in the
+            # game, a two-floor gatehouse detour from Fuchsia. Gate self-suppresses below the
+            # 50-caught bar (the DEX PUSH strategist doctrine builds toward it instead).
+            xg = self._expshare_gate(state)
+            if xg is not None and self._open_questline(xg, state):
+                log("   [roam] 📈 PROACTIVE EXP-SHARE: 50+ caught and the Route 15 aide is "
+                    "holding my Exp. Share — climbing the west-gate stairs to collect")
                 return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
@@ -16193,6 +16519,19 @@ class Campaign:
             # the bag, USE it right here on the overworld (poison eats HP every few steps).
             if newly:
                 self._field_cure_tick()
+            # THE JOLTEON RITE (2026-08-03 OP-team pass): Eevee + Thunder Stone -> evolve on the
+            # spot; Eevee claimed but stone-less while standing in Celadon -> Dept 4F buys one.
+            # Cheap RAM scan, self-backing-off — see _jolteon_tick.
+            try:
+                self._jolteon_tick()
+            except Exception as _jt:
+                log(f"   [roam] jolteon tick skipped: {_jt}")
+            # EXP-SHARE EQUIP (2026-08-03): a claimed Exp. Share must RIDE on a mon to bank
+            # anything — hand it to the lowest healthy bench member the tick it's in the bag.
+            try:
+                self._expshare_equip_tick()
+            except Exception as _xe:
+                log(f"   [roam] exp-share equip skipped: {_xe}")
             # GATE-UNLOCK (PROACTIVE forward drive — ROOT FIX for the backward-grind): recognise the gate
             # on the FORWARD road to the next gym and OPEN/refresh the unlock questline BEFORE the action
             # set is built, so the errand is a dominant forward pull THIS tick instead of only firing
@@ -16756,10 +17095,19 @@ class Campaign:
             if _forced_pick is not None:
                 pick = _forced_pick
             else:
+                # THE STRATEGIST (2026-08-03): compute the prioritized directive block from live RAM
+                # and hand it to the oracle as its OWN ctx key — the bot renders it as a labeled
+                # "strategist brief" section (distinct from the narrative `place` folds), and the
+                # decide prompt now instructs her to FOLLOW it (champion doctrine, not taste/mood).
+                try:
+                    _strat = self._strategy_brief(state)
+                except Exception as _stx:
+                    _strat = ""
+                    log(f"   [strategist] brief skipped: {_stx}")
                 _t_choose = _t.time()
                 pick = self._soul_choose("action", avail,
                                          {"place": where, "progress": state["progress"], "party": _brief,
-                                          "goal": _goals})
+                                          "goal": _goals, "strategy": _strat})
                 _choose_ms = (_t.time() - _t_choose) * 1000
                 if _choose_ms > 500:
                     # F-7 pump-awareness: with play_live's frame_pump wired the world stays LIVE
@@ -17542,6 +17890,112 @@ class Campaign:
         except Exception as e:
             log(f"   [hud] playthrough timer skipped: {e}")
             return None
+
+    def _strategy_brief(self, state):
+        """THE STRATEGIST (2026-08-03, 'high level programmatic prompted strategy'): a PRIORITIZED,
+        machine-computed directive block folded into every action-oracle prompt as its own labeled
+        section — expert counsel from live RAM, not vibes. This is the missing UPSTREAM half of the
+        strategy work: the reflexes (force-heal / force-stock / futility breaker) fire when things are
+        already bad; this makes her PICKS strategic BEFORE the reflexes are ever needed, and it's what
+        turns 'taste/mood' choices into champion play (the bot-side prompt reframe consumes it).
+
+        Priority order (top outranks all below — the prompt says so explicitly):
+          1) SURVIVAL   — hurt/statused core -> heal/cure first, with names and numbers.
+          2) SUPPLIES   — thin bag + healthy wallet -> stock up; money is ammo.
+          3) WAR PREP   — next gym: leader/types/level band, HER best answer mon, underlevel warning.
+          4) TEAM BUILD — the planner's single highest-leverage roster move (catch/evolve/teach/grind).
+          5) STANDING ORDERS — roll credits; forward > wandering; type-first fighting.
+
+        Every line is derived (present only when its condition is REAL this tick) and bounded, so the
+        block never bloats. Best-effort throughout: a read fault degrades to fewer lines, never raises."""
+        lines = []
+        # ── 1) SURVIVAL ────────────────────────────────────────────────────────────────────────────
+        try:
+            sev, note = self._hurt_severity()
+            stats = self.party_statuses()
+            ph = self.party_health() or []
+            lead_frac = next((f for sl, h, m, f in ph if sl == 0), 1.0)
+            fainted = sum(1 for _, h, _, _ in ph if h == 0)
+            st_s = f" and status trouble ({', '.join(sorted(stats))})" if stats else ""
+            if sev == "critical" or lead_frac < 0.5:
+                lines.append(f"SURVIVAL FIRST (outranks everything): {note or 'the fighting core is in the red'}"
+                             f"{st_s} — heal/cure BEFORE any fight or march. Blackouts end runs; Centers are free.")
+            elif sev == "hurt" or stats or fainted:
+                bits = []
+                if note:
+                    bits.append(note)
+                if stats:
+                    bits.append(f"status: {', '.join(sorted(stats))} — cure from the bag NOW if carried")
+                if fainted:
+                    bits.append(f"{fainted} fainted on the bench")
+                lines.append("PATCH UP: " + "; ".join(bits) +
+                             ". Heal at the next Center you pass — never chain fights while damaged.")
+        except Exception as _e:
+            log(f"   [strategist] survival read skipped: {_e}")
+        # ── 2) SUPPLIES (item ids: potions 13/22/21/20/19, cures 14/18/23/17/15/16, revive 24,
+        #      balls 1-4 — same families the force-stock floor and shopping list use) ───────────────
+        try:
+            pots = sum(self.bag_count(i) for i in (13, 22, 21, 20, 19))
+            cures = sum(self.bag_count(i) for i in (14, 18, 23, 17, 15, 16))
+            revs = self.bag_count(24)
+            money = self.money()
+            if (pots < 5 or cures < 2) and money > SHOP_MONEY_FLOOR:
+                lines.append(f"QUARTERMASTER: the bag is thin — {pots} potion(s), {cures} status cure(s), "
+                             f"{revs} revive(s), ${money} in pocket. Money is ammo: next Mart, stock potions "
+                             f"toward ~12, cures for what's been hurting the team, a couple of Revives. "
+                             f"Never walk into a gym or a long route under-stocked.")
+        except Exception as _e:
+            log(f"   [strategist] supplies read skipped: {_e}")
+        # ── 3) WAR PREP — the next gym matchup, HER answers, the level bar ─────────────────────────
+        try:
+            ng = state.get("next_gym") or {}
+            rec = (getattr(self.planner, "threats", {}) or {}).get(ng.get("leader")) if ng else None
+            party = state.get("party") or []
+            if rec:
+                types = "/".join(rec.get("types") or []) or "?"
+                band = rec.get("level_band") or [0, 0]
+                weak = set(rec.get("weak_to") or [])
+                from pokemon_planner import _types_of as _pt
+                answers = [m.get("species") for m in party if weak & set(_pt(m))]
+                top = max((m.get("level", 0) for m in party), default=0)
+                war = (f"WAR PREP: next is {ng.get('leader')} ({types}, ~L{band[0]}-{band[-1]}). ")
+                war += (f"Your answer on the team: {answers[0]} — lead with it and keep it healthy. "
+                        if answers else
+                        f"No clean type answer on the team — {rec.get('counter', 'play careful and stocked')}. ")
+                if top < band[0] - 2:
+                    war += f"You're under the bar (top L{top} vs ~L{band[0]}): grind the road there first."
+                lines.append(war.strip())
+            elif state.get("badge_count", 0) >= 8 and not state.get("post_game"):
+                lines.append("WAR PREP: the Elite Four is five fights with NO Center between them — full "
+                             "restores, revives, ethers, and a levelled WHOLE team, or don't walk in.")
+        except Exception as _e:
+            log(f"   [strategist] war-prep read skipped: {_e}")
+        # ── 4) TEAM BUILD — the planner's one highest-leverage roster move ─────────────────────────
+        try:
+            act = self.team_planner.assess(state.get("party") or [], state.get("badge_count", 0),
+                                           post_game=state.get("post_game", False))
+            if act and act.get("kind") not in (None, "on_track"):
+                lines.append(f"TEAM BUILD: {act.get('why', act.get('kind'))}.")
+        except Exception as _e:
+            log(f"   [strategist] team-build read skipped: {_e}")
+        # ── 4b) DEX PUSH — the Exp. Share bar (Route 15 aide, 50 CAUGHT). Opportunistic doctrine:
+        #      catch every NEW species crossed, never wander for it. Silent once claimed/met. ────
+        try:
+            if (EXPSHARE_FETCH_ENABLED and (state.get("badge_count") or 0) >= 5
+                    and not fm.read_flag(self.b, 0x256)):
+                _owned = self.pokedex_count() or 0
+                if _owned < 50:
+                    lines.append(f"DEX PUSH: {_owned}/50 species caught — at 50 the Route 15 aide "
+                                 f"(by Fuchsia) hands over the EXP. SHARE (the whole bench levels "
+                                 f"off every fight). Catch every NEW species you cross; never "
+                                 f"wander just to hunt.")
+        except Exception as _e:
+            log(f"   [strategist] dex-push read skipped: {_e}")
+        # ── 5) STANDING ORDERS — the doctrine floor, always present ────────────────────────────────
+        lines.append("STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal "
+                     "beats fighting hurt; type advantage decides fights; build the planned team, not "
+                     "just the ace.")
+        return "\n".join(f"{i}) {ln}" for i, ln in enumerate(lines, 1))
 
     def _party_brief(self, state):
         """Her team, by NAME — '<nickname> the <species> (Lxx)' when she's named one (soul.bonds), else

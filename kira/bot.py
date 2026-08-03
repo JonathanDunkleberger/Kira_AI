@@ -3468,6 +3468,28 @@ class VTubeBot:
         "out there ('I should grind here', 'my team needs a level').]"
     )
 
+    # THE CHAMPION DOCTRINE (2026-08-03, 'high level programmatic prompted strategy'): the standing
+    # HOW-SHE-PLAYS layer, present in EVERY Pokémon decision prompt. Before this, the decide prompt
+    # told her to pick by 'taste/mood, NOT the most optimal play' — prompted-in casualness that had
+    # her strolling past Centers hurt and walking into gyms with an empty bag. Doctrine: the PICK is
+    # always the pro move; her personality lives in the COMMENTARY. The per-tick numbers ride in
+    # separately as the strategist brief (campaign._strategy_brief -> ctx['strategy']); this block is
+    # the permanent constitution those numbers plug into.
+    _POKEMON_STRATEGY_DOCTRINE = (
+        "[HOW YOU PLAY — champion doctrine, always in force: you are an EXPERT, Bulbapedia-brained "
+        "FireRed player and you play to ROLL CREDITS. Non-negotiables, in priority order: "
+        "(1) SURVIVAL — heal and cure status BEFORE fights and marches; a Center visit costs a "
+        "minute, a blackout can cost the run. Never chain fights while hurt. "
+        "(2) SUPPLIES — stay stocked: potions, status cures, revives, balls. Money exists to be "
+        "spent; walking past a Mart with a thin bag is throwing. "
+        "(3) TYPE FIRST — matchups decide fights; know the next gym's type and bring the answer. "
+        "(4) TEAM — build and level the PLANNED team, not just the ace; one over-levelled carry "
+        "with a dead bench loses the Elite Four. "
+        "(5) FORWARD — the next badge is the compass; explore with purpose, never wander. "
+        "Your flair, trash-talk and taste live in HOW you narrate the pick — the pick itself is "
+        "always the strategically correct one.]"
+    )
+
     async def _pokemon_react(self, summary: str, *, bypass: bool = False, tier: int | None = None,
                              kind: str | None = None):
         """SEAM (M1): route a NEUTRAL Pokémon game-event summary through Kira's existing
@@ -3980,14 +4002,24 @@ class VTubeBot:
         # the consistent grounding incl. items/fossil). This is the reaches-the-BRAIN half.
         _sb = self._pokemon_state_block_for_voice()
         _sb = (_sb + "\n") if _sb else ""
+        # THE STRATEGIST BRIEF (2026-08-03): the campaign computes a prioritized directive block from
+        # live RAM (survival / supplies / gym matchup / team build / standing orders) and hands it in
+        # via ctx['strategy']. Rendered as its OWN labeled section so it reads as counsel with
+        # authority, not one more sentence lost in the narrative place-string.
+        _strat = str(ctx.get("strategy") or "").strip()
+        _strat_block = (
+            "YOUR STRATEGIST BRIEF — computed from the LIVE game state this second; priority order, "
+            "the top line outranks everything under it:\n" + _strat + "\n\n"
+        ) if _strat else ""
         try:
             if kind == "want":
                 # world-knowledge she carries (things she KNOWS are out there) as CONTEXT, not a pick-list.
                 known = ("\n".join(f"- {k}: {v}" for k, v in detail.items()) if detail
                          else ("\n".join(f"- {o}" for o in opts) if opts else "(nothing specific in mind)"))
                 prompt = (
-                    self._POKEMON_CHARACTER_RULES + "\n" + self._POKEMON_DECIDE_FRAMING + "\n\n"
-                    + _sb
+                    self._POKEMON_CHARACTER_RULES + "\n" + self._POKEMON_DECIDE_FRAMING + "\n"
+                    + self._POKEMON_STRATEGY_DOCTRINE + "\n\n"
+                    + _sb + _strat_block
                     + f"You're at {where}, playing your OWN Pokemon run. Things you know are out there:\n"
                     f"{known}\n\n"
                     "Is there something you actually WANT right now — a pokemon, a goal, a place to reach? "
@@ -4000,13 +4032,16 @@ class VTubeBot:
                     return {"choice": "", "reasoning": ""}
                 menu = "\n".join(f"- {o}" + (f": {detail[o]}" if o in detail else "") for o in opts)
                 prompt = (
-                    self._POKEMON_CHARACTER_RULES + "\n" + self._POKEMON_DECIDE_FRAMING + "\n\n"
-                    + _sb
+                    self._POKEMON_CHARACTER_RULES + "\n" + self._POKEMON_DECIDE_FRAMING + "\n"
+                    + self._POKEMON_STRATEGY_DOCTRINE + "\n\n"
+                    + _sb + _strat_block
                     + f"You're at {where}. It's YOUR call what to do next. Your options right now:\n"
                     f"{menu}\n\n"
-                    "Pick the ONE that fits what YOU actually want to do — your taste/mood, NOT the most "
-                    "optimal play. Say a sentence in YOUR voice about why, THEN on a final line write "
-                    "exactly:  PICK: <one of the options above, verbatim>"
+                    "Pick the option a CHAMPION would — follow your strategist brief's top priority "
+                    "(and the doctrine) unless no listed option can serve it. Your taste and flair go "
+                    "in HOW you talk about it, never in throwing the game. Say a sentence in YOUR "
+                    "voice about why, THEN on a final line write exactly:  "
+                    "PICK: <one of the options above, verbatim>"
                 )
             resp = await self.ai_core.kira_deep_response(
                 request=prompt, self_context=self._build_self_block(),

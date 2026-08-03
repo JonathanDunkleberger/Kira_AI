@@ -136,6 +136,16 @@
       "id": 2087,
       "hex": "0x827",
       "note": "Earth (Giovanni, Viridian). Opens after Blaine."
+    },
+    "FLAG_GOT_EEVEE": {
+      "id": 611,
+      "hex": "0x263",
+      "note": "The gift Eevee ball in the Celadon Condominiums roof room. Set by the givemon script in every branch (party AND auto-PC)."
+    },
+    "FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE": {
+      "id": 598,
+      "hex": "0x256",
+      "note": "Oak's aide on the Route 15 West Entrance 2F: the Exp. Share, once GetPokedexCount(caught) >= 50. Set ONLY on a successful hand-over (the no-room / not-enough branches leave it clear)."
     }
   },
   "exit_gates": {
@@ -460,6 +470,38 @@
         "gives_cap": null
       },
       "human": "the Tea — an old lady in Celadon Mansion gives it away; the thirsty guards in Saffron's gatehouses let you through for it (until then, the Underground Paths go AROUND Saffron)"
+    },
+    "eevee": {
+      "kind": "gift_mon",
+      "name": "the gift Eevee",
+      "obtain": {
+        "via": "strike",
+        "npc": "the Poke Ball on the roof-room table",
+        "from": "3,6",
+        "dir": "north",
+        "place_name": "the Celadon Condominiums roof room — in through the BACK door (behind the building), up the stairwell to the roof, into the little room; the Poke Ball on the table is a level-25 Eevee",
+        "prereq": null,
+        "sets_flag": "FLAG_GOT_EEVEE",
+        "gives_cap": null
+      },
+      "human": "the gift Eevee — a guaranteed Poke Ball in the Celadon Condominiums roof room (back stairwell). One of a kind: a Thunder Stone from the Dept. Store turns it into Jolteon, the team's electric answer"
+    },
+    "exp_share": {
+      "kind": "item",
+      "name": "the Exp. Share",
+      "obtain": {
+        "via": "strike",
+        "npc": "Professor Oak's aide",
+        "from": "3,33",
+        "dir": "west",
+        "place_name": "the Route 15 West Entrance gate, upstairs (2F) — the gate sits at Route 15's west end, right by Fuchsia; the aide is the scientist at the binocular wall",
+        "prereq": null,
+        "requires_owned": 50,
+        "requires_note": "he only pays out once the dex shows >=50 CAUGHT species — the DEX PUSH doctrine (catch every NEW species on the road, never wander for it) builds toward the bar",
+        "sets_flag": "FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE",
+        "gives_cap": null
+      },
+      "human": "the Exp. Share — Oak's aide upstairs in the Route 15 west gate hands it over at 50 caught species. Whoever holds it banks XP from EVERY fight without ever taking the field: the bench-development engine the Elite Four demands"
     }
   },
   "route_notes": {

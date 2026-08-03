@@ -25,7 +25,9 @@
   "omanyte": {"where": "Mt. Moon (Helix Fossil choice) -> revive on Cinnabar", "method": "fossil"},
   "kabuto": {"where": "Mt. Moon (Dome Fossil choice) -> revive on Cinnabar", "method": "fossil"},
   "aerodactyl": {"where": "Pewter Museum (Old Amber) -> revive on Cinnabar", "method": "fossil"},
-  "clefairy": {"where": "Mt. Moon", "method": "cave", "note": "rare"}
+  "clefairy": {"where": "Mt. Moon", "method": "cave", "note": "rare"},
+  "zapdos":   {"where": "Power Plant (static, L50 — Surf up the Route 10 water)", "method": "static", "note": "LEGENDARY — the divert engine auto-balls it on contact; weaken, NEVER KO"},
+  "articuno": {"where": "Seafoam Islands B4F (static, L50 — on the Blaine crossing)", "method": "static", "note": "LEGENDARY — the divert engine auto-balls it on contact; weaken, NEVER KO"}
  },
 
  "areas": {

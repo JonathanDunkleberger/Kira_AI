@@ -393,6 +393,200 @@ class TeachFlow:
         self.log(f"   [cure] !! NOT cured (status_clear={cured} consumed={consumed}) — failed LOUD")
         return "failed"
 
+    def give_item(self, item_id, mon_slot, max_seconds=75):
+        """OVERWORLD hold-item give (2026-08-03, the Exp. Share equip: 'she needs exp share').
+        START -> BAG -> Items pocket -> `item_id` -> GIVE (one DOWN below USE in the sub-box)
+        -> party `mon_slot` -> A, then verify by GROUND TRUTH ONLY: the bag count DROPPED
+        (the item now rides on the mon). Identical skeleton to field_cure — same blind row
+        walk, same pocket liveness probe, same B-cascade fail-safe. If the target already
+        holds something the game asks to switch; the A-drain answers YES (the old item
+        returns to the bag, so the count-drop verify still reads true for `item_id`).
+        Returns 'given' | 'no_item' | 'failed'."""
+        t0 = time.time()
+        rows = [i for i, _q in items_pocket_rows(self.b)]
+        if item_id not in rows:
+            return "no_item"
+        row = rows.index(item_id)
+        if row > 9:
+            self.log(f"   [give] item {item_id} sits at bag row {row} — too deep for the blind "
+                     f"walk, skipping (LOUD)")
+            return "failed"
+        qty0 = items_pocket_qty(self.b, item_id)
+        self.b.set_input_owner("agent")
+        self.log(f"   [give] hold-item give: item {item_id} (bag row {row}) -> party slot {mon_slot}")
+        # 1. START menu open-verify -> BAG (row 2). Same stale-cursor doctrine as field_cure.
+        opened = False
+        self._press("START", settle=60)
+        for _ in range(4):
+            c0 = self.b.rd8(START_CURSOR)
+            self._press("DOWN", settle=24)
+            if self.b.rd8(START_CURSOR) != c0:
+                opened = True
+                break
+            self._press("START", settle=60)
+        if not opened or not self._nav_byte(START_CURSOR, 2):
+            self.log("   [give] !! START menu never opened — aborting (B out)")
+            self._b_cascade(); return "failed"
+        self._press("A", settle=80)                          # open the bag
+        # 2. Items pocket (0) with the liveness probe; mute byte -> blind LEFT clamp.
+        _p0 = self.b.rd8(BAG_POCKET)
+        self._press("RIGHT", settle=20)
+        _live = self.b.rd8(BAG_POCKET) != _p0
+        if not _live:
+            self._press("LEFT", settle=20)
+            _live = self.b.rd8(BAG_POCKET) != _p0
+        if _live:
+            for _ in range(4):
+                if self.b.rd8(BAG_POCKET) == 0:
+                    break
+                self._press("LEFT", settle=20)
+            if self.b.rd8(BAG_POCKET) != 0:
+                self.log("   [give] !! couldn't reach the Items pocket — aborting")
+                self._b_cascade(); return "failed"
+        else:
+            self.log("   [give] pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4")
+            for _ in range(4):
+                self._press("LEFT", settle=20)
+        # 3. BLIND row walk (UP-clamp home, counted DOWNs), then the sub-box: USE is the top
+        #    row, GIVE sits ONE DOWN — the only structural difference from field_cure.
+        for _ in range(row + 8):
+            self._press("UP", settle=12)
+        for _ in range(row):
+            self._press("DOWN", settle=16)
+        self._press("A", settle=50)                          # select the item -> USE/GIVE/TOSS box
+        self._press("DOWN", settle=30)                       # USE -> GIVE
+        self._press("A", settle=90)                          # GIVE -> party chooser
+        # 4. STATE MACHINE (bounded): party teal -> nav + pick; then A-drain the 'gave it to
+        #    hold' (or switch-items) dialogue. Done signal = the bag count dropped.
+        party_navved = False
+        for _ in range(40):
+            if items_pocket_qty(self.b, item_id) < qty0:
+                break
+            if time.time() - t0 > max_seconds:
+                break
+            scr = self._classify()
+            if scr == "party":
+                if not party_navved:
+                    if not self._party_goto(mon_slot):
+                        self.log("   [give] !! party cursor never reached the slot — B out")
+                        break
+                    party_navved = True
+                    self._press("A", settle=90)              # pick the mon -> give applies
+                else:
+                    self._press("A", settle=60)              # 'X is now holding …!' / switch prompt
+            elif scr == "bag" and not party_navved:
+                self._press("A", settle=70)                  # GIVE press hadn't landed yet
+            else:
+                self._press("A", settle=50)                  # dialogue / transition
+        self._b_cascade()
+        given = items_pocket_qty(self.b, item_id) < qty0
+        if given:
+            self.log(f"   [give] VERIFIED: item {item_id} left the bag — party slot {mon_slot} holds it")
+            return "given"
+        self.log("   [give] !! NOT given (bag count unchanged) — failed LOUD")
+        return "failed"
+
+    def stone_evolve(self, item_id, mon_slot, want_species, max_seconds=150):
+        """OVERWORLD stone evolution (2026-08-03 OP-team pass: the Eevee -> Jolteon rite).
+        START -> BAG -> Items pocket -> the stone -> USE -> party `mon_slot` -> A, then WAIT OUT
+        the evolution cutscene and verify by GROUND TRUTH ONLY: the slot's SPECIES flipped to
+        `want_species` and the stone count dropped. Two doctrine points beyond field_cure:
+          1. NEVER press B once the mon is picked — in Gen 3, B during the evolution animation
+             CANCELS it (the stone would be consumed for nothing... actually FRLG refunds a
+             cancelled stone-use by not consuming, but either way the rite fails). The scene is
+             waited out passively (frame-running) polling the species byte; only A drains the
+             'Congratulations!' text after the flip.
+          2. A refusal ('It won't have any effect.') leaves qty AND species unchanged -> 'failed'
+             LOUD, the caller backs off (never a retry loop on a wrong-stone/wrong-mon pairing).
+        Returns 'evolved' | 'no_item' | 'failed' (fail-safe: B-cascade AFTER the verdict)."""
+        t0 = time.time()
+        rows = [i for i, _q in items_pocket_rows(self.b)]
+        if item_id not in rows:
+            return "no_item"
+        row = rows.index(item_id)
+        if row > 9:
+            self.log(f"   [stone] item {item_id} sits at bag row {row} — too deep for the blind "
+                     f"walk, skipping (LOUD)")
+            return "failed"
+        qty0 = items_pocket_qty(self.b, item_id)
+        if st.read_party_species(self.b, mon_slot) == want_species:
+            return "evolved"                                 # already done — nothing to do
+        self.b.set_input_owner("agent")
+        self.log(f"   [stone] stone evolve: item {item_id} (bag row {row}) -> party slot "
+                 f"{mon_slot} (want species {want_species})")
+        # 1-3. Identical rails to field_cure: START open-verify -> BAG (row 2) -> Items pocket
+        #      (liveness-probed) -> blind row walk -> select -> USE -> party chooser.
+        opened = False
+        self._press("START", settle=60)
+        for _ in range(4):
+            c0 = self.b.rd8(START_CURSOR)
+            self._press("DOWN", settle=24)
+            if self.b.rd8(START_CURSOR) != c0:
+                opened = True
+                break
+            self._press("START", settle=60)
+        if not opened or not self._nav_byte(START_CURSOR, 2):
+            self.log("   [stone] !! START menu never opened — aborting (B out)")
+            self._b_cascade(); return "failed"
+        self._press("A", settle=80)
+        _p0 = self.b.rd8(BAG_POCKET)
+        self._press("RIGHT", settle=20)
+        _live = self.b.rd8(BAG_POCKET) != _p0
+        if not _live:
+            self._press("LEFT", settle=20)
+            _live = self.b.rd8(BAG_POCKET) != _p0
+        if _live:
+            for _ in range(4):
+                if self.b.rd8(BAG_POCKET) == 0:
+                    break
+                self._press("LEFT", settle=20)
+            if self.b.rd8(BAG_POCKET) != 0:
+                self.log("   [stone] !! couldn't reach the Items pocket — aborting")
+                self._b_cascade(); return "failed"
+        else:
+            self.log("   [stone] pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4")
+            for _ in range(4):
+                self._press("LEFT", settle=20)
+        for _ in range(row + 8):
+            self._press("UP", settle=12)
+        for _ in range(row):
+            self._press("DOWN", settle=16)
+        self._press("A", settle=50)                          # select the stone -> USE/GIVE/TOSS
+        self._press("A", settle=90)                          # USE -> party chooser
+        # 4. Pick the mon, then HANDS OFF: the cutscene owns the screen. Poll the species byte
+        #    (the one signal that cannot lie) while frame-running; A-drain only after the flip.
+        picked = False
+        while time.time() - t0 < max_seconds:
+            if st.read_party_species(self.b, mon_slot) == want_species:
+                break
+            scr = self._classify()
+            if scr == "party" and not picked:
+                if not self._party_goto(mon_slot):
+                    self.log("   [stone] !! party cursor never reached the slot — B out")
+                    self._b_cascade(); return "failed"
+                picked = True
+                self._press("A", settle=90)                  # pick the mon -> the rite begins
+            elif not picked:
+                self._press("A", settle=60)                  # USE press hadn't landed yet
+            else:
+                # cutscene / 'Congratulations!' text: A is safe, B is the cancel button — never B.
+                # A refusal bounce ('It won't have any effect.') also lands here and drains out.
+                self._press("A", settle=60)
+                if items_pocket_qty(self.b, item_id) == qty0 and self._classify() == "bag":
+                    self.log("   [stone] !! bounced back to the bag with the stone unspent — "
+                             "the game refused this pairing (failed LOUD)")
+                    self._b_cascade(); return "failed"
+        self._b_cascade()
+        evolved = st.read_party_species(self.b, mon_slot) == want_species
+        consumed = items_pocket_qty(self.b, item_id) < qty0
+        if evolved:
+            self.log(f"   [stone] VERIFIED: slot {mon_slot} is now species {want_species} "
+                     f"(stone consumed={consumed})")
+            return "evolved"
+        self.log(f"   [stone] !! NOT evolved (species={st.read_party_species(self.b, mon_slot)} "
+                 f"consumed={consumed}) — failed LOUD")
+        return "failed"
+
     def teach(self, hm_key, mon_slot, forget_idx=None, max_seconds=120,
               item_override=None, move_override=None):
         """Teach HM `hm_key` to party `mon_slot`; forget_idx = which current move to overwrite when

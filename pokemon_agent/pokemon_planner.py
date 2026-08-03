@@ -185,7 +185,6 @@ class StrategicPlanner:
             except Exception:
                 _rest_lv = []
         _bench_max = _rest_lv[-1] if _rest_lv else 0
-        _bench_floor = _rest_lv[0] if _rest_lv else 0
         _fieldable_floor = max(1, ace_level - FIELDABLE_BENCH_GAP)
         # Paper = nobody on the bench can take a hit / land a finisher. ONE fieldable mon
         # is enough (2026-08-02 Surge chalk) — do NOT require the whole bench at the floor
@@ -337,7 +336,6 @@ class StrategicPlanner:
         """The Elite Four bloc beat — the scaffolding-free hole at the run's climax. Names the gauntlet +
         her per-seat answers in one breath, spotlights the ICE/Lance insight tied to HER party, and folds
         the bench-development alarm (the E4 punishes a lopsided team hardest)."""
-        ptypes = self._party_types(party)
         lance = self.threats.get("Lance") or {}
         low = (lance.get("level_band") or [52, 60])[0]
         # ice answer she OWNS (Lapras/Dewgong/Jynx/Cloyster/Articuno)?
@@ -477,8 +475,46 @@ class TeamPlanner:
         if self.state is None:
             self.init_plan(party, badges)
         else:
+            self._migrate_plan_slots(party)
             self._recompute_status(party)
         return self.state
+
+    def _migrate_plan_slots(self, party):
+        """PLAN-STATE MIGRATION (2026-08-03, the OP-team pass): the plan-state PERSISTS in the campaign
+        bundle, so a resumed run is frozen on whatever the archetype JSON said at init — roster upgrades
+        (eevee->jolteon replacing the rare-Pikachu hunt; the zapdos/articuno legendary slots) would never
+        reach a run already in flight. Reconcile the live state against the CURRENT archetype JSON:
+          - a role in the archetype but not in the state -> APPEND as planned (new ambition);
+          - a role whose TARGET changed while the state slot is still 'planned' (nothing caught yet)
+            -> REPLACE with the new version (the pikachu slot she never filled becomes the eevee slot);
+          - anything already acquired/evolved is NEVER touched (her real mons outrank the JSON).
+        Idempotent (byte-equal plans no-op) + LOUD when it changes anything."""
+        try:
+            arch = next((a for a in self.archetypes
+                         if a.get("name") == self.state.get("archetype")), None)
+            if not arch:
+                return
+            def _mk(s):
+                return {"role": s["role"], "target": (s.get("species") or [s.get("role")])[-1],
+                        "line": s.get("line") or s.get("species") or [], "covers": s.get("covers") or [],
+                        "acquire": s.get("acquire") or {}, "evolve": s.get("evolve") or [],
+                        "teach": s.get("teach") or [], "why": s.get("why", ""), "status": "planned"}
+            have = {s["role"]: s for s in self.state["slots"]}
+            changed = []
+            for s in arch.get("slots", []):
+                cur = have.get(s["role"])
+                if cur is None:
+                    self.state["slots"].append(_mk(s))
+                    changed.append(f"+{s['role']}")
+                elif (cur.get("status") == "planned"
+                      and cur.get("target") != _mk(s)["target"]):
+                    cur.update(_mk(s))
+                    changed.append(f"~{s['role']}")
+            if changed:
+                self.log(f"   [teamplan] plan MIGRATED to the current archetype JSON: "
+                         f"{', '.join(changed)} (acquired slots untouched)")
+        except Exception as e:
+            self.log(f"   [teamplan] plan migration skipped: {e} (LOUD)")
 
     # ── live status: which slots are already fielded / evolved ────────────────────────────────────
     def _recompute_status(self, party):
