@@ -1,0 +1,813 @@
+===== playlive_2026-08-03_12-21-13.log =====
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (61, 12) map=(3, 33) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 33) coords=(61, 12) -> coord (16, 12) (budget 240s)
+   [travel] step 0: (61, 12)->(61, 13) map=(3, 33) (path 48 to exit)
+   [travel] path blocked at (54, 13) (NPC on the gap?) - waiting
+   [travel] no clean path from (54, 13); NPC-allowing path EXISTS (len 40), blocker NPC tile=(54, 12), npcs nearby=[(50, 12), (51, 7), (54, 12), (60, 12), (63, 13)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeotto 75/75 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] action menu: move#158 - a STAB hit -> slot 1 (eff x1) vs pidgeotto 35/75 | [0]Quick Attack(p40*STAB,pp=30,ref=0,sc=60) [1]move#158(p80*STAB,pp=15,ref=0,sc=108) [2]Cut(p50*STAB,pp=30,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: move#158 - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] action menu: move#158 - a STAB hit -> slot 1 (eff x1) vs pidgeotto 19/75 | [0]Quick Attack(p40*STAB,pp=30,ref=0,sc=60) [1]move#158(p80*STAB,pp=14,ref=0,sc=108) [2]Cut(p50*STAB,pp=30,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: move#158 - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 2: target row 3 sp=9 skip_rows=[] party_cur=1 menu_rows=[(19, 0), (23, 38), (21, 47), (9, 107), (64, 45), (12, 49)]
+   [play-live]    [engine] fswitch: selecting row 3 (sp=9 L51 hp=107)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeotto 19/75 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs wigglytuff 120/120 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 44, 51), (23, 38, 16), (21, 47, 18), (19, 0, 18), (64, 45, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '44/158', 'status': 'poison', 'foe': 'wigglytuff'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 14, aim=active)
+   [play-live]    [engine] use_item: couldn't reach the Items pocket — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 14 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] CURE-BLOCK: no more status-cure offers this battle (already-clear / no_effect abort)
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs wigglytuff 19/120 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(3, 33) coords=(54, 13) -> map (3, 7) (budget 300s)
+   [travel] west connection band rows: [10, 11, 12, 13]
+   [travel] path blocked at (54, 13) (NPC on the gap?) - waiting
+   [travel] no clean path from (54, 13) AND no NPC-allowing path (npcs nearby=[(50, 12), (51, 7), (54, 12), (60, 12), (63, 13)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (54, 13) map=(3, 33) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 33) coords=(54, 13) -> coord (16, 12) (budget 240s)
+   [travel] step 0: (54, 13)->(53, 13) map=(3, 33) (path 40 to exit)
+   [travel] path blocked at (50, 13) (NPC on the gap?) - waiting
+   [travel] no clean path from (50, 13); NPC-allowing path EXISTS (len 36), blocker NPC tile=(50, 12), npcs nearby=[(44, 13), (50, 7), (50, 12), (54, 12), (60, 12)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 44, 51), (23, 38, 16), (21, 47, 18), (19, 0, 18), (64, 45, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '44/158', 'status': 'poison', 'foe': 'bulbasaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 22, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 22 (count 4->3)
+   [play-live]    [engine] battle-progress: item 22 consumed
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 1 (eff x1) vs bulbasaur 65/65 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=9,ref=0,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse -> slot 2 (eff x0.5) vs bulbasaur 65/65 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=1,sc=60) [2]Water Pulse(p60*STAB,pp=9,ref=0,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1, 2], refusals {1: 1, 2: 1}, futility 2/4)
+   [play-live]    [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Tackle -> slot 0 (eff x1) vs bulbasaur 65/65 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=1,sc=60) [2]Water Pulse(p60*STAB,pp=9,ref=1,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Tackle slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0, 1, 2], refusals {1: 1, 2: 1, 0: 1}, futility 3/4)
+   [play-live]    [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: re-firing Bite (idling never resolves a can't-flee fight)
+   [play-live]    [engine] action menu: Bite -> slot 1 (eff x1) vs bulbasaur 65/65 | [0]Tackle(p35,pp=29,ref=1,sc=33.25) [1]Bite(p60,pp=25,ref=1,sc=60) [2]Water Pulse(p60*STAB,pp=9,ref=1,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 2, 2: 1, 0: 1}, futility 4/4)
+   [play-live]    [engine] !! FUTILITY BREAKER: 4 fruitless move-list confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active for party slot 4 (L19) — switch verifies by species flip, not move RAM (use 1/2)
+   [play-live]    [engine] switch: target party slot 4 sp=64 -> menu row 4
+   [play-live]    [engine] switch: SWITCHED to species 64 (slot 4)
+   [play-live]    [engine] battle-progress: futility bench switch
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 5: target row 4 sp=9 skip_rows=[] party_cur=2 menu_rows=[(64, 0), (23, 38), (21, 47), (19, 0), (9, 75), (12, 49)]
+   [play-live]    [engine] fswitch: selecting row 4 (sp=9 L51 hp=75)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse -> slot 2 (eff x0.5) vs bulbasaur 65/65 | [0]Tackle(p35,pp=29,ref=1,sc=33.25) [1]Bite(p60,pp=25,ref=2,sc=60) [2]Water Pulse(p60*STAB,pp=9,ref=1,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 37, 51), (23, 38, 16), (21, 47, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '37/158', 'status': 'poison', 'foe': 'bulbasaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 14, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 14 (count 2->1)
+   [play-live]    [engine] battle-progress: item 14 consumed
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 15, 51), (23, 38, 16), (21, 47, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '15/158', 'status': 'none', 'foe': 'bulbasaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 22, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 22 (count 3->2)
+   [play-live]    [engine] battle-progress: item 22 consumed
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse -> slot 2 (eff x0.5) vs bulbasaur 21/65 | [0]Tackle(p35,pp=29,ref=1,sc=33.25) [1]Bite(p60,pp=25,ref=2,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=1,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [2], refusals {1: 2, 2: 2, 0: 1}, futility 1/4)
+   [play-live]    [engine] !! PARTY THRASH #1: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] !! PARTY THRASH #2: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] !! PARTY THRASH #3: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #4: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #5: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #6: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #7: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! MENU WEDGE 63s with NO progress — escaping the scroll theater (fire 1/3, menu_up=1 action=False moves=False bag=False party=False)
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Tackle -> slot 0 (eff x1) vs bulbasaur 21/65 | [0]Tackle(p35,pp=29,ref=1,sc=33.25) [1]Bite(p60,pp=25,ref=2,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=2,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Tackle slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0, 2], refusals {1: 2, 2: 2, 0: 2}, futility 2/4)
+   [play-live]    [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 65, 51), (23, 38, 16), (21, 47, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 2 (NOT re-picking species 9)
+   [play-live]    [engine] switch: target party slot 2 sp=21 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 21 (slot 2)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 65, 51), (23, 38, 16), (21, 42, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '42/47', 'status': 'poison', 'foe': 'bulbasaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 0 (NOT re-picking species 21)
+   [play-live]    [engine] switch: target party slot 0 sp=9 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 9 (slot 0)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 39, 51), (23, 38, 16), (21, 42, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '39/158', 'status': 'none', 'foe': 'bulbasaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 2 (NOT re-picking species 9)
+   [play-live]    [engine] switch: target party slot 2 sp=21 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 21 (slot 2)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] ACE-FIRST POTIONS: active L18 is fodder next to the team's L51 carry — NOT offering a heal on it (the potions are for the ace, not L8-13 bench mons)
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 39, 51), (23, 38, 16), (21, 2, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '2/47', 'status': 'poison', 'foe': 'bulbasaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 0 (NOT re-picking species 21)
+   [play-live]    [engine] switch: target party slot 0 sp=9 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 9 (slot 0)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 39, 51), (23, 38, 16), (21, 2, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '39/158', 'status': 'none', 'foe': 'bulbasaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 2 (NOT re-picking species 9)
+   [play-live]    [engine] switch: target party slot 2 sp=21 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 21 (slot 2)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 5: target row 2 sp=9 skip_rows=[] party_cur=2 menu_rows=[(21, 0), (23, 38), (9, 39), (19, 0), (64, 0), (12, 49)]
+   [play-live]    [engine] fswitch: selecting row 2 (sp=9 L51 hp=39)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 39, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '39/158', 'status': 'none', 'foe': 'bulbasaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 22, aim=active)
+   [play-live]    [engine] use_item: RAM says row 0 wanted 1 — bytes may be frozen; BLIND bag walk (clamp-home + DOWN x1)
+   [play-live]    [engine] use_item walk n=0: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=2: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=1 — selected but item 22 NOT consumed (count still 2) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 22 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] POTION-BLOCK: no more heal-item offers this battle (full-HP / no_effect abort)
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 5 (the only line that can still win)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] switch: couldn't reach a clean action menu
+   [play-live]    [engine] famine switch did not confirm -> fighting on (fail-safe)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [travel] blocker battle outcome=timeout; resuming pathfind
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(3, 33) coords=(50, 13) -> map (3, 7) (budget 300s)
+   [travel] west connection band rows: [10, 11, 12, 13]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 39, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '39/158', 'status': 'none', 'foe': 'ivysaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 22, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 22 (count 2->1)
+   [play-live]    [engine] battle-progress: item 22 consumed
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 1 (eff x1) vs ivysaur 73/73 | [0]Tackle(p35,pp=28,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse -> slot 2 (eff x0.5) vs ivysaur 73/73 | [0]Tackle(p35,pp=28,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=1,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1, 2], refusals {1: 1, 2: 1}, futility 2/4)
+   [play-live]    [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Tackle -> slot 0 (eff x1) vs ivysaur 73/73 | [0]Tackle(p35,pp=28,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=1,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=1,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Tackle slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0, 1, 2], refusals {1: 1, 2: 1, 0: 1}, futility 3/4)
+   [play-live]    [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: re-firing Bite (idling never resolves a can't-flee fight)
+   [play-live]    [engine] action menu: Bite -> slot 1 (eff x1) vs ivysaur 73/73 | [0]Tackle(p35,pp=28,ref=1,sc=33.25) [1]Bite(p60,pp=25,ref=1,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=1,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 2, 2: 1, 0: 1}, futility 4/4)
+   [play-live]    [engine] !! FUTILITY BREAKER: 4 fruitless move-list confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active for party slot 5 (L17) — switch verifies by species flip, not move RAM (use 1/2)
+   [play-live]    [engine] switch: target party slot 5 sp=12 -> menu row 5
+   [play-live]    [engine] switch: SWITCHED to species 12 (slot 5)
+   [play-live]    [engine] battle-progress: futility bench switch
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 70, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 49, 17)])
+   [play-live]    [engine] action menu: Tackle -> slot 0 (eff x1) vs ivysaur 73/73 | [0]Tackle(p35,pp=35,ref=1,sc=33.25) [1]Confusion(p50,pp=25,ref=2,sc=100) [2]Sleep Powder(p0,pp=15,ref=1,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Tackle slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 70, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 43, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '43/49', 'status': 'poison', 'foe': 'ivysaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 14, aim=active)
+   [play-live]    [engine] use_item: couldn't reach the Items pocket — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 14 did not consume (failed) -> suppressing further in-battle item offers for species 12 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] CURE-BLOCK: no more status-cure offers this battle (already-clear / no_effect abort)
+   [play-live]    [engine] action menu: Tackle -> slot 0 (eff x1) vs ivysaur 69/73 | [0]Tackle(p35,pp=34,ref=1,sc=33.25) [1]Confusion(p50,pp=25,ref=2,sc=100) [2]Sleep Powder(p0,pp=15,ref=1,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Tackle slot 0 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] action menu: Tackle -> slot 0 (eff x1) vs ivysaur 65/73 | [0]Tackle(p35,pp=33,ref=1,sc=33.25) [1]Confusion(p50,pp=25,ref=2,sc=100) [2]Sleep Powder(p0,pp=15,ref=1,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Tackle slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0], refusals {1: 2, 2: 1, 0: 2}, futility 1/4)
+   [play-live]    [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 0 (NOT re-picking species 12)
+   [play-live]    [engine] switch: target party slot 0 sp=9 -> menu row 5
+   [play-live]    [engine] switch: SWITCHED to species 9 (slot 0)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] JUST FIGHT: L51 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse -> slot 2 (eff x0.5) vs ivysaur 65/73 | [0]Tackle(p35,pp=28,ref=2,sc=33.25) [1]Bite(p60,pp=25,ref=2,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=1,sc=45)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] CURE-BLOCK: status=poison but cures latched off this battle (anti Awakening re-open loop)
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 32, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 30, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '32/158', 'status': 'poison', 'foe': 'ivysaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 22, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 22 (count 1->0)
+   [play-live]    [engine] battle-progress: item 22 consumed
+   [play-live]    [engine] CURE-BLOCK: status=poison but cures latched off this battle (anti Awakening re-open loop)
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=None, party sp/hp/lv=[(9, 5, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 30, 17)])
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 5
+   [play-live]    [engine] switch: target party slot 5 sp=12 -> menu row 5
+   [play-live]    [engine] switch: SWITCHED to species 12 (slot 5)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 0 (NOT re-picking species 12)
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 0 (the only line that can still win)
+   [play-live]    [engine] switch: target party slot 0 sp=9 -> menu row 5
+   [play-live]    [engine] switch: SWITCHED to species 9 (slot 0)
+   [play-live]    [engine] !! MENU WEDGE 82s with NO progress — escaping the scroll theater (fire 1/3, menu_up=0 action=False moves=False bag=False party=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 1: target row 5 sp=12 skip_rows=[] party_cur=0 menu_rows=[(9, 0), (23, 38), (21, 0), (19, 0), (64, 0), (12, 7)]
+   [play-live]    [engine] fswitch: selecting row 5 (sp=12 L17 hp=7)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 1 (NOT re-picking species 12)
+   [play-live]    [engine] switch: target party slot 1 sp=23 -> menu row 1
+   [play-live]    [engine] switch: SWITCHED to species 23 (slot 1)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=0, party sp/hp/lv=[(9, 0, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 7, 17)])
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 2 (eff x1) vs ivysaur 6/73 | [0]move#35(p15,pp=20,ref=2,sc=12.75) [1]move#40(p15*STAB,pp=35,ref=2,sc=22.5) [2]Bite(p60,pp=25,ref=1,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (asleep) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] CURE-BLOCK: status=sleep but cures latched off this battle (anti Awakening re-open loop)
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=0, party sp/hp/lv=[(9, 0, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 7, 17)])
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 5 (NOT re-picking species 23)
+   [play-live]    [engine] switch: target party slot 5 sp=12 -> menu row 1
+   [play-live]    [engine] switch: SWITCHED to species 12 (slot 5)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 1 (the only line that can still win)
+   [play-live]    [engine] switch: target party slot 1 sp=23 -> menu row 1
+   [play-live]    [engine] switch: SWITCHED to species 23 (slot 1)
+   [play-live]    [engine] CURE-BLOCK: status=sleep but cures latched off this battle (anti Awakening re-open loop)
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=0, party sp/hp/lv=[(9, 0, 51), (23, 38, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 1, 17)])
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 5 (NOT re-picking species 23)
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 2 (eff x1) vs ivysaur 6/73 | [0]move#35(p15,pp=20,ref=2,sc=12.75) [1]move#40(p15*STAB,pp=35,ref=2,sc=22.5) [2]Bite(p60,pp=25,ref=1,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 2 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (asleep) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] !! MENU WEDGE 67s with NO progress — escaping the scroll theater (fire 2/3, menu_up=1 action=False moves=False bag=False party=True)
+   [travel] battle outcome=timeout; resuming pathfind
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(3, 33) coords=(50, 13) -> map (3, 7) (budget 300s)
+   [travel] west connection band rows: [10, 11, 12, 13]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] ACE-FIRST POTIONS: active L16 is fodder next to the team's L51 carry — NOT offering a heal on it (the potions are for the ace, not L8-13 bench mons)
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=0, party sp/hp/lv=[(9, 0, 51), (23, 6, 16), (21, 0, 18), (19, 0, 18), (64, 0, 19), (12, 1, 17)])
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '6/38', 'status': 'sleep', 'foe': 'ivysaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 17, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 17 (count 3->2)
+   [play-live]    [engine] battle-progress: item 17 consumed
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 1: target row 1 sp=12 skip_rows=[] party_cur=1 menu_rows=[(23, 0), (12, 1), (21, 0), (19, 0), (64, 0), (9, 0)]
+   [play-live]    [engine] fswitch: selecting row 1 (sp=12 L17 hp=1)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] battle-progress: our mon fainted
+   [travel] battle outcome=loss; resuming pathfind
+   [travel] start map=(3, 33) coords=(50, 13) -> map (3, 7) (budget 300s)
+   [travel] west connection band rows: [10, 11, 12, 13]
+   [travel] path blocked at (50, 13) (NPC on the gap?) - waiting
+   [travel] no clean path from (50, 13) AND no NPC-allowing path (npcs nearby=[(44, 13), (50, 7), (50, 12), (54, 12), (60, 12)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (50, 13) map=(3, 33) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 33) coords=(50, 13) -> coord (16, 12) (budget 240s)
+   [travel] step 0: (50, 13)->(7, 4) map=(3, 33) (path 36 to exit)
+   [travel] MAP TRANSITION (3, 33) -> (8, 0)
+   [travel] coord leg ended by the transition -> (8, 0) (target (16, 12) was the old map's frame)
+   [travel] start map=(8, 0) coords=(7, 4) -> coord (6, 8) (budget 300s)
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 6), blocker NPC tile=None, npcs nearby=[(3, 3), (5, 5), (7, 2), (9, 4)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 8)
+   [travel] start map=(8, 0) coords=(6, 4) -> coord (7, 7) (budget 60s)
+   [travel] step 0: (6, 4)->(6, 5) map=(8, 0) (path 5 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 4) coords=(6, 6) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] step 0: (6, 6)->(6, 7) map=(3, 4) (path 22 to exit)
+   [travel] step 10: (9, 13)->(10, 13) map=(3, 4) (path 12 to exit)
+   [travel] step 20: (12, 18)->(12, 19) map=(3, 4) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 180s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> coord (14, 19) (budget 150s)
+   [travel] path blocked at (12, 19) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 19) AND no NPC-allowing path (npcs nearby=[(12, 12)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 19) map=(3, 4) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 4) coords=(12, 19) -> coord (13, 19) (budget 150s)
+   [travel] path blocked at (12, 19) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 19) AND no NPC-allowing path (npcs nearby=[(12, 12)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 19) map=(3, 4) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 4) coords=(12, 19) -> coord (15, 19) (budget 150s)
+   [travel] path blocked at (12, 19) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 19) AND no NPC-allowing path (npcs nearby=[(12, 12)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 19) map=(3, 4) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 4) coords=(12, 19) -> coord (12, 19) (budget 150s)
+   [travel] reached target coord (12, 19)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 180s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> coord (12, 19) (budget 150s)
+   [travel] reached target coord (12, 19)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> coord (12, 13) (budget 60s)
+   [travel] step 0: (12, 19)->(12, 18) map=(3, 4) (path 9 to exit)
+   [travel] reached target coord (12, 13)
+   [campaign]    [dlg npc-talk] 'This town is known as the grave site of POK.MON. Memorial services are h'
+   [campaign]    [dlg-pace npc-talk] box 'This town is known as the grave site of POK.MON.' visible 3.23s (sink 1ms, hold 0.11s, end=closed)
+   [travel] start map=(3, 4) coords=(12, 13) -> coord (17, 11) (budget 60s)
+   [travel] step 0: (12, 13)->(13, 13) map=(3, 4) (path 8 to exit)
+   [travel] path blocked at (16, 11) (NPC on the gap?) - waiting
+   [travel] no clean path from (16, 11); NPC-allowing path EXISTS (len 2), blocker NPC tile=(17, 11), npcs nearby=[(10, 7), (12, 12), (17, 11)] -> approaching to interact/trigger
+   [travel] reached target coord (17, 11)
+   [travel] start map=(3, 4) coords=(17, 11) -> coord (18, 12) (budget 60s)
+   [travel] step 0: (17, 11)->(17, 12) map=(3, 4) (path 3 to exit)
+   [travel] reached target coord (18, 12)
+   [campaign]    [dlg npc-talk] 'Do you believe in ghosts?'
+   [campaign]    [dlg-pace npc-talk] box 'Really? So there are believers..' visible 1.93s (sink 0ms, hold 0.06s, end=closed)
+   [travel] start map=(3, 4) coords=(18, 12) -> coord (10, 8) (budget 60s)
+   [travel] step 0: (18, 12)->(18, 11) map=(3, 4) (path 13 to exit)
+   [travel] step 10: (12, 8)->(11, 8) map=(3, 4) (path 3 to exit)
+   [travel] reached target coord (10, 8)
+   [campaign]    [dlg npc-talk] "Ghosts appeared in POK.MON TOWER. I think they're the spirits of POK.MON"
+   [campaign]    [dlg-pace npc-talk] box "Ghosts appeared in POK.MON TOWER. I think they'r" visible 3.48s (sink 0ms, hold 0.11s, end=closed)
+   [travel] start map=(3, 4) coords=(10, 8) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] step 0: (10, 8)->(11, 8) map=(3, 4) (path 16 to exit)
+   [travel] step 10: (13, 15)->(13, 16) map=(3, 4) (path 6 to exit)
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s)
+   [travel] south connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s)
+   [travel] south connection band cols: [14, 15, 24]
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s)
+   [travel] north connection band cols: [11, 12, 24]
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+===== playlive_2026-08-03_11-57-32.log =====
+   [travel] start map=(3, 31) coords=(35, 11) -> map (3, 32) (budget 300s)
+   [travel] west connection band rows: [5, 7, 9, 11, 13]
+   [travel] step 0: (35, 11)->(34, 11) map=(3, 31) (path 56 to exit)
+   [travel] step 10: (27, 9)->(26, 9) map=(3, 31) (path 46 to exit)
+   [travel] step 20: (29, 7)->(30, 7) map=(3, 31) (path 36 to exit)
+   [travel] step 30: (25, 5)->(24, 5) map=(3, 31) (path 26 to exit)
+   [travel] path blocked at (19, 5) (NPC on the gap?) - waiting
+   [travel] HEARTBEAT step=40 map=(3, 31) coords=(19, 5) elapsed=7s
+   [travel] no clean path from (19, 5); NPC-allowing path EXISTS (len 20), blocker NPC tile=(18, 5), npcs nearby=[(14, 8), (18, 5), (29, 11)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=13,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgey 55/55 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgey 55/55 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '37/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 22, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 22 (count 5->4)
+   [play-live]    [engine] battle-progress: item 22 consumed
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=9,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=9,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(3, 31) coords=(19, 5) -> map (3, 32) (budget 300s)
+   [travel] west connection band rows: [5, 7, 9, 11, 13]
+   [travel] step 0: (19, 5)->(19, 6) map=(3, 31) (path 22 to exit)
+   [travel] path blocked at (14, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (14, 7); NPC-allowing path EXISTS (len 15), blocker NPC tile=None, npcs nearby=[(9, 14), (14, 8), (18, 5)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L49 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 2/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 3/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 4/4)
+   [play-live]    [engine] !! FUTILITY BREAKER: 4 fruitless move-list confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active for party slot 4 (L19) — switch verifies by species flip, not move RAM (use 1/2)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] FUTILITY BREAKER: switch did not confirm (fail-safe, fighting on)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 4 (NOT re-picking species 9)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 5/4)
+   [play-live]    [engine] !! FUTILITY BREAKER: 5 fruitless move-list confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active for party slot 4 (L19) — switch verifies by species flip, not move RAM (use 2/2)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] FUTILITY BREAKER: switch did not confirm (fail-safe, fighting on)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 4 (NOT re-picking species 9)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 6/4)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 4 (NOT re-picking species 9)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [2], refusals {2: 1}, futility 7/4)
+   [play-live]    [engine] !! MENU WEDGE 62s with NO progress — escaping the scroll theater (fire 1/3, menu_up=1 action=True moves=False bag=False party=False)
+   [play-live]    [engine] action menu: Bite -> slot 1 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=1,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 1 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1, 2], refusals {2: 1, 1: 1}, futility 10/4)
+   [play-live]    [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: re-firing Water Pulse (idling never resolves a can't-flee fight)
+   [play-live]    [engine] action menu: Water Pulse -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=1,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=1,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 2 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [2], refusals {2: 2, 1: 1}, futility 11/4)
+   [play-live]    [engine] action menu: Bite -> slot 1 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=0,ref=0,sc=33.25) [1]Bite(p60,pp=20,ref=1,sc=60) [2]Water Pulse(p60*STAB,pp=8,ref=2,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed by RAM — BLIND-WALK to slot 1 (detectors frozen; pixels say a menu is up)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1, 2], refusals {2: 2, 1: 2}, futility 12/4)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 4 (the only line that can still win)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] famine switch did not confirm -> fighting on (fail-safe)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 4 (the only line that can still win)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] famine switch did not confirm -> fighting on (fail-safe)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 4 (the only line that can still win)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] famine switch did not confirm -> fighting on (fail-safe)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] !! MENU WEDGE 60s with NO progress — escaping the scroll theater (fire 2/3, menu_up=1 action=True moves=False bag=False party=False)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] !! MENU WEDGE 62s with NO progress — escaping the scroll theater (fire 3/3, menu_up=1 action=True moves=False bag=False party=False)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '85/153', 'status': 'paralysis', 'foe': 'koffing'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_ether (item 35, aim=active)
+   [play-live]    [engine] use_item: couldn't reach true row 4 (cursor=1 scroll=0) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 35 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
