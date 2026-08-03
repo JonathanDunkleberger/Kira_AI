@@ -272,8 +272,11 @@ if (Test-Path $targetFile) {
         # CKPT <name-substring> (2026-07-31, "tp her to somewhere else in cerulean"): promote the
         # NEWEST dense auto-checkpoint whose dir name matches the substring (labels embed the
         # place, e.g. 20260731_134210_cerulean-city_2b_10h05m) -- the hard teleport that does not
-        # depend on the game cooperating. Same contract as SNAPSHOT: live save backed up first,
-        # sidecars untouched (same campaign, minutes older).
+        # depend on the game cooperating. Live save backed up first.
+        #
+        # 2026-08-02 LIVE: promoting ONLY kira_campaign.state left world/soul/strat on the
+        # post-wedge timeline while the body jumped — she stood in Tower with a Route-12
+        # Snorlax brain. Restore the FULL checkpoint bundle (state + sidecars).
         $ckptPat = $target.Substring(5).Trim().ToLower()
         $ckptRoot = Join-Path $campaign "checkpoints"
         $ckptDir = Get-ChildItem $ckptRoot -Directory -ErrorAction SilentlyContinue |
@@ -289,12 +292,39 @@ if (Test-Path $targetFile) {
             Say "!! CKPT override: '$ckptPat' is Diglett-west poison — promoting Rock Tunnel instead: $($tunnelDir.Name)"
             $ckptDir = $tunnelDir
         }
+        # Anti-Tower-rewind (2026-08-02): "lavender-town" matched the PRE-Flute arrival and
+        # forced a full Pokemon Tower re-run. If a post-Fuji Route-12 CKPT exists, prefer it.
+        $towerPoison = $ckptPat -match 'lavender|pok-mon-tower|pokemon-tower|poke-tower'
+        $r12Dir = Get-ChildItem $ckptRoot -Directory -ErrorAction SilentlyContinue |
+                  Where-Object { $_.Name -notlike "*.partial" -and $_.Name.ToLower() -like "*route-12*" } |
+                  Sort-Object Name -Descending | Select-Object -First 1
+        if ($towerPoison -and $r12Dir) {
+            Say "!! CKPT override: '$ckptPat' is Tower/Lavender poison — promoting Route 12 instead: $($r12Dir.Name)"
+            $ckptDir = $r12Dir
+        }
         $ckptState = if ($ckptDir) { Join-Path $ckptDir.FullName "kira_campaign.state" } else { $null }
         if ($ckptState -and (Test-Path $ckptState)) {
             $liveSave = Join-Path $campaign "kira_campaign.state"
             Copy-Item $liveSave (Join-Path $campaign "replaced_$ts.state") -ErrorAction SilentlyContinue
             Copy-Item $ckptState $liveSave -Force
             Say "CKPT promoted: $($ckptDir.Name) -> kira_campaign.state (old save backed up as replaced_$ts.state)"
+            # Full sanctity sidecars from the SAME bundle (soul.json -> pokemon_soul.json).
+            $sidecarMap = @{
+                "world_model.json"   = "world_model.json"
+                "strat_memory.json"  = "strat_memory.json"
+                "journey_core.json"  = "journey_core.json"
+                "soul.json"          = "pokemon_soul.json"
+                "dialogue_hints.json"= "dialogue_hints.json"
+                "team_plan_state.json" = "team_plan_state.json"
+            }
+            foreach ($srcName in $sidecarMap.Keys) {
+                $src = Join-Path $ckptDir.FullName $srcName
+                $dst = Join-Path $campaign $sidecarMap[$srcName]
+                if (Test-Path $src) {
+                    Copy-Item $src $dst -Force
+                    Say "  sidecar restored: $srcName -> $($sidecarMap[$srcName])"
+                }
+            }
             # Drop stuck LAW orders (e.g. catch_now Snorlax) so a TP doesn't re-wedge into the
             # same force-gym / catch thrash that made Jonny ask for the teleport (2026-08-02).
             $ord = Join-Path $campaign "creator_order.json"

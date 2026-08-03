@@ -1,0 +1,4 @@
+# 2026-08-02 LIVE: lavender-town CKPT was PRE-Tower (no Flute) — she re-entered
+# Pokemon Tower. Pin the FIRST Route-12 gain after Mr. Fuji (Flute owned, Snorlax
+# still asleep on the road). Exact substring so newest wedged route-12 is NOT picked.
+CKPT 20260802_203942_route-12
