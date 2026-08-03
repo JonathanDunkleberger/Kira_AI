@@ -1,0 +1,187 @@
+===== playlive_2026-08-03_11-40-05.log =====
+   [travel] start map=(3, 31) coords=(35, 11) -> map (3, 32) (budget 300s)
+   [travel] west connection band rows: [5, 7, 9, 11, 13]
+   [travel] step 0: (35, 11)->(34, 11) map=(3, 31) (path 56 to exit)
+   [travel] step 10: (27, 9)->(26, 9) map=(3, 31) (path 46 to exit)
+   [travel] step 20: (29, 7)->(30, 7) map=(3, 31) (path 36 to exit)
+   [travel] step 30: (25, 5)->(24, 5) map=(3, 31) (path 26 to exit)
+   [travel] path blocked at (19, 5) (NPC on the gap?) - waiting
+   [travel] HEARTBEAT step=40 map=(3, 31) coords=(19, 5) elapsed=7s
+   [travel] no clean path from (19, 5); NPC-allowing path EXISTS (len 20), blocker NPC tile=(18, 5), npcs nearby=[(14, 8), (18, 5), (29, 11)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 2/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 3/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 4/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 5/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 6/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [2], refusals {2: 1}, futility 7/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite -> slot 1 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1, 2], refusals {2: 1, 1: 1}, futility 8/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: re-firing Water Pulse (idling never resolves a can't-flee fight)
+   [play-live]    [engine] action menu: Water Pulse -> slot 2 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [2], refusals {2: 2, 1: 1}, futility 9/4)
+   [play-live]    [engine] JUST FIGHT: L49 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite -> slot 1 (eff x1) vs spearow 55/55 | [0]Tackle(p35,sc=33.25) [1]Bite(p60,sc=60) [2]Water Pulse(p60*STAB,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1, 2], refusals {2: 2, 1: 2}, futility 10/4)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 4 (NOT re-picking species 9)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 4 (the only line that can still win)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] famine switch did not confirm -> fighting on (fail-safe)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] !! MENU WEDGE 65s with NO progress — escaping the scroll theater (fire 1/3, menu_up=1 action=True moves=False bag=False party=False)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 4 (NOT re-picking species 9)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 4 (the only line that can still win)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] famine switch did not confirm -> fighting on (fail-safe)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 4 (NOT re-picking species 9)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] PP FAMINE: active has no damaging PP left -> switching to party slot 4 (the only line that can still win)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] famine switch did not confirm -> fighting on (fail-safe)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> 'keep_fighting' (keep fighting)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_ether', 'keep_fighting'] ctx={'hp': '52/153', 'status': 'paralysis', 'foe': 'spearow'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_ether (item 35, aim=active)
+   [play-live]    [engine] use_item: couldn't reach true row 4 (cursor=1 scroll=0) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 35 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] !! MENU WEDGE 73s with NO progress — escaping the scroll theater (fire 2/3, menu_up=1 action=True moves=False bag=False party=False)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] !! MENU WEDGE 62s with NO progress — escaping the scroll theater (fire 3/3, menu_up=1 action=True moves=False bag=False party=False)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+   [play-live]    [engine] ZERO PP anywhere in a TRAINER battle -> FIGHT+A (the game substitutes Struggle)
+===== playlive_2026-08-03_09-18-12.log =====
+   [travel] start map=(3, 31) coords=(35, 11) -> map (3, 32) (budget 300s)
+   [travel] west connection band rows: [5, 7, 9, 11, 13]
+   [travel] step 0: (35, 11)->(34, 11) map=(3, 31) (path 56 to exit)
+   [travel] step 10: (27, 9)->(26, 9) map=(3, 31) (path 46 to exit)
+   [travel] step 20: (29, 7)->(30, 7) map=(3, 31) (path 36 to exit)
+   [travel] step 30: (25, 5)->(24, 5) map=(3, 31) (path 26 to exit)
+   [travel] path blocked at (19, 5) (NPC on the gap?) - waiting
+   [travel] HEARTBEAT step=40 map=(3, 31) coords=(19, 5) elapsed=7s
+   [travel] no clean path from (19, 5); NPC-allowing path EXISTS (len 20), blocker NPC tile=(18, 5), npcs nearby=[(14, 8), (18, 5), (29, 11)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through

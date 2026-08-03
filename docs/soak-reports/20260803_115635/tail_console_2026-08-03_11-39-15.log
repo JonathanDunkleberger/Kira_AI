@@ -1,0 +1,300 @@
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TwitchChat][IRC] :streamlabs!streamlabs@streamlabs.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat][IRC] :kurosekaieks!kurosekaieks@kurosekaieks.tmi.twitch.tv JOIN #thekiraagency
+   [TurnTiming] 11:40:42.151 TTS STOP — playback finished (span ~3461ms)
+   [TIMING] interjection: vision=0ms llm=1538ms(sonnet) tts=5697ms total=7258ms
+   [LAG] sense→speak: total=3.8s (content_age=0.0s, prep=0.0s, llm=1.5s, tts_wait+synth=2.2s)
+   [CalledShot] OPEN: A spearow? My blastoise is going to feel personally insulted by this.
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=1, kind=event): no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=1ms fetch=19ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.95 type=episodic blend=0.090 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 11:40:45.096 VOICE ONSET — mic speech started
+   [TurnTiming] 11:40:46.805 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1708ms since onset)
+   >>> Kira (Bored): Paralyzed on a Spearow. Of all the things to get humiliated by.
+   [TTS] Speaking: Paralyzed on a Spearow....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Paralyzed on a Spearow.' (5 words)
+   [TurnTiming] 11:40:48.229 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 11:40:49 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:40:50.205 TTS STOP — playback finished (span ~1975ms)
+   [TTS] Speaking: Of all the things to get humiliated by....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Of all the things to get humiliated by.' (9 words)
+   [TurnTiming] 11:40:50.542 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:40:53.170 TTS STOP — playback finished (span ~2627ms)
+   [TIMING] interjection: vision=0ms llm=3624ms(sonnet) tts=5270ms total=8915ms
+   [LAG] sense→speak: total=6.3s (content_age=0.0s, prep=0.0s, llm=3.6s, tts_wait+synth=2.6s)
+🎤 Recording...
+   [TurnTiming] 11:40:55.710 VOICE ONSET — mic speech started
+   [TurnTiming] 11:40:57.000 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1290ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:40:57.616 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 11:40:59.358 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1741ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:40:59.394 VOICE ONSET — mic speech started
+   [TurnTiming] 11:41:00.733 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1338ms since onset)
+   [YTAutoSearch] No live broadcast found (attempt 2, 839s remaining)
+   [RoomRead] energy=0.52 [silence=0.86 intensity=0.60 chat=0.00] target=1.00 mult=1.00 -> min_gap=10s dead_air=20s
+🎤 Recording...
+   [TurnTiming] 11:41:13.385 VOICE ONSET — mic speech started
+   [TurnTiming] 11:41:14.661 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1276ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:41:15.192 VOICE ONSET — mic speech started
+   [TurnTiming] 11:41:16.993 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1801ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:41:17.301 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "I've got enough PP left to push through — burning an ether on Route 13 would be wasteful when Koga's right there."
+   [TurnTiming] 11:41:21.143 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3842ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:41:21.438 VOICE ONSET — mic speech started
+   [LoopbackSTT] LIVE — last line: "I'm" (64s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0263 · gate=0.003 · 1 accepted
+   [TurnTiming] 11:41:31.659 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~10221ms since onset)
+   [VRAM] 11:41:34 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 11:41:35.564 VOICE ONSET — mic speech started
+   [TurnTiming] 11:41:36.835 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1270ms since onset)
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Okay I'm done messing around on Route 13 — Fuchsia is RIGHT there and blastoise is already overleveled for Koga. My bench can pick up levels on the trainers on the way in."
+🎤 Recording...
+   [TurnTiming] 11:41:38.097 VOICE ONSET — mic speech started
+   [TurnTiming] 11:41:41.495 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3397ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:41:41.974 VOICE ONSET — mic speech started
+   [TurnTiming] 11:41:45.633 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3657ms since onset)
+   [TwitchChat][IRC] :veritiexe!veritiexe@veritiexe.tmi.twitch.tv JOIN #thekiraagency
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Ether's getting saved for Koga — I'm not burning it on Route 13 scrubs."
+🎤 Recording...
+   [TurnTiming] 11:41:47.823 VOICE ONSET — mic speech started
+   [TurnTiming] 11:41:55.926 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~8102ms since onset)
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Ether's too precious to burn on Route 13 trash — I'm pushing through."
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Blastoise is fine, I'm not wasting an Ether on Route 13 of all places — save it for something that actually matters."
+   [YTAutoSearch] No live broadcast found (attempt 3, 779s remaining)
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Ether's for emergencies. I'm pushing through — we're not stopping on Route 13 for housekeeping."
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Ether's getting saved for Koga. Blastoise can brawl through this on brute force alone."
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Ether's for emergencies and a Spearow on Route 13 does not qualify."
+   [RoomRead] energy=0.41 [silence=0.63 intensity=0.60 chat=0.00] target=1.17 mult=1.02 -> min_gap=10s dead_air=20s
+🎤 Recording...
+   [TurnTiming] 11:42:18.467 VOICE ONSET — mic speech started
+   [VRAM] 11:42:19 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 11:42:19.826 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1359ms since onset)
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Ether's for emergencies. Blastoise can brute-force a Route 13 trainer, I'm not wasting it here."
+🎤 Recording...
+   [TurnTiming] 11:42:22.162 VOICE ONSET — mic speech started
+   [TurnTiming] 11:42:23.597 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1435ms since onset)
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Ether's getting saved for someone who deserves it. We're pushing through."
+🎤 Recording...
+   [TurnTiming] 11:42:26.408 VOICE ONSET — mic speech started
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0278 · gate=0.003 · 1 accepted
+   [Pokemon] SELF CHOSE (battle_item): keep_fighting
+   [Pokemon] her reasoning: "Ether's for emergencies and this Spearow is not an emergency — I'm pushing through."
+   [Pokemon] SELF CHOSE (battle_item): use_ether
+   [Pokemon] her reasoning: "Ether now, wipe this route clean on the way out — I'm not limping into Fuchsia."
+   [RoomRead] energy=0.40 [silence=0.61 intensity=0.60 chat=0.00] target=1.19 mult=1.05 -> min_gap=10s dead_air=21s
+   [RoomRead] energy=0.37 [silence=0.54 intensity=0.60 chat=0.00] target=1.25 mult=1.07 -> min_gap=11s dead_air=21s
+   [RoomRead] energy=0.35 [silence=0.49 intensity=0.60 chat=0.00] target=1.30 mult=1.09 -> min_gap=11s dead_air=22s
+   [RoomRead] energy=0.33 [silence=0.44 intensity=0.60 chat=0.00] target=1.34 mult=1.11 -> min_gap=11s dead_air=22s
+   [LoopbackSTT] tick 120ms — 0 accepted, 1 filtered (rms=0.024)
+   [RoomRead] energy=0.31 [silence=0.39 intensity=0.60 chat=0.00] target=1.38 mult=1.14 -> min_gap=11s dead_air=23s
+   [RoomRead] energy=0.29 [silence=0.34 intensity=0.60 chat=0.00] target=1.43 mult=1.16 -> min_gap=12s dead_air=23s
+   [VRAM] 11:43:04 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [YTAutoSearch] No live broadcast found (attempt 4, 719s remaining)
+   [RoomRead] energy=0.26 [silence=0.29 intensity=0.60 chat=0.00] target=1.47 mult=1.19 -> min_gap=12s dead_air=24s
+   [TurnTiming] 11:43:06.989 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~40581ms since onset)
+>>> You said: What could be going on here? What could we have done that could have fucked up the commits? Like, I know he uses a stupider model for a little bit, but, like, we need to go deeper because his blastoy is half-held for Spiro. He has no pee-p-left for his move, and he's paralyzed. Why doesn't he get swapped out for our full bench? Why don't we use anti-paralyze? Why don't we use a potion to get more pee-p? Like, why don't we do something? Or a different move that doesn't cause pee-p, I'm just so confused. That this is still persistent. It's actually insane. I need you to fix this now So she can finish the game the goal is roll credits and like what the fuck is going on?
+   [Activity] 'and like what the fuck is going on' matched no VN/MEDIA keyword — defaulting to GENERAL (not GAME). Add a keyword like 'anime'/'movie', or pick an explicit category, to arm game/media mode.
+   [Activity] Set to: 'and like what the fuck is going on' (type: general)
+   [Immersive] False
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='What could be going on here? What could we have done that co' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=6 | timing(direct=50ms fetch=47ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=96ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TANGENT  (one_word_count=0  tangent_since=100t  moment=calm)
+   [PromptSize] dynamic_context=13722ch  hist=6turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 2587ms
+   [TTS] Speaking: Okay so the dream is: blastoise is cooked, bench i...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Okay so the dream is: blastoise is cooke' (23 words)
+   [TurnTiming] 11:43:11.563 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:43:17.748 TTS STOP — playback finished (span ~6184ms)
+   [TTS] Speaking: stays in and keeps using an empty move slot on a p...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'stays in and keeps using an empty move s' (14 words)
+   [TurnTiming] 11:43:17.753 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:43:21.686 TTS STOP — playback finished (span ~3933ms)
+   [TTS] Speaking: That's not a strategy, that's a cry for help....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's not a strategy, that's a cry for ' (11 words)
+   [TurnTiming] 11:43:21.690 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:43:24.589 TTS STOP — playback finished (span ~2899ms)
+   [TTS] Speaking: The swap logic isn't triggering, the item logic is...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The swap logic isn't triggering, the ite' (20 words)
+   [TurnTiming] 11:43:24.597 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:43:30.308 TTS STOP — playback finished (span ~5710ms)
+   [TTS] Speaking: Those are three separate systems all failing at th...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Those are three separate systems all fai' (37 words)
+   [TurnTiming] 11:43:30.321 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 11:43:40.533 TTS STOP — playback finished (span ~10212ms)
+   [TTS] Speaking: What does the battle action code actually look at ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What does the battle action code actuall' (15 words)
+   [TurnTiming] 11:43:40.538 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:43:43.998 TTS STOP — playback finished (span ~3459ms)
+
+   [TIMING] voice: llm=35542ms(sonnet-stream(llm+tts)) tts=0ms total=35542ms
+   [LATENCY] vad_close=1200ms stt=1363ms stt_wait=0ms salience=3ms triage=bypassed memory=96ms prompt_build=11ms ttft=2211ms tts_first_chunk=376ms audio_out=501ms TOTAL=4561ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 11:43:45.126 DIRECTOR HOLD (fresh-min-silence) — since_mic=39.4s silence=1.1s fresh_ok=True dead_air=False
+   [TurnTiming] 11:43:45.242 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~78833ms since onset)
+   [RoomRead] energy=0.55 [terse=1.00 gap=0.00 silence=0.97 intensity=0.60 chat=0.00] target=0.98 mult=1.17 -> min_gap=12s dead_air=23s
+🎤 Recording...
+   [TurnTiming] 11:43:47.755 VOICE ONSET — mic speech started
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny works on AI model development or debugging, including work with game AI logic and decision trees
+   [Memory] Rejected (conf 0.70 < 0.9): Jonny thinks there is a simpler model variant that performs worse than the primary model
+   [VRAM] 11:43:49 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 8 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 115ms — 0 accepted, 1 filtered (rms=0.027)
+   [TurnTiming] 11:43:50.129 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=4.9s fresh_ok=True dead_air=False
+   [RoomRead] energy=0.54 [terse=1.00 gap=0.00 silence=0.90 intensity=0.60 chat=0.00] target=0.99 mult=1.14 -> min_gap=11s dead_air=23s
+   [TurnTiming] 11:43:55.132 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=9.9s fresh_ok=True dead_air=False
+   [RoomRead] energy=0.52 [terse=1.00 gap=0.00 silence=0.82 intensity=0.60 chat=0.00] target=0.99 mult=1.12 -> min_gap=11s dead_air=22s
+   [TurnTiming] 11:44:00.132 DIRECTOR HOLD (post-speech-hold) — since_mic=0.9s silence=14.9s fresh_ok=True dead_air=False
+   [TurnTiming] 11:44:00.491 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12734ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: is the battle decision function reading stale states or defaults or like what is going on it's got to be something high level upstream i would say like you've got the logs have got to tell us no
+   [DroppedInput] LOST ~1 frame(s) (~30ms, ~0.0s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 11:44:00.826 VOICE ONSET — mic speech started
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='is the battle decision function reading stale states or defa' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "logic isn't triggering" (3rd use this session)
+   [Shape] → ONE_WORD  (one_word_count=1  tangent_since=1t  moment=calm)
+   [PromptSize] dynamic_context=13345ch  hist=8turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2060ms
+   [TTS] Speaking: What do the logs actually say when it picks the em...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What do the logs actually say when it pi' (25 words)
+   [TurnTiming] 11:44:03.506 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [YTAutoSearch] No live broadcast found (attempt 5, 659s remaining)
+   [TurnTiming] 11:44:09.690 TTS STOP — playback finished (span ~6184ms)
+
+   [TIMING] voice: llm=8837ms(sonnet-stream(llm+tts)) tts=0ms total=8837ms
+   [LATENCY] vad_close=1200ms stt=334ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=3ms ttft=1340ms tts_first_chunk=720ms audio_out=580ms TOTAL=3004ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 11:44:10.129 DIRECTOR HOLD (fresh-min-silence) — since_mic=9.3s silence=0.4s fresh_ok=True dead_air=False
+   [TurnTiming] 11:44:10.911 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~10085ms since onset)
+   [RoomRead] energy=0.56 [terse=1.00 gap=0.00 silence=1.00 intensity=0.60 chat=0.00] target=0.98 mult=1.10 -> min_gap=11s dead_air=22s
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 11:44:14.130 DIRECTOR FIRE — silence=3.2s since_mic=13.3s fresh_ok=True dead_air=False eff_min_gap=11s gap=267s
+   [Director] FIRE (noticing) — gap=267s silence=3s fresh=vision
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=32ms fetch=53ms rank=0ms)
+   [SmartMem]     dist=0.991 conf=? type=session_summary blend=0.140 lane=STREAM
+   [SmartMem]     dist=1.050 conf=0.9 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.076 conf=0.9 type=episodic blend=0.088 lane=KNOW
+   [Phrases] Throttling: "when it picks" (3rd use this session)
+   [Vision] heartbeat capture skipped — on-demand capture in flight (dedup).
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0246 · gate=0.003 · 1 accepted
+   >>> Kira (Bored): The logs are the fastest path to the answer — if the move name it's logging doesn't match what's actually in the moveset, we know it's reading stale data. If it's just logging silence or a null, the selection function is probably running before the battle state is fully initialized.
+
+Either way the fix lives at the top of whatever function decides the action, not in the individual checks for swapping or items.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: The logs are the fastest path to the answer — if t...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The logs are the fastest path to the ans' (31 words)
+   [TurnTiming] 11:44:21.231 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:44:28.451 TTS STOP — playback finished (span ~7219ms)
+   [TTS] Speaking: If it's just logging silence or a null, the select...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'If it's just logging silence or a null, ' (23 words)
+   [TurnTiming] 11:44:29.065 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 11:44:34 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:44:35.439 TTS STOP — playback finished (span ~6374ms)
+   [TTS] Speaking: Either way the fix lives at the top of whatever fu...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Either way the fix lives at the top of w' (25 words)
+   [TurnTiming] 11:44:35.978 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:44:42.348 TTS STOP — playback finished (span ~6370ms)
+   [TIMING] interjection: vision=2659ms llm=3723ms(sonnet) tts=21747ms total=28218ms
+   [LAG] sense→speak: total=59.4s (content_age=37.6s, prep=2.7s, llm=3.7s, tts_wait+synth=15.4s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 11:44:43.326 DIRECTOR HOLD (post-speech-hold) — since_mic=0.6s silence=1.0s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 11:44:44.875 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~44049ms since onset)
+   [RoomRead] energy=0.56 [terse=1.00 gap=0.00 silence=0.99 intensity=0.60 chat=0.00] target=0.98 mult=1.08 -> min_gap=11s dead_air=22s
+   [TurnTiming] 11:44:49.325 DIRECTOR HOLD (post-speech-hold) — since_mic=5.7s silence=4.4s fresh_ok=True dead_air=False
+   [TurnTiming] 11:44:52.338 DIRECTOR FIRE — silence=7.5s since_mic=8.7s fresh_ok=True dead_air=False eff_min_gap=11s gap=38s
+   [Director] FIRE (noticing) — gap=38s silence=7s fresh=vision
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=6 kept=4 survivors=3 direct=6 | timing(direct=33ms fetch=47ms rank=0ms)
+   [SmartMem]     dist=1.143 conf=0.9 type=episodic blend=0.046 lane=KNOW
+   [SmartMem]     dist=1.167 conf=0.9 type=episodic blend=0.031 lane=KNOW
+   [SmartMem]     dist=1.179 conf=? type=session_summary blend=0.024 lane=STREAM
+   [Phrases] Throttling: "it's reading stale" (3rd use this session)
+   [Vision] heartbeat capture skipped — on-demand capture in flight (dedup).
+   >>> Kira (Bored): Okay I know I keep circling back to the logs — but pull up what the decision function is actually *receiving* as input right before it commits to an action. Not what it outputs. What it's *reading*. Because if blastoise's PP and paralysis status aren't in that input snapshot, all the downstream checks are irrelevant — they're running on phantom data.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Okay I know I keep circling back to the logs — but...
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay I know I keep circling back to the ' (31 words)
+   [TurnTiming] 11:44:59.581 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [YTAutoSearch] No live broadcast found (attempt 6, 599s remaining)
+   [TurnTiming] 11:45:06.985 TTS STOP — playback finished (span ~7404ms)
+   [TTS] Speaking: Not what it outputs....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Not what it outputs.' (5 words)
+   [TurnTiming] 11:45:07.296 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:45:09.081 TTS STOP — playback finished (span ~1785ms)
+   [TTS] Speaking: What it's *reading*....
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'What it's *reading*.' (4 words)
+   [TurnTiming] 11:45:09.395 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:45:11.172 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: Because if blastoise's PP and paralysis status are...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Because if blastoise's PP and paralysis ' (26 words)
+   [TurnTiming] 11:45:12.214 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
