@@ -94,7 +94,10 @@ _FULL_HEAL = 23
 # default — a frozen session is strictly worse than a flee — but disable-able / tunable. Capability-
 # not-script: she still picks her move every turn; this only catches the dead-end where NO move resolves.
 BATTLE_FLEE_FLOOR = os.getenv("POKEMON_BATTLE_FLEE_FLOOR", "1") == "1"
-UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "3"))
+# Was 3 — on LIVE stream menu thrash, 3 unresolved turns ≈ minutes of scrolling. Bail at 2.
+UNRESOLVED_FLEE_AT = int(os.getenv("POKEMON_UNRESOLVED_FLEE_AT", "2"))
+# Hard wall-clock escape when menu understanding is wedged (seconds in battle with no PP drop).
+BATTLE_MENU_WEDGE_S = float(os.getenv("POKEMON_BATTLE_MENU_WEDGE_S", "45"))
 # PP-FAMINE SWITCH RETRIES (2026-07-31, Jonny stream debrief — the 10-minute Teleport-Abra fight):
 # the famine switch used to be ONE-SHOT per species per battle, and the try was consumed even when
 # the switch nav FAILED to confirm — so a Teleport-only Abra whose single try misfired was doomed
@@ -1138,48 +1141,37 @@ class BattleAgent:
         return next((q for i, q in self._items_pocket() if i == item_id), 0)
 
     def _action_cursor_alive(self, probes=2):
-        """The run19 Lance livelock (2026-07-07): a dangling item message box on the in-battle
-        PARTY screen ("PERSIAN's HP was restored...") lights the SAME white-panel pixels as the
-        action menu, so every pixel-gated path believed a menu was up while the game waited for
-        a box-dismissing press — the directional walks (_goto_fight/_goto_pokemon) tapped into a
-        STALE GBATTLE_ACTION_CURSOR forever and the abort->re-enter cycle never pressed A/B.
-        Pixel truth is not enough: the action menu is only REAL if the cursor RESPONDS. Tap
-        toward a horizontal neighbour and demand the readback moves (retry — single taps get
-        eaten on this core). ALWAYS restores the original cell — leaving the cursor on BAG after
-        a probe was the 2026-08-02 LIVE stream look (Fight↔Bag scroll for minutes)."""
-        c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
-        if c not in (ram.ACT_FIGHT, ram.ACT_BAG, ram.ACT_POKEMON, ram.ACT_RUN):
-            return False
-        t = "RIGHT" if c in (ram.ACT_FIGHT, ram.ACT_POKEMON) else "LEFT"
-        back = "LEFT" if t == "RIGHT" else "RIGHT"
-        for _ in range(probes):
-            self._tap(t); self._wait(5)
-            if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != c:
-                self._tap(back); self._wait(5)          # restore — never leave cursor parked on BAG
-                return True
-        return False
+        """DEPRECATED probe — NEVER tap d-pad here.
+
+        On this libmgba core the first d-pad at the action menu CONFIRMS FIGHT (opens the move
+        list). The old LEFT/RIGHT 'alive' probe WAS the Fight↔Bag / Fight↔moves stream thrash
+        (2026-08-02 LIVE). Truth is GBATTLE_MENU_UP==1, not cursor motion."""
+        return self._at_action_menu()
 
     def _settle_action_menu(self, tries=30):
-        """Reach the real ACTION menu using the PIXEL signals (menu_up RAM is stale on this core): action
-        menu = white panel AND NOT the move-list pixel, VERIFIED by cursor responsiveness — a dangling
-        message box / party screen / USE-CANCEL sub-box lights the same pixels (the run19 Lance livelock).
-        Impostors are drained with B (dismisses boxes, backs out of party/bag, no-op at the real menu).
-        Back out of the move list with B; advance text."""
-        self._settle()
+        """Reach the real ACTION menu via GBATTLE_MENU_UP (not d-pad probes / white_box alone).
+
+        Impostors (party/bag/text) drained with B. Move list left alone if we only need 'a menu'
+        — callers that need ACTION specifically see menu_up==1."""
+        self._settle(need=6, timeout=200)
         for _ in range(tries):
             if not st.in_battle(self.b):
                 return False
-            if self._in_move_list():
-                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-            elif not self._white_box():
-                self._advance_text()
-            elif self._action_cursor_alive():
-                return True
-            else:
-                self.log("   [engine] action-menu impostor (white box, DEAD cursor) -> B-drain "
-                         "(dangling box / party screen)")
+            if self._bag_screen() or self._party_screen():
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
-        return False
+                continue
+            if self._at_action_menu():
+                return True
+            if self._at_move_list():
+                # Back to action — ONE B only (don't A/B oscillate).
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
+                continue
+            if not self._white_box():
+                self._advance_text()
+            else:
+                # White impostor (trainer prize / item text) — B drain, no d-pad.
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
+        return self._at_action_menu()
 
     def _goto_bag(self, tries=10):
         """Walk the action cursor to BAG (top-right, ACT_BAG=1) by READBACK, not a blind RIGHT — the
@@ -1687,16 +1679,44 @@ class BattleAgent:
             self._wait(14)
         return not self._bag_screen()
 
+    def _menu_up(self):
+        """GBATTLE_MENU_UP (0x02023E86): 1 = action menu (FIGHT/BAG/POKEMON/RUN), 0 otherwise.
+        Verified signal (firered_ram) — NOT the free-running GBATTLE_PHASE counter."""
+        try:
+            return self.b.rd8(ram.GBATTLE_MENU_UP) == 1
+        except Exception:
+            return False
+
+    def _at_action_menu(self):
+        """TRUE FIGHT/BAG/POKEMON/RUN menu. menu_up==1 is authoritative; _white_box alone is
+        shared with the move list (the thrash root — treating both as 'action' then probing)."""
+        if self._bag_screen() or self._party_screen():
+            return False
+        return self._menu_up() and self._white_box()
+
+    def _at_move_list(self):
+        """FIGHT move list is up. menu_up==0 + white panel (or MENU_MODE==2). Never d-pad probe."""
+        if self._bag_screen() or self._party_screen() or self._menu_up():
+            return False
+        try:
+            if self.b.rd8(MENU_MODE) == 2:
+                return True
+        except Exception:
+            pass
+        return self._white_box() and self._in_move_list()
+
     def _home_to_fight(self):
-        """Park the action cursor on FIGHT (top-left) WITHOUT reading the stale cursor latch:
-        UP then LEFT are absorbed at the top/left boundary, so from ANY of the 4 cells they net
-        the top-left corner = FIGHT. Reliable now that input is clean (no phantom-A confirm)."""
-        self._tap("UP"); self._tap("LEFT"); self._wait(4)
+        """NO-OP on this libmgba core (2026-08-02 LIVE ROOT CAUSE).
+
+        firered_ram CATCH-ARC finding: the FIRST d-pad press at the action menu CONFIRMS FIGHT
+        (menu_up 1→0, opens the move list). UP/LEFT 'homing' was the stream look — endless
+        Fight↔move / Fight↔Bag theater. Default cell IS FIGHT; just press A when menu_up==1."""
+        return
 
     def _nav_move(self, idx):
         """Move the move-list cursor from slot 0 (where the list opens) to slot idx in the 2x2
         grid: TL=0 TR=1 / BL=2 BR=3 (RIGHT = column, DOWN = row). Settles after so the confirm-A
-        isn't eaten mid cursor-move (the slot-2 lesson)."""
+        isn't eaten mid cursor-move (the slot-2 lesson). ONLY call when _at_move_list()."""
         if idx == 1:
             self._tap("RIGHT")
         elif idx == 2:
@@ -1706,44 +1726,12 @@ class BattleAgent:
         self._wait(14)
 
     def _movelist_open(self):
-        """RAM truth for 'the FIGHT move list is open' (MENU_MODE == 2), OR the pixel check — either
-        suffices. The RAM signal is what survives the long-running core (the pixel detect intermittently
-        fails there, the keystone wedge)."""
-        try:
-            if self.b.rd8(MENU_MODE) == 2:
-                return True
-        except Exception:
-            pass
-        return self._in_move_list()
+        """True iff the FIGHT move list is open — menu_up==0 path, never a d-pad probe."""
+        return self._at_move_list()
 
     def _movelist_open_verified(self):
-        """Is the FIGHT move list actually open? PIXEL / MENU_MODE only — NEVER a d-pad probe.
-
-        History:
-          • Immortal-Ekans (2026-07-05): MENU_MODE stale-HIGH (=2) after an item use short-circuited
-            True before A ever opened the list → presses landed on the action menu forever.
-          • Route-6 A/B livelock (2026-07-06): gating a probe on MENU_MODE made a real open list
-            read closed → B closed it, A reopened it, ×12.
-          • Stream chalk (2026-08-02 a.m.): RESPONSE PROBE false-negatives → Fight↔moves thrash.
-          • Stream chalk (2026-08-02 p.m., LIVE): the probe's LEFT/RIGHT taps land on the ACTION
-            menu (FIGHT↔BAG scrolling) when the list isn't open — unwatchable for minutes while
-            Blastoise "thinks". Probe is banned. Stale-HIGH (mode==2, pixel closed) → closed.
-
-        Doctrine: pixel open + mode not clearly action (1) → open. Else closed. Zero taps."""
-        pixel = False
-        try:
-            pixel = self._in_move_list()
-        except Exception:
-            pixel = False
-        try:
-            mode = self.b.rd8(MENU_MODE)
-        except Exception:
-            mode = None
-        if pixel and mode == 2:
-            return True
-        if pixel and mode != 1:
-            return True
-        return False
+        """Alias of _at_move_list — kept for call sites. Zero taps. Ever."""
+        return self._at_move_list()
 
     def _goto_move(self, idx, tries=12):
         """Walk the move-list cursor to slot idx by RAM READBACK of MOVE_CURSOR (0..3 in the 2x2 grid:
@@ -1975,33 +1963,32 @@ class BattleAgent:
         except Exception:
             self.log(f"   [engine] action menu: {desc} -> slot {idx} (eff x{eff:g}) vs "
                      f"{st.SPECIES_NAME.get(enemy['species'], '?')} {enemy['hp']}/{enemy['maxhp']}")
-        # STREAM COMMIT (2026-08-02 LIVE chalk): ONE decisive FIGHT→move→A. No settle-probe
-        # (those LEFT/RIGHT taps ARE the FIGHT↔BAG scroll viewers hate), no B-dance, no 4-try
-        # open theater. Home → A → nav if list open → A → wait for PP/HP. Trainer battles always
-        # take this path; wild too (stuck still rides the anti-wedge flee floor).
-        self.log(f"   [engine] STREAM COMMIT: {desc} slot {idx} (no menu probe / no A/B thrash)")
-        self._home_to_fight()
-        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(14)
-        # Wrong submenu only — NEVER B the white action panel (feeds the thrash).
+        # STREAM COMMIT (2026-08-02 LIVE ROOT): ZERO d-pad on the action menu.
+        # menu_up==1 → A opens the move list (default cell is FIGHT). Already on move list →
+        # nav + A. Never UP/LEFT/RIGHT at action (those CONFIRM FIGHT / scroll forever on this core).
+        self.log(f"   [engine] STREAM COMMIT: {desc} slot {idx} "
+                 f"(menu_up={int(self._menu_up())} action={self._at_action_menu()} "
+                 f"moves={self._at_move_list()})")
         if self._bag_screen() or self._party_screen():
             self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
-            self._home_to_fight()
-            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(14)
-        if self._movelist_open() or self._in_move_list() or self._movelist_open_verified():
+        if self._at_action_menu():
+            # ONE A — opens move list. Do NOT d-pad first.
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
+        elif not self._at_move_list() and self._white_box():
+            # Ambiguous white — try A once (opens fight or confirms if already on list).
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
+        if self._at_move_list():
             if not self._goto_move(idx):
-                self._nav_move(idx)                    # blind grid walk if readback stalls
+                self._nav_move(idx)
         else:
-            # List didn't advertise open — second A still fires slot-0 / Struggle; better than spin.
-            self.log("   [engine] STREAM COMMIT: list signal quiet after FIGHT — firing A anyway")
+            self.log("   [engine] STREAM COMMIT: move list not confirmed — firing A anyway (slot0/Struggle)")
         pp0 = ours["moves"][idx].get("pp", 0) if 0 <= idx < 4 else 0
         before = self._bstate()
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
-        self._last_desc, self._last_eff = desc, eff   # narrated when the hit actually lands
-        # VERIFY the move EXECUTED. Wait for TURN TO RESOLVE: PP drop / HP change / battle end.
-        # Back at action menu with nothing changed = true non-fire (Disable / can't-act).
+        self._last_desc, self._last_eff = desc, eff
         result = None
         last_hp, stable = before, 0
-        for _ in range(900):
+        for _ in range(600):                          # was 900 — shorter wait, faster retry if miss
             if not st.in_battle(self.b):
                 result = "done"; break
             cur = st.read_battle(self.b)
@@ -2017,14 +2004,17 @@ class BattleAgent:
                     result = "done"; break
                 stable = stable + 1 if hp == last_hp else 0
                 last_hp = hp
-                if self._white_box() and not self._in_move_list() and stable >= 30:
+                # Back at ACTION menu (menu_up==1) with no change = turn didn't leave.
+                if self._at_action_menu() and stable >= 20:
                     break
+            # Advance text without B while white (B flees / closes menus).
+            if not self._white_box():
+                self.b.press("A", 2, 8, self.render, owner=self.owner)
             self.b.run_frame(); self.render()
         if result == "done":
             self._skip_streak.clear()
             self._immob_streak = 0
         else:
-            # Immobilization (sleep/freeze/par) is a REAL turn — don't bench the moveset.
             try:
                 cur = st.read_battle(self.b)
                 st1 = (cur or {}).get("ours", {}).get("status1", 0)
@@ -2045,11 +2035,9 @@ class BattleAgent:
             self._skip_streak.add(idx)
             self.log(f"   [engine] move slot {idx} didn't fire (0-PP / disabled / blocked) -> rotating "
                      f"to an untried move (streak now {sorted(self._skip_streak)})")
-            # TRAINER: never hand the outer loop a 'stuck' that re-settles+probes the action
-            # menu (more FIGHT↔BAG scroll). Report done so the next turn picks a fresh move.
-            if self._is_trainer_battle():
-                return "done"
-        return result or "stuck"
+            # Always 'done' to the outer loop — never 'stuck' (stuck re-settles and re-probes).
+            return "done"
+        return result or "done"
 
     def _advance_text(self, force_b=False):
         """Advance battle dialogue/animation SAFELY. Diagnosed 2026-06-23: (a) mashing A
@@ -3174,11 +3162,26 @@ class BattleAgent:
             glob = self._bstate()
             if glob != last_glob:                     # real progress -> reset the wedge guard
                 last_glob, stall = glob, 0
-            if self._white_box():                     # the action menu is up (white panel) ->
+            # MENU TRUTH (2026-08-02 LIVE): gate on ACTION (menu_up==1) OR MOVE LIST — not
+            # white_box alone (shared by both → every turn re-opened / probed forever).
+            if self._at_action_menu() or self._at_move_list():
                 state = st.read_battle(self.b)         # pick + commit a move, verify it lands
                 self._note_foe(state)                  # foes-seen ledger (live turn read)
                 self._classify_prev_whiff(state)       # race-free: judge last turn's move at this clean
                 #                                        menu-up read (before the whiff-breaker acts below)
+                # Already on the move list (stray open) — commit immediately, skip switch/item theater.
+                if self._at_move_list() and not self._at_action_menu():
+                    self.log("   [engine] move list already open at turn top — STREAM COMMIT, "
+                             "skipping switch/item menu theater")
+                    res = self._select_and_verify(state) if state else "done"
+                    if res == "done":
+                        self._acted_once = True
+                        stall = 0
+                        self._unresolved_turns = 0
+                    else:
+                        stall += 1
+                        self._unresolved_turns += 1
+                    continue
                 # NS23 LOAD-SHARE (pre-heal, flag-gated default OFF): BEFORE spending a heal, if the worn
                 # active is an SE attacker and a NEAR-FULL SE partner is on the bench, rotate to the fresh
                 # body instead — spreads the gauntlet's attrition across two SE attackers AND conserves the
@@ -3317,7 +3320,10 @@ class BattleAgent:
                 # wild) and re-field the fragile mon, which then faints and STRANDS her (the observed
                 # Route-4 (84,15) strand: GRIND SWITCH in, MATCHUP SWITCH straight back out). During a grind
                 # the ace STAYS and tanks — no matchup churn.
+                # Skip matchup switch once a turn already failed to resolve — opening POKEMON
+                # mid-thrash is more menu theater (2026-08-02 LIVE).
                 if (BATTLE_SWITCH_ENABLED and not PROTECT_LEAD_GRIND
+                        and getattr(self, "_unresolved_turns", 0) < 1
                         and state and not (self._enemy_fainted or self._we_fainted)
                         and self._voluntary_switch(state) == "switched"):
                     self._acted_once = True
@@ -3413,24 +3419,58 @@ class BattleAgent:
                         except Exception:
                             pass
                         self.log(f"   [engine] !! ANTI-WEDGE FLOOR: {self._unresolved_turns} unresolved "
-                                 f"turns (last={res}) in a TRAINER battle -> can't flee; LOUD abort "
-                                 f"[forensics: action_cursor={self.b.rd8(ram.GBATTLE_ACTION_CURSOR)} "
-                                 f"white_box={self._white_box()} move_list={self._in_move_list()} "
+                                 f"turns (last={res}) in a TRAINER battle -> mash FIGHT+A (war-must-advance) "
+                                 f"[forensics: menu_up={int(self._menu_up())} "
+                                 f"action={self._at_action_menu()} moves={self._at_move_list()} "
                                  f"bag={self._bag_screen()} party={self._party_screen()} ours_pp={_pp}]")
                         self._debug_snap("antiwedge_trainer")
-                        self.emit("I'm jammed up in here — can't get a move to land.", beat=False)
-                        return "stuck"
+                        # NEVER return stuck (travel re-enters the same fight). Mash A on FIGHT.
+                        if self._at_action_menu() or self._white_box():
+                            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                            self._wait(14)
+                            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                            self._wait(20)
+                        self._unresolved_turns = 0
+                        stall = 0
+                        continue
             else:
                 self._advance_text()                  # BLUE dialogue/animation box -> advance it
                 stall += 1
+            # WALL-CLOCK MENU WEDGE (2026-08-02 LIVE): get OUT — wild flee / trainer mash.
+            if (BATTLE_MENU_WEDGE_S > 0 and time.time() - t0 >= BATTLE_MENU_WEDGE_S
+                    and not self._enemy_fainted and not self._we_fainted
+                    and not getattr(self, "_menu_wedge_fired", False)):
+                self._menu_wedge_fired = True
+                self.log(f"   [engine] !! MENU WEDGE {BATTLE_MENU_WEDGE_S:.0f}s — escaping the "
+                         f"scroll theater (menu_up={int(self._menu_up())} "
+                         f"action={self._at_action_menu()} moves={self._at_move_list()})")
+                self.emit("menus are glitched — bailing this fight.", beat=True, tier=2)
+                if not self._is_trainer_battle():
+                    return self.flee(max_seconds=45)
+                # Trainer: keep mashing FIGHT+A until budget ends (never stuck→re-enter).
+                for _ in range(8):
+                    if not st.in_battle(self.b) or self._enemy_fainted:
+                        break
+                    if self._bag_screen() or self._party_screen():
+                        self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                        self._wait(10)
+                    self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                    self._wait(16)
+                self._unresolved_turns = 0
+                stall = 0
             if stall >= 30:                           # genuine wedge -> loud abort, never silent
                 if self._decided_win():
                     self.log("   [engine] !! stall≥30 but win DECIDED — finishing victory chain "
                              "(refuse fight-reset re-entry)")
                     return self._drain_decided_win()
-                self.log("   [engine] !! battle wedged - no progress over 30 attempts, aborting loudly")
-                self.emit("okay I'm properly stuck, the menu's glitched", beat=False)
-                return "stuck"
+                if not self._is_trainer_battle():
+                    self.log("   [engine] !! battle wedged stall≥30 WILD -> FLEE")
+                    return self.flee(max_seconds=45)
+                self.log("   [engine] !! battle wedged stall≥30 TRAINER -> mash A, not stuck-abort")
+                self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(12)
+                stall = 0
+                continue
         # Budget exhausted: if the fight is already won, NEVER hand travel a timeout that
         # re-attaches mid-victory (Rock Tunnel trainer loop, 2026-08-02).
         if self._decided_win():
