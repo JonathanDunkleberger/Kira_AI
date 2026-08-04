@@ -1,0 +1,358 @@
+===== playlive_2026-08-04_10-59-37.log =====
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (16, 3) (budget 300s)
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 54) (path 2 to exit)
+   [travel] reached target coord (16, 3)
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (17, 2) (budget 60s)
+   [travel] step 0: (16, 2)->(17, 2) map=(1, 54) (path 2 to exit)
+   [travel] reached target coord (17, 2)
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 80/80 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=16,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 71/71 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=15,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs hypno 85/85 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs hypno 12/85 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=22,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 71/71 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 16/71 | [0]Tackle(p35,pp=31,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs grimer 82/82 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs machop 77/77 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=15) [2]Water Pulse(p60*STAB,pp=13,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 112/112 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 86/112 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 58/112 | [0]Tackle(p35,pp=28,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 33/112 | [0]Tackle(p35,pp=27,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 6/112 | [0]Tackle(p35,pp=26,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] LEVEL-UP MOVE PROMPT: wants to learn move#130 over a full moveset -> DECLINING deliberately (B=keep the set, A=confirm)
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L55 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 121/121 | [0]Tackle(p35,pp=26,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=45) [3]move#130(p100,pp=15,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '12/170', 'status': 'none', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 7% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 21, aim=active)
+   [play-live]    [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4 to the Items pocket
+   [play-live]    [engine] use_item: RAM says row 6 wanted 7 — bytes may be frozen; BLIND bag walk (clamp-home + DOWN x7)
+   [play-live]    [engine] use_item walk n=0: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=2: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=3 scroll=3 row=7 — selected but item 21 NOT consumed (count still 15) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 21 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] POTION-BLOCK: no more heal-item offers this battle (full-HP / no_effect abort)
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 51/121 | [0]Tackle(p35,pp=26,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=45) [3]move#130(p100,pp=14,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] fswitch retry 1: target row 3 sp=64 skip_rows=[] party_cur=1 menu_rows=[(9, 0), (21, 47), (19, 43), (64, 45), (50, 35)]
+   [play-live]    [engine] fswitch: selecting row 3 (sp=64 L19 hp=45)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] WHIFF: foe HP unchanged at 51 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '45/45', 'status': 'none', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4 to the Items pocket
+   [play-live]    [engine] use_item: RAM says row 6 wanted 8 — bytes may be frozen; BLIND bag walk (clamp-home + DOWN x8)
+   [play-live]    [engine] use_item walk n=0: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=2: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=True bag=False white=True pcur=3 lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=3 scroll=3 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 64 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] action menu: Confusion - a super-effective hit -> slot 1 (eff x2) vs venusaur 51/121 | [0]Teleport(p0*STAB,pp=20,ref=0,sc=0) [1]Confusion(p50*STAB,pp=25,ref=0,sc=150) [2]Disable(p0,pp=20,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Confusion - a super-effective hit slot 1 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] fswitch: selecting row 1 (sp=21 L18 hp=47)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '47/47', 'status': 'none', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 21 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] action menu: Peck - a super-effective hit -> slot 0 (eff x2) vs venusaur 51/121 | [0]Peck(p35*STAB,pp=35,ref=0,sc=105) [1]Leer(p0*STAB,pp=30,ref=1,sc=0) [2]Fury Attack(p15*STAB,pp=20,ref=0,sc=19.125)
+   [play-live]    [engine] STREAM COMMIT: Peck - a super-effective hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 2: target row 2 sp=19 skip_rows=[] party_cur=2 menu_rows=[(21, 0), (64, 0), (19, 43), (9, 0), (50, 35)]
+   [play-live]    [engine] fswitch: selecting row 2 (sp=19 L18 hp=43)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] action menu: move#158 - a STAB hit -> slot 1 (eff x1) vs venusaur 51/121 | [0]Quick Attack(p40*STAB,pp=30,ref=0,sc=60) [1]move#158(p80*STAB,pp=15,ref=1,sc=108) [2]Cut(p50*STAB,pp=30,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: move#158 - a STAB hit slot 1 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 2}, futility 1/4)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '43/43', 'status': 'none', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 19 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] action menu: Cut -> slot 2 (eff x1) vs venusaur 51/121 | [0]Quick Attack(p40*STAB,pp=30,ref=0,sc=60) [1]move#158(p80*STAB,pp=15,ref=2,sc=108) [2]Cut(p50*STAB,pp=30,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Cut slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 4: target row 4 sp=50 skip_rows=[] party_cur=2 menu_rows=[(19, 0), (64, 0), (21, 0), (9, 0), (50, 35)]
+   [play-live]    [engine] fswitch: selecting row 4 (sp=50 L18 hp=35)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '35/35', 'status': 'none', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 50 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] action menu: move#91 - a STAB hit -> slot 3 (eff x1) vs venusaur 51/121 | [0]Scratch(p40,pp=35,ref=0,sc=40) [1]Growl(p0,pp=40,ref=2,sc=0) [2]move#222(p1*STAB,pp=30,ref=0,sc=1.5) [3]move#91(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: move#91 - a STAB hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [travel] start map=(14, 6) coords=(0, 7) -> coord (7, 7) (budget 300s)
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7); NPC-allowing path EXISTS (len 8), blocker NPC tile=None, npcs nearby=[(3, 3), (7, 2), (9, 7)] -> approaching to interact/trigger
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 10) coords=(24, 39) -> coord (33, 31) (budget 300s)
+   [travel] step 0: (24, 39)->(23, 39) map=(3, 10) (path 32 to exit)
+   [travel] step 10: (17, 36)->(17, 35) map=(3, 10) (path 22 to exit)
+   [travel] step 20: (23, 32)->(24, 32) map=(3, 10) (path 12 to exit)
+   [travel] step 30: (32, 31)->(33, 31) map=(3, 10) (path 2 to exit)
+   [travel] reached target coord (33, 31)
+   [travel] start map=(1, 47) coords=(6, 20) -> coord (31, 3) (budget 300s)
+   [travel] step 0: (6, 20)->(6, 19) map=(1, 47) (path 43 to exit)
+   [travel] step 10: (6, 10)->(6, 9) map=(1, 47) (path 33 to exit)
+   [travel] step 20: (10, 4)->(11, 4) map=(1, 47) (path 23 to exit)
+   [travel] step 30: (20, 4)->(21, 4) map=(1, 47) (path 13 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 47) coords=(30, 4) elapsed=5s
+   [travel] step 40: (30, 4)->(30, 3) map=(1, 47) (path 3 to exit)
+   [travel] reached target coord (31, 3)
+   [travel] start map=(1, 47) coords=(31, 2) -> coord (30, 2) (budget 60s)
+   [travel] step 0: (31, 2)->(30, 2) map=(1, 47) (path 2 to exit)
+   [travel] reached target coord (30, 2)
+   [travel] start map=(1, 48) coords=(30, 4) -> coord (28, 3) (budget 300s)
+   [travel] step 0: (30, 4)->(30, 3) map=(1, 48) (path 4 to exit)
+   [travel] reached target coord (28, 3)
+   [travel] start map=(1, 48) coords=(28, 2) -> coord (29, 2) (budget 60s)
+   [travel] step 0: (28, 2)->(29, 2) map=(1, 48) (path 2 to exit)
+   [travel] reached target coord (29, 2)
+   [play-live]    [engine] JUST FIGHT: L55 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs raticate 68/68 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=15,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L55 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs hypno 85/85 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=14,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L55 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs raticate 68/68 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=13,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [play-live]    [engine] JUST FIGHT: L55 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs pidgeot 112/112 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=12,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L55 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs pidgeot 84/112 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=12,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L55 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs pidgeot 7/112 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=11,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L55 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 121/121 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [3]move#130(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '122/170', 'status': 'sleep', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 17, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 17 (count 2->1)
+   [play-live]    [engine] battle-progress: item 17 consumed
+   [play-live]    [engine] JUST FIGHT: L55 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 46/121 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [3]move#130(p100,pp=9,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 46 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '80/170', 'status': 'sleep', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 17, aim=active)
+   [play-live]    [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4 to the Items pocket
+   [play-live]    [engine] use_item: RAM says row 2 wanted 2 — bytes may be frozen; BLIND bag walk (clamp-home + DOWN x2)
+   [play-live]    [engine] use_item walk n=0: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=2: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=2 scroll=0 row=2 — selected but item 17 NOT consumed (count still 1) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 17 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] CURE-BLOCK: no more status-cure offers this battle (already-clear / no_effect abort)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 3 (NOT re-picking species 9)
+   [play-live]    [engine] switch: target party slot 3 sp=64 -> menu row 3
+   [play-live]    [engine] switch: SWITCHED to species 64 (slot 3)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 3: target row 3 sp=9 skip_rows=[] party_cur=2 menu_rows=[(64, 0), (21, 47), (19, 43), (9, 38), (50, 35)]
+   [play-live]    [engine] fswitch: selecting row 3 (sp=9 L55 hp=38)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 1 (NOT re-picking species 9)
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 46/121 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [3]move#130(p100,pp=8,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (asleep) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 1 (NOT re-picking species 9)
+   [play-live]    [engine] switch: target party slot 1 sp=21 -> menu row 1
+   [play-live]    [engine] switch: SWITCHED to species 21 (slot 1)
+   [play-live]    [engine] battle-progress: must-leave switch
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 3: target row 1 sp=9 skip_rows=[] party_cur=1 menu_rows=[(21, 0), (9, 38), (19, 43), (64, 0), (50, 35)]
+   [play-live]    [engine] fswitch: selecting row 1 (sp=9 L55 hp=38)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 46/121 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [3]move#130(p100,pp=8,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch: BUDGET 5s hit — blind-sending strongest live (anti 60–90s party theater)
+   [play-live]    [engine] fswitch: selecting row 2 (sp=19 L18 hp=43)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '43/43', 'status': 'none', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 19 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] action menu: move#158 - a STAB hit -> slot 1 (eff x1) vs venusaur 46/121 | [0]Quick Attack(p40*STAB,pp=30,ref=0,sc=60) [1]move#158(p80*STAB,pp=15,ref=0,sc=108) [2]Cut(p50*STAB,pp=30,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: move#158 - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 4: target row 4 sp=50 skip_rows=[] party_cur=2 menu_rows=[(19, 0), (21, 0), (9, 0), (64, 0), (50, 35)]
+   [play-live]    [engine] fswitch: selecting row 4 (sp=50 L18 hp=35)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '35/35', 'status': 'none', 'foe': 'venusaur'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 50 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+   [play-live]    [engine] action menu: move#91 - a STAB hit -> slot 3 (eff x1) vs venusaur 46/121 | [0]Scratch(p40,pp=35,ref=0,sc=40) [1]Growl(p0,pp=40,ref=0,sc=0) [2]move#222(p1*STAB,pp=30,ref=0,sc=1.5) [3]move#91(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: move#91 - a STAB hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+===== playlive_2026-08-04_10-44-49.log =====
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (15, 7) (budget 300s)
+   [travel] step 0: (21, 21)->(20, 21) map=(1, 51) (path 31 to exit)
+   [travel] step 10: (12, 20)->(11, 20) map=(1, 51) (path 21 to exit)
+   [travel] path blocked at (10, 20) (NPC on the gap?) - waiting
+   [travel] MAP TRANSITION (1, 51) -> (1, 55)
+   [travel] coord leg ended by the transition -> (1, 55) (target (15, 7) was the old map's frame)
+   [travel] start map=(1, 55) coords=(22, 18) -> coord (16, 2) (budget 300s)
+   [travel] step 0: (22, 18)->(21, 18) map=(1, 55) (path 49 to exit)
+   [travel] step 10: (24, 14)->(25, 14) map=(1, 55) (path 39 to exit)
+   [travel] path blocked at (26, 18) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 18); NPC-allowing path EXISTS (len 35), blocker NPC tile=(26, 17), npcs nearby=[(26, 17)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs voltorb 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=19,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=18,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=17,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] step 30: (30, 14)->(30, 13) map=(1, 55) (path 27 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 55) coords=(30, 4) elapsed=97s
+   [travel] step 40: (30, 4)->(29, 4) map=(1, 55) (path 17 to exit)
+   [travel] step 50: (20, 4)->(19, 4) map=(1, 55) (path 7 to exit)
+   [travel] reached target coord (16, 2)
+   [travel] start map=(1, 55) coords=(16, 2) -> coord (16, 3) (budget 300s)
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 55) (path 2 to exit)
+   [travel] reached target coord (16, 3)
+   [travel] start map=(1, 55) coords=(16, 2) -> coord (17, 2) (budget 60s)
+   [travel] step 0: (16, 2)->(17, 2) map=(1, 55) (path 2 to exit)
+   [travel] reached target coord (17, 2)
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (10, 6) (budget 60s)
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 54) (path 35 to exit)
+   [travel] step 10: (16, 12)->(16, 13) map=(1, 54) (path 25 to exit)
+   [travel] step 20: (10, 16)->(9, 16) map=(1, 54) (path 15 to exit)
+   [travel] step 30: (8, 8)->(8, 7) map=(1, 54) (path 5 to exit)
+   [travel] path blocked at (9, 6) (NPC on the gap?) - waiting
+   [travel] no clean path from (9, 6); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(2, 5), (9, 5)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain

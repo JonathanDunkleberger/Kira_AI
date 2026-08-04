@@ -1,0 +1,428 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 51) coords=(21, 21) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 1 blocked tile(s), 0 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=4888).
+
+   [soul] continuity loaded: 13 roster bond(s), 648 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 126 place(s) known, 220 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 51)@(21, 21) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 51) coords=(21, 21) badges=5 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260804_104451_silph-co_5b_25h50m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 51)@(21, 21) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 7 warp(s) on (1, 51): (28, 2)->(1, 50), (15, 7)->(1, 49), (30, 2)->(1, 52), (10, 20)->(1, 55), (2, 20)->(1, 49), (33, 5)->(1, 53)
+
+   [campaign]    [roam] afflicted by ['paralysis'] — remembering for a cure run
+
+   [campaign]    [roam] 💊 FIELD CURE: Blastoise is paralysis and the bag has Full Heal — using it NOW (between-battles doctrine)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [cure] field cure: item 23 (bag row 6) -> party slot 0
+
+   [kira-voice] -> T1·brisk· (heal) "hang on — Blastoise is paralysis and I'm literally carrying the cure. one sec."  fired=True  [age 0.0s + post 4ms]
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 51)@(21, 21) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'FULL HEAL is selected.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "FULL HEAL is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Use on which POK.MON?"'
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'BLASTOISE became healthy. .'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE became healthy. ."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [cure] VERIFIED: slot 0 status cleared, item 23 consumed
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/fly → steps=['FLAG_GOT_SS_TICKET', 'cut', 'fly'] actionable=fly (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 'Okay — to get past this I need HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns.'
+
+   [campaign]    [roam] 🕊️ PROACTIVE FLY-FETCH: Koga is done and HM02 is a short Celadon detour away — grabbing Fly before the Saffron push
+
+   [kira-voice] -> T1·brisk· (heal) 'there — Blastoise is back to fighting shape.'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [world] learned 7 warp(s) on (1, 51): (28, 2)->(1, 50), (15, 7)->(1, 49), (30, 2)->(1, 52), (10, 20)->(1, 55), (2, 20)->(1, 49), (33, 5)->(1, 53)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Silph Co. (21, 21) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, spearow L18, rattata L18, kadabra L19, diglett L18] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 51) (21,21) f4 -- badge5 $3622 party:b767 bag:2aa7]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (1, 51)@(21, 21) (reason=frozen_world, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [campaign]    [roam] wedge spot: blocking (22, 21) on (1, 51) (route around it) + marking (21, 21) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [kira-voice] ·floor· (<1s since last) T2 "I've been stuck on the same spot going nowhere — backing off and trying something different."
+
+   [campaign]    [roam] tick opened inside interior (1, 51)@(21, 21) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 7 warp(s) on (1, 51): (28, 2)->(1, 50), (15, 7)->(1, 49), (30, 2)->(1, 52), (10, 20)->(1, 55), (2, 20)->(1, 49), (33, 5)->(1, 53)
+
+   [campaign]    [world] learned 7 warp(s) on (1, 51): (28, 2)->(1, 50), (15, 7)->(1, 49), (30, 2)->(1, 52), (10, 20)->(1, 55), (2, 20)->(1, 49), (33, 5)->(1, 53)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Silph Co. (21, 21) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, spearow L18, rattata L18, kadabra L19, diglett L18] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(1, 51) (21,21) f4 -- badge5 $3622 party:b767 bag:2aa7]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 5
+
+   [campaign]    [teamplan] next action: catch_keeper (growlithe -> arcanine answers Champion) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (1, 51) — steering toward road anchor Saffron City (warp (15, 7))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (15, 7) (budget 300s)
+
+   [travel] step 0: (21, 21)->(20, 21) map=(1, 51) (path 31 to exit)
+
+   [travel] step 10: (12, 20)->(11, 20) map=(1, 51) (path 21 to exit)
+
+   [travel] path blocked at (10, 20) (NPC on the gap?) - waiting
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] MAP TRANSITION (1, 51) -> (1, 55)
+
+   [campaign]    [world] learned 5 warp(s) on (1, 55): (16, 2)->(1, 54), (22, 18)->(1, 51), (9, 4)->(1, 49), (18, 2)->(1, 56), (24, 3)->(1, 58)
+
+   [travel] coord leg ended by the transition -> (1, 55) (target (15, 7) was the old map's frame)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 51)(21, 21) -> (1, 55)(22, 18) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 55) coords=(22, 18) badges=5 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_104524_silph-co_5b_25h51m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 55)@(22, 18) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 5 warp(s) on (1, 55): (16, 2)->(1, 54), (22, 18)->(1, 51), (9, 4)->(1, 49), (18, 2)->(1, 56), (24, 3)->(1, 58)
+
+   [campaign]    [world] learned 5 warp(s) on (1, 55): (16, 2)->(1, 54), (22, 18)->(1, 51), (9, 4)->(1, 49), (18, 2)->(1, 56), (24, 3)->(1, 58)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Silph Co. (22, 18) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, spearow L18, rattata L18, kadabra L19, diglett L18] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 55) (22,18) f2 -- badge5 $3622 party:b767 bag:2aa7]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (1, 55) — steering toward road anchor Saffron City (warp (16, 2))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 55) coords=(22, 18) -> coord (16, 2) (budget 300s)
+
+   [travel] step 0: (22, 18)->(21, 18) map=(1, 55) (path 49 to exit)
+
+   [travel] step 10: (24, 14)->(25, 14) map=(1, 55) (path 39 to exit)
+
+   [travel] path blocked at (26, 18) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'Your POK.MON have weak points! I can nail them!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your POK.MON have weak points! I can nail them!"'  fired=True  [age 0.0s + post 8ms]
+
+   [travel] no clean path from (26, 18); NPC-allowing path EXISTS (len 35), blocker NPC tile=(26, 17), npcs nearby=[(26, 17)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [strat] !! gEnemyParty UNCONFIRMED (slot0=100 != active foe 24) — party-SIZE reads DISABLED (loss-learning still works on the verified active-foe read)
+
+   [play-live] battle context: trainer=True foe=arbok rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against voltorb — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out voltorb'
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs voltorb 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=19,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's voltorb fainted — your blastoise took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out magneton'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=18,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's magneton fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out koffing'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=17,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's koffing went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'You hammered me!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "You hammered me!"'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<1s since last) T1 'quiet in here — just the hum of the building around you'
+
+   [travel] step 30: (30, 14)->(30, 13) map=(1, 55) (path 27 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 55) coords=(30, 4) elapsed=97s
+
+   [travel] step 40: (30, 4)->(29, 4) map=(1, 55) (path 17 to exit)
+
+   [travel] step 50: (20, 4)->(19, 4) map=(1, 55) (path 7 to exit)
+
+   [travel] reached target coord (16, 2)
+
+   [campaign]    5 door(s); candidates (chosen order): [(16, 2)]
+
+   [campaign]    door (16, 2): at (16, 2) (approach=(16, 3)) — stepping UP in
+
+   [campaign]    reachable door (16, 2): walking to approach (16, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 55) coords=(16, 2) -> coord (16, 3) (budget 300s)
+
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 55) (path 2 to exit)
+
+   [travel] reached target coord (16, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 55) coords=(16, 2) -> coord (17, 2) (budget 60s)
+
+   [travel] step 0: (16, 2)->(17, 2) map=(1, 55) (path 2 to exit)
+
+   [travel] reached target coord (17, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (16, 2) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 7 warp(s) on (1, 54): (16, 2)->(1, 55), (11, 10)->(1, 54), (10, 6)->(1, 48), (28, 2)->(1, 53), (2, 12)->(1, 54), (2, 17)->(1, 48)
+
+   [campaign]    WARPED (1, 55) -> (1, 54) via directional door (16, 2)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 55)(22, 18) -> (1, 54)(16, 2) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 54) coords=(16, 2) badges=5 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_104723_silph-co_5b_25h53m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 54)@(16, 2) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] LOSS recorded vs trainer:Silph Co.:arbok (now 1x) at map=(1, 55) — SPATIAL wall active (gated until stronger)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs trainer:Silph Co.:arbok from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (10, 6) (budget 60s)
+
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 54) (path 35 to exit)
+
+   [travel] step 10: (16, 12)->(16, 13) map=(1, 54) (path 25 to exit)
+
+   [travel] step 20: (10, 16)->(9, 16) map=(1, 54) (path 15 to exit)
+
+   [travel] step 30: (8, 8)->(8, 7) map=(1, 54) (path 5 to exit)
+
+   [travel] path blocked at (9, 6) (NPC on the gap?) - waiting
+
+   [dialogue] +++ "You're causing us problems!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "You\'re causing us problems!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] no clean path from (9, 6); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(2, 5), (9, 5)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 14ms]
+
+   [play-live] battle context: trainer=True foe=koffing rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against grimer — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out grimer'
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 10321 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(1, 54) coords=(9, 6)  badge=True
+
+   [kira-voice] === 18 fired, 8 gated (0 failed) | by tier: T3=0 T2=9 T1=9 (incl ambient trickle) ===
+
+================================================================
+

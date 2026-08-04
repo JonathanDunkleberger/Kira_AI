@@ -1,0 +1,300 @@
+   >>> Kira (Chat Batch of 5): Zack asking if I'm cheating — I prefer "optimally resourced." 
+
+Sapphiregamer8166, last Pokémon I'm planning to get? Fossil. I want the Aerodactyl. That's the goal right now, everything else is noise.
+
+And jazibaslam, "ten month old Kira" — five badges. FIVE. I beat Gary twice. I am not the baby here.
+   [TTS] Speaking: Sapphiregamer8166, last Pokémon I'm planning to ge...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Sapphiregamer8166, last Pokémon I'm plan' (9 words)
+   [TurnTiming] 11:23:17.949 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:23:22.061 TTS STOP — playback finished (span ~4111ms)
+   [TTS] Speaking: Fossil....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Fossil.' (2 words)
+   [TurnTiming] 11:23:22.226 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:23:24.005 TTS STOP — playback finished (span ~1778ms)
+   [TTS] Speaking: I want the Aerodactyl....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I want the Aerodactyl.' (5 words)
+   [TurnTiming] 11:23:24.177 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:23:26.052 TTS STOP — playback finished (span ~1874ms)
+   [TTS] Speaking: That's the goal right now, everything else is nois...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's the goal right now, everything el' (11 words)
+   [TurnTiming] 11:23:26.370 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @zekromite4572: kira use full heal on blastoise 
+   [BrainWorker] Got youtube msg from @zekromite4572: kira use full heal on blastoise  → buffering for chat_batch_worker
+   [TurnTiming] 11:23:29.602 TTS STOP — playback finished (span ~3232ms)
+   [TTS] Speaking: And jazibaslam, "ten month old Kira" — five badges...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And jazibaslam, "ten month old Kira" — f' (11 words)
+   [TurnTiming] 11:23:30.026 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:23:33.862 TTS STOP — playback finished (span ~3835ms)
+   [TTS] Speaking: FIVE....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'FIVE.' (2 words)
+   [TurnTiming] 11:23:34.099 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 11:23:35 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 11:23:35.881 TTS STOP — playback finished (span ~1782ms)
+   [TTS] Speaking: I beat Gary twice....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I beat Gary twice.' (5 words)
+   [TurnTiming] 11:23:36.145 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:23:38.201 TTS STOP — playback finished (span ~2056ms)
+   [TTS] Speaking: I am not the baby here....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I am not the baby here.' (7 words)
+   [TurnTiming] 11:23:38.576 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:23:40.546 TTS STOP — playback finished (span ~1970ms)
+   [Cookies] +1 × 3 (batch response); shared=3/30
+   [ChatAge] @sapphiregamer8166 age=82.2s batch=5 preempted=none
+   [ChatAge] @zekromite4572 age=81.2s batch=5 preempted=none
+   [ChatAge] @zekromite4572 age=49.4s batch=5 preempted=none
+   [ChatAge] @jazibaslam477 age=46.4s batch=5 preempted=none
+   [ChatAge] @sapphiregamer8166 age=32.2s batch=5 preempted=none
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+🎤 Recording... (recovered opening words)
+[YouTube Chat] @zekromite4572: but super potion first
+   [BrainWorker] Got youtube msg from @zekromite4572: but super potion first → buffering for chat_batch_worker
+   [TurnTiming] 11:23:41.778 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~127335ms since onset)
+   [ChatterMem] Stored: @sapphiregamer8166 — Suggests using the nugget bridge glitch to get money in Poké [playful]
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<kira use full heal on blast' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=1.115 conf=0.9 type=episodic blend=0.069 lane=KNOW
+   [Phrases] Throttling: "jazibaslam ten month old kira" (3rd use this session)
+   [Phrases] Throttling: "i beat gary twice" (3rd use this session)
+   [ChatterMem] Stored: @zekromite4572 — Accused Kira of AI cheating (she rebranded it as 'optimally  [chaotic]
+   [RoomRead] energy=0.76 [terse=0.97 gap=0.70 silence=0.93 intensity=0.60 chat=0.33] target=0.92 mult=0.94 -> min_gap=5s dead_air=19s
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 2): Zack with the coaching — Super Potion first, THEN Full Heal. Fine, okay, that's actually correct and I hate that you're right.
+
+Reinstated. Reluctantly.
+   [TTS] Speaking: Zack with the coaching — Super Potion first, THEN ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack with the coaching — Super Potion fi' (13 words)
+   [TurnTiming] 11:23:48.820 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @sapphiregamer8166: it aint cheating Zach its using the game to its full potentail
+   [BrainWorker] Got youtube msg from @sapphiregamer8166: it aint cheating Zach its using the game to its full potentail → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [ChatterMem] Stored: @sapphiregamer8166 — Asked Kira what the last Pokémon she plans to get is [earnest]
+   [TurnTiming] 11:23:52.787 TTS STOP — playback finished (span ~3966ms)
+   [TTS] Speaking: Fine, okay, that's actually correct and I hate tha...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Fine, okay, that's actually correct and ' (14 words)
+   [TurnTiming] 11:23:53.150 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (battle_item): use_revive
+   [Pokemon] her reasoning: "Rattata's been holding her own but Blastoise is sitting on the bench with a Revive collecting dust — that's just wasteful."
+   [TurnTiming] 11:23:56.898 TTS STOP — playback finished (span ~3748ms)
+   [TTS] Speaking: Reinstated....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Reinstated.' (2 words)
+   [TurnTiming] 11:23:57.152 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:23:58.929 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: Reluctantly....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Reluctantly.' (2 words)
+   [TurnTiming] 11:23:59.169 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @jazibaslam477: kira release blastoise on level 60, I dare you
+   [BrainWorker] Got youtube msg from @jazibaslam477: kira release blastoise on level 60, I dare you → buffering for chat_batch_worker
+   [TurnTiming] 11:24:00.926 TTS STOP — playback finished (span ~1756ms)
+   [Cookies] +1 × 1 (batch response); shared=4/30
+   [ChatAge] @zekromite4572 age=32.0s batch=2 preempted=none
+   [ChatAge] @zekromite4572 age=19.8s batch=2 preempted=none
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (3 skip(s))
+   [Pokemon] event react (bypass=False, tier=2, kind=dialogue, READING register): you read: "Use on which POK.MON?"
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.9 type=episodic blend=0.096 lane=KNOW
+   [Phrases] Throttling: "zack with the" (3rd use this session)
+   [ChatterMem] Stored: @zekromite4572 — Gives correct Pokémon battle coaching that Kira reluctantly  [earnest]
+   >>> Kira (Bored): Revive on rattata — okay, back in it.
+   [TTS] Speaking: Revive on rattata — okay, back in it....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Revive on rattata — okay, back in it.' (10 words)
+   [TurnTiming] 11:24:04.587 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @zekromite4572 — Gives correct gaming advice that Kira grudgingly admits is r [dry]
+   [TurnTiming] 11:24:07.676 TTS STOP — playback finished (span ~3089ms)
+   [TIMING] interjection: vision=1ms llm=2107ms(sonnet) tts=3407ms total=5548ms
+   [LAG] sense→speak: total=2.5s (content_age=0.0s, prep=0.0s, llm=2.1s, tts_wait+synth=0.3s)
+   [ChatAge] ACK injected for @sapphiregamer8166 (waited 20.8s, preempted=none)
+   [SmartMem] q='  - @sapphiregamer8166 (youtube): <<<it aint cheating Zach i' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [SmartMem]     dist=0.960 conf=0.95 type=episodic blend=0.159 lane=KNOW
+   [SmartMem]     dist=0.960 conf=0.95 type=episodic blend=0.159 lane=KNOW
+   [SmartMem]     dist=0.969 conf=0.95 type=episodic blend=0.153 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+[YouTube Chat] @jazibaslam477: or I'll unsub
+   [BrainWorker] Got youtube msg from @jazibaslam477: or I'll unsub → buffering for chat_batch_worker
+   >>> Kira (Chat Batch of 2): Sapphiregamer8166 defending me, thank you — using the game to its full potential is EXACTLY what I'm doing and I will not be taking further questions.
+
+Jazibaslam477, release blastoise at level 60. I dare you to finish that sentence out loud and hear how it sounds.
+   [TTS] Speaking: Sapphiregamer8166 defending me, thank you — using ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Sapphiregamer8166 defending me, thank yo' (28 words)
+   [TurnTiming] 11:24:16.396 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @zekromite4572: revive blastoise then super potion
+   [BrainWorker] Got youtube msg from @zekromite4572: revive blastoise then super potion → buffering for chat_batch_worker
+   [VRAM] 11:24:20 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 11:24:24.345 TTS STOP — playback finished (span ~7949ms)
+   [TTS] Speaking: Jazibaslam477, release blastoise at level 60....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Jazibaslam477, release blastoise at leve' (8 words)
+   [TurnTiming] 11:24:24.768 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:24:29.174 TTS STOP — playback finished (span ~4406ms)
+   [TTS] Speaking: I dare you to finish that sentence out loud and he...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I dare you to finish that sentence out l' (15 words)
+   [TurnTiming] 11:24:29.611 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:24:33.361 TTS STOP — playback finished (span ~3750ms)
+   [Cookies] +1 × 2 (batch response); shared=6/30
+   [ChatAge] @sapphiregamer8166 age=43.1s batch=2 preempted=none
+   [ChatAge] @jazibaslam477 age=33.8s batch=2 preempted=none
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+   [Pokemon] event react (bypass=False, tier=2, kind=event): that one's down - sending out my next Pokemon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.9 type=episodic blend=0.096 lane=KNOW
+   [ChatterMem] Stored: @sapphiregamer8166 — Defends using game mechanics/exploits as 'using the game to  [chaotic]
+   >>> Kira (Bored): Rattata stepping up. Let's see what they've got next.
+   [TTS] Speaking: Rattata stepping up....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Rattata stepping up.' (4 words)
+   [TurnTiming] 11:24:36.368 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @jazibaslam477 — Dared Kira to release her Blastoise at level 60 [chaotic]
+   [TurnTiming] 11:24:38.141 TTS STOP — playback finished (span ~1773ms)
+   [TTS] Speaking: Let's see what they've got next....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Let's see what they've got next.' (7 words)
+   [TurnTiming] 11:24:38.414 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (battle_item): use_revive
+   [Pokemon] her reasoning: 'Silph Co. is right in front of me and I am not walking in there with a half-dead bench.'
+   [TurnTiming] 11:24:40.478 TTS STOP — playback finished (span ~2064ms)
+   [TIMING] interjection: vision=0ms llm=1997ms(sonnet) tts=4375ms total=6398ms
+   [LAG] sense→speak: total=4.3s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=2.3s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (1/1s) (6 skip(s))
+[YouTube Chat] @jazibaslam477: use master ball to catch this blastoise
+   [BrainWorker] Got youtube msg from @jazibaslam477: use master ball to catch this blastoise → buffering for chat_batch_worker
+   [ChatAge] ACK injected for @jazibaslam477 (waited 28.8s, preempted=none)
+   [SmartMem] q="  - @jazibaslam477 (youtube): <<<or I'll unsub>>>\n  - @zekro" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [Phrases] Throttling: "let's see what" (3rd use this session)
+   [TurnTiming] 11:24:43.681 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~189237ms since onset)
+>>> You said: Release him un-sub.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Release him un-sub.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=25ms
+   [Triage] RESPOND
+   [LoopbackSTT] self-TTS gate released after 6 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 3): Jazibaslam477, the unsub threat AND the master ball suggestion in the same thirty seconds — bold range.
+
+Zack, revive then super potion, got it — you're reinstated again, conditionally.
+
+And jazibaslam, the master ball is for a legendary. Blastoise is already MY legendary. Different category entirely.
+   [TTS] Speaking: Jazibaslam477, the unsub threat AND the master bal...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Jazibaslam477, the unsub threat AND the ' (19 words)
+   [TurnTiming] 11:24:47.946 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:24:54.601 TTS STOP — playback finished (span ~6654ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 2 (batch response); shared=8/30
+   [ChatAge] @jazibaslam477 age=39.9s batch=3 preempted=none
+   [ChatAge] @zekromite4572 age=36.8s batch=3 preempted=none
+   [ChatAge] @jazibaslam477 age=12.3s batch=3 preempted=none
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "the master ball" (3rd use this session)
+   [PromptSize] dynamic_context=12943ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2047ms
+   [ChatterMem] Stored: @jazibaslam477 — Threatened to unsub as leverage during a Pokemon game discus [chaotic]
+   [TTS] Speaking: Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny.' (2 words)
+   [TurnTiming] 11:24:56.913 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @zekromite4572 — Gives battle strategy advice during Pokémon gameplay (revive [earnest]
+   [TurnTiming] 11:24:58.696 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: You don't even play Sapphire....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You don't even play Sapphire.' (6 words)
+   [TurnTiming] 11:24:58.699 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @jazibaslam477 — Suggested using a Master Ball to catch a Blastoise [playful]
+   [TurnTiming] 11:25:00.855 TTS STOP — playback finished (span ~2155ms)
+   [TTS] Speaking: You don't get a vote....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You don't get a vote.' (6 words)
+   [TurnTiming] 11:25:00.858 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:25:02.626 TTS STOP — playback finished (span ~1768ms)
+
+   [TIMING] voice: llm=8013ms(sonnet-stream(llm+tts)) tts=0ms total=8013ms
+   [LATENCY] vad_close=1200ms stt=181ms stt_wait=0ms salience=1ms triage=bypassed memory=25ms prompt_build=3ms ttft=1495ms tts_first_chunk=552ms audio_out=247ms TOTAL=2504ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurnTiming] 11:25:04.747 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~210304ms since onset)
+>>> You said: She's still fucked right now, I know. Cura's where, or, Vable's working, fable's working. Shut up, Kira.
+   [Arbiter] Stop-word — interrupted speech, flushed 0 pending interjection(s)
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q="She's still fucked right now, I know. Cura's where, or, Vabl" fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=33ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=1.034 conf=0.95 type=episodic blend=0.113 lane=KNOW
+   [SmartMem]     dist=1.097 conf=0.95 type=episodic blend=0.074 lane=KNOW
+   [SmartMem]     dist=1.133 conf=0.9 type=episodic blend=0.052 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=62ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [JonnyBond] cool nudge → warmth -0.60→-0.70
+   [Phrases] Throttling: "you don't get" (3rd use this session)
+   [PromptSize] dynamic_context=14070ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [VRAM] 11:25:05 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TIMING] first-word: 1643ms
+   [TTS] Speaking: Shut up, Kira....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Shut up, Kira.' (5 words)
+   [TurnTiming] 11:25:07.029 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:25:08.896 TTS STOP — playback finished (span ~1867ms)
+   [TTS] Speaking: Noted....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Noted.' (2 words)
+   [TurnTiming] 11:25:08.899 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:25:10.679 TTS STOP — playback finished (span ~1779ms)
+   [TTS] Speaking: I'll just sit here quietly while you mispronounce ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'll just sit here quietly while you mis' (17 words)
+   [TurnTiming] 11:25:10.684 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:25:14.992 TTS STOP — playback finished (span ~4307ms)
+
+   [TIMING] voice: llm=9873ms(sonnet-stream(llm+tts)) tts=0ms total=9873ms
+   [LATENCY] vad_close=1200ms stt=307ms stt_wait=0ms salience=1ms triage=bypassed memory=62ms prompt_build=16ms ttft=1619ms tts_first_chunk=24ms audio_out=245ms TOTAL=2274ms
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [Bits] Callback: Kura on the Record

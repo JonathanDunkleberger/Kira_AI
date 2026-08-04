@@ -1,0 +1,1224 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 54) coords=(16, 2) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 2 blocked tile(s), 1 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=20692).
+
+   [soul] continuity loaded: 13 roster bond(s), 648 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 126 place(s) known, 220 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 54)@(16, 2) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 54) coords=(16, 2) badges=5 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260804_105939_silph-co_5b_25h53m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 54)@(16, 2) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 7 warp(s) on (1, 54): (16, 2)->(1, 55), (11, 10)->(1, 54), (10, 6)->(1, 48), (28, 2)->(1, 53), (2, 12)->(1, 54), (2, 17)->(1, 48)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/FLAG_HIDE_SAFFRON_ROCKETS → steps=['FLAG_HIDE_SAFFRON_ROCKETS'] actionable=FLAG_HIDE_SAFFRON_ROCKETS (resolved=True)
+
+   [campaign]    [roam] 🏢 PROACTIVE SILPH LIBERATION: resumed INSIDE Silph Co. with Saffron still Rocket-held — re-arming the strike in place (no walk-out, no door bonk, no re-climb from the street)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Sabrina's gym is Rocket-blocked — Team Rocket has taken over Silph Co. in the middle of the city. I have to storm the tower and beat their boss to free Saffron."  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [world] learned 7 warp(s) on (1, 54): (16, 2)->(1, 55), (11, 10)->(1, 54), (10, 6)->(1, 48), (28, 2)->(1, 53), (2, 12)->(1, 54), (2, 17)->(1, 48)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Silph Co. (16, 2) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, spearow L18, rattata L18, kadabra L19, diglett L18] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 54) (16,2) f4 -- badge5 $4966 party:b767 bag:2aa7]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Silph Co.
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Silph Co. — indoors, inside a building (rooms and doors — NOT a cave).. ALREADY BESIDE YOU — your current team: blastoise (L54), spearow (L18), rattata (L18), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 54), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul'], 'progress': "5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).", 'party': 'blastoise (L54), spearow (L18), rattata (L18), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and head to Saffron City for the Marsh Badge", 'medium': 'You beat Koga — ride the momentum: Sabrina in Saffron City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Saffron City, beat Sabrina for the Marsh Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Marsh Badge — beat Sabrina'
+
+   [campaign]    [soul] ORACLE pick -> 'Marsh Badge — beat Sabrina'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 5
+
+   [campaign]    [teamplan] next action: catch_keeper (growlithe -> arcanine answers Champion) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Marsh Badge — beat Sabrina'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] !! GO-HARD WAIVES questline park — 'FLAG_HIDE_SAFFRON_ROCKETS'/step=FLAG_HIDE_SAFFRON_ROCKETS is ON the billed road (not a detour); running the unlock errand
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Silph Co. liberation (free Saffron / unblock Sabrina) — attempt 1/3 from (1, 54)
+
+   [dialogue] +++ 'You hammered me!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "You hammered me!"'
+
+   [campaign]    7 door(s); candidates (chosen order): [(16, 2)]
+
+   [campaign]    door (16, 2): near approach ((16, 4)→(16, 3), d=1) — short step
+
+   [campaign]    door (16, 2): at (16, 3) (approach=(16, 3)) — stepping UP in
+
+   [campaign]    reachable door (16, 2): walking to approach (16, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (16, 3) (budget 300s)
+
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 54) (path 2 to exit)
+
+   [travel] reached target coord (16, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (17, 2) (budget 60s)
+
+   [travel] step 0: (16, 2)->(17, 2) map=(1, 54) (path 2 to exit)
+
+   [travel] reached target coord (17, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (16, 2) (behavior 0x6d) entered via LEFT
+
+   [campaign]    [world] learned 5 warp(s) on (1, 55): (16, 2)->(1, 54), (22, 18)->(1, 51), (9, 4)->(1, 49), (18, 2)->(1, 56), (24, 3)->(1, 58)
+
+   [campaign]    WARPED (1, 54) -> (1, 55) via directional door (16, 2)
+
+   [campaign]    [floor9] (1, 54) -> (1, 55) @ (16, 2)
+
+   [campaign]    [pad-to-pocket] rode pad (22, 18): (1, 55) -> (1, 51) @ (10, 20)
+
+   [dialogue] +++ 'KIRA found one CARD KEY!'  tags=[]
+
+   [kira-voice] ·system-box· (not narrated) 'KIRA found one CARD KEY!'
+
+   [dialogue] +++ 'KIRA put the CARD KEY in the KEY ITEMS POCKET.'  tags=[]
+
+   [kira-voice] ·system-box· (not narrated) 'KIRA put the CARD KEY in the KEY ITEMS POCKET.'
+
+   [campaign]    CARD KEY: item=True flag=True
+
+   [campaign]    [pocket-exit] rode pad (10, 20): (1, 51) -> (1, 55) @ (22, 18)
+
+   [dialogue] +++ 'I am one of the four ROCKET BROTHERS!'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "I am one of the four ROCKET BROTHERS!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (1, 55)@(15, 15) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [9f-wmid-stand] step into (15, 16) failed — dead-marked, recompute
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [campaign]    [strat] gEnemyParty CONFIRMED (slot0=42 == active foe) — roster reads live
+
+   [play-live] battle context: trainer=True foe=golbat rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against golbat — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 80/80 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=16,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's golbat fainted — your blastoise took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out drowzee'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 71/71 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=15,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's drowzee fainted — your blastoise took it down"  fired=True  [age 0.0s + post 27ms]
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out hypno'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs hypno 85/85 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a super-effective hit'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs hypno 12/85 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=22,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's hypno went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Warg! Brothers, I lost!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Warg! Brothers, I lost!"'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [9f-wmid-stand] battle mid-path -> win
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Bingo! The CARD KEY opened the door!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Bingo! The CARD KEY opened the door!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [9f-wmid] door script fired at (13, 17)
+
+   [campaign]    [9f-west] door script fired at (3, 10)
+
+   [dialogue] +++ 'Your POK.MON seem to adore you, kid!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your POK.MON seem to adore you, kid!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [pad-3f-approach] step into (1, 9) failed — dead-marked, recompute
+
+   [play-live] battle context: trainer=True foe=drowzee rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against drowzee — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 71/71 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a super-effective hit'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs drowzee 16/71 | [0]Tackle(p35,pp=31,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's drowzee fainted — your blastoise took it down"  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out grimer'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs grimer 82/82 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's grimer fainted — your blastoise took it down"  fired=True  [age 0.0s + post 15ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out machop'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs machop 77/77 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=15) [2]Water Pulse(p60*STAB,pp=13,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's machop went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [pad-3f-approach] battle mid-path -> win
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [pad-3f] rode pad (9, 4): (1, 55) -> (1, 49) @ (2, 14)
+
+   [campaign]    [silph] roam watchdog latch cleared IN-STRIKE (the climb has its own wedge budget)
+
+   [campaign] !! [pad-7f] pad ride (13, 14) failed (at (1, 49)@(2, 15))
+
+   [dialogue] +++ 'Bingo! The CARD KEY opened the door!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Bingo! The CARD KEY opened the door!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [3f-doors] door script fired at (9, 12)
+
+   [campaign]    [pad-7f-2] rode pad (13, 14): (1, 49) -> (1, 53) @ (5, 4)
+
+   [campaign]    7F pocket: walking the rival trigger row (Gary auto-engages)
+
+   [dialogue] +++ 'GARY. What kept you, KIRA?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "GARY. What kept you, KIRA?"'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (1, 53)@(2, 5) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ "GARY. Hahaha! I thought you'd turn up if I waited here! I guess TEAM ROCKET slowed you down! Not that I care! I saw you in SAFFRON, so I decided to see if you got better!"  tags=['TYPE', 'PLACE']
+
+   [kira-voice]    (dialogue tags: type, place)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "GARY. Hahaha! I thought you\'d turn up if I waited here! I guess TEAM ROCKET slowed you down! Not that I care! I saw you in SAFFRON, so I decided to see if you got better!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [lapras] step into (1, 5) failed — dead-marked, recompute
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [play-live] battle context: trainer=True foe=pidgeot rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against pidgeot — your blastoise is up front'  fired=True  [age 0.0s + post 7ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 112/112 | [0]Tackle(p35,pp=30,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Water Pulse - a STAB hit'  fired=True  [age 0.0s + post 9ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 86/112 | [0]Tackle(p35,pp=29,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 58/112 | [0]Tackle(p35,pp=28,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 33/112 | [0]Tackle(p35,pp=27,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs pidgeot 6/112 | [0]Tackle(p35,pp=26,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pidgeot fainted — your blastoise took it down"  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 55'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] LEVEL-UP MOVE PROMPT: wants to learn move#130 over a full moveset -> DECLINING deliberately (B=keep the set, A=confirm)
+
+   [kira-voice] -> T1·brisk· (event) 'ooh — move#130 on offer. tempting, but I know my four. we keep the set.'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out venusaur'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 121/121 | [0]Tackle(p35,pp=26,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=45) [3]move#130(p100,pp=15,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used move#130 - a solid hit'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 26ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '12/170', 'status': 'none', 'foe': 'venusaur'}
+
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 7% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+
+   [kira-voice] -> T1·brisk· (event) "nope, I'm about to drop — potion FIRST, pride later."  fired=True  [age 0.0s + post 9ms]
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 21, aim=active)
+
+   [play-live]    [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4 to the Items pocket
+
+   [play-live]    [engine] use_item: RAM says row 6 wanted 7 — bytes may be frozen; BLIND bag walk (clamp-home + DOWN x7)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=2: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=3: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=3 scroll=3 row=7 — selected but item 21 NOT consumed (count still 15) — keep fighting (LOUD)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 21 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] POTION-BLOCK: no more heal-item offers this battle (full-HP / no_effect abort)
+
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 51/121 | [0]Tackle(p35,pp=26,ref=0,sc=33.25) [1]Bite(p60,pp=21,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=45) [3]move#130(p100,pp=14,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=0 action=False moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise fainted'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] fswitch retry 1: target row 3 sp=64 skip_rows=[] party_cur=1 menu_rows=[(9, 0), (21, 47), (19, 43), (64, 45), (50, 35)]
+
+   [play-live]    [engine] fswitch: selecting row 3 (sp=64 L19 hp=45)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 51 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '45/45', 'status': 'none', 'foe': 'venusaur'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_revive', 'keep_fighting'] -> pick='use_revive'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+
+   [play-live]    [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4 to the Items pocket
+
+   [play-live]    [engine] use_item: RAM says row 6 wanted 8 — bytes may be frozen; BLIND bag walk (clamp-home + DOWN x8)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=2: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=3: party=True bag=False white=True pcur=3 lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=3 scroll=3 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 64 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] action menu: Confusion - a super-effective hit -> slot 1 (eff x2) vs venusaur 51/121 | [0]Teleport(p0*STAB,pp=20,ref=0,sc=0) [1]Confusion(p50*STAB,pp=25,ref=0,sc=150) [2]Disable(p0,pp=20,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Confusion - a super-effective hit slot 1 (menu_up=0 action=False moves=False)
+
+   [dialogue] +++ 'BLASTOISE has no energy left to battle! .'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE has no energy left to battle! ."'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra fainted'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+
+   [play-live]    [engine] fswitch: selecting row 1 (sp=21 L18 hp=47)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 27ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '47/47', 'status': 'none', 'foe': 'venusaur'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_revive', 'keep_fighting'] -> pick='use_revive'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'REVIVE is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "REVIVE is selected."'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'NUGGET is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "NUGGET is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 21 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] action menu: Peck - a super-effective hit -> slot 0 (eff x2) vs venusaur 51/121 | [0]Peck(p35*STAB,pp=35,ref=0,sc=105) [1]Leer(p0*STAB,pp=30,ref=1,sc=0) [2]Fury Attack(p15*STAB,pp=20,ref=0,sc=19.125)
+
+   [play-live]    [engine] STREAM COMMIT: Peck - a super-effective hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your spearow fainted'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] fswitch retry 2: target row 2 sp=19 skip_rows=[] party_cur=2 menu_rows=[(21, 0), (64, 0), (19, 43), (9, 0), (50, 35)]
+
+   [play-live]    [engine] fswitch: selecting row 2 (sp=19 L18 hp=43)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 6ms]
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [engine] action menu: move#158 - a STAB hit -> slot 1 (eff x1) vs venusaur 51/121 | [0]Quick Attack(p40*STAB,pp=30,ref=0,sc=60) [1]move#158(p80*STAB,pp=15,ref=1,sc=108) [2]Cut(p50*STAB,pp=30,ref=0,sc=71.25)
+
+   [play-live]    [engine] STREAM COMMIT: move#158 - a STAB hit slot 1 (menu_up=0 action=False moves=True)
+
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 2}, futility 1/4)
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '43/43', 'status': 'none', 'foe': 'venusaur'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_revive', 'keep_fighting'] -> pick='use_revive'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'REVIVE is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "REVIVE is selected."'  fired=True  [age 0.0s + post 8ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'NUGGET is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "NUGGET is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 19 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] action menu: Cut -> slot 2 (eff x1) vs venusaur 51/121 | [0]Quick Attack(p40*STAB,pp=30,ref=0,sc=60) [1]move#158(p80*STAB,pp=15,ref=2,sc=108) [2]Cut(p50*STAB,pp=30,ref=0,sc=71.25)
+
+   [play-live]    [engine] STREAM COMMIT: Cut slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your rattata fainted'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] fswitch retry 4: target row 4 sp=50 skip_rows=[] party_cur=2 menu_rows=[(19, 0), (64, 0), (21, 0), (9, 0), (50, 35)]
+
+   [play-live]    [engine] fswitch: selecting row 4 (sp=50 L18 hp=35)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '35/35', 'status': 'none', 'foe': 'venusaur'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_revive', 'keep_fighting'] -> pick='use_revive'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'REVIVE is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "REVIVE is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'NUGGET is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "NUGGET is selected."'  fired=True  [age 0.0s + post 8ms]
+
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 50 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] action menu: move#91 - a STAB hit -> slot 3 (eff x1) vs venusaur 51/121 | [0]Scratch(p40,pp=35,ref=0,sc=40) [1]Growl(p0,pp=40,ref=2,sc=0) [2]move#222(p1*STAB,pp=30,ref=0,sc=1.5) [3]move#91(p60*STAB,pp=10,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: move#91 - a STAB hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your diglett fainted'  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] -> T3·BIG· (event) 'you lost - your diglett fainted'  fired=True  [age 0.0s + post 11ms]
+
+   [dialogue] +++ 'KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm.."'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [evolve] PHASE 3A: control LOCKED after a level-up — driving the cutscene (A-only)
+
+   [dialogue] +++ 'First, you should restore your POK.MON to full health.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "First, you should restore your POK.MON to full health."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Your POK.MON have been healed to perfect health. We hope you excel!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your POK.MON have been healed to perfect health. We hope you excel!"'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [evolve] drove a post-battle cutscene (no species change — not an evolution)
+
+   [campaign]    [strat] LOSS recorded vs trainer:Silph Co.:alakazam+growlithe+gyarados+pidgeot+venusaur (now 1x) at map=(1, 53) — SPATIAL wall active (gated until stronger)
+
+   [campaign]    [strat] RIVAL beat #9 vs Gary (won=False, place='Silph Co.') — grudge now 6W-3L
+
+   [campaign]    [strat] GARY encounter #9 recorded (loss) at Silph Co. — grudge escalates
+
+   [campaign]    [lapras] battle mid-path -> loss
+
+   [kira-voice] -> T3·BIG· (rival) "The Gary grudge runs deep — you've met 9 times (6-3). Last time at Silph Co. Gary beat you again, and you're ahead in this rivalry now. Every time you cross paths it's the whole journey on the line. The next one matters."  fired=True  [age 0.0s + post 22ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [silph] roam watchdog latch cleared IN-STRIKE (the climb has its own wedge budget)
+
+   [campaign]    off-route at (14, 6) (heal interior?) — exiting to the overworld
+
+   [campaign]    2 door(s); candidates (chosen order): [(7, 8), (1, 6)]
+
+   [campaign]    reachable door (7, 8): walking to approach (7, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(14, 6) coords=(0, 7) -> coord (7, 7) (budget 300s)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7); NPC-allowing path EXISTS (len 8), blocker NPC tile=None, npcs nearby=[(3, 3), (7, 2), (9, 7)] -> approaching to interact/trigger
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (14, 6) -> (3, 10) via door (7, 8)
+
+   [campaign]    [world] learned 15 warp(s) on (3, 10): (33, 30)->(1, 47), (22, 14)->(14, 0), (40, 12)->(14, 2), (46, 12)->(14, 3), (27, 21)->(14, 4), (40, 21)->(14, 5)
+
+   [campaign]    19 door(s); candidates (chosen order): [(33, 30)]
+
+   [campaign]    reachable door (33, 30): walking to approach (33, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 10) coords=(24, 39) -> coord (33, 31) (budget 300s)
+
+   [travel] step 0: (24, 39)->(23, 39) map=(3, 10) (path 32 to exit)
+
+   [travel] step 10: (17, 36)->(17, 35) map=(3, 10) (path 22 to exit)
+
+   [travel] step 20: (23, 32)->(24, 32) map=(3, 10) (path 12 to exit)
+
+   [travel] step 30: (32, 31)->(33, 31) map=(3, 10) (path 2 to exit)
+
+   [travel] reached target coord (33, 31)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 10) -> (1, 47) via door (33, 30)
+
+   [campaign]    [world] learned 5 warp(s) on (1, 47): (7, 21)->(3, 10), (8, 20)->(3, 10), (9, 20)->(3, 10), (31, 2)->(1, 48), (22, 3)->(1, 58)
+
+   [campaign]    [silph-reenter] (3, 10) -> (1, 47) @ (8, 20)
+
+   [campaign]    3 door(s); candidates (chosen order): [(31, 2)]
+
+   [campaign]    reachable door (31, 2): walking to approach (31, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 47) coords=(6, 20) -> coord (31, 3) (budget 300s)
+
+   [travel] step 0: (6, 20)->(6, 19) map=(1, 47) (path 43 to exit)
+
+   [travel] step 10: (6, 10)->(6, 9) map=(1, 47) (path 33 to exit)
+
+   [travel] step 20: (10, 4)->(11, 4) map=(1, 47) (path 23 to exit)
+
+   [travel] step 30: (20, 4)->(21, 4) map=(1, 47) (path 13 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 47) coords=(30, 4) elapsed=5s
+
+   [travel] step 40: (30, 4)->(30, 3) map=(1, 47) (path 3 to exit)
+
+   [travel] reached target coord (31, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 47) coords=(31, 2) -> coord (30, 2) (budget 60s)
+
+   [travel] step 0: (31, 2)->(30, 2) map=(1, 47) (path 2 to exit)
+
+   [travel] reached target coord (30, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (31, 2) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 7 warp(s) on (1, 48): (28, 2)->(1, 49), (2, 6)->(1, 49), (15, 6)->(1, 54), (30, 2)->(1, 47), (7, 19)->(1, 52), (33, 19)->(1, 54)
+
+   [campaign]    WARPED (1, 47) -> (1, 48) via directional door (31, 2)
+
+   [campaign]    [to9f-via2F] (1, 47) -> (1, 48) @ (30, 2)
+
+   [campaign]    7 door(s); candidates (chosen order): [(28, 2)]
+
+   [campaign]    reachable door (28, 2): walking to approach (28, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 48) coords=(30, 4) -> coord (28, 3) (budget 300s)
+
+   [travel] step 0: (30, 4)->(30, 3) map=(1, 48) (path 4 to exit)
+
+   [travel] reached target coord (28, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 48) coords=(28, 2) -> coord (29, 2) (budget 60s)
+
+   [travel] step 0: (28, 2)->(29, 2) map=(1, 48) (path 2 to exit)
+
+   [travel] reached target coord (29, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (28, 2) (behavior 0x6d) entered via LEFT
+
+   [campaign]    [world] learned 10 warp(s) on (1, 49): (28, 2)->(1, 48), (4, 6)->(1, 51), (13, 14)->(1, 53), (30, 2)->(1, 50), (2, 14)->(1, 55), (3, 20)->(1, 51)
+
+   [campaign]    WARPED (1, 48) -> (1, 49) via directional door (28, 2)
+
+   [campaign]    [to9f-via3F] (1, 48) -> (1, 49) @ (28, 2)
+
+   [campaign] !! [pad-7f] pad ride (13, 14) failed (at (1, 49)@(28, 4))
+
+   [dialogue] +++ 'Quit messing with us, kid!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Quit messing with us, kid!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (1, 49)@(24, 9) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [3f-doors-stand] step into (24, 10) failed — dead-marked, recompute
+
+   [play-live] battle context: trainer=True foe=raticate rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against raticate — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs raticate 68/68 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=15,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's raticate fainted — your blastoise took it down"  fired=True  [age 0.0s + post 1100ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out hypno'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 1 (eff x4) vs hypno 85/85 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=240) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=14,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's hypno fainted — your blastoise took it down"  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out raticate'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs raticate 68/68 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=13,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's raticate went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-doors-stand] battle mid-path -> win
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 197ms]
+
+   [dialogue] +++ 'Bingo! The CARD KEY opened the door!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Bingo! The CARD KEY opened the door!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [3f-doors] door script fired at (21, 12)
+
+   [campaign]    [pad-7f-2] rode pad (13, 14): (1, 49) -> (1, 53) @ (5, 4)
+
+   [campaign]    [silph] roam watchdog latch cleared IN-STRIKE (the climb has its own wedge budget)
+
+   [dialogue] +++ 'GARY. What kept you, KIRA?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "GARY. What kept you, KIRA?"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (1, 53)@(2, 5) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ "GARY. Hahaha! I thought you'd turn up if I waited here! I guess TEAM ROCKET slowed you down! Not that I care! I saw you in SAFFRON, so I decided to see if you got better!"  tags=['TYPE', 'PLACE']
+
+   [kira-voice]    (dialogue tags: type, place)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "GARY. Hahaha! I thought you\'d turn up if I waited here! I guess TEAM ROCKET slowed you down! Not that I care! I saw you in SAFFRON, so I decided to see if you got better!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [lapras] step into (1, 5) failed — dead-marked, recompute
+
+   [play-live] battle context: trainer=True foe=pidgeot rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 12ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against pidgeot — your blastoise is up front'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs pidgeot 112/112 | [0]Tackle(p35,pp=35,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=12,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used move#130 - a solid hit'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs pidgeot 84/112 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=12,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs pidgeot 7/112 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90) [3]move#130(p100,pp=11,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pidgeot fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out venusaur'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 121/121 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [3]move#130(p100,pp=10,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used move#130 - a solid hit'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '122/170', 'status': 'sleep', 'foe': 'venusaur'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_cure', 'keep_fighting'] -> pick='use_cure'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 17, aim=active)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'AWAKENING is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "AWAKENING is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'BLASTOISE woke up. .'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE woke up. ."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item: USED item 17 (count 2->1)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "used an item — that's better"
+
+   [play-live]    [engine] battle-progress: item 17 consumed
+
+   [play-live]    [engine] JUST FIGHT: L55 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 46/121 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [3]move#130(p100,pp=9,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 46 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '80/170', 'status': 'sleep', 'foe': 'venusaur'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_cure', 'keep_fighting'] -> pick='use_cure'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 17, aim=active)
+
+   [play-live]    [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4 to the Items pocket
+
+   [play-live]    [engine] use_item: RAM says row 2 wanted 2 — bytes may be frozen; BLIND bag walk (clamp-home + DOWN x2)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=2: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=3: party=False bag=False white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=2 scroll=0 row=2 — selected but item 17 NOT consumed (count still 1) — keep fighting (LOUD)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 17 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] CURE-BLOCK: no more status-cure offers this battle (already-clear / no_effect abort)
+
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 3 (NOT re-picking species 9)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] switch: target party slot 3 sp=64 -> menu row 3
+
+   [play-live]    [engine] switch: SWITCHED to species 64 (slot 3)
+
+   [kira-voice] -> T2·savor· (event) "this one's stuck — switching to someone who can still fight."  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] battle-progress: must-leave switch
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your kadabra fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] fswitch retry 3: target row 3 sp=9 skip_rows=[] party_cur=2 menu_rows=[(64, 0), (21, 47), (19, 43), (9, 38), (50, 35)]
+
+   [play-live]    [engine] fswitch: selecting row 3 (sp=9 L55 hp=38)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 1 (NOT re-picking species 9)
+
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 46/121 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [3]move#130(p100,pp=8,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=0 action=False moves=False)
+
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (asleep) — not a dead move; fighting on (futility 1/4)
+
+   [kira-voice] -> T1·brisk· (event) "no — move#130 - a solid hit didn't happen, I'm asleep! hang in there…"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 1 (NOT re-picking species 9)
+
+   [play-live]    [engine] switch: target party slot 1 sp=21 -> menu row 1
+
+   [play-live]    [engine] switch: SWITCHED to species 21 (slot 1)
+
+   [kira-voice] -> T2·savor· (event) "this one's stuck — switching to someone who can still fight."  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] battle-progress: must-leave switch
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your spearow fainted'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] fswitch retry 3: target row 1 sp=9 skip_rows=[] party_cur=1 menu_rows=[(21, 0), (9, 38), (19, 43), (64, 0), (50, 35)]
+
+   [play-live]    [engine] fswitch: selecting row 1 (sp=9 L55 hp=38)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] action menu: move#130 - a solid hit -> slot 3 (eff x1) vs venusaur 46/121 | [0]Tackle(p35,pp=34,ref=0,sc=33.25) [1]Bite(p60,pp=25,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [3]move#130(p100,pp=8,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: move#130 - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise fainted'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] fswitch: BUDGET 5s hit — blind-sending strongest live (anti 60–90s party theater)
+
+   [play-live]    [engine] fswitch: selecting row 2 (sp=19 L18 hp=43)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '43/43', 'status': 'none', 'foe': 'venusaur'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_revive', 'keep_fighting'] -> pick='use_revive'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'REVIVE is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "REVIVE is selected."'  fired=True  [age 0.0s + post 117ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'NUGGET is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "NUGGET is selected."'  fired=True  [age 0.0s + post 7ms]
+
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 19 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] action menu: move#158 - a STAB hit -> slot 1 (eff x1) vs venusaur 46/121 | [0]Quick Attack(p40*STAB,pp=30,ref=0,sc=60) [1]move#158(p80*STAB,pp=15,ref=0,sc=108) [2]Cut(p50*STAB,pp=30,ref=0,sc=71.25)
+
+   [play-live]    [engine] STREAM COMMIT: move#158 - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your rattata fainted'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] fswitch retry 4: target row 4 sp=50 skip_rows=[] party_cur=2 menu_rows=[(19, 0), (21, 0), (9, 0), (64, 0), (50, 35)]
+
+   [play-live]    [engine] fswitch: selecting row 4 (sp=50 L18 hp=35)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '35/35', 'status': 'none', 'foe': 'venusaur'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_revive', 'keep_fighting'] -> pick='use_revive'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'REVIVE is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "REVIVE is selected."'  fired=True  [age 0.0s + post 6ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] use_item: party list never took focus (fail-safe)
+
+   [play-live]    [engine] use_item: aim couldn't reach menu row 0 — confirming where the cursor is (fail-safe)
+
+   [play-live]    [engine] use_item walk n=2: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'NUGGET is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "NUGGET is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] use_item walk n=3: party=False bag=True white=False pcur=None lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=0 scroll=0 row=8 — selected but item 24 NOT consumed (count still 5) — keep fighting (LOUD)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 24 did not consume (failed) -> suppressing further in-battle item offers for species 50 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] action menu: move#91 - a STAB hit -> slot 3 (eff x1) vs venusaur 46/121 | [0]Scratch(p40,pp=35,ref=0,sc=40) [1]Growl(p0,pp=40,ref=0,sc=0) [2]move#222(p1*STAB,pp=30,ref=0,sc=1.5) [3]move#91(p60*STAB,pp=10,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: move#91 - a STAB hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your diglett fainted'  fired=True  [age 0.0s + post 3ms]
+
