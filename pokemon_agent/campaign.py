@@ -23,6 +23,7 @@ import argparse
 import os
 import sys
 import time
+import zlib
 from collections import namedtuple
 from contextlib import contextmanager
 
@@ -12839,6 +12840,13 @@ class Campaign:
             return
         try:
             cur_map = tuple(state["map"])
+            # BORDER PING-PONG HOLD (2026-08-04): while the breaker's hold covers this map, do NOT
+            # re-open proactive errands from here — a re-opened errand is exactly the controller
+            # that restarts the boundary rhythm. Gates re-arm the moment she's off the thrashed
+            # maps (or the window expires); nothing is forgotten, only deferred.
+            if (time.time() < getattr(self, "_bpp_hold_until", 0)
+                    and cur_map in getattr(self, "_bpp_maps", set())):
+                return
             # Already on an errand → re-derive against LIVE RAM so a just-completed step advances or the
             # whole questline self-clears (the gate opened). Keeps the ctx + action-set honest WITHOUT
             # walking a step here (the executor walks it when she picks head_to_gym).
@@ -13740,6 +13748,71 @@ class Campaign:
                 return self.catch_one()
             return "arrived"
         return "hop_ok"
+
+    def _border_pingpong_tick(self, fp):
+        """BORDER PING-PONG BREAKER (2026-08-04 deep dive — 'this is the last time I'm gonna ask').
+        The loop CLASS behind the Route-8/UGP saga (and Route 12↔Lavender before it): two steering
+        layers disagree at a map boundary and she crosses the same borders forever, each crossing
+        reading as 'progress' (MOVED) to every per-tick guard. The tell is unfakeable at the MACRO
+        level: many border crossings among FEW maps with ZERO world change — no XP, no money, no
+        item, no flag, no HP delta. No legitimate play looks like that: real treks cross DISTINCT
+        maps; grinding/shopping/healing all move the world signature (which RESETS the window).
+
+        Detection: sample the tick-top map; count transitions while the non-position world
+        signature (badges/money/party/bag) holds still. 12 transitions among <=5 maps with any map
+        revisited 3+ times -> latch. Response (bounded, escalating): clear the errand (fresh
+        re-derive), forget the thrashed maps' 'proven' connectors + passthrough history (stale
+        connector memory is a known poison), and HOLD head_to_gym/head_to_league off the menu on
+        those maps (2 min; 5 min on a repeat strike within 15 min) — the never-empty floor
+        guarantees regroup, so the rhythm breaks instead of restarting. The F-1 tripwire can't
+        bypass the hold (it only forces picks still IN the offered set)."""
+        if fp is None:
+            return
+        try:
+            wsig = (fp.badges, fp.money,
+                    zlib.crc32(repr(fp.party).encode()) & 0xFFFFFFFF,
+                    zlib.crc32(repr(fp.bag).encode()) & 0xFFFFFFFF)
+        except Exception:
+            return
+        if wsig != getattr(self, "_bpp_wsig", None):
+            self._bpp_wsig = wsig
+            self._bpp_hist = []
+            return
+        hist = getattr(self, "_bpp_hist", None)
+        if hist is None:
+            hist = self._bpp_hist = []
+        m = tuple(fp.map_id)
+        if hist and hist[-1] == m:
+            return                                   # same map as last sample — no transition
+        hist.append(m)
+        if len(hist) > 12:
+            del hist[0]
+        if len(hist) < 12:
+            return
+        distinct = set(hist)
+        if len(distinct) > 5 or max(hist.count(x) for x in distinct) < 3:
+            return
+        now = time.time()
+        self._bpp_strikes = (getattr(self, "_bpp_strikes", 0) + 1
+                             if now < getattr(self, "_bpp_strike_until", 0) else 1)
+        self._bpp_strike_until = now + 900
+        hold = 300 if self._bpp_strikes >= 2 else 120
+        self._bpp_hold_until = now + hold
+        self._bpp_maps = set(distinct)
+        self._bpp_hist = []
+        log(f"   [roam] !!!! BORDER PING-PONG BREAKER (strike {self._bpp_strikes}): 12 border "
+            f"crossings among {sorted(distinct)} with ZERO world progress — clearing the errand, "
+            f"forgetting 'proven' connectors on these maps, holding head_to_gym off them for "
+            f"{hold}s LOUD")
+        self.on_event("okay, stop — I've been pacing the same doors like a lost tourist. deep "
+                      "breath. new plan from the top.", kind="route", tier=2)
+        try:
+            self._clear_questline("border ping-pong breaker")
+        except Exception:
+            pass
+        for _m in distinct:
+            getattr(self, "_pt_known", {}).pop(_m, None)
+            getattr(self, "_pt_tried", {}).pop(_m, None)
 
     def _available_actions(self, state):
         """HONEST per-tick action set — only actions that actually DO something here (no phantom/no-op).
@@ -14745,6 +14818,19 @@ class Campaign:
             a.pop("talk_npc", None)
             log("   [roam] !! INTERIOR-WEDGE ESCAPE: wedged in a dead-end interior with the walk-out "
                 "armed — suppressing talk_npc so leave_building dominates (get out of the wrong building)")
+        # BORDER PING-PONG HOLD (2026-08-04, the breaker's enforcement half): while the hold is
+        # live and she stands on one of the thrashed maps, the forward-drive picks are OFF THE
+        # MENU — the two-controller rhythm cannot restart from here until the window expires.
+        # regroup/grind/talk/heal stay offered (and the never-empty floor below guarantees
+        # regroup), so she relocates and re-derives instead of re-crossing. The F-1 tripwire
+        # honors this automatically (it only forces an action still in the offered set).
+        if (time.time() < getattr(self, "_bpp_hold_until", 0)
+                and tuple(state.get("map") or ()) in getattr(self, "_bpp_maps", set())):
+            _dropped = [k for k in ("head_to_gym", "head_to_league") if a.pop(k, None) is not None]
+            if _dropped:
+                log(f"   [roam] !! BORDER PING-PONG HOLD: {_dropped} off the menu on this thrashed "
+                    f"map ({int(getattr(self, '_bpp_hold_until', 0) - time.time())}s left) — "
+                    f"the breaker owns the rhythm")
         # NEVER-EMPTY FLOOR (2026-07-08 soak finding): an EMPTY set ends free roam — on a live watch
         # that stops her cold mid-show (hit on the post-game victory lap at an unfamiliar strip: no
         # grass target, no known travel routes, no gym objective). There is always ONE honest move:
@@ -16733,6 +16819,13 @@ class Campaign:
             log(f"   [roam] STATE IN: {state['place']} {state['coords']} | badges={state['badge_count']} "
                 f"({', '.join(state['badges']) or 'none'}) | party=[{party_str}] | {state['progress']}")
             log(f"   [roam] PROGRESS: {macro} (unchanged {ledger.stuck} ticks) | {wf.brief(fp)}")
+            # BORDER PING-PONG BREAKER (2026-08-04): the MACRO loop detector — many border
+            # crossings among few maps with zero world change = two controllers fighting over
+            # a boundary. Detects and breaks the rhythm (see _border_pingpong_tick).
+            try:
+                self._border_pingpong_tick(fp)
+            except Exception as _bpe:
+                log(f"   [roam] border ping-pong tick skipped: {_bpe}")
             # STRAY-MENU SWEEP (2026-08-03 nuclear, the overworld Super-Potion loop): no flow is
             # active at the tick top, so ANY bag/party/case screen here is an accident (a mis-fired
             # START, an abandoned item flow) — B it closed before it eats the tick. Bounded + LOUD.
