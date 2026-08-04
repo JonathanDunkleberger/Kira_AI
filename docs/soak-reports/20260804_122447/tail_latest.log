@@ -1,0 +1,300 @@
+   [Pokemon] event react (bypass=False, tier=2, kind=event): your lapras took a big hit
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.9 type=episodic blend=0.095 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   >>> Kira (Bored): Okay, ow. Lapras did NOT sign up for this.
+   [TTS] Speaking: Okay, ow....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay, ow.' (4 words)
+   [TurnTiming] 12:21:41.863 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:21:43.734 TTS STOP — playback finished (span ~1870ms)
+   [TTS] Speaking: Lapras did NOT sign up for this....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lapras did NOT sign up for this.' (8 words)
+   [TurnTiming] 12:21:44.045 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @ChhayanshuMeena: i am not dunkleberger i am MEENA
+   [BrainWorker] Got youtube msg from @ChhayanshuMeena: i am not dunkleberger i am MEENA → buffering for chat_batch_worker
+   [VRAM] 12:21:45 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 12:21:46.499 TTS STOP — playback finished (span ~2454ms)
+   [TIMING] interjection: vision=0ms llm=1802ms(sonnet) tts=4954ms total=6786ms
+   [LAG] sense→speak: total=4.3s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=2.5s)
+   [SmartMem] q='  - @ChhayanshuMeena (youtube): <<<i am not dunkleberger i a' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   >>> Kira (Chat Batch of 1): Dunkleberger is your name whether you like it or not. Meena is just your lore.
+   [TTS] Speaking: Dunkleberger is your name whether you like it or n...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Dunkleberger is your name whether you li' (11 words)
+   [TurnTiming] 12:21:50.269 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:21:53.075 TTS STOP — playback finished (span ~2805ms)
+   [TTS] Speaking: Meena is just your lore....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Meena is just your lore.' (6 words)
+   [TurnTiming] 12:21:53.346 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Qxe6# (a capture). Kira has a forced mate.
+   [Chess] React suppressed (throttle): You (Kira) just played Qxe6# — a capture. Position: Kira has
+   [Chess] GAME OVER — Kira WON vs Zekromite1245 (status=mate). Final: Kira has a forced mate.
+   [Chess] Chat → game/27FGI3Um: gg, thanks for the game!
+   [TurnTiming] 12:21:55.314 TTS STOP — playback finished (span ~1968ms)
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @ChhayanshuMeena age=10.3s batch=1 preempted=none
+   [Cookies] 🎡 WHEEL — milestone #227, tipper=@chhayanshumeena, slice=chaos_mode
+   [TTS] Speaking: The jar overflows. @chhayanshumeena gets credit. T...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The jar overflows. @chhayanshumeena gets' (22 words)
+   [TurnTiming] 12:21:55.996 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Chess] Accepting casual correspondence challenge from Zekromite1245 — game starting!
+[YouTube Chat] @dasbooterror: Ow indeed
+[YouTube Chat] @ChhayanshuMeena: ["Meena"]
+   [BrainWorker] Got youtube msg from @dasbooterror: Ow indeed → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @ChhayanshuMeena: ["Meena"] → buffering for chat_batch_worker
+   [Chess] Game r3t3F8b7 started — opening state stream.
+   [ChatterMem] Stored: @ChhayanshuMeena — Has been dubbed 'Dunkleberger' by Kira against their will; i [chaotic]
+   [Chess] Playing Black vs Zekromite1245.
+   [Chess] GAME STARTED vs Zekromite1245 (1500) — spectate: https://lichess.org/r3t3F8b7
+   [Chess] Chat → game/r3t3F8b7: gl hf! heads up — I'm an AI VTuber and this game is being streamed live.
+   [Chess] Kira played c5 (a pawn push). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played c5 — a pawn push. Position: roughly e
+   [TurnTiming] 12:22:04.144 TTS STOP — playback finished (span ~8147ms)
+   [Wheel] Executing slice: chaos_mode
+   [TTS] Speaking: Chaos Mode. The wheel made this happen. I take no ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Chaos Mode. The wheel made this happen. ' (14 words)
+   [TurnTiming] 12:22:04.309 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played d6 (a pawn push). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played d6 — a pawn push. Position: roughly e
+   [Chess] Kira played e6 (a pawn push). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played e6 — a pawn push. Position: roughly e
+   [TurnTiming] 12:22:09.841 TTS STOP — playback finished (span ~5531ms)
+   [Chaos] 🔥 CHAOS MODE ACTIVE for 900s (until 1785872230)
+   [SmartMem] q='  - @dasbooterror (youtube): <<<Ow indeed>>>\n  - @Chhayanshu' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 2): Lapras took a hit and dasbooterror just says "ow indeed" — extremely correct, no notes.
+
+And dunkleberger, typing your own name in chat is NOT the gotcha you think it is. That's just confirming the lore.
+   [TTS] Speaking: Lapras took a hit and dasbooterror just says "ow i...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lapras took a hit and dasbooterror just ' (18 words)
+   [TurnTiming] 12:22:14.401 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+[YouTube Chat] @ChhayanshuMeena: she changed my name lol
+   [BrainWorker] Got youtube msg from @ChhayanshuMeena: she changed my name lol → buffering for chat_batch_worker
+   [ChatterMem] Preferred name set: chhayanshumeena → 'lol'
+   [TurnTiming] 12:22:19.972 TTS STOP — playback finished (span ~5571ms)
+   [TTS] Speaking: And dunkleberger, typing your own name in chat is ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And dunkleberger, typing your own name i' (18 words)
+   [TurnTiming] 12:22:20.402 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Nf6 (developing the position). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played Nf6 — developing the position. Positi
+[YouTube Chat] @dasbooterror: hahah
+   [BrainWorker] Got youtube msg from @dasbooterror: hahah → buffering for chat_batch_worker
+   [Chess] Kira played a6 (a pawn push). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played a6 — a pawn push. Position: roughly e
+   [TurnTiming] 12:22:24.915 TTS STOP — playback finished (span ~4512ms)
+   [TTS] Speaking: That's just confirming the lore....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's just confirming the lore.' (6 words)
+   [TurnTiming] 12:22:25.186 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 12:22:27.245 TTS STOP — playback finished (span ~2059ms)
+   [Cookies] +1 × 2 (batch response); shared=2/30
+   [ChatAge] @dasbooterror age=26.9s batch=2 preempted=none
+   [ChatAge] @ChhayanshuMeena age=26.8s batch=2 preempted=none
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+   [Chess] Kira played Qc7 (developing the position). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played Qc7 — developing the position. Positi
+   [VRAM] 12:22:30 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [SmartMem] q='  - @ChhayanshuMeena (youtube): <<<she changed my name lol>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [Chess] Kira played Be7 (developing the position). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played Be7 — developing the position. Positi
+   >>> Kira (Chat Batch of 2): lol said "she changed my name" like I did something TO her. I gave her a TITLE. Dunkleberger is an upgrade and she knows it.
+   [TTS] Speaking: lol said "she changed my name" like I did somethin...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'lol said "she changed my name" like I di' (15 words)
+   [TurnTiming] 12:22:35.951 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Chess] Kira played b5 (a pawn push). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played b5 — a pawn push. Position: roughly e
+   [TurnTiming] 12:22:40.080 TTS STOP — playback finished (span ~4129ms)
+   [TTS] Speaking: I gave her a TITLE....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I gave her a TITLE.' (6 words)
+   [TurnTiming] 12:22:40.414 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:22:42.198 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: Dunkleberger is an upgrade and she knows it....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Dunkleberger is an upgrade and she knows' (9 words)
+   [TurnTiming] 12:22:42.507 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Bb7 (developing the position). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played Bb7 — developing the position. Positi
+   [TurnTiming] 12:22:45.128 TTS STOP — playback finished (span ~2620ms)
+   [Cookies] +1 × 2 (batch response); shared=4/30
+   [ChatAge] @ChhayanshuMeena age=26.3s batch=2 preempted=none
+   [ChatAge] @dasbooterror age=20.3s batch=2 preempted=none
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (1/1s) (3 skip(s))
+[YouTube Chat] @ChhayanshuMeena: can you pronounce Chhayanshu
+   [BrainWorker] Got youtube msg from @ChhayanshuMeena: can you pronounce Chhayanshu → buffering for chat_batch_worker
+   [TurnTiming] 12:22:46.424 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~92372ms since onset)
+   [ChatterMem] Stored: @ChhayanshuMeena — Was given the nickname 'Dunkleberger' by Kira [playful]
+   [Chess] Kira played Bxf6 (a capture). Kira is slightly better.
+   [Chess] on_react fired (bypass=False): You (Kira) just played Bxf6 — a capture. Position: Kira is slightly be
+   [SmartMem] q='chess game' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=41ms rank=0ms)
+   [SmartMem]     dist=0.884 conf=0.9 type=episodic blend=0.205 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [Phrases] Throttling: "and she knows it" (3rd use this session)
+   >>> Kira (Bored): Down a piece and still better — honestly that should be illegal.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Down a piece and still better — honestly that shou...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Down a piece and still better — honestly' (13 words)
+   [TurnTiming] 12:22:49.626 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:22:53.096 TTS STOP — playback finished (span ~3469ms)
+   [TIMING] interjection: vision=0ms llm=1835ms(sonnet) tts=3778ms total=5656ms
+   [LAG] sense→speak: total=2.2s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=0.3s)
+   [SmartMem] q='  - @ChhayanshuMeena (youtube): <<<can you pronounce Chhayan' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 1): Okay. Chhayanshu. Chha — chhaayan — okay I'm going to need a moment and possibly a glass of water.
+
+Dunkleberger was genuinely easier and I stand by it.
+   [TTS] Speaking: Okay....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay.' (2 words)
+   [TurnTiming] 12:22:58.581 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Qd8 (developing the position). Kira is slightly better.
+   [Chess] React suppressed (throttle): You (Kira) just played Qd8 — developing the position. Positi
+   [TurnTiming] 12:23:00.356 TTS STOP — playback finished (span ~1774ms)
+   [TTS] Speaking: Chhayanshu....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Chhayanshu.' (2 words)
+   [TurnTiming] 12:23:00.586 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 12:23:02.357 TTS STOP — playback finished (span ~1770ms)
+   [TTS] Speaking: Chha — chhaayan — okay I'm going to need a moment ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Chha — chhaayan — okay I'm going to need' (18 words)
+   [TurnTiming] 12:23:02.855 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:23:07.451 TTS STOP — playback finished (span ~4595ms)
+   [TTS] Speaking: Dunkleberger was genuinely easier and I stand by i...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Dunkleberger was genuinely easier and I ' (10 words)
+   [TurnTiming] 12:23:07.868 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 12:23:11.045 TTS STOP — playback finished (span ~3177ms)
+   [Cookies] +1 × 1 (batch response); shared=5/30
+   [ChatAge] @ChhayanshuMeena age=24.7s batch=1 preempted=none
+   [ChatterMem] Stored: @ChhayanshuMeena — Has a name that Kira found harder to pronounce than 'Dunkleb [playful]
+   [VRAM] 12:23:15 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=2, kind=event): your diglett fainted
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.9 type=episodic blend=0.095 lane=KNOW
+   [Phrases] Throttling: "going to need a" (3rd use this session)
+   [Phrases] Throttling: "need a moment" (3rd use this session)
+   [Phrases] Throttling: "i'm going to" (3rd use this session)
+[YouTube Chat] @ChhayanshuMeena: wrong
+   [BrainWorker] Got youtube msg from @ChhayanshuMeena: wrong → buffering for chat_batch_worker
+   >>> Kira (Bored): Diglett, no — you had ONE job and it was being a small dirt tube with attitude.
+   [TTS] Speaking: Diglett, no — you had ONE job and it was being a s...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Diglett, no — you had ONE job and it was' (19 words)
+   [TurnTiming] 12:23:19.857 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Chess] Kira played Nc6 (developing the position). Kira is slightly better.
+   [Chess] React suppressed (throttle): You (Kira) just played Nc6 — developing the position. Positi
+   [TurnTiming] 12:23:24.638 TTS STOP — playback finished (span ~4780ms)
+   [TIMING] interjection: vision=0ms llm=2403ms(sonnet) tts=5265ms total=7697ms
+   [LAG] sense→speak: total=2.9s (content_age=0.0s, prep=0.0s, llm=2.4s, tts_wait+synth=0.5s)
+🎤 Recording... (recovered opening words)
+   [Pokemon] event react (bypass=False, tier=2, kind=event): that one's down - sending out my next Pokemon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.9 type=episodic blend=0.095 lane=KNOW
+   [TurnTiming] 12:23:25.855 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~131803ms since onset)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   >>> Kira (Bored): Okay the next one's coming out and I am choosing VIOLENCE.
+   [TTS] Speaking: Okay the next one's coming out and I am choosing V...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay the next one's coming out and I am ' (12 words)
+   [TurnTiming] 12:23:27.268 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:23:30.549 TTS STOP — playback finished (span ~3280ms)
+   [TIMING] interjection: vision=0ms llm=1838ms(sonnet) tts=3605ms total=5469ms
+   [LAG] sense→speak: total=2.2s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=0.3s)
+   [Chess] Kira played Rc8 (developing the position). Kira is slightly better.
+   [Chess] React suppressed (throttle): You (Kira) just played Rc8 — developing the position. Positi
+   [Pokemon] event react (bypass=False, tier=2, kind=struggle): okay this is bad — I'm down to my last one. everyone else is out. if t
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=2ms fetch=21ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [SmartMem]     dist=1.072 conf=0.9 type=episodic blend=0.095 lane=KNOW
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (1 skip(s))
+🎤 Recording...
+   [TurnTiming] 12:23:31.709 VOICE ONSET — mic speech started
+   [TurnTiming] 12:23:32.981 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1271ms since onset)
+   >>> Kira (Bored): Lapras it's just us. Do NOT embarrass me in front of Jonny.
+   [TTS] Speaking: Lapras it's just us....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lapras it's just us.' (5 words)
+   [TurnTiming] 12:23:33.411 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Nd4 (developing the position). Kira is clearly better.
+   [TurnTiming] 12:23:35.377 TTS STOP — playback finished (span ~1965ms)
+   [TTS] Speaking: Do NOT embarrass me in front of Jonny....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Do NOT embarrass me in front of Jonny.' (9 words)
+   [TurnTiming] 12:23:35.787 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:23:38.224 TTS STOP — playback finished (span ~2437ms)
+   [TIMING] interjection: vision=0ms llm=2068ms(sonnet) tts=5164ms total=7257ms
+   [LAG] sense→speak: total=4.8s (content_age=0.0s, prep=0.0s, llm=2.1s, tts_wait+synth=2.7s)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [ChatAge] ACK injected for @ChhayanshuMeena (waited 24.0s, preempted=none)
+   [SmartMem] q='  - @ChhayanshuMeena (youtube): <<<wrong>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=27ms rank=1ms)
+   >>> Kira (Chat Batch of 1): lol typed "wrong" and honestly? legally, in Chaos Mode, I'm counting that as a formal complaint submitted to the Department of Name Corrections. Appeal denied. Dunkleberger stands.
+   [TTS] Speaking: lol typed "wrong" and honestly?...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'lol typed "wrong" and honestly?' (8 words)
+   [TurnTiming] 12:23:44.236 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Bxd4 (a capture). Kira is clearly better.
+   [Chess] React suppressed (throttle): You (Kira) just played Bxd4 — a capture. Position: Kira is c
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 12:23:46.966 TTS STOP — playback finished (span ~2730ms)
+   [TTS] Speaking: legally, in Chaos Mode, I'm counting that as a for...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'legally, in Chaos Mode, I'm counting tha' (21 words)
+   [TurnTiming] 12:23:47.485 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
