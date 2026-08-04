@@ -187,6 +187,9 @@ DUNGEON_QUESTLINE_STEPS = frozenset({
     "FLAG_HIDE_SAFFRON_ROCKETS",      # Silph Co. liberation (Giovanni #2)
     "secret_key",                     # Pokémon Mansion
     "seafoam",                        # Seafoam interior (if ever re-armed)
+    # 2026-08-04 LEGENDARY HUNTS: all three are combat dungeons (Power Plant Electrodes,
+    # Seafoam interior, Cerulean Cave's L46-70 wilds) — the ace leads, never a bench mon.
+    "zapdos", "articuno", "mewtwo",
 })
 # CAVE STEP-ENCOUNTER GRIND (2026-07-11, PASS 3 NS#16 — the endgame grind-spot-adequacy unblock). The
 # binding wall for a fresh-GO E4-ready team: near Viridian/Indigo the only adequate high-level GRASS is
@@ -368,6 +371,17 @@ EXPSHARE_FETCH_ENABLED = os.getenv("POKEMON_EXPSHARE_FETCH", "1") != "0"
 # it the tick she's rich enough. Success = a party mon KNOWING move 58 (the TM is consumed on
 # teach, so no flag/bag check can bill it). Disable with POKEMON_ICEBEAM_FETCH=0.
 ICEBEAM_FETCH_ENABLED = os.getenv("POKEMON_ICEBEAM_FETCH", "1") != "0"
+# 2026-08-04 (Jonny: "i want her catching mew or mewtwo as a final endgame project. and all cool
+# legendaries that are available before or after the final 4 so she mops the floor with them"):
+# the LEGENDARY HUNTS (legendary_strikes.py — Zapdos/Power Plant, Articuno/Seafoam B4F, Mewtwo/
+# Cerulean Cave post-champion). Each gate self-suppresses until its road is actually open (Surf
+# taught; Articuno additionally needs the Seafoam boulders TRULY down — the R21-reroute stamp
+# is not enough; Mewtwo needs FLAG_SYS_GAME_CLEAR) and until the ball pocket can carry the
+# fight (the mart doctrine stocks Ultras once any hunt is pending). The battle side is the
+# existing careful-capture divert, now best-ball-first with the Master Ball reserved for
+# Mewtwo. (Mew is event-only distribution hardware — not obtainable by play; Mewtwo IS this
+# cartridge's Mew-class prize.) Disable with POKEMON_LEGENDARY_HUNTS=0.
+LEGENDARY_HUNTS_ENABLED = os.getenv("POKEMON_LEGENDARY_HUNTS", "1") != "0"
 # NS#13: the CINNABAR GYM strike (Blaine, badge 7). Cinnabar is FRLG's SIX quiz-door gym — the general
 # beat_gym clears juniors but never opens the quiz doors, so the leader battle never fires (the bounce the
 # mansion look-ahead surfaced). blaine_gym.run_gym does the FULL tour (quiz chain -> Blaine -> badge ->
@@ -12287,6 +12301,18 @@ class Campaign:
                 from game_corner import ICEBEAM_ANCHORS, run_strike
                 return run_strike, ICEBEAM_ANCHORS, ("taught", "have_ice_beam"), "icebeam_probe"
 
+            def _zapdos():
+                from legendary_strikes import ZAPDOS_ANCHORS, run_zapdos
+                return run_zapdos, ZAPDOS_ANCHORS, ("caught", "battled"), "zapdos_probe"
+
+            def _articuno():
+                from legendary_strikes import ARTICUNO_ANCHORS, run_articuno
+                return run_articuno, ARTICUNO_ANCHORS, ("caught", "battled"), "articuno_probe"
+
+            def _mewtwo():
+                from legendary_strikes import MEWTWO_ANCHORS, run_mewtwo
+                return run_mewtwo, MEWTWO_ANCHORS, ("caught", "battled"), "mewtwo_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
@@ -12361,6 +12387,22 @@ class Campaign:
                     "the Celadon Game Corner (TM13 Ice Beam for the ace)",
                     "ICE BEAM is on the team — straight off the Game Corner prize counter. grass, "
                     "dragons, birds: everything left on this run freezes now.", _icebeam),
+                # 2026-08-04 LEGENDARY HUNTS (Jonny's order): door-less flag steps — the FOUGHT
+                # flag is set on caught OR KO'd (a flee leaves it clear -> the hunt re-arms
+                # after a ball restock). FIRE-FIRST dispatches on the hunt's anchor maps.
+                ("flag", "FLAG_FOUGHT_ZAPDOS"): (
+                    "the Power Plant (ZAPDOS — the legendary electric bird)",
+                    "ZAPDOS. an actual legendary, on MY team. Lorelei's waters and Lance's "
+                    "Gyarados just became target practice.", _zapdos),
+                ("flag", "FLAG_FOUGHT_ARTICUNO"): (
+                    "Seafoam Islands B4F (ARTICUNO — the legendary ice bird)",
+                    "ARTICUNO is ours — the frozen heart of the Seafoam Islands. Lance's "
+                    "dragons are officially a formality.", _articuno),
+                ("flag", "FLAG_FOUGHT_MEWTWO"): (
+                    "Cerulean Cave (MEWTWO — the final endgame project)",
+                    "MEWTWO. the strongest Pokémon in existence, caught at the bottom of "
+                    "Cerulean Cave. the victory lap is complete — there is nothing left to "
+                    "prove.", _mewtwo),
             }
             if succ not in registry:
                 return None
@@ -12378,6 +12420,9 @@ class Campaign:
                 return None                     # exp-share fetch flag-gated OFF -> fall through
             if succ == ("cap", "ice_beam") and not ICEBEAM_FETCH_ENABLED:
                 return None                     # ice-beam fetch flag-gated OFF -> fall through
+            if succ in (("flag", "FLAG_FOUGHT_ZAPDOS"), ("flag", "FLAG_FOUGHT_ARTICUNO"),
+                        ("flag", "FLAG_FOUGHT_MEWTWO")) and not LEGENDARY_HUNTS_ENABLED:
+                return None                     # legendary hunts flag-gated OFF -> fall through
             label, done_msg, importer = registry[succ]
             run_fn, anchors, good, dbg_sub = importer()
             if here not in anchors:
@@ -12680,6 +12725,89 @@ class Campaign:
                              "Lance's dragons, the birds. The coin budget's banked; Blastoise "
                              "gets a fourth attack worth having.",
                        detail={"cap": "ice_beam"})
+
+    # ── LEGENDARY HUNTS (2026-08-04, Jonny: 'catching mew or mewtwo as a final endgame
+    #    project ... all cool legendaries before or after the final 4') ─────────────────────
+    def _hunt_ready(self, quarry_species, hide, fought, need_balls=6):
+        """Shared hunt preconditions: the encounter still EXISTS (not caught, not battled-away)
+        and the ball pocket can carry the fight (spendable Ultra/Great/Poké tiers; the mart
+        doctrine stocks Ultras while any hunt is pending). None = ready; else the reason."""
+        try:
+            if ram.pokedex_owns(self.b, quarry_species) is True:
+                return "caught"
+            if fm.read_flag(self.b, hide) or fm.read_flag(self.b, fought):
+                return "spent"
+            if sum(self._balls_pocket_count(i) for i in (2, 3, 4)) < need_balls:
+                return "balls"
+        except Exception:
+            return "unreadable"
+        return None
+
+    def _zapdos_gate(self, state):
+        """POWER PLANT ZAPDOS — live the moment Surf is taught (the Route 10 water strip is the
+        only lock). The single best pre-E4 teammate the map still holds: L50 electric answers
+        Lorelei's waters and Lance's Gyarados. Returns a Gate or None."""
+        if not LEGENDARY_HUNTS_ENABLED:
+            return None
+        try:
+            if st.party_knows_move(self.b, 57, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is None:
+                return None                       # no Surf, no road
+            if self._hunt_ready(145, 0x05D, 0x2BF) is not None:
+                return None
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="zapdos", where=(3, 28),
+                       human="ZAPDOS — the Power Plant across Route 10's water strip holds a "
+                             "L50 legendary bird. Surf the strip, walk the plant, and catch "
+                             "the electric answer to Lorelei and Lance's Gyarados.",
+                       detail={"flag": "FLAG_FOUGHT_ZAPDOS"})
+
+    def _articuno_gate(self, state):
+        """SEAFOAM B4F ARTICUNO — only after the interior boulders are TRULY down (hide flags
+        0x046/0x047 cleared: the calm-water proof; the R21-reroute's stamped 0x2D2 does NOT
+        calm B4F). Ice/Flying L50 — Lance's dragons hate it. Returns a Gate or None."""
+        if not LEGENDARY_HUNTS_ENABLED:
+            return None
+        try:
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            if (st.party_knows_move(self.b, 57, cnt) is None
+                    or st.party_knows_move(self.b, 70, cnt) is None):
+                return None                       # needs Surf + Strength inside
+            if fm.read_flag(self.b, 0x046) or fm.read_flag(self.b, 0x047):
+                return None                       # boulders not truly down -> B4F rips
+            if self._hunt_ready(144, 0x082, 0x2BE) is not None:
+                return None
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="articuno", where=(3, 38),
+                       human="ARTICUNO — the Seafoam Islands' bottom floor, past the boulder "
+                             "cascade she already dropped. An ice legendary that makes "
+                             "Lance's dragons a formality.",
+                       detail={"flag": "FLAG_FOUGHT_ARTICUNO"})
+
+    def _mewtwo_gate(self, state):
+        """CERULEAN CAVE MEWTWO — THE final endgame project (Jonny's order). The cave guard
+        only steps aside once she's CHAMPION (FLAG_SYS_GAME_CLEAR 0x82C), so this can only
+        arm on the victory lap. The Master Ball from Silph is reserved for exactly this seat
+        (battle_agent allow_master). Returns a Gate or None."""
+        if not LEGENDARY_HUNTS_ENABLED:
+            return None
+        try:
+            if not fm.read_flag(self.b, 0x82C):
+                return None                       # not champion — the guard won't move
+            if st.party_knows_move(self.b, 57, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is None:
+                return None
+            # Master Ball in the pocket counts as ready even with a thin spendable stack
+            if (self._hunt_ready(150, 0x081, 0x2BC, need_balls=8) is not None
+                    and self._balls_pocket_count(1) <= 0):
+                return None
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="mewtwo", where=(3, 3),
+                       human="MEWTWO — the Cerulean Cave guard finally steps aside for the "
+                             "CHAMPION. The strongest Pokémon in the game is at the bottom, "
+                             "and the Master Ball has been waiting for exactly this.",
+                       detail={"flag": "FLAG_FOUGHT_MEWTWO"})
 
     def _head_to_league(self, state):
         """ENDGAME (NS#15): all 8 badges, not yet at Indigo — dispatch the Victory Road strike. It drives its
@@ -13318,6 +13446,18 @@ class Campaign:
                 log("   [roam] ❄️ PROACTIVE ICE BEAM: the coin budget is banked — Celadon Game "
                     "Corner for TM13, then the ace learns the endgame's best fourth attack")
                 return
+            # PROACTIVE LEGENDARY HUNTS (2026-08-04, Jonny's order — 'catching mew or mewtwo
+            # as a final endgame project ... all cool legendaries so she mops the floor').
+            # Each gate self-suppresses until its road is open and the balls are stocked;
+            # dead-last among the luxuries — story war errands always outrank a trophy hunt.
+            for _hg, _htag in ((self._zapdos_gate, "⚡ ZAPDOS (Power Plant)"),
+                               (self._articuno_gate, "🧊 ARTICUNO (Seafoam B4F)"),
+                               (self._mewtwo_gate, "🧬 MEWTWO (Cerulean Cave)")):
+                hg = _hg(state)
+                if hg is not None and self._open_questline(hg, state):
+                    log(f"   [roam] 🏆 PROACTIVE LEGENDARY HUNT: {_htag} is live — "
+                        f"routing the hunt")
+                    return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
             # head_to_gym drives THAT and the action-set reframes around it.
@@ -13397,6 +13537,25 @@ class Campaign:
             _shelf = MART_STOCK.get(tv.map_id(self.b), [])
             _ball_id = next((i for i in (4, 3, 2) if i in _shelf), ITEM_POKE_BALL)
             sl.append((_ball_id, ball_target - _balls_have))
+        # LEGENDARY ULTRA STOCK (2026-08-04, Jonny's order — 'all cool legendaries so she mops
+        # the floor'): while any hunt is still PENDING (encounter alive + its road plausibly
+        # open), keep 8+ ULTRA Balls specifically — catch rate 3 makes plain Poké Balls theater
+        # (a 2x Ultra is the difference between a catch and a drained pocket). Only where the
+        # shelf actually sells them (Ultras appear in the badge-5+ marts she's shopping anyway).
+        if LEGENDARY_HUNTS_ENABLED:
+            try:
+                _pc = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                _hunt_pending = (
+                    st.party_knows_move(self.b, 57, _pc) is not None    # Surf = a road is open
+                    and any(ram.pokedex_owns(self.b, sp) is not True
+                            and not fm.read_flag(self.b, fought)
+                            for sp, fought in ((145, 0x2BF), (144, 0x2BE), (150, 0x2BC))))
+                _ultras = self._balls_pocket_count(2)
+                if (_hunt_pending and _ultras < 8
+                        and 2 in MART_STOCK.get(tv.map_id(self.b), [])):
+                    sl.append((2, 8 - _ultras))
+            except Exception:
+                pass
         # Afflictions she's felt on the road + KB foresight for the NEXT gym (Surge Parlyz
         # Heal before Thunder Wave ever lands — 2026-08-02 Bulbapedia kit). Prefer the
         # specific cure on this Mart's shelf; Full Heal if that's all they sell.

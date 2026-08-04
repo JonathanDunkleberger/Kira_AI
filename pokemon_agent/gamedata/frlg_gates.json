@@ -146,6 +146,21 @@
       "id": 598,
       "hex": "0x256",
       "note": "Oak's aide on the Route 15 West Entrance 2F: the Exp. Share, once GetPokedexCount(caught) >= 50. Set ONLY on a successful hand-over (the no-room / not-enough branches leave it clear)."
+    },
+    "FLAG_FOUGHT_ZAPDOS": {
+      "id": 703,
+      "hex": "0x2BF",
+      "note": "2026-08-04 LEGENDARY HUNTS: set when the Power Plant Zapdos battle concludes (caught OR KO'd — statics never respawn). Unset after a flee, so the hunt re-arms. Object at (5,11) in POWER_PLANT; its HIDE flag is 0x05D."
+    },
+    "FLAG_FOUGHT_ARTICUNO": {
+      "id": 702,
+      "hex": "0x2BE",
+      "note": "2026-08-04 LEGENDARY HUNTS: set when the Seafoam B4F Articuno battle concludes. Object at (9,2) in SEAFOAM_ISLANDS_B4F; HIDE flag 0x082. The B4F approach is SAFE water only when both B3F boulders truly fell (hide flags 0x046/0x047 CLEARED) — the R21-reroute's stamped 0x2D2 alone leaves the rip current live."
+    },
+    "FLAG_FOUGHT_MEWTWO": {
+      "id": 700,
+      "hex": "0x2BC",
+      "note": "2026-08-04 LEGENDARY HUNTS: set when the Cerulean Cave B1F Mewtwo battle concludes. Object at (7,12) in CERULEAN_CAVE_B1F; HIDE flag 0x081. The cave guard steps aside only post-champion (FLAG_SYS_GAME_CLEAR 0x82C)."
     }
   },
   "exit_gates": {
@@ -520,6 +535,54 @@
         "_note": "2026-08-04 (Jonny: 'make sure she gets blastoise ice beam so he has 4 attacks and a really good one'). No flag/no bag-item can bill success — the TM is CONSUMED on teach — so the step's win is the CAPABILITY: a party mon KNOWING move 58 (questline._step_satisfied EXTRA_CAP_MOVE_IDS). The gate (_icebeam_gate) only arms once the full coin budget is affordable, so this never turns into the badge-4 66k grass-farm regression."
       },
       "human": "TM13 Ice Beam off the Game Corner prize counter — the one move that freezes everything left on the road: Venusaur, Lance's dragons, the birds. Blastoise with Ice Beam is the whole endgame answer"
+    },
+    "zapdos": {
+      "kind": "legendary",
+      "name": "Zapdos (Power Plant)",
+      "obtain": {
+        "via": "strike",
+        "npc": "the L50 Zapdos static at (5,11)",
+        "from": "3,28",
+        "dir": "south",
+        "place_name": "the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40)",
+        "prereq": "surf",
+        "sets_flag": "FLAG_FOUGHT_ZAPDOS",
+        "gives_cap": null,
+        "_note": "2026-08-04 (Jonny: 'all cool legendaries ... so she mops the floor'). legendary_strikes.ZapdosHunt. Success flag = FOUGHT (set on caught OR KO'd; a flee leaves it clear so the hunt re-arms). The battle side is battle_agent's legendary careful-capture divert, best-ball-first."
+      },
+      "human": "Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught"
+    },
+    "articuno": {
+      "kind": "legendary",
+      "name": "Articuno (Seafoam B4F)",
+      "obtain": {
+        "via": "strike",
+        "npc": "the L50 Articuno static at (9,2)",
+        "from": "3,38",
+        "dir": "south",
+        "place_name": "Seafoam Islands, bottom floor — descend the ladder chain from either Route 20 door; the bird waits across the (becalmed) B4F water",
+        "prereq": "surf",
+        "sets_flag": "FLAG_FOUGHT_ARTICUNO",
+        "gives_cap": null,
+        "_note": "2026-08-04 legendary_strikes.ArticunoHunt. HARD GATE: both B3F boulders truly fallen (hide flags 0x046/0x047 CLEARED) — the R21-reroute stamps 0x2D2 without them and the B4F rip current would sweep her. The gate self-suppresses otherwise; a rerouted run simply skips Articuno."
+      },
+      "human": "Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality"
+    },
+    "mewtwo": {
+      "kind": "legendary",
+      "name": "Mewtwo (Cerulean Cave)",
+      "obtain": {
+        "via": "strike",
+        "npc": "the L70 Mewtwo static at (7,12) on B1F",
+        "from": "3,3",
+        "dir": "north",
+        "place_name": "Cerulean Cave — the guard by the mouth (across the river northwest of Cerulean, Surf required) steps aside only for the CHAMPION; inside, cross 1F to the far-west ladder and descend to B1F",
+        "prereq": "surf",
+        "sets_flag": "FLAG_FOUGHT_MEWTWO",
+        "gives_cap": null,
+        "_note": "2026-08-04 (Jonny: 'catching mew or mewtwo as a final endgame project'). legendary_strikes.MewtwoHunt, post-champion only (FLAG_SYS_GAME_CLEAR 0x82C). The Silph Co. Master Ball is reserved for exactly this battle (battle_agent allow_master fires only on species 150). Mew itself is event-only distribution hardware — Mewtwo is the Mew-class prize the cartridge can actually give."
+      },
+      "human": "Mewtwo — the strongest Pokemon in the game, at the bottom of Cerulean Cave. The guard only steps aside for the Champion, and the Master Ball has been waiting for exactly this moment"
     }
   },
   "route_notes": {

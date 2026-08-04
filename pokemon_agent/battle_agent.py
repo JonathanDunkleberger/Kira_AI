@@ -417,7 +417,12 @@ class BattleAgent:
         Blastoise one-shot the Route-12 Snorlax Jonny ordered caught. Creator / shiny / legendary
         NEVER fight-clear on empty balls — flee, keep the order live, Mart first."""
         _never_ko = reason in ("shiny", "legendary", "creator_catch_now")
-        if self._ball_count() <= 0:
+        try:
+            _is_mewtwo = (reason == "legendary"
+                          and (st.read_battle(self.b) or {}).get("enemy", {}).get("species") == 150)
+        except Exception:
+            _is_mewtwo = False
+        if self._ball_count() <= 0 and not (_is_mewtwo and self._ball_qty(self._BALL_MASTER) > 0):
             if _never_ko:
                 self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — ZERO balls; "
                          f"FLEEING (NOT fighting — that KOs the catch target)")
@@ -444,7 +449,18 @@ class BattleAgent:
             finally:
                 self._skip_catch_divert = False
         self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — {foe_name}: weaken+balls, never KO")
-        res = self.catch_pokemon(max_seconds=max(150, max_seconds), weaken=True)
+        # BALL TIER doctrine (2026-08-04): a legendary/shiny gets the STRONGEST ball first
+        # (catch rate 3 with a Poké Ball is theater), and Mewtwo — alone — may spend the
+        # Silph Co. Master Ball (the classic move; any other target would waste it).
+        _pref = "best" if reason in ("legendary", "shiny", "creator_catch_now") else "cheap"
+        _master = False
+        if reason == "legendary":
+            try:
+                _master = (st.read_battle(self.b) or {}).get("enemy", {}).get("species") == 150
+            except Exception:
+                _master = False
+        res = self.catch_pokemon(max_seconds=max(150, max_seconds), weaken=True,
+                                 ball_pref=_pref, allow_master=_master)
         if reason == "creator_catch_now" and res == "caught":
             self._clear_creator_catch_order()
         elif reason == "creator_catch_now" and res in ("fainted",):
@@ -721,36 +737,75 @@ class BattleAgent:
     # ball) -> A selects -> "POKé BALL is selected. USE/CANCEL" (cursor on USE) -> A throws.
     # Then advance the catch sequence (B dismisses the "give a nickname?" Yes/No). We SETTLE
     # after the bag-open fade (acting mid-transition = eaten, the same quirk as the move list).
-    def _ball_count(self):
-        """REAL number of Poké Balls (item id 4) in the bag's balls pocket. Item ids are plain;
-        the QUANTITY is XOR-encrypted with the SaveBlock2 security key (FireRed: SaveBlock2+0xF20,
-        low 16 bits). Decrypting it lets callers gate on the true count (e.g. throw-until-caught,
-        out-of-balls handling) instead of mere presence. 0 -> can't throw."""
-        sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
-        key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
-        for i in range(16):
-            iid = self.b.rd16(sb1 + 0x430 + i * 4)
-            if iid == 0:
-                break
-            if iid == 4:
-                return self.b.rd16(sb1 + 0x430 + i * 4 + 2) ^ key
-        return 0
+    # BALL TIERS (2026-08-04, Jonny: 'catching mew or mewtwo as a final endgame project ...
+    # all cool legendaries'): everything here was hard-coded to plain Poké Ball (id 4) — a
+    # catch-rate-3 legendary with Poké Balls is <1% a throw, a guaranteed pocket-drain wedge.
+    # Gen-3 ball item ids: 1 Master, 2 Ultra, 3 Great, 4 Poké, 5 Safari, 6-12 specials.
+    _BALL_MASTER, _BALL_ULTRA, _BALL_GREAT, _BALL_POKE = 1, 2, 3, 4
+    _SPENDABLE_BALLS = (2, 3, 4, 6, 7, 8, 9, 10, 11, 12)   # throwable freely (Master/Safari out)
+    _BALL_ORDER_CHEAP = (4, 3, 2, 12, 11, 10, 9, 8, 7, 6)  # dex-push trash: weakest first
+    _BALL_ORDER_BEST = (2, 3, 12, 11, 10, 9, 8, 7, 6, 4)   # legendary/shiny: strongest first
 
-    def throw_ball(self, max_seconds=45):
-        """Throw a Poké Ball at a WILD foe via real menu nav. Returns 'caught' (party+1),
+    def _balls_pocket(self):
+        """The bag's Poké Balls pocket as [(item_id, qty)] rows in DISPLAY order. Ids are plain;
+        the QUANTITY is XOR-encrypted with the SaveBlock2 security key (SaveBlock2+0xF20 low16)."""
+        out = []
+        try:
+            sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+            key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
+            for i in range(13):                          # FRLG balls pocket = 13 slots
+                iid = self.b.rd16(sb1 + 0x430 + i * 4)
+                if iid == 0:
+                    break
+                out.append((iid, self.b.rd16(sb1 + 0x430 + i * 4 + 2) ^ key))
+        except Exception:
+            pass
+        return out
+
+    def _ball_qty(self, iid):
+        return next((q for i, q in self._balls_pocket() if i == iid), 0)
+
+    def _ball_count(self):
+        """Throwable-ball total across the SPENDABLE tiers (Ultra/Great/Poké + specials). The
+        Master Ball is deliberately EXCLUDED — it is Mewtwo's, never a wild-catch statistic."""
+        return sum(q for iid, q in self._balls_pocket() if iid in self._SPENDABLE_BALLS)
+
+    def _pick_ball(self, pref="cheap", allow_master=False):
+        """(item_id, display_row) of the ball to throw, or (None, None). 'cheap' spends weakest
+        first (dex push); 'best' spends strongest first (legendary/shiny). Master only when
+        explicitly allowed (the Mewtwo seat)."""
+        rows = self._balls_pocket()
+        if allow_master:
+            r = next((n for n, (i, q) in enumerate(rows) if i == self._BALL_MASTER and q > 0), None)
+            if r is not None:
+                return self._BALL_MASTER, r
+        order = self._BALL_ORDER_BEST if pref == "best" else self._BALL_ORDER_CHEAP
+        for want in order:
+            r = next((n for n, (i, q) in enumerate(rows) if i == want and q > 0), None)
+            if r is not None:
+                return want, r
+        return None, None
+
+    def throw_ball(self, max_seconds=45, pref="cheap", allow_master=False):
+        """Throw a ball at a WILD foe via real menu nav. Returns 'caught' (party+1),
         'broke_free' (battle continued/ended w/o catch), 'trainer' (can't catch), 'no_balls',
-        or 'stuck'. Assumes a fresh/settled action menu (turn start). Control-proven party+1."""
+        or 'stuck'. Assumes a fresh/settled action menu (turn start). Control-proven party+1.
+        `pref`/`allow_master`: the BALL TIER doctrine (2026-08-04) — 'cheap' spends weakest
+        first, 'best' strongest first, Master only when explicitly allowed (Mewtwo)."""
         t0 = time.time()
         if self._is_trainer_battle():
             return "trainer"
-        if self._ball_count() == 0:
-            self.log("   [engine] throw_ball: no Poké Balls in the bag")
+        ball_id, ball_row = self._pick_ball(pref=pref, allow_master=allow_master)
+        if ball_id is None:
+            self.log("   [engine] throw_ball: no throwable ball in the bag")
             return "no_balls"
         if not self._white_box():
             self._reach_first_menu(t0, max_seconds)
         self._settle()
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
-        balls_at_start = self._ball_count()           # baseline BEFORE the bag opens (throw-verify gate)
+        # baseline BEFORE the bag opens (throw-verify gate) — ALL tiers incl. Master, so a
+        # Master throw registers as _thrown() too
+        balls_at_start = sum(q for _i, q in self._balls_pocket())
         if os.environ.get("CATCH_RECON"):             # RECON: what menu are we actually on at throw-start?
             try:
                 _s = st.read_battle(self.b)
@@ -792,7 +847,8 @@ class BattleAgent:
         # confirm. Selecting may itself throw (no USE prompt) or need one more A; re-checking before each
         # press never double-throws. Control-proven: Route 3 fail-state pocket 0->1->2, balls 5->1, caught.
         def _thrown():
-            return (self._ball_count() < balls_at_start or self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0
+            return (sum(q for _i, q in self._balls_pocket()) < balls_at_start
+                    or self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0
                     or not st.in_battle(self.b))
         # OPEN THE BAG and VERIFY it actually opened before trusting the pocket var: if the open-A is
         # eaten (we're not fully settled) we stay at the action menu and ram.GBAG_POCKET reads STALE
@@ -826,7 +882,17 @@ class BattleAgent:
                     break
                 self.b.press("B", 2, 12, self.render, owner=self.owner); self._wait(8)
             return "stuck"
-        self._tap("UP"); self._wait(8)                # top of the balls pocket = the ball
+        # BALL-TIER ROW WALK (2026-08-04): the old 'UP = top of pocket' threw whatever was
+        # row 0 — with Ultras stocked that could be the wrong tier either way. Blind clamp
+        # to the top (the list clamps, eaten taps are harmless), then DOWN to the chosen row.
+        n_rows = max(1, len(self._balls_pocket()))
+        for _ in range(n_rows + 2):
+            self._tap("UP"); self._wait(6)
+        for _ in range(int(ball_row)):
+            self._tap("DOWN"); self._wait(8)
+        if ball_row or n_rows > 1:
+            self.log(f"   [engine] throw_ball: aiming row {ball_row} = item {ball_id} "
+                     f"({'MASTER' if ball_id == 1 else 'ultra' if ball_id == 2 else 'great' if ball_id == 3 else 'poké/other'} ball, pref={pref})")
         # SELECT + THROW, then STOP the instant a ball leaves. Press A (select -> USE/throw); the throw
         # removes the ball from the bag IMMEDIATELY (count drops) — so after each A we POLL for the throw
         # to register and break the MOMENT it does. This is critical: if we kept mashing A, the extra
@@ -1021,12 +1087,13 @@ class BattleAgent:
             self.b.run_frame(); self.render()
         return "stuck"
 
-    def catch_pokemon(self, max_seconds=150, weaken=True):
+    def catch_pokemon(self, max_seconds=150, weaken=True, ball_pref="cheap", allow_master=False):
         """Catch the WILD foe (the proven live flow, automated): optionally WEAKEN/STATUS it once to
-        boost the catch rate + stop it attacking, then THROW Poké Balls until caught. COMMITS - it
+        boost the catch rate + stop it attacking, then THROW balls until caught. COMMITS - it
         re-throws after a break instead of abandoning after one ball (the live Ekans flow). Returns
         'caught' | 'no_balls' | 'trainer' | 'fled' | 'fainted' | 'stuck'. Gen-3 trainer mons can't
-        be caught (returns 'trainer')."""
+        be caught (returns 'trainer'). ball_pref/allow_master: the BALL TIER doctrine (2026-08-04) —
+        legendaries get 'best' (Ultra-first) and Mewtwo alone may spend the Master Ball."""
         t0 = time.time()
         if self._is_trainer_battle():
             return "trainer"
@@ -1078,7 +1145,8 @@ class BattleAgent:
         while time.time() - t0 < max_seconds:
             if not st.in_battle(self.b):
                 return _ended()
-            if self._ball_count() <= 0:
+            if self._ball_count() <= 0 and not (allow_master
+                                                and self._ball_qty(self._BALL_MASTER) > 0):
                 self.emit("I'm out of Poké Balls - I'll come back for this one", beat=True)
                 # NEVER fight-clear a catch_now / Snorlax / shiny / legendary — that was the
                 # 2026-08-02 LIVE KO of Jonny's ordered Snorlax (Blastoise Surf, zero balls).
@@ -1178,7 +1246,8 @@ class BattleAgent:
                 self._weaken_hp()                    # chip HP into the catchable band (faint-guarded)
                 softened = True
                 continue
-            res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))))
+            res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))),
+                                  pref=ball_pref, allow_master=allow_master)
             if res == "no_balls" and st.in_battle(self.b):
                 self.flee(max_seconds=45)        # same wedge fix: resolve the live battle before reporting
             if res in ("caught", "no_balls", "trainer"):
