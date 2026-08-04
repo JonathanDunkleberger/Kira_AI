@@ -1,0 +1,1102 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 26) coords=(13, 5) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=23748).
+
+   [soul] continuity loaded: 12 roster bond(s), 637 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 125 place(s) known, 220 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 26) coords=(13, 5) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260804_093307_route-8_5b_25h15m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/fly → steps=['FLAG_GOT_SS_TICKET', 'cut', 'fly'] actionable=fly (resolved=True)
+
+   [campaign]    [roam] 🕊️ PROACTIVE FLY-FETCH: Koga is done and HM02 is a short Celadon detour away — grabbing Fly before the Saffron push
+
+   [kira-voice] -> T2·savor· (route) 'Okay — to get past this I need HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns.'  fired=True  [age 0.0s + post 21ms]
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (5, 6, 12, 142) @ Route 8 (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (13, 5) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (13,5) f1 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 8
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 8 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L54), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 26), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul'], 'progress': "5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).", 'party': 'blastoise (L54), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Saffron City for the Marsh Badge", 'medium': 'You beat Koga — ride the momentum: Sabrina in Saffron City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Saffron City, beat Sabrina for the Marsh Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Saffron City, beat Sabrina'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Saffron City, beat Sabrina'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 6
+
+   [kira-voice] -> T2·savor· (want) 'reach Saffron City, beat Sabrina'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [teamplan] next action: catch_keeper (diglett -> dugtrio answers Blaine, Agatha, Champion) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: on Route 8 — billed leg west toward Saffron City (pass-through country)
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Saffron City runs west from here — onward.'
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 2 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·floor· (<1s since last) T1 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    6 door(s); candidates (chosen order): [(13, 4)]
+
+   [campaign]    door (13, 4): at (13, 5) (approach=(13, 5)) — stepping UP in
+
+   [dialogue] +++ 'The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?'  tags=['PLACE', 'ITEM']
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?"'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 26) -> (1, 35) via door (13, 4) (on-tile)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 35) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 35) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(76, 3) -> coord (3, 4) (budget 110s)
+
+   [travel] step 0: (76, 3)->(76, 4) map=(1, 34) (path 75 to exit)
+
+   [travel] step 10: (67, 4)->(66, 4) map=(1, 34) (path 65 to exit)
+
+   [travel] step 20: (57, 4)->(56, 4) map=(1, 34) (path 55 to exit)
+
+   [travel] step 30: (47, 4)->(46, 4) map=(1, 34) (path 45 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(37, 4) elapsed=5s
+
+   [travel] step 40: (37, 4)->(36, 4) map=(1, 34) (path 35 to exit)
+
+   [travel] step 50: (27, 4)->(26, 4) map=(1, 34) (path 25 to exit)
+
+   [travel] step 60: (17, 4)->(16, 4) map=(1, 34) (path 15 to exit)
+
+   [travel] step 70: (7, 4)->(6, 4) map=(1, 34) (path 5 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 33) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    door (5, 8): at (5, 8) (approach=(5, 9)) — stepping UP in
+
+   [dialogue] +++ 'I heard a sleepy POK.MON appeared out near CELADON CITY, too.'  tags=['PLACE']
+
+   [kira-voice]    (dialogue tags: place)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I heard a sleepy POK.MON appeared out near CELADON CITY, too."'  fired=True  [age 0.0s + post 19ms]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(5, 7) -> coord (6, 7) (budget 60s)
+
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    WARPED (1, 33) -> (3, 25) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (13, 4): (3, 26)@(13, 5) -> (3, 25)@(7, 15)
+
+   [campaign]    [roam] RESULT: head_to_gym -> road_passthrough | pos (3, 26)(13, 5) -> (3, 25)(7, 15) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 25) coords=(7, 15) badges=5 party=6)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093405_route-7_5b_25h16m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 7 (7, 15) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 25) (7,15) f1 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (3, 25) — steering toward road anchor Saffron City (warp (7, 14))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(7, 15) -> coord (7, 14) (budget 300s)
+
+   [travel] path blocked at (7, 15) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (7, 15) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (7, 15) map=(3, 25) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    3 door(s); candidates (chosen order): [(7, 14)]
+
+   [campaign]    door (7, 14): at (7, 15) (approach=(7, 15)) — stepping UP in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 25) -> (1, 33) via door (7, 14) (on-tile)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (3, 25)(7, 15) -> (1, 33)(6, 8) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 33) coords=(6, 8) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093409_the-underground-path_5b_25h16m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 33)@(6, 8) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (6, 8) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 33) (6,8) f2 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (1, 33) — steering toward road anchor Saffron City (warp (7, 4))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(6, 8) -> coord (7, 4) (budget 300s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 33) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [campaign]    2 door(s); candidates (chosen order): [(7, 4)]
+
+   [campaign]    door (7, 4): at (7, 4) (approach=(7, 5)) — stepping UP in
+
+   [campaign]    reachable door (7, 4): walking to approach (7, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(7, 2) -> coord (7, 5) (budget 300s)
+
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 33) (path 4 to exit)
+
+   [travel] reached target coord (7, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(7, 2) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 33) (path 4 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    WARPED (1, 33) -> (1, 34) via directional door (7, 4)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 33)(6, 8) -> (1, 34)(3, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 34) coords=(3, 4) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093429_the-underground-path_5b_25h16m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 34)@(3, 4) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (3, 4) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 34) (3,4) f4 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> the Underground Path
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in the Underground Path — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L54), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 34), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul'], 'progress': "5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).", 'party': 'blastoise (L54), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Saffron City for the Marsh Badge", 'medium': 'You beat Koga — ride the momentum: Sabrina in Saffron City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Saffron City, beat Sabrina for the Marsh Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Marsh Badge from Sabrina'
+
+   [campaign]    [soul] ORACLE pick -> 'Marsh Badge from Sabrina'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Marsh Badge from Sabrina'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (1, 34) — steering toward road anchor Saffron City (warp (76, 3))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(3, 4) -> coord (76, 3) (budget 300s)
+
+   [travel] step 0: (3, 4)->(3, 3) map=(1, 34) (path 75 to exit)
+
+   [travel] step 10: (12, 3)->(13, 3) map=(1, 34) (path 65 to exit)
+
+   [travel] step 20: (22, 3)->(23, 3) map=(1, 34) (path 55 to exit)
+
+   [travel] step 30: (32, 3)->(33, 3) map=(1, 34) (path 45 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(42, 3) elapsed=5s
+
+   [travel] step 40: (42, 3)->(43, 3) map=(1, 34) (path 35 to exit)
+
+   [travel] step 50: (52, 3)->(53, 3) map=(1, 34) (path 25 to exit)
+
+   [travel] step 60: (62, 3)->(63, 3) map=(1, 34) (path 15 to exit)
+
+   [travel] step 70: (72, 3)->(73, 3) map=(1, 34) (path 5 to exit)
+
+   [travel] reached target coord (76, 3)
+
+   [campaign]    5 door(s); candidates (chosen order): [(76, 3)]
+
+   [campaign]    door (76, 3): at (76, 3) (approach=(76, 4)) — stepping UP in
+
+   [campaign]    reachable door (76, 3): walking to approach (76, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(76, 2) -> coord (76, 4) (budget 300s)
+
+   [travel] step 0: (76, 2)->(76, 3) map=(1, 34) (path 3 to exit)
+
+   [travel] reached target coord (76, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(76, 2) -> coord (75, 3) (budget 60s)
+
+   [travel] step 0: (76, 2)->(76, 3) map=(1, 34) (path 3 to exit)
+
+   [travel] reached target coord (75, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (76, 3) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    WARPED (1, 34) -> (1, 35) via directional door (76, 3)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 34)(3, 4) -> (1, 35)(7, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 35) coords=(7, 4) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093502_the-underground-path_5b_25h17m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 35)@(7, 4) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (7, 4) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 35) (7,4) f4 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (1, 35) — steering toward road anchor Saffron City (warp (5, 8))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(7, 4) -> coord (5, 8) (budget 300s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 35) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    door (5, 8): at (5, 8) (approach=(5, 9)) — stepping UP in
+
+   [dialogue] +++ 'The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?'  tags=['PLACE', 'ITEM']
+
+   [kira-voice]    (dialogue tags: place, item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?"'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (1, 35)@(5, 7) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 9) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 7) (budget 45s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    WARPED (1, 35) -> (3, 26) via mat-row door (6, 8)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 35)(7, 4) -> (3, 26)(13, 5) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(13, 5) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093517_route-8_5b_25h17m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (13, 5) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (13,5) f1 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: on Route 8 — billed leg west toward Saffron City (pass-through country)
+
+   [kira-voice] -> T1·brisk· (route) 'the road to Saffron City runs west from here — onward.'  fired=True  [age 0.0s + post 18ms]
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 2 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·floor· (<1s since last) T1 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    6 door(s); candidates (chosen order): [(13, 4)]
+
+   [campaign]    door (13, 4): at (13, 5) (approach=(13, 5)) — stepping UP in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 26) -> (1, 35) via door (13, 4) (on-tile)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 35) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 35) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(76, 3) -> coord (3, 4) (budget 110s)
+
+   [travel] step 0: (76, 3)->(76, 4) map=(1, 34) (path 75 to exit)
+
+   [travel] step 10: (67, 4)->(66, 4) map=(1, 34) (path 65 to exit)
+
+   [travel] step 20: (57, 4)->(56, 4) map=(1, 34) (path 55 to exit)
+
+   [travel] step 30: (47, 4)->(46, 4) map=(1, 34) (path 45 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(37, 4) elapsed=5s
+
+   [travel] step 40: (37, 4)->(36, 4) map=(1, 34) (path 35 to exit)
+
+   [travel] step 50: (27, 4)->(26, 4) map=(1, 34) (path 25 to exit)
+
+   [travel] step 60: (17, 4)->(16, 4) map=(1, 34) (path 15 to exit)
+
+   [travel] step 70: (7, 4)->(6, 4) map=(1, 34) (path 5 to exit)
+
+   [travel] reached target coord (3, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(7, 4) -> coord (5, 8) (budget 110s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 33) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    door (5, 8): at (5, 8) (approach=(5, 9)) — stepping UP in
+
+   [dialogue] +++ 'I heard a sleepy POK.MON appeared out near CELADON CITY, too.'  tags=['PLACE']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "I heard a sleepy POK.MON appeared out near CELADON CITY, too."'
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(5, 7) -> coord (6, 7) (budget 60s)
+
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    WARPED (1, 33) -> (3, 25) via mat-row door (6, 8)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (13, 4): (3, 26)@(13, 5) -> (3, 25)@(7, 15)
+
+   [campaign]    [roam] RESULT: head_to_gym -> road_passthrough | pos (3, 26)(13, 5) -> (3, 25)(7, 15) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 25) coords=(7, 15) badges=5 party=6)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093610_route-7_5b_25h18m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 7 (7, 15) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 25) (7,15) f1 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 7
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 7 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L54), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 25), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul'], 'progress': "5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).", 'party': 'blastoise (L54), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Saffron City for the Marsh Badge", 'medium': 'You beat Koga — ride the momentum: Sabrina in Saffron City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Saffron City, beat Sabrina for the Marsh Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Marsh Badge — get to Saffron and end Sabrina'
+
+   [campaign]    [soul] ORACLE pick -> 'Marsh Badge — get to Saffron and end Sabrina'
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #1: objective "PUSH FORWARD — the way ahead is blocked (HM Fly — the girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree. Fast travel between every town I've visited: the endgame shrinks to minutes.), and the move that opens it is to HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns. Go DO that now: that errand IS the road FORWARD toward the next badge (Diglett's Cave → Route 2 for Flash is FORWARD for Celadon — Rock Tunnel stays dark without it; it is NOT Pewter nostalgia). Grind trainers ON THE WAY if you want, but finish the errand — don't sit at a Center narrating Celadon." has gone 20s+ without route progress (dist 6 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [kira-voice] ·floor· (<1s since last) T1 "okay, enough drifting — I said I was heading there, so let's actually go."
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Marsh Badge — get to Saffron and end Sabrina'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (3, 25) — steering toward road anchor Saffron City (warp (7, 14))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(7, 15) -> coord (7, 14) (budget 300s)
+
+   [travel] path blocked at (7, 15) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (7, 15) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (7, 15) map=(3, 25) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    3 door(s); candidates (chosen order): [(7, 14)]
+
+   [campaign]    door (7, 14): at (7, 15) (approach=(7, 15)) — stepping UP in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 25) -> (1, 33) via door (7, 14) (on-tile)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (3, 25)(7, 15) -> (1, 33)(6, 8) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 33) coords=(6, 8) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093618_the-underground-path_5b_25h18m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 33)@(6, 8) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 33): (5, 8)->(3, 25), (6, 8)->(3, 25), (7, 8)->(3, 25), (7, 4)->(1, 34)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (6, 8) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 33) (6,8) f2 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (1, 33) — steering toward road anchor Saffron City (warp (7, 4))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(6, 8) -> coord (7, 4) (budget 300s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 33) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [campaign]    2 door(s); candidates (chosen order): [(7, 4)]
+
+   [campaign]    door (7, 4): at (7, 4) (approach=(7, 5)) — stepping UP in
+
+   [campaign]    reachable door (7, 4): walking to approach (7, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(7, 2) -> coord (7, 5) (budget 300s)
+
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 33) (path 4 to exit)
+
+   [travel] reached target coord (7, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 33) coords=(7, 2) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 33) (path 4 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    WARPED (1, 33) -> (1, 34) via directional door (7, 4)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 33)(6, 8) -> (1, 34)(3, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 34) coords=(3, 4) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093639_the-underground-path_5b_25h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 34)@(3, 4) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (3, 4) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 34) (3,4) f4 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #2: objective "PUSH FORWARD — the way ahead is blocked (HM Fly — the girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree. Fast travel between every town I've visited: the endgame shrinks to minutes.), and the move that opens it is to HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns. Go DO that now: that errand IS the road FORWARD toward the next badge (Diglett's Cave → Route 2 for Flash is FORWARD for Celadon — Rock Tunnel stays dark without it; it is NOT Pewter nostalgia). Grind trainers ON THE WAY if you want, but finish the errand — don't sit at a Center narrating Celadon." has gone 20s+ without route progress (dist 4 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (1, 34) — steering toward road anchor Saffron City (warp (76, 3))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(3, 4) -> coord (76, 3) (budget 300s)
+
+   [travel] step 0: (3, 4)->(3, 3) map=(1, 34) (path 75 to exit)
+
+   [travel] step 10: (12, 3)->(13, 3) map=(1, 34) (path 65 to exit)
+
+   [travel] step 20: (22, 3)->(23, 3) map=(1, 34) (path 55 to exit)
+
+   [travel] step 30: (32, 3)->(33, 3) map=(1, 34) (path 45 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(42, 3) elapsed=5s
+
+   [travel] step 40: (42, 3)->(43, 3) map=(1, 34) (path 35 to exit)
+
+   [travel] step 50: (52, 3)->(53, 3) map=(1, 34) (path 25 to exit)
+
+   [travel] step 60: (62, 3)->(63, 3) map=(1, 34) (path 15 to exit)
+
+   [travel] step 70: (72, 3)->(73, 3) map=(1, 34) (path 5 to exit)
+
+   [travel] reached target coord (76, 3)
+
+   [campaign]    5 door(s); candidates (chosen order): [(76, 3)]
+
+   [campaign]    door (76, 3): at (76, 3) (approach=(76, 4)) — stepping UP in
+
+   [campaign]    reachable door (76, 3): walking to approach (76, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(76, 2) -> coord (76, 4) (budget 300s)
+
+   [travel] step 0: (76, 2)->(76, 3) map=(1, 34) (path 3 to exit)
+
+   [travel] reached target coord (76, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(76, 2) -> coord (75, 3) (budget 60s)
+
+   [travel] step 0: (76, 2)->(76, 3) map=(1, 34) (path 3 to exit)
+
+   [travel] reached target coord (75, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (76, 3) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    WARPED (1, 34) -> (1, 35) via directional door (76, 3)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 34)(3, 4) -> (1, 35)(7, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 35) coords=(7, 4) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093708_the-underground-path_5b_25h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 35)@(7, 4) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: the Underground Path (7, 4) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 35) (7,4) f4 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> the Underground Path
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in the Underground Path — indoors, inside a building (rooms and doors — NOT a cave).. ALREADY BESIDE YOU — your current team: blastoise (L54), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 35), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul'], 'progress': "5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).", 'party': 'blastoise (L54), ekans (L16), spearow (L18), rattata (L18), abra the kadabra (L19), caterpie the butterfree (L17)', 'goal': {'short': "You're ready — stop grinding and head to Saffron City for the Marsh Badge", 'medium': 'You beat Koga — ride the momentum: Sabrina in Saffron City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Saffron City, beat Sabrina for the Marsh Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Fly HM first, then Saffron'
+
+   [campaign]    [soul] ORACLE pick -> 'Fly HM first, then Saffron'
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #3: objective "PUSH FORWARD — the way ahead is blocked (HM Fly — the girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree. Fast travel between every town I've visited: the endgame shrinks to minutes.), and the move that opens it is to HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns. Go DO that now: that errand IS the road FORWARD toward the next badge (Diglett's Cave → Route 2 for Flash is FORWARD for Celadon — Rock Tunnel stays dark without it; it is NOT Pewter nostalgia). Grind trainers ON THE WAY if you want, but finish the errand — don't sit at a Center narrating Celadon." has gone 20s+ without route progress (dist 3 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Fly HM first, then Saffron'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: off-road at (1, 35) — steering toward road anchor Saffron City (warp (5, 8))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(7, 4) -> coord (5, 8) (budget 300s)
+
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 35) (path 7 to exit)
+
+   [travel] reached target coord (5, 8)
+
+   [campaign]    2 door(s); candidates (chosen order): [(5, 8)]
+
+   [campaign]    door (5, 8): at (5, 8) (approach=(5, 9)) — stepping UP in
+
+   [dialogue] +++ 'The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?'  tags=['PLACE', 'ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "The DEPARTMENT STORE in CELADON has a great selection. Do you go there very often?"'
+
+   [campaign]    pick (5, 8) failed — trying adjacent actuatable door (6, 8) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (1, 35)@(5, 7) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 9) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 7) (budget 45s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    WARPED (1, 35) -> (3, 26) via mat-row door (6, 8)
+
+   [campaign]    [roam] RESULT: head_to_gym -> warped | pos (1, 35)(7, 4) -> (3, 26)(13, 5) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 26) coords=(13, 5) badges=5 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_093727_route-8_5b_25h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 26): (13, 4)->(1, 35), (7, 10)->(20, 0)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Sabrina, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Sabrina); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,6']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 11/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 8 (13, 5) | badges=5 (Boulder, Cascade, Thunder, Rainbow, Soul) | party=[blastoise L54, ekans L16, spearow L18, rattata L18, kadabra L19, butterfree L17] | 5 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul). Next gym: Sabrina of Saffron City. Pokédex: 12 caught. She's five badges, well past halfway — the Elite Four's coming into view (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 26) (13,5) f1 -- badge5 $28066 party:95af bag:6c43]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Saffron City: You're ready — stop grinding and head to Saffron City for the Marsh Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('fly'/step=fly errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Saffron City: on Route 8 — billed leg west toward Saffron City (pass-through country)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the road to Saffron City runs west from here — onward.'
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 2 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    6 door(s); candidates (chosen order): [(13, 4)]
+
+   [campaign]    door (13, 4): at (13, 5) (approach=(13, 5)) — stepping UP in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 26) -> (1, 35) via door (13, 4) (on-tile)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 35): (5, 8)->(3, 26), (6, 8)->(3, 26), (7, 8)->(3, 26), (7, 4)->(1, 34)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (7, 4) (budget 110s)
+
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 35) (path 6 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 35) coords=(7, 3) -> coord (8, 4) (budget 60s)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 35) (path 3 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 4) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 34): (76, 3)->(1, 35), (3, 4)->(1, 33)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 34) coords=(76, 3) -> coord (3, 4) (budget 110s)
+
+   [travel] step 0: (76, 3)->(76, 4) map=(1, 34) (path 75 to exit)
+
+   [travel] step 10: (67, 4)->(66, 4) map=(1, 34) (path 65 to exit)
+
+   [travel] step 20: (57, 4)->(56, 4) map=(1, 34) (path 55 to exit)
+
+   [travel] step 30: (47, 4)->(46, 4) map=(1, 34) (path 45 to exit)
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 281s, restart 1/8) — GAME CONTINUES; respawning audio.
+
