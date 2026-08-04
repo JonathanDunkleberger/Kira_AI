@@ -151,6 +151,20 @@ MOVE_NAMES = {
     58: "Ice Beam", 94: "Psychic", 60: "Psybeam", 105: "Recover", 93: "Confusion",
     34: "Body Slam", 109: "Confuse Ray", 195: "Perish Song", 100: "Teleport", 50: "Disable",
     95: "Hypnosis", 1: "Pound", 31: "Fury Attack", 89: "Earthquake",
+    # 2026-08-04 (the Gary wipe read as "move#130 - a solid hit" on stream): mid-game
+    # level-up moves her team actually carries — plus the charge/recharge family the
+    # policy now half-scores, so the narration matches the tactics.
+    130: "Skull Bash", 158: "Hyper Fang", 91: "Dig", 222: "Magnitude",
+    76: "SolarBeam", 63: "Hyper Beam", 143: "Sky Attack", 13: "Razor Wind",
+    291: "Dive", 340: "Bounce", 120: "Selfdestruct", 153: "Explosion",
+    110: "Withdraw", 116: "Focus Energy", 36: "Take Down",
+    38: "Double-Edge", 163: "Slash", 103: "Screech", 21: "Slam",
+    156: "Rest", 182: "Protect", 104: "Double Team", 162: "Super Fang",
+    30: "Horn Attack", 154: "Fury Swipes", 161: "Tri Attack", 129: "Swift",
+    48: "Supersonic", 141: "Leech Life", 18: "Whirlwind", 17: "Wing Attack",
+    97: "Agility", 119: "Mirror Move", 65: "Drill Peck", 12: "Guillotine",
+    106: "Harden", 40: "Poison Sting", 42: "Pin Missile", 51: "Acid",
+    35: "Wrap", 137: "Glare", 124: "Sludge", 168: "Thief",
 }
 
 

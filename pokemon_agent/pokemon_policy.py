@@ -44,6 +44,16 @@ _X = {
 
 LOW_HP_FRAC = 0.25   # below this, flag a switch/heal (M1: just flag; M2 handles switching)
 
+# TWO-TURN THROUGHPUT LAW (2026-08-04 LIVE, the Gary/Silph wipe): Skull Bash's flat
+# power-100 outscored Bite(60)/Water Pulse(45) vs Venusaur, so Blastoise spent its last
+# 12 HP "lowering its head" on the charge turn while Venusaur swung freely — that IS the
+# "passive move instead of ending the fight" Jonny watched. A charge (or recharge) move
+# only deals its power every SECOND turn, so its honest expected damage is half.
+# Gen-3 move ids.
+CHARGE_MOVES = {13, 19, 76, 91, 130, 143, 291, 340}   # RazorWind Fly SolarBeam Dig SkullBash SkyAttack Dive Bounce
+RECHARGE_MOVES = {63, 307, 308, 338}                  # HyperBeam BlastBurn HydroCannon FrenzyPlant
+SUICIDE_MOVES = {120, 153}                            # Selfdestruct, Explosion — never a voluntary pick
+
 
 def effectiveness(move_type, defender_types):
     m = 1.0
@@ -71,13 +81,20 @@ def accuracy_frac(mv):
 
 
 def move_score(mv, enemy_types, our_types=None):
-    """Expected-damage score for a damaging move: power × STAB × type-eff × accuracy.
-    Status / 0-power → 0 (never wins a damage pick over a real attack)."""
+    """Expected-damage score for a damaging move: power × STAB × type-eff × accuracy,
+    halved for charge/recharge moves (per-turn throughput — the Skull Bash law above).
+    Status / 0-power / suicide → 0 (never wins a damage pick over a real attack)."""
     power = int(mv.get("power", 0) or 0)
     if power <= 0:
         return 0.0
+    mid = int(mv.get("id", 0) or 0)
+    if mid in SUICIDE_MOVES:
+        return 0.0
     eff = effectiveness(mv.get("type", "normal"), enemy_types)
-    return power * stab_mult(mv.get("type"), our_types) * eff * accuracy_frac(mv)
+    score = power * stab_mult(mv.get("type"), our_types) * eff * accuracy_frac(mv)
+    if mid in CHARGE_MOVES or mid in RECHARGE_MOVES:
+        score *= 0.5
+    return score
 
 
 def choose_move(our_moves, enemy_types, our_hp_frac=1.0, our_types=None):

@@ -1654,6 +1654,17 @@ class BattleAgent:
                 self.log("   [engine] use_item: couldn't reach the Items pocket — keep fighting (LOUD)")
                 self._exit_bag(); return "failed"
         else:
+            # 2026-08-04 LIVE (Gary, Blastoise at 12/170): pocket byte MUTE *and* zero bag/
+            # white pixels on screen = the bag very likely never opened despite _open_bag's
+            # white-gone pass (mid-transition frame). Blind LEFTs at a NON-bag screen are
+            # poison — on this core a d-pad press at the action menu can CONFIRM. Re-check
+            # once after a settle; still nothing -> bail fightable instead of spraying keys.
+            if not self._bag_screen() and not self._white_box():
+                self._wait(40)
+                if not self._bag_screen() and not self._white_box():
+                    self.log("   [engine] use_item: pocket byte MUTE + NO bag/white pixels — "
+                             "bag never opened; keep fighting (LOUD, no blind taps fired)")
+                    self._exit_bag(); return "failed"
             self.log("   [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp "
                      "LEFT x4 to the Items pocket")
             for _ in range(4):
@@ -1700,20 +1711,42 @@ class BattleAgent:
         # Count drop is the only truth; a mis-aim just exhausts the walk -> 'failed' ->
         # keep fighting (fail-safe, never a wedge).
         aimed = target is None                             # no aim requested = nothing to do
-        # Cap A-walk: 10 was enough to A-spam "won't have any effect" / Awakening for ~90s on stream.
-        for n in range(4):
+        # Cap raised 4->6 (2026-08-04 Gary): frozen-frame battles burn 2-3 laps before the
+        # party screen even registers, so a 4-lap budget died the instant aiming started.
+        # The wrong-aim A-spam risk that set the old cap is now closed by the no_effect
+        # aborts BEFORE the confirm.
+        for n in range(6):
             if self._items_count(item_id) < cnt0:
                 break
             if not aimed and self._party_screen():
                 self._wait(8)                              # let the screen finish drawing
-                if not self._party_focus():
-                    self.log("   [engine] use_item: party list never took focus (fail-safe)")
+                # 2026-08-04 LIVE (the Gary wipe — FOUR Revives 'selected', ZERO consumed,
+                # full team down): _party_focus()'s eaten-tap retry presses B, and on the
+                # item-target screen ("Use on which POKéMON?") B CANCELS back to the bag
+                # list — the follow-up goto taps then scrolled the BAG cursor instead
+                # ('REVIVE is selected.' -> 'NUGGET is selected.') and the confirm A
+                # inspected a Nugget, every attempt, while the team bled out. The target
+                # screen always opens with the cursor HOME (lead panel), so no focus probe
+                # is needed: dismiss a stray sub-box, then aim by border readback — and if
+                # the orange border can't be seen (fade/half-drawn frames), walk BLIND from
+                # the clamped home. NEVER press B inside this block.
+                if self._party_submenu():
+                    self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                    self._wait(16)
                 rows = self._menu_rows()
                 if isinstance(target, int):                # an EXACT party slot (revive routing)
                     _row = target
                 elif target == "fainted":
                     _row = next((r["row"] for r in sorted(rows, key=lambda r: -r["level"])
-                                 if r["hp"] == 0), 0)
+                                 if r["hp"] == 0), None)
+                    if _row is None:
+                        # No fainted row visible at menu time (torn/frozen party block) —
+                        # confirming the healthy default row 0 is the "won't have any
+                        # effect" A-loop. Abort BEFORE the confirm instead.
+                        self.log("   [engine] use_item: no fainted row at menu time — "
+                                 "aborting revive (no_effect; fail-safe)")
+                        self._exit_bag()
+                        return "no_effect"
                 else:                                      # 'active' -> the lead panel
                     _row = 0
                     # 2026-08-02 LIVE: heal aimed at FULL ace (torn gBattleMons said hurt) —
@@ -1751,9 +1784,16 @@ class BattleAgent:
                                       beat=True, tier=2)
                             self._exit_bag()
                             return "no_effect"
-                if not self._party_goto_slot(_row):
-                    self.log(f"   [engine] use_item: aim couldn't reach menu row {_row} "
-                             f"— confirming where the cursor is (fail-safe)")
+                _seen = (self._party_cursor_slot() is not None
+                         or self._party_cursor_on_lead())
+                if not _seen or not self._party_goto_slot(_row):
+                    # Border readback blind (fade frames / frozen pixels) or the closed-loop
+                    # walk couldn't confirm — walk BLIND from the clamped home (LEFT clamps
+                    # the lead panel; RIGHT + DOWN×(row-1) lands any right-column row). Only
+                    # d-pad taps: on this screen a stray B cancels, a stray A confirms.
+                    self.log(f"   [engine] use_item: cursor unreadable/unreached for row {_row} "
+                             f"— BLIND party walk (LEFT home, RIGHT + DOWN x{max(0, _row - 1)})")
+                    self._party_blind_goto(_row)
                 aimed = True
             self.log(f"   [engine] use_item walk n={n}: party={self._party_screen()} "
                      f"bag={self._bag_screen()} white={self._white_box()} "
