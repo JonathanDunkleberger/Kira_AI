@@ -2284,7 +2284,10 @@ class Campaign:
     # 2-door gatehouse over the 1-door UGP hut (ns6_bail025 NS#8: 8× wedge at (18,0) on the Route-6
     # Celadon leg before self-recovery). Skip them as connector candidates until GOT_TEA opens the
     # guards; post-Tea the set is empty so the gates become normal roads (zero behaviour change).
-    _SAFFRON_GATE_MAPS = {(18, 0), (19, 0)}
+    # 2026-08-04 LIVE: (20,0) added — Route 8's west-end warp (7,10)->(20,0) live-learned this
+    # morning, so it IS the Route 8–Saffron gate ((19,0) = Route 7's, (18,0) = Route 6's, all
+    # live-proven). It was MISSING here, which is half of the post-Koga Saffron orbit story.
+    _SAFFRON_GATE_MAPS = {(18, 0), (19, 0), (20, 0)}
 
     def _saffron_gate_dead_ends(self):
         """The Saffron gatehouse maps that dead-end at guard-blocked Saffron pre-Tea (FLAG_GOT_TEA
@@ -2356,6 +2359,15 @@ class Campaign:
             dm = tuple(door_dest.get(tuple(t)) or ())
             if want_map and dm == tuple(want_map):
                 return 0                              # a door straight into the wanted map
+            # SAFFRON LAST-MILE (2026-08-04 LIVE, the post-Tea Route-8 orbit Jonny watched): a
+            # gatehouse door IS the door into Saffron — but its warp dest reads the gate
+            # INTERIOR ((20,0) etc.), never (3,10), so the want-rank above can't see it. Tied
+            # on rank, the 1-tile UGP hut then beat the 11-tile gate on the DISTANCE key every
+            # tick: she "crossed" to the wrong side of the city forever, with the Tea in her
+            # pocket. Post-Tea (dead-end set empty) a gate door ranks like the city itself.
+            if (want_map and tuple(want_map) == SAFFRON
+                    and dm in self._SAFFRON_GATE_MAPS and not _saf_gate):
+                return 0
             try:
                 return 2 if self.world.visited(dm) else 1   # unvisited interiors beat known ground
             except Exception:
@@ -15367,6 +15379,28 @@ class Campaign:
         if _target_city != SAFFRON:
             avoid = avoid | {SAFFRON}
         city = (state.get("next_gym") or {}).get("city", "the next gym")
+        # SAFFRON LAST-MILE (2026-08-04 LIVE, the post-Tea orbit): marching on Saffron while
+        # standing on a map with a DIRECT gatehouse door into it (Route 7 and Route 8 both
+        # flank the city), the graph steer is pure noise — the old timeline's learned path
+        # rides the tunnel AWAY first (Route 7's only learned Saffron path runs east through
+        # the UGP to Route 8's gate), undoing the crossing every tick. Tea in the bag means
+        # the gate IS the road: cross it NOW, before any on-road/off-road routing runs.
+        if (_target_city == SAFFRON and cur != SAFFRON
+                and cur not in self._SAFFRON_GATE_MAPS
+                and not self._saffron_gate_dead_ends()):
+            try:
+                _gate_here = any(tuple(wd) in self._SAFFRON_GATE_MAPS
+                                 for _wt, wd, _wi in tv.read_warps(self.b))
+            except Exception:
+                _gate_here = False
+            if _gate_here:
+                log(f"   [roam] 🏛️ SAFFRON LAST-MILE: {self.world.name(cur)} has a live gatehouse "
+                    f"door into Saffron and the Tea is in the bag — crossing the gate, not the graph")
+                pt = self._door_passthrough(want_map=SAFFRON)
+                if pt == "need_heal":
+                    return "need_heal"
+                if pt == "crossed":
+                    return "arrived" if tuple(tv.map_id(self.b)) == SAFFRON else "road_passthrough"
         for i in range(len(road) - 1, -1, -1):
             leg = road[i]
             if leg["map"] != cur or not leg.get("go"):
