@@ -1,0 +1,1500 @@
+   [campaign]    [door(34, 33)] (1, 59) -> (3, 8) @ (8, 4) (beh 0x65)
+
+   [campaign]    OUT with the key @ (3, 8)(8, 4) after 11 battles — healing
+
+   [campaign]    HEAL: lead at 171/179 -> routing to the Pokemon Center on (3, 8) via door (14, 11) (will return to (8, 4))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(8, 4) -> coord (14, 12) (budget 120s, surf-capable)
+
+   [travel] step 0: (8, 4)->(8, 5) map=(3, 8) (path 29 to exit)
+
+   [travel] step 10: (15, 7)->(16, 7) map=(3, 8) (path 19 to exit)
+
+   [travel] releasing 1 stale NPC block(s) [(20, 4)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 20: (21, 11)->(21, 12) map=(3, 8) (path 9 to exit)
+
+   [travel] reached target coord (14, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    HEAL: restored party to full (lead was 171/179)
+
+   [dialogue] +++ "Thank you for waiting. We've restored your POK.MON to full health."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Thank you for waiting. We\'ve restored your POK.MON to full health."'  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(12, 5) coords=(7, 4) -> coord (7, 7) (budget 60s, surf-capable)
+
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'We hope to see you again!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "We hope to see you again!"'  fired=True  [age 0.0s + post 20ms]
+
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(2, 4), (7, 2), (10, 7), (14, 6)] -> approaching to interact/trigger
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    EXIT-BUILDING: (12, 5) -> (3, 8)@(14, 12)
+
+   [campaign]    HEAL: exited Center -> map=(3, 8) coords=(14, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (8, 4) (budget 120s, surf-capable)
+
+   [travel] step 0: (14, 12)->(15, 12) map=(3, 8) (path 29 to exit)
+
+   [travel] step 10: (21, 9)->(21, 8) map=(3, 8) (path 19 to exit)
+
+   [travel] step 20: (16, 4)->(15, 4) map=(3, 8) (path 9 to exit)
+
+   [travel] reached target coord (8, 4)
+
+   [campaign]    HEAL: returned toward (8, 4) -> arrived (now (8, 4))
+
+   [campaign]    heal_nearest -> ok
+
+   [campaign]    MANSION DONE: key_taken=1 pos (3, 8)@(8, 4) | battles 11
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> got_key (now (3, 8)@(8, 4))
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_strike_done | pos (3, 8)(20, 8) -> (3, 8)(8, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick8] -> campaign/kira_campaign.state  (map=(3, 8) coords=(8, 4) badges=6 party=5)
+
+   [kira-voice] -> T2·savor· (milestone) "got the Secret Key out of the burned mansion — Blaine's gym is finally unlocked."  fired=True  [age 0.0s + post 10ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    [roam] questline cleared (flag satisfied (proactive refresh))
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 38) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: Cinnabar Island (8, 4) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L58, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 8) (8,4) f3 -- badge6 $27270 party:2c71 bag:0712]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #2: objective "PUSH FORWARD — the way ahead is blocked (I'm on Cinnabar, but Blaine's gym is locked — the Secret Key's in the burned Pokémon Mansion. Time to go dig it out.), and the move that opens it is to I'm on Cinnabar but Blaine's gym is locked — the Secret Key is hidden in the burned Pokémon Mansion; I have to flip the statue switches down through the floors to reach it, then it opens the gym. Go DO that now: that errand IS the road FORWARD toward the next badge (Diglett's Cave → Route 2 for Flash is FORWARD for Celadon — Rock Tunnel stays dark without it; it is NOT Pewter nostalgia). Grind trainers ON THE WAY if you want, but finish the errand — don't sit at a Center narrating Celadon." has gone 20s+ without route progress (dist 0 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cinnabar Island: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge.
+
+   [campaign]    [roam] ROAD-BENCH-XP: skipped — already at the gym city, ace leads the door
+
+   [campaign]    [roam] ⛰️  AT Blaine's city (3, 8) — ENTERING the gym to take the badge
+
+   [kira-voice] ·floor· (<1s since last) T2 "alright, Blaine's gym. this is it — I'm actually a little nervous. okay. let's climb."
+
+   [campaign]    GYM-PREP [Blaine]: CREATOR ORDER (LAW) — Jonny said go; skipping prep, walking in as-is
+
+   [campaign]    PRE-GYM-KIT [Blaine]: potions ok (44>=12)
+
+   [campaign]    PRE-GYM-KIT [Blaine]: already stocked — walking in
+
+   [campaign]    5 door(s); candidates (chosen order): [(20, 4)]
+
+   [campaign]    reachable door (20, 4): walking to approach (20, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(8, 4) -> coord (20, 5) (budget 300s, surf-capable)
+
+   [travel] step 0: (8, 4)->(8, 5) map=(3, 8) (path 14 to exit)
+
+   [travel] step 10: (17, 5)->(18, 5) map=(3, 8) (path 4 to exit)
+
+   [travel] reached target coord (20, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 8) -> (12, 0) via door (20, 4)
+
+   [campaign]    [world] learned 3 warp(s) on (12, 0): (24, 23)->(3, 8), (25, 23)->(3, 8), (26, 23)->(3, 8)
+
+   [campaign]    blaine strike: boot map=(12, 0) coords=(25, 23) badge7=False lead=100% key_flag=True blaine_done=False
+
+   [campaign]    [quiz1] door closed — engaging (answer key A)
+
+   [dialogue] +++ 'POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!'  tags=['PLACE']
+
+   [kira-voice]    (dialogue tags: place)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!"'  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.2s at (12, 0)@(22, 11) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'CATERPIE evolves into METAPOD?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "CATERPIE evolves into METAPOD?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "You're absolutely correct! Go on through!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "You\'re absolutely correct! Go on through!"'  fired=True  [age 0.0s + post 10ms]
+
+   [campaign]    [quiz1] DOOR OPEN (talked) [lead 100%]
+
+   [campaign]    [quiz2] door closed — engaging (answer key B)
+
+   [dialogue] +++ 'POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!'  tags=['PLACE']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!"'
+
+   [dialogue] +++ 'There are nine certified POK.MON LEAGUE BADGES?'  tags=['PLACE', 'ITEM']
+
+   [kira-voice]    (dialogue tags: place, item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "There are nine certified POK.MON LEAGUE BADGES?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "You're absolutely correct! Go on through!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You\'re absolutely correct! Go on through!"'
+
+   [campaign]    [quiz2] DOOR OPEN (talked) [lead 100%]
+
+   [campaign]    [quiz3] door closed — engaging (answer key B)
+
+   [dialogue] +++ 'POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!'  tags=['PLACE']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!"'
+
+   [dialogue] +++ 'POLIWAG evolves three times?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POLIWAG evolves three times?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "You're absolutely correct! Go on through!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You\'re absolutely correct! Go on through!"'
+
+   [campaign]    [quiz3] DOOR OPEN (talked) [lead 100%]
+
+   [campaign]    [quiz4] door closed — engaging (answer key B)
+
+   [dialogue] +++ 'POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!'  tags=['PLACE']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!"'
+
+   [dialogue] +++ 'Are electric moves effective against GROUND-type POK.MON?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Are electric moves effective against GROUND-type POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "You're absolutely correct! Go on through!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You\'re absolutely correct! Go on through!"'
+
+   [campaign]    [quiz4] DOOR OPEN (talked) [lead 100%]
+
+   [campaign]    [quiz5] door closed — engaging (answer key A)
+
+   [dialogue] +++ 'POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!'  tags=['PLACE']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!"'
+
+   [dialogue] +++ 'POK.MON of the same kind and level are not identical?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POK.MON of the same kind and level are not identical?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "You're absolutely correct! Go on through!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You\'re absolutely correct! Go on through!"'
+
+   [campaign]    [quiz5] DOOR OPEN (talked) [lead 100%]
+
+   [campaign]    [quiz6] door closed — engaging (answer key B)
+
+   [dialogue] +++ 'POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!'  tags=['PLACE']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK.MON Quiz! Get it right, and the door opens to the next room. Get it wrong, and face a TRAINER! If you want to conserve your POK.MON for the GYM LEADER.. Then get it right! Here we go!"'
+
+   [dialogue] +++ 'TM28 contains TOMBSTONY?'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "TM28 contains TOMBSTONY?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "You're absolutely correct! Go on through!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You\'re absolutely correct! Go on through!"'
+
+   [campaign]    [quiz6] DOOR OPEN (talked) [lead 100%]
+
+   [campaign]    quiz doors ALL OPEN — engaging Blaine [lead 100%]
+
+   [dialogue] +++ 'Hah! I am BLAINE, the red-hot LEADER of CINNABAR GYM! My fiery POK.MON are all rough and ready with intense heat! They incinerate all challengers! Hah! You better have BURN HEAL! ...'  tags=['GYM_LEADER', 'PLACE']
+
+   [kira-voice]    (dialogue tags: gym_leader, place)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "Hah! I am BLAINE, the red-hot LEADER of CINNABAR GYM! My fiery POK.MON are all rough and ready with intense heat! They incinerate all challengers! Hah! You better have BURN HEAL! ..."'  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [play-live] battle context: trainer=True foe=ponyta rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against growlithe — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out growlithe'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L58 vs L42 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs growlithe 98/98 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=570)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Surf - a super-effective hit'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L58 vs L42 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs growlithe 31/98 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=570)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's growlithe fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 59'  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out ponyta'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] JUST FIGHT: L59 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs ponyta 90/90 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=570)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's ponyta fainted — your blastoise took it down"  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out rapidash'  fired=True  [age 0.0s + post 9ms]
+
+   [play-live]    [engine] JUST FIGHT: L59 vs L42 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs rapidash 106/106 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=570)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's rapidash fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out arcanine'  fired=True  [age 0.0s + post 7ms]
+
+   [play-live]    [engine] JUST FIGHT: L59 vs L47 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs arcanine 141/141 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=12,ref=0,sc=570)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's arcanine went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'I have burned down to nothing! Not even ashes remain! You have earned the VOLCANOBADGE.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "I have burned down to nothing! Not even ashes remain! You have earned the VOLCANOBADGE."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Hah! The VOLCANOBADGE heightens the SPECIAL stats of your POK.MON. Here, you can have this, too!'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Hah! The VOLCANOBADGE heightens the SPECIAL stats of your POK.MON. Here, you can have this, too!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] 🔥 MOMENTUM released (badge count moved 6 -> 7 — the next win re-evaluates fresh)
+
+   [campaign]    [evolve] PHASE 3A: control LOCKED after a level-up — driving the cutscene (A-only)
+
+   [dialogue] +++ 'KIRA received TM38 from BLAINE.'  tags=['GYM_LEADER', 'ITEM']
+
+   [kira-voice]    (dialogue tags: gym_leader, item)
+
+   [play-live] dialogue-hold: climax cutscene — yielding to the scripted award/TM drain (no reading-pace hold)
+
+   [kira-voice] -> T3·BIG· (dialogue) 'the gym leader says: "KIRA received TM38 from BLAINE."'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ 'KIRA put the TM38 in the TM CASE.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "KIRA put the TM38 in the TM CASE."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ "FIRE BLAST is the ultimate fire technique. Don't waste it on WATER POK.MON."  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "FIRE BLAST is the ultimate fire technique. Don\'t waste it on WATER POK.MON."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [evolve] drove a post-battle cutscene (no species change — not an evolution)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(12, 0) coords=(5, 5) badges=7 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260804_145253_a-building-in-cinnabar-islan_7b_28h51m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [blaine] battle -> win
+
+   [campaign]    BLAINE -> battled (battles 0->1) badge7=True lead=92%
+
+   [campaign]    badge in hand — walking out (B-ONLY on the island: the Bill ambush)
+
+   [campaign]    1 door(s); candidates (chosen order): [(24, 23)]
+
+   [campaign]    door (24, 23): near approach ((24, 22)→(24, 24), d=2) — short step
+
+   [campaign]    door (24, 23): at (24, 23) (approach=(24, 24)) — stepping UP in
+
+   [dialogue] +++ 'KIRA! You beat that firebrand!'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "KIRA! You beat that firebrand!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    pick (24, 23) failed — trying adjacent actuatable door (25, 23) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(12, 0) coords=(24, 21) -> coord (25, 22) (budget 60s, surf-capable)
+
+   [travel] step 0: (24, 21)->(24, 22) map=(12, 0) (path 3 to exit)
+
+   [travel] reached target coord (25, 22)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (25, 23) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    WARPED (12, 0) -> (3, 8) via mat-row door (25, 23)
+
+   [campaign]    [out-door] (12, 0) -> (3, 8) @ (20, 5)
+
+   [dialogue] +++ "Huh? Hey, if it isn't KIRA!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Huh? Hey, if it isn\'t KIRA!"'  fired=True  [age 0.0s + post 8ms]
+
+   [dialogue] +++ "Look, it's me, BILL. Long time no see! I hope you're still using my PC system. Well, listen, since we met up here, how about spending time with me? There's this little island in the far south"  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Look, it\'s me, BILL. Long time no see! I hope you\'re still using my PC system. Well, listen, since we met up here, how about spending time with me? There\'s this little island in the far south"'
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 601; bursts here = audible crackle)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 8)@(20, 5) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ "What, are you too busy? Well, all right. The boat hasn't arrived yet anyway. I'll be waiting at the POK.MON CENTER over there. Come see me when you're done with your business here."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "What, are you too busy? Well, all right. The boat hasn\'t arrived yet anyway. I\'ll be waiting at the POK.MON CENTER over there. Come see me when you\'re done with your business here."'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [bill-ambush] island B-drain done (quiet=0, at (20, 5))
+
+   [campaign]    HEAL: lead at 168/182 -> routing to the Pokemon Center on (3, 8) via door (14, 11) (will return to (20, 5))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(20, 5) -> coord (14, 12) (budget 120s, surf-capable)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! HEAL: couldn't reach the PC door (at (20, 5)) — remembered as heal-dead on this map (offer suppressed while non-critical; push to the next Center)
+
+   [kira-voice] -> T1·brisk· (recover) "can't get back to the Pokémon Center from this side — I'll patch up at the next town ahead."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [post-heal] island B-drain done (quiet=8, at (20, 5))
+
+   [campaign]    VOLCANO BADGE: flag=True | pos (3, 8)@(20, 5) | lead 92% | battles 1
+
+   [campaign]    GYM: Blaine quiz-door strike -> badge
+
+   [campaign]    [roam] 🏁 POST-BADGE BEAT armed at (3, 8): heal/stock/march window — grass parking OFF, forward march ON
+
+   [campaign]    [roam] 🔥 MOMENTUM LATCHED (DECISIVE): Blaine is DOWN — readiness floor + bench pin STAND DOWN for the next gym; heal/stock/MARCH (the road's trainers are the training). Releases on the next badge or any gym loss.
+
+   [campaign]    [roam] RESULT: head_to_gym -> badge | pos (3, 8)(8, 4) -> (3, 8)(20, 5) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> badge) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [badge] -> campaign/kira_campaign.state  (map=(3, 8) coords=(20, 5) badges=7 party=5)
+
+   [kira-voice] -> T3·BIG· (gym) 'YES — we DID it! Blaine is DOWN. I was genuinely nervous about that one and we pulled it off — badge number 7. okay. okay! onward.'  fired=True  [age 0.0s + post 14ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-badge] -> checkpoints/20260804_145412_cinnabar-island_7b_28h52m_gain-badge  (4 bundle file(s))
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/earth_badge → steps=['earth_badge'] actionable=earth_badge (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need the last badge is Giovanni's, back at the Viridian Gym — it reopened once Team Rocket fell. It's a long surf north from Cinnabar past Pallet to reach it, then his ground team stands between me and the Earth Badge."
+
+   [campaign]    [roam] ⛰️ PROACTIVE EARTH-BADGE: badge 7 done — Giovanni's gym is a sea road north; opening the Viridian Gym errand (its own crossing bypasses the nav gap)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 38) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] 🏁 POST-BADGE BEAT (5 builds left): pruned grass-parking ['battle']; heal/stock/march only
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — POST-BADGE BEAT (heal/stock/march; train on the road forward)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (7, 5, 13, 139) @ Cinnabar Island (ring=3/4)
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: Cinnabar Island (20, 5) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 8) (20,5) f1 -- badge7 $31970 party:2c21 bag:87c6]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 8)@(20, 5) (reason=frozen_box, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [kira-voice] ·floor· (<1s since last) T2 "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (20, 6) on (3, 8) (route around it) + marking (20, 5) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: stepped UP AWAY from the NPC -> (20, 4) (closed box + walked off — the real escape)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick10] -> campaign/kira_campaign.state  (map=(3, 8) coords=(20, 4) badges=7 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 38) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] 🏁 POST-BADGE BEAT (4 builds left): pruned grass-parking ['battle']; heal/stock/march only
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — POST-BADGE BEAT (heal/stock/march; train on the road forward)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['travel:3,10', 'travel:3,3', 'travel:3,5', 'travel:3,7']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 11/100000000 --
+
+   [campaign]    [roam] STATE IN: Cinnabar Island (20, 4) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 8) (20,4) f2 -- badge7 $31970 party:2c21 bag:87c6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Viridian City: You're ready — stop grinding and head to Viridian City for the Earth Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('earth_badge'/step=earth_badge errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Viridian City: on Cinnabar Island — billed leg north toward Route 21 south
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Viridian City runs north from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(20, 4) -> map (3, 40) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] releasing 1 stale NPC block(s) [(20, 6)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] path blocked at (20, 4) (NPC on the gap?) - waiting
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] MAP TRANSITION (3, 8) -> (12, 0)
+
+   [campaign]    [world] learned 3 warp(s) on (12, 0): (24, 23)->(3, 8), (25, 23)->(3, 8), (26, 23)->(3, 8)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+
+   [travel] no clean path from (25, 23) AND no NPC-allowing path (npcs nearby=[(16, 18), (24, 20)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (25, 23) map=(12, 0) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 3 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·floor· (<1s since last) T1 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    1 door(s); candidates (chosen order): [(25, 23)]
+
+   [campaign]    door (25, 23): at (25, 23) (approach=(25, 24)) — stepping UP in
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(12, 0) coords=(25, 16) -> coord (25, 22) (budget 60s, surf-capable)
+
+   [travel] step 0: (25, 16)->(25, 17) map=(12, 0) (path 7 to exit)
+
+   [travel] reached target coord (25, 22)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (25, 23) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    WARPED (12, 0) -> (3, 8) via directional door (25, 23)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (25, 23): (12, 0)@(25, 23) -> (3, 8)@(20, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 5ms]
+
+   [travel] start map=(3, 8) coords=(20, 5) -> map (3, 40) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] step 0: (20, 5)->(19, 5) map=(3, 8) (path 11 to exit)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF EDGE-MOUNT at (15, 0) facing N (map (3, 8)) — crossing the sea edge mounted
+
+   [travel] MAP TRANSITION (3, 8) -> (3, 40)
+
+   [kira-voice] -> T1·brisk· (beat) "okay — onto the water. Surf's up."  fired=True  [age 0.0s + post 3ms]
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 40) coords=(15, 49)
+
+   [kira-voice] ·floor· (<1s since last) T1 'made it to a new area'
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 8)(20, 4) -> (3, 40)(15, 49) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 40) coords=(15, 49) badges=7 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_145443_route-21_7b_28h52m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] grass she KNOWS: routing south -> (3, 8) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] 🏁 POST-BADGE BEAT released (left the conquered city — the march owns training now)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Giovanni, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['battle', 'travel:3,3', 'travel:3,5', 'travel:3,7', 'travel:3,8']; oracle SKIPPED this tick
+
+   [campaign] -- ROAM TICK 12/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (15, 49) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 40) (15,49) f2 -- badge7 $31970 party:2c21 bag:87c6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'talk_npc', 'use_surf']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Viridian City: You're ready — stop grinding and head to Viridian City for the Earth Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('earth_badge'/step=earth_badge errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Viridian City: on Route 21 south — billed leg north toward Route 21 north
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Viridian City runs north from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 40) coords=(15, 49) -> map (3, 39) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 40) (path 50 to exit)
+
+   [travel] step 10: (15, 39)->(14, 39) map=(3, 40) (path 41 to exit)
+
+   [dialogue] +++ "Right now, I'm in a triathlon meet."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Right now, I\'m in a triathlon meet."'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] path blocked at (14, 38) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 38) AND no NPC-allowing path (npcs nearby=[(15, 38)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 38) map=(3, 40) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 40)(15, 49) -> (3, 40)(14, 38) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick12] -> campaign/kira_campaign.state  (map=(3, 40) coords=(14, 38) badges=7 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 40)@(14, 38) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] grass she KNOWS: routing south -> (3, 8) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Giovanni, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['battle', 'travel:3,3', 'travel:3,5', 'travel:3,7', 'travel:3,8']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 13/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (14, 38) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 40) (14,38) f2 D- badge7 $31970 party:2c21 bag:87c6]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 40)@(14, 38) (reason=frozen_box, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (14, 37) on (3, 40) (route around it) + marking (14, 38) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] grass she KNOWS: routing south -> (3, 8) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Giovanni, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['battle', 'travel:3,3', 'travel:3,5', 'travel:3,7', 'travel:3,8']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 14/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (14, 38) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 40) (14,38) f2 -B badge7 $31970 party:2c21 bag:87c6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'use_surf']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Viridian City: You're ready — stop grinding and head to Viridian City for the Earth Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('earth_badge'/step=earth_badge errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Viridian City: on Route 21 south — billed leg north toward Route 21 north
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (route) 'the road to Viridian City runs north from here — onward.'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] start map=(3, 40) coords=(14, 38) -> map (3, 39) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·floor· (<1s since last) T1 'a wild Pokemon leaps out at you'
+
+   [play-live] battle context: trainer=True foe=staryu rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against staryu — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L59 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs staryu 62/62 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's staryu fainted — your blastoise took it down"  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out wartortle'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L59 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs wartortle 81/81 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 81 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L59 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs wartortle 81/81 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L59 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs wartortle 19/81 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's wartortle went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Pant.. Pant.. Pant..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Pant.. Pant.. Pant.."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 40) coords=(14, 38) badges=7 party=5)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 24ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260804_145651_route-21_7b_28h55m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] releasing 1 stale NPC block(s) [(14, 37)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 10: (14, 29)->(14, 28) map=(3, 40) (path 30 to exit)
+
+   [dialogue] +++ 'I caught my POK.MON at sea.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I caught my POK.MON at sea."'  fired=True  [age 0.0s + post 2ms]
+
+   [travel] path blocked at (14, 24) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 24) AND no NPC-allowing path (npcs nearby=[(10, 28), (15, 24)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 24) map=(3, 40) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 40)(14, 38) -> (3, 40)(14, 24) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick14] -> campaign/kira_campaign.state  (map=(3, 40) coords=(14, 24) badges=7 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 40)@(14, 24) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] grass she KNOWS: routing south -> (3, 8) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Giovanni, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['battle', 'travel:3,3', 'travel:3,5', 'travel:3,7', 'travel:3,8']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 15/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (14, 24) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 40) (14,24) f2 D- badge7 $32102 party:d325 bag:87c6]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 40)@(14, 24) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 14ms]
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (14, 23) on (3, 40) (route around it) + marking (14, 24) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] grass she KNOWS: routing south -> (3, 8) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Giovanni, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['battle', 'travel:3,3', 'travel:3,5', 'travel:3,7', 'travel:3,8']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 16/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (14, 24) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 40) (14,24) f2 -B badge7 $32102 party:d325 bag:87c6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Route 21
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 21 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L59), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 40), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano'], 'progress': "7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).", 'party': 'blastoise (L59), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Viridian City for the Earth Badge", 'medium': 'You CRUSHED Blaine — ride the momentum: Giovanni in Viridian City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Viridian City, beat Giovanni for the Earth Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Viridian City and wreck Giovanni'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Viridian City and wreck Giovanni'
+
+   [campaign]    [roam] 🧭 F-1 WANDER TRIPWIRE #1: objective "PUSH FORWARD — the way ahead is blocked (the eighth badge is Giovanni's, back at the Viridian Gym — it reopened once Team Rocket fell. It's a long surf north from Cinnabar past Pallet to get there.), and the move that opens it is to the last badge is Giovanni's, back at the Viridian Gym — it reopened once Team Rocket fell. It's a long surf north from Cinnabar past Pallet to reach it, then his ground team stands between me and the Earth Badge. Go DO that now: that errand IS the road FORWARD toward the next badge (Diglett's Cave → Route 2 for Flash is FORWARD for Celadon — Rock Tunnel stays dark without it; it is NOT Pewter nostalgia). Grind trainers ON THE WAY if you want, but finish the errand — don't sit at a Center narrating Celadon." has gone 20s+ without route progress (dist 14 hops) — harness takes the wheel: executing her objective deterministically, no oracle burn this tick
+
+   [kira-voice] ·floor· (<1s since last) T1 "okay, enough drifting — I said I was heading there, so let's actually go."
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Viridian City: You're ready — stop grinding and head to Viridian City for the Earth Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Viridian City and wreck Giovanni'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('earth_badge'/step=earth_badge errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Viridian City: on Route 21 south — billed leg north toward Route 21 north
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Viridian City runs north from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 40) coords=(14, 24) -> map (3, 39) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·floor· (<1s since last) T1 'a wild Pokemon leaps out at you'
+
+   [play-live] battle context: trainer=True foe=starmie rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against starmie — your blastoise is up front'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] JUST FIGHT: L59 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 0 (eff x2) vs starmie 91/91 | [0]Bite(p60,pp=20,ref=0,sc=120) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=71.25)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's starmie went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Diver!! Down!!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Diver!! Down!!"'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "phew — okay, that one's done. shake it off, back to the road."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 40) coords=(14, 24) badges=7 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260804_145823_route-21_7b_28h56m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] releasing 1 stale NPC block(s) [(14, 23)] — tile(s) read empty now (wanderer moved on)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 8ms]
+
+   [travel] step 10: (15, 16)->(15, 15) map=(3, 40) (path 17 to exit)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF MOUNT at (15, 13) -> (15, 12) (map (3, 40))
+
+   [kira-voice] -> T1·brisk· (beat) "okay — onto the water. Surf's up."  fired=True  [age 0.0s + post 2ms]
+
+   [travel] step 20: (15, 6)->(15, 5) map=(3, 40) (path 7 to exit)
+
+   [travel] MAP TRANSITION (3, 40) -> (3, 39)
+
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+
+   [travel] ARRIVED at target map (3, 39) coords=(15, 49)
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 40)(14, 24) -> (3, 39)(15, 49) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 39) coords=(15, 49) badges=7 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_145834_route-21_7b_28h56m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Giovanni, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,7', 'travel:3,8']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 17/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (15, 49) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 39) (15,49) f2 -- badge7 $32250 party:d325 bag:87c6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'use_surf']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Viridian City: You're ready — stop grinding and head to Viridian City for the Earth Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('earth_badge'/step=earth_badge errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Viridian City: on Route 21 north — billed leg north toward Pallet Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Viridian City runs north from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 39) coords=(15, 49) -> map (3, 0) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 39) (path 55 to exit)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "BLASTOISE used SURF!"'
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF MOUNT at (15, 41) -> (15, 40) (map (3, 39))
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "okay — onto the water. Surf's up."
+
+   [travel] step 10: (15, 39)->(15, 38) map=(3, 39) (path 45 to exit)
+
+   [dialogue] +++ "IAN. My sis doesn't get enough exercise, so I made her come."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "IAN. My sis doesn\'t get enough exercise, so I made her come."'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] path blocked at (15, 36) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (15, 36) AND no NPC-allowing path (npcs nearby=[(12, 42), (14, 35), (15, 35)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (15, 36) map=(3, 39) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 39)(15, 49) -> (3, 39)(15, 36) (MOVED)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 39)@(15, 36) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Giovanni, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,7', 'travel:3,8']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 18/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (15, 36) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 39) (15,36) f2 D- badge7 $32250 party:d325 bag:87c6]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 39)@(15, 36) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (15, 35) on (3, 39) (route around it) + marking (15, 36) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    !! CAMPAIGN SAVE REFUSED [tick18]: mid-battle — not banking a fight rewind target (LOUD)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Giovanni, train on the road)
+
+   [campaign]    [roam] !! CREATOR ORDER 'catch_now' is NOT a gym march — refusing GO HARD / force head_to_gym (would thrash the blocker)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Giovanni); pruned ['battle', 'travel:3,1', 'travel:3,2', 'travel:3,7', 'travel:3,8']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 19/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (15, 36) | badges=7 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano) | party=[blastoise L59, rattata L18, kadabra L19, diglett L18, lapras L25] | 7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 39) (15,36) f2 -B badge7 $32250 party:d325 bag:87c6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Route 21
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 21 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L59), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 39), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano'], 'progress': "7 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano). Next gym: Giovanni of Viridian City. Pokédex: 13 caught. She's seven badges — one gym from Victory Road, the League almost in reach (of 8 badges, then the Elite Four).", 'party': 'blastoise (L59), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Viridian City for the Earth Badge", 'medium': 'You CRUSHED Blaine — ride the momentum: Giovanni in Viridian City is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Viridian City, beat Giovanni for the Earth Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Earth Badge — beat Giovanni'
+
+   [campaign]    [soul] ORACLE pick -> 'Earth Badge — beat Giovanni'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Viridian City: You're ready — stop grinding and head to Viridian City for the Earth Badge.
+
+   [kira-voice] -> T2·savor· (want) 'Earth Badge — beat Giovanni'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('earth_badge'/step=earth_badge errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Viridian City: on Route 21 north — billed leg north toward Pallet Town
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Viridian City runs north from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 39) coords=(15, 36) -> map (3, 0) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·floor· (<1s since last) T1 'a wild Pokemon leaps out at you'
+
+   [play-live] battle context: trainer=True foe=seadra rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against seadra — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=0 action=False moves=True)
+
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0], refusals {0: 1}, futility 1/4)
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [engine] action menu: Skull Bash -> slot 1 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=1,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash slot 1 (menu_up=0 action=False moves=True)
+
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 0, want 1) — RAM-correcting
+
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0, 1], refusals {0: 1, 1: 1}, futility 2/4)
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [engine] action menu: Surf -> slot 2 (eff x0.25) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=1,sc=60) [1]Skull Bash(p100,pp=15,ref=1,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Surf slot 2 (menu_up=0 action=False moves=True)
+
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 1, want 2) — RAM-correcting
+
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0, 1, 2], refusals {0: 1, 1: 1, 2: 1}, futility 3/4)
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: re-firing Bite (idling never resolves a can't-flee fight)
+
+   [play-live]    [engine] action menu: Bite -> slot 0 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=1,sc=60) [1]Skull Bash(p100,pp=15,ref=1,sc=50) [2]Surf(p95*STAB,pp=11,ref=1,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Bite slot 0 (menu_up=0 action=False moves=True)
+
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 2, want 0) — RAM-correcting
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 0 but slot 1 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] !! MENU WEDGE 61s with NO progress — escaping the scroll theater (fire 1/8, menu_up=0 action=False moves=False bag=False party=False)
+
+   [kira-voice] -> T2·savor· (event) 'menus are glitched — bailing this fight.'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] !! FUTILITY BREAKER: 4 fruitless move-list confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active for party slot 4 (L25) — switch verifies by species flip, not move RAM (use 1/2)
+
+   [play-live]    [engine] switch: couldn't reach a clean action menu
+
+   [play-live]    [engine] FUTILITY BREAKER: switch did not confirm (fail-safe, fighting on)
+
+   [play-live]    [engine] !! FUTILITY BREAKER: 5 fruitless move-list confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active for party slot 4 (L25) — switch verifies by species flip, not move RAM (use 2/2)
+
+   [play-live]    [engine] switch: couldn't reach a clean action menu
+
+   [play-live]    [engine] FUTILITY BREAKER: switch did not confirm (fail-safe, fighting on)
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=1,sc=60) [1]Skull Bash(p100,pp=14,ref=1,sc=50) [2]Surf(p95*STAB,pp=11,ref=1,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=0 action=False moves=True)
+
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 3, want 0) — RAM-correcting
+
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0], refusals {0: 2, 1: 1, 2: 1}, futility 7/4)
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [engine] action menu: Skull Bash -> slot 1 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=2,sc=60) [1]Skull Bash(p100,pp=14,ref=1,sc=50) [2]Surf(p95*STAB,pp=11,ref=1,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash slot 1 (menu_up=0 action=False moves=True)
+
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 0, want 1) — RAM-correcting
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE is already in battle! ."'  fired=True  [age 0.0s + post 8ms]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! battle wedged stall≥30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! MENU WEDGE 60s with NO progress — escaping the scroll theater (fire 2/8, menu_up=0 action=False moves=False bag=False party=False)
+
+   [play-live]    [engine] MENU WEDGE escalation: blind B-unwind (classifiers untrusted)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! battle wedged stall≥30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! battle wedged stall≥30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! MENU WEDGE 61s with NO progress — escaping the scroll theater (fire 3/8, menu_up=0 action=False moves=False bag=False party=False)
+
+   [play-live]    [engine] MENU WEDGE escalation: blind B-unwind (classifiers untrusted)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! battle wedged stall≥30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! battle wedged stall≥30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! MENU WEDGE 61s with NO progress — escaping the scroll theater (fire 4/8, menu_up=0 action=False moves=False bag=False party=False)
+
+   [play-live]    [engine] MENU WEDGE escalation: blind B-unwind (classifiers untrusted)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! battle wedged stall≥30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [play-live]    [engine] !! battle wedged stall≥30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [dialogue] +++ 'BLASTOISE is already in battle! .'  tags=[]
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 176750 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 39) coords=(15, 36)  badge=True
+
+   [kira-voice] === 211 fired, 71 gated (0 failed) | by tier: T3=25 T2=96 T1=90 (incl ambient trickle) ===
+
+================================================================
+

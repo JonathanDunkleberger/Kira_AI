@@ -1,0 +1,817 @@
+===== playlive_2026-08-04_14-16-02.log =====
+   [travel] start map=(3, 37) coords=(13, 10) -> map (3, 7) (budget 300s, surf-capable)
+   [travel] north connection band cols: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L57 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs goldeen 65/65 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L58 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs horsea 56/56 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L58 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs staryu 56/56 | [0]Bite(p60,pp=20,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] releasing 1 stale NPC block(s) [(13, 11)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 10: (15, 3)->(15, 2) map=(3, 37) (path 4 to exit)
+   [travel] MAP TRANSITION (3, 37) -> (3, 7)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+   [travel] ARRIVED at target map (3, 7) coords=(27, 39)
+   [travel] start map=(3, 7) coords=(27, 39) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 7) coords=(27, 39) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 7) coords=(27, 39) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (27, 39)->(27, 38) map=(3, 7) (path 46 to exit)
+   [travel] step 10: (21, 35)->(21, 34) map=(3, 7) (path 36 to exit)
+   [travel] step 20: (13, 33)->(12, 33) map=(3, 7) (path 26 to exit)
+   [travel] step 30: (3, 33)->(3, 32) map=(3, 7) (path 17 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 7) coords=(3, 23) elapsed=5s
+   [travel] step 40: (3, 23)->(3, 22) map=(3, 7) (path 7 to exit)
+   [travel] MAP TRANSITION (3, 7) -> (3, 36)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (59, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 10) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (59, 10) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 36) coords=(59, 10) -> map (3, 7) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] step 0: (59, 10)->(0, 20) map=(3, 36) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 36) -> (3, 7)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] ARRIVED at target map (3, 7) coords=(0, 20)
+   [travel] start map=(3, 7) coords=(0, 20) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+   [travel] step 0: (0, 20)->(1, 20) map=(3, 7) (path 43 to exit)
+   [travel] step 10: (2, 28)->(2, 29) map=(3, 7) (path 33 to exit)
+   [travel] step 20: (4, 36)->(5, 36) map=(3, 7) (path 23 to exit)
+   [travel] step 30: (12, 34)->(13, 34) map=(3, 7) (path 13 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 7) coords=(19, 37) elapsed=5s
+   [travel] step 40: (19, 37)->(19, 38) map=(3, 7) (path 3 to exit)
+   [travel] MAP TRANSITION (3, 7) -> (3, 37)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 37) coords=(7, 0)
+   [travel] start map=(3, 37) coords=(7, 0) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+   [travel] step 0: (7, 0)->(7, 1) map=(3, 37) (path 47 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (7, 8) -> (7, 9) (map (3, 37))
+   [travel] step 10: (7, 10)->(7, 11) map=(3, 37) (path 40 to exit)
+   [travel] step 20: (7, 20)->(7, 21) map=(3, 37) (path 30 to exit)
+   [travel] step 30: (6, 29)->(6, 30) map=(3, 37) (path 20 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 37) coords=(4, 37) elapsed=13s
+   [travel] step 40: (4, 37)->(4, 38) map=(3, 37) (path 10 to exit)
+   [travel] edge row 42 won't cross (5+ W presses eaten) — dropped from the band, re-planning to another crossable row (1/6)
+   [travel] MAP TRANSITION (3, 37) -> (3, 38)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 38) coords=(119, 3)
+   [play-live]    [engine] JUST FIGHT: L58 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 55/55 | [0]Bite(p60,pp=19,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L58 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs psyduck 74/74 | [0]Bite(p60,pp=19,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=12,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L58 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs psyduck 1/74 | [0]Bite(p60,pp=18,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=12,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] JUST FIGHT: L58 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 64/64 | [0]Bite(p60,pp=17,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=12,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L58 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 8/64 | [0]Bite(p60,pp=17,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=11,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L58 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs horsea 58/58 | [0]Bite(p60,pp=17,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=10,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 0 but slot 3 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L58 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 79/79 | [0]Bite(p60,pp=17,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=9,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L58 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 12/79 | [0]Bite(p60,pp=16,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=9,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L58 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs staryu 66/66 | [0]Bite(p60,pp=15,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=9,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L58 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs poliwag 65/65 | [0]Bite(p60,pp=14,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=9,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L58 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seaking 90/90 | [0]Bite(p60,pp=13,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=9,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L58 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seaking 41/90 | [0]Bite(p60,pp=12,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=9,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] JUST FIGHT: L58 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seaking 41/90 | [0]Bite(p60,pp=12,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=9,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(3, 8) coords=(21, 15) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] step 0: (21, 15)->(21, 14) map=(3, 8) (path 11 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(7, 4) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(3, 4), (7, 2), (9, 8), (14, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (21, 15) (budget 120s, surf-capable)
+   [travel] step 0: (14, 12)->(14, 13) map=(3, 8) (path 11 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (14, 14) -> (14, 15) (map (3, 8))
+   [travel] reached target coord (21, 15)
+   [travel] start map=(3, 8) coords=(21, 15) -> coord (20, 5) (budget 300s, surf-capable)
+   [travel] step 0: (21, 15)->(21, 14) map=(3, 8) (path 12 to exit)
+   [travel] step 10: (21, 5)->(20, 5) map=(3, 8) (path 2 to exit)
+   [travel] reached target coord (20, 5)
+   [travel] start map=(3, 8) coords=(20, 5) -> coord (20, 5) (budget 300s, surf-capable)
+   [travel] reached target coord (20, 5)
+   [travel] start map=(3, 8) coords=(20, 5) -> coord (20, 5) (budget 60s, surf-capable)
+   [travel] reached target coord (20, 5)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] JUST FIGHT: L58 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs electrode 73/73 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L58 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs weezing 76/76 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — ZERO balls; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] JUST FIGHT: L58 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs growlithe 81/81 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L58 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs growlithe 6/81 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L58 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs ponyta 78/78 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=12,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [travel] start map=(3, 8) coords=(8, 4) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] step 0: (8, 4)->(8, 5) map=(3, 8) (path 29 to exit)
+   [travel] step 10: (15, 7)->(16, 7) map=(3, 8) (path 19 to exit)
+   [travel] releasing 1 stale NPC block(s) [(20, 4)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 20: (21, 11)->(21, 12) map=(3, 8) (path 9 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(7, 4) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(2, 4), (7, 2), (10, 7), (14, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (8, 4) (budget 120s, surf-capable)
+   [travel] step 0: (14, 12)->(15, 12) map=(3, 8) (path 29 to exit)
+   [travel] step 10: (21, 9)->(21, 8) map=(3, 8) (path 19 to exit)
+   [travel] step 20: (16, 4)->(15, 4) map=(3, 8) (path 9 to exit)
+   [travel] reached target coord (8, 4)
+   [travel] start map=(3, 8) coords=(8, 4) -> coord (20, 5) (budget 300s, surf-capable)
+   [travel] step 0: (8, 4)->(8, 5) map=(3, 8) (path 14 to exit)
+   [travel] step 10: (17, 5)->(18, 5) map=(3, 8) (path 4 to exit)
+   [travel] reached target coord (20, 5)
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L58 vs L42 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs growlithe 98/98 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L58 vs L42 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs growlithe 31/98 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L59 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs ponyta 90/90 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L59 vs L42 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs rapidash 106/106 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [play-live]    [engine] JUST FIGHT: L59 vs L47 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs arcanine 141/141 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=12,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(12, 0) coords=(24, 21) -> coord (25, 22) (budget 60s, surf-capable)
+   [travel] step 0: (24, 21)->(24, 22) map=(12, 0) (path 3 to exit)
+   [travel] reached target coord (25, 22)
+   [travel] start map=(3, 8) coords=(20, 5) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 8) coords=(20, 4) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] releasing 1 stale NPC block(s) [(20, 6)] — tile(s) read empty now (wanderer moved on)
+   [travel] path blocked at (20, 4) (NPC on the gap?) - waiting
+   [travel] MAP TRANSITION (3, 8) -> (12, 0)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+   [travel] no clean path from (25, 23) AND no NPC-allowing path (npcs nearby=[(16, 18), (24, 20)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (25, 23) map=(12, 0) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(12, 0) coords=(25, 16) -> coord (25, 22) (budget 60s, surf-capable)
+   [travel] step 0: (25, 16)->(25, 17) map=(12, 0) (path 7 to exit)
+   [travel] reached target coord (25, 22)
+   [travel] start map=(3, 8) coords=(20, 5) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (20, 5)->(19, 5) map=(3, 8) (path 11 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF EDGE-MOUNT at (15, 0) facing N (map (3, 8)) — crossing the sea edge mounted
+   [travel] MAP TRANSITION (3, 8) -> (3, 40)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 40) coords=(15, 49)
+   [travel] start map=(3, 40) coords=(15, 49) -> map (3, 39) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 40) (path 50 to exit)
+   [travel] step 10: (15, 39)->(14, 39) map=(3, 40) (path 41 to exit)
+   [travel] path blocked at (14, 38) (NPC on the gap?) - waiting
+   [travel] no clean path from (14, 38) AND no NPC-allowing path (npcs nearby=[(15, 38)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 38) map=(3, 40) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 40) coords=(14, 38) -> map (3, 39) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L59 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs staryu 62/62 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L59 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs wartortle 81/81 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 81 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] JUST FIGHT: L59 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs wartortle 81/81 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L59 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs wartortle 19/81 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] releasing 1 stale NPC block(s) [(14, 37)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 10: (14, 29)->(14, 28) map=(3, 40) (path 30 to exit)
+   [travel] path blocked at (14, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (14, 24) AND no NPC-allowing path (npcs nearby=[(10, 28), (15, 24)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 24) map=(3, 40) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 40) coords=(14, 24) -> map (3, 39) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L59 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 0 (eff x2) vs starmie 91/91 | [0]Bite(p60,pp=20,ref=0,sc=120) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] releasing 1 stale NPC block(s) [(14, 23)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 10: (15, 16)->(15, 15) map=(3, 40) (path 17 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 13) -> (15, 12) (map (3, 40))
+   [travel] step 20: (15, 6)->(15, 5) map=(3, 40) (path 7 to exit)
+   [travel] MAP TRANSITION (3, 40) -> (3, 39)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] ARRIVED at target map (3, 39) coords=(15, 49)
+   [travel] start map=(3, 39) coords=(15, 49) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 39) (path 55 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 41) -> (15, 40) (map (3, 39))
+   [travel] step 10: (15, 39)->(15, 38) map=(3, 39) (path 45 to exit)
+   [travel] path blocked at (15, 36) (NPC on the gap?) - waiting
+   [travel] no clean path from (15, 36) AND no NPC-allowing path (npcs nearby=[(12, 42), (14, 35), (15, 35)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (15, 36) map=(3, 39) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 39) coords=(15, 36) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0], refusals {0: 1}, futility 1/4)
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] action menu: Skull Bash -> slot 1 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=1,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash slot 1 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 0, want 1) — RAM-correcting
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0, 1], refusals {0: 1, 1: 1}, futility 2/4)
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] action menu: Surf -> slot 2 (eff x0.25) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=1,sc=60) [1]Skull Bash(p100,pp=15,ref=1,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Surf slot 2 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 1, want 2) — RAM-correcting
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0, 1, 2], refusals {0: 1, 1: 1, 2: 1}, futility 3/4)
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: re-firing Bite (idling never resolves a can't-flee fight)
+   [play-live]    [engine] action menu: Bite -> slot 0 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=1,sc=60) [1]Skull Bash(p100,pp=15,ref=1,sc=50) [2]Surf(p95*STAB,pp=11,ref=1,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 0 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 2, want 0) — RAM-correcting
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 0 but slot 1 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] !! MENU WEDGE 61s with NO progress — escaping the scroll theater (fire 1/8, menu_up=0 action=False moves=False bag=False party=False)
+   [play-live]    [engine] !! FUTILITY BREAKER: 4 fruitless move-list confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active for party slot 4 (L25) — switch verifies by species flip, not move RAM (use 1/2)
+   [play-live]    [engine] switch: couldn't reach a clean action menu
+   [play-live]    [engine] FUTILITY BREAKER: switch did not confirm (fail-safe, fighting on)
+   [play-live]    [engine] !! FUTILITY BREAKER: 5 fruitless move-list confirms — the list is a tar pit (lying cursor/PP RAM). Benching the active for party slot 4 (L25) — switch verifies by species flip, not move RAM (use 2/2)
+   [play-live]    [engine] switch: couldn't reach a clean action menu
+   [play-live]    [engine] FUTILITY BREAKER: switch did not confirm (fail-safe, fighting on)
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=1,sc=60) [1]Skull Bash(p100,pp=14,ref=1,sc=50) [2]Surf(p95*STAB,pp=11,ref=1,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 3, want 0) — RAM-correcting
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0], refusals {0: 2, 1: 1, 2: 1}, futility 7/4)
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] action menu: Skull Bash -> slot 1 (eff x1) vs seadra 79/79 | [0]Bite(p60,pp=19,ref=2,sc=60) [1]Skull Bash(p100,pp=14,ref=1,sc=50) [2]Surf(p95*STAB,pp=11,ref=1,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash slot 1 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 0, want 1) — RAM-correcting
+   [play-live]    [engine] !! battle wedged stall=30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+   [play-live]    [engine] !! MENU WEDGE 60s with NO progress — escaping the scroll theater (fire 2/8, menu_up=0 action=False moves=False bag=False party=False)
+   [play-live]    [engine] MENU WEDGE escalation: blind B-unwind (classifiers untrusted)
+   [play-live]    [engine] !! battle wedged stall=30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+   [play-live]    [engine] !! battle wedged stall=30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+   [play-live]    [engine] !! MENU WEDGE 61s with NO progress — escaping the scroll theater (fire 3/8, menu_up=0 action=False moves=False bag=False party=False)
+   [play-live]    [engine] MENU WEDGE escalation: blind B-unwind (classifiers untrusted)
+   [play-live]    [engine] !! battle wedged stall=30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+   [play-live]    [engine] !! battle wedged stall=30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+   [play-live]    [engine] !! MENU WEDGE 61s with NO progress — escaping the scroll theater (fire 4/8, menu_up=0 action=False moves=False bag=False party=False)
+   [play-live]    [engine] MENU WEDGE escalation: blind B-unwind (classifiers untrusted)
+   [play-live]    [engine] !! battle wedged stall=30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+   [play-live]    [engine] !! battle wedged stall=30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+===== playlive_2026-08-04_13-44-13.log =====
+   [travel] start map=(3, 7) coords=(25, 32) -> coord (25, 32) (budget 120s)
+   [travel] reached target coord (25, 32)
+   [travel] start map=(11, 5) coords=(7, 4) -> coord (7, 7) (budget 60s)
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(3, 8), (7, 2), (12, 5), (13, 3)] -> approaching to interact/trigger
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 7) coords=(25, 32) -> coord (24, 6) (budget 300s)
+   [travel] step 0: (25, 32)->(26, 32) map=(3, 7) (path 41 to exit)
+   [travel] step 10: (29, 26)->(29, 25) map=(3, 7) (path 32 to exit)
+   [travel] step 20: (30, 17)->(31, 17) map=(3, 7) (path 22 to exit)
+   [travel] step 30: (38, 17)->(39, 17) map=(3, 7) (path 38 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 7) coords=(42, 11) elapsed=6s
+   [travel] step 40: (42, 11)->(43, 11) map=(3, 7) (path 28 to exit)
+   [travel] step 50: (41, 6)->(40, 6) map=(3, 7) (path 18 to exit)
+   [travel] step 60: (31, 6)->(30, 6) map=(3, 7) (path 8 to exit)
+   [travel] reached target coord (24, 6)
+   [travel] start map=(11, 0) coords=(4, 1) -> coord (4, 6) (budget 60s)
+   [travel] step 0: (4, 1)->(26, 30) map=(11, 0) (path 6 to exit)
+   [travel] MAP TRANSITION (11, 0) -> (1, 63)
+   [travel] coord leg ended by the transition -> (1, 63) (target (4, 6) was the old map's frame)
+   [travel] start map=(1, 63) coords=(26, 30) -> coord (4, 8) (budget 45s)
+   [travel] path blocked at (26, 30) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 30) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (26, 30) map=(1, 63) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 63) coords=(26, 30) -> coord (4, 6) (budget 45s)
+   [travel] path blocked at (26, 30) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 30) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (26, 30) map=(1, 63) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 63) coords=(26, 30) -> coord (3, 7) (budget 45s)
+   [travel] path blocked at (26, 30) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 30) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (26, 30) map=(1, 63) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 63) coords=(26, 30) -> coord (5, 7) (budget 45s)
+   [travel] path blocked at (26, 30) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 30) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (26, 30) map=(1, 63) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(11, 0) coords=(4, 2) -> coord (4, 6) (budget 60s)
+   [travel] reached target coord (4, 6)
+   [travel] start map=(3, 7) coords=(24, 6) -> coord (33, 32) (budget 300s)
+   [travel] step 0: (24, 6)->(25, 6) map=(3, 7) (path 66 to exit)
+   [travel] step 10: (34, 6)->(35, 6) map=(3, 7) (path 56 to exit)
+   [travel] step 20: (44, 6)->(44, 7) map=(3, 7) (path 46 to exit)
+   [travel] step 30: (44, 16)->(44, 17) map=(3, 7) (path 36 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 7) coords=(36, 18) elapsed=5s
+   [travel] step 40: (36, 18)->(36, 17) map=(3, 7) (path 28 to exit)
+   [travel] step 50: (29, 19)->(29, 20) map=(3, 7) (path 18 to exit)
+   [travel] step 60: (29, 29)->(29, 30) map=(3, 7) (path 8 to exit)
+   [travel] reached target coord (33, 32)
+   [travel] start map=(11, 7) coords=(3, 6) -> coord (6, 8) (budget 60s)
+   [travel] step 0: (3, 6)->(3, 7) map=(11, 7) (path 6 to exit)
+   [travel] reached target coord (6, 8)
+   [travel] start map=(3, 7) coords=(33, 32) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+   [travel] releasing 1 stale NPC block(s) [(33, 33)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 0: (33, 32)->(32, 32) map=(3, 7) (path 72 to exit)
+   [travel] step 10: (30, 25)->(29, 25) map=(3, 7) (path 62 to exit)
+   [travel] step 20: (20, 25)->(19, 25) map=(3, 7) (path 52 to exit)
+   [travel] step 30: (10, 25)->(9, 25) map=(3, 7) (path 42 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 7) coords=(3, 28) elapsed=5s
+   [travel] step 40: (3, 28)->(3, 29) map=(3, 7) (path 32 to exit)
+   [travel] step 50: (5, 36)->(6, 36) map=(3, 7) (path 22 to exit)
+   [travel] step 60: (13, 34)->(14, 34) map=(3, 7) (path 12 to exit)
+   [travel] step 70: (19, 38)->(19, 39) map=(3, 7) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 7) -> (3, 37)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 37) coords=(7, 0)
+   [travel] start map=(3, 37) coords=(7, 0) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+   [travel] step 0: (7, 0)->(7, 1) map=(3, 37) (path 47 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.68s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (7, 8) -> (7, 9) (map (3, 37))
+   [travel] step 10: (7, 10)->(7, 11) map=(3, 37) (path 40 to exit)
+   [travel] step 20: (7, 20)->(7, 21) map=(3, 37) (path 30 to exit)
+   [travel] path blocked at (7, 26) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L57 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 65/65 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=15,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L57 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 8/65 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=14,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] HEARTBEAT step=40 map=(3, 37) coords=(7, 35) elapsed=59s
+   [travel] step 40: (7, 35)->(7, 36) map=(3, 37) (path 15 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L57 vs L5 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 20/20 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [travel] battle outcome=win; resuming pathfind
+   [travel] step 50: (7, 41)->(7, 42) map=(3, 37) (path 9 to exit)
+   [travel] edge row 42 won't cross (5+ W presses eaten) — dropped from the band, re-planning to another crossable row (1/6)
+   [travel] MAP TRANSITION (3, 37) -> (3, 38)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 38) coords=(119, 3)
+   [travel] start map=(3, 38) coords=(119, 3) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (119, 3) (NPC on the gap?) - waiting
+   [travel] no clean path from (119, 3) AND no NPC-allowing path (npcs nearby=[(107, 6), (128, 1), (129, 1), (129, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (119, 3) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(119, 17) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (119, 17) (NPC on the gap?) - waiting
+   [travel] no clean path from (119, 17) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (119, 17) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 37) coords=(7, 0) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+   [travel] step 0: (7, 0)->(7, 1) map=(3, 37) (path 47 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.26s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (7, 8) -> (7, 9) (map (3, 37))
+   [travel] step 10: (7, 10)->(7, 11) map=(3, 37) (path 40 to exit)
+   [travel] step 20: (7, 20)->(7, 21) map=(3, 37) (path 30 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L57 vs L12 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 34/34 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=15,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] HEARTBEAT step=40 map=(3, 37) coords=(7, 35) elapsed=41s
+   [travel] step 40: (7, 35)->(7, 36) map=(3, 37) (path 15 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L57 vs L7 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 24/24 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=14,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [travel] battle outcome=win; resuming pathfind
+   [travel] step 50: (7, 41)->(7, 42) map=(3, 37) (path 9 to exit)
+   [travel] edge row 42 won't cross (5+ W presses eaten) — dropped from the band, re-planning to another crossable row (1/6)
+   [travel] MAP TRANSITION (3, 37) -> (3, 38)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 38) coords=(119, 3)
+   [travel] start map=(3, 38) coords=(119, 17) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (119, 17) (NPC on the gap?) - waiting
+   [travel] no clean path from (119, 17) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (119, 17) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 37) coords=(7, 0) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+   [travel] step 0: (7, 0)->(7, 1) map=(3, 37) (path 47 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.54s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (7, 8) -> (7, 9) (map (3, 37))
+   [travel] step 10: (7, 10)->(7, 11) map=(3, 37) (path 40 to exit)
+   [travel] step 20: (7, 20)->(7, 21) map=(3, 37) (path 30 to exit)
+   [travel] path blocked at (7, 26) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L57 vs L5 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 19/19 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=15,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [travel] battle outcome=win; resuming pathfind
+   [travel] path blocked at (6, 27) (NPC on the gap?) - waiting
+   [travel] no clean path from (6, 27) AND no NPC-allowing path (npcs nearby=[(7, 27), (16, 22)]) - genuine wall/zone gap, will time out
+   [travel] HEARTBEAT step=40 map=(3, 37) coords=(6, 27) elapsed=36s
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (6, 27) map=(3, 37) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 37) coords=(6, 27) -> map (3, 7) (budget 120s, surf-capable)
+   [travel] north connection band cols: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [campaign]    [engine] !! PARTY THRASH #1: open but active ALIVE — B-closing (never A)
+   [campaign]    [engine] JUST FIGHT: L57 vs L27 + connecting damage — skipping bag/switch hierarchy this turn
+   [campaign]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs horsea 53/53 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=15,ref=0,sc=35.625)
+   [campaign]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [campaign]    [engine] battle-progress: move resolved
+   [campaign]    [engine] battle-progress: enemy fainted
+   [campaign]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [campaign]    [engine] JUST FIGHT: L57 vs L27 + connecting damage — skipping bag/switch hierarchy this turn
+   [campaign]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 58/58 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=15,ref=0,sc=71.25)
+   [campaign]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [campaign]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [campaign]    [engine] battle-progress: move resolved
+   [campaign]    [engine] JUST FIGHT: L57 vs L27 + connecting damage — skipping bag/switch hierarchy this turn
+   [campaign]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 13/58 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=15,ref=0,sc=71.25)
+   [campaign]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [campaign]    [engine] battle-progress: move resolved
+   [campaign]    [engine] battle-progress: enemy fainted
+   [campaign]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [campaign]    [engine] JUST FIGHT: L57 vs L27 + connecting damage — skipping bag/switch hierarchy this turn
+   [campaign]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 58/58 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=14,ref=0,sc=71.25)
+   [campaign]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [campaign]    [engine] battle-progress: move resolved
+   [campaign]    [engine] battle-progress: enemy fainted
+   [campaign]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [campaign]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [travel] battle outcome=timeout; resuming pathfind
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [campaign]    [engine] JUST FIGHT: L57 vs L27 + connecting damage — skipping bag/switch hierarchy this turn
+   [campaign]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs goldeen 61/61 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=35.625)
+   [campaign]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [campaign]    [engine] battle-progress: move resolved
+   [campaign]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] releasing 1 stale NPC block(s) [(6, 28)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 10: (7, 20)->(7, 19) map=(3, 37) (path 29 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] !! WALL-CLOCK BUDGET BLOWN (127s > 120s) at (7, 16) map=(3, 37) step=18 - ABORT LOUD (grinding / wedged, not progressing fast)
+   [travel] start map=(3, 37) coords=(7, 16) -> map (3, 7) (budget 300s, surf-capable)
+   [travel] north connection band cols: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+   [travel] step 0: (7, 16)->(7, 15) map=(3, 37) (path 25 to exit)
+   [travel] step 10: (9, 8)->(10, 8) map=(3, 37) (path 15 to exit)
+   [travel] step 20: (15, 4)->(15, 3) map=(3, 37) (path 5 to exit)
+   [travel] MAP TRANSITION (3, 37) -> (3, 7)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+   [travel] ARRIVED at target map (3, 7) coords=(27, 39)
+   [travel] start map=(3, 7) coords=(27, 39) -> coord (25, 32) (budget 120s, surf-capable)
+   [travel] step 0: (27, 39)->(27, 38) map=(3, 7) (path 18 to exit)
+   [travel] step 10: (21, 35)->(21, 34) map=(3, 7) (path 8 to exit)
+   [travel] reached target coord (25, 32)
+   [travel] start map=(11, 5) coords=(7, 4) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(4, 8), (7, 2), (12, 5), (13, 3)] -> approaching to interact/trigger
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 7) coords=(25, 32) -> coord (27, 39) (budget 120s, surf-capable)
+   [travel] step 0: (25, 32)->(25, 33) map=(3, 7) (path 9 to exit)
+   [travel] reached target coord (27, 39)
+   [travel] start map=(3, 7) coords=(27, 39) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+   [travel] MAP TRANSITION (3, 7) -> (3, 37)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 37) coords=(15, 0)
+   [travel] start map=(3, 37) coords=(15, 0) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+   [travel] step 0: (15, 0)->(15, 1) map=(3, 37) (path 55 to exit)
+   [travel] step 10: (13, 8)->(13, 9) map=(3, 37) (path 48 to exit)
+   [travel] path blocked at (13, 9) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 9) AND no NPC-allowing path (npcs nearby=[(12, 9), (12, 17), (15, 10)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 9) map=(3, 37) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 37) coords=(13, 9) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L57 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 64/64 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=15,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L57 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 3 (eff x0.5) vs tentacool 9/64 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=45) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=14,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L57 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs shellder 58/58 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 58 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] JUST FIGHT: L57 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs shellder 58/58 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 58 across the full turn -> accuracy-debuff spiral (streak 2/3)
+   [play-live]    [engine] JUST FIGHT: L57 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs shellder 58/58 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Water Pulse(p60*STAB,pp=20,ref=0,sc=22.5) [2]Skull Bash(p100,pp=15,ref=0,sc=50) [3]Surf(p95*STAB,pp=13,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] releasing 1 stale NPC block(s) [(13, 10)] — tile(s) read empty now (wanderer moved on)
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10) AND no NPC-allowing path (npcs nearby=[(12, 9), (12, 17), (14, 10)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 10) map=(3, 37) (reason=no_route) -> returning to roam LOUD (no inner spin)
