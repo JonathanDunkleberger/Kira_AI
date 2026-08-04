@@ -1097,6 +1097,12 @@ ROAD_BLOCKER_KEYS = {
     # gates bill missing='surf'/'seafoam'/'secret_key' (GYM_PREREQS + _seafoam_gate/_mansion_gate).
     "surf", "strength", "gold_teeth", "seafoam", "secret_key",
 }
+# LEGENDARY-HUNT questline keys (2026-08-04): deliberately NOT in ROAD_BLOCKER_KEYS — a trophy
+# hunt must never hijack the badge march from across the map. GO-HARD instead waives its park
+# for these via a PROXIMITY test (_hunt_anchor_proximate): the hunt runs only when its anchor
+# country is the map under her feet or one live edge-connection away (the Cinnabar->Route 20
+# Articuno return after the Ultra restock). Keys match Gate.missing (frlg_gates.json entries).
+LEGENDARY_HUNT_KEYS = {"zapdos", "articuno", "mewtwo"}
 GYM_PREREQS = {
     "Sabrina": (0x3E, "FLAG_HIDE_SAFFRON_ROCKETS",
                 "Sabrina's gym is blocked — Team Rocket has Silph Co. locked down in the middle of the city"),
@@ -12831,6 +12837,29 @@ class Campaign:
                              "and the Master Ball has been waiting for exactly this.",
                        detail={"flag": "FLAG_FOUGHT_MEWTWO"})
 
+    def _hunt_anchor_proximate(self, key):
+        """GO-HARD HUNT-WAIVER SCOPE (2026-08-04, the parked-hunt bug): is the armed legendary
+        hunt geographically HERE or ONE MAP OVER? True when the current map is in the hunt's
+        anchor set, or when an anchor is a LIVE edge-connection of the current map (map-header
+        ground truth via _map_connections — Cinnabar's east edge IS Route 20, so the Articuno
+        return can launch from town right after the Ultra restock; ANCHOR-FIRST's live-edge
+        shortcut then walks that exact edge). One-map radius BY DESIGN: with Blastoise ace-
+        carrying every remaining gym, GO-HARD is effectively permanent, and an unscoped waiver
+        would let a trophy hunt hijack the badge march from across the map (the reason these
+        keys are NOT in ROAD_BLOCKER_KEYS). Never raises."""
+        try:
+            from legendary_strikes import (ARTICUNO_ANCHORS, MEWTWO_ANCHORS,
+                                           ZAPDOS_ANCHORS)
+            anchors = {"zapdos": ZAPDOS_ANCHORS, "articuno": ARTICUNO_ANCHORS,
+                       "mewtwo": MEWTWO_ANCHORS}.get(key)
+            if not anchors:
+                return False
+            if tuple(tv.map_id(self.b)) in anchors:
+                return True
+            return any(tuple(m) in anchors for _d, m in self._map_connections())
+        except Exception:
+            return False
+
     def _head_to_league(self, state):
         """ENDGAME (NS#15): all 8 badges, not yet at Indigo — dispatch the Victory Road strike. It drives its
         OWN road (Viridian -> Route 22 [Gary] -> the gate -> Route 23 -> the VR boulder floors -> the Indigo
@@ -16231,7 +16260,19 @@ class Campaign:
                 # (set hoisted to module-level ROAD_BLOCKER_KEYS 2026-08-04 — shared with the
                 # team-build breather so roster surgery yields to story liberation.)
                 _road_blocker = (_ql_miss in ROAD_BLOCKER_KEYS) or (_ql_step in ROAD_BLOCKER_KEYS)
-                if _go_hard_now and not _road_blocker:
+                # LEGENDARY-HUNT PROXIMITY WAIVER (2026-08-04, the parked-hunt bug): the hunt
+                # gates (_zapdos/_articuno/_mewtwo_gate) arm dead-last among the luxuries, but
+                # with the L57 Blastoise ace-carrying every remaining gym GO-HARD is effectively
+                # PERMANENT — an armed hunt parked here would stay parked all the way to the E4,
+                # defeating its purpose (Jonny wants Zapdos/Articuno as pre-E4 E4-answers).
+                # NOT road-blocker class (a trophy hunt must never hijack the badge march from
+                # across the map): the park is waived ONLY when the hunt is here or one live
+                # edge away (_hunt_anchor_proximate — anchors from legendary_strikes, plus the
+                # map-header connections so the Articuno return launches from Cinnabar itself).
+                _hunt_key = (_ql_miss if _ql_miss in LEGENDARY_HUNT_KEYS
+                             else (_ql_step if _ql_step in LEGENDARY_HUNT_KEYS else None))
+                _hunt_here = _hunt_key is not None and self._hunt_anchor_proximate(_hunt_key)
+                if _go_hard_now and not _road_blocker and not _hunt_here:
                     log("   [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack "
                         f"('{_ql_miss}'/step={_ql_step} errand parked, not cleared) — driving "
                         f"THE GYM DOOR, not the errand")
@@ -16240,6 +16281,10 @@ class Campaign:
                         log(f"   [roam] !! GO-HARD WAIVES questline park — "
                             f"'{_ql_miss}'/step={_ql_step} is ON the billed road "
                             f"(not a detour); running the unlock errand")
+                    elif _go_hard_now and _hunt_here:
+                        log(f"   [roam] !! GO-HARD WAIVES questline park — LEGENDARY HUNT "
+                            f"'{_hunt_key}' anchors HERE or one map over (proximity waiver); "
+                            f"running the hunt, the march resumes right after")
                     return self._run_questline_step(state)
             # BATCH 6 PHASE 1 — SHE ACTUALLY CLIMBS. The loop's whole point: when she's AT the next gym's
             # city, don't just mill around — ENTER the gym, clear its junior trainers, beat the leader,
