@@ -3960,6 +3960,33 @@ class BattleAgent:
                               f"then we're done balling Digletts.",
                               beat=True, tier=2)
                     return self._divert_wild_catch("diglett_keeper", foe, max_seconds)
+            elif _wild and not getattr(self, "_skip_catch_divert", False) and 1 <= esp <= 151:
+                # DEX PUSH DIVERT (2026-08-04, Jonny: 'she is not catching enough pokemon for
+                # the exp share thing' — the dex sat at 13/50 while the catch-every-new-species
+                # doctrine lived ONLY in the strategist brief, a text hint this fight engine
+                # never read). The Route 15 aide pays the EXP. SHARE at 50 CAUGHT species, so
+                # every KO'd new species is a wasted bar tick. Programmatic now: an UNOWNED
+                # wild species is a CATCH, not a fight, while badges>=5, the aide's flag is
+                # unclaimed, the bar is short, and there are balls to spare (>=2 — the last
+                # ball stays reserved for a shiny/legendary moment). Fail-safe end to end:
+                # catch_pokemon is time-bounded, a miss fight-clears as normal, and any read
+                # fault just skips the divert (she fights like before).
+                try:
+                    import field_moves as _fm
+                    _dexable = (not _fm.read_flag(self.b, 0x256)      # Exp. Share unclaimed
+                                and sum(1 for i in range(8)
+                                        if _fm.read_flag(self.b, 0x820 + i)) >= 5
+                                and (ram.pokedex_owned_count(self.b) or 0) < 50
+                                and self._dex_owns_species(esp) is False
+                                and self._ball_count() >= 2)
+                except Exception:
+                    _dexable = False
+                if _dexable:
+                    _owned_n = ram.pokedex_owned_count(self.b) or 0
+                    self.emit(f"a {foe} — that's a NEW one for the dex. balls out "
+                              f"({_owned_n}/50 caught — the Route 15 aide hands over an "
+                              f"Exp. Share at fifty).", beat=True, tier=2)
+                    return self._divert_wild_catch("dex_push", foe, max_seconds)
 
         last_glob, stall = None, 0
         # victory_run7 (2026-07-07): gMoveToLearn is STALE across battles — snapshot at attach so

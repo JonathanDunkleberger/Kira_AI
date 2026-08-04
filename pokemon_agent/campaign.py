@@ -13351,7 +13351,22 @@ class Campaign:
         # walking out of a Mart with an empty ball pocket. Never leave with fewer than 2.
         keeper_due = bool(state) and self._keeper_due(state)
         ball_target = SHOP_BALL_KEEPER_TARGET if keeper_due else SHOP_BALL_TARGET
-        if (self._thin_team() or self._ball_count() < 2 or keeper_due) and self._ball_count() < ball_target:
+        # DEX PUSH BALL FLOOR (2026-08-04, the 13/50 Exp. Share bar): the battle engine now
+        # diverts EVERY unowned wild species to a catch (battle_agent dex_push divert), and it
+        # reserves the last ball for shiny/legendary moments — so a 5-ball pocket runs dry in
+        # a couple of grass crossings. While the push is live (badges>=5, aide unpaid, <50
+        # owned), every Mart trip keeps the pocket at 10.
+        _dex_push = False
+        try:
+            _dex_push = ((state or {}).get("badge_count", 0) >= 5
+                         and not fm.read_flag(self.b, 0x256)
+                         and (self.pokedex_count() or 99) < 50)
+        except Exception:
+            pass
+        if _dex_push:
+            ball_target = max(ball_target, 10)
+        if (self._thin_team() or self._ball_count() < 2 or keeper_due or _dex_push) \
+                and self._ball_count() < ball_target:
             sl.append((ITEM_POKE_BALL, ball_target - self._ball_count()))
         # Afflictions she's felt on the road + KB foresight for the NEXT gym (Surge Parlyz
         # Heal before Thunder Wave ever lands — 2026-08-02 Bulbapedia kit). Prefer the
