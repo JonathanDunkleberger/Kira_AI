@@ -421,6 +421,29 @@ GIOVANNI_GYM_ENABLED = os.getenv("POKEMON_GIOVANNI_GYM", "1") != "0"
 ENDGAME_INDIGO = (3, 9)                                        # the Indigo Plateau exterior
 VICTORY_ROAD_ENABLED = os.getenv("POKEMON_VICTORY_ROAD", "1") != "0"
 E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
+# THE VICTORY LAP (2026-08-04, post-Giovanni — Jonny's parked endgame wishes are DUE in the
+# 8-badge pre-E4 window, and before this nothing sequenced them: next_gym derives to None, the
+# gym-keyed proactive chain goes dead, a parked luxury errand (fly) hogs the one questline slot,
+# and head_to_league marches straight at Victory Road). The fix is an EXPLICIT checklist that
+# holds the League actions off the menu until every item is DONE or HONESTLY SKIPPED, in an
+# explicit route order from her post-Giovanni position (Viridian, top of the R21 sea road):
+#   1. earthquake — TM26 (Giovanni's reward, ITEM_TM26=314, move 89) onto the ace via the proven
+#      TeachFlow (zero travel; Surf/Ice Beam/HM field moves are never the forgotten move);
+#   2. moltres   — Bill still waits in the Cinnabar PC and the R21 sea road south is the road she
+#      just surfed: the Sevii round-trip FIRST (the strike + ride-home hook drive the whole loop);
+#   3. articuno  — Seafoam's Route-20 doors are one map east of Cinnabar (the ride-home dock);
+#   4. eevee     — the Celadon Condominiums roof ball on the walk back north-east (the promised
+#      quest since Celadon; the Jolteon rite picks it up from there);
+#   5. zapdos    — the Route 10 / Power Plant spur last; the League march re-derives from anywhere.
+# 'Honestly skipped' = the hunts' own self-suppression truths (caught/battled-away, Bill gone,
+# Seafoam boulders never dropped) plus a bounded failed-dispatch counter -> a loud '[lap] SKIP' —
+# never an infinite park. While an item is owed the 'victory_lap' action replaces head_to_league
+# on the menu AND force-picks (the order lives in code+logs, not in the oracle's mood).
+# Mewtwo is deliberately NOT on the lap: its gate only arms post-champion (FLAG_SYS_GAME_CLEAR).
+# Disable with POKEMON_VICTORY_LAP=0 (reverts to the straight-at-the-League NS#15 dispatch).
+VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
+VICTORY_LAP_ORDER = ("earthquake", "moltres", "articuno", "eevee", "zapdos")
+VICTORY_LAP_MAX_FAILS = int(os.getenv("POKEMON_VICTORY_LAP_FAILS", "6"))
 # ── RUN-4 (2026-07-14): the E4-READINESS GATE. The solo-ace disqualify failed THREE runs — the ace
 # out-levels the bench through the cave/gauntlet endgame and solos the E4 to L100 while the bench freezes
 # ~L31 (disqualified on team-shape all three times, even after the 5add821 map-type relax). Jonny-adjudicated
@@ -12912,6 +12935,316 @@ class Campaign:
         except Exception:
             return False
 
+    # ── THE VICTORY LAP (2026-08-04): the post-badge-8, pre-E4 checklist ────────────────────
+    # pret-verified facts the lap leans on: ITEM_TM26=314 / MOVE_EARTHQUAKE=89 (Giovanni's
+    # reward, giovanni_gym.py banks it); FLAG_GOT_EEVEE=0x263 (Celadon Condominiums roof room);
+    # FLAG_FOUGHT_{MOLTRES,ARTICUNO,ZAPDOS}=0x2BD/0x2BE/0x2BF with hide-flags 0x052/0x082/0x05D;
+    # FLAG_HIDE_CINNABAR_POKEMON_CENTER_BILL=0x0A2 (Bill gone = Sevii closed pre-champion);
+    # FLAG_HIDE_SEAFOAM_ISLANDS_B3F_BOULDER_{1,2}=0x046/0x047 (still set = B4F current live).
+    _LAP_HUNT_SPEC = {"moltres": (146, 0x052, 0x2BD), "articuno": (144, 0x082, 0x2BE),
+                      "zapdos": (145, 0x05D, 0x2BF)}          # species, hide-flag, fought-flag
+    _LAP_EQ_ITEM, _LAP_EQ_TM, _LAP_EQ_MOVE = 314, 26, 89
+    # Moves the Earthquake teach may NEVER overwrite: the field HMs travel depends on (Cut 15,
+    # Fly 19, Surf 57, Strength 70, Flash 148, Rock Smash 249, Dive 291, Waterfall 127) plus
+    # the battle staples Ice Beam 58 and Earthquake 89 itself.
+    _LAP_EQ_PROTECT = frozenset({15, 19, 57, 70, 127, 148, 249, 291, 58, 89})
+    _LAP_EQ_CHARGE = frozenset({13, 76, 91, 130, 143})   # RazorWind/SolarBeam/Dig/SkullBash/SkyAttack
+
+    def _lap_ace_slot(self):
+        """Party slot of the ACE (highest level). None when the party is unreadable/empty."""
+        try:
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            if not cnt:
+                return None
+            return max(range(min(cnt, 6)),
+                       key=lambda s: self.b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54))
+        except Exception:
+            return 0
+
+    def _lap_skip(self, key, why):
+        """HONEST SKIP: latch a lap item as given-up-on, LOUD — the same self-suppression
+        philosophy the hunts use. A skipped item never blocks the League again this run."""
+        skipped = getattr(self, "_lap_skipped", None)
+        if skipped is None:
+            skipped = self._lap_skipped = set()
+        if key in skipped:
+            return
+        skipped.add(key)
+        log(f"   [lap] ⏭️ HONEST SKIP '{key}': {why} — the lap moves on (never an infinite park)")
+        try:
+            self.on_event(f"calling it on the {key} side quest — {why}. the League won't "
+                          f"wait forever.", kind="route", tier=2)
+        except Exception:
+            pass
+
+    def _lap_note_fail(self, key, why):
+        """Bounded-attempts ledger: a lap item whose dispatch keeps failing gets honestly
+        skipped after VICTORY_LAP_MAX_FAILS — the checklist can never wedge the endgame."""
+        fails = getattr(self, "_lap_fails", None)
+        if fails is None:
+            fails = self._lap_fails = {}
+        fails[key] = fails.get(key, 0) + 1
+        log(f"   [lap] '{key}' dispatch failed ({why}) — bounded attempt "
+            f"{fails[key]}/{VICTORY_LAP_MAX_FAILS}")
+        if fails[key] >= VICTORY_LAP_MAX_FAILS:
+            self._lap_skip(key, f"{fails[key]} bounded dispatch attempts spent (last: {why})")
+
+    def _lap_sevii_stranded(self):
+        """True while she stands on a Sevii map that is NOT the ride-home dock chain's mainland
+        ends — the MOLTRES RIDE-HOME hook owns those turns; mainland lap errands must not arm."""
+        try:
+            from legendary_strikes import MOLTRES_ANCHORS
+            here = tuple(tv.map_id(self.b))
+            return here in MOLTRES_ANCHORS and here not in ((3, 8), (12, 5))
+        except Exception:
+            return False
+
+    def _lap_pending(self, key):
+        """Is this checklist item still OWED? Reads the RAW truth (dex/flags/bag) — deliberately
+        NOT the gates' armed/suppressed view, so a ball-thin hunt still reads pending (the lap
+        fixes the balls itself). Structural dead-ends latch an honest skip here. Fails toward
+        NOT-pending on read errors — a RAM flake must never park the League march. Never raises."""
+        if key in getattr(self, "_lap_skipped", set()):
+            return False
+        try:
+            b = self.b
+            if key == "earthquake":
+                import hm_teach as ht
+                slot = self._lap_ace_slot()
+                if slot is None:
+                    return False
+                if self._LAP_EQ_MOVE in (st.read_party_moves(b, slot) or []):
+                    return False                              # already knows Earthquake — done
+                if ht.tm_case_row(b, self._LAP_EQ_ITEM) is None:
+                    self._lap_skip(key, "TM26 is not in the TM case (never banked or already spent)")
+                    return False
+                if not ht.tm_compatible(b, self._LAP_EQ_TM, st.read_party_species(b, slot)):
+                    self._lap_skip(key, "the ace can't learn TM26 per the ROM learnset")
+                    return False
+                return True
+            if key == "eevee":
+                return EEVEE_FETCH_ENABLED and not fm.read_flag(b, 0x263)
+            spec = self._LAP_HUNT_SPEC.get(key)
+            if spec is None or not LEGENDARY_HUNTS_ENABLED:
+                return False
+            sp, hide, fought = spec
+            if ram.pokedex_owns(b, sp) is True or fm.read_flag(b, fought) or fm.read_flag(b, hide):
+                return False                                  # caught, or battled-away — done
+            if key == "moltres" and fm.read_flag(b, 0x0A2) and not self._lap_sevii_stranded():
+                self._lap_skip(key, "Bill is gone from the Cinnabar PC — the Sevii ferry is "
+                                    "closed pre-champion")
+                return False
+            if key == "articuno" and (fm.read_flag(b, 0x046) or fm.read_flag(b, 0x047)):
+                self._lap_skip(key, "a Seafoam B3F boulder never dropped — B4F's rip current "
+                                    "makes the bird unreachable")
+                return False
+            return True
+        except Exception as e:
+            log(f"   [lap] pending-check for '{key}' unreadable ({e}) — counting it done (LOUD)")
+            return False
+
+    def _victory_lap_next(self, state=None):
+        """The FIRST owed item in the EXPLICIT route order (VICTORY_LAP_ORDER), or None when the
+        checklist is clear. Logs the full verdict whenever it changes so soak reports confess
+        the sequencing."""
+        if not VICTORY_LAP_ENABLED:
+            return None
+        verdict = {}
+        for k in VICTORY_LAP_ORDER:
+            verdict[k] = ("pending" if self._lap_pending(k)
+                          else ("SKIPPED" if k in getattr(self, "_lap_skipped", set()) else "done"))
+        nxt = next((k for k in VICTORY_LAP_ORDER if verdict[k] == "pending"), None)
+        if verdict != getattr(self, "_lap_verdict_logged", None):
+            self._lap_verdict_logged = dict(verdict)
+            log(f"   [lap] CHECKLIST {verdict} -> next: {nxt or '— CLEAR'}")
+            if nxt is None:
+                log("   [lap] 🏁 CHECKLIST CLEAR — the League road opens (head_to_league resumes)")
+        return nxt
+
+    def _lap_gate_for(self, key, state):
+        """The proactive gate object for a lap item (the SAME gates the forward-questline chain
+        uses — anchors, questline payloads, self-suppression all included). None = suppressed."""
+        fn = {"moltres": self._moltres_gate, "articuno": self._articuno_gate,
+              "zapdos": self._zapdos_gate, "eevee": self._eevee_gate}.get(key)
+        return fn(state) if fn else None
+
+    def _lap_eq_forget_idx(self, slot):
+        """Pick the move Earthquake replaces: Teleport-class utility first, then charge moves
+        (the battle engine never drives 2-turn moves well), then pure status, then the weakest
+        damaging chip — NEVER a protected move (Surf / Ice Beam / field HMs / EQ itself).
+        None = a free slot exists; 'no_room' = all four are protected (caller refuses)."""
+        import hm_teach as ht
+        moves = st.read_party_moves(self.b, slot) or []
+        if len([m for m in moves if m]) < 4:
+            return None
+        best = None
+        for i, m in enumerate(moves):
+            if not m or m in self._LAP_EQ_PROTECT:
+                continue
+            try:
+                _t, power = st.move_info(self.b, m)
+            except Exception:
+                _t, power = "", 0
+            tier = (0 if m in getattr(ht, "_FORGET_FIRST", set()) else
+                    1 if m in self._LAP_EQ_CHARGE else
+                    2 if (power or 0) <= 0 else 3)
+            k = (tier, power or 0, i)
+            if best is None or k < best:
+                best = k
+        return "no_room" if best is None else best[2]
+
+    def _lap_teach_earthquake(self):
+        """TM26 EARTHQUAKE -> the ace (Jonny's order; chat is asking live). Rides the PROVEN
+        overworld TeachFlow (the exact vehicle that taught Surf) with the protected forget
+        choice above. Returns 'taught' | 'no_room' | anything else = failed this attempt."""
+        import hm_teach as ht
+        b = self.b
+        slot = self._lap_ace_slot()
+        if slot is None:
+            return "failed"
+        sp = st.read_party_species(b, slot)
+        mon = st.SPECIES_NAME.get(sp, f"slot{slot}")
+        try:                                    # ROM sanity: move 89 must be Ground with power
+            rt, rp = st.move_info(b, self._LAP_EQ_MOVE)
+            if (rt or "").lower() != "ground" or not rp:
+                log(f"   [lap] !! EQ teach REFUSED: ROM reads move 89 as {rt}/{rp} — LOUD")
+                return "failed"
+        except Exception:
+            pass
+        forget = self._lap_eq_forget_idx(slot)
+        if forget == "no_room":
+            log(f"   [lap] !! EQ teach: every move on {mon} is protected (Surf/Ice Beam/HMs) — "
+                f"refusing to overwrite a staple")
+            return "no_room"
+        log(f"   [lap] 🌍 TEACHING TM26 EARTHQUAKE -> {mon} (slot {slot}, "
+            f"forget_idx {'-' if forget is None else forget})")
+        self.on_event("Giovanni's TM26 — EARTHQUAKE, straight onto my ace. chat has been "
+                      "asking for exactly this.", kind="team", tier=3)
+        r = ht.TeachFlow(self, log=log, on_event=self.on_event).teach(
+            "_tm", slot, forget, item_override=self._LAP_EQ_ITEM,
+            move_override=self._LAP_EQ_MOVE)
+        log(f"   [lap] EQ teach -> {r}")
+        if r == "taught":
+            try:
+                tp = getattr(self, "team_planner", None)
+                if tp is not None:
+                    tp.on_teach("TM26", mon)
+            except Exception:
+                pass
+            self.on_event(f"{mon} knows EARTHQUAKE now. the Elite Four is going to feel the "
+                          f"ground move.", kind="team", tier=3)
+        return r
+
+    def _lap_restock_balls(self, state, key):
+        """A hunt is owed but the pocket can't carry the catch (under _hunt_ready's 6-spendable-
+        ball floor) — the lap drives the restock itself instead of letting the gate self-suppress
+        forever: buy at THIS city's mapped mart if it shelves a ball tier, else march toward the
+        nearest mapped ball shelf. Bounded by the item's fail counter."""
+        have = sum(self._balls_pocket_count(i) for i in (2, 3, 4))
+        here = tuple(tv.map_id(self.b))
+        log(f"   [lap] '{key}' is owed but the ball pocket is thin ({have} spendable, need 6) — "
+            f"the lap restocks BEFORE the hunt")
+        door = CITY_MART_DOORS.get(here)
+        shelf = MART_STOCK.get(here, [])
+        tier = next((t for t in (2, 3, 4) if t in shelf), None)
+        if tier is not None and self.money() > SHOP_MONEY_FLOOR and (door or here == CELADON):
+            want = [(tier, max(2, 8 - have))]
+            bought = (self.buy_at_celadon_dept(want) if here == CELADON
+                      else self.buy_at_mart(door, want)) or {}
+            if bought.get(tier):
+                log(f"   [lap] restocked {bought[tier]}x ball tier {tier} at {here} — "
+                    f"the hunt re-arms next tick")
+                return "ok"
+            self._lap_note_fail(key, "mart restock bought nothing")
+            return "ok"
+        tgt = next((c for c in (FUCHSIA, SAFFRON, CELADON, CERULEAN, VERMILION)
+                    if any(t in MART_STOCK.get(c, []) for t in (2, 3, 4))), FUCHSIA)
+        log(f"   [lap] no ball shelf here {here} — marching to {tgt} for the restock")
+        return self._travel_to_known(f"travel:{tgt[0]},{tgt[1]}", state, hunt_on_arrival=False)
+
+    def _run_victory_lap(self, state):
+        """EXECUTOR for the 'victory_lap' pick: run the FIRST owed checklist item. Earthquake
+        teaches in place; the hunts/Eevee arm their own proactive gates (evicting a mismatched
+        parked luxury errand LOUD) and ride the questline machinery — FIRE-FIRST strikes on
+        anchors, ANCHOR-FIRST travel everywhere else. Ball-thin hunts run the restock leg
+        first. Every decision logs under [lap]; failures are bounded per item (-> honest
+        skip), so the checklist can never wedge the endgame."""
+        key = self._victory_lap_next(state)
+        if key is None:
+            return "lap_done"
+        if key != "moltres" and self._lap_sevii_stranded():
+            log(f"   [lap] '{key}' is next but she's still on the archipelago — the MOLTRES "
+                f"RIDE-HOME hook owns this turn")
+            return "ok"
+        if key == "earthquake":
+            r = self._lap_teach_earthquake()
+            if r == "taught":
+                (getattr(self, "_lap_fails", None) or {}).pop(key, None)
+            elif r == "no_room":
+                self._lap_skip(key, "no sacrificable move slot on the ace")
+            else:
+                self._lap_note_fail(key, f"TeachFlow -> {r}")
+            return "ok"
+        gate = self._lap_gate_for(key, state)
+        if gate is None:
+            # Owed by raw truth but the gate self-suppresses. Ball-thin is OURS to fix; any
+            # other suppression counts a bounded failure (the pending test already latched
+            # the structural dead-ends as honest skips).
+            reason = None
+            try:
+                spec = self._LAP_HUNT_SPEC.get(key)
+                if spec is not None:
+                    reason = self._hunt_ready(*spec)
+            except Exception:
+                reason = "unreadable"
+            if reason == "balls":
+                return self._lap_restock_balls(state, key)
+            self._lap_note_fail(key, f"gate self-suppressed ({reason or 'condition'})")
+            return "ok"
+        cur = self._active_questline
+        if cur is not None and getattr(cur.gate, "missing", None) != gate.missing:
+            self._clear_questline(f"the victory lap's '{key}' outranks the parked "
+                                  f"'{getattr(cur.gate, 'missing', '?')}' errand")
+            cur = None
+        if cur is None and not self._open_questline(gate, state):
+            self._lap_note_fail(key, "questline would not open")
+            return "ok"
+        r = self._run_questline_step(state)
+        log(f"   [lap] '{key}' questline step -> {r}")
+        if not self._lap_pending(key):
+            (getattr(self, "_lap_fails", None) or {}).pop(key, None)
+            log(f"   [lap] ✅ '{key}' DONE — the checklist re-derives next tick")
+        elif r in ("questline_unresolved", "questline_abandoned", "no_questline",
+                   "questline_strike_failed", "stuck", "failed"):
+            self._lap_note_fail(key, r)
+        return r
+
+    def _lap_order_party_for_e4(self):
+        """DELIBERATE E4 party order (2026-08-04): ace first, then every fighter by level
+        descending, the low-level passengers LAST — a lead faint falls through to bodies that
+        fight, not to L18 chaff (e4_strike's answer_lead still retunes the lead per seat).
+        No proven PC-box flow exists, so nobody is boxed — passengers ride in the trunk.
+        Overworld-only, save-safe (_swap_party_slots); no-op mid-battle or on read error."""
+        try:
+            if st.in_battle(self.b):
+                return
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            if cnt < 3:
+                return
+
+            def _lv(s):
+                return self.b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54)
+
+            for pos in range(cnt - 1):                    # selection sort by level, descending
+                best = max(range(pos, cnt), key=_lv)
+                if best != pos:
+                    self._swap_party_slots(pos, best)
+            order = [f"{st.SPECIES_NAME.get(st.read_party_species(self.b, s), '?')} L{_lv(s)}"
+                     for s in range(cnt)]
+            log(f"   [lap] E4 PARTY ORDER (ace first, passengers last): {order}")
+        except Exception as e:
+            log(f"   [lap] E4 party ordering skipped ({e}) — standing order goes in (LOUD)")
+
     def _head_to_league(self, state):
         """ENDGAME (NS#15): all 8 badges, not yet at Indigo — dispatch the Victory Road strike. It drives its
         OWN road (Viridian -> Route 22 [Gary] -> the gate -> Route 23 -> the VR boulder floors -> the Indigo
@@ -12946,6 +13279,10 @@ class Campaign:
                     log(f"   !! VR-GRIND pre-gauntlet errored ({e}) — proceeding to the E4 (LOUD)")
             import e4_strike
             dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "e4_probe")
+            # DELIBERATE E4 PARTY ORDER (2026-08-04, the victory lap's last act): ace lead, the
+            # fighters (birds/Lapras) by level behind, the low-level passengers LAST — set ONCE
+            # at the League door; e4_strike's answer_lead still retunes the lead per seat.
+            self._lap_order_party_for_e4()
             self.on_event("the Indigo Plateau. the Elite Four are right through those doors. "
                           "everything's led to this — okay. let's go.", kind="gym", tier=2)
             r = e4_strike.run_strike(self, log, dbg_dir=dbg)
@@ -13397,6 +13734,30 @@ class Campaign:
             if (time.time() < getattr(self, "_bpp_hold_until", 0)
                     and cur_map in getattr(self, "_bpp_maps", set())):
                 return
+            # THE VICTORY LAP OWNS THE ERRAND SLOT (2026-08-04): at 8 badges the gym-keyed chain
+            # below is dead (next_gym=None) and the luxury order (tea→bike→flute→fly…) let a
+            # parked FLY errand hog the ONE questline slot from badge 5 all the way to the League
+            # — exactly how the Eevee fetch starved without ever firing. While a lap item is
+            # owed, ITS gate is the errand: arm it here (evicting a mismatched parked luxury,
+            # LOUD) so FIRE-FIRST anchors + ANCHOR-FIRST routing serve the checklist. Earthquake
+            # needs no errand (it teaches in place via the victory_lap pick), and mainland
+            # errands never arm while she's mid-archipelago (the ride-home hook owns those turns).
+            if (VICTORY_LAP_ENABLED and int(state.get("badge_count") or 0) >= 8
+                    and not state.get("post_game")):
+                _lk = self._victory_lap_next(state)
+                if (_lk is not None and _lk != "earthquake"
+                        and not (_lk != "moltres" and self._lap_sevii_stranded())):
+                    _lg = self._lap_gate_for(_lk, state)
+                    _cq = self._active_questline
+                    _cur_miss = getattr(getattr(_cq, "gate", None), "missing", None)
+                    if _lg is not None and _cur_miss != _lg.missing:
+                        if _cq is not None:
+                            self._clear_questline(f"victory lap '{_lk}' outranks the parked "
+                                                  f"'{_cur_miss}' errand")
+                        if self._open_questline(_lg, state):
+                            log(f"   [lap] 🏁 VICTORY LAP arms '{_lk}' — the pre-E4 checklist "
+                                f"owns the errand slot (order: "
+                                f"{' → '.join(VICTORY_LAP_ORDER)})")
             # Already on an errand → re-derive against LIVE RAM so a just-completed step advances or the
             # whole questline self-clears (the gate opened). Keeps the ctx + action-set honest WITHOUT
             # walking a step here (the executor walks it when she picks head_to_gym).
@@ -14546,7 +14907,20 @@ class Campaign:
         # endgame-aware chooser) rides it because its ctx names the League as the one thing left.
         elif int(state.get("badge_count", 0)) >= 8 and not state.get("post_game"):
             _emp = tuple(state.get("map") or ())
-            if _emp != ENDGAME_INDIGO and VICTORY_ROAD_ENABLED:
+            # THE VICTORY LAP HOLDS THE LEAGUE DOOR (2026-08-04): while a pre-E4 checklist item
+            # is owed (Earthquake → Moltres → Articuno → Eevee → Zapdos, each done-or-honestly-
+            # skipped), head_to_league/enter_league are OFF the menu and 'victory_lap' is the
+            # endgame action — the lap's order lives in code, not in the oracle's mood.
+            _lap_key = self._victory_lap_next(state)
+            if _lap_key is not None:
+                a["victory_lap"] = (
+                    f"the VICTORY LAP — all 8 badges are banked and the League can wait one "
+                    f"beat: '{_lap_key}' is next on the pre-E4 checklist (Earthquake on the ace, "
+                    f"then Moltres, Articuno, the promised Eevee, Zapdos — in that order). "
+                    f"Finish the lap, THEN storm the Elite Four with the team of a lifetime.")
+                log(f"   [lap] checklist owes '{_lap_key}' — victory_lap is the endgame action "
+                    f"(head_to_league/enter_league held until the lap clears)")
+            elif _emp != ENDGAME_INDIGO and VICTORY_ROAD_ENABLED:
                 a["head_to_league"] = ("all 8 badges are yours — no gyms left. The road to the Pokémon League "
                                        "is open: through Viridian, past your rival on Route 22, up Route 23 and "
                                        "the Victory Road cave to the Indigo Plateau. THIS is the way forward now.")
@@ -15514,7 +15888,8 @@ class Campaign:
         # honors this automatically (it only forces an action still in the offered set).
         if (time.time() < getattr(self, "_bpp_hold_until", 0)
                 and tuple(state.get("map") or ()) in getattr(self, "_bpp_maps", set())):
-            _dropped = [k for k in ("head_to_gym", "head_to_league") if a.pop(k, None) is not None]
+            _dropped = [k for k in ("head_to_gym", "head_to_league", "victory_lap")
+                        if a.pop(k, None) is not None]
             if _dropped:
                 log(f"   [roam] !! BORDER PING-PONG HOLD: {_dropped} off the menu on this thrashed "
                     f"map ({int(getattr(self, '_bpp_hold_until', 0) - time.time())}s left) — "
@@ -16290,6 +16665,11 @@ class Campaign:
         # bench grind (weak ones solo the reachable wilds, ace earns no XP) toward the floor target, then
         # re-ticks; a non-converging team stands down LOUD. GREEN → falls through to the strike. Flag-gated
         # (E4_GATE_ENABLED default ON) so POKEMON_E4_READINESS_GATE=0 reverts to the un-gated dispatch.
+        # THE VICTORY LAP (2026-08-04): runs BEFORE the E4 readiness gate on purpose — the lap
+        # IS part of getting ready (Earthquake + birds raise the team the gate measures), and
+        # its own executor is bounded per item, so it can never park the League forever.
+        if pick == "victory_lap":
+            return self._run_victory_lap(state)
         if E4_GATE_ENABLED and pick in ("head_to_league", "enter_league"):
             _gate = self._e4_readiness_gate(state, pick)
             if _gate is not None:
@@ -18043,6 +18423,20 @@ class Campaign:
                 self._force_gym_pick = False
                 log("   [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED "
                     "(dominant / creator order; grass is OFF the menu)")
+            # FORCE VICTORY LAP (2026-08-04): the pre-E4 checklist is not a taste question —
+            # when the lap action is on the menu it IS the endgame road (explicit order:
+            # Earthquake → Moltres → Articuno → Eevee → Zapdos). Heal still outranks a lap
+            # leg (the hunts are combat dungeons; nobody starts one hurt) — the lap re-forces
+            # next tick at full HP.
+            if _forced_pick is None and "victory_lap" in avail:
+                if "heal" in avail and self.needs_heal():
+                    _forced_pick = "heal"
+                    log("   [lap] !! heal BEFORE the lap leg — a combat dungeon is next; "
+                        "the lap re-forces at full HP")
+                else:
+                    _forced_pick = "victory_lap"
+                    log("   [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns "
+                        "the endgame sequencing; the order is code, not mood)")
             # FORCE STOCK-UP (2026-08-03, the crucial battle lost with an empty-ish bag):
             # standing IN a mart town, wallet healthy, carrying almost no heals = shopping is
             # not a personality question. A real player tops up before walking back into the
