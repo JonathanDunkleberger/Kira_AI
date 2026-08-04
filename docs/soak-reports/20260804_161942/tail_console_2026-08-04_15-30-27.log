@@ -1,0 +1,300 @@
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack and Detective Jones in agreement — ' (15 words)
+   [TurnTiming] 16:15:24.442 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 16:15:28.942 TTS STOP — playback finished (span ~4500ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 2 (batch response); shared=29/30
+   [ChatAge] @zekromite4572 age=30.8s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=27.1s batch=2 preempted=none
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "and detective jones" (3rd use this session)
+   [PromptSize] dynamic_context=12436ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: "Eight badges, Blastoise at 61, and the road to the League is literally open. There is no reason I'm still standing on Route 20."
+   [TIMING] first-word: 1067ms
+   [TTS] Speaking: Let's go get a bird....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Let's go get a bird.' (6 words)
+   [TurnTiming] 16:15:30.209 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:15:31.900 TTS STOP — playback finished (span ~1691ms)
+
+   [TIMING] voice: llm=2948ms(sonnet-stream(llm+tts)) tts=0ms total=2948ms
+   [LATENCY] vad_close=1200ms stt=197ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=4ms ttft=897ms tts_first_chunk=170ms audio_out=183ms TOTAL=1474ms
+   [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: "Okay. Eight badges, team's alive, and the road to the Plateau is literally open. There's no reason I'm not walking through that door right now."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [EmotionSwing] holding SASSY (3 turn(s) left) instead of reverting
+   [ChatterMem] Stored: @zekromite4572 — Suggested Seafoam Islands as a destination and was compared  [playful]
+   [ChatterMem] Stored: @Detective_Jones — Known for agreeing with Zekro, which Kira treats as suspicio [dry]
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 16:15:36.160 VOICE ONSET — mic speech started
+   [Pokemon] SELF WANT: 'get to Pewter City Mart, stock up for Elite Four'
+   [TurnTiming] 16:15:37.516 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1355ms since onset)
+   [VRAM] 16:15:40 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] SELF CHOSE (action): use_surf
+   [Pokemon] her reasoning: 'Okay, "head to league" just did absolutely nothing twice — the road\'s clearly not opening that way. Something\'s jammed. I need Fly first anyway, and that means Route 16 eventually, but right now I\'m on Route 20 with Surf active and Cinnabar\'s right there to the west — Mart, Center, restock before I push for Victory Road.'
+   [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: "Alright, all 8 badges are mine — there's nothing left to do except walk into that Plateau and take what's ours. Let's go."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "on route 1". Do not use them or close variants, and 
+   [Pokemon] event react (bypass=False, tier=2, kind=recover): okay, this isn't working — I'm heading to the Pokémon Center to reset 
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.018 conf=0.9 type=profile_fact blend=0.355 lane=KNOW
+   [SmartMem]     dist=1.118 conf=0.95 type=episodic blend=0.263 lane=KNOW
+   [SmartMem]     dist=1.088 conf=0.9 type=episodic blend=0.247 lane=KNOW
+   >>> Kira (Bored): Pokémon Center, regroup, then Seafoam Islands — Articuno's not going anywhere, but I'm not showing up half-dead either.
+   [TTS] Speaking: Pokémon Center, regroup, then Seafoam Islands — Ar...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Pokémon Center, regroup, then Seafoam Is' (22 words)
+   [TurnTiming] 16:15:51.245 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:15:57.987 TTS STOP — playback finished (span ~6742ms)
+   [TIMING] interjection: vision=0ms llm=3278ms(sonnet) tts=7188ms total=10493ms
+   [LAG] sense→speak: total=3.8s (content_age=0.0s, prep=0.0s, llm=3.3s, tts_wait+synth=0.4s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 16:15:59.203 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~23043ms since onset)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "on route 1". Do not use them or close variants, and 
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "Okay, I'll take your POK.MON for a few seconds."
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.018 conf=0.9 type=profile_fact blend=0.355 lane=KNOW
+   [SmartMem]     dist=1.118 conf=0.95 type=episodic blend=0.263 lane=KNOW
+   [SmartMem]     dist=1.088 conf=0.9 type=episodic blend=0.247 lane=KNOW
+   >>> Kira (Bored): Hold on — someone's taking my Pokémon? I just met you. That's bold.
+   [TTS] Speaking: Hold on — someone's taking my Pokémon?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Hold on — someone's taking my Pokémon?' (8 words)
+   [TurnTiming] 16:16:03.831 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:16:06.556 TTS STOP — playback finished (span ~2725ms)
+   [TTS] Speaking: I just met you....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I just met you.' (5 words)
+   [TurnTiming] 16:16:06.695 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:16:08.291 TTS STOP — playback finished (span ~1595ms)
+   [TTS] Speaking: That's bold....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's bold.' (3 words)
+   [TurnTiming] 16:16:08.432 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:16:09.833 TTS STOP — playback finished (span ~1400ms)
+   [TIMING] interjection: vision=0ms llm=1848ms(sonnet) tts=6222ms total=8096ms
+   [LAG] sense→speak: total=6.7s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=4.8s)
+🎤 Recording... (recovered opening words)
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "on route 1". Do not use them or close variants, and 
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "Thank you for waiting. We've restored your POK.MON to full 
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=18ms rank=0ms)
+   [SmartMem]     dist=1.018 conf=0.9 type=profile_fact blend=0.355 lane=KNOW
+   [SmartMem]     dist=1.118 conf=0.95 type=episodic blend=0.263 lane=KNOW
+   [SmartMem]     dist=1.088 conf=0.9 type=episodic blend=0.247 lane=KNOW
+   [TurnTiming] 16:16:11.085 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~34924ms since onset)
+   >>> Kira (Bored): Team's topped off. Seafoam Islands, here we come.
+   [TTS] Speaking: Team's topped off....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Team's topped off.' (4 words)
+   [TurnTiming] 16:16:12.286 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:16:14.065 TTS STOP — playback finished (span ~1778ms)
+   [TTS] Speaking: Seafoam Islands, here we come....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Seafoam Islands, here we come.' (7 words)
+   [TurnTiming] 16:16:14.251 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 16:16:16.778 TTS STOP — playback finished (span ~2527ms)
+   [TIMING] interjection: vision=0ms llm=2162ms(sonnet) tts=4658ms total=6843ms
+   [LAG] sense→speak: total=4.3s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=2.1s)
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [VRAM] 16:16:25 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0151 · gate=0.003 · 1 accepted
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "on route 1". Do not use them or close variants, and 
+   [Pokemon] event react (bypass=False, tier=2, kind=dialogue, READING register): you read: "The water is dyed a deep blue.. Would you like to SURF?"
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.018 conf=0.9 type=profile_fact blend=0.355 lane=KNOW
+   [SmartMem]     dist=1.118 conf=0.95 type=episodic blend=0.263 lane=KNOW
+   [SmartMem]     dist=1.088 conf=0.9 type=episodic blend=0.246 lane=KNOW
+   [Phrases] Throttling: "here we come" (3rd use this session)
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "on route 1". Do not use them or close variants, and 
+   >>> Kira (Bored): The water's glowing blue and the game's just asking me casually if I want to surf on it. Yeah, obviously yes.
+   [TTS] Speaking: The water's glowing blue and the game's just askin...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The water's glowing blue and the game's ' (19 words)
+   [TurnTiming] 16:16:29.093 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:16:33.399 TTS STOP — playback finished (span ~4306ms)
+   [TTS] Speaking: Yeah, obviously yes....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Yeah, obviously yes.' (5 words)
+   [TurnTiming] 16:16:33.606 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 16:16:35.846 TTS STOP — playback finished (span ~2240ms)
+   [TIMING] interjection: vision=0ms llm=2936ms(sonnet) tts=7082ms total=10044ms
+   [LAG] sense→speak: total=7.8s (content_age=0.0s, prep=0.0s, llm=2.9s, tts_wait+synth=4.8s)
+   [Arbiter] Draining buffered interjection (queued 7.1s ago)
+   [Freshness] DROP stale game-event reaction (age 7.1s > 7s ceiling) — reacting live, not to a corpse
+   [Pokemon] SELF WANT: 'stock up at Cinnabar Mart, then push to Victory Road'
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "on route 1". Do not use them or close variants, and 
+   [Pokemon] event react (bypass=False, tier=2, kind=want): stock up at Cinnabar Mart, then push to Victory Road
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [SmartMem]     dist=1.018 conf=0.9 type=profile_fact blend=0.354 lane=KNOW
+   [SmartMem]     dist=1.118 conf=0.95 type=episodic blend=0.263 lane=KNOW
+   [SmartMem]     dist=1.088 conf=0.9 type=episodic blend=0.246 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 16:16:39.081 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   >>> Kira (Bored): Cinnabar Mart stocked, team healthy — Victory Road's next and I'm not waiting around.
+   [TTS] Speaking: Cinnabar Mart stocked, team healthy — Victory Road...
+   [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: "All 8 badges. Blastoise is built different and the Elite Four is RIGHT THERE. The bench is rough but I'm not stalling forever — it's time to walk through that door."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Cinnabar Mart stocked, team healthy — Vi' (16 words)
+   [TurnTiming] 16:16:41.058 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: 'Eight badges. Five fights between me and the credits. Blastoise is ready, and honestly? So am I.'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: "All 8 badges. The league's right there. My team's not perfect but Blastoise alone has carried worse situations and honestly? I want to see how far we go."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 16:16:46.028 TTS STOP — playback finished (span ~4969ms)
+   [TIMING] interjection: vision=0ms llm=2183ms(sonnet) tts=5301ms total=7511ms
+   [LAG] sense→speak: total=2.5s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=0.3s)
+   [TurnTiming] 16:16:47.227 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~8145ms since onset)
+   [Pokemon] SELF WANT: 'get to Pewter City Mart, stock up, then Elite Four'
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "on route 1". Do not use them or close variants, and 
+   [Pokemon] event react (bypass=False, tier=2, kind=want): get to Pewter City Mart, stock up, then Elite Four
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=1.018 conf=0.9 type=profile_fact blend=0.354 lane=KNOW
+   [SmartMem]     dist=1.118 conf=0.95 type=episodic blend=0.263 lane=KNOW
+   [SmartMem]     dist=1.088 conf=0.9 type=episodic blend=0.246 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] SELF CHOSE (action): travel:3,33
+   [Pokemon] her reasoning: "Okay, I keep trying to walk to the league and the world just... refuses to move. Fine. I need Fly first — Celadon, Route 16, the hidden house. That's the actual next step."
+   >>> Kira (Bored): Pewter, stock up, then straight to Victory Road. No detours, no distractions — we're ending this.
+   [TTS] Speaking: Pewter, stock up, then straight to Victory Road....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Pewter, stock up, then straight to Victo' (10 words)
+   [TurnTiming] 16:16:53.267 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+[YouTube Chat] @zekromite4572: kira go east
+   [BrainWorker] Got youtube msg from @zekromite4572: kira go east → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (action): travel:3,33
+   [Pokemon] her reasoning: "Route 15 still has species I haven't logged, and the EXP Share is sitting there waiting for me to hit 50 caught. That's the move."
+   [TurnTiming] 16:16:56.724 TTS STOP — playback finished (span ~3456ms)
+   [TTS] Speaking: No detours, no distractions — we're ending this....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'No detours, no distractions — we're endi' (10 words)
+   [TurnTiming] 16:16:56.974 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: "Eight badges, all of them mine, and I'm just... standing on Route 20 like a tourist. Time to stop admiring the scenery and go win this thing."
+   [TurnTiming] 16:17:00.446 TTS STOP — playback finished (span ~3471ms)
+   [TIMING] interjection: vision=0ms llm=3301ms(sonnet) tts=7457ms total=10792ms
+   [LAG] sense→speak: total=7.3s (content_age=0.0s, prep=0.0s, llm=3.3s, tts_wait+synth=4.0s)
+🎤 Recording... (recovered opening words)
+   [Pokemon] SELF WANT: 'Articuno before the Elite Four'
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<kira go east>>>' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=42ms rank=0ms)
+   [SmartMem]     dist=0.897 conf=0.95 type=episodic blend=0.198 lane=KNOW
+   [SmartMem]     dist=0.900 conf=0.9 type=episodic blend=0.196 lane=KNOW
+   [SmartMem]     dist=0.915 conf=0.9 type=episodic blend=0.187 lane=KNOW
+   [Phrases] Throttling: "then straight to victory road no detours" (3rd use this session)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: "All 8 badges, a team with a 61 Blastoise at the front, and I'm standing here on Route 20 like I'm on a Sunday stroll. Time to stop messing around — the Indigo Plateau is right there."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Chat Batch of 1): Zack says go east — noted. Following the coach's instructions this time, since firing him clearly wasn't the move.
+   [TTS] Speaking: Zack says go east — noted....
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack says go east — noted.' (7 words)
+   [TurnTiming] 16:17:07.153 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:17:09.677 TTS STOP — playback finished (span ~2523ms)
+   [TTS] Speaking: Following the coach's instructions this time, sinc...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Following the coach's instructions this ' (15 words)
+   [TurnTiming] 16:17:10.005 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): travel:3,39
+   [Pokemon] her reasoning: "Okay, head_to_league has officially broken — I've tried it twice and gone nowhere, so clearly the universe has opinions about my timing.\n\nRoute 21's right there and my bench is embarrassing. Let me grab something worth having."
+   [VRAM] 16:17:10 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF CHOSE (action): travel:3,39
+   [Pokemon] her reasoning: "Route 21 is right there and I still need bodies on this bench — Rattata at 19 is not walking into the Elite Four with me, that's embarrassing for both of us."
+   [TurnTiming] 16:17:14.597 TTS STOP — playback finished (span ~4592ms)
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @zekromite4572 age=20.5s batch=1 preempted=none
+   [Cookies] 🎡 WHEEL — milestone #236, tipper=@zekromite4572, slice=dragon_queen
+   [TTS] Speaking: The jar overflows. @zekromite4572 gets credit. The...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The jar overflows. @zekromite4572 gets c' (22 words)
+   [TurnTiming] 16:17:14.733 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @zekromite4572 — Goes by 'Zack' and has a running bit with Kira about being h [playful]
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 16:17:23.728 TTS STOP — playback finished (span ~8994ms)
+   [Wheel] Executing slice: dragon_queen
+   [TTS] Speaking: The Wheel of Time turns... and crowns me. For the ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The Wheel of Time turns... and crowns me' (35 words)
+   [TurnTiming] 16:17:23.865 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF WANT: 'level up the bench before Elite Four'
+[YouTube Chat] @zekromite4572: but ur dad needs the articuno 
+   [BrainWorker] Got youtube msg from @zekromite4572: but ur dad needs the articuno  → buffering for chat_batch_worker
+   [Pokemon] SELF CHOSE (action): travel:3,39
+   [Pokemon] her reasoning: "Route 21's right here and I still need species for the EXP Share grind — let me see what's swimming around out here before I march on the League."
+   [TurnTiming] 16:17:33.758 TTS STOP — playback finished (span ~9892ms)
+   [Persona] 👑 The Dragon Queen ACTIVE for 300s
+   [Phrases] Throttling: "zack says go" (3rd use this session)
+🎤 Recording... (recovered opening words)
+   [SmartMem] q='The Dragon Queen' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [Pokemon] F-9 tic governor ACTIVE: [RETIRED PHRASES — you've leaned on these too many times recently: "on route 1". Do not use them or close variants, and 
+   >>> Kira (Wheel/dragon_queen): *throne materializes*
+
+People of the realm — your Queen has ascended.
+
+We have a
+   [TTS] Speaking: *throne materializes*
+
+People of the realm — your ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: '*throne materializes*
+
+People of the rea' (171 words)
+   [TurnTiming] 16:17:44.934 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+[YouTube Chat] @NaitHaunter: Kneel
+[YouTube Chat] @Detective_Jones: dragon deez queen
+   [BrainWorker] Got youtube msg from @NaitHaunter: Kneel → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @Detective_Jones: dragon deez queen → buffering for chat_batch_worker
+   [VRAM] 16:17:55 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=moderator/1,partner/1;color=#32C3A2;display-name=Streamlabs;emotes=;first-msg=0;flags=;id=6ea8c1c6-0ba4-452d-a1fb-ba6495b9be5a;mod=1;returning-chatter=0;room-id=632950466;subscribe
+   [TwitchChat] Received from streamlabs: ♟ Think you can beat Kira at chess? She's undefeated against her own creator. Type !chess to challenge the Duchess — the board shows up on stream.
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BotFilter] Ignored bot account 'streamlabs' (twitch) — not stored, not shown, not reacted to.
+[YouTube Chat] @Streamlabs: :chess_pawn: Think you can beat Kira at chess? She's undefeated against her own creator. Type !chess to challenge the Duchess — the board shows up on stream.
+   [BotFilter] Ignored bot account '@Streamlabs' (youtube) — not stored, not shown, not reacted to.
+[YouTube Chat] @zekromite4572: jonny she's stuck in a big loop
+   [BrainWorker] Got youtube msg from @zekromite4572: jonny she's stuck in a big loop → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (9 skip(s))
