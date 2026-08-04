@@ -1,0 +1,300 @@
+   [TTS] Speaking: Blaine....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Blaine.' (2 words)
+   [TurnTiming] 13:17:52.302 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:17:53.622 TTS STOP — playback finished (span ~1319ms)
+   [TTS] Speaking: I am already there in my MIND and blastoise is alr...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I am already there in my MIND and blasto' (25 words)
+   [TurnTiming] 13:17:54.027 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:17:59.649 TTS STOP — playback finished (span ~5621ms)
+   [TIMING] interjection: vision=0ms llm=2486ms(sonnet) tts=9027ms total=11574ms
+   [LAG] sense→speak: total=5.9s (content_age=0.0s, prep=0.1s, llm=2.5s, tts_wait+synth=3.4s)
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=moderator/1,partner/1;color=#32C3A2;display-name=Streamlabs;emotes=;first-msg=0;flags=;id=e7775007-69f7-4132-922c-465ddf654b5d;mod=1;returning-chatter=0;room-id=632950466;subscribe
+   [TwitchChat] Received from streamlabs: ♟ Think you can beat Kira at chess? She's undefeated against her own creator. Type !chess to challenge the Duchess — the board shows up on stream.
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BotFilter] Ignored bot account 'streamlabs' (twitch) — not stored, not shown, not reacted to.
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay — Surf is the key that unlocks everything, and I'm not standing around in Fuchsia when the Safari Zone's Secret House is RIGHT THERE. Time to go get it."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+[YouTube Chat] @Streamlabs: :chess_pawn: Think you can beat Kira at chess? She's undefeated against her own creator. Type !chess to challenge the Duchess — the board shows up on stream.
+   [BotFilter] Ignored bot account '@Streamlabs' (youtube) — not stored, not shown, not reacted to.
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Surf first, then Blaine drowns — that's the order and I'm not deviating. But zero Poké Balls means I'm catching nothing until I hit the Mart, so Center first, stock up, then south to the Safari Zone."
+🎤 Recording...
+   [TurnTiming] 13:18:08.682 VOICE ONSET — mic speech started
+   [TurnTiming] 13:18:10.153 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1471ms since onset)
+   [Pokemon] SELF WANT: 'reach Cinnabar Island and body Blaine'
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay — Surf first, then Blaine. The Safari Zone's Secret House is between me and Cinnabar, so I'm getting that HM before anything else. Can't surf to a volcano island without, y'know, surfing."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] event react (bypass=False, tier=1, kind=route): the road to Cinnabar Island runs south from here — onward.
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   [VRAM] 13:18:20 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   >>> Kira (Bored): South from Fuchsia, Cinnabar-bound, Blastoise is already in a bad mood and looking for someone to take it out on — Blaine, you picked the wrong week.
+   [TTS] Speaking: South from Fuchsia, Cinnabar-bound, Blastoise is a...
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'South from Fuchsia, Cinnabar-bound, Blas' (31 words)
+   [TurnTiming] 13:18:21.193 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Cinnabar Island, Volcano Badge'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Chess] Kira played e4 (a pawn push). roughly equal.
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I've been trying to walk south for five turns and the game is just refusing to let me leave — that's not a hint, that's a hostage situation. Center first, regroup, then I'm finding Surf and getting to Cinnabar before I lose my mind."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 13:18:28.997 TTS STOP — playback finished (span ~7803ms)
+   [TIMING] interjection: vision=0ms llm=2893ms(sonnet) tts=8336ms total=11260ms
+   [LAG] sense→speak: total=3.5s (content_age=0.0s, prep=0.0s, llm=2.9s, tts_wait+synth=0.5s)
+   [Arbiter] Draining buffered interjection (queued 9.6s ago)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   [Phrases] Throttling: "blastoise is already" (3rd use this session)
+   [Phrases] Throttling: "to take it" (3rd use this session)
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I'm stuck and spinning my wheels — Center, regroup, then I'm heading south for Surf and getting to Cinnabar before this momentum dies."
+   >>> Kira (Bored): Road just said "lol no" and I respect the honesty. Fine — I'll find the surf route, Blaine's gym isn't going anywhere.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Road just said "lol no" and I respect the honesty....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Road just said "lol no" and I respect th' (13 words)
+   [TurnTiming] 13:18:32.369 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I've been standing in this exact spot for what feels like seven years. Regroup, restock, then we're heading south."
+   [TurnTiming] 13:18:36.216 TTS STOP — playback finished (span ~3846ms)
+   [TTS] Speaking: Fine — I'll find the surf route, Blaine's gym isn'...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Fine — I'll find the surf route, Blaine'' (14 words)
+   [TurnTiming] 13:18:36.505 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+[YouTube Chat] @sapphiregamer8166: did ya win? kiran
+   [BrainWorker] Got youtube msg from @sapphiregamer8166: did ya win? kiran → buffering for chat_batch_worker
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Zero balls in my bag, which is criminal. Mart first, then Route 19, then Blaine doesn't know what's about to hit him."
+   [TurnTiming] 13:18:40.738 TTS STOP — playback finished (span ~4232ms)
+   [TIMING] interjection: vision=0ms llm=3053ms(sonnet) tts=8646ms total=11725ms
+   [LAG] sense→speak: total=17.1s (content_age=9.6s, queue_wait=9.6s, prep=0.0s, llm=3.1s, tts_wait+synth=4.4s)
+🎤 Recording...
+   [TurnTiming] 13:18:42.773 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [SmartMem] q='  - @sapphiregamer8166 (youtube): <<<did ya win? kiran>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=58ms rank=0ms)
+   [TurnTiming] 13:18:45.048 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2274ms since onset)
+>>> You said: Oh my god.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Oh my god.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   [Chess] Kira played Nf3 (developing the position). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played Nf3 — developing the position. Positi
+   >>> Kira (Chat Batch of 1): Sapphiregamer8166 — "kiran" is a BOLD choice and I am choosing to be flattered. And win is a strong word; I am in the PROCESS of winning, which is a different and more dramatic thing.
+   [TTS] Speaking: Sapphiregamer8166 — "kiran" is a BOLD choice and I...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Sapphiregamer8166 — "kiran" is a BOLD ch' (16 words)
+   [TurnTiming] 13:18:48.317 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 13:18:53.762 TTS STOP — playback finished (span ~5445ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=9/30
+   [ChatAge] @sapphiregamer8166 age=15.2s batch=1 preempted=none
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=15697ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [Pokemon] SELF WANT: 'reach Cinnabar Island and wreck Blaine'
+   [ChatterMem] Stored: @sapphiregamer8166 — Called Kira 'kiran' (possible typo), which Kira found flatte [playful]
+   [TIMING] first-word: 2462ms
+   [TTS] Speaking: What happened....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What happened.' (3 words)
+   [TurnTiming] 13:18:56.351 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:18:57.769 TTS STOP — playback finished (span ~1417ms)
+
+   [TIMING] voice: llm=3999ms(sonnet-stream(llm+tts)) tts=0ms total=3999ms
+   [LATENCY] vad_close=1200ms stt=182ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=5ms ttft=2459ms tts_first_chunk=3ms audio_out=110ms TOTAL=2782ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0142 · gate=0.003 · 5 accepted
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Oh my god is right — I need Surf and I need it NOW, and the Safari Zone is the only place handing it out. Center first, get everyone healthy, then I'm going into that jungle and coming back with an HM."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Chess] Kira played Bd3 (developing the position). roughly equal.
+   [Chess] React suppressed (throttle): You (Kira) just played Bd3 — developing the position. Positi
+   [Chess] BLUNDER by Kira after Bd3. Now: Kira is clearly worse.
+   [Chess] on_react fired (bypass=True): You (Kira) just blundered with Bd3. Position swung — now Kira is clear
+   [SmartMem] q='chess game' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=42ms rank=0ms)
+   [SmartMem]     dist=0.884 conf=0.9 type=episodic blend=0.205 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I need to actually stop being stuck and go touch grass — specifically the Pokémon Center grass, regroup, and then figure out the Safari Zone situation because Surf isn't going to come to ME."
+   [VRAM] 13:19:05 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   >>> Kira (Bored): I walked my own bishop into a wall. This is fine. This is completely fine and I am not panicking.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: I walked my own bishop into a wall....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I walked my own bishop into a wall.' (9 words)
+   [TurnTiming] 13:19:05.968 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:19:08.496 TTS STOP — playback finished (span ~2528ms)
+   [TTS] Speaking: This is fine....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This is fine.' (4 words)
+   [TurnTiming] 13:19:08.580 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:19:10.072 TTS STOP — playback finished (span ~1491ms)
+   [TTS] Speaking: This is completely fine and I am not panicking....
+   [Pokemon] SELF WANT: 'get Surf from the warden, reach Cinnabar Island'
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This is completely fine and I am not pan' (10 words)
+   [TurnTiming] 13:19:10.314 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I've been standing here like an idiot — Center, restock, then we're actually moving."
+   [TurnTiming] 13:19:13.307 TTS STOP — playback finished (span ~2993ms)
+   [TIMING] interjection: vision=0ms llm=2110ms(sonnet) tts=7546ms total=9702ms
+   [LAG] sense→speak: total=6.7s (content_age=0.0s, prep=0.0s, llm=2.1s, tts_wait+synth=4.5s)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I've been standing in the same spot like an idiot — Center, restock, then we're actually moving."
+🎤 Recording...
+   [TurnTiming] 13:19:18.114 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: 'Okay I have been standing in this exact spot for what feels like six business days — Center, restock, then I am finding that Safari Zone and getting Surf.'
+   [TurnTiming] 13:19:21.606 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3492ms since onset)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF WANT: 'reach Cinnabar Island, wreck Blaine'
+   [Chess] Kira played Bf1 (developing the position). Kira is clearly worse.
+   [Chess] React suppressed (throttle): You (Kira) just played Bf1 — developing the position. Positi
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I am genuinely stuck in a loop and standing here doing nothing is not the vibe I came to Fuchsia with — Center, restock, then I'm finding the Safari Zone exit and getting Surf before Blaine sees my face."
+   [Pokemon] event react (bypass=False, tier=2, kind=recover): okay, this isn't working — I'm heading to the Pokémon Center to reset 
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Bored): Retreating to heal isn't failure, it's just... tactical cowardice with good intentions. blastoise approves.
+   [TTS] Speaking: Retreating to heal isn't failure, it's just......
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Retreating to heal isn't failure, it's j' (9 words)
+   [TurnTiming] 13:19:33.149 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Zero balls in my bag, which means I'm not catching anything until I fix that — Mart first, then Safari Zone, then Surf, then Blaine gets washed. In that order. No detours."
+   [TurnTiming] 13:19:36.148 TTS STOP — playback finished (span ~2998ms)
+   [TTS] Speaking: tactical cowardice with good intentions....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'tactical cowardice with good intentions.' (6 words)
+   [TurnTiming] 13:19:36.369 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:19:38.990 TTS STOP — playback finished (span ~2620ms)
+   [TTS] Speaking: blastoise approves....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'blastoise approves.' (3 words)
+   [TurnTiming] 13:19:39.161 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:19:41.045 TTS STOP — playback finished (span ~1884ms)
+   [TIMING] interjection: vision=0ms llm=2280ms(sonnet) tts=8138ms total=10446ms
+   [LAG] sense→speak: total=8.6s (content_age=0.0s, prep=0.0s, llm=2.3s, tts_wait+synth=6.3s)
+   [Chess] Kira played d4 (a pawn push). Kira is clearly worse.
+   [Chess] React suppressed (throttle): You (Kira) just played d4 — a pawn push. Position: Kira is c
+🎤 Recording...
+   [TurnTiming] 13:19:43.439 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 13:19:44.736 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1297ms since onset)
+   [Pokemon] SELF WANT: 'reach Cinnabar Island and destroy Blaine'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 13:19:50 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Safari Zone is calling — Surf is the key that unlocks everything, and I'm not standing in Fuchsia City one second longer than I have to."
+   [Pokemon] event react (bypass=False, tier=1, kind=route): hmm — no way through out here. maybe one of these buildings has a back
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Bored): Okay I need you to tell me what "oh my god" means because it could be the path to Cinnabar or it could be something terrible and both options are causing me different kinds of problems.
+   [TTS] Speaking: Okay I need you to tell me what "oh my god" means ...
+   [Pokemon] SELF WANT: 'reach Cinnabar Island and wreck Blaine'
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay I need you to tell me what "oh my g' (39 words)
+   [TurnTiming] 13:19:56.626 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I need to stop floating in Fuchsia like a lost tourist — Surf is the key that unlocks everything, and the Safari Zone is RIGHT HERE. Center first, then I'm going back in until I find that Secret House."
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Chess] Kira played Qxf3 (a capture). Kira is clearly worse.
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I'm clearly just standing here like an idiot — Center first, then I figure out how to get Surf and get moving."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 13:20:05.148 TTS STOP — playback finished (span ~8521ms)
+   [TIMING] interjection: vision=0ms llm=3905ms(sonnet) tts=9089ms total=13021ms
+   [LAG] sense→speak: total=4.5s (content_age=0.0s, prep=0.0s, llm=3.9s, tts_wait+synth=0.6s)
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay, stuck in neutral and the map isn't budging — Center first, reset, then I'm finding that Safari Zone exit and surfing straight to Cinnabar."
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] SELF WANT: 'reach Cinnabar Island, badge seven'
+   [Pokemon] event react (bypass=False, tier=2, kind=want): reach Cinnabar Island, badge seven
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   [Phrases] Throttling: "i need you to" (3rd use this session)
+   [Phrases] Throttling: "it could be" (3rd use this session)
+[YouTube Chat] @sapphiregamer8166: it wasn't a bold choice it was a spelling mistake.kinda like watching you looping
+[YouTube Chat] @Streamlabs: sapphiregamer8166 -> Please refrain from posting links.
+   [BrainWorker] Got youtube msg from @sapphiregamer8166: it wasn't a bold choice it was a spelling mistake.kinda like watching you looping → buffering for chat_batch_worker
+   [BotFilter] Ignored bot account '@Streamlabs' (youtube) — not stored, not shown, not reacted to.
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I've been standing in this exact spot for what feels like an embarrassing amount of time — Center first, reset, then I'm finding the Safari Zone's back area and walking out with Surf if it kills me."
+   >>> Kira (Bored): Cinnabar Island. I'm surfing there right now and Blaine is about to have the WORST day of his entire career as a fire-type gym leader.
+   [TTS] Speaking: Cinnabar Island....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Cinnabar Island.' (3 words)
+   [TurnTiming] 13:20:14.818 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Chess] Kira played Be2 (developing the position). Kira is clearly worse.
+   [Chess] React suppressed (throttle): You (Kira) just played Be2 — developing the position. Positi
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 13:20:16.606 TTS STOP — playback finished (span ~1788ms)
+   [TTS] Speaking: I'm surfing there right now and Blaine is about to...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm surfing there right now and Blaine i' (24 words)
+   [TurnTiming] 13:20:17.008 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay I've been standing in this city like a lost tourist for way too long — Center, restock, then I'm surfing to Cinnabar and Blaine is going to have a very bad day."
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 13:20:22.444 TTS STOP — playback finished (span ~5436ms)
+   [TIMING] interjection: vision=0ms llm=2646ms(sonnet) tts=7715ms total=10400ms
+   [LAG] sense→speak: total=5.0s (content_age=0.0s, prep=0.0s, llm=2.6s, tts_wait+synth=2.3s)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] SELF WANT: 'reach Cinnabar Island'
+   [Pokemon] event react (bypass=False, tier=2, kind=want): reach Cinnabar Island
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=62ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   >>> Kira (Bored): Cinnabar Island acquired. Blaine has no idea the ocean just became personally hostile toward him.
+   [TTS] Speaking: Cinnabar Island acquired....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Cinnabar Island acquired.' (4 words)
+   [TurnTiming] 13:20:27.491 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): regroup
+   [Pokemon] her reasoning: "Okay — I have Surf, I have Blastoise, and Blaine is a fire-type gym leader who is about to get absolutely disrespected by a water cannon. Before I head south to Route 19 I want a Mart stop — zero Poké Balls is not a vibe I'm carrying to Cinnabar."
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:20:29.653 TTS STOP — playback finished (span ~2162ms)
+   [TTS] Speaking: Blaine has no idea the ocean just became personall...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Blaine has no idea the ocean just became' (13 words)
+   [TurnTiming] 13:20:29.944 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
