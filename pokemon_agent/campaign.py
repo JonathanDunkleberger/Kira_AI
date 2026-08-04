@@ -310,6 +310,15 @@ KEEPER_CAVE_FLOOR_WANDER_S = int(os.getenv("POKEMON_KEEPER_CAVE_FLOOR_WANDER_S",
 # Center city only, never hurt, on-plan keeper genuinely fetchable). Disarm with POKEMON_PCBOX=0 if the live
 # PC menu wedges on the show build. Never boxes an on-plan line (planner._is_target_line) or the lead.
 PCBOX_ENABLED = os.getenv("POKEMON_PCBOX", "1") != "0"
+# TEAM-BUILD BREATHER (2026-08-04, Jonny + chat: "box the dead bench and catch at the area's level —
+# don't hand-level hour-one catches"): the PC swap loop above (box_chaff -> fetch_keeper -> swap_keeper)
+# was OFFERED every tick and bulldozed every tick by the ACE-CARRIES GO-HARD force-pick (oracle SKIPPED),
+# so the bench sat at L17-19 chaff around a L54 ace for 25 in-game hours. When the bench is LOPSIDED,
+# the forced march yields at most MAX ticks per badge to a cheap roster move (a PC visit or a short
+# keeper fetch — minutes, not a grind montage), then marches again. Bounded so the march can never be
+# starved; creator order (LAW) and story-liberation errands still outrank.
+TEAM_BUILD_BREATHER_MAX = int(os.getenv("POKEMON_TB_BREATHER_MAX", "6"))
+TEAM_BUILD_LOPSIDED_GAP = int(os.getenv("POKEMON_TB_LOPSIDED_GAP", "20"))
 # NS#11: the SAFARI ZONE STRIKE (HM03 Surf + HM04 Strength via safari_strike.run_strike) + the PROACTIVE
 # Blaine Surf-prereq recognition. DEFAULT OFF — recognition + strike are useless/harmful apart and the
 # whole chain needs a live look-ahead before default-ON (a mis-timed Surf questline poisons her ctx). When
@@ -1039,6 +1048,14 @@ GYMS = {
 # resolves through gamedata/frlg_gates.json (a strike step, no door) so _derive_questline -> the
 # registered dungeon strike fires. FireRed facts isolated to the KB + this table (rule 14). Sabrina's
 # gym is Rocket-blocked until Silph Co. clears (FLAG_HIDE_SAFFRON_ROCKETS 0x3E).
+# ON-ROAD BLOCKER questline keys (hoisted 2026-08-04 from the head_to_gym executor so the team-build
+# breather shares the same truth): errands that ARE the billed road (Flash-class), never detours —
+# GO-HARD waives its park for these, and roster surgery (the team-build breather) yields to them.
+ROAD_BLOCKER_KEYS = {
+    "flash", "cut", "silph_scope",
+    "FLAG_GOT_POKE_FLUTE", "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
+    "FLAG_GOT_TEA", "FLAG_HIDE_SAFFRON_ROCKETS",
+}
 GYM_PREREQS = {
     "Sabrina": (0x3E, "FLAG_HIDE_SAFFRON_ROCKETS",
                 "Sabrina's gym is blocked — Team Rocket has Silph Co. locked down in the middle of the city"),
@@ -7339,6 +7356,35 @@ class Campaign:
         except Exception as e:
             log(f"   [roam] chaff-swap target skipped: {e}")
             return None
+
+    def _team_build_breather_ok(self, state):
+        """TEAM-BUILD BREATHER gate (2026-08-04, Jonny + chat: 'box the dead bench, catch at the
+        area's level — stop hand-leveling hour-one catches'): may a forced gym march yield THIS
+        tick to a cheap roster move (box_chaff / swap_keeper / fetch_keeper)? True only when the
+        bench is genuinely LOPSIDED (ace-to-floor gap >= TEAM_BUILD_LOPSIDED_GAP — the L54 ace /
+        L17 bench shape), the per-badge budget isn't burned (the march can never be starved), and
+        no story-liberation (road-blocker) errand is in flight — Silph/Tea/Flute-class errands ARE
+        the road and outrank roster surgery. The creator-order LAW check lives at the call site."""
+        try:
+            party = state.get("party") or []
+            lvls = [int(m.get("level") or 0) for m in party if isinstance(m, dict)]
+            if len(lvls) < 2:
+                return False
+            if (max(lvls) - min(lvls)) < TEAM_BUILD_LOPSIDED_GAP:
+                return False                  # bench roughly keeps up -> just march
+            bc = int(state.get("badge_count") or 0)
+            if getattr(self, "_tb_breather_spent", {}).get(bc, 0) >= TEAM_BUILD_BREATHER_MAX:
+                return False                  # budget burned this badge -> march only
+            q = getattr(self, "_active_questline", None)
+            if q is not None:
+                _miss = getattr(q.gate, "missing", None)
+                _step = getattr(getattr(q, "actionable", None), "missing", None)
+                if _miss in ROAD_BLOCKER_KEYS or _step in ROAD_BLOCKER_KEYS:
+                    return False              # story liberation owns the tick
+            return True
+        except Exception as e:
+            log(f"   [roam] team-build breather gate skipped: {e}")
+            return False
 
     def _box_keeper_swap_target(self, state):
         """swap_keeper GATE (PC/BOX, NS#39): the mirror of box_chaff for the OTHER half of the loop —
@@ -15671,12 +15717,9 @@ class Campaign:
                 # DOOR" — which pre-Tea is a wall — while the errand's ANCHOR-FIRST walked her back
                 # into the UGP hut. One controller in, one controller out, every tick, forever.
                 # Tea/Silph are Flash-class (the road itself), not Bill-class (a detour).
-                _ROAD_BLOCKERS = {
-                    "flash", "cut", "silph_scope",
-                    "FLAG_GOT_POKE_FLUTE", "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
-                    "FLAG_GOT_TEA", "FLAG_HIDE_SAFFRON_ROCKETS",
-                }
-                _road_blocker = (_ql_miss in _ROAD_BLOCKERS) or (_ql_step in _ROAD_BLOCKERS)
+                # (set hoisted to module-level ROAD_BLOCKER_KEYS 2026-08-04 — shared with the
+                # team-build breather so roster surgery yields to story liberation.)
+                _road_blocker = (_ql_miss in ROAD_BLOCKER_KEYS) or (_ql_step in ROAD_BLOCKER_KEYS)
                 if _go_hard_now and not _road_blocker:
                     log("   [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack "
                         f"('{_ql_miss}'/step={_ql_step} errand parked, not cleared) — driving "
@@ -17323,6 +17366,31 @@ class Campaign:
                                           "marching in hurt is how runs end.", kind="heal", tier=2)
                 except Exception as _fhx:
                     log(f"   [roam] force-heal check skipped: {_fhx}")
+            # TEAM-BUILD BREATHER (2026-08-04, Jonny + chat): under the GO-HARD latch the swap
+            # loop's actions (box_chaff/swap_keeper/fetch_keeper) were offered every tick and
+            # never picked — the forced march starved the roster rebuild, so the bench stayed
+            # hour-one chaff around the ace. When the bench is lopsided and a cheap roster move
+            # is on the menu, spend THIS tick on it (swap_keeper completes a cycle > box_chaff
+            # makes room > fetch_keeper catches at the area's level) and re-latch the march next
+            # tick. Bounded per badge; creator order (LAW) still marches; heal already outranked.
+            if (_forced_pick is None and getattr(self, "_force_gym_pick", False)
+                    and not self._creator_order(state)):
+                try:
+                    _tb = next((k for k in ("swap_keeper", "box_chaff", "fetch_keeper")
+                                if k in avail), None)
+                    if _tb and self._team_build_breather_ok(state):
+                        _forced_pick = _tb
+                        self._force_gym_pick = False   # re-derived next tick — the march resumes
+                        _tbs = getattr(self, "_tb_breather_spent", {})
+                        _tbc = int(state.get("badge_count") or 0)
+                        _tbs[_tbc] = _tbs.get(_tbc, 0) + 1
+                        self._tb_breather_spent = _tbs
+                        log(f"   [roam] !! TEAM-BUILD BREATHER "
+                            f"({_tbs[_tbc]}/{TEAM_BUILD_BREATHER_MAX} this badge): the forced march "
+                            f"yields ONE tick to '{_tb}' — the bench is dead weight and the plan has "
+                            f"a cheap fix on the menu; back on the gym road next tick")
+                except Exception as _tbx:
+                    log(f"   [roam] team-build breather skipped: {_tbx}")
             if (_forced_pick is None and getattr(self, "_force_gym_pick", False)
                     and "head_to_gym" in avail):
                 _forced_pick = "head_to_gym"
