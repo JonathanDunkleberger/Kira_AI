@@ -884,6 +884,9 @@ class BattleAgent:
     # catch-rate-3 legendary with Poké Balls is <1% a throw, a guaranteed pocket-drain wedge.
     # Gen-3 ball item ids: 1 Master, 2 Ultra, 3 Great, 4 Poké, 5 Safari, 6-12 specials.
     _BALL_MASTER, _BALL_ULTRA, _BALL_GREAT, _BALL_POKE = 1, 2, 3, 4
+    _BALL_NAMES = {1: "Master Ball", 2: "Ultra Ball", 3: "Great Ball", 4: "Poké Ball",
+                   5: "Safari Ball", 6: "Net Ball", 7: "Dive Ball", 8: "Nest Ball",
+                   9: "Repeat Ball", 10: "Timer Ball", 11: "Luxury Ball", 12: "Premier Ball"}
     _SPENDABLE_BALLS = (2, 3, 4, 6, 7, 8, 9, 10, 11, 12)   # throwable freely (Master/Safari out)
     _BALL_ORDER_CHEAP = (4, 3, 2, 12, 11, 10, 9, 8, 7, 6)  # dex-push trash: weakest first
     _BALL_ORDER_BEST = (2, 3, 12, 11, 10, 9, 8, 7, 6, 4)   # legendary/shiny: strongest first
@@ -941,6 +944,18 @@ class BattleAgent:
         if ball_id is None:
             self.log("   [engine] throw_ball: no throwable ball in the bag")
             return "no_balls"
+        try:
+            # LOUD [catch] THROW line (2026-08-04): species + HP fraction + the ball tier, so
+            # soak reports confess the weaken-then-throw discipline per throw.
+            _s = st.read_battle(self.b)
+            _foe = (_s or {}).get("enemy", {})
+            self.log(f"   [catch] THROW {self._BALL_NAMES.get(ball_id, f'ball#{ball_id}')} "
+                     f"(x{self._ball_qty(ball_id)} left, pref={pref}) at "
+                     f"{st.SPECIES_NAME.get(_foe.get('species'), '?')} "
+                     f"hp={_hp_frac(_foe) if _foe.get('maxhp') else 1.0:.0%} "
+                     f"status={_decode_status(_foe.get('status1', 0)) or 'none'}")
+        except Exception:
+            pass
         if not self._white_box():
             self._reach_first_menu(t0, max_seconds)
         self._settle()
@@ -1100,6 +1115,10 @@ class BattleAgent:
     _STATUS_MOVES = _SLEEP_MOVES | {77, 78, 86}     # + PoisonPowder, StunSpore, ThunderWave
     CATCH_WEAKEN_CEIL = 0.85   # if she CAN'T weaken (depleted PP) AND the foe is still above this HP
     #                            fraction, don't dump balls into a low-odds full-HP catch — flee + heal.
+    CATCH_READY_FRAC = 0.50    # weaken-then-throw (2026-08-04): at/below this HP fraction (or with
+    #                            ANY status up) the target is throw-READY — more weakening only risks
+    #                            the KO. Above it, weaken first when a safe chip exists.
+    CATCH_CHIP_TARGET = 0.30   # the chip loop aims the foe's HP here before committing to throws.
     # SPECIES THAT ESCAPE ON THEIR FIRST FREE TURN (2026-07-30, Jonny live report: full-HP ball at an
     # Abra, it Teleported). Wild Abra/Kadabra in FireRed know only Teleport — EVERY turn you spend
     # weakening/switching hands it the exit. The only play is ball-on-sight; the throw itself resolves
@@ -1153,19 +1172,28 @@ class BattleAgent:
                     return i
         return None
 
-    def _weaken_hp(self, target_frac=0.40, max_hits=4):
+    def _weaken_hp(self, target_frac=None, max_hits=4):
         """Chip the wild foe's HP into the catchable band so a HANDFUL of balls suffices (a status
-        alone leaves it near full HP -> 5 balls broke free). Fires the LOWEST-base-power damaging move
+        alone leaves it near full HP -> 5 balls broke free). Fires the GENTLEST damaging move
         one hit at a time, re-reading HP, and STOPS once HP <= target_frac (faint-guard: never swing
-        at an already-low foe; one-at-a-time re-check avoids overkill). Best-effort — a stray faint
-        just means catch_pokemon returns 'fainted' and the wander finds another wild.
+        at an already-low foe; one-at-a-time re-check avoids overkill). Bounded by max_hits — never
+        loops forever. Best-effort — a stray faint just means catch_pokemon returns 'fainted' and
+        the wander finds another wild.
 
         DAMAGE-AWARE (2026-07-30, Jonny live report: 'she KOs the ones she wants to catch'): the old
         loop only checked hp > target_frac before swinging — a foe sitting just ABOVE the band (e.g.
         45% after one chip that hit for 55%) took one more 'gentle' chip and died. Now each chip's
         actual damage is MEASURED, and we refuse the next swing when the foe wouldn't clearly survive
         a repeat of it (1.6x safety margin — crits happen). A catch thrown at 50% HP costs an extra
-        ball at worst; a KO'd keeper is gone forever."""
+        ball at worst; a KO'd keeper is gone forever.
+
+        ESTIMATE-AWARE (2026-08-04, weaken-then-throw discipline): 'gentlest' was a raw
+        base-power sort — blind to STAB, type-eff and the level gap, so a 'gentle' ace move
+        could still one-shot. The pick is now pol.chip_move_pick (lowest ESTIMATED hit), and
+        an unsafe estimate (likely KO from the foe's current HP) refuses the swing BEFORE the
+        first hit lands — the measured-damage guard stays as the belt."""
+        if target_frac is None:
+            target_frac = self.CATCH_CHIP_TARGET
         last_dmg = None
         for _ in range(max_hits):
             state = st.read_battle(self.b)
@@ -1174,19 +1202,29 @@ class BattleAgent:
             foe = state["enemy"]
             if not foe.get("maxhp") or foe["hp"] <= 0:
                 return
-            if foe["hp"] / foe["maxhp"] <= target_frac:
+            _frac = foe["hp"] / foe["maxhp"]
+            if _frac <= target_frac:
+                self.log(f"   [catch] chip done — foe at {_frac:.0%} HP (target "
+                         f"{target_frac:.0%}); throwing")
                 return                                  # already in the catchable band
             if last_dmg and foe["hp"] <= last_dmg * 1.6:
-                self.log(f"   [engine] catch-weaken: STOPPING — foe at {foe['hp']}/{foe['maxhp']} HP, "
+                self.log(f"   [catch] chip STOPPING — foe at {foe['hp']}/{foe['maxhp']} HP, "
                          f"last chip hit for {last_dmg}; another swing risks a KO. Throwing now.")
                 return                                  # next hit plausibly kills it — throw instead
-            cand = [(i, m.get("id", 0)) for i, m in enumerate(state["ours"]["moves"])
-                    if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("id", 0) not in self._STATUS_MOVES]
-            if not cand:
+            ci, cest, csafe = pol.chip_move_pick(
+                state["ours"]["moves"], foe.get("types") or [],
+                state["ours"].get("level", 0), foe.get("level", 0),
+                foe_hp_frac=_frac, our_types=state["ours"].get("types"))
+            if ci is None:
                 return                                  # no damaging move with PP -> just throw
-            cand.sort(key=lambda im: st.move_info(self.b, im[1])[1] or 0)   # gentlest (lowest power)
+            _mv_nm = state["ours"]["moves"][ci].get("name", f"slot {ci}")
+            if not csafe:
+                self.log(f"   [catch] chip STOPPING — gentlest move {_mv_nm} est {cest:.0%} vs "
+                         f"foe at {_frac:.0%} HP; a swing risks the KO. Throwing now.")
+                return
+            self.log(f"   [catch] weaken — {_mv_nm} (est {cest:.0%}) at foe {_frac:.0%} HP")
             hp_before = foe["hp"]
-            self._fire_move(cand[0][0])
+            self._fire_move(ci)
             after = st.read_battle(self.b)
             if after and after["enemy"].get("hp") is not None and after["enemy"]["hp"] < hp_before:
                 last_dmg = hp_before - after["enemy"]["hp"]   # measure what a chip actually costs
@@ -1239,6 +1277,14 @@ class BattleAgent:
         t0 = time.time()
         if self._is_trainer_battle():
             return "trainer"
+        if self._is_double():
+            # SINGLES-ONLY GATE (2026-08-04): FRLG wild battles are always singles (no wild
+            # doubles in grass/safari) and balls can't be thrown in trainer battles at all —
+            # a doubles context reaching here is by definition a no-catch context. Belt only;
+            # the doubles battle flow (e4002d9) stays untouched.
+            self.log("   [catch] DOUBLE battle — not a catch context (FRLG wilds are singles; "
+                     "a pair means trainers) — refusing the catch flow")
+            return "trainer"
         self._started = True
         self._catching = True              # F-7(c): KOing a catch target is a FAILURE — the
         #                                    certain-win beat stays silent for this whole flow
@@ -1261,6 +1307,12 @@ class BattleAgent:
             # Teleport exit. Skip ALL softening and throw immediately — the deliberate, narrated
             # version of what previously looked like a mistake.
             _foe_sp0 = (_rb0 or {}).get("enemy", {}).get("species")
+            if _rb0 and _rb0.get("enemy", {}).get("maxhp"):
+                # LOUD [catch] HEADER: the soak report must confess the discipline per target.
+                self.log(f"   [catch] target={st.SPECIES_NAME.get(_foe_sp0, f'#{_foe_sp0}')} "
+                         f"L{_rb0['enemy'].get('level', '?')} hp={_hp_frac(_rb0['enemy']):.0%} "
+                         f"status={_decode_status(_rb0['enemy'].get('status1', 0)) or 'none'} "
+                         f"balls={self._ball_count()} pref={ball_pref}")
             if _foe_sp0 in self._FLEES_ON_FREE_TURN:
                 weaken = False
                 _fname = st.SPECIES_NAME.get(_foe_sp0, "this one")
@@ -1268,12 +1320,34 @@ class BattleAgent:
                          f"on its first free turn — skipping weaken, ball-on-sight")
                 self.emit(f"{_fname} teleports away the second it gets a turn — no time to weaken it, "
                           f"I have to throw RIGHT NOW and pray.", beat=True, tier=1)
-            elif weaken and _rb0 and (
-                    (_rb0["ours"].get("level", 0) - _rb0["enemy"].get("level", 0)) >= 10
-                    or _foe_sp0 == 143):  # Snorlax: Surf/Hydro from Blastoise OHKOs — never chip
-                status_only = True
-                self.log("   [engine] catch: foe is 10+ levels under the lead (or Snorlax) — "
-                         "no chipping (would KO); SLEEP-then-throw / CHIPPER, never ace Surf")
+            elif weaken and _rb0:
+                # WEAKEN-THEN-THROW DISCIPLINE (2026-08-04 LIVE, badge-8 stream: full-HP balls
+                # at every dex-push wild — wasted stock the legendary hunts need). The old
+                # trigger was a coarse level-gap check (lead 10+ over -> never chip, and with
+                # no sleep move / no in-band chipper that fell STRAIGHT to a full-HP throw).
+                # The overkill question is now asked PER-MOVE (pol.chip_move_pick: power ×
+                # STAB × type-eff × level-ratio² tiers, no damage calc): a safe chip exists ->
+                # the chip path weakens first; every usable move likely one-shots -> the
+                # status_only path (sleep, then chipper, else the SANCTIONED early throw —
+                # a wasted ball beats a dead target).
+                _ci, _cest, _csafe = pol.chip_move_pick(
+                    _rb0["ours"]["moves"], _rb0["enemy"].get("types") or [],
+                    _rb0["ours"].get("level", 0), _rb0["enemy"].get("level", 0),
+                    foe_hp_frac=_hp_frac(_rb0["enemy"]),
+                    our_types=_rb0["ours"].get("types"))
+                if _foe_sp0 == 143 or _ci is None or not _csafe:
+                    # Snorlax stays a hard never-chip (Surf/Hydro from Blastoise OHKOs).
+                    status_only = True
+                    _mv_nm = ("none" if _ci is None
+                              else _rb0["ours"]["moves"][_ci].get("name", f"slot {_ci}"))
+                    self.log(f"   [catch] OVERKILL RISK — gentlest usable move={_mv_nm} "
+                             f"est={'n/a' if _cest is None else f'{_cest:.0%} of max HP'}"
+                             + (" (Snorlax: never chip)" if _foe_sp0 == 143 else "")
+                             + " — no safe chip; SLEEP/CHIPPER, else throw early (never KO)")
+                else:
+                    self.log(f"   [catch] weaken plan — chip with "
+                             f"{_rb0['ours']['moves'][_ci].get('name', f'slot {_ci}')} "
+                             f"(est {_cest:.0%}/hit) into the throw band")
         except Exception:
             pass
 
@@ -1327,6 +1401,16 @@ class BattleAgent:
             state = st.read_battle(self.b)
             if state and state["enemy"]["hp"] <= 0:
                 return "fainted"                         # we KO'd it - can't catch a fainted foe
+            if weaken and not softened and state is not None and state["enemy"].get("maxhp"):
+                # ALREADY WEAK / STATUSED -> THROW NOW (weaken-then-throw discipline): any
+                # status multiplies the Gen-3 catch rate, and at/below the ready band another
+                # swing only risks the KO. Verified live RAM read (doubles-aware accessor).
+                _ef = _hp_frac(state["enemy"])
+                if state["enemy"].get("status1", 0) or _ef <= self.CATCH_READY_FRAC:
+                    self.log(f"   [catch] target ready — hp={_ef:.0%} status="
+                             f"{_decode_status(state['enemy'].get('status1', 0)) or 'none'} "
+                             f"— THROWING (no more weakening)")
+                    softened = True
             if status_only and not softened and state is not None:
                 # BIG-LEVEL-GAP path: sleep is the ONLY safe soften (any hit could KO). Fire a sleep
                 # move (75%-acc powders miss — retry once), re-checking asleep each loop; then throw.
@@ -1363,6 +1447,12 @@ class BattleAgent:
                         self.log("   [engine] catch: chipper switch didn't confirm — falling back to "
                                  "the full-HP throw (fail-safe)")
                 if not softened and not state["enemy"].get("asleep"):
+                    # THE SANCTIONED EARLY THROW (weaken-then-throw rule 1): every usable move
+                    # likely one-shots, no sleep move, no in-band chipper — a wasted ball beats
+                    # a dead target. Loud so soak reports show it was a DECISION, not the bug.
+                    self.log(f"   [catch] EARLY THROW — overkill risk on every move, no sleep/"
+                             f"chipper; throwing at {_hp_frac(state['enemy']):.0%} HP rather "
+                             f"than KO the target")
                     self.emit("no safe way to weaken this one — full-health throw it is. wish me luck.",
                               beat=True)
                 softened = True

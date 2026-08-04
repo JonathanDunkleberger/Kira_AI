@@ -97,6 +97,55 @@ def move_score(mv, enemy_types, our_types=None):
     return score
 
 
+# ── CATCH-FLOW CHIP PICK (2026-08-04 LIVE, the badge-8 full-HP ball-burn) ─────────────────────
+# The catch flow needs the INVERSE of move_score: "chip, don't kill". A raw lowest-base-power
+# sort ignores STAB/type-eff AND the level gap — a L59 Blastoise "gentle" Bite still one-shots a
+# L20 wild. These are TIER HEURISTICS, not a damage calc: Gen-3 damage ≈ level × power × Atk/Def,
+# and stats + HP all scale ~linearly with level, so one hit's fraction of the foe's max HP scales
+# ~ power × (our_level/foe_level)². Calibrated so a same-level neutral 50-power hit ≈ 35% of max
+# HP. Accuracy is deliberately EXCLUDED — a miss doesn't make a move safer against the overkill
+# KO, only a landed hit matters for "did I just kill the catch target".
+CHIP_KO_SAFETY = 0.70       # a chip is safe only if est. damage <= this × the foe's CURRENT hp
+_CHIP_BASE_FRAC = 0.35      # same-level neutral 50-power calibration point
+_CHIP_RATIO_CAP = 3.5       # level-ratio clamp (beyond this everything one-shots anyway)
+
+
+def chip_hit_frac(mv, enemy_types, our_level, enemy_level, our_types=None):
+    """Estimated fraction of the foe's MAX HP one LANDED hit of `mv` removes (0.0 for
+    status/immune/suicide — those never chip). Pure + unit-testable."""
+    power = int(mv.get("power", 0) or 0)
+    if power <= 0 or int(mv.get("id", 0) or 0) in SUICIDE_MOVES:
+        return 0.0
+    eff = effectiveness(mv.get("type", "normal"), enemy_types)
+    if eff <= 0:
+        return 0.0
+    ratio = max(1.0 / _CHIP_RATIO_CAP,
+                min(_CHIP_RATIO_CAP, (our_level or 1) / max(1, enemy_level or 1)))
+    return (power / 50.0) * stab_mult(mv.get("type"), our_types) * eff \
+        * ratio * ratio * _CHIP_BASE_FRAC
+
+
+def chip_move_pick(our_moves, enemy_types, our_level, enemy_level,
+                   foe_hp_frac=1.0, our_types=None):
+    """The 'weaken, don't kill' pick: (index, est_frac, safe) of the GENTLEST usable damaging
+    move (lowest estimated hit, PP>0). safe=True when that hit likely leaves the foe alive
+    with margin (est <= CHIP_KO_SAFETY × its current HP fraction) — safe=False means EVERY
+    usable move risks the overkill KO, so the caller should sleep/switch or throw early
+    (a wasted ball beats a dead catch target). (None, None, False) = nothing damages at all."""
+    best = None
+    for i, mv in enumerate(our_moves):
+        if mv.get("pp", 1) <= 0:
+            continue
+        est = chip_hit_frac(mv, enemy_types, our_level, enemy_level, our_types)
+        if est <= 0:
+            continue
+        if best is None or est < best[1]:
+            best = (i, est)
+    if best is None:
+        return None, None, False
+    return best[0], best[1], best[1] <= max(0.0, foe_hp_frac) * CHIP_KO_SAFETY
+
+
 def choose_move(our_moves, enemy_types, our_hp_frac=1.0, our_types=None):
     """our_moves: list of dicts {name, type, power, pp[, accuracy]}.
     enemy_types / our_types: type strings. Returns (index, descriptor, low_hp).
