@@ -1113,7 +1113,16 @@ HEAL_ITEMS = {13: "Potion", 22: "Super Potion", 21: "Hyper Potion", 20: "Max Pot
 STATUS_CURE = {"poison": (14, "Antidote"), "burn": (15, "Burn Heal"), "freeze": (16, "Ice Heal"),
                "sleep": (17, "Awakening"), "paralysis": (18, "Parlyz Heal")}
 ITEM_NAMES = {**HEAL_ITEMS, 4: "Poké Ball", 3: "Great Ball", 23: "Full Heal",
-              **{cid: cn for cid, cn in STATUS_CURE.values()}}
+              **{cid: cn for cid, cn in STATUS_CURE.values()},
+              110: "Nugget", 109: "Star Piece", 107: "Big Pearl", 108: "Stardust", 106: "Pearl"}
+# PURE-CASH LOOT (2026-08-04, the Ice Beam fund — 'get ice beam to OP herself through the
+# game'): items whose ONLY use is selling (pret items.h ids; sell = half list price).
+# Nugget ¥5,000 | Star Piece ¥4,900 | Big Pearl ¥3,750 | Stardust ¥1,000 | Pearl ¥700.
+# Mushrooms are DELIBERATELY excluded (Two Island move-tutor currency) and Heart Scale too.
+# Sold richest-first on every buy_at_mart trip (_mart_sell_loot) — a human always cashes
+# Nuggets at the counter they're already standing at; the proceeds bankroll the Game Corner
+# TM13 budget (the _icebeam_gate arms itself the tick the money's there).
+MART_SELL_LOOT = (110, 109, 107, 108, 106)
 
 # CITY -> Mart town door (extend as towns are reached; an unmapped city = no stock-up offered, LOUD).
 CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR,
@@ -9632,6 +9641,158 @@ class Campaign:
                 return d
         return 0
 
+    # Overworld BAG (mart SELL mode) list readback — gBagMenuState keeps PER-POCKET arrays
+    # (recon_bagscroll derivation, pret): cursorPosition[3] @0x0203AD04, itemsAbove[3] @0x0203AD0A,
+    # indexed by POCKET (0 Items / 1 Key Items / 2 Balls). Pocket-0 pair battle-verified live
+    # (battle_agent BAG_CURSOR/BAG_SCROLL); index-1 verified by hm_teach's Key-Items nav. The
+    # sell list shows the ITEMS pocket -> the index-0 pair. TRUE selection = cursor + scroll.
+    _OW_BAG_CURSOR0 = 0x0203AD04
+    _OW_BAG_SCROLL0 = 0x0203AD0A
+
+    def _sell_list_index(self):
+        return self.b.rd8(self._OW_BAG_CURSOR0) + self.b.rd16(self._OW_BAG_SCROLL0)
+
+    def _sell_goto_row(self, row, tries=40):
+        """Move the SELL-bag selection to true index `row` with readback verification (the
+        _mart_goto_row doctrine — an eaten d-pad press can never leave us selling the wrong
+        item; the gSpecialVar_ItemId check after A is the second lock)."""
+        for _ in range(tries):
+            cur = self._sell_list_index()
+            if cur == row:
+                for _ in range(20):                        # settle: scroll animation lag
+                    self.b.run_frame()
+                if self._sell_list_index() == row:
+                    return True
+                continue
+            self.b.press("DOWN" if cur < row else "UP", 8, 10, self.render, owner="agent")
+            for _ in range(20):
+                self.b.run_frame()
+        return self._sell_list_index() == row
+
+    def _mart_sell_loot(self, max_units=20):
+        """CASH THE LOOT (2026-08-04, Jonny: 'get ice beam to OP herself through the game at a
+        human watchable pace'): sell every pure-cash item (MART_SELL_LOOT — Nuggets first) at
+        the mart counter she is ALREADY standing at, unit-by-unit, each sale verified by money-RISE
+        + pocket-count-DROP (the _mart_buy_one doctrine in reverse). The proceeds are what
+        actually bankroll the ¥80,500 Game Corner TM13 budget — trainer payouts alone leave
+        Ice Beam a maybe. Assumes she is INSIDE a mart (buy_at_mart calls this after the warp).
+        Best-effort and fail-closed: any unverified step aborts LOUD with a B-cascade; a money
+        DROP anywhere means a wrong menu is buying things -> instant abort. Returns ¥ gained."""
+        import hm_teach as ht
+        loot = [(iid, q) for iid, q in ht.items_pocket_rows(self.b) if iid in MART_SELL_LOOT]
+        if not loot:
+            return 0
+        m_start = self.money()
+        self.b.set_input_owner("agent")
+        self._step_to(MART_CLERK_FRONT)
+        for _ in range(6):                                # engage: face the clerk until the box opens
+            if dd_box_open(self.b):
+                break
+            self.b.press("UP", 8, 8, self.render, owner="agent")
+            self.b.press("A", 8, 10, self.render, owner="agent")
+            for _ in range(16):
+                self.b.run_frame()
+        for _ in range(12):                               # DRAIN greeting: A only WHILE a box is up
+            if not dd_box_open(self.b):
+                break
+            self.b.press("A", 8, 12, self.render, owner="agent")
+            for _ in range(16):
+                self.b.run_frame()
+        self.b.press("DOWN", 8, 10, self.render, owner="agent")   # BUY/SELL/QUIT: row 1 = SELL
+        for _ in range(12):
+            self.b.run_frame()
+        self.b.press("A", 8, 10, self.render, owner="agent")
+        for _ in range(90):                               # let the bag fade in
+            self.b.run_frame()
+        if self.money() < m_start:                        # money DROP = we are BUYING somewhere — bail
+            log(f"   !! MART-SELL: money dropped during entry ({m_start}->{self.money()}) — wrong "
+                f"menu, aborting the sell pass LOUD")
+            self._mart_menus_out()
+            return 0
+        # POSITIVE bag confirmation: clamp to the Items pocket, then the pocket byte must FLIP on
+        # RIGHT and flip back on LEFT — only the live bag does that (an eaten DOWN above lands us
+        # in the BUY list, where d-pads never touch this byte). No flip -> not the bag -> out LOUD.
+        for _ in range(3):
+            if self.b.rd8(ram.GBAG_POCKET) == 0:
+                break
+            self.b.press("LEFT", 8, 10, self.render, owner="agent")
+            for _ in range(14):
+                self.b.run_frame()
+        _p0 = self.b.rd8(ram.GBAG_POCKET)
+        self.b.press("RIGHT", 8, 10, self.render, owner="agent")
+        for _ in range(14):
+            self.b.run_frame()
+        _live = self.b.rd8(ram.GBAG_POCKET) != _p0
+        if _live:
+            self.b.press("LEFT", 8, 10, self.render, owner="agent")
+            for _ in range(14):
+                self.b.run_frame()
+        if not _live or self.b.rd8(ram.GBAG_POCKET) != 0:
+            log("   !! MART-SELL: SELL bag never opened (pocket byte dead / not Items) — "
+                "aborting the sell pass LOUD (no blind sells)")
+            self._mart_menus_out()
+            return 0
+        gained, sold = 0, {}
+        for _ in range(max_units):
+            if dd_box_open(self.b):                       # stray qty/message box from a late A — B it away
+                self.b.press("B", 6, 12, self.render, owner="agent")
+                for _ in range(14):
+                    self.b.run_frame()
+            rows = [(i, iid) for i, (iid, _q) in enumerate(ht.items_pocket_rows(self.b))
+                    if iid in MART_SELL_LOOT]
+            if not rows:
+                break
+            rows.sort(key=lambda t: MART_SELL_LOOT.index(t[1]))    # richest loot first (Nuggets)
+            row, iid = rows[0]
+            nm = ITEM_NAMES.get(iid, f"item#{iid}")
+            if not self._sell_goto_row(row):
+                log(f"   !! MART-SELL: couldn't reach {nm}'s row {row} (cursor stuck) — stopping LOUD")
+                break
+            m0, q0 = self.money(), ht.items_pocket_qty(self.b, iid)
+            self.b.press("A", 8, 12, self.render, owner="agent")   # select the row
+            for _ in range(24):
+                self.b.run_frame()
+            sel = self.b.rd16(ram.GSPECIALVAR_ITEMID)
+            if sel != iid:
+                log(f"   !! MART-SELL: selected item {sel} != {nm} ({iid}) — backing out LOUD")
+                self.b.press("B", 6, 12, self.render, owner="agent")
+                for _ in range(14):
+                    self.b.run_frame()
+                break
+            got = 0
+            for _ in range(26):                           # qty(1) -> 'I can pay ¥N' YES -> payout
+                self.b.press("A", 6, 10, self.render, owner="agent")
+                for _ in range(12):
+                    self.b.run_frame()
+                got = self.money() - m0
+                if got > 0:
+                    break                                 # STOP the instant money rises (no double-A)
+            for _ in range(8):                            # drain the payout message back to the list
+                if not dd_box_open(self.b):
+                    break
+                self.b.press("A", 6, 10, self.render, owner="agent")
+                for _ in range(12):
+                    self.b.run_frame()
+            if got <= 0 or ht.items_pocket_qty(self.b, iid) != q0 - 1:
+                log(f"   !! MART-SELL: sale verify FAILED for {nm} (¥+{got}, "
+                    f"x{q0}->x{ht.items_pocket_qty(self.b, iid)}) — stopping LOUD")
+                break
+            gained += got
+            sold[nm] = sold.get(nm, 0) + 1
+        self._mart_menus_out()                            # B out of the bag + clerk menu
+        if gained:
+            log(f"   MART-SELL: cashed {sold} for ¥{gained} (money now {self.money()})")
+            self.on_event(f"sold the loot at the counter — ¥{gained:,} richer. every Nugget "
+                          f"is Game Corner money.", kind="milestone", tier=2)
+        return gained
+
+    def _mart_menus_out(self, n=8):
+        """B-cascade out of any mart/bag menu layer back to the clerk floor (never navigates)."""
+        for _ in range(n):
+            self.b.press("B", 6, 12, self.render, owner="agent")
+            for _ in range(14):
+                self.b.run_frame()
+
     def _mart_enter_buylist(self):
         """Talk to the clerk, DRAIN the greeting (A while the message box is up), pick BUY (one A on the
         BUY/SELL menu, default top), then POSITIVELY CONFIRM the item list via the cursor: a DOWN press
@@ -9686,6 +9847,13 @@ class Campaign:
             log("   !! MART: couldn't enter the Mart"); return {}
         for _ in range(60):
             self.b.run_frame()
+        # CASH THE LOOT FIRST (2026-08-04, the Ice Beam fund): she's standing at a counter —
+        # sell the Nuggets/Pearls/Stardust BEFORE buying, so the sale proceeds are spendable
+        # in the very same trip. Best-effort: a sell crash never blocks the buy (LOUD).
+        try:
+            self._mart_sell_loot()
+        except Exception as e:
+            log(f"   !! MART-SELL crashed ({e}) — proceeding to BUY as-is (LOUD)")
         if not self._mart_enter_buylist():
             self._exit_to_overworld(); return {}
         bought = {}
@@ -18406,6 +18574,25 @@ class Campaign:
                                  f"wander just to hunt.")
         except Exception as _e:
             log(f"   [strategist] dex-push read skipped: {_e}")
+        # ── 4c) ICE BEAM FUND — the Game Corner TM13 budget (2026-08-04, Jonny: 'get ice beam
+        #      to OP herself through the game'). Doctrine while short: money is being SAVED —
+        #      sell loot at every counter (automatic), don't splurge past the stock floors.
+        #      Silent once affordable (the gate takes over) or once somebody knows move 58. ────
+        try:
+            if ICEBEAM_FETCH_ENABLED and (state.get("badge_count") or 0) >= 5:
+                import game_corner as gc
+                _pc = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                if (st.party_knows_move(self.b, gc.MOVE_ICE_BEAM, _pc) is None
+                        and gc.tm_case_qty(self.b, gc.ITEM_TM13) <= 0):
+                    _short = gc.ice_beam_cash_shortfall(self)
+                    if _short > 0:
+                        lines.append(f"ICE BEAM FUND: ¥{_short:,} short of the Game Corner TM13 "
+                                     f"budget (~¥80,500 total). Ice Beam on the ace freezes "
+                                     f"everything left — Venusaur, Lance's dragons, the birds. "
+                                     f"Fight your battles for the payouts, sell loot at marts, "
+                                     f"buy supplies but never splurge. It arms itself when funded.")
+        except Exception as _e:
+            log(f"   [strategist] ice-beam-fund read skipped: {_e}")
         # ── 5) STANDING ORDERS — the doctrine floor, always present ────────────────────────────────
         lines.append("STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal "
                      "beats fighting hurt; type advantage decides fights; build the planned team, not "
