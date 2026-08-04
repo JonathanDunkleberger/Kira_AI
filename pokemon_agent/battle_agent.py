@@ -2603,8 +2603,35 @@ class BattleAgent:
         if self._bag_screen() or self._party_screen():
             self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
         if self._at_action_menu():
+            # FORCE FIGHT FIRST (2026-08-04 LIVE, the mid-fight 'Teachy TV / Helix Fossil'
+            # inspections Jonny watched): the action-cursor byte PERSISTS wherever the last
+            # flow parked it (BAG after an item turn, POKéMON after a switch prompt) — the
+            # 'default cell is FIGHT' assumption below only holds on a fresh battle. A@BAG
+            # opens the bag on the REMEMBERED pocket (Key Items after any TeachFlow errand),
+            # and the blind move-walk then d-pads INSIDE the bag and inspects key items for
+            # whole turns. Same cure as the move list: the byte IS the selection — write it.
+            try:
+                if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != ram.ACT_FIGHT:
+                    self._poke_action_cursor(ram.ACT_FIGHT)
+            except Exception:
+                pass
             # ONE A — opens move list. Do NOT d-pad first.
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
+            # STRAY-BAG RESCUE: the A opened the BAG/party anyway (the byte lied or the write
+            # missed) — B out once, re-force FIGHT, re-open. One bounded lap, never a loop;
+            # a still-open bag after this falls through to the verify loop's failure branch.
+            if self._bag_screen() or self._party_screen():
+                self.log("   [engine] STREAM COMMIT: A opened the BAG/PARTY instead of FIGHT "
+                         "(parked action cursor) — B out + re-forcing FIGHT")
+                self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+                self._wait(16)
+                try:
+                    self._poke_action_cursor(ram.ACT_FIGHT)
+                except Exception:
+                    pass
+                if self._at_action_menu():
+                    self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+                    self._wait(16)
         elif not self._at_move_list() and self._white_box():
             # Ambiguous white — try A once (opens fight or confirms if already on list).
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
