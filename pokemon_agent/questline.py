@@ -295,7 +295,7 @@ def _step_satisfied(step, bridge, kb, party_count_fn, log=print):
                 return False
             return bool(fm.read_flag(bridge, fid))
         if kind == "cap":
-            mid = (HM_MOVE_IDS or {}).get(val)
+            mid = (HM_MOVE_IDS or {}).get(val) or EXTRA_CAP_MOVE_IDS.get(val)
             if mid is None:
                 return False
             import pokemon_state as st
@@ -320,6 +320,11 @@ def _step_satisfied(step, bridge, kb, party_count_fn, log=print):
 
 
 HM_MOVE_IDS = {"cut": 15, "fly": 19, "surf": 57, "strength": 70, "flash": 148, "waterfall": 127}
+# Non-HM capability moves (2026-08-04, the Ice Beam side quest): a cap step whose win is a
+# party mon KNOWING a TM move. Kept OUT of HM_MOVE_IDS on purpose — that dict also keys the
+# campaign's TEACH BRIDGE and _step_from_cap's HM branch, and Ice Beam has no HM item to
+# bridge from (the Game Corner strike does its own teaching).
+EXTRA_CAP_MOVE_IDS = {"ice_beam": 58}
 
 
 def _step_from_cap(key, cap):

@@ -48,6 +48,11 @@ MONEY_FLOOR = int(os.getenv("POKEMON_SHOP_MONEY_FLOOR", "500"))
 
 ICE_BEAM_ERRAND_ENABLED = os.getenv("POKEMON_ICE_BEAM_ERRAND", "1") != "0"
 
+# Strike anchors (2026-08-04, the proactive Ice Beam side quest): the maps the questline
+# FIRE-FIRST dispatcher may launch the errand from — Celadon overworld plus the errand's
+# own three interiors (a crash mid-errand relaunches inside one of them).
+ICEBEAM_ANCHORS = {CELADON, GC, PRIZE, RESTAURANT}
+
 
 def ice_beam_cash_shortfall(camp):
     """¥ still needed (above MONEY_FLOOR) to buy enough 500-coin packs for TM13. 0 if affordable."""
@@ -378,3 +383,19 @@ class IceBeamErrand:
         if not self.exchange_tm13():
             return "prize_failed"
         return self.teach_ice_beam()
+
+
+def run_strike(camp, log=print, dbg_dir=None):
+    """Questline-registry executor (2026-08-04, Jonny: 'make sure she gets blastoise ice
+    beam so he has 4 attacks and a really good one'). Standard strike signature; dbg_dir
+    accepted for parity, unused (the errand is all street-level town walking). Idempotent
+    by state: party already knows Ice Beam -> 'have_ice_beam'; TM13 in the case -> teach
+    only; else Coin Case -> coins -> prize -> teach. Success strings for the registry:
+    'taught' | 'have_ice_beam'."""
+    try:
+        here = tuple(tv.map_id(camp.b))
+    except Exception:
+        return "failed"
+    if here not in ICEBEAM_ANCHORS:
+        return "not_here"
+    return IceBeamErrand(camp, log=log).run()

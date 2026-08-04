@@ -504,6 +504,22 @@
         "gives_cap": null
       },
       "human": "the Exp. Share — Oak's aide upstairs in the Route 15 west gate hands it over at 50 caught species. Whoever holds it banks XP from EVERY fight without ever taking the field: the bench-development engine the Elite Four demands"
+    },
+    "ice_beam": {
+      "kind": "item",
+      "name": "TM13 Ice Beam",
+      "obtain": {
+        "via": "strike",
+        "npc": "the Game Corner prize clerk",
+        "from": "3,6",
+        "dir": "north",
+        "place_name": "the Celadon Game Corner prize counter — Coin Case from the restaurant man, buy 4000 coins at the Corner (500/10000 yen), exchange them next door for TM13, teach the ace",
+        "prereq": null,
+        "sets_flag": null,
+        "gives_cap": "ice_beam",
+        "_note": "2026-08-04 (Jonny: 'make sure she gets blastoise ice beam so he has 4 attacks and a really good one'). No flag/no bag-item can bill success — the TM is CONSUMED on teach — so the step's win is the CAPABILITY: a party mon KNOWING move 58 (questline._step_satisfied EXTRA_CAP_MOVE_IDS). The gate (_icebeam_gate) only arms once the full coin budget is affordable, so this never turns into the badge-4 66k grass-farm regression."
+      },
+      "human": "TM13 Ice Beam off the Game Corner prize counter — the one move that freezes everything left on the road: Venusaur, Lance's dragons, the birds. Blastoise with Ice Beam is the whole endgame answer"
     }
   },
   "route_notes": {

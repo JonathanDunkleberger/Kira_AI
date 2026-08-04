@@ -155,6 +155,7 @@ OVERWORLD_SAFE_QUESTLINES = frozenset({
     "FLAG_GOT_TEA",                   # Celadon (town)
     "eevee",                          # Celadon (town) — the Condominiums gift ball (interior is a strike)
     "exp_share",                      # Fuchsia -> Route 15 west gate (open road; the gatehouse is a strike)
+    "ice_beam",                       # Celadon (town) — the Game Corner TM13 errand (interiors are a strike)
     "bike", "FLAG_GOT_BIKE_VOUCHER",  # Cerulean / Vermilion (towns)
     # RUN-5 (2026-07-14) — the badge-6..8 back-half keys. fresh_go_1..4 all froze the bench ~L25-29 while
     # the ace soloed to L63+ across these questline-dense legs, because their gate.missing keys were NOT
@@ -358,6 +359,15 @@ EEVEE_FETCH_ENABLED = os.getenv("POKEMON_EEVEE_FETCH", "1") != "0"
 # at dex>=50; below the bar the strategist brief runs the DEX PUSH doctrine (catch every NEW
 # species crossed, never wander for it). Disable with POKEMON_EXPSHARE_FETCH=0.
 EXPSHARE_FETCH_ENABLED = os.getenv("POKEMON_EXPSHARE_FETCH", "1") != "0"
+# 2026-08-04 (Jonny: "make sure she gets blastoise ice beam so he has 4 attacks and a really
+# good one"): the CELADON GAME CORNER TM13 side quest (game_corner.run_strike — Coin Case from
+# the restaurant, 4000 coins off the Corner clerk, TM13 at the prize counter, TeachFlow to the
+# ace). The errand machinery has existed since the Erika era but was never dispatched (the
+# badge-4 wiring grass-farmed ¥66k and got benched). The gate (_icebeam_gate) only arms once
+# the FULL coin budget is affordable above the shop floor — no farming, no deferral: she buys
+# it the tick she's rich enough. Success = a party mon KNOWING move 58 (the TM is consumed on
+# teach, so no flag/bag check can bill it). Disable with POKEMON_ICEBEAM_FETCH=0.
+ICEBEAM_FETCH_ENABLED = os.getenv("POKEMON_ICEBEAM_FETCH", "1") != "0"
 # NS#13: the CINNABAR GYM strike (Blaine, badge 7). Cinnabar is FRLG's SIX quiz-door gym — the general
 # beat_gym clears juniors but never opens the quiz doors, so the leader battle never fires (the bounce the
 # mansion look-ahead surfaced). blaine_gym.run_gym does the FULL tour (quiz chain -> Blaine -> badge ->
@@ -12068,6 +12078,10 @@ class Campaign:
                 from expshare_fetch import EXPSHARE_ANCHORS, run_strike
                 return run_strike, EXPSHARE_ANCHORS, ("got_expshare",), "expshare_probe"
 
+            def _icebeam():
+                from game_corner import ICEBEAM_ANCHORS, run_strike
+                return run_strike, ICEBEAM_ANCHORS, ("taught", "have_ice_beam"), "icebeam_probe"
+
             registry = {
                 ("item", 359): ("Rocket Hideout (Silph Scope)",
                                 "got it — the Silph Scope. now for that ghost in the tower.", _hideout),
@@ -12134,6 +12148,14 @@ class Campaign:
                     "the Route 15 west gate 2F (Oak's aide — the Exp. Share)",
                     "the EXP. SHARE is mine — fifty caught and the aide pays out. the whole bench "
                     "levels off every fight from here to the League.", _expshare),
+                # 2026-08-04 (Jonny's order): the Game-Corner TM13 buy+teach. Success is the
+                # CAPABILITY — a party mon knows move 58 (questline EXTRA_CAP_MOVE_IDS) — since
+                # the TM is consumed on teach and there's no flag. The strike is idempotent:
+                # TM already in case -> teach only; already known -> 'have_ice_beam'.
+                ("cap", "ice_beam"): (
+                    "the Celadon Game Corner (TM13 Ice Beam for the ace)",
+                    "ICE BEAM is on the team — straight off the Game Corner prize counter. grass, "
+                    "dragons, birds: everything left on this run freezes now.", _icebeam),
             }
             if succ not in registry:
                 return None
@@ -12149,6 +12171,8 @@ class Campaign:
                 return None                     # eevee fetch flag-gated OFF -> fall through
             if succ == ("flag", "FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE") and not EXPSHARE_FETCH_ENABLED:
                 return None                     # exp-share fetch flag-gated OFF -> fall through
+            if succ == ("cap", "ice_beam") and not ICEBEAM_FETCH_ENABLED:
+                return None                     # ice-beam fetch flag-gated OFF -> fall through
             label, done_msg, importer = registry[succ]
             run_fn, anchors, good, dbg_sub = importer()
             if here not in anchors:
@@ -12419,6 +12443,38 @@ class Campaign:
                              "it levels off every fight without taking a hit: my whole bench "
                              "grows on the road from here to the League.",
                        detail={"flag": "FLAG_GOT_EXP_SHARE_FROM_OAKS_AIDE"})
+
+    def _icebeam_gate(self, state):
+        """CELADON GAME-CORNER ICE BEAM (2026-08-04, Jonny: 'make sure she gets blastoise ice
+        beam so he has 4 attacks and a really good one'). TM13's only pre-E4 copy is the prize
+        counter (4000 coins = 8×¥10,000 coin packs) — the single best coverage buy in the game:
+        Ice freezes exactly what's left on the road (Gary's Venusaur, Lance's dragons, the
+        birds). The errand (game_corner.IceBeamErrand) has been proven since the Erika era but
+        was never dispatched; this proactive gate arms it the moment it's actually affordable.
+        SELF-SUPPRESSES until then (the badge-4 wiring farmed grass for ¥66k — never again):
+        below budget she just keeps playing and the gate re-checks every tick as money banks up.
+        Returns a Gate while badges>=5, a compatible learner is fielded, nobody knows move 58,
+        and (TM13 in case OR the full coin budget clears the shop floor); else None."""
+        if not ICEBEAM_FETCH_ENABLED:
+            return None
+        try:
+            import game_corner as gc
+            if (state.get("badge_count") or 0) < 5:
+                return None
+            slot, why = gc.IceBeamErrand(self, log=log).pick_recipient()
+            if slot is None or why == "already":
+                return None                      # nobody to teach / already on the team
+            if gc.tm_case_qty(self.b, gc.ITEM_TM13) <= 0:
+                if gc.ice_beam_cash_shortfall(self) > 0:
+                    return None                  # not rich enough yet — no farming, just wait
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="ice_beam", where=tuple(CELADON),
+                       human="TM13 Ice Beam — the Celadon Game Corner prize counter sells the "
+                             "one move that freezes everything left on this run: Venusaur, "
+                             "Lance's dragons, the birds. The coin budget's banked; Blastoise "
+                             "gets a fourth attack worth having.",
+                       detail={"cap": "ice_beam"})
 
     def _head_to_league(self, state):
         """ENDGAME (NS#15): all 8 badges, not yet at Indigo — dispatch the Victory Road strike. It drives its
@@ -13046,6 +13102,16 @@ class Campaign:
             if xg is not None and self._open_questline(xg, state):
                 log("   [roam] 📈 PROACTIVE EXP-SHARE: 50+ caught and the Route 15 aide is "
                     "holding my Exp. Share — climbing the west-gate stairs to collect")
+                return
+            # PROACTIVE ICE BEAM (2026-08-04, Jonny's order — 'blastoise ice beam so he has 4
+            # attacks and a really good one'): the moment the full Game-Corner coin budget is
+            # banked (the gate self-suppresses below it — never a farm), detour to Celadon for
+            # TM13 and teach the ace. Fires LAST among the luxuries: war errands, mobility and
+            # the bench engine all outrank a (spectacular) coverage buy.
+            ig = self._icebeam_gate(state)
+            if ig is not None and self._open_questline(ig, state):
+                log("   [roam] ❄️ PROACTIVE ICE BEAM: the coin budget is banked — Celadon Game "
+                    "Corner for TM13, then the ace learns the endgame's best fourth attack")
                 return
             # No active errand → is the FORWARD exit a story/HM gate she can't pass yet (the Cerulean
             # Slowbro / S.S.-Ticket story-block, read LIVE)? Recognise it and open the unlock questline so
