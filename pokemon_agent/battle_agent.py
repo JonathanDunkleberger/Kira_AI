@@ -2629,7 +2629,23 @@ class BattleAgent:
         if self._at_move_list() and 0 <= _byte < 4 and _byte != idx:
             self.log(f"   [engine] !! CURSOR BYTE DISAGREES post-blind-walk (byte={_byte}, "
                      f"blind={idx}) — RAM block likely frozen; trusting the blind walk")
+        # FORCE-WRITE THE SELECTION (2026-08-04 LIVE, the Silph 'Tackle theater': engine chose
+        # Water Pulse every turn vs Pidgeot while TACKLE's PP drained 30->26 — eaten blind-walk
+        # taps left the REAL cursor on slot 0, the byte read 0 truthfully, and the 12:07 rule
+        # above trusted the walk over the byte, so A confirmed Tackle for a whole fight).
+        # The game's confirm reads gMoveSelectionCursor — the byte IS the selection (the
+        # _goto_move doctrine, action-cursor-proven). A raw WRITE lands on real memory even
+        # when the READ path is frozen, so writing idx right before A is correct in BOTH
+        # failure classes: eaten-taps (fixes the desync) and frozen reads (harmless no-op
+        # on an already-right cursor). Best-effort; a write fault never blocks the confirm.
+        try:
+            self.b.core.memory.u8.raw_write(MOVE_CURSOR, int(idx) & 0xFF)
+            self._wait(2)
+        except Exception as _wf:
+            self.log(f"   [engine] move-cursor force-write failed ({_wf}) — blind walk only")
         pp0 = ours["moves"][idx].get("pp", 0) if 0 <= idx < 4 else 0
+        # Full PP snapshot for the post-turn WRONG-SLOT AUDIT below (menu-time state).
+        _pp_all0 = [int((m or {}).get("pp", 0) or 0) for m in (ours.get("moves") or [])]
         before = self._bstate()
         self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(10)
         self._last_desc, self._last_eff = desc, eff
@@ -2660,6 +2676,24 @@ class BattleAgent:
                     pass
                 hp = (cur["enemy"]["hp"], cur["ours"]["hp"])
                 if before and hp != before:
+                    # WRONG-SLOT AUDIT (2026-08-04, the Silph Tackle theater): an HP change
+                    # proves A turn ran — NOT that the CHOSEN move ran. When the cursor
+                    # desynced, Tackle fired, HP moved, this branch said 'done', and the
+                    # wrong-fire stayed INVISIBLE for a whole fight. Compare the PP vector:
+                    # a different slot consumed while the chosen one didn't = the confirm
+                    # landed elsewhere. The force-write above should make this extinct;
+                    # if it still fires, it's LOUD evidence (never a silent pass again).
+                    try:
+                        _ppv = [int((m or {}).get("pp", 0) or 0)
+                                for m in (cur["ours"].get("moves") or [])]
+                        _drop = [j for j, (a, c) in enumerate(zip(_pp_all0, _ppv)) if c < a]
+                        if _drop and idx not in _drop:
+                            self._wrong_fires = getattr(self, "_wrong_fires", 0) + 1
+                            self.log(f"   [engine] !! WRONG SLOT FIRED: chose {idx} but slot "
+                                     f"{_drop[0]} was consumed (cursor desync survived the "
+                                     f"force-write; wrong-fires {self._wrong_fires}) — LOUD")
+                    except Exception:
+                        pass
                     result = "done"; break
                 stable = stable + 1 if hp == last_hp else 0
                 last_hp = hp
