@@ -1433,6 +1433,22 @@ class BattleAgent:
         except Exception as e:
             self.log(f"   [engine] rehome-FIGHT failed: {e} (LOUD)")
 
+    def _blind_menu_unwind(self, presses=8):
+        """2026-08-04 LIVE (the Hyper-Potion-forever golbat fight — 19 minutes on stream): every
+        screen classifier lied AT ONCE (bag=False party=False/True menu_up=1 white-box lit) while
+        the REAL screen was the bag list -> 'Use on which POKéMON?', so every screen-AWARE escape
+        (_war_advance_press, the party-thrash B-loop) consulted the same lying reads and pressed
+        the loop right back open. B is the one blind-safe key in FRLG battle menus — it only
+        cancels or advances text, NEVER confirms — so when the wedge signature shows, stop
+        trusting screens entirely: B-storm the whole menu stack down unconditionally, then park
+        the action cursor back on FIGHT so no later blind A can re-open the bag."""
+        for _ in range(presses):
+            if not st.in_battle(self.b):
+                return
+            self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(14)
+        self._rehome_fight_cursor()
+
     def _true_active_party_hp(self):
         """Tear-safe HP for the mon currently OUT: gPlayerParty[gBattlerPartyIndexes[0]].
         gBattleMons HP can tear (looks hurt while the bar is full) and was the 2026-08-02
@@ -1758,7 +1774,14 @@ class BattleAgent:
             # lights those pixels, so 'used' returned with the box still up and the turn loop
             # wedged against it forever (the run19 Lance livelock). _settle_action_menu now
             # demands cursor responsiveness and B-drains impostors, so route through it.
-            self._settle_action_menu(tries=12)
+            if not self._settle_action_menu(tries=12):
+                # 2026-08-04 LIVE (the Hyper-Potion golbat loop): the settle came back UNCONFIRMED
+                # — the bag/target screen was still up but invisible to every classifier, and the
+                # next turn's 'move commit' re-confirmed the parked potion forever. Don't return
+                # 'used' on a lying screen: blind B-unwind the whole stack first.
+                self.log("   [engine] use_item: post-use settle NOT confirmed — blind B-unwind "
+                         "(the bag can sit open invisible to every classifier)")
+                self._blind_menu_unwind(8)
             # Cursor is parked on BAG after any item trip — re-home to FIGHT so no later
             # blind A can re-open the bag (the Route-13 fisherman Super-Potion loop).
             self._rehome_fight_cursor()
@@ -4010,6 +4033,12 @@ class BattleAgent:
                         self._allow_pokemon_menu = False
                         self._switch_fail_n = 99
                         self.log("   [engine] PARTY THRASH latch — voluntary POKEMON banned this battle")
+                        # 2026-08-04 LIVE (thrash #1..#23, 19 minutes of Hyper-Potion theater): the
+                        # party screen kept RE-OPENING because a bag/target layer sat open UNDERNEATH
+                        # it, invisible to _bag_screen(), and every 'move commit' re-confirmed the
+                        # parked potion. B-closing only the party layer can never break that cycle —
+                        # blind-unwind the WHOLE menu stack, then re-home the cursor to FIGHT.
+                        self._blind_menu_unwind(8)
                     continue
             glob = self._bstate()
             if glob != last_glob:                     # real progress -> reset the wedge guard
@@ -4365,23 +4394,33 @@ class BattleAgent:
             # a full BATTLE_MENU_WEDGE_S of zero progress) keep it loud but never dead.
             if (BATTLE_MENU_WEDGE_S > 0 and _stall_for >= BATTLE_MENU_WEDGE_S
                     and not self._enemy_fainted and not self._we_fainted
-                    and getattr(self, "_menu_wedge_n", 0) < 3):
+                    and getattr(self, "_menu_wedge_n", 0) < 8):
                 self._menu_wedge_n = getattr(self, "_menu_wedge_n", 0) + 1
                 self.log(f"   [engine] !! MENU WEDGE {_stall_for:.0f}s with NO progress — escaping the "
-                         f"scroll theater (fire {self._menu_wedge_n}/3, menu_up={int(self._menu_up())} "
+                         f"scroll theater (fire {self._menu_wedge_n}/8, menu_up={int(self._menu_up())} "
                          f"action={self._at_action_menu()} moves={self._at_move_list()} "
                          f"bag={self._bag_screen()} party={self._party_screen()})")
                 if self._menu_wedge_n == 1:
                     self.emit("menus are glitched — bailing this fight.", beat=True, tier=2)
                 if not self._is_trainer_battle():
                     return self.flee(max_seconds=45)
-                # Trainer: screen-aware presses only (B out of bag/party; A only on a FIGHT-homed
-                # action menu / move list). The old 'B then always A' alternation was itself the
-                # infinite selected/Use-on-which cycle.
-                for _ in range(8):
-                    if not st.in_battle(self.b) or self._enemy_fainted:
-                        break
-                    self._war_advance_press()
+                if self._menu_wedge_n >= 2:
+                    # 2026-08-04 LIVE (the Hyper-Potion golbat loop): fires 1-3 ran the screen-AWARE
+                    # presses below, which consult the SAME lying classifiers that caused the wedge
+                    # (action=True while the real screen was the bag list) — so all three fires
+                    # burned and the loop ran 19 minutes until the window died. From the second
+                    # fire on, stop trusting screens: blind B-unwind the whole stack (B never
+                    # confirms), then re-home FIGHT. Cap raised 3->8 so the escape can't go dead.
+                    self.log("   [engine] MENU WEDGE escalation: blind B-unwind (classifiers untrusted)")
+                    self._blind_menu_unwind(10)
+                else:
+                    # Trainer, first fire: screen-aware presses only (B out of bag/party; A only on
+                    # a FIGHT-homed action menu / move list). The old 'B then always A' alternation
+                    # was itself the infinite selected/Use-on-which cycle.
+                    for _ in range(8):
+                        if not st.in_battle(self.b) or self._enemy_fainted:
+                            break
+                        self._war_advance_press()
                 self._unresolved_turns = 0
                 stall = 0
                 self._last_battle_progress_t = time.time()  # don't re-trigger every iteration

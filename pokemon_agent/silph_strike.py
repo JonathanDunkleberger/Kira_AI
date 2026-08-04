@@ -188,6 +188,34 @@ class SilphStrike:
             return False
         return tuple(tv.coords(b) or ()) == tile
 
+    def press_at_ball(self, ball, label, presses=6):
+        """A-press an item ball from the CURRENT tile, whichever side she happens to stand on.
+        2026-08-04 LIVE (the 'pokéball in her way' Card-Key wedge): the fixed front-tile list
+        demanded tiles the sealed pocket can't even reach (the ball itself blocks the corridor
+        east of it) while she stood directly beside the ball at (21,21) — travel ping-ponged for
+        minutes and the strike aborted. Adjacency is the truth: no walking here, face + press or
+        nothing. Returns True when the press produced a dialogue (the pickup text)."""
+        b, camp = self.b, self.camp
+        cur = tuple(tv.coords(b) or (0, 0))
+        dx, dy = ball[0] - cur[0], ball[1] - cur[1]
+        if abs(dx) + abs(dy) != 1:
+            return False
+        face = "RIGHT" if dx == 1 else "LEFT" if dx == -1 else "DOWN" if dy == 1 else "UP"
+        for _ in range(presses):
+            b.press(face, 8, 10, camp.render, owner="agent")
+            b.press("A", 8, 12, camp.render, owner="agent")
+            for _ in range(30):
+                b.run_frame()
+            if st.in_battle(b):
+                self.log(f"   [{label}] battle at the ball -> {self.fight()}")
+                self.drain()
+                return False
+            if dd_box(b):
+                self.log(f"   [{label}] ball answered from {cur} (facing {face}) — draining the pickup text")
+                self.drain()
+                return True
+        return False
+
     def engage(self, front, face, label, drains=1, key="A"):
         b, camp = self.b, self.camp
         if not self.goto(front, label):
@@ -345,6 +373,18 @@ class SilphStrike:
         import time
         b, camp, L = self.b, self.camp, self.log
         while time.time() < deadline and not self.saffron_free():
+            # WATCHDOG CEASEFIRE (2026-08-04 LIVE, the Card-Key wedge): a grunt's dialogue box
+            # tripped the roam watchdog mid-strike, and the latched disengage then KILLED every
+            # travel leg the strike launched ("bailing this leg LOUD", storm after storm) — the
+            # strike never unwinds to the roam top, so the latch only ever starved it. The climb
+            # owns its own wedge budget (self.wedges) and a hard deadline, so a roam-layer latch
+            # inside it is always friendly fire: clear it and reset the watch each lap.
+            if getattr(camp, "_stuck_request", None) is not None:
+                camp._stuck_request = None
+                if getattr(camp, "_stuckwatch", None) is not None:
+                    camp._stuckwatch.reset()
+                camp._latch_bails = 0
+                L("   [silph] roam watchdog latch cleared IN-STRIKE (the climb has its own wedge budget)")
             here = tuple(tv.map_id(b))
             if self.lead_frac() < 0.5 and self.heal_mode is not None:
                 self.heal_mode = True
@@ -424,13 +464,18 @@ class SilphStrike:
             # PHASE A — no Card Key yet: climb to 9F, ride the pad into the 5F pocket, grab the ball.
             if not self.have_key():
                 if here == F5 and cur[1] >= 19:
-                    for face, front in (("RIGHT", (CARD_BALL_5F[0] - 1, CARD_BALL_5F[1])),
-                                        ("LEFT", (CARD_BALL_5F[0] + 1, CARD_BALL_5F[1])),
-                                        ("DOWN", (CARD_BALL_5F[0], CARD_BALL_5F[1] - 1)),
-                                        ("UP", (CARD_BALL_5F[0], CARD_BALL_5F[1] + 1))):
-                        if tuple(tv.map_id(b)) != F5:
+                    # 2026-08-04 LIVE (the 'pokéball in her way' wedge Jonny watched): the pocket is
+                    # entered from the WEST and the ball itself seals the corridor, so the E/N/S
+                    # fronts the old loop demanded — (23,21)/(22,20)/(22,22) — are structurally
+                    # UNREACHABLE; travel ping-ponged them for minutes while she stood right beside
+                    # the ball at (21,21), then the strike aborted. Adjacency FIRST (press from
+                    # wherever she stands), west front as the only walk target.
+                    for _try in range(4):
+                        if self.press_at_ball(CARD_BALL_5F, "card-key-ball") and self.have_key():
                             break
-                        self.engage(front, face, "card-key-ball")
+                        if self.have_key() or tuple(tv.map_id(b)) != F5:
+                            break
+                        self.engage((CARD_BALL_5F[0] - 1, CARD_BALL_5F[1]), "RIGHT", "card-key-ball")
                         if self.have_key():
                             break
                     L(f"   CARD KEY: item={CARD_KEY_ITEM in self.key_items()} "

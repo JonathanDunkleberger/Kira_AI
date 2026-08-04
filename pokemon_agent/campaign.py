@@ -12915,6 +12915,22 @@ class Campaign:
                 else:
                     self._active_questline = q
                 return
+            # PROACTIVE SILPH LIBERATION — IN-TOWER RESUME (2026-08-04 LIVE, the walk-out Jonny
+            # watched): a crash mid-silph_strike relaunches with her STANDING INSIDE the tower,
+            # but the liberation gate only ever armed at Sabrina's DOOR (beat_gym-stuck ->
+            # eviction), so the resume re-opened the FLY luxury instead and GO-HARD marched her
+            # OUT of Silph, down every climbed floor, to bonk the Rocket-guarded door and re-arm
+            # what she was already holding. If she's inside the tower and Saffron is still
+            # Rocket-held, the strike IS the road — re-arm it right where she stands.
+            if cur_map in {(1, 47 + _i) for _i in range(12)}:
+                _sab = GYMS.get("Sabrina")
+                if _sab is not None:
+                    _pg = self._gym_prereq_gate(_sab)
+                    if _pg is not None and self._open_questline(_pg, state):
+                        log("   [roam] 🏢 PROACTIVE SILPH LIBERATION: resumed INSIDE Silph Co. with "
+                            "Saffron still Rocket-held — re-arming the strike in place (no walk-out, "
+                            "no door bonk, no re-climb from the street)")
+                        return
             # PROACTIVE HM-PREREQ (NS#11, the Blaine/Cinnabar Surf sea-gate): a gym gated behind an HM she must
             # ACQUIRE, where the at-the-door prereq (_gym_prereq_gate via beat_gym-stuck) can NEVER fire — she
             # can't even reach the gym (Cinnabar is across open water she can't yet Surf). Recognize it HERE,
