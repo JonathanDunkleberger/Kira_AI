@@ -15767,20 +15767,36 @@ class Campaign:
                     # STORY-PREREQ FIRST (2026-07-10 night shift 2, the Sabrina/Silph wall): a gym whose
                     # DOOR is Rocket/story-blocked has no tree for the HM probe to find — check the gym's
                     # story-prereq gate and arm the liberation errand (Silph Co.) BEFORE the HM probe
-                    # walks her around hunting a non-existent obstacle. Only when nothing's in flight.
+                    # walks her around hunting a non-existent obstacle.
                     # HARD RULE: at the gym city itself, NEVER open/pursue a surf/water questline from
                     # this path — the door is HERE (Vermilion beach water is poison, not the gate).
-                    if self._active_questline is None:
-                        pgate = self._gym_prereq_gate(gym)
-                        if pgate is not None:
-                            _pm = getattr(pgate, "missing", None)
-                            if (_pm == "surf" or (isinstance(_pm, str) and "surf" in _pm)
-                                    or (getattr(pgate, "detail", None) or {}).get("kind") == "water"):
-                                log(f"   [roam] !! AT-CITY: DISCARDING water/surf prereq gate "
-                                    f"({pgate}) while standing in {gym.city} — door is HERE")
-                                pgate = None
-                        if pgate and self._open_questline(pgate, state):
-                            return self._run_questline_step(state)
+                    pgate = self._gym_prereq_gate(gym)
+                    if pgate is not None:
+                        _pm = getattr(pgate, "missing", None)
+                        if (_pm == "surf" or (isinstance(_pm, str) and "surf" in _pm)
+                                or (getattr(pgate, "detail", None) or {}).get("kind") == "water"):
+                            log(f"   [roam] !! AT-CITY: DISCARDING water/surf prereq gate "
+                                f"({pgate}) while standing in {gym.city} — door is HERE")
+                            pgate = None
+                    # STORY-PREREQ EVICTION (2026-08-04 LIVE, the Sabrina door-guard orbit Jonny watched):
+                    # this arm used to be gated behind `_active_questline is None` — but the parked FLY
+                    # errand (a luxury GO-HARD rightly ignores: "'fly'/step=fly errand parked, not
+                    # cleared") NEVER releases the one questline slot, so the Silph liberation gate
+                    # could not arm and she bonked the Rocket guard at (46,13) forever ("Don't get
+                    # defiant!"). Reaching THIS stuck path with an errand in flight is only possible
+                    # when GO-HARD parked a NON-road errand (road-blocker errands are waived + run
+                    # upstream and never reach beat_gym) — so a story-critical liberation
+                    # (GYM_PREREQS → _ROAD_BLOCKERS class) EVICTS the parked luxury, takes the slot,
+                    # and next tick GO-HARD's road-blocker waiver drives the errand, not the door.
+                    if pgate is not None and self._active_questline is not None:
+                        _cur_miss = getattr(self._active_questline.gate, "missing", None)
+                        if _cur_miss != getattr(pgate, "missing", None):
+                            self._clear_questline(
+                                f"story-prereq '{getattr(pgate, 'missing', '?')}' outranks the "
+                                f"parked '{_cur_miss}' errand — the gym door itself is story-walled")
+                    if (pgate is not None and self._active_questline is None
+                            and self._open_questline(pgate, state)):
+                        return self._run_questline_step(state)
                     gate = self._gym_gate_probe(gym)
                     if gate == "cut_cleared":
                         _cut_cleared_this_tick = True
