@@ -1,0 +1,1500 @@
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 106/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [kira-voice] -> T2·savor· (recover) "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    HEAL: own Center door (25, 31) UNREACHABLE from (39, 28) on (3, 7) -> crossing to an adjacent city to heal
+
+   [campaign]    !! HEAL: no reachable adjacent Center from (3, 7) (conns=[('S', (3, 37)), ('W', (3, 36)), ('E', (3, 33))]) — LOUD
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260804_131837.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (6, 5, 13, 137)); current backed up to pre_reload_20260804_131837.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 7) coords=(25, 32) badges=6 party=5)
+
+   [campaign]    HEAL: TRUE strand -> escape-hatch reloaded to last good checkpoint (recovered)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick106] -> campaign/kira_campaign.state  (map=(3, 7) coords=(25, 32) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 107/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (25, 32) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (25,32) f4 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2638ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 9 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    reachable door (38, 31): walking to approach (38, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(25, 32) -> coord (38, 32) (budget 240s)
+
+   [travel] step 0: (25, 32)->(26, 32) map=(3, 7) (path 13 to exit)
+
+   [travel] step 10: (35, 32)->(36, 32) map=(3, 7) (path 4 to exit)
+
+   [travel] reached target coord (38, 32)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 7) -> (11, 8) via door (38, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (11, 8): (2, 9)->(3, 7), (3, 8)->(3, 7), (4, 9)->(3, 7), (3, 1)->(3, 7)
+
+   [campaign]    [world] learned 4 warp(s) on (11, 8): (2, 9)->(3, 7), (3, 8)->(3, 7), (4, 9)->(3, 7), (3, 1)->(3, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(11, 8) coords=(3, 8) -> coord (3, 1) (budget 110s)
+
+   [travel] step 0: (3, 8)->(3, 7) map=(11, 8) (path 8 to exit)
+
+   [travel] reached target coord (3, 1)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    PASSTHROUGH: CROSSED via door (38, 31): (3, 7)@(25, 32) -> (3, 7)@(39, 28)
+
+   [campaign]    [roam] REGROUP: rode a connector building out of the pocket
+
+   [campaign]    [roam] RESULT: regroup -> regrouped | pos (3, 7)(25, 32) -> (3, 7)(39, 28) (MOVED)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 108/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cinnabar Island: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf'/step=surf errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Cinnabar Island: on Fuchsia City — billed leg south toward Route 19
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the road to Cinnabar Island runs south from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 37) (budget 300s)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 7) right after riding in from (3, 33) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick108] -> campaign/kira_campaign.state  (map=(3, 7) coords=(39, 28) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 109/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh'], 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Cinnabar Island and wreck Blaine'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Cinnabar Island and wreck Blaine'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cinnabar Island: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Cinnabar Island and wreck Blaine'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf'/step=surf errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Cinnabar Island: on Fuchsia City — billed leg south toward Route 19
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the road to Cinnabar Island runs south from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 37) (budget 300s)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 7) right after riding in from (3, 33) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 110/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 3548ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick110] -> campaign/kira_campaign.state  (map=(3, 7) coords=(39, 28) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 111/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 3 turns - it went 'stuck', and you don't seem to be getting anywhere."
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 3 turns - it went \'stuck\', and you don\'t seem to be getting anywhere.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2845ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 112/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh'], 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get Surf from the warden, reach Cinnabar Island'
+
+   [campaign]    [soul] ORACLE pick -> 'get Surf from the warden, reach Cinnabar Island'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 4 turns - it went 'stuck', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'regroup' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 4 turns - it went \'stuck\', and you don\'t seem to be getting anywhere.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'regroup\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] -> T2·savor· (want) 'get Surf from the warden, reach Cinnabar Island'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2379ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick112] -> campaign/kira_campaign.state  (map=(3, 7) coords=(39, 28) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 113/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 5 turns - it went 'stuck', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'regroup' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 5 turns - it went \'stuck\', and you don\'t seem to be getting anywhere.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'regroup\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2340ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 114/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 6 turns - it went 'stuck', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'regroup' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 6 turns - it went \'stuck\', and you\'re completely stuck.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'regroup\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2528ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick114] -> campaign/kira_campaign.state  (map=(3, 7) coords=(39, 28) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 115/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh'], 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Cinnabar Island, wreck Blaine'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Cinnabar Island, wreck Blaine'
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 7 turns - it went 'stuck', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'regroup' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 7 turns - it went \'stuck\', and you\'re completely stuck.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'regroup\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] -> T2·savor· (want) 'reach Cinnabar Island, wreck Blaine'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 3600ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 116/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [campaign]    HEAL: own Center door (25, 31) UNREACHABLE from (39, 28) on (3, 7) -> crossing to an adjacent city to heal
+
+   [campaign]    !! HEAL: no reachable adjacent Center from (3, 7) (conns=[('S', (3, 37)), ('W', (3, 36)), ('E', (3, 33))]) — LOUD
+
+   [kira-voice] -> T2·savor· (recover) "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."  fired=True  [age 0.0s + post 19ms]
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260804_131930.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (6, 5, 13, 137)); current backed up to pre_reload_20260804_131930.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 7) coords=(25, 32) badges=6 party=5)
+
+   [campaign]    HEAL: TRUE strand -> escape-hatch reloaded to last good checkpoint (recovered)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick116] -> campaign/kira_campaign.state  (map=(3, 7) coords=(25, 32) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 117/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (25, 32) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (25,32) f4 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 4008ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 9 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    reachable door (38, 31): walking to approach (38, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(25, 32) -> coord (38, 32) (budget 240s)
+
+   [travel] step 0: (25, 32)->(26, 32) map=(3, 7) (path 13 to exit)
+
+   [travel] step 10: (35, 32)->(36, 32) map=(3, 7) (path 4 to exit)
+
+   [travel] reached target coord (38, 32)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 7) -> (11, 8) via door (38, 31)
+
+   [campaign]    [world] learned 4 warp(s) on (11, 8): (2, 9)->(3, 7), (3, 8)->(3, 7), (4, 9)->(3, 7), (3, 1)->(3, 7)
+
+   [campaign]    [world] learned 4 warp(s) on (11, 8): (2, 9)->(3, 7), (3, 8)->(3, 7), (4, 9)->(3, 7), (3, 1)->(3, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(11, 8) coords=(3, 8) -> coord (3, 1) (budget 110s)
+
+   [travel] step 0: (3, 8)->(3, 7) map=(11, 8) (path 8 to exit)
+
+   [travel] reached target coord (3, 1)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    PASSTHROUGH: CROSSED via door (38, 31): (3, 7)@(25, 32) -> (3, 7)@(39, 28)
+
+   [campaign]    [roam] REGROUP: rode a connector building out of the pocket
+
+   [campaign]    [roam] RESULT: regroup -> regrouped | pos (3, 7)(25, 32) -> (3, 7)(39, 28) (MOVED)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 118/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh'], 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Cinnabar Island and destroy Blaine'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Cinnabar Island and destroy Blaine'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cinnabar Island: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge.
+
+   [kira-voice] -> T2·savor· (want) 'reach Cinnabar Island and destroy Blaine'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf'/step=surf errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Cinnabar Island: on Fuchsia City — billed leg south toward Route 19
+
+   [kira-voice] ·floor· (<1s since last) T1 'the road to Cinnabar Island runs south from here — onward.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 37) (budget 300s)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 7) right after riding in from (3, 33) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick118] -> campaign/kira_campaign.state  (map=(3, 7) coords=(39, 28) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 119/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym — Cinnabar Island: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge.
+
+   [campaign]    [roam] !! GO-HARD: head_to_gym IGNORES the questline hijack ('surf'/step=surf errand parked, not cleared) — driving THE GYM DOOR, not the errand
+
+   [campaign]    [roam] ROAD to Cinnabar Island: on Fuchsia City — billed leg south toward Route 19
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (route) 'the road to Cinnabar Island runs south from here — onward.'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 37) (budget 300s)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 7) right after riding in from (3, 33) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 120/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2218ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 18ms]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick120] -> campaign/kira_campaign.state  (map=(3, 7) coords=(39, 28) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 121/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh'], 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Cinnabar Island and wreck Blaine'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Cinnabar Island and wreck Blaine'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 3 turns - it went 'stuck', and you don't seem to be getting anywhere."
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 3 turns - it went \'stuck\', and you don\'t seem to be getting anywhere.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] -> T2·savor· (want) 'reach Cinnabar Island and wreck Blaine'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 3097ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 122/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 4 turns - it went 'stuck', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'regroup' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 4 turns - it went \'stuck\', and you don\'t seem to be getting anywhere.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'regroup\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2120ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick122] -> campaign/kira_campaign.state  (map=(3, 7) coords=(39, 28) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 123/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 5 turns - it went 'stuck', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'regroup' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 5 turns - it went \'stuck\', and you don\'t seem to be getting anywhere.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'regroup\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2350ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 124/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh'], 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Cinnabar Island, badge seven'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Cinnabar Island, badge seven'
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 6 turns - it went 'stuck', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'regroup' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 6 turns - it went \'stuck\', and you\'re completely stuck.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'regroup\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] -> T2·savor· (want) 'reach Cinnabar Island, badge seven'  fired=True  [age 0.0s + post 10ms]
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2695ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick124] -> campaign/kira_campaign.state  (map=(3, 7) coords=(39, 28) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 125/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to regroup but the world hasn't changed in 7 turns - it went 'stuck', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'regroup' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. You keep trying to regroup but the world hasn\'t changed in 7 turns - it went \'stuck\', and you\'re completely stuck.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.. HEADS UP — you just chose \'regroup\' and NOTHING changed (same spot, no progress). Repeating it again will do the same nothing. Pick a DIFFERENT action this time and break the loop.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2972ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge. then on to Cinnabar Island for Blaine
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop east -> Route 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(39, 28) -> map (3, 33) (budget 300s)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] path blocked at (39, 28) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 28) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 28) map=(3, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(38, 31)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [roam] !! REGROUP: no Center anchor and no connector fired from (3, 7) (39, 28) — LOUD (a true seal; watchdogs carry it)
+
+   [campaign]    [roam] RESULT: regroup -> stuck | pos (3, 7)(39, 28) -> (3, 7)(39, 28) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 126/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (39, 28) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(3, 7) (39,28) f2 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [kira-voice] -> T2·savor· (recover) "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    HEAL: own Center door (25, 31) UNREACHABLE from (39, 28) on (3, 7) -> crossing to an adjacent city to heal
+
+   [campaign]    !! HEAL: no reachable adjacent Center from (3, 7) (conns=[('S', (3, 37)), ('W', (3, 36)), ('E', (3, 33))]) — LOUD
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260804_132021.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (6, 5, 13, 137)); current backed up to pre_reload_20260804_132021.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 7) coords=(25, 32) badges=6 party=5)
+
+   [campaign]    HEAL: TRUE strand -> escape-hatch reloaded to last good checkpoint (recovered)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick126] -> campaign/kira_campaign.state  (map=(3, 7) coords=(25, 32) badges=6 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] GYM-READINESS FLOOR: SPARED head_to_gym — 🔥 MOMENTUM (decisive last win; march at Blaine, train on the road)
+
+   [campaign]    [roam] !! ACE-CARRIES → GO HARD: forced head_to_gym (Blaine); pruned ['battle', 'travel:3,1', 'travel:3,10', 'travel:3,3', 'travel:3,5']; oracle SKIPPED this tick
+
+   [campaign]    [roam] !! NO-MOVE PRUNE (all-dead): every offered option ['head_to_gym'] is a proven dead route (streak 2) — pruned to the regroup floor instead of thrashing them
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 127/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (25, 32) | badges=6 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh) | party=[blastoise L57, rattata L18, kadabra L19, diglett L18, lapras L25] | 6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (25,32) f4 -- badge6 $22178 party:bce1 bag:51f6]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh'], 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Cinnabar Island'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Cinnabar Island'
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. From here: SOUTH → Route 19; EAST → Route 15 — wild Pokémon to catch/train; WEST → an unexplored area (unexplored). Places you\'ve been with wild Pokémon you can walk back to: Route 14; an unfamiliar area; Route 13. You can walk to anywhere you\'ve already been. Field moves ready: CUT.. Okay — to get past this I need HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. You\'re on GYM 7 of 8 — next is Blaine in Cinnabar Island. The road forward leads there: until you\'ve won you are ALWAYS making progress toward the next gym. Grinding/catching/detours are fine — but ONLY with a clear purpose, and then you GET BACK ON THE ROAD to Cinnabar Island. Never just circle the same grass. ⚠️ ORDER OF OPERATIONS: before Blaine, HM Surf — the prize of the Safari Zone\'s Secret House, deep in the back area. Surf opens the sea: Cinnabar, the Seafoam route, and Victory Road\'s water — that errand comes FIRST (it unblocks the road and the trainers along it are exactly the training you need). Blaine is step two, not a competing choice. Word on the road about Blaine: the old fire scientist — FIRE-types on a volcano island; water washes him out YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): Six badges: only Blaine on Cinnabar (Volcano) and Giovanni in Viridian (Earth) stand between you and the Elite Four road.. Next on my list: catch an growlithe around Route 7 / Route 8. It grows into my arcanine — that\'s my answer for Champion down the line. Grabbing it now, before I need it.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and head to Cinnabar Island for the Volcano Badge. Next: You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training. Bigger picture: Reach Cinnabar Island, beat Blaine for the Volcano Badge. Your team right now: blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "6 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh). Next gym: Blaine of Cinnabar Island. Pokédex: 13 caught. She's six badges down, only two to go (of 8 badges, then the Elite Four).", 'party': 'blastoise (L57), rattata (L18), abra the kadabra (L19), diglett (L18), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and head to Cinnabar Island for the Volcano Badge", 'medium': 'You CRUSHED Sabrina — ride the momentum: Blaine in Cinnabar Island is NEXT (not fought yet); the trainers on the way are your training', 'long': 'Reach Cinnabar Island, beat Blaine for the Volcano Badge'}, 'strategy': "1) WAR PREP: next is Blaine (fire, ~L42-47). Your answer on the team: blastoise — lead with it and keep it healthy.\n2) TEAM BUILD: growlithe -> arcanine answers Champion.\n3) DEX PUSH: 13/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) ICE BEAM FUND: ¥58,322 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n5) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] -> T2·savor· (want) 'reach Cinnabar Island'  fired=True  [age 0.0s + post 15ms]
+
