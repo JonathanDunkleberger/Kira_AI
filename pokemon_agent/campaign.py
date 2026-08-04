@@ -1065,6 +1065,23 @@ ROAD_BLOCKER_KEYS = {
     "flash", "cut", "silph_scope",
     "FLAG_GOT_POKE_FLUTE", "FLAG_WOKE_UP_ROUTE_12_SNORLAX",
     "FLAG_GOT_TEA", "FLAG_HIDE_SAFFRON_ROCKETS",
+    # BLAINE SEA-ROAD CHAIN (2026-08-04 LIVE, badges=6, the Route 19 open-sea wedge Jonny watched
+    # ~30 min): the badge-7 billed road is Fuchsia -> Route 19 -> Route 20 -> Cinnabar and its
+    # west/south legs are OPEN SEA — impassable on foot. The proactive HM-PREREQ correctly opened
+    # the Surf errand ("Blaine needs surf — opening the acquisition errand before the sea march"),
+    # but 'surf' wasn't listed here, so GO-HARD/ACE-CARRIES parked it every tick ("head_to_gym
+    # IGNORES the questline hijack ('surf'/step=surf...)") and drove head_to_gym into the sea:
+    # "genuine wall/zone gap ... TRAVEL WEDGE ... no_route", BORDER PING-PONG + SEAM-THRASH
+    # breakers firing, Fuchsia<->Route19 regroup forever. Same class as the SAFFRON PAIR
+    # (2026-08-03): these errands ARE the billed road, never detours. Whole chain billed at once
+    # so the NEXT gate doesn't wedge the same way: surf/strength are the Safari strike ('strength'
+    # chains through its prereq step 'gold_teeth', the Warden's item ball — the actionable.missing
+    # while unfetched, so it must be waived too), 'seafoam' = the Seafoam B3F boulder crossing
+    # (success flag FLAG_STOPPED_SEAFOAM_B3F_CURRENT), 'secret_key' = the Mansion key that opens
+    # Blaine's door (success flag FLAG_HIDE_POKEMON_MANSION_B1F_SECRET_KEY). Keys match
+    # Gate.missing / Step.missing (frlg_gates.json capability keys), NOT the flag names — the
+    # gates bill missing='surf'/'seafoam'/'secret_key' (GYM_PREREQS + _seafoam_gate/_mansion_gate).
+    "surf", "strength", "gold_teeth", "seafoam", "secret_key",
 }
 GYM_PREREQS = {
     "Sabrina": (0x3E, "FLAG_HIDE_SAFFRON_ROCKETS",
@@ -1112,7 +1129,7 @@ HEAL_ITEMS = {13: "Potion", 22: "Super Potion", 21: "Hyper Potion", 20: "Max Pot
 # status NAME -> (cure item id, cure name). Awakening(17) cures sleep; Parlyz Heal(18) paralysis; etc.
 STATUS_CURE = {"poison": (14, "Antidote"), "burn": (15, "Burn Heal"), "freeze": (16, "Ice Heal"),
                "sleep": (17, "Awakening"), "paralysis": (18, "Parlyz Heal")}
-ITEM_NAMES = {**HEAL_ITEMS, 4: "Poké Ball", 3: "Great Ball", 23: "Full Heal",
+ITEM_NAMES = {**HEAL_ITEMS, 4: "Poké Ball", 3: "Great Ball", 2: "Ultra Ball", 23: "Full Heal",
               **{cid: cn for cid, cn in STATUS_CURE.values()},
               110: "Nugget", 109: "Star Piece", 107: "Big Pearl", 108: "Stardust", 106: "Pearl"}
 # PURE-CASH LOOT (2026-08-04, the Ice Beam fund — 'get ice beam to OP herself through the
@@ -13365,9 +13382,21 @@ class Campaign:
             pass
         if _dex_push:
             ball_target = max(ball_target, 10)
-        if (self._thin_team() or self._ball_count() < 2 or keeper_due or _dex_push) \
-                and self._ball_count() < ball_target:
-            sl.append((ITEM_POKE_BALL, ball_target - self._ball_count()))
+        # BALL-TIER SHELF FALLBACK (2026-08-04 LIVE, the Fuchsia zero-ball trip): Fuchsia's Mart
+        # sells Ultra(2)/Great(3) but NO plain Poké Ball(4) — the list billed (4, n), buy_at_mart
+        # logged "Poké Ball not sold here — skipping" then "shopping done — {}", and she walked
+        # out with ZERO balls mid dex-push. Mirror _best_potion_for_sale: buy the cheapest ball
+        # tier ON THIS SHELF (Poké > Great > Ultra; any tier throws fine — _item_count is already
+        # balls-pocket-aware for ids 1-12, so the per-unit bag-delta verify holds). "Have" counts
+        # ALL throwable tiers (2/3/4 — Master Ball 1 excluded, it's the reserved legendary shot),
+        # same reasoning as the all-tier potion count above; otherwise a Great-Ball restock is
+        # invisible to the id-4-only _ball_count and every future trip re-buys the full target.
+        _balls_have = sum(self._balls_pocket_count(i) for i in (2, 3, 4))
+        if (self._thin_team() or _balls_have < 2 or keeper_due or _dex_push) \
+                and _balls_have < ball_target:
+            _shelf = MART_STOCK.get(tv.map_id(self.b), [])
+            _ball_id = next((i for i in (4, 3, 2) if i in _shelf), ITEM_POKE_BALL)
+            sl.append((_ball_id, ball_target - _balls_have))
         # Afflictions she's felt on the road + KB foresight for the NEXT gym (Surge Parlyz
         # Heal before Thunder Wave ever lands — 2026-08-02 Bulbapedia kit). Prefer the
         # specific cure on this Mart's shelf; Full Heal if that's all they sell.
@@ -14149,8 +14178,24 @@ class Campaign:
             f"{hold}s LOUD")
         self.on_event("okay, stop — I've been pacing the same doors like a lost tourist. deep "
                       "breath. new plan from the top.", kind="route", tier=2)
+        # ROAD-BLOCKER ERRANDS SURVIVE THE BREAKER (2026-08-04 LIVE, the Route 19 surf wedge):
+        # clearing a road-blocker questline here is self-defeating — the proactive recognizer
+        # re-opens it next tick (the gate flag is still unset), so "clear -> re-open -> park ->
+        # thrash -> breaker clears again" was half of the 30-min Fuchsia<->Route19 loop. The
+        # breaker's real levers (connector amnesia + the head_to_gym HOLD) still fire below;
+        # only the errand slot is spared, and only for the ON-ROAD class GO-HARD waives anyway.
         try:
-            self._clear_questline("border ping-pong breaker")
+            _ql = self._active_questline
+            _rb = _ql is not None and (
+                getattr(_ql.gate, "missing", None) in ROAD_BLOCKER_KEYS
+                or getattr(getattr(_ql, "actionable", None), "missing", None)
+                in ROAD_BLOCKER_KEYS)
+            if _rb:
+                log("   [roam] BPP: active errand is a ROAD-BLOCKER "
+                    f"('{getattr(_ql.gate, 'missing', None)}') — KEEPING it (clearing just "
+                    "re-opens it next tick; the hold + connector amnesia still apply)")
+            else:
+                self._clear_questline("border ping-pong breaker")
         except Exception:
             pass
         for _m in distinct:
