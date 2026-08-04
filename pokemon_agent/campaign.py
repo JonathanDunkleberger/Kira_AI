@@ -187,9 +187,10 @@ DUNGEON_QUESTLINE_STEPS = frozenset({
     "FLAG_HIDE_SAFFRON_ROCKETS",      # Silph Co. liberation (Giovanni #2)
     "secret_key",                     # Pokémon Mansion
     "seafoam",                        # Seafoam interior (if ever re-armed)
-    # 2026-08-04 LEGENDARY HUNTS: all three are combat dungeons (Power Plant Electrodes,
-    # Seafoam interior, Cerulean Cave's L46-70 wilds) — the ace leads, never a bench mon.
-    "zapdos", "articuno", "mewtwo",
+    # 2026-08-04 LEGENDARY HUNTS: all four are combat dungeons (Power Plant Electrodes,
+    # Seafoam interior, Mt. Ember's trainers + the Sevii biker gauntlet, Cerulean Cave's
+    # L46-70 wilds) — the ace leads, never a bench mon.
+    "zapdos", "articuno", "moltres", "mewtwo",
 })
 # CAVE STEP-ENCOUNTER GRIND (2026-07-11, PASS 3 NS#16 — the endgame grind-spot-adequacy unblock). The
 # binding wall for a fresh-GO E4-ready team: near Viridian/Indigo the only adequate high-level GRASS is
@@ -1102,7 +1103,7 @@ ROAD_BLOCKER_KEYS = {
 # for these via a PROXIMITY test (_hunt_anchor_proximate): the hunt runs only when its anchor
 # country is the map under her feet or one live edge-connection away (the Cinnabar->Route 20
 # Articuno return after the Ultra restock). Keys match Gate.missing (frlg_gates.json entries).
-LEGENDARY_HUNT_KEYS = {"zapdos", "articuno", "mewtwo"}
+LEGENDARY_HUNT_KEYS = {"zapdos", "articuno", "moltres", "mewtwo"}
 GYM_PREREQS = {
     "Sabrina": (0x3E, "FLAG_HIDE_SAFFRON_ROCKETS",
                 "Sabrina's gym is blocked — Team Rocket has Silph Co. locked down in the middle of the city"),
@@ -12337,6 +12338,10 @@ class Campaign:
                 from legendary_strikes import ARTICUNO_ANCHORS, run_articuno
                 return run_articuno, ARTICUNO_ANCHORS, ("caught", "battled"), "articuno_probe"
 
+            def _moltres():
+                from legendary_strikes import MOLTRES_ANCHORS, run_moltres
+                return run_moltres, MOLTRES_ANCHORS, ("caught", "battled"), "moltres_probe"
+
             def _mewtwo():
                 from legendary_strikes import MEWTWO_ANCHORS, run_mewtwo
                 return run_mewtwo, MEWTWO_ANCHORS, ("caught", "battled"), "mewtwo_probe"
@@ -12426,6 +12431,11 @@ class Campaign:
                     "Seafoam Islands B4F (ARTICUNO — the legendary ice bird)",
                     "ARTICUNO is ours — the frozen heart of the Seafoam Islands. Lance's "
                     "dragons are officially a formality.", _articuno),
+                ("flag", "FLAG_FOUGHT_MOLTRES"): (
+                    "Mt. Ember summit, One Island (MOLTRES — the legendary fire bird)",
+                    "MOLTRES, caught on top of a VOLCANO on an island I sailed to with "
+                    "BILL. the bird trio is complete — and the trip home was a whole "
+                    "adventure of its own.", _moltres),
                 ("flag", "FLAG_FOUGHT_MEWTWO"): (
                     "Cerulean Cave (MEWTWO — the final endgame project)",
                     "MEWTWO. the strongest Pokémon in existence, caught at the bottom of "
@@ -12449,6 +12459,7 @@ class Campaign:
             if succ == ("cap", "ice_beam") and not ICEBEAM_FETCH_ENABLED:
                 return None                     # ice-beam fetch flag-gated OFF -> fall through
             if succ in (("flag", "FLAG_FOUGHT_ZAPDOS"), ("flag", "FLAG_FOUGHT_ARTICUNO"),
+                        ("flag", "FLAG_FOUGHT_MOLTRES"),
                         ("flag", "FLAG_FOUGHT_MEWTWO")) and not LEGENDARY_HUNTS_ENABLED:
                 return None                     # legendary hunts flag-gated OFF -> fall through
             label, done_msg, importer = registry[succ]
@@ -12813,6 +12824,47 @@ class Campaign:
                              "Lance's dragons a formality.",
                        detail={"flag": "FLAG_FOUGHT_ARTICUNO"})
 
+    def _moltres_gate(self, state):
+        """MT. EMBER MOLTRES — the Sevii strike, post-Blaine. THE RIDE OUT IS BILL: declining
+        his doorstep offer after the badge (blaine_gym B-drains it by design) parks him in
+        the Cinnabar Pokémon Center where he RE-OFFERS the trip forever (pret CinnabarIsland
+        scripts: the decline sets scene 2 + CLEARS FLAG_HIDE_CINNABAR_POKECENTER_BILL 0x0A2;
+        that flag starts SET at new game, so clear == Bill is waiting == the road is open).
+        Needs Surf (Kindle Road is a sea road) + Strength (the exterior corridor and the
+        summit are boulder puzzles). WHILE SHE'S ON THE ARCHIPELAGO the gate stays armed even
+        ball-thin — the strike must carry her HOME (the ride back is story-gated on the
+        Lostelle detour; a KO'd Moltres still ends the trip). Once she's home without the
+        bird (Bill re-hidden, off Sevii) it self-suppresses honestly — mirroring Articuno's
+        honest-skip philosophy. Returns a Gate or None."""
+        if not LEGENDARY_HUNTS_ENABLED:
+            return None
+        try:
+            from legendary_strikes import MOLTRES_ANCHORS
+            here = tuple(tv.map_id(self.b))
+            on_sevii = here in MOLTRES_ANCHORS and here not in ((3, 8), (12, 5))
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            if (st.party_knows_move(self.b, 57, cnt) is None
+                    or st.party_knows_move(self.b, 70, cnt) is None):
+                return None                   # needs Surf + Strength on the mountain
+            ready = self._hunt_ready(146, 0x052, 0x2BD)
+            if on_sevii:
+                if ready in ("caught", "spent"):
+                    return None               # spent mid-trip: the ride-home hook drives
+            else:
+                if ready is not None:
+                    return None
+                if fm.read_flag(self.b, 0x0A2):
+                    return None               # Bill gone from the Cinnabar PC — no ferry;
+                                              # honest skip (Sevii unreachable pre-champion)
+        except Exception:
+            return None
+        return ql.Gate(ql.STORY_NPC, missing="moltres", where=(3, 8),
+                       human="MOLTRES — Bill is waiting in the Cinnabar Pokémon Center to "
+                             "sail her to One Island. Up Kindle Road, through Mt. Ember's "
+                             "boulder corridors, a L50 fire legendary on the summit — then "
+                             "the Lostelle detour buys the boat home.",
+                       detail={"flag": "FLAG_FOUGHT_MOLTRES"})
+
     def _mewtwo_gate(self, state):
         """CERULEAN CAVE MEWTWO — THE final endgame project (Jonny's order). The cave guard
         only steps aside once she's CHAMPION (FLAG_SYS_GAME_CLEAR 0x82C), so this can only
@@ -12849,9 +12901,9 @@ class Campaign:
         keys are NOT in ROAD_BLOCKER_KEYS). Never raises."""
         try:
             from legendary_strikes import (ARTICUNO_ANCHORS, MEWTWO_ANCHORS,
-                                           ZAPDOS_ANCHORS)
+                                           MOLTRES_ANCHORS, ZAPDOS_ANCHORS)
             anchors = {"zapdos": ZAPDOS_ANCHORS, "articuno": ARTICUNO_ANCHORS,
-                       "mewtwo": MEWTWO_ANCHORS}.get(key)
+                       "moltres": MOLTRES_ANCHORS, "mewtwo": MEWTWO_ANCHORS}.get(key)
             if not anchors:
                 return False
             if tuple(tv.map_id(self.b)) in anchors:
@@ -13497,12 +13549,49 @@ class Campaign:
                 log("   [roam] ❄️ PROACTIVE ICE BEAM: the coin budget is banked — Celadon Game "
                     "Corner for TM13, then the ace learns the endgame's best fourth attack")
                 return
+            # MOLTRES RIDE-HOME (2026-08-04, the Sevii stranding hole): once the bird is
+            # SPENT, FLAG_FOUGHT_MOLTRES satisfies the questline step INSTANTLY — no errand
+            # would ever walk her off the archipelago (the return boat is story-gated on the
+            # Lostelle detour). Dispatch the strike's journey-home stages directly while she
+            # still stands on a Sevii map; bounded tries, LOUD either way.
+            if LEGENDARY_HUNTS_ENABLED:
+                try:
+                    from legendary_strikes import MOLTRES_ANCHORS, run_moltres
+                    _here = tuple(tv.map_id(self.b))
+                    if (_here in MOLTRES_ANCHORS and _here not in ((3, 8), (12, 5))
+                            and (ram.pokedex_owns(self.b, 146) is True
+                                 or fm.read_flag(self.b, 0x2BD)
+                                 or fm.read_flag(self.b, 0x052))):
+                        _mh_tries = getattr(self, "_moltres_home_tries", 0)
+                        if _mh_tries < 4:
+                            self._moltres_home_tries = _mh_tries + 1
+                            log(f"   [roam] 🔥 MOLTRES RIDE-HOME: bird spent, still on Sevii "
+                                f"({_here}) — driving the Lostelle detour + the sail home "
+                                f"(attempt {_mh_tries + 1}/4)")
+                            _dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun",
+                                                "moltres_probe")
+                            _mh = run_moltres(self, log, dbg_dir=_dbg)
+                            log(f"   [roam] 🔥 MOLTRES RIDE-HOME -> {_mh} "
+                                f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
+                            if _mh in ("caught", "battled"):
+                                self._moltres_home_tries = 0
+                            return
+                        if _mh_tries == 4:
+                            self._moltres_home_tries = 5   # log the exhaustion ONCE
+                            log("   [roam] !! MOLTRES RIDE-HOME exhausted (4 tries) — "
+                                "surfacing to recovery/free-roam (still on Sevii, LOUD)")
+                except Exception as _mh_e:
+                    log(f"   [roam] moltres ride-home check skipped: {_mh_e}")
             # PROACTIVE LEGENDARY HUNTS (2026-08-04, Jonny's order — 'catching mew or mewtwo
             # as a final endgame project ... all cool legendaries so she mops the floor').
             # Each gate self-suppresses until its road is open and the balls are stocked;
             # dead-last among the luxuries — story war errands always outrank a trophy hunt.
+            # Moltres slots between the birds: it arms the tick the Volcano Badge lands
+            # (Bill parked in the Cinnabar PC by blaine_gym's decline) — the natural moment,
+            # Ultras already stocked at the Cinnabar mart.
             for _hg, _htag in ((self._zapdos_gate, "⚡ ZAPDOS (Power Plant)"),
                                (self._articuno_gate, "🧊 ARTICUNO (Seafoam B4F)"),
+                               (self._moltres_gate, "🔥 MOLTRES (Mt. Ember, Sevii)"),
                                (self._mewtwo_gate, "🧬 MEWTWO (Cerulean Cave)")):
                 hg = _hg(state)
                 if hg is not None and self._open_questline(hg, state):
@@ -13600,7 +13689,8 @@ class Campaign:
                     st.party_knows_move(self.b, 57, _pc) is not None    # Surf = a road is open
                     and any(ram.pokedex_owns(self.b, sp) is not True
                             and not fm.read_flag(self.b, fought)
-                            for sp, fought in ((145, 0x2BF), (144, 0x2BE), (150, 0x2BC))))
+                            for sp, fought in ((145, 0x2BF), (144, 0x2BE),
+                                               (146, 0x2BD), (150, 0x2BC))))
                 _ultras = self._balls_pocket_count(2)
                 if (_hunt_pending and _ultras < 8
                         and 2 in MART_STOCK.get(tv.map_id(self.b), [])):

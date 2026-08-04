@@ -161,6 +161,21 @@
       "id": 700,
       "hex": "0x2BC",
       "note": "2026-08-04 LEGENDARY HUNTS: set when the Cerulean Cave B1F Mewtwo battle concludes. Object at (7,12) in CERULEAN_CAVE_B1F; HIDE flag 0x081. The cave guard steps aside only post-champion (FLAG_SYS_GAME_CLEAR 0x82C)."
+    },
+    "FLAG_FOUGHT_MOLTRES": {
+      "id": 701,
+      "hex": "0x2BD",
+      "note": "2026-08-04 LEGENDARY HUNTS: set when the Mt. Ember summit Moltres battle concludes (caught OR KO'd). Object at (9,6) in MT_EMBER_SUMMIT (1,101); HIDE flag 0x052. L50, on ONE ISLAND (Sevii) — reachable only via Bill's post-Blaine ferry."
+    },
+    "FLAG_HIDE_CINNABAR_POKECENTER_BILL": {
+      "id": 162,
+      "hex": "0x0A2",
+      "note": "2026-08-04 MOLTRES/Sevii access signal: SET at new game (EventScript_ResetAllMapFlags), CLEARED when the post-Blaine doorstep offer is DECLINED (Bill relocates to the Cinnabar Pokemon Center at (11,5) and re-offers the One-Island sail forever), RE-SET the moment she sails with him. CLEAR == Bill is waiting == the Sevii ferry is open."
+    },
+    "FLAG_RESCUED_LOSTELLE": {
+      "id": 675,
+      "hex": "0x2A3",
+      "note": "2026-08-04 MOLTRES ride-home detour: set when Lostelle's Hypno falls in the Berry Forest (Three Island); the script then auto-warps the player to the Two-Island Game Corner. Handing Daddy the Meteorite (item 280 leaves the bag) sets the One-Island-Center scene var to 2 — the ONLY thing that arms Bill's sail-home trigger (pret seagallop.inc refuses Vermilion until the return)."
     }
   },
   "exit_gates": {
@@ -567,6 +582,22 @@
         "_note": "2026-08-04 legendary_strikes.ArticunoHunt. HARD GATE: both B3F boulders truly fallen (hide flags 0x046/0x047 CLEARED) — the R21-reroute stamps 0x2D2 without them and the B4F rip current would sweep her. The gate self-suppresses otherwise; a rerouted run simply skips Articuno."
       },
       "human": "Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality"
+    },
+    "moltres": {
+      "kind": "legendary",
+      "name": "Moltres (Mt. Ember summit, One Island)",
+      "obtain": {
+        "via": "strike",
+        "npc": "the L50 Moltres static at (9,6) on the summit",
+        "from": "3,8",
+        "dir": "north",
+        "place_name": "One Island (Sevii) — Bill in the Cinnabar Pokemon Center sails her out post-Blaine; Kindle Road north (Surf), Mt. Ember's boulder corridors (Strength), the bird on the summit",
+        "prereq": "surf",
+        "sets_flag": "FLAG_FOUGHT_MOLTRES",
+        "gives_cap": null,
+        "_note": "2026-08-04 legendary_strikes.MoltresHunt. THE FERRY HUNT: entry is Bill's re-offer in the Cinnabar PC (decline at the gym doorstep is loss-free — pret: it clears FLAG_HIDE_CINNABAR_POKECENTER_BILL 0x0A2 and he waits at (11,5)). The ride HOME is story-gated on the Lostelle detour (Berry Forest rescue -> Meteorite to Daddy on Two Island -> the One-Island-Center trigger sails her back to Cinnabar); the strike drives the whole loop, and campaign's MOLTRES RIDE-HOME hook re-drives it if she's ever spent-but-stranded. Gate self-suppresses when Bill is gone and she is off Sevii (honest skip)."
+      },
+      "human": "Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home"
     },
     "mewtwo": {
       "kind": "legendary",

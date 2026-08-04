@@ -19,8 +19,12 @@ Blaine (5,4) face DOWN -> front (5,5) face UP; Arcanine L47 tops his roster. Pos
 
 ⚠️ THE BILL AMBUSH: beating Blaine sets VAR_MAP_SCENE_CINNABAR=1; the first transition back onto the island
 fires a FORCED scene — Bill (spawn (20,7), the gym doorstep) runs up with a YES/NO "sail to One Island?"
-where A/YES ships her to the Sevii Islands = an OFF-MAINLINE CATASTROPHE. The post-badge island drain is
-B-ONLY (island_b_drain — B advances every box and answers NO) until stable, then heal.
+where A/YES ships her to the Sevii Islands = an OFF-MAINLINE mid-badge-march detour. The post-badge island
+drain is B-ONLY (island_b_drain — B advances every box and answers NO) until stable, then heal.
+DECLINING IS LOSS-FREE (verified vs pret CinnabarIsland scripts 2026-08-04): the NO branch sets scene 2 and
+CLEARS FLAG_HIDE_CINNABAR_POKECENTER_BILL (0x0A2) — Bill relocates to the Cinnabar Pokémon Center at (11,5)
+and RE-OFFERS the trip forever. The MOLTRES hunt (legendary_strikes.MoltresHunt, campaign._moltres_gate)
+accepts from there on ITS schedule — right after the badge, Ultras stocked — so this strike stays B-only.
 
 run_gym returns one of the beat_gym contract strings: 'badge' | 'needs_heal' | 'battle_loss' | 'stuck'.
 """
@@ -592,6 +596,16 @@ class BlaineGym:
         else:
             self.island_b_drain("bill-ambush")
             self.snap("60_post_bill")
+            # DECLINE-BY-DESIGN, LOSS-FREE (pret 2026-08-04): the NO branch parks Bill in the
+            # Cinnabar Pokémon Center (clears hide flag 0x0A2) where he re-offers the sail —
+            # the MOLTRES hunt gate reads that exact flag and accepts on its own schedule.
+            try:
+                _bill_waiting = not fm.read_flag(b, 0x0A2)
+                self.log(f"   [bill] trip DECLINED by design — Bill parked in the Cinnabar "
+                         f"Center: {_bill_waiting} (hide 0x0A2 clear). The MOLTRES hunt "
+                         f"re-triggers the One-Island sail from there when it arms.")
+            except Exception as e:
+                self.log(f"   [bill] post-decline flag read errored: {e} — continuing (LOUD)")
             try:
                 camp.heal_nearest()
             except Exception as e:

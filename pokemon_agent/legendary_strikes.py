@@ -2,7 +2,7 @@
 mewtwo as a final endgame project. and all cool legendaries that are available before or after
 the final 4 so she mops the floor with them").
 
-Three hunts, each a walk-to-the-static-and-press-A mission; the BATTLE side is already solved
+Four hunts, each a walk-to-the-static-and-press-A mission; the BATTLE side is already solved
 (battle_agent's _LEGENDARY_SPECIES careful-capture divert: weaken, never KO, throw balls — now
 tiered best-ball-first, Master Ball allowed on Mewtwo only). This module is only the ROAD.
 
@@ -13,6 +13,15 @@ tiered best-ball-first, Master Ball allowed on Mewtwo only). This module is only
              0x046/0x047 cleared — the stamped 0x2D2 from the R21 reroute is NOT enough: the
              B4F water still rips without the fallen boulders, see seafoam_strike). Descends
              the ladder chain from either F1 door; candidates per floor, live BFS picks.
+  MOLTRES  — Mt. Ember summit (1,101) at (9,6), on ONE ISLAND (Sevii). The only hunt with a
+             FERRY in it: Bill's post-Blaine offer is the ride out (declining parks him in
+             the Cinnabar Center where he re-offers forever — pret CinnabarIsland scripts),
+             and the ride HOME is story-gated on the Lostelle detour (rescue her in Three
+             Island's Berry Forest, hand Celio's Meteorite to her dad on Two Island — ONLY
+             that delivery sets the One-Island-Center scene var to 2, arming Bill's
+             sail-home trigger; pret seagallop.inc refuses Vermilion until the return).
+             Kindle Road is a sea road (Surf); the exterior + summit are Strength boulder
+             puzzles (solver-verified push plans below).
   MEWTWO   — Cerulean Cave B1F (1,74) at (7,12). THE final endgame project: the cave guard
              only steps aside post-champion (FLAG_SYS_GAME_CLEAR 0x82C). Cerulean's cave
              mouth (1,12) is across the river; inside is L46-70 wilds — her E4-winning team's
@@ -27,6 +36,17 @@ GROUND TRUTH (pret/pokefirered map JSONs + flags.h, fetched 2026-08-04):
              descent candidates (down-ladders per floor, west chain first):
              F1 (10,6)/(28,19)/(31,4) -> B1F | B1F (7,3)/(17,9)/(32,14)/(25,19) -> B2F |
              B2F (7,17)/(31,17)/(32,4) -> B3F | B3F (6,18)/(9,18)/(29,5)/(12,9) -> B4F
+  Moltres  : OBJ (9,6) MtEmber_Summit | FLAG_HIDE_MOLTRES 0x052 | FLAG_FOUGHT_MOLTRES 0x2BD
+             maps: OneIsland (3,12) | KindleRoad (3,45) | Ember exterior (1,97) |
+             SummitPath 1F/2F/3F (1,98)/(1,99)/(1,100) | Summit (1,101) | One-Island PC
+             (32,0) / Harbor (32,4) | TwoIsland (3,13) / GameCorner (33,0) / Harbor (33,4) |
+             ThreeIsland (3,14) / Port (3,49) / Harbor (38,0) | BondBridge (3,48) |
+             BerryForest (1,109). Doors: Kindle (11,6)/(12,6)->exterior | ext (14,24)->1F |
+             1F (11,1)->2F | 2F (39,6)->3F | 3F (11,8)->ext upper (39,19) | ext (29,7)->
+             summit (lands (9,15)). Bill: Cinnabar PC obj (11,5), hide 0x0A2 (SET at new
+             game, CLEARED by the doorstep decline, RE-SET when she sails). Lostelle:
+             BerryForest (4,8) (Hypno L30 script battle, then auto-warp to GameCorner);
+             Daddy (5,5); Meteorite = item 280, removed on delivery.
   Mewtwo   : OBJ (7,12) CeruleanCave_B1F | FLAG_HIDE_MEWTWO 0x081 | FLAG_FOUGHT_MEWTWO 0x2BC
              mouth: Cerulean (1,12)->Cave1F dw0 (lands (33,21)) | 1F (1,7)->B1F (lands (5,7))
              1F exit (33,21)->Cerulean
@@ -40,7 +60,10 @@ import time
 import field_moves as fm
 import firered_ram as ram
 import travel as tv
+from dialogue_drive import box_open as dd_box
 from giovanni_gym import GiovanniGym, KEY_OF
+
+DELTA = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
 
 # ── fact table (game-knowledge layer; rule 14 portability debt) ────────────────────────────
 R10, PLANT = (3, 28), (1, 95)
@@ -48,19 +71,57 @@ CERULEAN = (3, 3)
 CAVE1F, CAVE2F, CAVEB1F = (1, 72), (1, 73), (1, 74)
 F1, B1F, B2F, B3F, B4F = (1, 83), (1, 84), (1, 85), (1, 86), (1, 87)
 R20 = (3, 38)
+# Sevii (Moltres) — town/route maps in group 3, dungeons group 1, interiors groups 32/33/38
+CINNABAR = (3, 8)
+CINNABAR_PC = (12, 5)
+ONE_ISLAND, ONE_PC, ONE_HARBOR = (3, 12), (32, 0), (32, 4)
+KINDLE = (3, 45)
+EMBER_EXT, EMBER_1F, EMBER_2F, EMBER_3F, EMBER_SUMMIT = ((1, 97), (1, 98), (1, 99),
+                                                         (1, 100), (1, 101))
+TWO_ISLAND, TWO_HARBOR, GAME_CORNER = (3, 13), (33, 4), (33, 0)
+THREE_ISLAND, THREE_PORT, THREE_HARBOR = (3, 14), (3, 49), (38, 0)
+BOND_BRIDGE, BERRY_FOREST = (3, 48), (1, 109)
 
 FLAG_SYS_GAME_CLEAR = 0x82C          # champion — the Cerulean Cave guard steps aside
 FLAG_B3F_CALM = 0x2D2                # crossing signal (may be STAMPED by the R21 reroute!)
 FLAG_HIDE_B3F_BOULDER_1 = 0x046      # cleared = boulder truly fell -> B4F water is safe
 FLAG_HIDE_B3F_BOULDER_2 = 0x047
+FLAG_HIDE_CINNABAR_PC_BILL = 0x0A2   # CLEAR = Bill waits in the Cinnabar Center (trip open)
+FLAG_RESCUED_LOSTELLE = 0x2A3        # Berry Forest rescue done (Hypno beaten)
+FLAG_STR_ACTIVE = 0x805              # FLAG_SYS_USE_STRENGTH — resets per map load
+ITEM_METEORITE = 280                 # Celio's parcel; REMOVED from the bag on delivery
 
 ZAPDOS = dict(name="Zapdos", species=145, tile=(5, 11), map=PLANT, hide=0x05D, fought=0x2BF)
 ARTICUNO = dict(name="Articuno", species=144, tile=(9, 2), map=B4F, hide=0x082, fought=0x2BE)
+MOLTRES = dict(name="Moltres", species=146, tile=(9, 6), map=EMBER_SUMMIT,
+               hide=0x052, fought=0x2BD)
 MEWTWO = dict(name="Mewtwo", species=150, tile=(7, 12), map=CAVEB1F, hide=0x081, fought=0x2BC)
 
 ZAPDOS_ANCHORS = {R10, PLANT}
 ARTICUNO_ANCHORS = {R20, F1, B1F, B2F, B3F, B4F}
+MOLTRES_ANCHORS = {CINNABAR, CINNABAR_PC, ONE_ISLAND, ONE_PC, ONE_HARBOR, KINDLE,
+                   EMBER_EXT, EMBER_1F, EMBER_2F, EMBER_3F, EMBER_SUMMIT,
+                   TWO_ISLAND, TWO_HARBOR, GAME_CORNER,
+                   THREE_ISLAND, THREE_PORT, THREE_HARBOR, BOND_BRIDGE, BERRY_FOREST}
 MEWTWO_ANCHORS = {CERULEAN, CAVE1F, CAVE2F, CAVEB1F}
+
+# Solver-verified Strength push plans (BFS over pret map.bin collision+elevation with the
+# map.json boulder templates, 2026-08-04). Boulders RESET to template tiles on every map
+# re-entry (FLAG_TEMP objects), so a botched board is fixed by a door round-trip.
+#   exterior ASCENT  (Kindle doors (28/29,48) -> 1F door (14,24)): 6 pushes
+#   exterior DESCENT (1F door (14,24) -> Kindle doors): 2 pushes (fresh board)
+#   summit  (entrance (9,15) -> beside Moltres (9,6)): 6 pushes — the last leg pushes ONE
+#   boulder (8,10) UP then RIGHT twice, so it ends parked at (10,9) clear of the corridor
+EMBER_ASCENT_PUSHES = [((22, 45), "LEFT", 3), ((17, 46), "LEFT", 3)]
+EMBER_DESCENT_PUSHES = [((17, 46), "RIGHT", 1), ((22, 45), "RIGHT", 1)]
+SUMMIT_PUSHES = [((10, 12), "UP", 1), ((9, 12), "LEFT", 1), ((8, 11), "LEFT", 1),
+                 ((8, 10), "UP", 1), ((8, 9), "RIGHT", 2)]
+
+# Seagallop harbor menus while the detour is live (VAR_MAP_SCENE_CINNABAR_ISLAND < 4 —
+# pret seagallop.inc: no Vermilion row until Bill has sailed her home): row order per pier.
+SAIL_ROWS = {ONE_HARBOR: [TWO_HARBOR, THREE_HARBOR],
+             TWO_HARBOR: [ONE_HARBOR, THREE_HARBOR],
+             THREE_HARBOR: [ONE_HARBOR, TWO_HARBOR]}
 
 # (floor, [candidate down-warp tiles in preference order], dest floor) — the eevee_fetch _ride
 # doctrine: the leg for WHEREVER she stands, live BFS decides which candidate is reachable.
@@ -260,6 +321,448 @@ class ArticunoHunt(LegendaryHunt):
         return out
 
 
+class MoltresHunt(LegendaryHunt):
+    """MT. EMBER MOLTRES — the Sevii strike, a stage machine keyed on the CURRENT MAP so any
+    entry point resumes cleanly (whiteout respawn is the One-Island Center — pret setrespawn
+    on the forced arrival walk-in, so a blackout mid-climb resumes ON the archipelago).
+
+    OUTBOUND (bird alive): Cinnabar PC -> Bill YES (the auto-sail cutscene ends standing
+    free in the One-Island Center, Tri Pass + Meteorite banked by the forced Celio scene) ->
+    east edge -> Kindle Road sea leg north -> Ember exterior boulder corridor -> SummitPath
+    1F/2F/3F -> exterior upper ledge -> summit boulder puzzle -> press_quarry.
+
+    HOMEBOUND (bird SPENT): the ride home is story-gated (seagallop refuses Vermilion and the
+    Center's leave-trigger sleeps until the Meteorite is DELIVERED) — descend, sail Three,
+    port -> town (the biker gauntlet fires trainerbattle_no_intro scripts; the interrupt
+    machinery fights them), Bond Bridge -> Berry Forest -> Lostelle (Hypno script battle,
+    auto-warp to the Two-Island Game Corner) -> hand Daddy the Meteorite (bag delta 280 is
+    the proof) -> sail One -> Center -> cross the x=12 trigger column -> Bill sails her home
+    to Cinnabar. Routing predicate per island: Meteorite in bag + Lostelle unrescued -> Three;
+    in bag + rescued -> Two (Game Corner); delivered -> One (the trigger walk)."""
+
+    QUARRY = MOLTRES
+
+    def __init__(self, camp, log, dbg_dir=None):
+        super().__init__(camp, log, dbg_dir)
+        self.deadline = time.time() + 2800   # the longest hunt: two ferries + the detour
+
+    # ── boulder machinery (seafoam_strike verbatim-adapted) ────────────────────────────────
+    def live_boulders(self):
+        return [ob["coord"] for ob in fm.scan_field_objects(self.b, {fm.GFX_BOULDER})]
+
+    def nearest_boulder(self, approx, radius=8):
+        for _attempt in range(3):
+            bs = [t for t in self.live_boulders()
+                  if abs(t[0] - approx[0]) + abs(t[1] - approx[1]) <= radius]
+            if bs:
+                return min(bs, key=lambda t: abs(t[0] - approx[0]) + abs(t[1] - approx[1]))
+            cur = tuple(tv.coords(self.b) or (0, 0))
+            if abs(cur[0] - approx[0]) + abs(cur[1] - approx[1]) <= 3:
+                return None
+            if not self.sea_walk(lambda c, a=approx: abs(c[0] - a[0]) + abs(c[1] - a[1]) <= 3,
+                                 "boulder-approach"):
+                return None
+        return None
+
+    def ensure_strength(self, approx):
+        b, camp = self.b, self.camp
+        if fm.read_flag(b, FLAG_STR_ACTIVE):
+            return True
+        bl = self.nearest_boulder(approx)
+        if bl is None:
+            self.log(f"!! [strength] no live boulder near {approx} on {tv.map_id(b)}")
+            return False
+        for attempt in range(3):
+            nbs = [(bl[0] + dx, bl[1] + dy) for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0))]
+            if not self.sea_walk(lambda c, s=set(nbs): c in s, "str-approach"):
+                return False
+            cur = tuple(tv.coords(b) or (0, 0))
+            face = KEY_OF.get((bl[0] - cur[0], bl[1] - cur[1]))
+            if face is None:
+                continue
+            b.press(face, 8, 10, camp.render, owner="agent")
+            b.press("A", 8, 12, camp.render, owner="agent")
+            self.settle(30)
+            self.drain(key="A")                 # info text + YES/NO (YES default)
+            self.settle(30)
+            if fm.read_flag(b, FLAG_STR_ACTIVE):
+                return True
+        self.log(f"!! [strength] flag 0x805 never set (boulder {bl})")
+        return False
+
+    def push(self, approx, key, n):
+        b, camp = self.b, self.camp
+        d = DELTA[key]
+        for i in range(n):
+            bl = self.nearest_boulder(approx)
+            if bl is None:
+                self.log(f"!! [push] boulder near {approx} absent (i={i}) — assuming pushed")
+                return True
+            stand = (bl[0] - d[0], bl[1] - d[1])
+            if not self.sea_walk(lambda c, s=stand: c == s, f"push-approach{i}",
+                                 avoid={tuple(bl)}):
+                self.log(f"!! [push] can't reach {stand} to push {bl} {key}")
+                return False
+            moved = False
+            for _try in range(4):
+                if self.handle_interrupts():
+                    continue
+                b.press(key, 40, 10, camp.render, owner="agent")
+                self.settle(70)
+                b2l = self.nearest_boulder((bl[0] + d[0], bl[1] + d[1]))
+                if b2l != bl:
+                    moved = True
+                    break
+            if not moved:
+                self.log(f"!! [push] {bl} would not move {key} (player {tv.coords(b)})")
+                return False
+            approx = (bl[0] + d[0], bl[1] + d[1])
+            self.log(f"   [push] {bl} -> {approx} ({key}, {i + 1}/{n})")
+            self.settle(30)
+        return True
+
+    def board_mission(self, plan, reset_out, reset_home, label):
+        """Run a push plan; a wedged board (mid-resume dirt) is RESET by a door round-trip
+        (boulders are FLAG_TEMP objects — they respawn at template tiles on map re-entry)."""
+        for round_ in range(2):
+            if self.ensure_strength(plan[0][0]) and all(self.push(a, k, n) for a, k, n in plan):
+                return True
+            if round_ == 0:
+                self.log(f"   [{label}] push plan wedged — door round-trip to RESET the board")
+                out_tile, out_map = reset_out
+                back_tile, here_map = reset_home
+                if not (self.enter_step(out_tile, out_map, f"{label}-reset-out")
+                        and self.enter_step(back_tile, here_map, f"{label}-reset-back")):
+                    return False
+        return False
+
+    # ── talk / scene primitives ──────────────────────────────────────────────────────────
+    def poke(self, tile, label, avoid=()):
+        """Stand beside an NPC/scene tile, face it, A, A-drain the boxes (A answers YES on
+        a YES/NO — every box on this mission wants YES)."""
+        b = self.b
+        nbs = [(tile[0] + dx, tile[1] + dy) for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1))
+               if (tile[0] + dx, tile[1] + dy) not in set(avoid)]
+        for _att in range(3):
+            if time.time() > self.deadline:
+                return False
+            if tuple(tv.coords(b) or ()) not in nbs:
+                if not self.sea_walk(lambda c, s=set(nbs): c in s, f"{label}-approach"):
+                    return False
+            cur = tuple(tv.coords(b) or (0, 0))
+            key = KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1]))
+            if key:
+                b.press(key, 8, 10, self.camp.render, owner="agent")
+            b.press("A", 8, 12, self.camp.render, owner="agent")
+            self.settle(40)
+            if dd_box(b) or self.fight_open():
+                self.drain(key="A")
+                return True
+        return False
+
+    def wait_scene(self, done, label, timeout=300, quiet_n=4):
+        """Ride out a long scripted scene (ferry, forced walks, fanfares): A-drain every box,
+        fight anything that opens, until `done()` and the boxes go quiet. quiet_n tunes the
+        silence bar — the Bill arrival/return cutscenes have LONG boxless forced-walk gaps,
+        so their callers demand ~9s of quiet before believing the scene is over."""
+        b = self.b
+        end = time.time() + timeout
+        quiet = 0
+        while time.time() < end:
+            if self.fight_open():
+                self.fight()
+                self.drain()
+                quiet = 0
+                continue
+            if dd_box(b):
+                quiet = 0
+                b.press("A", 8, 12, self.camp.render, owner="agent")
+                for _ in range(20):
+                    b.run_frame()
+                continue
+            for _ in range(45):
+                b.run_frame()
+            quiet += 1
+            if done() and quiet >= quiet_n:     # ~0.75s of silence per unit, in goal state
+                self.log(f"   [{label}] scene done at {tv.map_id(b)}@{tv.coords(b)}")
+                return True
+        self.log(f"!! [{label}] scene never settled (at {tv.map_id(b)}@{tv.coords(b)})")
+        return done()
+
+    def sail(self, want):
+        """Seagallop hop: talk to the pier sailor (8,6) from (8,7), pick the row (DOWN x row
+        + A; the menu is [row0/row1/Exit] per SAIL_ROWS while the detour is live), ride the
+        ferry (map flip). A missed row self-corrects: run() re-dispatches from wherever the
+        boat actually landed, and every wrong island's menu still contains the right one."""
+        b, camp = self.b, self.camp
+        here = tuple(tv.map_id(b))
+        rows = SAIL_ROWS.get(here)
+        if not rows or want not in rows:
+            return False
+        row = rows.index(want)
+        if not self.sea_walk(lambda c: c == (8, 7), "sailor-approach"):
+            return False
+        b.press("UP", 8, 10, camp.render, owner="agent")
+        b.press("A", 8, 12, camp.render, owner="agent")
+        self.settle(80)                          # "Where do you want to sail?" + multichoice
+        for _ in range(row):
+            b.press("DOWN", 8, 10, camp.render, owner="agent")
+            self.settle(20)
+        b.press("A", 8, 12, camp.render, owner="agent")
+        ok = self.wait_scene(lambda: tuple(tv.map_id(b)) != here, "ferry", timeout=60)
+        self.settle(60)
+        got = tuple(tv.map_id(b))
+        if got != want:
+            self.log(f"   [sail] {here} -> {got} (wanted {want}) — "
+                     f"{'re-routing from the wrong pier' if ok else 'ferry never left'}")
+        else:
+            self.log(f"   [sail] {here} -> {got}")
+        # a wrong pier is PROGRESS, not a wedge: every island's menu contains the right
+        # destination, so the stage router self-corrects on the next leg_home dispatch
+        return ok
+
+    def heal_here(self, nurse_tile):
+        """Best-effort Center heal (the nurse YES/NO answers YES on A-drain)."""
+        try:
+            self.poke(nurse_tile, "nurse")
+            self.settle(120)
+            self.drain(key="A")
+        except Exception as e:
+            self.log(f"   [nurse] heal errored: {e} — continuing (LOUD)")
+
+    def meteorite_in_bag(self):
+        try:
+            return self.camp.bag_count(ITEM_METEORITE) > 0
+        except Exception:
+            return False
+
+    # ── outbound stages ──────────────────────────────────────────────────────────────────
+    def board_with_bill(self):
+        """Cinnabar PC: Bill (11,5) YES -> the whole auto-sail (island exit walk, ferry,
+        One-Island harbor walk-out, the forced Center walk-in, the Celio Meteorite/Tri-Pass
+        scene). Ends standing free in the One-Island Center."""
+        b = self.b
+        if tuple(tv.map_id(b)) == CINNABAR:
+            if not self.enter_to(CINNABAR_PC, "cinnabar-pc"):
+                return False
+        if fm.read_flag(b, FLAG_HIDE_CINNABAR_PC_BILL):
+            self.log("!! [moltres] Bill is NOT in the Cinnabar Center (hide 0x0A2 set) — "
+                     "no ride to One Island; the gate should have suppressed this")
+            return False
+        try:
+            self.camp.on_event("Bill's waiting in the Pokémon Center — and this time the "
+                               "answer is YES. One Island, here we come: MOLTRES is on that "
+                               "mountain.", kind="legendary", tier=3)
+        except Exception:
+            pass
+        if not self.poke((11, 5), "bill-yes"):
+            return False
+        return self.wait_scene(lambda: tuple(tv.map_id(b)) == ONE_PC, "sail-to-one",
+                               quiet_n=12)
+
+    def leg_to_summit(self, here):
+        """One stage of the climb, keyed by map; run() loops until the summit press."""
+        b = self.b
+        if here == ONE_PC:
+            self.heal_here((5, 2))
+            return self.enter_step((9, 9), ONE_ISLAND, "pc-out")
+        if here == ONE_ISLAND:
+            return self.cross_edge("east", "to-kindle")
+        if here == KINDLE:
+            return (self.enter_step((11, 6), EMBER_EXT, "ember-door")
+                    or self.enter_step((12, 6), EMBER_EXT, "ember-door2"))
+        if here == EMBER_EXT:
+            y = (tv.coords(b) or (0, 0))[1]
+            if y > 30:                           # lower corridor — the 6-push ascent board
+                if not self.board_mission(EMBER_ASCENT_PUSHES,
+                                          ((28, 48), KINDLE), ((11, 6), EMBER_EXT),
+                                          "ext-ascent"):
+                    return False
+                return self.enter_step((14, 24), EMBER_1F, "1f-door")
+            return self.enter_step((29, 7), EMBER_SUMMIT, "summit-door")
+        if here == EMBER_1F:
+            return self.enter_step((11, 1), EMBER_2F, "2f-door")
+        if here == EMBER_2F:
+            return self.enter_step((39, 6), EMBER_3F, "3f-door")
+        if here == EMBER_3F:
+            return self.enter_step((11, 8), EMBER_EXT, "ext-upper")
+        if here == EMBER_SUMMIT:
+            if not self.board_mission(SUMMIT_PUSHES,
+                                      ((9, 15), EMBER_EXT), ((29, 7), EMBER_SUMMIT),
+                                      "summit-board"):
+                return False
+            return self.press_quarry()
+        return False
+
+    # ── homebound stages ─────────────────────────────────────────────────────────────────
+    def leg_home(self, here):
+        """One stage of the ride home, keyed by map + the detour predicate."""
+        b = self.b
+        met, resc = self.meteorite_in_bag(), fm.read_flag(b, FLAG_RESCUED_LOSTELLE)
+        if here == EMBER_SUMMIT:
+            return self.enter_step((9, 15), EMBER_EXT, "summit-out")
+        if here == EMBER_EXT:
+            y = (tv.coords(b) or (0, 0))[1]
+            if y <= 30:
+                return self.enter_step((39, 19), EMBER_3F, "3f-upper-door")
+            if not self.board_mission(EMBER_DESCENT_PUSHES,
+                                      ((14, 24), EMBER_1F), ((2, 15), EMBER_EXT),
+                                      "ext-descent"):
+                return False
+            return (self.enter_step((28, 48), KINDLE, "kindle-door")
+                    or self.enter_step((29, 48), KINDLE, "kindle-door2"))
+        if here == EMBER_3F:
+            return self.enter_step((2, 4), EMBER_2F, "3f-down")
+        if here == EMBER_2F:
+            return self.enter_step((8, 39), EMBER_1F, "2f-down")
+        if here == EMBER_1F:
+            return self.enter_step((2, 15), EMBER_EXT, "1f-down")
+        if here == KINDLE:
+            return self.cross_edge("west", "to-one-island")
+        if here == ONE_ISLAND:
+            if met:
+                return self.enter_step((12, 18), ONE_HARBOR, "one-harbor")
+            return self.enter_step((14, 5), ONE_PC, "one-pc")
+        if here == ONE_PC:
+            self.heal_here((5, 2))
+            if met:
+                return self.enter_step((9, 9), ONE_ISLAND, "pc-out")
+            # Meteorite delivered -> the x=12 trigger column (y 6-9, scene var == 2) fires
+            # Bill's leave scene: walks, the sail, the Cinnabar return cutscene.
+            try:
+                self.camp.on_event("detour done, Meteorite delivered — Bill's sailing us "
+                                   "home to Cinnabar. what a trip.", kind="legendary", tier=2)
+            except Exception:
+                pass
+            if not self.sea_walk(lambda c: c[0] == 12 and 6 <= c[1] <= 9, "leave-trigger"):
+                return False
+            return self.wait_scene(lambda: tuple(tv.map_id(b)) == CINNABAR, "sail-home",
+                                   quiet_n=12)
+        if here == ONE_HARBOR:
+            if met:
+                return self.sail(THREE_HARBOR if not resc else TWO_HARBOR)
+            return self.enter_step((8, 2), ONE_ISLAND, "harbor-out")
+        if here == THREE_HARBOR:
+            if met and not resc:
+                return self.enter_step((8, 2), THREE_PORT, "three-port")
+            return self.sail(ONE_HARBOR if not met else TWO_HARBOR)
+        if here == THREE_PORT:
+            if met and not resc:
+                return self.cross_edge("north", "to-three-town")
+            return self.enter_step((12, 13), THREE_HARBOR, "port-harbor")
+        if here == THREE_ISLAND:
+            # the biker gauntlet (y=26/27 triggers, x 7-11) fires trainerbattle_no_intro
+            # scripts on the way north — sea_walk's interrupt handling fights them through
+            if met and not resc:
+                return self.cross_edge("west", "to-bond-bridge")
+            return self.cross_edge("south", "to-three-port")
+        if here == BOND_BRIDGE:
+            if met and not resc:
+                return (self.enter_step((12, 6), BERRY_FOREST, "forest-door")
+                        or self.enter_step((13, 6), BERRY_FOREST, "forest-door2"))
+            return self.cross_edge("east", "to-three-town")
+        if here == BERRY_FOREST:
+            if not resc:
+                # Lostelle (4,8): the talk runs into the Hypno L30 script battle, then the
+                # script AUTO-WARPS her to the Two-Island Game Corner (pret BerryForest)
+                if not self.poke((4, 8), "lostelle"):
+                    return False
+                return self.wait_scene(lambda: tuple(tv.map_id(b)) == GAME_CORNER,
+                                       "hypno-and-warp", timeout=240, quiet_n=8)
+            return self.enter_step((43, 41), BOND_BRIDGE, "forest-out")
+        if here == GAME_CORNER:
+            # OnFrame reunion scene (scene var 2) plays first — drain it, then Daddy (5,5);
+            # the delivery is PROVEN by the Meteorite leaving the bag (item 280 removed)
+            self.wait_scene(lambda: True, "lostelle-reunion", timeout=45)
+            if met:
+                for _att in range(3):
+                    self.poke((5, 5), "daddy", avoid=((6, 5),))
+                    self.settle(60)
+                    self.drain(key="A")
+                    if not self.meteorite_in_bag():
+                        break
+                if self.meteorite_in_bag():
+                    self.log("!! [moltres] Daddy never took the Meteorite — wedged delivery")
+                    return False
+                self.log("   [moltres] Meteorite DELIVERED — the ride home is armed "
+                         "(One-Island Center scene var -> 2)")
+            return self.enter_step((5, 8), TWO_ISLAND, "corner-out")
+        if here == TWO_ISLAND:
+            if met and resc:
+                return self.enter_step((39, 9), GAME_CORNER, "to-corner")
+            return self.enter_step((10, 8), TWO_HARBOR, "two-harbor")
+        if here == TWO_HARBOR:
+            if met and not resc:
+                return self.sail(THREE_HARBOR)
+            if met and resc:
+                return self.enter_step((8, 2), TWO_ISLAND, "harbor-out")
+            return self.sail(ONE_HARBOR)
+        return False
+
+    # ── the run ──────────────────────────────────────────────────────────────────────────
+    def run(self):
+        b = self.b
+        here = tuple(tv.map_id(b))
+        if self.spent() and here not in MOLTRES_ANCHORS - {CINNABAR, CINNABAR_PC}:
+            return self.outcome() or "battled"
+        if here not in MOLTRES_ANCHORS:
+            return "not_here"
+        for _stage in range(64):
+            while self.handle_interrupts():
+                pass
+            if time.time() > self.deadline:
+                self.log("!! [moltres] deadline — surfacing (stage machine resumes by map)")
+                return "failed"
+            here = tuple(tv.map_id(b))
+            if self.spent():
+                if here in (CINNABAR, CINNABAR_PC):
+                    self.log("   [moltres] SPENT + home at Cinnabar — the hunt is complete")
+                    return self.outcome() or "battled"
+                if here not in MOLTRES_ANCHORS:
+                    return self.outcome() or "battled"
+                if not self.leg_home(here):
+                    self.log(f"!! [moltres] home leg wedged on {here} @ {tv.coords(b)}")
+                    return "failed"
+            else:
+                if here in (CINNABAR, CINNABAR_PC):
+                    if not self.board_with_bill():
+                        return "failed"
+                elif here in (ONE_PC, ONE_ISLAND, KINDLE, EMBER_EXT, EMBER_1F,
+                              EMBER_2F, EMBER_3F, EMBER_SUMMIT):
+                    if not self.leg_to_summit(here):
+                        self.log(f"!! [moltres] climb leg wedged on {here} @ {tv.coords(b)}")
+                        return "failed"
+                elif here == ONE_HARBOR:
+                    if not self.enter_step((8, 2), ONE_ISLAND, "harbor-out"):
+                        return "failed"
+                else:
+                    # unfought but drifted onto Two/Three (bizarre resume) — sail back to One
+                    if here in (TWO_HARBOR, THREE_HARBOR):
+                        if not self.sail(ONE_HARBOR):
+                            return "failed"
+                    elif here == TWO_ISLAND:
+                        if not self.enter_step((10, 8), TWO_HARBOR, "two-harbor"):
+                            return "failed"
+                    elif here == THREE_PORT:
+                        if not self.enter_step((12, 13), THREE_HARBOR, "port-harbor"):
+                            return "failed"
+                    elif here == THREE_ISLAND:
+                        if not self.cross_edge("south", "to-three-port"):
+                            return "failed"
+                    elif here == BOND_BRIDGE:
+                        if not self.cross_edge("east", "to-three-town"):
+                            return "failed"
+                    elif here == BERRY_FOREST:
+                        if not self.enter_step((43, 41), BOND_BRIDGE, "forest-out"):
+                            return "failed"
+                    elif here == GAME_CORNER:
+                        if not self.enter_step((5, 8), TWO_ISLAND, "corner-out"):
+                            return "failed"
+                    else:
+                        return "not_here"
+        return "failed"
+
+
 class MewtwoHunt(LegendaryHunt):
     QUARRY = MEWTWO
 
@@ -311,6 +814,10 @@ def run_zapdos(camp, log, dbg_dir=None):
 
 def run_articuno(camp, log, dbg_dir=None):
     return _dispatch(ArticunoHunt, ARTICUNO_ANCHORS, camp, log, dbg_dir)
+
+
+def run_moltres(camp, log, dbg_dir=None):
+    return _dispatch(MoltresHunt, MOLTRES_ANCHORS, camp, log, dbg_dir)
 
 
 def run_mewtwo(camp, log, dbg_dir=None):
