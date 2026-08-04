@@ -1554,8 +1554,10 @@ class Campaign:
         self._battle_ran_this_action = True    # blackout-evidence: a whiteout implies a battle RAN
         # P-1(a): the FIRSTS — a first-timer's first wild rustle / first real trainer fight
         # are events a viewer should feel. One beat each, early-game gated in _first_beat.
+        _was_trainer = False           # captured NOW while the flags are live (stale post-battle)
         try:
             if bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08):
+                _was_trainer = True
                 self._first_beat("trainer_battle",
                                  "my first REAL trainer battle — an actual person wants to "
                                  "fight me. okay. deep breath. this is what training's for.")
@@ -1705,6 +1707,24 @@ class Campaign:
                 self._struggle_flagged = False             # bench recovered — re-arm for the next scare
         except Exception as _e:
             log(f"   [struggle] check skipped: {_e}")
+        # FIGHT-WON CHECKPOINT SEAM (2026-08-04, Jonny: 'we better be saving after every fight so
+        # we can reload her insta when things go wrong and not have to waste time'). The periodic
+        # cadence is ~2 min and DEFERS while a battle is live, so a Silph gauntlet win could sit
+        # up to two minutes unbanked — a wedge in the NEXT fight rewound the previous victory.
+        # Bank the full sanctity bundle right at the victory seam: trainer wins only (unrepeatable
+        # progress; wild grass fights stay on the cadence — 80-slot history churn for nothing),
+        # and only once the battle is actually over (a mid-battle pin is a losing-fight rewind
+        # trap, same doctrine as the roam-loop deferral). Resets the cadence clock so the
+        # periodic path doesn't double-bank seconds later. Best-effort + LOUD (Constraint #3).
+        try:
+            if (_was_trainer and str(record_out).lower() == "win"
+                    and AUTO_CKPT_ENABLED and not st.in_battle(self.b)):
+                self._save_campaign("fight-won"); self._continuity_save()
+                if self._auto_checkpoint("fight-won"):
+                    self._last_ckpt_t = time.time()
+                    log("   [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory")
+        except Exception as _cke:
+            log(f"   [ckpt] fight-won checkpoint skipped ({_cke}) — LOUD")
         return out
 
     def _advance_dialogue(self, taps=12):
