@@ -9364,8 +9364,10 @@ class Campaign:
         BENCH_TO_MILESTONE keep-climb machinery active for THIS transition and (b) defers the crossing
         questline so the LOPSIDED-BENCH grind fires. Park-safe by construction — it releases (returns None)
         the instant ANY of: the bench reaches within BENCH_MS_CLOSE of the milestone, this grass proves a
-        poor spot for it (bench out-levelled it -> _bench_poor_maps), or grass is unreachable (prep-dry
-        stand-down). So it can never infinitely park: worst case she crosses with whatever the last grass
+        poor spot for it (bench out-levelled it -> _bench_poor_maps), grass is unreachable (prep-dry
+        stand-down), she is ALREADY on the sea road (R19/R20/Seafoam interior — past the last grass), or
+        GO-HARD/ACE-CARRIES has grass off the menu (the grind it waits for can't fire — 2026-08-04 wedge).
+        So it can never infinitely park: worst case she crosses with whatever the last grass
         gave. Scoped tight — only next_gym==Blaine, only in the has-Surf-not-yet-crossed window
         (_seafoam_gate open), so the rest of the climb is byte-unaffected."""
         if not OVERLEVEL_SEALEG_ENABLED:
@@ -9380,6 +9382,26 @@ class Campaign:
             # only on the NEAR side of the crossing (has Surf, not yet crossed) — the last grass before the
             # sea. _seafoam_gate() is non-None exactly in that window and self-clears once crossed.
             if self._seafoam_gate() is None:
+                return None
+            # SEA-ROAD RELEASE (2026-08-04 LIVE, the Route-20 (119,17) permanent loop): two conditions
+            # that each turn this deferral into a deadlock — release (return None) so the crossing
+            # errand arms and seafoam_strike runs, instead of waiting on a grind that can never fire.
+            #  (a) ALREADY ON THE SEA ROAD (Route 19/20 or a Seafoam interior floor): the "last grass"
+            #      rationale is moot — she's past the grass. Deferring HERE blocked the seafoam gate
+            #      every tick while she stood next to the Seafoam entrance, wedging the run.
+            #  (b) GO-HARD/ACE-CARRIES is force-picking head_to_gym and pruning 'battle' — grass is
+            #      OFF the menu, so the LOPSIDED-BENCH grind this deferral waits for can NEVER fire
+            #      (_bench_severely_lopsided itself stands down on ace-carries). Deadlock by
+            #      construction: defer-for-grind + grind-forbidden. March means march — cross.
+            # The Fuchsia-grass-with-grinding-available case (no go-hard latch, near-side maps) is
+            # untouched — the deferral still holds exactly where it was designed to.
+            try:
+                from seafoam_strike import R19, R20, SEAFOAM_MAPS
+                if tuple(tv.map_id(self.b)) in ({R19, R20} | SEAFOAM_MAPS):
+                    return None
+            except Exception:
+                pass
+            if getattr(self, "_force_gym_pick", False) or self._ace_carries_next_gym(state):
                 return None
             if getattr(self, "_prep_dry", 0) >= 2:
                 return None                          # no reachable grass here — PREP STAND-DOWN owns it
