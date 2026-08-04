@@ -1,0 +1,1500 @@
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [dialogue] +++ 'HYPER POTION? Certainly. How many would you like?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'HYPER POTION, and you want 1. That will be .1200. Okay?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION, and you want 1. That will be .1200. Okay?"'
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [dialogue] +++ 'HYPER POTION? Certainly. How many would you like?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'HYPER POTION, and you want 1. That will be .1200. Okay?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION, and you want 1. That will be .1200. Okay?"'
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [dialogue] +++ 'HYPER POTION? Certainly. How many would you like?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'HYPER POTION, and you want 1. That will be .1200. Okay?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION, and you want 1. That will be .1200. Okay?"'
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [dialogue] +++ 'HYPER POTION? Certainly. How many would you like?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'HYPER POTION, and you want 1. That will be .1200. Okay?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION, and you want 1. That will be .1200. Okay?"'
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [dialogue] +++ 'HYPER POTION? Certainly. How many would you like?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'HYPER POTION, and you want 1. That will be .1200. Okay?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION, and you want 1. That will be .1200. Okay?"'
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [dialogue] +++ 'HYPER POTION? Certainly. How many would you like?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'HYPER POTION, and you want 1. That will be .1200. Okay?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION, and you want 1. That will be .1200. Okay?"'
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [dialogue] +++ 'HYPER POTION? Certainly. How many would you like?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'HYPER POTION, and you want 1. That will be .1200. Okay?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION, and you want 1. That will be .1200. Okay?"'
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [dialogue] +++ 'HYPER POTION? Certainly. How many would you like?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'HYPER POTION, and you want 1. That will be .1200. Okay?'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "HYPER POTION, and you want 1. That will be .1200. Okay?"'
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [campaign]    MART: bought 15x Hyper Potion
+
+   [dialogue] +++ 'REVIVE? Certainly. How many would you like?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "REVIVE? Certainly. How many would you like?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'REVIVE, and you want 1. That will be .1500. Okay?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "REVIVE, and you want 1. That will be .1500. Okay?"'  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Here you are! Thank you!"'
+
+   [dialogue] +++ 'REVIVE? Certainly. How many would you like?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "REVIVE? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'REVIVE, and you want 1. That will be .1500. Okay?'  tags=[]
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Here you are! Thank you!"'
+
+   [dialogue] +++ 'REVIVE? Certainly. How many would you like?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "REVIVE? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'REVIVE, and you want 1. That will be .1500. Okay?'  tags=[]
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Here you are! Thank you!"'
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [dialogue] +++ 'REVIVE? Certainly. How many would you like?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "REVIVE? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'REVIVE, and you want 1. That will be .1500. Okay?'  tags=[]
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Here you are! Thank you!"'
+
+   [dialogue] +++ 'REVIVE? Certainly. How many would you like?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "REVIVE? Certainly. How many would you like?"'
+
+   [dialogue] +++ 'REVIVE, and you want 1. That will be .1500. Okay?'  tags=[]
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Here you are! Thank you!"'
+
+   [campaign]    MART: bought 5x item#24
+
+   [dialogue] +++ 'Is there anything else I can do?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Is there anything else I can do?"'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ 'Please come again!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Please come again!"'  fired=True  [age 0.0s + post 7ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(14, 5) coords=(2, 5) -> coord (4, 6) (budget 60s)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (161s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] step 0: (2, 5)->(3, 5) map=(14, 5) (path 4 to exit)
+
+   [travel] reached target coord (4, 6)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 7) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 15 warp(s) on (3, 10): (33, 30)->(1, 47), (22, 14)->(14, 0), (40, 12)->(14, 2), (46, 12)->(14, 3), (27, 21)->(14, 4), (40, 21)->(14, 5)
+
+   [campaign]    EXIT-BUILDING: (14, 5) -> (3, 10)@(40, 22)
+
+   [campaign]    MART: shopping done — {21: 15, 24: 5} (money now 2566)
+
+   [campaign]    HYPER-STALL: bought {21: 15, 24: 5} — now carrying 15 Hyper + 5 Revive
+
+   [campaign]    silph strike: pre-dungeon Hyper-Potion stock-up -> bought (now carrying 15x Hyper, at (3, 10)@(40, 22))
+
+   [campaign]    19 door(s); candidates (chosen order): [(33, 30)]
+
+   [campaign]    reachable door (33, 30): walking to approach (33, 31)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 10) coords=(40, 22) -> coord (33, 31) (budget 300s)
+
+   [travel] step 0: (40, 22)->(40, 23) map=(3, 10) (path 35 to exit)
+
+   [travel] step 10: (47, 25)->(48, 25) map=(3, 10) (path 25 to exit)
+
+   [travel] step 20: (46, 32)->(45, 32) map=(3, 10) (path 15 to exit)
+
+   [travel] step 30: (36, 32)->(35, 32) map=(3, 10) (path 5 to exit)
+
+   [travel] reached target coord (33, 31)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 10) -> (1, 47) via door (33, 30)
+
+   [campaign]    [world] learned 5 warp(s) on (1, 47): (7, 21)->(3, 10), (8, 20)->(3, 10), (9, 20)->(3, 10), (31, 2)->(1, 48), (22, 3)->(1, 58)
+
+   [campaign]    [silph-door] (3, 10) -> (1, 47) @ (8, 20)
+
+   [campaign]    3 door(s); candidates (chosen order): [(31, 2)]
+
+   [campaign]    reachable door (31, 2): walking to approach (31, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 47) coords=(6, 20) -> coord (31, 3) (budget 300s)
+
+   [travel] step 0: (6, 20)->(6, 19) map=(1, 47) (path 43 to exit)
+
+   [travel] step 10: (6, 10)->(6, 9) map=(1, 47) (path 33 to exit)
+
+   [travel] step 20: (10, 4)->(11, 4) map=(1, 47) (path 23 to exit)
+
+   [travel] step 30: (20, 4)->(21, 4) map=(1, 47) (path 13 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 47) coords=(30, 4) elapsed=5s
+
+   [travel] step 40: (30, 4)->(30, 3) map=(1, 47) (path 3 to exit)
+
+   [travel] reached target coord (31, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 47) coords=(31, 2) -> coord (30, 2) (budget 60s)
+
+   [travel] step 0: (31, 2)->(30, 2) map=(1, 47) (path 2 to exit)
+
+   [travel] reached target coord (30, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (31, 2) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 7 warp(s) on (1, 48): (28, 2)->(1, 49), (2, 6)->(1, 49), (15, 6)->(1, 54), (30, 2)->(1, 47), (7, 19)->(1, 52), (33, 19)->(1, 54)
+
+   [campaign]    WARPED (1, 47) -> (1, 48) via directional door (31, 2)
+
+   [campaign]    [floor2] (1, 47) -> (1, 48) @ (30, 2)
+
+   [campaign]    7 door(s); candidates (chosen order): [(28, 2)]
+
+   [campaign]    reachable door (28, 2): walking to approach (28, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 48) coords=(30, 4) -> coord (28, 3) (budget 300s)
+
+   [travel] step 0: (30, 4)->(30, 3) map=(1, 48) (path 4 to exit)
+
+   [travel] reached target coord (28, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 48) coords=(28, 2) -> coord (29, 2) (budget 60s)
+
+   [travel] step 0: (28, 2)->(29, 2) map=(1, 48) (path 2 to exit)
+
+   [travel] reached target coord (29, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (28, 2) (behavior 0x6d) entered via LEFT
+
+   [campaign]    [world] learned 10 warp(s) on (1, 49): (28, 2)->(1, 48), (4, 6)->(1, 51), (13, 14)->(1, 53), (30, 2)->(1, 50), (2, 14)->(1, 55), (3, 20)->(1, 51)
+
+   [campaign]    WARPED (1, 48) -> (1, 49) via directional door (28, 2)
+
+   [campaign]    [floor3] (1, 48) -> (1, 49) @ (28, 2)
+
+   [campaign]    10 door(s); candidates (chosen order): [(30, 2)]
+
+   [campaign]    reachable door (30, 2): walking to approach (30, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 49) coords=(28, 4) -> coord (30, 3) (budget 300s)
+
+   [travel] step 0: (28, 4)->(28, 3) map=(1, 49) (path 4 to exit)
+
+   [travel] reached target coord (30, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 49) coords=(30, 2) -> coord (29, 2) (budget 60s)
+
+   [travel] step 0: (30, 2)->(29, 2) map=(1, 49) (path 2 to exit)
+
+   [travel] reached target coord (29, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (30, 2) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 7 warp(s) on (1, 50): (28, 2)->(1, 51), (18, 6)->(1, 52), (30, 2)->(1, 49), (12, 9)->(1, 56), (2, 20)->(1, 56), (18, 14)->(1, 56)
+
+   [campaign]    WARPED (1, 49) -> (1, 50) via directional door (30, 2)
+
+   [campaign]    [floor4] (1, 49) -> (1, 50) @ (30, 2)
+
+   [campaign]    7 door(s); candidates (chosen order): [(28, 2)]
+
+   [campaign]    reachable door (28, 2): walking to approach (28, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 50) coords=(30, 4) -> coord (28, 3) (budget 300s)
+
+   [travel] step 0: (30, 4)->(30, 3) map=(1, 50) (path 4 to exit)
+
+   [travel] reached target coord (28, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 50) coords=(28, 2) -> coord (29, 2) (budget 60s)
+
+   [travel] step 0: (28, 2)->(29, 2) map=(1, 50) (path 2 to exit)
+
+   [travel] reached target coord (29, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (28, 2) (behavior 0x6d) entered via LEFT
+
+   [campaign]    [world] learned 7 warp(s) on (1, 51): (28, 2)->(1, 50), (15, 7)->(1, 49), (30, 2)->(1, 52), (10, 20)->(1, 55), (2, 20)->(1, 49), (33, 5)->(1, 53)
+
+   [campaign]    WARPED (1, 50) -> (1, 51) via directional door (28, 2)
+
+   [campaign]    [floor5] (1, 50) -> (1, 51) @ (28, 2)
+
+   [campaign]    7 door(s); candidates (chosen order): [(30, 2)]
+
+   [campaign]    reachable door (30, 2): walking to approach (30, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(28, 4) -> coord (30, 3) (budget 300s)
+
+   [travel] step 0: (28, 4)->(28, 3) map=(1, 51) (path 4 to exit)
+
+   [travel] reached target coord (30, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(30, 2) -> coord (29, 2) (budget 60s)
+
+   [travel] step 0: (30, 2)->(29, 2) map=(1, 51) (path 2 to exit)
+
+   [travel] reached target coord (29, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (30, 2) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 5 warp(s) on (1, 52): (14, 2)->(1, 53), (29, 5)->(1, 48), (26, 2)->(1, 51), (2, 6)->(1, 50), (20, 3)->(1, 58)
+
+   [campaign]    WARPED (1, 51) -> (1, 52) via directional door (30, 2)
+
+   [campaign]    [floor6] (1, 51) -> (1, 52) @ (26, 2)
+
+   [campaign]    5 door(s); candidates (chosen order): [(14, 2)]
+
+   [campaign]    reachable door (14, 2): walking to approach (14, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 52) coords=(26, 4) -> coord (14, 3) (budget 300s)
+
+   [travel] step 0: (26, 4)->(25, 4) map=(1, 52) (path 14 to exit)
+
+   [travel] step 10: (16, 4)->(15, 4) map=(1, 52) (path 4 to exit)
+
+   [travel] reached target coord (14, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 52) coords=(14, 2) -> coord (15, 2) (budget 60s)
+
+   [travel] step 0: (14, 2)->(15, 2) map=(1, 52) (path 2 to exit)
+
+   [travel] reached target coord (15, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (14, 2) (behavior 0x6d) entered via LEFT
+
+   [campaign]    [world] learned 6 warp(s) on (1, 53): (19, 2)->(1, 52), (5, 8)->(1, 57), (25, 17)->(1, 51), (27, 2)->(1, 54), (5, 4)->(1, 49), (23, 3)->(1, 58)
+
+   [campaign]    WARPED (1, 52) -> (1, 53) via directional door (14, 2)
+
+   [campaign]    [floor7] (1, 52) -> (1, 53) @ (19, 2)
+
+   [campaign]    6 door(s); candidates (chosen order): [(27, 2)]
+
+   [campaign]    reachable door (27, 2): walking to approach (27, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 53) coords=(19, 4) -> coord (27, 3) (budget 300s)
+
+   [travel] step 0: (19, 4)->(20, 4) map=(1, 53) (path 10 to exit)
+
+   [travel] reached target coord (27, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 53) coords=(27, 2) -> coord (26, 2) (budget 60s)
+
+   [travel] step 0: (27, 2)->(26, 2) map=(1, 53) (path 2 to exit)
+
+   [travel] reached target coord (26, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (27, 2) (behavior 0x6c) entered via RIGHT
+
+   [campaign]    [world] learned 7 warp(s) on (1, 54): (16, 2)->(1, 55), (11, 10)->(1, 54), (10, 6)->(1, 48), (28, 2)->(1, 53), (2, 12)->(1, 54), (2, 17)->(1, 48)
+
+   [campaign]    WARPED (1, 53) -> (1, 54) via directional door (27, 2)
+
+   [campaign]    [floor8] (1, 53) -> (1, 54) @ (28, 2)
+
+   [campaign]    7 door(s); candidates (chosen order): [(16, 2)]
+
+   [campaign]    reachable door (16, 2): walking to approach (16, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 54) coords=(28, 4) -> coord (16, 3) (budget 300s)
+
+   [travel] step 0: (28, 4)->(27, 4) map=(1, 54) (path 14 to exit)
+
+   [travel] step 10: (18, 4)->(17, 4) map=(1, 54) (path 4 to exit)
+
+   [travel] reached target coord (16, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (17, 2) (budget 60s)
+
+   [travel] step 0: (16, 2)->(17, 2) map=(1, 54) (path 2 to exit)
+
+   [travel] reached target coord (17, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (16, 2) (behavior 0x6d) entered via LEFT
+
+   [campaign]    [world] learned 5 warp(s) on (1, 55): (16, 2)->(1, 54), (22, 18)->(1, 51), (9, 4)->(1, 49), (18, 2)->(1, 56), (24, 3)->(1, 58)
+
+   [campaign]    WARPED (1, 54) -> (1, 55) via directional door (16, 2)
+
+   [campaign]    [floor9] (1, 54) -> (1, 55) @ (16, 2)
+
+   [campaign]    [pad-to-pocket] rode pad (22, 18): (1, 55) -> (1, 51) @ (10, 20)
+
+   [dialogue] +++ 'I heard a kid was wandering around.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I heard a kid was wandering around."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (1, 51)@(11, 21) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [card-key-ball] step into (12, 21) failed — dead-marked, recompute
+
+   [campaign]    [card-key-ball] no NPC-free static path (11, 21) -> (21, 21) (dead=[(12, 21)])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(11, 21) -> coord (21, 21) (budget 120s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign] !! [card-key-ball] couldn't reach (21, 21) (at (11, 21))
+
+   [campaign]    [card-key-ball] no NPC-free static path (11, 21) -> (23, 21) (dead=[])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(11, 21) -> coord (23, 21) (budget 120s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [strat] gEnemyParty CONFIRMED (slot0=24 == active foe) — roster reads live
+
+   [play-live] battle context: trainer=True foe=arbok rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 19ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against arbok — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs arbok 82/82 | [0]Tackle(p35,pp=33,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Water Pulse - a STAB hit'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs arbok 62/82 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's arbok went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [card-key-ball] battle en route -> win
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 16ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(11, 21) -> coord (23, 21) (budget 120s)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (102s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] step 0: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+
+   [travel] step 10: (21, 21)->(20, 21) map=(1, 51) (path 81 to exit)
+
+   [travel] step 20: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+
+   [travel] step 30: (21, 21)->(20, 21) map=(1, 51) (path 81 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 51) coords=(11, 21) elapsed=5s
+
+   [travel] step 40: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+
+   [travel] step 50: (21, 21)->(20, 21) map=(1, 51) (path 81 to exit)
+
+   [travel] step 60: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+
+   [travel] step 70: (21, 21)->(20, 21) map=(1, 51) (path 81 to exit)
+
+   [travel] HEARTBEAT step=80 map=(1, 51) coords=(11, 21) elapsed=11s
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 51)@(11, 21) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [travel] step 80: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign] !! [card-key-ball] couldn't reach (23, 21) (at (21, 21))
+
+   [campaign]    [card-key-ball] no NPC-free static path (21, 21) -> (22, 20) (dead=[])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (22, 20) (budget 120s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign] !! [card-key-ball] couldn't reach (22, 20) (at (21, 20))
+
+   [campaign]    [card-key-ball] no NPC-free static path (21, 20) -> (22, 22) (dead=[])
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(21, 20) -> coord (22, 22) (budget 120s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (21, 20) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (21, 20) AND no NPC-allowing path (npcs nearby=[(16, 13), (22, 21), (23, 13)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (21, 20) map=(1, 51) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 51)@(21, 21) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign] !! [card-key-ball] couldn't reach (22, 22) (at (21, 21))
+
+   [campaign]    CARD KEY: item=False flag=False
+
+   [campaign] !! Card Key not obtained in the 5F pocket — abort LOUD
+
+   [campaign]    silph strike: climb -> failed; Saffron NOT freed (at (1, 51)@(21, 21))
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 51)@(21, 21))
+
+   [campaign]    [roam] RESULT: head_to_gym -> questline_strike_failed | pos (3, 10)(24, 39) -> (1, 51)(21, 21) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 51) coords=(21, 21) badges=5 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_103359_silph-co_5b_25h40m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 51)@(21, 21) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] LOSS recorded vs trainer:Silph Co.:arbok (now 1x) at map=(1, 51) — SPATIAL wall active (gated until stronger)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs trainer:Silph Co.:arbok from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (29, 2) (budget 60s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (30, 3) (budget 45s)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (30, 1) (budget 45s)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (21, 21) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (21, 21) AND no NPC-allowing path (npcs nearby=[(22, 21)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (21, 21) map=(1, 51) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (29, 2) (budget 45s)
+
+   [travel] step 0: (21, 21)->(20, 21) map=(1, 51) (path 50 to exit)
+
+   [travel] step 10: (12, 20)->(11, 20) map=(1, 51) (path 40 to exit)
+
+   [travel] MAP TRANSITION (1, 51) -> (1, 55)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 5 warp(s) on (1, 55): (16, 2)->(1, 54), (22, 18)->(1, 51), (9, 4)->(1, 49), (18, 2)->(1, 56), (24, 3)->(1, 58)
+
+   [travel] coord leg ended by the transition -> (1, 55) (target (29, 2) was the old map's frame)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 55) coords=(22, 18) -> coord (31, 2) (budget 45s)
+
+   [travel] path blocked at (22, 18) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (22, 18); NPC-allowing path EXISTS (len 36), blocker NPC tile=None, npcs nearby=[(15, 18), (26, 16)] -> approaching to interact/trigger
+
+   [travel] path blocked at (26, 17) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'Your POK.MON have weak points! I can nail them!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your POK.MON have weak points! I can nail them!"'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] no clean path from (26, 17); NPC-allowing path EXISTS (len 21), blocker NPC tile=None, npcs nearby=[(26, 16)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 12ms]
+
+   [play-live] battle context: trainer=True foe=arbok rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against voltorb — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out voltorb'
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs voltorb 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=19,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's voltorb fainted — your blastoise took it down"  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out magneton'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=18,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=18,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's magneton fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out koffing'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=17,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's koffing went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 6ms]
+
+   [dialogue] +++ 'You hammered me!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "You hammered me!"'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 7ms]
+
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 55) coords=(26, 17) -> coord (30, 2) (budget 60s)
+
+   [travel] path blocked at (26, 17) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (26, 17) AND no NPC-allowing path (npcs nearby=[(26, 16)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (26, 17) map=(1, 55) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    EXIT-BUILDING: (1, 51) -> (1, 55)@(26, 17)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 55) coords=(26, 17) -> coord (17, 2) (budget 60s)
+
+   [travel] step 0: (26, 17)->(27, 17) map=(1, 55) (path 33 to exit)
+
+   [travel] step 10: (30, 11)->(30, 10) map=(1, 55) (path 23 to exit)
+
+   [travel] step 20: (27, 4)->(26, 4) map=(1, 55) (path 13 to exit)
+
+   [travel] step 30: (18, 3)->(18, 2) map=(1, 55) (path 3 to exit)
+
+   [travel] reached target coord (17, 2)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (16, 2) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 7 warp(s) on (1, 54): (16, 2)->(1, 55), (11, 10)->(1, 54), (10, 6)->(1, 48), (28, 2)->(1, 53), (2, 12)->(1, 54), (2, 17)->(1, 48)
+
+   [campaign]    EXIT-BUILDING: (1, 55) -> (1, 54)@(16, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (10, 6) (budget 60s)
+
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 54) (path 35 to exit)
+
+   [travel] step 10: (16, 12)->(16, 13) map=(1, 54) (path 25 to exit)
+
+   [travel] step 20: (10, 16)->(9, 16) map=(1, 54) (path 15 to exit)
+
+   [travel] step 30: (8, 8)->(8, 7) map=(1, 54) (path 5 to exit)
+
+   [travel] path blocked at (9, 6) (NPC on the gap?) - waiting
+
+   [dialogue] +++ "You're causing us problems!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "You\'re causing us problems!"'  fired=True  [age 0.0s + post 2ms]
+
+   [travel] no clean path from (9, 6); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(2, 5), (9, 5)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 13ms]
+
+   [play-live] battle context: trainer=True foe=koffing rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against grimer — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out grimer'
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs grimer 85/85 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=16,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's grimer fainted — your blastoise took it down"  fired=True  [age 0.0s + post 9ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out electrode'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs electrode 73/73 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=15,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Water Pulse - a STAB hit'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs electrode 1/73 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's electrode went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Huh? I lost?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Huh? I lost?"'  fired=True  [age 0.0s + post 20ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 4ms]
+
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+
+   [campaign]    7 door(s); candidates (chosen order): [(10, 6)]
+
+   [campaign]    door (10, 6): near approach ((9, 6)→(10, 7), d=2) — short step
+
+   [campaign]    door (10, 6): at (10, 7) (approach=(10, 7)) — stepping UP in
+
+   [campaign]    WARPED (1, 54) -> (1, 48) via door (10, 6) (on-tile)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 7 warp(s) on (1, 48): (28, 2)->(1, 49), (2, 6)->(1, 49), (15, 6)->(1, 54), (30, 2)->(1, 47), (7, 19)->(1, 52), (33, 19)->(1, 54)
+
+   [campaign]    EXIT-BUILDING: (1, 54) -> (1, 48)@(33, 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 48) coords=(33, 19) -> coord (29, 2) (budget 60s)
+
+   [travel] step 10: (35, 17)->(34, 17) map=(1, 48) (path 30 to exit)
+
+   [travel] path blocked at (28, 17) (NPC on the gap?) - waiting
+
+   [dialogue] +++ "It's off-limits here! Go home!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "It\'s off-limits here! Go home!"'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] path blocked at (28, 17) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (28, 17); NPC-allowing path EXISTS (len 23), blocker NPC tile=None, npcs nearby=[(20, 14), (28, 18), (29, 12)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] battle context: trainer=True foe=electrode rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against magnemite — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out magnemite'
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magnemite 52/52 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=13,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's magnemite fainted — your blastoise took it down"  fired=True  [age 0.0s + post 6ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out voltorb'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs voltorb 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's voltorb fainted — your blastoise took it down"  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out magneton'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's magneton went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "You're good."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "You\'re good."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] blocker battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 3ms]
+
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 48) coords=(28, 17) -> coord (30, 3) (budget 45s)
+
+   [travel] step 0: (28, 17)->(27, 17) map=(1, 48) (path 23 to exit)
+
+   [travel] step 10: (25, 10)->(26, 10) map=(1, 48) (path 13 to exit)
+
+   [dialogue] +++ 'Hey, kid! What are you wandering here for?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hey, kid! What are you wandering here for?"'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] path blocked at (29, 10) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (29, 10); NPC-allowing path EXISTS (len 9), blocker NPC tile=None, npcs nearby=[(20, 14), (28, 18), (29, 11)] -> approaching to interact/trigger
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] blocker is a TRAINER - fighting through
+
+   [kira-voice] -> T1·brisk· (beat) "a trainer's blocking the path - bring it on"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] battle context: trainer=True foe=magneton rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. and we're going in HURT — this could get scary."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against golbat — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out golbat'
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '35/167', 'status': 'paralysis', 'foe': 'golbat'}
+
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 20% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "nope, I'm about to drop — potion FIRST, pride later."
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 21, aim=active)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 15ms]
+
+   [play-live]    [engine] use_item: USED item 21 (count 15->14)
+
+   [kira-voice] -> T1·brisk· (event) "used an item — that's better"  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] battle-progress: item 21 consumed
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 132 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 132 point.s.. ."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 5 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 5 point.s.. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 5 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 5 point.s.. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 1/4)
+
+   [kira-voice] -> T1·brisk· (event) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"  fired=True  [age 0.0s + post 10ms]
+
+   [play-live]    [engine] !! MENU WEDGE 63s with NO progress — escaping the scroll theater (fire 1/3, menu_up=1 action=False moves=False bag=False party=True)
+
+   [kira-voice] -> T2·savor· (event) 'menus are glitched — bailing this fight.'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 10ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 2/4)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"
+
+   [play-live]    [engine] !! PARTY THRASH #1: open but active ALIVE — B-closing (never A)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] !! PARTY THRASH #2: open but active ALIVE — B-closing (never A)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] !! PARTY THRASH #3: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] !! PARTY THRASH #4: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] !! PARTY THRASH #5: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] !! PARTY THRASH #6: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] !! PARTY THRASH #7: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] !! PARTY THRASH #8: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] !! PARTY THRASH #9: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 6ms]
+
+   [play-live]    [engine] !! MENU WEDGE 64s with NO progress — escaping the scroll theater (fire 2/3, menu_up=1 action=False moves=False bag=False party=False)
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 3/4)
+
+   [kira-voice] -> T1·brisk· (event) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] !! PARTY THRASH #10: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] !! PARTY THRASH #11: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] !! PARTY THRASH #12: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 17ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 6ms]
+
+   [play-live]    [engine] !! PARTY THRASH #13: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] !! PARTY THRASH #14: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] !! PARTY THRASH #15: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] !! PARTY THRASH #16: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] !! PARTY THRASH #17: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 8ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] !! PARTY THRASH #18: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] !! MENU WEDGE 62s with NO progress — escaping the scroll theater (fire 3/3, menu_up=1 action=False moves=False bag=False party=False)
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 4/4)
+
+   [kira-voice] -> T1·brisk· (event) "no — Water Pulse - a STAB hit didn't happen, I'm fully paralyzed! hang in there…"  fired=True  [age 0.0s + post 21ms]
+
+   [play-live]    [engine] !! PARTY THRASH #19: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] !! PARTY THRASH #20: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] !! PARTY THRASH #21: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] !! PARTY THRASH #22: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] !! PARTY THRASH #23: open but active ALIVE — B-closing (never A)
+
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 76062 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(1, 48) coords=(29, 10)  badge=True
+
+   [kira-voice] === 125 fired, 54 gated (0 failed) | by tier: T3=0 T2=93 T1=32 (incl ambient trickle) ===
+
+================================================================
+

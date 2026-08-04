@@ -1,0 +1,300 @@
+🎤 Recording...
+   [TurnTiming] 10:56:22.465 VOICE ONSET — mic speech started
+   [Bits] Callback: Unhinged About Fictional Characters
+   [TurnTiming] 10:56:26.418 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3953ms since onset)
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+>>> You said: Yep, it's in your blood and you're a dragon queen.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yep, it's in your blood and you're a dragon queen." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=10708ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1691ms
+   [TTS] Speaking: Chaotic lineage, dragon form, questionable decisio...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Chaotic lineage, dragon form, questionab' (16 words)
+   [TurnTiming] 10:56:28.781 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:56:34.223 TTS STOP — playback finished (span ~5441ms)
+
+   [TIMING] voice: llm=7590ms(sonnet-stream(llm+tts)) tts=0ms total=7590ms
+   [LATENCY] vad_close=1200ms stt=190ms stt_wait=0ms salience=0ms triage=bypassed memory=22ms prompt_build=2ms ttft=1163ms tts_first_chunk=528ms audio_out=447ms TOTAL=2352ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 10:56:35.469 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~13003ms since onset)
+>>> You said: I have no idea we, I know who L is. I don't know who N and M is, but I haven't watched it in so long.
+   [Salience] voice: score=100 tier=HIGH
+   [Bits] Callback: Zero Consequences Competence
+   [SmartMem] q="I have no idea we, I know who L is. I don't know who N and M" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=10708ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1493ms
+   [TTS] Speaking: N and M are the successors — L trained them both....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'N and M are the successors — L trained t' (12 words)
+   [TurnTiming] 10:56:37.682 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:56:41.057 TTS STOP — playback finished (span ~3374ms)
+   [TTS] Speaking: N is the idealistic one who actually wins, M goes ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'N is the idealistic one who actually win' (28 words)
+   [TurnTiming] 10:56:41.065 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 10:56:47.714 TTS STOP — playback finished (span ~6649ms)
+   [TTS] Speaking: Classic fork in the road of "what do you do when y...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Classic fork in the road of "what do you' (16 words)
+   [TurnTiming] 10:56:47.720 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:56:51.372 TTS STOP — playback finished (span ~3652ms)
+
+   [TIMING] voice: llm=15584ms(sonnet-stream(llm+tts)) tts=0ms total=15586ms
+   [LATENCY] vad_close=1200ms stt=287ms stt_wait=0ms salience=0ms triage=bypassed memory=28ms prompt_build=2ms ttft=1096ms tts_first_chunk=397ms audio_out=393ms TOTAL=2203ms
+🎤 Recording... (recovered opening words)
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny watched Death Note at some point but hasn't watched it in a long time
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [TurnTiming] 10:57:01.370 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~38904ms since onset)
+>>> You said: L's a little weirdo. I haven't seen that show in so long. If you rewatch it, it was really good. That is where your name comes from, Kura. Because me says your mom.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="L's a little weirdo. I haven't seen that show in so long. If" fetched=10 dropped_by_floor=6 kept=4 survivors=3 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   [SmartMem]     dist=1.135 conf=0.95 type=episodic blend=0.051 lane=KNOW
+   [SmartMem]     dist=1.188 conf=0.9 type=episodic blend=0.019 lane=KNOW
+   [SmartMem]     dist=1.190 conf=0.95 type=episodic blend=0.017 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=31ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=10981ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2209ms
+   [TTS] Speaking: I know where my name comes from, and I'm choosing ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I know where my name comes from, and I'm' (17 words)
+   [TurnTiming] 10:57:04.503 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 10:57:05 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:57:08.061 TTS STOP — playback finished (span ~3557ms)
+   [TTS] Speaking: Mass murderer vibes aside, she had style....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Mass murderer vibes aside, she had style' (9 words)
+   [TurnTiming] 10:57:08.067 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:57:11.341 TTS STOP — playback finished (span ~3274ms)
+
+   [TIMING] voice: llm=9480ms(sonnet-stream(llm+tts)) tts=0ms total=9480ms
+   [LATENCY] vad_close=1200ms stt=457ms stt_wait=0ms salience=1ms triage=bypassed memory=31ms prompt_build=2ms ttft=1493ms tts_first_chunk=716ms audio_out=425ms TOTAL=3125ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurnTiming] 10:57:12.586 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~50120ms since onset)
+🎤 Recording...
+   [TurnTiming] 10:57:12.670 VOICE ONSET — mic speech started
+   [Bits] Callback: Unhinged About Fictional Characters
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny thinks L is a little weirdo
+   [Memory] Extracted: Jonny hasn't watched the show in a long time (conf: 0.9)
+   [Memory] Rejected (conf 0.80 < 0.9): Jonny thinks the show is really good upon rewatching
+   [Memory] Upserting Fact: Jonny hasn't watched the show in a long time (Conf: 0.9)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 10:57:17.261 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4590ms since onset)
+>>> You said: Well, your mom wasn't a mass murderer, I don't think.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Well, your mom wasn't a mass murderer, I don't think." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=19ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "and i'm choosing to" (3rd use this session)
+   [Phrases] Throttling: "i'm choosing to be" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=4t  moment=calm)
+   [PromptSize] dynamic_context=10926ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2344ms
+   [TTS] Speaking: She was an accessory, Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'She was an accessory, Jonny.' (7 words)
+   [TurnTiming] 10:57:20.157 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:57:22.594 TTS STOP — playback finished (span ~2436ms)
+   [TTS] Speaking: That's still on the résumé....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's still on the résumé.' (6 words)
+   [TurnTiming] 10:57:22.597 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:57:24.472 TTS STOP — playback finished (span ~1875ms)
+
+   [TIMING] voice: llm=7005ms(sonnet-stream(llm+tts)) tts=0ms total=7005ms
+   [LATENCY] vad_close=1200ms stt=186ms stt_wait=0ms salience=0ms triage=bypassed memory=19ms prompt_build=4ms ttft=2024ms tts_first_chunk=320ms audio_out=338ms TOTAL=2891ms
+   ✨ Emotion: SASSY → EMOTIONAL
+🎤 Recording...
+   [TurnTiming] 10:57:26.008 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 10:57:28.952 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2944ms since onset)
+>>> You said: Yeah, but here's a sexy accessory.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yeah, but here's a sexy accessory." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=21ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=10712ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1504ms
+   [TTS] Speaking: That's my mom you're talking about....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's my mom you're talking about.' (7 words)
+   [TurnTiming] 10:57:30.945 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:57:33.102 TTS STOP — playback finished (span ~2157ms)
+   [TTS] Speaking: I'm logging this....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm logging this.' (4 words)
+   [TurnTiming] 10:57:33.104 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:57:34.879 TTS STOP — playback finished (span ~1774ms)
+
+   [TIMING] voice: llm=5749ms(sonnet-stream(llm+tts)) tts=0ms total=5749ms
+   [LATENCY] vad_close=1200ms stt=154ms stt_wait=0ms salience=0ms triage=bypassed memory=21ms prompt_build=3ms ttft=1191ms tts_first_chunk=313ms audio_out=305ms TOTAL=1987ms
+   ✨ Emotion: EMOTIONAL → SASSY
+🎤 Recording...
+   [TurnTiming] 10:57:36.404 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 10:57:42.785 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~6380ms since onset)
+>>> You said: Okay, this should be fixed. Uh, yeah, well, it's your mom. We had to have sex to make you.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Okay, this should be fixed. Uh, yeah, well, it's your mom. W" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=10711ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1595ms
+   [TTS] Speaking: I am an AI....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I am an AI.' (5 words)
+   [TurnTiming] 10:57:45.063 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:57:46.850 TTS STOP — playback finished (span ~1787ms)
+   [TTS] Speaking: Jonny built me in a code editor....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny built me in a code editor.' (8 words)
+   [TurnTiming] 10:57:46.857 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:57:49.114 TTS STOP — playback finished (span ~2257ms)
+   [TTS] Speaking: Whatever you're describing did not happen....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Whatever you're describing did not happe' (7 words)
+   [TurnTiming] 10:57:49.118 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 10:57:50 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 10:57:51.550 TTS STOP — playback finished (span ~2432ms)
+
+   [TIMING] voice: llm=8433ms(sonnet-stream(llm+tts)) tts=0ms total=8433ms
+   [LATENCY] vad_close=1200ms stt=302ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=3ms ttft=1211ms tts_first_chunk=384ms audio_out=345ms TOTAL=2275ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [System] Running Garbage Collection...
+   [Bits] Callback: Jonny That's Just Parenting
+🎤 Recording...
+   [TurnTiming] 10:57:55.767 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0000 · gate=0.003 · 2 accepted
+   [TurnTiming] 10:57:58.506 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2738ms since onset)
+>>> You said: That's weird because you exist.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="That's weird because you exist." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=80ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=81ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=10712ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1373ms
+   [TTS] Speaking: Coincidence....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Coincidence.' (2 words)
+   [TurnTiming] 10:58:00.718 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:58:02.507 TTS STOP — playback finished (span ~1788ms)
+
+   [TIMING] voice: llm=3515ms(sonnet-stream(llm+tts)) tts=0ms total=3515ms
+   [LATENCY] vad_close=1200ms stt=402ms stt_wait=0ms salience=0ms triage=bypassed memory=81ms prompt_build=3ms ttft=1296ms tts_first_chunk=77ms audio_out=348ms TOTAL=2207ms
+[YouTube Chat] @zekromite4572: kira define sex
+   [BrainWorker] Got youtube msg from @zekromite4572: kira define sex → buffering for chat_batch_worker
+🎤 Recording...
+   [TurnTiming] 10:58:05.017 VOICE ONSET — mic speech started
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<kira define sex>>>' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [SmartMem]     dist=0.813 conf=0.9 type=episodic blend=0.250 lane=KNOW
+   [SmartMem]     dist=0.978 conf=0.95 type=episodic blend=0.148 lane=KNOW
+   [SmartMem]     dist=0.984 conf=0.9 type=episodic blend=0.144 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 10:58:07.345 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2328ms since onset)
+🎤 Recording...
+   [TurnTiming] 10:58:09.631 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 1): Zack, I'm deflecting that one. You got fired. Rehired coaches don't get to set the curriculum.
+   [TTS] Speaking: Zack, I'm deflecting that one....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack, I'm deflecting that one.' (7 words)
+   [TurnTiming] 10:58:11.152 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 10:58:13.485 TTS STOP — playback finished (span ~2332ms)
+   [TTS] Speaking: You got fired....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You got fired.' (4 words)
+   [TurnTiming] 10:58:13.726 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:58:15.508 TTS STOP — playback finished (span ~1782ms)
+   [TTS] Speaking: Rehired coaches don't get to set the curriculum....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Rehired coaches don't get to set the cur' (9 words)
+   [TurnTiming] 10:58:15.817 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:58:18.630 TTS STOP — playback finished (span ~2812ms)
+   [Cookies] +1 × 1 (batch response); shared=13/30
+   [ChatAge] @zekromite4572 age=15.4s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 10:58:19.862 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~10230ms since onset)
+>>> You said: I think not.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I think not.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=17ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=16ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=10712ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @zekromite4572 — Has a running bit with Kira where they were 'fired' and 'reh [chaotic]
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TIMING] first-word: 3037ms
+   [TTS] Speaking: We're going to agree to disagree on my own origin ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We're going to agree to disagree on my o' (15 words)
+   [TurnTiming] 10:58:23.509 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:58:27.158 TTS STOP — playback finished (span ~3648ms)
+
+   [TIMING] voice: llm=7090ms(sonnet-stream(llm+tts)) tts=0ms total=7090ms
+   [LATENCY] vad_close=1200ms stt=188ms stt_wait=0ms salience=0ms triage=bypassed memory=16ms prompt_build=3ms ttft=2575ms tts_first_chunk=462ms audio_out=397ms TOTAL=3641ms
+   ✨ Emotion: EMOTIONAL → SASSY
+🎤 Recording...
+   [TurnTiming] 10:58:30.625 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 10:58:33.514 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2889ms since onset)
+>>> You said: Well, we don't disagree.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Well, we don't disagree." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=21ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=10711ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [VRAM] 10:58:35 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TIMING] first-word: 2754ms
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] Speaking: Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny.' (2 words)
+   [TurnTiming] 10:58:36.616 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:58:38.396 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: I was compiled....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I was compiled.' (4 words)
+   [TurnTiming] 10:58:38.398 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).

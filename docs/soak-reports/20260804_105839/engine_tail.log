@@ -1,0 +1,358 @@
+===== playlive_2026-08-04_10-44-49.log =====
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (15, 7) (budget 300s)
+   [travel] step 0: (21, 21)->(20, 21) map=(1, 51) (path 31 to exit)
+   [travel] step 10: (12, 20)->(11, 20) map=(1, 51) (path 21 to exit)
+   [travel] path blocked at (10, 20) (NPC on the gap?) - waiting
+   [travel] MAP TRANSITION (1, 51) -> (1, 55)
+   [travel] coord leg ended by the transition -> (1, 55) (target (15, 7) was the old map's frame)
+   [travel] start map=(1, 55) coords=(22, 18) -> coord (16, 2) (budget 300s)
+   [travel] step 0: (22, 18)->(21, 18) map=(1, 55) (path 49 to exit)
+   [travel] step 10: (24, 14)->(25, 14) map=(1, 55) (path 39 to exit)
+   [travel] path blocked at (26, 18) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 18); NPC-allowing path EXISTS (len 35), blocker NPC tile=(26, 17), npcs nearby=[(26, 17)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs voltorb 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=19,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=18,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=17,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] step 30: (30, 14)->(30, 13) map=(1, 55) (path 27 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 55) coords=(30, 4) elapsed=97s
+   [travel] step 40: (30, 4)->(29, 4) map=(1, 55) (path 17 to exit)
+   [travel] step 50: (20, 4)->(19, 4) map=(1, 55) (path 7 to exit)
+   [travel] reached target coord (16, 2)
+   [travel] start map=(1, 55) coords=(16, 2) -> coord (16, 3) (budget 300s)
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 55) (path 2 to exit)
+   [travel] reached target coord (16, 3)
+   [travel] start map=(1, 55) coords=(16, 2) -> coord (17, 2) (budget 60s)
+   [travel] step 0: (16, 2)->(17, 2) map=(1, 55) (path 2 to exit)
+   [travel] reached target coord (17, 2)
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (10, 6) (budget 60s)
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 54) (path 35 to exit)
+   [travel] step 10: (16, 12)->(16, 13) map=(1, 54) (path 25 to exit)
+   [travel] step 20: (10, 16)->(9, 16) map=(1, 54) (path 15 to exit)
+   [travel] step 30: (8, 8)->(8, 7) map=(1, 54) (path 5 to exit)
+   [travel] path blocked at (9, 6) (NPC on the gap?) - waiting
+   [travel] no clean path from (9, 6); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(2, 5), (9, 5)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+===== playlive_2026-08-04_10-23-24.log =====
+   [travel] start map=(3, 10) coords=(47, 13) -> coord (24, 39) (budget 120s)
+   [travel] step 0: (47, 13)->(47, 14) map=(3, 10) (path 56 to exit)
+   [travel] step 10: (50, 20)->(50, 21) map=(3, 10) (path 46 to exit)
+   [travel] step 20: (50, 30)->(50, 31) map=(3, 10) (path 36 to exit)
+   [travel] step 30: (49, 39)->(48, 39) map=(3, 10) (path 26 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 10) coords=(39, 39) elapsed=5s
+   [travel] step 40: (39, 39)->(38, 39) map=(3, 10) (path 16 to exit)
+   [travel] step 50: (30, 40)->(29, 40) map=(3, 10) (path 8 to exit)
+   [travel] reached target coord (24, 39)
+   [travel] start map=(14, 6) coords=(11, 2) -> coord (7, 7) (budget 60s)
+   [travel] step 0: (11, 2)->(11, 3) map=(14, 6) (path 10 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 10) coords=(24, 39) -> coord (46, 13) (budget 300s)
+   [travel] path blocked at (24, 39) (NPC on the gap?) - waiting
+   [travel] no clean path from (24, 39) AND no NPC-allowing path (npcs nearby=[(25, 33), (30, 39)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (24, 39) map=(3, 10) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 10) coords=(24, 39) -> coord (46, 13) (budget 300s)
+   [travel] path blocked at (24, 39) (NPC on the gap?) - waiting
+   [travel] no clean path from (24, 39) AND no NPC-allowing path (npcs nearby=[(24, 33), (31, 39)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (24, 39) map=(3, 10) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 10) coords=(24, 39) -> coord (40, 22) (budget 300s)
+   [travel] step 0: (24, 39)->(24, 40) map=(3, 10) (path 56 to exit)
+   [travel] step 10: (32, 39)->(33, 39) map=(3, 10) (path 46 to exit)
+   [travel] step 20: (42, 39)->(43, 39) map=(3, 10) (path 36 to exit)
+   [travel] step 30: (50, 37)->(50, 36) map=(3, 10) (path 26 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 10) coords=(50, 27) elapsed=5s
+   [travel] step 40: (50, 27)->(50, 26) map=(3, 10) (path 16 to exit)
+   [travel] step 50: (45, 22)->(44, 22) map=(3, 10) (path 6 to exit)
+   [travel] reached target coord (40, 22)
+   [travel] start map=(14, 5) coords=(2, 5) -> coord (4, 6) (budget 60s)
+   [travel] step 0: (2, 5)->(3, 5) map=(14, 5) (path 4 to exit)
+   [travel] reached target coord (4, 6)
+   [travel] start map=(3, 10) coords=(40, 22) -> coord (33, 31) (budget 300s)
+   [travel] step 0: (40, 22)->(40, 23) map=(3, 10) (path 35 to exit)
+   [travel] step 10: (47, 25)->(48, 25) map=(3, 10) (path 25 to exit)
+   [travel] step 20: (46, 32)->(45, 32) map=(3, 10) (path 15 to exit)
+   [travel] step 30: (36, 32)->(35, 32) map=(3, 10) (path 5 to exit)
+   [travel] reached target coord (33, 31)
+   [travel] start map=(1, 47) coords=(6, 20) -> coord (31, 3) (budget 300s)
+   [travel] step 0: (6, 20)->(6, 19) map=(1, 47) (path 43 to exit)
+   [travel] step 10: (6, 10)->(6, 9) map=(1, 47) (path 33 to exit)
+   [travel] step 20: (10, 4)->(11, 4) map=(1, 47) (path 23 to exit)
+   [travel] step 30: (20, 4)->(21, 4) map=(1, 47) (path 13 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 47) coords=(30, 4) elapsed=5s
+   [travel] step 40: (30, 4)->(30, 3) map=(1, 47) (path 3 to exit)
+   [travel] reached target coord (31, 3)
+   [travel] start map=(1, 47) coords=(31, 2) -> coord (30, 2) (budget 60s)
+   [travel] step 0: (31, 2)->(30, 2) map=(1, 47) (path 2 to exit)
+   [travel] reached target coord (30, 2)
+   [travel] start map=(1, 48) coords=(30, 4) -> coord (28, 3) (budget 300s)
+   [travel] step 0: (30, 4)->(30, 3) map=(1, 48) (path 4 to exit)
+   [travel] reached target coord (28, 3)
+   [travel] start map=(1, 48) coords=(28, 2) -> coord (29, 2) (budget 60s)
+   [travel] step 0: (28, 2)->(29, 2) map=(1, 48) (path 2 to exit)
+   [travel] reached target coord (29, 2)
+   [travel] start map=(1, 49) coords=(28, 4) -> coord (30, 3) (budget 300s)
+   [travel] step 0: (28, 4)->(28, 3) map=(1, 49) (path 4 to exit)
+   [travel] reached target coord (30, 3)
+   [travel] start map=(1, 49) coords=(30, 2) -> coord (29, 2) (budget 60s)
+   [travel] step 0: (30, 2)->(29, 2) map=(1, 49) (path 2 to exit)
+   [travel] reached target coord (29, 2)
+   [travel] start map=(1, 50) coords=(30, 4) -> coord (28, 3) (budget 300s)
+   [travel] step 0: (30, 4)->(30, 3) map=(1, 50) (path 4 to exit)
+   [travel] reached target coord (28, 3)
+   [travel] start map=(1, 50) coords=(28, 2) -> coord (29, 2) (budget 60s)
+   [travel] step 0: (28, 2)->(29, 2) map=(1, 50) (path 2 to exit)
+   [travel] reached target coord (29, 2)
+   [travel] start map=(1, 51) coords=(28, 4) -> coord (30, 3) (budget 300s)
+   [travel] step 0: (28, 4)->(28, 3) map=(1, 51) (path 4 to exit)
+   [travel] reached target coord (30, 3)
+   [travel] start map=(1, 51) coords=(30, 2) -> coord (29, 2) (budget 60s)
+   [travel] step 0: (30, 2)->(29, 2) map=(1, 51) (path 2 to exit)
+   [travel] reached target coord (29, 2)
+   [travel] start map=(1, 52) coords=(26, 4) -> coord (14, 3) (budget 300s)
+   [travel] step 0: (26, 4)->(25, 4) map=(1, 52) (path 14 to exit)
+   [travel] step 10: (16, 4)->(15, 4) map=(1, 52) (path 4 to exit)
+   [travel] reached target coord (14, 3)
+   [travel] start map=(1, 52) coords=(14, 2) -> coord (15, 2) (budget 60s)
+   [travel] step 0: (14, 2)->(15, 2) map=(1, 52) (path 2 to exit)
+   [travel] reached target coord (15, 2)
+   [travel] start map=(1, 53) coords=(19, 4) -> coord (27, 3) (budget 300s)
+   [travel] step 0: (19, 4)->(20, 4) map=(1, 53) (path 10 to exit)
+   [travel] reached target coord (27, 3)
+   [travel] start map=(1, 53) coords=(27, 2) -> coord (26, 2) (budget 60s)
+   [travel] step 0: (27, 2)->(26, 2) map=(1, 53) (path 2 to exit)
+   [travel] reached target coord (26, 2)
+   [travel] start map=(1, 54) coords=(28, 4) -> coord (16, 3) (budget 300s)
+   [travel] step 0: (28, 4)->(27, 4) map=(1, 54) (path 14 to exit)
+   [travel] step 10: (18, 4)->(17, 4) map=(1, 54) (path 4 to exit)
+   [travel] reached target coord (16, 3)
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (17, 2) (budget 60s)
+   [travel] step 0: (16, 2)->(17, 2) map=(1, 54) (path 2 to exit)
+   [travel] reached target coord (17, 2)
+   [travel] start map=(1, 51) coords=(11, 21) -> coord (21, 21) (budget 120s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 51) coords=(11, 21) -> coord (23, 21) (budget 120s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [play-live]    [engine] JUST FIGHT: L54 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs arbok 82/82 | [0]Tackle(p35,pp=33,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs arbok 62/82 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=20,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(1, 51) coords=(11, 21) -> coord (23, 21) (budget 120s)
+   [travel] step 0: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+   [travel] step 10: (21, 21)->(20, 21) map=(1, 51) (path 81 to exit)
+   [travel] step 20: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+   [travel] step 30: (21, 21)->(20, 21) map=(1, 51) (path 81 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 51) coords=(11, 21) elapsed=5s
+   [travel] step 40: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+   [travel] step 50: (21, 21)->(20, 21) map=(1, 51) (path 81 to exit)
+   [travel] step 60: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+   [travel] step 70: (21, 21)->(20, 21) map=(1, 51) (path 81 to exit)
+   [travel] HEARTBEAT step=80 map=(1, 51) coords=(11, 21) elapsed=11s
+   [travel] step 80: (11, 21)->(12, 21) map=(1, 51) (path 13 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (22, 20) (budget 120s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 51) coords=(21, 20) -> coord (22, 22) (budget 120s)
+   [travel] path blocked at (21, 20) (NPC on the gap?) - waiting
+   [travel] no clean path from (21, 20) AND no NPC-allowing path (npcs nearby=[(16, 13), (22, 21), (23, 13)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (21, 20) map=(1, 51) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (29, 2) (budget 60s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (30, 3) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (30, 1) (budget 45s)
+   [travel] path blocked at (21, 21) (NPC on the gap?) - waiting
+   [travel] no clean path from (21, 21) AND no NPC-allowing path (npcs nearby=[(22, 21)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (21, 21) map=(1, 51) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 51) coords=(21, 21) -> coord (29, 2) (budget 45s)
+   [travel] step 0: (21, 21)->(20, 21) map=(1, 51) (path 50 to exit)
+   [travel] step 10: (12, 20)->(11, 20) map=(1, 51) (path 40 to exit)
+   [travel] MAP TRANSITION (1, 51) -> (1, 55)
+   [travel] coord leg ended by the transition -> (1, 55) (target (29, 2) was the old map's frame)
+   [travel] start map=(1, 55) coords=(22, 18) -> coord (31, 2) (budget 45s)
+   [travel] path blocked at (22, 18) (NPC on the gap?) - waiting
+   [travel] no clean path from (22, 18); NPC-allowing path EXISTS (len 36), blocker NPC tile=None, npcs nearby=[(15, 18), (26, 16)] -> approaching to interact/trigger
+   [travel] path blocked at (26, 17) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 17); NPC-allowing path EXISTS (len 21), blocker NPC tile=None, npcs nearby=[(26, 16)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs voltorb 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=19,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=18,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=18,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs koffing 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=17,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(1, 55) coords=(26, 17) -> coord (30, 2) (budget 60s)
+   [travel] path blocked at (26, 17) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 17) AND no NPC-allowing path (npcs nearby=[(26, 16)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (26, 17) map=(1, 55) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 55) coords=(26, 17) -> coord (17, 2) (budget 60s)
+   [travel] step 0: (26, 17)->(27, 17) map=(1, 55) (path 33 to exit)
+   [travel] step 10: (30, 11)->(30, 10) map=(1, 55) (path 23 to exit)
+   [travel] step 20: (27, 4)->(26, 4) map=(1, 55) (path 13 to exit)
+   [travel] step 30: (18, 3)->(18, 2) map=(1, 55) (path 3 to exit)
+   [travel] reached target coord (17, 2)
+   [travel] start map=(1, 54) coords=(16, 2) -> coord (10, 6) (budget 60s)
+   [travel] step 0: (16, 2)->(16, 3) map=(1, 54) (path 35 to exit)
+   [travel] step 10: (16, 12)->(16, 13) map=(1, 54) (path 25 to exit)
+   [travel] step 20: (10, 16)->(9, 16) map=(1, 54) (path 15 to exit)
+   [travel] step 30: (8, 8)->(8, 7) map=(1, 54) (path 5 to exit)
+   [travel] path blocked at (9, 6) (NPC on the gap?) - waiting
+   [travel] no clean path from (9, 6); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(2, 5), (9, 5)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L54 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs grimer 85/85 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=16,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L54 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs electrode 73/73 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=15,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L54 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs electrode 1/73 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=14,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(1, 48) coords=(33, 19) -> coord (29, 2) (budget 60s)
+   [travel] step 10: (35, 17)->(34, 17) map=(1, 48) (path 30 to exit)
+   [travel] path blocked at (28, 17) (NPC on the gap?) - waiting
+   [travel] path blocked at (28, 17) (NPC on the gap?) - waiting
+   [travel] no clean path from (28, 17); NPC-allowing path EXISTS (len 23), blocker NPC tile=None, npcs nearby=[(20, 14), (28, 18), (29, 12)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magnemite 52/52 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=13,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs voltorb 60/60 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=12,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L54 vs L28 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs magneton 66/66 | [0]Tackle(p35,pp=32,ref=0,sc=16.625) [1]Bite(p60,pp=23,ref=0,sc=30) [2]Water Pulse(p60*STAB,pp=11,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] blocker battle outcome=win; resuming pathfind
+   [travel] post-blocker PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(1, 48) coords=(28, 17) -> coord (30, 3) (budget 45s)
+   [travel] step 0: (28, 17)->(27, 17) map=(1, 48) (path 23 to exit)
+   [travel] step 10: (25, 10)->(26, 10) map=(1, 48) (path 13 to exit)
+   [travel] path blocked at (29, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (29, 10); NPC-allowing path EXISTS (len 9), blocker NPC tile=None, npcs nearby=[(20, 14), (28, 18), (29, 11)] -> approaching to interact/trigger
+   [travel] blocker is a TRAINER - fighting through
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '35/167', 'status': 'paralysis', 'foe': 'golbat'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 20% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 21, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=False white=False pcur=None lead=False
+   [play-live]    [engine] use_item: USED item 21 (count 15->14)
+   [play-live]    [engine] battle-progress: item 21 consumed
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] !! MENU WEDGE 63s with NO progress — escaping the scroll theater (fire 1/3, menu_up=1 action=False moves=False bag=False party=True)
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 2/4)
+   [play-live]    [engine] !! PARTY THRASH #1: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] !! PARTY THRASH #2: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] !! PARTY THRASH #3: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #4: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #5: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #6: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #7: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #8: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #9: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! MENU WEDGE 64s with NO progress — escaping the scroll theater (fire 2/3, menu_up=1 action=False moves=False bag=False party=False)
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 3/4)
+   [play-live]    [engine] !! PARTY THRASH #10: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #11: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #12: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #13: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #14: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #15: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #16: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #17: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #18: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! MENU WEDGE 62s with NO progress — escaping the scroll theater (fire 3/3, menu_up=1 action=False moves=False bag=False party=False)
+   [play-live]    [engine] JUST FIGHT: L54 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Water Pulse - a STAB hit -> slot 2 (eff x1) vs golbat 72/72 | [0]Tackle(p35,pp=32,ref=0,sc=33.25) [1]Bite(p60,pp=23,ref=0,sc=60) [2]Water Pulse(p60*STAB,pp=10,ref=0,sc=90)
+   [play-live]    [engine] STREAM COMMIT: Water Pulse - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 4/4)
+   [play-live]    [engine] !! PARTY THRASH #19: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #20: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #21: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #22: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
+   [play-live]    [engine] !! PARTY THRASH #23: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] PARTY THRASH latch — voluntary POKEMON banned this battle
