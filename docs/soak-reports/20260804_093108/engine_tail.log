@@ -1,0 +1,483 @@
+===== playlive_2026-08-03_15-07-12.log =====
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (7, 4) (budget 300s)
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 35) (path 6 to exit)
+   [travel] reached target coord (7, 4)
+   [travel] start map=(1, 35) coords=(7, 4) -> coord (8, 4) (budget 60s)
+   [travel] step 0: (7, 4)->(8, 4) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (8, 4)
+   [travel] start map=(1, 34) coords=(76, 3) -> coord (3, 4) (budget 300s)
+   [travel] step 0: (76, 3)->(76, 4) map=(1, 34) (path 75 to exit)
+   [travel] step 10: (67, 4)->(66, 4) map=(1, 34) (path 65 to exit)
+   [travel] step 20: (57, 4)->(56, 4) map=(1, 34) (path 55 to exit)
+   [travel] step 30: (47, 4)->(46, 4) map=(1, 34) (path 45 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(37, 4) elapsed=5s
+   [travel] step 40: (37, 4)->(36, 4) map=(1, 34) (path 35 to exit)
+   [travel] step 50: (27, 4)->(26, 4) map=(1, 34) (path 25 to exit)
+   [travel] step 60: (17, 4)->(16, 4) map=(1, 34) (path 15 to exit)
+   [travel] step 70: (7, 4)->(6, 4) map=(1, 34) (path 5 to exit)
+   [travel] reached target coord (3, 4)
+   [travel] start map=(1, 34) coords=(3, 4) -> coord (4, 4) (budget 60s)
+   [travel] step 0: (3, 4)->(4, 4) map=(1, 34) (path 2 to exit)
+   [travel] reached target coord (4, 4)
+   [travel] start map=(1, 33) coords=(7, 4) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 33) (path 7 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 33) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 25) coords=(7, 15) -> map (3, 6) (budget 300s)
+   [travel] west connection band rows: [2, 3, 4, 5]
+   [travel] step 0: (7, 15)->(8, 15) map=(3, 25) (path 24 to exit)
+   [travel] step 10: (9, 9)->(8, 9) map=(3, 25) (path 14 to exit)
+   [travel] step 20: (3, 5)->(2, 5) map=(3, 25) (path 4 to exit)
+   [travel] MAP TRANSITION (3, 25) -> (3, 6)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 22, 23, 24, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] ARRIVED at target map (3, 6) coords=(59, 15)
+   [travel] start map=(3, 6) coords=(59, 15) -> coord (30, 12) (budget 900s)
+   [travel] step 0: (59, 15)->(59, 14) map=(3, 6) (path 33 to exit)
+   [travel] step 10: (52, 12)->(51, 12) map=(3, 6) (path 23 to exit)
+   [travel] step 20: (42, 12)->(41, 12) map=(3, 6) (path 13 to exit)
+   [travel] step 30: (32, 12)->(31, 12) map=(3, 6) (path 3 to exit)
+   [travel] reached target coord (30, 12)
+   [travel] start map=(10, 7) coords=(12, 18) -> coord (5, 14) (budget 60s)
+   [travel] step 0: (12, 18)->(12, 17) map=(10, 7) (path 12 to exit)
+   [travel] step 10: (6, 14)->(5, 14) map=(10, 7) (path 2 to exit)
+   [travel] reached target coord (5, 14)
+   [travel] start map=(10, 7) coords=(5, 14) -> coord (4, 14) (budget 60s)
+   [travel] step 0: (5, 14)->(4, 14) map=(10, 7) (path 2 to exit)
+   [travel] reached target coord (4, 14)
+   [campaign]    [dlg npc-talk] 'CLEFAIRY. Pi pippippi!'
+   [campaign]    [dlg-pace npc-talk] box 'CLEFAIRY. Pi pippippi!' visible 1.92s (sink 0ms, hold 0.04s, end=closed)
+   [travel] start map=(10, 7) coords=(4, 14) -> coord (6, 9) (budget 60s)
+   [travel] step 0: (4, 14)->(5, 14) map=(10, 7) (path 8 to exit)
+   [travel] reached target coord (6, 9)
+   [travel] start map=(10, 7) coords=(6, 9) -> coord (5, 9) (budget 60s)
+   [travel] step 0: (6, 9)->(5, 9) map=(10, 7) (path 2 to exit)
+   [travel] reached target coord (5, 9)
+   [travel] start map=(10, 7) coords=(5, 9) -> coord (4, 9) (budget 60s)
+   [travel] step 0: (5, 9)->(4, 9) map=(10, 7) (path 2 to exit)
+   [travel] reached target coord (4, 9)
+   [campaign]    [dlg npc-talk] 'NIDORAN.. Kya kyaoo!'
+   [campaign]    [dlg-pace npc-talk] box 'NIDORAN.. Kya kyaoo!' visible 1.17s (sink 0ms, hold 0.04s, end=closed)
+   [travel] start map=(10, 7) coords=(4, 9) -> coord (2, 8) (budget 60s)
+   [travel] step 0: (4, 9)->(3, 9) map=(10, 7) (path 4 to exit)
+   [travel] reached target coord (2, 8)
+   [campaign]    [dlg npc-talk] "You shouldn't spend all your money on drinks. Try this instead."
+   [campaign]    [dlg npc-talk] 'Obtained the TEA!'
+   [campaign]    [dlg-pace npc-talk] box "You shouldn't spend all your money on drinks. Tr" visible 2.78s (sink 0ms, hold 0.10s, end=next_box)
+   [campaign]    [dlg npc-talk] 'KIRA put the TEA in the KEY ITEMS POCKET.'
+   [campaign]    [dlg-pace npc-talk] box 'Obtained the TEA!' visible 1.22s (sink 0ms, hold 0.04s, end=next_box)
+   [campaign]    [dlg npc-talk] 'Nothing beats thirst like some hot TEA. It really is the best.'
+   [campaign]    [dlg-pace npc-talk] box 'KIRA put the TEA in the KEY ITEMS POCKET.' visible 2.25s (sink 0ms, hold 0.07s, end=next_box)
+   [campaign]    [dlg-pace npc-talk] box 'Nothing beats thirst like some hot TEA. It reall' visible 3.22s (sink 0ms, hold 0.10s, end=closed)
+   [travel] start map=(10, 7) coords=(2, 8) -> coord (11, 19) (budget 300s)
+   [travel] path blocked at (2, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (2, 8) AND no NPC-allowing path (npcs nearby=[(1, 9), (2, 9), (3, 9), (6, 13)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (2, 8) map=(10, 7) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(10, 7) coords=(2, 8) -> coord (12, 17) (budget 60s)
+   [travel] step 0: (2, 8)->(3, 8) map=(10, 7) (path 20 to exit)
+   [travel] step 10: (6, 14)->(7, 14) map=(10, 7) (path 10 to exit)
+   [travel] reached target coord (12, 17)
+   [travel] start map=(3, 6) coords=(30, 12) -> map (3, 25) (budget 300s)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (30, 12)->(31, 12) map=(3, 6) (path 31 to exit)
+   [travel] step 10: (40, 12)->(41, 12) map=(3, 6) (path 21 to exit)
+   [travel] step 20: (50, 12)->(51, 12) map=(3, 6) (path 11 to exit)
+   [travel] MAP TRANSITION (3, 6) -> (3, 25)
+   [travel] east connection band rows: [8, 9, 10, 11, 13]
+   [travel] ARRIVED at target map (3, 25) coords=(0, 2)
+   [travel] start map=(3, 25) coords=(0, 2) -> coord (7, 14) (budget 300s)
+   [travel] path blocked at (0, 2) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 2) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 2) map=(3, 25) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 25) coords=(0, 2) -> coord (7, 15) (budget 300s)
+   [travel] step 0: (0, 2)->(0, 3) map=(3, 25) (path 19 to exit)
+   [travel] step 10: (4, 8)->(4, 9) map=(3, 25) (path 10 to exit)
+   [travel] reached target coord (7, 15)
+   [travel] start map=(1, 33) coords=(6, 8) -> coord (7, 4) (budget 300s)
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 33) (path 6 to exit)
+   [travel] reached target coord (7, 4)
+   [travel] start map=(1, 33) coords=(7, 2) -> coord (7, 5) (budget 300s)
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 33) (path 4 to exit)
+   [travel] reached target coord (7, 5)
+   [travel] start map=(1, 33) coords=(7, 2) -> coord (8, 4) (budget 60s)
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 33) (path 4 to exit)
+   [travel] reached target coord (8, 4)
+   [travel] start map=(1, 34) coords=(3, 4) -> coord (76, 3) (budget 300s)
+   [travel] step 0: (3, 4)->(3, 3) map=(1, 34) (path 75 to exit)
+   [travel] step 10: (12, 3)->(13, 3) map=(1, 34) (path 65 to exit)
+   [travel] step 20: (22, 3)->(23, 3) map=(1, 34) (path 55 to exit)
+   [travel] step 30: (32, 3)->(33, 3) map=(1, 34) (path 45 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(42, 3) elapsed=5s
+   [travel] step 40: (42, 3)->(43, 3) map=(1, 34) (path 35 to exit)
+   [travel] step 50: (52, 3)->(53, 3) map=(1, 34) (path 25 to exit)
+   [travel] step 60: (62, 3)->(63, 3) map=(1, 34) (path 15 to exit)
+   [travel] step 70: (72, 3)->(73, 3) map=(1, 34) (path 5 to exit)
+   [travel] reached target coord (76, 3)
+   [travel] start map=(1, 34) coords=(76, 2) -> coord (76, 4) (budget 300s)
+   [travel] step 0: (76, 2)->(76, 3) map=(1, 34) (path 3 to exit)
+   [travel] reached target coord (76, 4)
+   [travel] start map=(1, 34) coords=(76, 2) -> coord (75, 3) (budget 60s)
+   [travel] step 0: (76, 2)->(76, 3) map=(1, 34) (path 3 to exit)
+   [travel] reached target coord (75, 3)
+   [travel] start map=(1, 35) coords=(7, 4) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 35) (path 7 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 7) (budget 45s)
+   [travel] reached target coord (6, 7)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (7, 4) (budget 110s)
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 35) (path 6 to exit)
+   [travel] reached target coord (7, 4)
+   [travel] start map=(1, 35) coords=(7, 3) -> coord (8, 4) (budget 60s)
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 35) (path 3 to exit)
+   [travel] reached target coord (8, 4)
+   [travel] start map=(1, 34) coords=(76, 3) -> coord (3, 4) (budget 110s)
+   [travel] step 0: (76, 3)->(76, 4) map=(1, 34) (path 75 to exit)
+   [travel] step 10: (67, 4)->(66, 4) map=(1, 34) (path 65 to exit)
+   [travel] step 20: (57, 4)->(56, 4) map=(1, 34) (path 55 to exit)
+   [travel] step 30: (47, 4)->(46, 4) map=(1, 34) (path 45 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(37, 4) elapsed=5s
+   [travel] step 40: (37, 4)->(36, 4) map=(1, 34) (path 35 to exit)
+   [travel] step 50: (27, 4)->(26, 4) map=(1, 34) (path 25 to exit)
+   [travel] step 60: (17, 4)->(16, 4) map=(1, 34) (path 15 to exit)
+   [travel] step 70: (7, 4)->(6, 4) map=(1, 34) (path 5 to exit)
+   [travel] reached target coord (3, 4)
+   [travel] start map=(1, 33) coords=(7, 4) -> coord (5, 8) (budget 110s)
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 33) (path 7 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 33) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 25) coords=(7, 15) -> coord (7, 14) (budget 300s)
+   [travel] path blocked at (7, 15) (NPC on the gap?) - waiting
+   [travel] no clean path from (7, 15) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (7, 15) map=(3, 25) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 33) coords=(6, 8) -> coord (7, 4) (budget 300s)
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 33) (path 6 to exit)
+   [travel] reached target coord (7, 4)
+   [travel] start map=(1, 33) coords=(7, 2) -> coord (7, 5) (budget 300s)
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 33) (path 4 to exit)
+   [travel] reached target coord (7, 5)
+   [travel] start map=(1, 33) coords=(7, 2) -> coord (8, 4) (budget 60s)
+   [travel] step 0: (7, 2)->(7, 3) map=(1, 33) (path 4 to exit)
+   [travel] reached target coord (8, 4)
+   [travel] start map=(1, 34) coords=(3, 4) -> coord (76, 3) (budget 300s)
+   [travel] step 0: (3, 4)->(3, 3) map=(1, 34) (path 75 to exit)
+   [travel] step 10: (12, 3)->(13, 3) map=(1, 34) (path 65 to exit)
+   [travel] step 20: (22, 3)->(23, 3) map=(1, 34) (path 55 to exit)
+   [travel] step 30: (32, 3)->(33, 3) map=(1, 34) (path 45 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 34) coords=(42, 3) elapsed=5s
+   [travel] step 40: (42, 3)->(43, 3) map=(1, 34) (path 35 to exit)
+   [travel] step 50: (52, 3)->(53, 3) map=(1, 34) (path 25 to exit)
+   [travel] step 60: (62, 3)->(63, 3) map=(1, 34) (path 15 to exit)
+   [travel] step 70: (72, 3)->(73, 3) map=(1, 34) (path 5 to exit)
+   [travel] reached target coord (76, 3)
+   [travel] start map=(1, 34) coords=(76, 2) -> coord (76, 4) (budget 300s)
+   [travel] step 0: (76, 2)->(76, 3) map=(1, 34) (path 3 to exit)
+   [travel] reached target coord (76, 4)
+   [travel] start map=(1, 34) coords=(76, 2) -> coord (75, 3) (budget 60s)
+   [travel] step 0: (76, 2)->(76, 3) map=(1, 34) (path 3 to exit)
+   [travel] reached target coord (75, 3)
+   [travel] start map=(1, 35) coords=(7, 4) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (7, 4)->(7, 5) map=(1, 35) (path 7 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(6, 7) -> coord (6, 7) (budget 45s)
+   [travel] reached target coord (6, 7)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (7, 4) (budget 110s)
+   [travel] step 0: (6, 8)->(6, 7) map=(1, 35) (path 6 to exit)
+   [travel] reached target coord (7, 4)
+   [travel] start map=(1, 35) coords=(7, 3) -> coord (8, 4) (budget 60s)
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 35) (path 3 to exit)
+   [travel] reached target coord (8, 4)
+   [travel] start map=(1, 34) coords=(76, 3) -> coord (3, 4) (budget 110s)
+   [travel] step 0: (76, 3)->(76, 4) map=(1, 34) (path 75 to exit)
+===== playlive_2026-08-03_14-55-21.log =====
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 60s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 9) (budget 45s)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 35) coords=(5, 7) -> coord (6, 7) (budget 45s)
+   [travel] path blocked at (5, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 7); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[(5, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (6, 7)
+   [travel] start map=(3, 26) coords=(13, 5) -> coord (13, 4) (budget 300s)
+   [travel] path blocked at (13, 5) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 5) AND no NPC-allowing path (npcs nearby=[(9, 6), (21, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 5) map=(3, 26) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 35) coords=(6, 8) -> coord (5, 8) (budget 300s)
+   [travel] step 0: (6, 8)->(5, 8) map=(1, 35) (path 2 to exit)
+   [travel] reached target coord (5, 8)
