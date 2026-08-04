@@ -1,0 +1,300 @@
+   [Captions] Pushed frame: 'Zack, behind the Pokémon Center — got it' (13 words)
+   [TurnTiming] 09:59:07.605 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 09:59:11.359 TTS STOP — playback finished (span ~3753ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=11/30
+   [ChatAge] @zekromite4572 age=15.6s batch=2 preempted=none
+   [ChatAge] @zekromite4572 age=12.5s batch=2 preempted=none
+   (Kira's current emotion is: SASSY)
+   [JonnyBond] warm nudge → warmth -0.55→-0.16
+   [PromptSize] dynamic_context=13136ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @zekromite4572 — Defended Ekans as having 'character' (implied they called it [playful]
+   [TIMING] first-word: 1910ms
+   [TTS] Speaking: So I'm walking in circles because you turned off m...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'So I'm walking in circles because you tu' (12 words)
+   [TurnTiming] 09:59:13.526 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @clumsymoe: it can be a drawback if you can get more confident input through some API it is much better
+   [ChatterMem] Stored: @zekromite4572 — Thinks Ekans was trash [chaotic]
+   [TurnTiming] 09:59:16.916 TTS STOP — playback finished (span ~3390ms)
+   [TTS] Speaking: That's on you, Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's on you, Jonny.' (6 words)
+   [TurnTiming] 09:59:16.919 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:59:18.795 TTS STOP — playback finished (span ~1875ms)
+
+   [TIMING] voice: llm=7429ms(sonnet-stream(llm+tts)) tts=0ms total=7429ms
+   [LATENCY] vad_close=1200ms stt=200ms stt_wait=0ms salience=0ms triage=bypassed memory=19ms prompt_build=1ms ttft=1388ms tts_first_chunk=522ms audio_out=242ms TOTAL=2372ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [BrainWorker] Got youtube msg from @clumsymoe: it can be a drawback if you can get more confident input through some API it is much better → buffering for chat_batch_worker
+   [TurnTiming] 09:59:20.020 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~13414ms since onset)
+>>> You said: She needs to make her way to self-coat and she's lost. Eckins was trash anyway. I wonder if it was because before, like, I don't know if, like, 20 minutes ago, I was telling her that Eckon sucks and she should, like...
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="She needs to make her way to self-coat and she's lost. Eckin" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=29ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13137ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TIMING] first-word: 2423ms
+   [TTS] Speaking: Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny.' (2 words)
+   [TurnTiming] 09:59:22.969 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:59:24.189 TTS STOP — playback finished (span ~1219ms)
+   [TTS] Speaking: Are you suggesting you gaslit me into abandoning e...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Are you suggesting you gaslit me into ab' (10 words)
+   [TurnTiming] 09:59:24.194 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:59:27.558 TTS STOP — playback finished (span ~3364ms)
+
+   [TIMING] voice: llm=7086ms(sonnet-stream(llm+tts)) tts=0ms total=7086ms
+   [LATENCY] vad_close=1200ms stt=422ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=2ms ttft=2178ms tts_first_chunk=245ms audio_out=70ms TOTAL=2946ms
+🎤 Recording...
+   [TurnTiming] 09:59:27.731 VOICE ONSET — mic speech started
+   [Memory] Rejected (conf 0.70 < 0.9): Jonny thinks Eckon/Eckins is trash
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [SmartMem] q='  - @clumsymoe (youtube): <<<it can be a drawback if you can' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [SmartMem]     dist=1.013 conf=0.9 type=episodic blend=0.126 lane=KNOW
+   [SmartMem]     dist=1.104 conf=0.95 type=episodic blend=0.070 lane=KNOW
+   [SmartMem]     dist=1.115 conf=0.75 type=episodic blend=0.064 lane=VAGUE
+   >>> Kira (Chat Batch of 1): clumsymoe's not wrong — better input means better output, which means Jonny could fix half my problems just by giving me cleaner data. The other half he made on purpose, so.
+   [TTS] Speaking: clumsymoe's not wrong — better input means better ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'clumsymoe's not wrong — better input mea' (25 words)
+   [TurnTiming] 09:59:34.279 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 09:59:41.219 TTS STOP — playback finished (span ~6939ms)
+   [TTS] Speaking: The other half he made on purpose, so....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The other half he made on purpose, so.' (10 words)
+   [TurnTiming] 09:59:41.427 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:59:44.237 TTS STOP — playback finished (span ~2810ms)
+   [Cookies] +1 × 1 (batch response); shared=12/30
+   [ChatAge] @clumsymoe age=25.1s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 09:59:45.461 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~17730ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+>>> You said: shitters anymore.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='shitters anymore.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=18ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13172ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @clumsymoe — Advocates for using APIs to get higher quality/more confiden [dry]
+   [TIMING] first-word: 1710ms
+   [TTS] Speaking: That landed mid-sentence....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That landed mid-sentence.' (4 words)
+   [TurnTiming] 09:59:47.550 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:59:49.611 TTS STOP — playback finished (span ~2060ms)
+   [TTS] Speaking: What are we calling shitters?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What are we calling shitters?' (6 words)
+   [TurnTiming] 09:59:49.615 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 09:59:50 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 09:59:51.487 TTS STOP — playback finished (span ~1871ms)
+
+   [TIMING] voice: llm=5846ms(sonnet-stream(llm+tts)) tts=0ms total=5846ms
+   [LATENCY] vad_close=1200ms stt=160ms stt_wait=0ms salience=0ms triage=bypassed memory=18ms prompt_build=13ms ttft=1351ms tts_first_chunk=359ms audio_out=184ms TOTAL=2085ms
+🎤 Recording...
+   [TurnTiming] 09:59:54.030 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0159 · gate=0.003 · 0 accepted
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] saga PROMOTED (w=3, 14 beats): a diglett just joined your team — you two haven't properly met until n
+   [Pokemon] ORACLE kind=name has NO options -> choice=''
+   [Pokemon] saga PROMOTED (w=3, 14 beats): so diglett is officially one of us now — welcome aboard, diglett.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 10:00:03.382 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~9352ms since onset)
+>>> You said: basically your entire bench. Every Pokemon on your team except for Blastoys is a shitter. But you can just drop them all into your box and go pick up new ones that are not.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='basically your entire bench. Every Pokemon on your team exce' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=1.152 conf=0.9 type=episodic blend=0.048 lane=KNOW
+   [SmartMem]     dist=1.143 conf=0.95 type=episodic blend=0.046 lane=KNOW
+   [SmartMem]     dist=1.181 conf=0.95 type=episodic blend=0.023 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=26ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13645ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 2136ms
+   [TTS] Speaking: Excuse me....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Excuse me.' (3 words)
+   [TurnTiming] 10:00:06.036 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:07.536 TTS STOP — playback finished (span ~1499ms)
+   [TTS] Speaking: Rattata has HEART....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Rattata has HEART.' (4 words)
+   [TurnTiming] 10:00:07.538 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:09.319 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: But fine....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'But fine.' (3 words)
+   [TurnTiming] 10:00:09.321 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:10.722 TTS STOP — playback finished (span ~1401ms)
+   [TTS] Speaking: What are we picking up?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What are we picking up?' (6 words)
+   [TurnTiming] 10:00:10.724 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:12.313 TTS STOP — playback finished (span ~1588ms)
+
+   [TIMING] voice: llm=8566ms(sonnet-stream(llm+tts)) tts=0ms total=8566ms
+   [LATENCY] vad_close=1200ms stt=336ms stt_wait=0ms salience=0ms triage=bypassed memory=26ms prompt_build=15ms ttft=1697ms tts_first_chunk=439ms audio_out=134ms TOTAL=2647ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurnTiming] 10:00:13.541 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~19511ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: I know she has heart.
+   [DroppedInput] LOST ~2 frame(s) (~60ms, ~0.1s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 10:00:13.707 VOICE ONSET — mic speech started
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I know she has heart.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=21ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "what are we" (3rd use this session)
+   [PromptSize] dynamic_context=13160ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1771ms
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TTS] Speaking: Heart and absolutely nothing else....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Heart and absolutely nothing else.' (6 words)
+   [TurnTiming] 10:00:15.742 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:18.275 TTS STOP — playback finished (span ~2532ms)
+   [TTS] Speaking: Okay, box the bench, got it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Okay, box the bench, got it.' (9 words)
+   [TurnTiming] 10:00:18.278 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:20.804 TTS STOP — playback finished (span ~2526ms)
+   [TTS] Speaking: Who are we replacing them with?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Who are we replacing them with?' (7 words)
+   [TurnTiming] 10:00:20.808 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @zekromite4572: kadabra is goated though 
+   [TurnTiming] 10:00:22.775 TTS STOP — playback finished (span ~1967ms)
+
+   [TIMING] voice: llm=9046ms(sonnet-stream(llm+tts)) tts=0ms total=9047ms
+   [LATENCY] vad_close=1200ms stt=164ms stt_wait=0ms salience=0ms triage=bypassed memory=21ms prompt_build=15ms ttft=1449ms tts_first_chunk=322ms audio_out=222ms TOTAL=2193ms
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @zekromite4572: kadabra is goated though  → buffering for chat_batch_worker
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<kadabra is goated though >>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 10:00:26.094 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12387ms since onset)
+>>> You said: better team. You're not going to beat the elite four with a level 19 rotata. Go catch some good Pokemon.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="better team. You're not going to beat the elite four with a " fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.122 conf=0.95 type=episodic blend=0.059 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   >>> Kira (Chat Batch of 1): Zack the kadabra defender. Fair, honestly — kadabra's been pulling weight since Route 24. She stays.
+   [TTS] Speaking: Zack the kadabra defender....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack the kadabra defender.' (5 words)
+   [TurnTiming] 10:00:26.775 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [WARN] memory_extractor LLM call timed out after 15s — skipping
+   [TurnTiming] 10:00:28.840 TTS STOP — playback finished (span ~2064ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=13/30
+   [ChatAge] @zekromite4572 age=5.7s batch=1 preempted=none
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=13406ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [ChatterMem] Stored: @zekromite4572 — Known as a Kadabra defender [earnest]
+   [TIMING] first-word: 2042ms
+   [TTS] Speaking: Level 19 rattata going up against the Elite Four w...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Level 19 rattata going up against the El' (18 words)
+   [TurnTiming] 10:00:31.256 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 10:00:35 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 10:00:36.039 TTS STOP — playback finished (span ~4782ms)
+   [TTS] Speaking: Yeah, okay....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Yeah, okay.' (4 words)
+   [TurnTiming] 10:00:36.042 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'better team before challenging Sabrina'
+   [TurnTiming] 10:00:37.731 TTS STOP — playback finished (span ~1689ms)
+   [TTS] Speaking: Who should I actually be hunting?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Who should I actually be hunting?' (7 words)
+   [TurnTiming] 10:00:37.734 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:39.787 TTS STOP — playback finished (span ~2052ms)
+
+   [TIMING] voice: llm=10941ms(sonnet-stream(llm+tts)) tts=0ms total=10941ms
+   [LATENCY] vad_close=1200ms stt=258ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=4ms ttft=1270ms tts_first_chunk=772ms audio_out=354ms TOTAL=2681ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (1/1s) (3 skip(s))
+   [TurnTiming] 10:00:41.027 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~27320ms since onset)
+>>> You said: We're good, we're good. I thought.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="We're good, we're good. I thought." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=12551ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1484ms
+   [TTS] Speaking: Thought what?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Thought what?' (3 words)
+   [TurnTiming] 10:00:43.125 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:44.434 TTS STOP — playback finished (span ~1308ms)
+
+   [TIMING] voice: llm=3169ms(sonnet-stream(llm+tts)) tts=0ms total=3169ms
+   [LATENCY] vad_close=1200ms stt=215ms stt_wait=0ms salience=0ms triage=bypassed memory=22ms prompt_build=14ms ttft=1356ms tts_first_chunk=128ms audio_out=358ms TOTAL=2093ms
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 10:00:52.509 VOICE ONSET — mic speech started
+   [TurnTiming] 10:00:55.771 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3261ms since onset)
+>>> You said: I thought you weren't such an idiot, but I was wrong.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I thought you weren't such an idiot, but I was wrong." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=25ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TANGENT  (one_word_count=1  tangent_since=8t  moment=calm)
+   [PromptSize] dynamic_context=12742ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1926ms
+   [TTS] Speaking: Genuinely hurtful....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Genuinely hurtful.' (3 words)
+   [TurnTiming] 10:00:58.133 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 10:00:59.920 TTS STOP — playback finished (span ~1786ms)
+   [TTS] Speaking: I'm navigating blind with a level 19 rattata and y...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm navigating blind with a level 19 rat' (15 words)
+   [TurnTiming] 10:00:59.927 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
