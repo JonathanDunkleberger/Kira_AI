@@ -35,6 +35,32 @@ SB1_OFF_POS_Y     = 0x0002       # s16 player map Y
 # (read 0x1c in the overworld after the rival fight). The reliable in-battle signal
 # is the battle-RESOURCES pointer: null out of battle, a valid EWRAM ptr in battle.
 GBATTLE_TYPE_FLAGS = 0x02022B4C  # u32 battle type bitflags - STALE out of battle, do NOT gate on it
+# ── DOUBLE BATTLES (2026-08-04, the first trainer-pair wedge; all ✅ pret/pokefirered ground truth:
+# symbols branch pokefirered.sym + include/constants/battle.h + src/battle_controller_player.c) ──
+BATTLE_TYPE_DOUBLE  = 0x0001     # battle.h:47 (1 << 0); TRAINER is (1 << 3) = the 0x08 used above
+GBATTLERS_COUNT     = 0x02023BCC  # u8 gBattlersCount: 2 in singles, 4 in doubles
+GACTIVE_BATTLER     = 0x02023BC4  # u8 gActiveBattler (loops during selection — prefer controller funcs)
+GABSENT_BATTLER_FLAGS = 0x02023D70  # u8 gAbsentBattlerFlags: bit b = battler slot b is empty/fainted-out
+GBATTLER_POSITIONS  = 0x02023BD6  # u8[4] gBattlerPositions (local battles: position == battler id;
+#                                   player side = even, opponent side = odd)
+# gBattleCommunication (u8[8] @ 0x02023E82 — the sym proves MENU_MODE *is* gBattleCommunication[0]):
+# [b] = battler b's HandleTurnActionSelectionState state (battle_main.c): 0=before-action, 1=action
+# menu up, 2=move list OR target-select (the whole FIGHT flow), 3/4=action confirmed, 5=selection
+# script. [4] doubles as ACTIONS_CONFIRMED_COUNT — the reason GBATTLE_MENU_UP (=comm[4]) reads "1 =
+# action menu" ONLY in singles (the lone AI confirm); in a 4-battler double it reads 2-3 while HER
+# menus are up, so every comm[4]-gated classifier goes blind. Doubles must key off the CONTROLLER
+# FUNCS below instead.
+GBATTLE_COMM        = 0x02023E82  # base of gBattleCommunication (per-battler selection state at +b)
+# gBattlerControllerFuncs (IWRAM, u32[4] function ptrs): battler b's controller handler. While the
+# PLAYER is being asked for input, [b] holds one of the three ROM handlers below (thumb bit set) —
+# the same ground-truth class as GMAIN_CB2. Opponent AI battlers never hold these.
+GBATTLER_CONTROLLER_FUNCS = 0x03004FE0
+HANDLE_INPUT_CHOOSE_ACTION = 0x0802E438 | 1   # action menu (FIGHT/BAG/POKEMON/RUN) waits for input
+HANDLE_INPUT_CHOOSE_MOVE   = 0x0802EA10 | 1   # FIGHT move list waits for input
+HANDLE_INPUT_CHOOSE_TARGET = 0x0802E674 | 1   # doubles target-select: d-pad cycles LIVE foes (player-
+#                                               side positions are skipped for damaging single-target
+#                                               moves), A confirms gMultiUsePlayerCursor, B backs out
+GMULTIUSE_PLAYER_CURSOR = 0x03004FF4          # u8 gMultiUsePlayerCursor: the target-select battler id
 GMOVE_TO_LEARN     = 0x02024022  # u16 gMoveToLearn (pret symbols 2026-07-07): armed with the pending
 #                                  move id when a level-up wants to teach with 4 moves known (the
 #                                  "Delete an older move?" flow). STALE after the flow — treat only a

@@ -447,10 +447,77 @@ def read_mon(bridge, index):
             "asleep": bool(status1 & 0x07)}
 
 
+# ── DOUBLE BATTLES (2026-08-04, the first trainer-pair wedge) ────────────────────────────────
+# In a double, "ours" is battler 0 OR 2 (whichever the game is asking to act) and "the enemy" is
+# battlers 1 AND 3 — the old fixed 0/1 read fed the engine slot 0's moves while slot 2 was choosing
+# and read a fainted foe's corpse as "the enemy". All doubles branches gate on the VERIFIED
+# BATTLE_TYPE_DOUBLE bit + gBattlersCount == 4; singles stay byte-identical.
+_PLAYER_INPUT_FUNCS = frozenset({ram.HANDLE_INPUT_CHOOSE_ACTION,
+                                 ram.HANDLE_INPUT_CHOOSE_MOVE,
+                                 ram.HANDLE_INPUT_CHOOSE_TARGET})
+
+
+def double_chooser(bridge):
+    """[dbl] The PLAYER battler (0 or 2) whose controller is waiting for input right now, or None.
+    gBattlerControllerFuncs is the same ground-truth class as gMain.callback2 — opponent AI
+    battlers never hold the player input handlers. Fail-closed (None on any read fault)."""
+    try:
+        for b in (0, 2):
+            if bridge.rd32(ram.GBATTLER_CONTROLLER_FUNCS + 4 * b) in _PLAYER_INPUT_FUNCS:
+                return b
+    except Exception:
+        pass
+    return None
+
+
+def _dbl_battler_brief(bridge, b):
+    """Cheap (species, hp, maxhp) for gBattleMons[b] — no ROM move lookups."""
+    base = GBATTLE_MONS + b * MON_SIZE
+    return (bridge.rd16(base + F_SPECIES), bridge.rd16(base + F_HP),
+            bridge.rd16(base + F_MAXHP))
+
+
+def _read_battle_double(bridge):
+    """Doubles snapshot: ours = the battler being asked to act (else the live player battler),
+    enemy = the LIVE foe with the lowest HP fraction (focus-fire the weak one — also the target
+    the engine's target-select steers to). Falls back to the last foe corpse when both are down
+    so the faint-transition detector still sees hp==0."""
+    absent = bridge.rd8(ram.GABSENT_BATTLER_FLAGS)
+    ours_b = double_chooser(bridge)
+    if ours_b is None:
+        ours_b = 0
+        for b in (0, 2):
+            if absent & (1 << b):
+                continue
+            sp, hp, mhp = _dbl_battler_brief(bridge, b)
+            if 1 <= sp <= 411 and hp > 0:
+                ours_b = b
+                break
+    live, corpse = [], None
+    for b in (1, 3):
+        sp, hp, mhp = _dbl_battler_brief(bridge, b)
+        if not (1 <= sp <= 411 and 0 < mhp <= 999):
+            continue
+        if hp > 0 and not (absent & (1 << b)):
+            live.append((hp / mhp, b))
+        elif corpse is None:
+            corpse = b
+    enemy_b = min(live)[1] if live else (corpse if corpse is not None else 1)
+    snap = {"ours": read_mon(bridge, ours_b), "enemy": read_mon(bridge, enemy_b),
+            "double": True, "ours_battler": ours_b, "enemy_battler": enemy_b}
+    return snap
+
+
 def read_battle(bridge):
     """Full battle snapshot or None if not in battle. CANDIDATE - verify with dump."""
     if not in_battle(bridge):
         return None
+    try:
+        if (bridge.rd32(ram.GBATTLE_TYPE_FLAGS) & ram.BATTLE_TYPE_DOUBLE
+                and bridge.rd8(ram.GBATTLERS_COUNT) == 4):
+            return _read_battle_double(bridge)
+    except Exception:
+        pass                                     # any doubles read fault -> the proven singles path
     return {"ours": read_mon(bridge, 0), "enemy": read_mon(bridge, 1)}
 
 

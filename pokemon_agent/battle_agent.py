@@ -55,6 +55,30 @@ BAG_SCROLL = 0x0203AD0A      # u16 itemsAbove[0] — rows hidden above the windo
 # taps + pixel detection, which WEDGE on the long-running core (the keystone freeze-spin).
 MOVE_CURSOR = 0x02023FFC
 MENU_MODE = 0x02023E82
+# ⚠️ ARRAY TRUTH (2026-08-04, the first double battle): BOTH cursors are u8[4] PER-BATTLER arrays
+# (pret: gMoveSelectionCursor[gActiveBattler] / gActionSelectionCursor[gActiveBattler]) — the bare
+# addresses above are battler 0's entries. In a DOUBLE her second mon is battler 2 and the game
+# reads its cursors at +2; writing [0] while slot 2 chooses does NOTHING. And MENU_MODE is really
+# gBattleCommunication[0] (battler 0's selection state; battler 2's is at +2) — see firered_ram's
+# GBATTLE_COMM note. Singles behavior is untouched: every doubles-aware path resolves to +0 there.
+# ── DOUBLE BATTLES (2026-08-04, the trainer-pair infinite loop near Cinnabar) ─────────────────────
+# The single-battle turn flow wedged in FRLG doubles in four distinct places (all verified vs pret):
+#  (1) confirming a single-target move vs TWO live foes opens the TARGET-SELECT step
+#      (HandleInputChooseTarget) which the engine never answered — the 600-frame verify then read
+#      "no PP drop" as a refusal, exiled the move, and rotated the whole moveset into exile;
+#  (2) BOTH her battlers (0 and 2) choose actions each turn — slot 2's menus wrote/read battler 0's
+#      cursor bytes and read battler 0's moves for the pick;
+#  (3) GBATTLE_MENU_UP (= gBattleCommunication[4] = ACTIONS_CONFIRMED_COUNT) reads 2-3 in a
+#      4-battler fight, never 1 — every menu classifier went blind and menus were "text";
+#  (4) "the enemy" was hardwired to battler 1 — a fainted lead foe read as a corpse while
+#      battler 3 kept fighting.
+# Policy in doubles is deliberately MINIMAL (they're a handful of trainer pairs; the E4 is all
+# singles): each acting mon picks its best move via the existing move_score against the weakest
+# live foe, target-select steers to that foe by gMultiUsePlayerCursor READBACK (never blind), and
+# items/voluntary switches are PUNTED (attack-only) — the forced faint send-in still works. Every
+# branch logs with a [dbl] tag and is gated on the verified BATTLE_TYPE_DOUBLE bit so single
+# battles stay byte-identical. Kill switch: POKEMON_DOUBLES=0 reverts to the old (wedging) flow.
+DOUBLES_ENABLED = os.getenv("POKEMON_DOUBLES", "1") == "1"
 # In-battle PARTY-LIST cursor = gPartyMenu.slotId (recon_partycursor_derive 2026-06-28): DOWN increments,
 # UP decrements (0=lead, 1=2nd, ... + a CANCEL entry past the last mon). Lets the in-battle SWITCH nav by
 # readback instead of blind DOWN*slot taps that wedge/mis-land on the long core (the gated switch's gap).
@@ -334,6 +358,124 @@ class BattleAgent:
     def _is_trainer_battle(self):
         """BATTLE_TYPE_TRAINER (0x08). Valid in-battle. Wild = can flee, trainer = can't."""
         return bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & 0x08)
+
+    # ── [dbl] double-battle primitives (see the module-level DOUBLE BATTLES note) ─────────
+    def _is_double(self):
+        """[dbl] True iff the LIVE battle is a double: verified BATTLE_TYPE_DOUBLE bit AND
+        gBattlersCount == 4. Only meaningful in-battle (the flags are stale outside — every
+        caller is an in-battle path). Fail-closed; POKEMON_DOUBLES=0 kills all doubles branches."""
+        if not DOUBLES_ENABLED:
+            return False
+        try:
+            return bool(self.b.rd32(ram.GBATTLE_TYPE_FLAGS) & ram.BATTLE_TYPE_DOUBLE) \
+                and self.b.rd8(ram.GBATTLERS_COUNT) == 4
+        except Exception:
+            return False
+
+    def _cursor_battler(self):
+        """[dbl] The battler whose action/move cursor the game reads RIGHT NOW: the choosing
+        player battler in a double (0 or 2), always 0 in singles — so every address helper
+        below resolves to the historical byte in singles (byte-identical old behavior)."""
+        if self._is_double():
+            b = st.double_chooser(self.b)
+            if b is not None:
+                return b
+        return 0
+
+    def _ac_addr(self):
+        """gActionSelectionCursor[choosing battler] (u8[4] — see the ARRAY TRUTH note)."""
+        return ram.GBATTLE_ACTION_CURSOR + self._cursor_battler()
+
+    def _mc_addr(self):
+        """gMoveSelectionCursor[choosing battler] (u8[4] — see the ARRAY TRUTH note)."""
+        return MOVE_CURSOR + self._cursor_battler()
+
+    def _dbl_at_target_select(self):
+        """[dbl] The doubles 'choose a target' step owns input (HandleInputChooseTarget in
+        gBattlerControllerFuncs — the same ground-truth class as GMAIN_CB2). The old flow had
+        no answer for this screen: its timeout read as a move refusal and looped the battle."""
+        if not self._is_double():
+            return False
+        try:
+            b = st.double_chooser(self.b)
+            return b is not None and self.b.rd32(
+                ram.GBATTLER_CONTROLLER_FUNCS + 4 * b) == ram.HANDLE_INPUT_CHOOSE_TARGET
+        except Exception:
+            return False
+
+    def _dbl_weakest_foe(self):
+        """[dbl] Battler id (1 or 3) of the LIVE foe with the lowest HP fraction, else None.
+        Skips absent slots (gAbsentBattlerFlags). This is both the target-select steer AND the
+        'any foe still standing?' probe."""
+        try:
+            absent = self.b.rd8(ram.GABSENT_BATTLER_FLAGS)
+            best, best_frac = None, None
+            for fb in (1, 3):
+                if absent & (1 << fb):
+                    continue
+                base = st.GBATTLE_MONS + fb * st.MON_SIZE
+                sp = self.b.rd16(base + st.F_SPECIES)
+                hp = self.b.rd16(base + st.F_HP)
+                mhp = self.b.rd16(base + st.F_MAXHP)
+                if 1 <= sp <= 411 and 0 < mhp <= 999 and hp > 0:
+                    frac = hp / mhp
+                    if best_frac is None or frac < best_frac:
+                        best, best_frac = fb, frac
+            return best
+        except Exception:
+            return None
+
+    def _dbl_our_down(self):
+        """[dbl] True iff one of OUR battler slots (0/2) is fainted/empty — the 'Choose a
+        POKéMON' screen is then a MANDATORY send-in, never a thrash to B-close (the doubles
+        read returns the LIVE partner as 'ours', so the singles hp==0 check can't see it)."""
+        try:
+            absent = self.b.rd8(ram.GABSENT_BATTLER_FLAGS)
+            for b in (0, 2):
+                if absent & (1 << b):
+                    return True
+                base = st.GBATTLE_MONS + b * st.MON_SIZE
+                sp = self.b.rd16(base + st.F_SPECIES)
+                if 1 <= sp <= 411 and self.b.rd16(base + st.F_HP) == 0:
+                    return True
+            return False
+        except Exception:
+            return False
+
+    def _dbl_confirm_target(self, tries=8):
+        """[dbl] Answer the doubles target-select step (pret battle_controller_player.c ground
+        truth): d-pad cycles LIVE foes only for damaging single-target moves (player-side
+        positions are skipped, so taps can never land on her partner), A confirms
+        gMultiUsePlayerCursor, B backs out to the move list — B is NEVER pressed here (that
+        was the infinite loop). Steer to the weakest live foe by cursor READBACK (pitfall 13:
+        verify each press moved it); if the byte won't budge or reads garbage, confirm the
+        game's own default — the game presets it to a live foe."""
+        want = self._dbl_weakest_foe()
+        frozen = 0
+        for _ in range(tries):
+            if not self._dbl_at_target_select():
+                return True                       # confirmed / the step is gone
+            try:
+                cur = self.b.rd8(ram.GMULTIUSE_PLAYER_CURSOR)
+            except Exception:
+                cur = None
+            if cur is not None and want is not None and cur != want and frozen < 2:
+                self.log(f"   [dbl] target-select: cursor on battler {cur}, steering to "
+                         f"the weaker foe {want} (RIGHT + readback)")
+                self._tap("RIGHT")
+                self._wait(10)
+                try:
+                    if self.b.rd8(ram.GMULTIUSE_PLAYER_CURSOR) == cur:
+                        frozen += 1               # eaten press / frozen byte -> take the default
+                except Exception:
+                    frozen += 1
+                continue
+            self.log(f"   [dbl] target-select: confirming battler "
+                     f"{cur if cur is not None else '?'} (want {want}"
+                     f"{', cursor frozen -> game default' if frozen >= 2 else ''}) — A")
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(16)
+        return not self._dbl_at_target_select()
 
     def _creator_catch_order_path(self):
         """First live creator_order.json under states/campaign or states/kira (same dirs the bot writes)."""
@@ -1313,7 +1455,7 @@ class BattleAgent:
                 # A settled action menu is one a blind A may hit (anti-wedge floor, stall mash) —
                 # park the cursor on FIGHT so that A can never re-open the BAG/POKEMON screen
                 # (2026-08-03 Route-13 fisherman: cursor left on BAG = infinite Super-Potion loop).
-                if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != ram.ACT_FIGHT:
+                if self.b.rd8(self._ac_addr()) != ram.ACT_FIGHT:
                     self._poke_action_cursor(ram.ACT_FIGHT)
                 return True
             if self._at_move_list():
@@ -1334,13 +1476,14 @@ class BattleAgent:
         Returns True iff the byte reads back as `want` while still on the action menu."""
         if not self._at_action_menu():
             return False
+        _aca = self._ac_addr()                    # [dbl] the CHOOSING battler's cursor entry
         try:
-            self.b.core.memory.u8.raw_write(ram.GBATTLE_ACTION_CURSOR, int(want) & 0xFF)
+            self.b.core.memory.u8.raw_write(_aca, int(want) & 0xFF)
         except Exception as e:
             self.log(f"   [engine] action-cursor write failed: {e}")
             return False
         self._wait(2)
-        return self._at_action_menu() and self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == want
+        return self._at_action_menu() and self.b.rd8(_aca) == want
 
     def _goto_bag(self, tries=10):
         """Park the action cursor on BAG (ACT_BAG=1). Prefer RAM write; d-pad is fallback only
@@ -1352,7 +1495,7 @@ class BattleAgent:
                 continue
             if not self._at_action_menu():
                 return False
-            c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+            c = self.b.rd8(self._ac_addr())
             if c == ram.ACT_BAG:
                 return True
             if self._poke_action_cursor(ram.ACT_BAG):
@@ -1371,13 +1514,13 @@ class BattleAgent:
                 self.log("   [engine] _goto_bag: d-pad confirmed FIGHT — B out, retry write")
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
                 self._wait(12)
-        return self._at_action_menu() and self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_BAG
+        return self._at_action_menu() and self.b.rd8(self._ac_addr()) == ram.ACT_BAG
 
     def _goto_fight(self, tries=10):
         """Walk the action cursor to FIGHT (top-left, ACT_FIGHT=0) by readback. Mirror of _goto_bag;
         grid is FIGHT(0,TL) BAG(1,TR) / POKEMON(2,BL) RUN(3,BR)."""
         for _ in range(tries):
-            c = self.b.rd8(ram.GBATTLE_ACTION_CURSOR)
+            c = self.b.rd8(self._ac_addr())
             if c == ram.ACT_FIGHT:
                 return True
             if c == ram.ACT_BAG:
@@ -1389,7 +1532,7 @@ class BattleAgent:
             else:
                 return False                              # not the action menu
             self._wait(3)
-        return self.b.rd8(ram.GBATTLE_ACTION_CURSOR) == ram.ACT_FIGHT
+        return self.b.rd8(self._ac_addr()) == ram.ACT_FIGHT
 
     def _struggle(self):
         """ZERO usable moves in a can't-flee battle: A on FIGHT — if ALL moves are truly dry the
@@ -1440,7 +1583,7 @@ class BattleAgent:
             # BLIND-FIRST (12:07 relapse): deterministic walk owns positioning; the RAM write
             # runs after only as a correction when the byte is still readable and disagrees.
             self._blind_goto_move(slot)
-            if _ram_list and self.b.rd8(MOVE_CURSOR) != slot:
+            if _ram_list and self.b.rd8(self._mc_addr()) != slot:
                 self._goto_move(slot)
             pressed = slot
             before = self._bstate()
@@ -1594,7 +1737,7 @@ class BattleAgent:
                 self._wait(16)
                 self._amove_futile += 1
                 return f"A@blind{_best}"
-            if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != ram.ACT_FIGHT:
+            if self.b.rd8(self._ac_addr()) != ram.ACT_FIGHT:
                 self._poke_action_cursor(ram.ACT_FIGHT)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
             self._wait(14)
@@ -1618,7 +1761,7 @@ class BattleAgent:
             _ref = getattr(self, "_move_refused", {})
             if _ref:
                 _best = min(range(4), key=lambda i: _ref.get(i, 0))
-                if _ref.get(self.b.rd8(MOVE_CURSOR), 0) > _ref.get(_best, 0):
+                if _ref.get(self.b.rd8(self._mc_addr()), 0) > _ref.get(_best, 0):
                     self._goto_move(_best)
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
             self._wait(16)
@@ -2386,14 +2529,38 @@ class BattleAgent:
 
     def _at_action_menu(self):
         """TRUE FIGHT/BAG/POKEMON/RUN menu. menu_up==1 is authoritative; _white_box alone is
-        shared with the move list (the thrash root — treating both as 'action' then probing)."""
+        shared with the move list (the thrash root — treating both as 'action' then probing).
+        [dbl] In a DOUBLE, menu_up (gBattleCommunication[4] = ACTIONS_CONFIRMED_COUNT) reads 2-3
+        while her menus are up — never 1 — so the truth is the choosing battler's controller
+        func (HandleInputChooseAction), the GMAIN_CB2 ground-truth class."""
         if self._bag_screen() or self._party_screen():
             return False
+        if self._is_double():
+            try:
+                b = st.double_chooser(self.b)
+                return (b is not None and self.b.rd32(
+                    ram.GBATTLER_CONTROLLER_FUNCS + 4 * b) == ram.HANDLE_INPUT_CHOOSE_ACTION
+                    and self._white_box())
+            except Exception:
+                return False
         return self._menu_up() and self._white_box()
 
     def _at_move_list(self):
-        """FIGHT move list is up. menu_up==0 + white panel (or MENU_MODE==2). Never d-pad probe."""
-        if self._bag_screen() or self._party_screen() or self._menu_up():
+        """FIGHT move list is up. menu_up==0 + white panel (or MENU_MODE==2). Never d-pad probe.
+        [dbl] In a DOUBLE the singles bytes lie (MENU_MODE is battler 0's state only, and it
+        stays 2 through TARGET-SELECT too) — key off the choosing battler's controller func:
+        only HandleInputChooseMove counts (target-select is deliberately NOT a move list, so
+        the verify loop can never book its wait as a move refusal)."""
+        if self._bag_screen() or self._party_screen():
+            return False
+        if self._is_double():
+            try:
+                b = st.double_chooser(self.b)
+                return b is not None and self.b.rd32(
+                    ram.GBATTLER_CONTROLLER_FUNCS + 4 * b) == ram.HANDLE_INPUT_CHOOSE_MOVE
+            except Exception:
+                return False
+        if self._menu_up():
             return False
         try:
             if self.b.rd8(MENU_MODE) == 2:
@@ -2439,16 +2606,17 @@ class BattleAgent:
         confirm reads gMoveSelectionCursor — the byte IS the selection, whatever the pixels
         show. Write first; d-pad walk only as fallback; return False LOUD (callers attribute
         refusals to the cursor byte, never assume arrival)."""
+        _mca = self._mc_addr()                    # [dbl] the CHOOSING battler's cursor entry
         try:
-            if self.b.rd8(MOVE_CURSOR) != idx:
-                self.b.core.memory.u8.raw_write(MOVE_CURSOR, int(idx) & 0xFF)
+            if self.b.rd8(_mca) != idx:
+                self.b.core.memory.u8.raw_write(_mca, int(idx) & 0xFF)
                 self._wait(2)
-            if self.b.rd8(MOVE_CURSOR) == idx:
+            if self.b.rd8(_mca) == idx:
                 return True
         except Exception as e:
             self.log(f"   [engine] move-cursor write failed: {e} (falling back to d-pad)")
         for _ in range(tries):
-            cur = self.b.rd8(MOVE_CURSOR)
+            cur = self.b.rd8(_mca)
             if cur == idx:
                 return True
             cr, cc = cur // 2, cur % 2
@@ -2458,7 +2626,7 @@ class BattleAgent:
             else:
                 self._tap("RIGHT" if tc > cc else "LEFT")
             self._wait(8)
-        return self.b.rd8(MOVE_CURSOR) == idx
+        return self.b.rd8(_mca) == idx
 
     def _blind_goto_move(self, idx):
         """Move-list navigation with ZERO RAM trust (2026-08-03: the frozen-detector battle —
@@ -2499,6 +2667,22 @@ class BattleAgent:
         wild battle); B is only used to back out of a wrongly-opened submenu."""
         ours, enemy = state["ours"], state["enemy"]
         _our_types = [t for t in (ours.get("types") or []) if t and t != "???"]
+        # [dbl] PIN the choosing battler for this whole commit: slot 2's action/move cursors
+        # live at array entry +2 (the ARRAY TRUTH note) and the post-commit PP audit must read
+        # THAT battler's gBattleMons entry — the doubles-aware read_battle flips "ours" to the
+        # partner the moment the chooser changes, so never re-derive mid-commit. None = singles
+        # (every address below resolves to the historical +0 byte — byte-identical old flow).
+        _dblb = None
+        if self._is_double():
+            _dblb = st.double_chooser(self.b)
+            if _dblb is None:
+                _dblb = int(state.get("ours_battler", 0) or 0)
+            self.log(f"   [dbl] battler {_dblb} is choosing — "
+                     f"{st.SPECIES_NAME.get(ours.get('species'), '?')} vs foe battler "
+                     f"{state.get('enemy_battler', 1)} "
+                     f"{st.SPECIES_NAME.get(enemy.get('species'), '?')}")
+        _mca = MOVE_CURSOR + (_dblb or 0)
+        _aca = ram.GBATTLE_ACTION_CURSOR + (_dblb or 0)
         idx, desc, low = pol.choose_move(
             ours["moves"], enemy["types"], _hp_frac(ours), our_types=_our_types)
 
@@ -2716,7 +2900,7 @@ class BattleAgent:
             # and the blind move-walk then d-pads INSIDE the bag and inspects key items for
             # whole turns. Same cure as the move list: the byte IS the selection — write it.
             try:
-                if self.b.rd8(ram.GBATTLE_ACTION_CURSOR) != ram.ACT_FIGHT:
+                if self.b.rd8(_aca) != ram.ACT_FIGHT:
                     self._poke_action_cursor(ram.ACT_FIGHT)
             except Exception:
                 pass
@@ -2749,16 +2933,16 @@ class BattleAgent:
         # clamp), so it is now the PRIMARY nav on every commit; the RAM write runs after
         # only as a correction when it can still be read (healthy RAM: both agree, no-op).
         self._blind_goto_move(idx)
-        if self._at_move_list() and self.b.rd8(MOVE_CURSOR) != idx:
+        if self._at_move_list() and self.b.rd8(_mca) != idx:
             self.log(f"   [engine] STREAM COMMIT: RAM cursor disagrees after blind walk "
-                     f"(reads {self.b.rd8(MOVE_CURSOR)}, want {idx}) — RAM-correcting")
+                     f"(reads {self.b.rd8(_mca)}, want {idx}) — RAM-correcting")
             self._goto_move(idx)
         # ATTRIBUTION (2026-08-03 12:07, blind-first era): the blind walk is deterministic —
         # the real cursor IS on `idx` regardless of what the byte claims (frozen-RAM battles
         # read garbage here; trusting the byte was ledger-poisoning round 3). Attribute
         # refusals to idx. A disagreeing byte is now a frozen-RAM SIGNAL, not the truth.
         _pressed = idx
-        _byte = self.b.rd8(MOVE_CURSOR)
+        _byte = self.b.rd8(_mca)
         if self._at_move_list() and 0 <= _byte < 4 and _byte != idx:
             self.log(f"   [engine] !! CURSOR BYTE DISAGREES post-blind-walk (byte={_byte}, "
                      f"blind={idx}) — RAM block likely frozen; trusting the blind walk")
@@ -2772,7 +2956,7 @@ class BattleAgent:
         # failure classes: eaten-taps (fixes the desync) and frozen reads (harmless no-op
         # on an already-right cursor). Best-effort; a write fault never blocks the confirm.
         try:
-            self.b.core.memory.u8.raw_write(MOVE_CURSOR, int(idx) & 0xFF)
+            self.b.core.memory.u8.raw_write(_mca, int(idx) & 0xFF)
             self._wait(2)
         except Exception as _wf:
             self.log(f"   [engine] move-cursor force-write failed ({_wf}) — blind walk only")
@@ -2799,11 +2983,38 @@ class BattleAgent:
                              f"exile this battle (text is truth; PP byte was lying; "
                              f"futility {self._amove_futile}/{FUTILE_AMOVE_MAX})")
                     break                             # result stays None -> failure branch
+            # [dbl] a doubles commit detours through TARGET-SELECT (single-target move vs two
+            # live foes) and NEVER drops PP before the PARTNER also acts — the old loop read
+            # both as "the move refused", exiled the whole moveset, and looped the battle.
+            # Answer the target step; then a comm-state 3/4 for OUR battler (action confirmed,
+            # battle_main.c HandleTurnActionSelectionState) or the chooser flipping to the
+            # partner = the commit was ACCEPTED — the PP audit happens at turn resolution.
+            if _dblb is not None:
+                if self._dbl_at_target_select():
+                    self._dbl_confirm_target()
+                try:
+                    _stb = self.b.rd8(ram.GBATTLE_COMM + _dblb)
+                except Exception:
+                    _stb = None
+                if _stb in (3, 4):
+                    self.log(f"   [dbl] battler {_dblb} action COMMITTED (comm state {_stb})")
+                    result = "done"; break
+                _ch = st.double_chooser(self.b)
+                if _ch is not None and _ch != _dblb:
+                    self.log(f"   [dbl] partner battler {_ch} is choosing now — commit accepted")
+                    result = "done"; break
             cur = st.read_battle(self.b)
             if cur:
                 self._emit_diffs(self._prev, cur); self._prev = cur
                 try:
-                    if 0 <= idx < 4 and cur["ours"]["moves"][idx].get("pp", 0) < pp0:
+                    # [dbl] PP audit pinned to the committing battler's gBattleMons entry —
+                    # cur["ours"] flips to the partner once the chooser changes.
+                    if _dblb is not None:
+                        _ppnow = self.b.rd8(st.GBATTLE_MONS + _dblb * st.MON_SIZE
+                                            + st.F_PP + idx)
+                    else:
+                        _ppnow = cur["ours"]["moves"][idx].get("pp", 0)
+                    if 0 <= idx < 4 and _ppnow < pp0:
                         result = "done"; break
                 except Exception:
                     pass
@@ -2817,8 +3028,12 @@ class BattleAgent:
                     # landed elsewhere. The force-write above should make this extinct;
                     # if it still fires, it's LOUD evidence (never a silent pass again).
                     try:
-                        _ppv = [int((m or {}).get("pp", 0) or 0)
-                                for m in (cur["ours"].get("moves") or [])]
+                        if _dblb is not None:      # [dbl] audit the COMMITTING battler's PP
+                            _ppv = [self.b.rd8(st.GBATTLE_MONS + _dblb * st.MON_SIZE
+                                               + st.F_PP + j) for j in range(4)]
+                        else:
+                            _ppv = [int((m or {}).get("pp", 0) or 0)
+                                    for m in (cur["ours"].get("moves") or [])]
                         _drop = [j for j, (a, c) in enumerate(zip(_pp_all0, _ppv)) if c < a]
                         if _drop and idx not in _drop:
                             self._wrong_fires = getattr(self, "_wrong_fires", 0) + 1
@@ -3099,6 +3314,22 @@ class BattleAgent:
         self._allow_pokemon_menu = True
         _skip_rows = set()                                # rows that refused SEND OUT this menu
         _tried_sp = set()                                 # species that got submenu but didn't swap
+        # [dbl] the LIVE partner is already on the field — picking its row gets "X is already
+        # in battle!" forever. Pre-seed it as tried so the candidate filter skips it.
+        if self._is_double():
+            try:
+                absent = self.b.rd8(ram.GABSENT_BATTLER_FLAGS)
+                for _b in (0, 2):
+                    if absent & (1 << _b):
+                        continue
+                    _base = st.GBATTLE_MONS + _b * st.MON_SIZE
+                    _sp = self.b.rd16(_base + st.F_SPECIES)
+                    if 1 <= _sp <= 411 and self.b.rd16(_base + st.F_HP) > 0:
+                        _tried_sp.add(_sp)
+                        self.log(f"   [dbl] fswitch: {st.SPECIES_NAME.get(_sp, _sp)} is already "
+                                 f"on the field (battler {_b}) — excluded from send-in")
+            except Exception:
+                pass
         _t0 = time.time()
         try:
             return self._force_switch_inner(_skip_rows, _tried_sp, _t0)
@@ -3112,7 +3343,10 @@ class BattleAgent:
                          f"blind-sending strongest live (anti 60–90s party theater)")
                 break
             cur = st.read_battle(self.b)
-            if cur and cur["ours"]["hp"] > 0:
+            # [dbl] "ours" reads the LIVE partner in a double (always hp>0 while one stands) —
+            # seated truth is BOTH player slots standing again (_dbl_our_down clears).
+            if cur and cur["ours"]["hp"] > 0 and not (self._is_double()
+                                                      and self._dbl_our_down()):
                 self._note_battle_progress("force-switch seated")
                 return True                               # a healthy mon is active -> switched
             self._wait(10)                                # let the party menu settle
@@ -3978,6 +4212,12 @@ class BattleAgent:
                       + (f" — your {_lead} is up front" if _lead else ""), beat=True)
             self._prev = state
             self._note_foe(state)
+        if self._is_double():
+            self.log("   [dbl] DOUBLE BATTLE detected (gBattleTypeFlags bit0 + battlers=4) — "
+                     "attack-only policy: both slots pick via move_score, target-select armed, "
+                     "items/voluntary switches PUNTED (forced faint send-ins still on)")
+            self.emit("hold on — this is a DOUBLE battle. two of mine are out there at once.",
+                      beat=True, tier=2)
 
         # ── BIG-MOMENT RECOGNITION (Batch 3 Phase 2D): situational SIGNIFICANCE ───────────────────────
         # SHINY is the most clippable moment the game can produce — treating one as normal is a tragedy.
@@ -4118,6 +4358,20 @@ class BattleAgent:
                                   f"{st.SPECIES_NAME.get(enemy['species'], 'another Pokemon')}",
                                   beat=True)
                         break
+                    # [dbl] BELT: one foe down does NOT decide a double — the partner foe
+                    # fights on (the doubles-aware read only shows hp==0 when NO foe is live,
+                    # so this should be rare; any race that armed the flag early disarms here).
+                    if (self._enemy_fainted and not self._we_fainted and self._is_double()
+                            and self._dbl_weakest_foe() is not None):
+                        self._enemy_fainted = False
+                        self._status_played = False
+                        self._sleep_casts = 0
+                        if cur:
+                            self._prev = cur
+                            self._note_foe(cur)
+                        self.log("   [dbl] a foe went down but its partner still stands — "
+                                 "fighting on (drain disarmed)")
+                        break
                     # STALE-ATTACH DISARM (koga_run7, the obj7 silent drain): _we_fainted can be armed
                     # at re-entry from the SAVE's display struct still holding the LAST battle's corpse
                     # (run3's Koga loss left Mankey at 0 in the struct; the first battle of the next
@@ -4153,7 +4407,11 @@ class BattleAgent:
                     # next mon and the fresh-enemy detect above resumes the fight. Each loop
                     # iteration re-checks, so a B that only closed the sub-menu just B's again.
                     if self._party_screen():
-                        if cur and cur["ours"]["hp"] == 0 and self._healthy_reserve_slot() is not None:
+                        # [dbl] "ours" reads the LIVE partner in a double, so hp==0 can't see a
+                        # fainted slot — _dbl_our_down reads both player battlers directly.
+                        if (cur and (cur["ours"]["hp"] == 0
+                                     or (self._is_double() and self._dbl_our_down()))
+                                and self._healthy_reserve_slot() is not None):
                             self.log("   [engine] party screen in drain: our mon is DOWN -> forced switch")
                             if self._force_switch():
                                 self._we_fainted = False
@@ -4250,9 +4508,26 @@ class BattleAgent:
                 self.log("   [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it")
                 self._close_bag_screen()
                 continue
+            # [dbl] STRAY TARGET-SELECT at the turn top (re-entry/abandoned commit): answer it
+            # deliberately — the generic _advance_text B could back it out to the move list
+            # (the loop), and it is neither an action menu nor a move list to the gate below.
+            if self._is_double() and self._dbl_at_target_select():
+                self.log("   [dbl] target-select at turn top (stray/re-entry) — confirming")
+                self._dbl_confirm_target()
+                continue
             # 2026-08-03 NUCLEAR: party open while OUR active is ALIVE = Pokemon↔Blastoise thrash.
             # B out only — A re-selects the ace and is the sticky loop Jonny filmed.
             if self._party_screen():
+                # [dbl] a fainted slot's replacement prompt is MANDATORY and "ours" reads the
+                # LIVE partner (hp>0) — the thrash guard would B-fight the game forever. Send.
+                if (self._is_double() and self._dbl_our_down()
+                        and self._healthy_reserve_slot() is not None):
+                    self.log("   [dbl] party screen + a player slot is DOWN — forced send-in "
+                             "(never B-closed)")
+                    if self._force_switch():
+                        self._prev = st.read_battle(self.b)
+                        self.emit("one of mine went down — sending in the next one", beat=True)
+                        continue
                 _cur = st.read_battle(self.b)
                 if _cur and (_cur.get("ours") or {}).get("hp", 0) > 0:
                     self._party_thrash_n = getattr(self, "_party_thrash_n", 0) + 1
@@ -4281,6 +4556,11 @@ class BattleAgent:
             # white_box alone (shared by both → every turn re-opened / probed forever).
             if self._at_action_menu() or self._at_move_list():
                 state = st.read_battle(self.b)         # pick + commit a move, verify it lands
+                # [dbl] PUNT LIST (deliberate, minimal-risk): in a double, items ("use on which
+                # mon?" extra prompt), voluntary/famine/whiff/load-share switches and the
+                # futility bench switch are all party/bag actuations whose doubles prompts are
+                # UNVERIFIED — attack-only keeps her un-wedgeable; forced faint send-ins stay on.
+                _dbl_turn = self._is_double()
                 self._note_foe(state)                  # foes-seen ledger (live turn read)
                 self._classify_prev_whiff(state)       # race-free: judge last turn's move at this clean
                 #                                        menu-up read (before the whiff-breaker acts below)
@@ -4303,7 +4583,7 @@ class BattleAgent:
                 # scarce heal items (the E4 Champion whiteout is a Full-Restore famine). Not during a
                 # participation grind (the ace-protect switch owns that). Fail-safe: an unconfirmed switch
                 # just falls through to the heal path; churn-safe by the near-full gate (see _load_share_slot).
-                if (BATTLE_LOAD_SHARE and state and not PROTECT_LEAD_GRIND
+                if (BATTLE_LOAD_SHARE and state and not PROTECT_LEAD_GRIND and not _dbl_turn
                         and not (self._enemy_fainted or self._we_fainted)):
                     _ls = self._load_share_slot(state)
                     if _ls is not None:
@@ -4327,7 +4607,7 @@ class BattleAgent:
                 # FUTILE_AMOVE_MAX confirms with zero change gets a bench switch attempt at the
                 # TOP of every turn, ungated by level leads, item offers, or ledger state.
                 if (getattr(self, "_amove_futile", 0) >= FUTILE_AMOVE_MAX
-                        and self._is_trainer_battle()
+                        and self._is_trainer_battle() and not _dbl_turn
                         and not (self._enemy_fainted or self._we_fainted)
                         and getattr(self, "_futility_switches", 0) < 2):
                     if self._futility_bench_switch():
@@ -4347,7 +4627,8 @@ class BattleAgent:
                 # PART B: SURVIVAL INSTINCT FIRST — if a mon is crit-low/afflicted with a matching item,
                 # offer the bag to the oracle. If she uses one, the turn is spent (skip move selection).
                 # Any non-use falls through to the proven move path (fail-safe; never wedges).
-                if (state and not _just_fight and not (self._enemy_fainted or self._we_fainted)
+                if (state and not _just_fight and not _dbl_turn
+                        and not (self._enemy_fainted or self._we_fainted)
                         and self._maybe_use_item(state)):
                     self._acted_once = True
                     stall = 0
@@ -4356,7 +4637,7 @@ class BattleAgent:
                 # move / sleep-freeze / move theater, 3 live on bench, kept "switching" into himself).
                 # Force a voluntary leave to a DIFFERENT living species; never row-0 / same species.
                 # NUCLEAR: dead while POKEMON_BATTLE_SWITCH=0 (default) — was the thrash opener.
-                if (BATTLE_SWITCH_ENABLED and state and not _just_fight
+                if (BATTLE_SWITCH_ENABLED and state and not _just_fight and not _dbl_turn
                         and not (self._enemy_fainted or self._we_fainted)
                         and self._must_leave_active(state)):
                     _asp = state.get("ours", {}).get("species")
@@ -4392,7 +4673,7 @@ class BattleAgent:
                 # (a forced re-entry of the same dry mon gets one more try, never a churn loop). Fail-safe:
                 # an unconfirmed switch just fights on; no reserve -> log LOUD and let the anti-wedge
                 # floor + the campaign's needs_heal gate own it.
-                if (BATTLE_SWITCH_ENABLED and state
+                if (BATTLE_SWITCH_ENABLED and state and not _dbl_turn
                         and not (self._enemy_fainted or self._we_fainted)
                         and self._active_pp_famine(state)
                         and self._famine_tried.get(state.get("ours", {}).get("species"), 0)
@@ -4431,6 +4712,7 @@ class BattleAgent:
                 # weak mon banks a share of XP and never takes a hit (benched before the enemy's turn); the
                 # tanky ace KOs. Fires at most once/battle; fail-safe (a non-confirm just fights).
                 if (GRIND_SWITCH_ENABLED and PROTECT_LEAD_GRIND and not self._grind_switched
+                        and not _dbl_turn
                         and state and not (self._enemy_fainted or self._we_fainted)):
                     self._grind_switched = True            # one attempt/battle, whatever the result
                     ace = self._ace_reserve_slot()
@@ -4499,6 +4781,7 @@ class BattleAgent:
                 # Skip matchup switch once a turn already failed to resolve — opening POKEMON
                 # mid-thrash is more menu theater (2026-08-02 LIVE).
                 if (BATTLE_SWITCH_ENABLED and not PROTECT_LEAD_GRIND and not _just_fight
+                        and not _dbl_turn
                         and getattr(self, "_unresolved_turns", 0) < 1
                         and state and not (self._enemy_fainted or self._we_fainted)
                         and self._voluntary_switch(state) == "switched"):
@@ -4512,7 +4795,7 @@ class BattleAgent:
                 # crushing level lead. Gen-3 resets stat stages on switch-out, so we switch the ace OUT
                 # (accuracy resets) then BACK the next turn to swing fresh. _classify_prev_whiff counts misses;
                 # here we execute the reset. Bounded per battle (WHIFF_MAX_RECOVERIES) so it never loops.
-                if (WHIFF_BREAKER_ENABLED and state
+                if (WHIFF_BREAKER_ENABLED and state and not _dbl_turn
                         and not (self._enemy_fainted or self._we_fainted)):
                     if self._whiff_recovering is not None:
                         # (a) mid-recovery — the ace is benched with reset accuracy; bring it back to swing.
