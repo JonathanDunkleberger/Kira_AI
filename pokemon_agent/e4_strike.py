@@ -44,7 +44,11 @@ FULL_RESTORE, MAX_POTION, REVIVE, FULL_HEAL = 19, 20, 24, 23
 # (item id, mart true-index row, want, unit price) — FR-first tuning (recon_e4 runs 5-9 postmortem: every
 # lap died at Lance with FR x0; 4 FR tanks the 5-dragon wave, 2 Revive for the type-answer comeback, 1 Full
 # Heal for the Jynx/Hypnosis sleep). The stock_up scaler clamps each line to money (poverty-safe order).
-SHOPPING = [(FULL_RESTORE, 2, 4, 3000), (REVIVE, 4, 2, 1500), (FULL_HEAL, 5, 1, 600)]
+# WANTS RAISED 4/2/1 -> 6/3/2 (2026-08-04, Jonny: 'OP and steamrolling'): the old wants were sized for a
+# ~$13k pauper arrival; with mart loot-selling + the badge 6-8 payouts she arrives rich, and the postmortem
+# failure mode was ALWAYS an empty kit at Lance/Gary, never an over-full bag. The comeback FLOOR pass below
+# keeps the poverty order identical when money is short — extra wants only ever spend SURPLUS.
+SHOPPING = [(FULL_RESTORE, 2, 6, 3000), (REVIVE, 4, 3, 1500), (FULL_HEAL, 5, 2, 600)]
 KEY_OF = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT", (1, 0): "RIGHT"}
 
 
@@ -128,6 +132,61 @@ class EliteFour:
             if b.rd16(base + 0x56) > 0 and b.rd16(base + 0x58) > 0:
                 n += 1
         return n
+
+    # Room # -> the seat's threat-KB name (frlg_strategy.json 'threats'; seat order is fixed).
+    _SEAT_NAME = {1: "Lorelei", 2: "Bruno", 3: "Agatha", 4: "Lance", 5: "Gary"}
+
+    def answer_lead(self, room_no):
+        """ANSWER-LEAD THE SEAT (2026-08-04, Jonny: 'she needs to know all the things about battle
+        necessary to beat the final four'): before touching each seat's trainer, reorder the party
+        so the mon with the hardest ACTUAL super-effective move into that seat's types leads —
+        Jolteon into Lorelei, the psychic into Agatha, Ice Beam into Lance. The mid-fight switch
+        brain (_best_switch_slot) can field the specialist anyway, but only AFTER a sacrificed
+        turn and free damage; a human orders the team at the door. MOVE-GATED like ns15 (an SE
+        TYPING with no SE move is a decoy, never an answer). Champion/mixed (no seat types) ->
+        the healthiest highest-level mon leads. Fainted slot-0 also gets replaced here (never
+        walk a corpse lead into a seat). Overworld-only save-safe swap; no-op when the right
+        mon already leads; fail-open (a read fault leaves the order untouched)."""
+        try:
+            if self.fight_open():
+                return
+            import pokemon_state as st
+            import pokemon_policy as pp
+            name = self._SEAT_NAME.get(room_no)
+            if not name:
+                return
+            rec = (getattr(self.camp, "planner", None)
+                   and getattr(self.camp.planner, "threats", {}) or {}).get(name) or {}
+            seat_types = [t for t in (rec.get("types") or []) if t and t != "mixed"]
+            b = self.b
+            cnt = b.rd8(ram.GPLAYER_PARTY_CNT)
+            best, best_key = None, None
+            for s in range(min(cnt, 6)):
+                base = ram.GPLAYER_PARTY + s * 100
+                hp, mx = b.rd16(base + 0x56), b.rd16(base + 0x58)
+                if hp <= 0 or not mx:
+                    continue
+                lv = b.rd8(base + 0x54)
+                eff = 0.0
+                for mid in st.read_party_moves(b, s):
+                    if not mid:
+                        continue
+                    mt, mpow = st.move_info(b, mid)
+                    if mpow and mpow > 0 and seat_types:
+                        eff = max(eff, pp.effectiveness(mt or "normal", seat_types))
+                key = (eff, hp / mx >= 0.5, lv)     # hits-hardest, then healthy, then level
+                if best_key is None or key > best_key:
+                    best, best_key = s, key
+            if best is None or best == 0:
+                return                              # no living reserve / the answer already leads
+            sp = st.SPECIES_NAME.get(st.read_party_species(b, best), f"slot{best}")
+            self.log(f"   [e4] ANSWER-LEAD room #{room_no} ({name}): fielding {sp} "
+                     f"(SE {best_key[0]:.1f}x into {'/'.join(seat_types) or 'mixed'}, "
+                     f"L{best_key[2]}, healthy={best_key[1]})")
+            self.camp._swap_party_slots(0, best)
+            self.on_event_safe(f"{name} next — {sp} takes point. that's the matchup.", tier=2)
+        except Exception as e:
+            self.log(f"   [e4] answer-lead skipped ({e}) — fighting with the standing order (LOUD)")
 
     def live_npc_tiles(self):
         b = self.b
@@ -422,6 +481,9 @@ class EliteFour:
                 room_warps = sorted([t for t, _d in warps], key=lambda t: t[1])
                 north = room_warps[0] if room_warps else (6, 2)
                 if npcs:
+                    # Field the seat's answer BEFORE the approach (idempotent — no-ops once the
+                    # right mon leads; re-fires after a whiteout re-lap with a healed party).
+                    self.answer_lead(len(seen_rooms))
                     trainer = min(npcs, key=lambda t: t[1])
                     stand = (trainer[0], trainer[1] + 1)
                     if tuple(tv.coords(b) or ()) != stand:
