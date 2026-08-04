@@ -59,6 +59,20 @@ MENU_MODE = 0x02023E82
 # UP decrements (0=lead, 1=2nd, ... + a CANCEL entry past the last mon). Lets the in-battle SWITCH nav by
 # readback instead of blind DOWN*slot taps that wedge/mis-land on the long core (the gated switch's gap).
 PARTY_CURSOR = 0x02020777
+# gMain.callback2 TRUTH for the in-battle BAG/PARTY sub-screens (2026-08-04, the Revive
+# insta-click: the aim block only ran on laps where the PIXEL party classifier fired, so on
+# frozen frames the bare walk-A confirmed the target screen's HOME cursor — the alive lead —
+# "It won't have any effect." forever). The game physically SWITCHES gMain.callback2 to these
+# menu loops while a sub-screen owns input (same ground truth as ram.battle_cb2_dead), so a
+# RAM read beats any frozen frame. pret pokefirered.sym rev0 — CB2_Overworld 0x080565B4 in the
+# same map matches the live-verified ram._CB2_OVERWORLD. Stored with the thumb bit set.
+_CB2_PARTY_MENU = {0x0811EBA0 | 1,   # CB2_UpdatePartyMenu  (steady-state party/target screen)
+                   0x0811EBD0 | 1,   # CB2_InitPartyMenu    (opening fade)
+                   0x08124C8C | 1}   # CB2_ShowPartyMenuForItemUse (bag USE -> target transition)
+_CB2_BAG_MENU = {0x08107EE0 | 1,     # CB2_BagMenuRun       (steady-state bag list)
+                 0x08107F10 | 1,     # CB2_OpenBagMenu
+                 0x08107ECC | 1,     # CB2_BagMenuFromBattle
+                 0x08124D90 | 1}     # CB2_ReturnToBagMenu  (target screen -> bag)
 _ITEMS_POCKET_OFF = 0x0310   # SaveBlock1 Items pocket (potions + status cures live here), 42 slots
 # Gen-3 item ids for the in-battle instinct (CANDIDATES; the use is self-verified by the item count
 # dropping, so a wrong id simply doesn't fire -> 'failed' -> keep fighting, never a wrong action).
@@ -1659,11 +1673,12 @@ class BattleAgent:
             # white-gone pass (mid-transition frame). Blind LEFTs at a NON-bag screen are
             # poison — on this core a d-pad press at the action menu can CONFIRM. Re-check
             # once after a settle; still nothing -> bail fightable instead of spraying keys.
-            if not self._bag_screen() and not self._white_box():
+            if not self._bag_screen() and not self._white_box() and not self._bag_menu_cb2():
                 self._wait(40)
-                if not self._bag_screen() and not self._white_box():
-                    self.log("   [engine] use_item: pocket byte MUTE + NO bag/white pixels — "
-                             "bag never opened; keep fighting (LOUD, no blind taps fired)")
+                if not self._bag_screen() and not self._white_box() and not self._bag_menu_cb2():
+                    self.log("   [engine] use_item: pocket byte MUTE + NO bag/white pixels + "
+                             "callback2 not the bag — bag never opened; keep fighting "
+                             "(LOUD, no blind taps fired)")
                     self._exit_bag(); return "failed"
             self.log("   [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp "
                      "LEFT x4 to the Items pocket")
@@ -1718,7 +1733,11 @@ class BattleAgent:
         for n in range(6):
             if self._items_count(item_id) < cnt0:
                 break
-            if not aimed and self._party_screen():
+            if not aimed and (self._party_screen() or self._party_menu_cb2()):
+                # ^ pixel OR callback2 truth (2026-08-04, the Revive insta-click: on frozen
+                # frames the pixel classifier missed the freshly-opened target screen, this
+                # block never ran, and the bare walk-A below confirmed the HOME cursor — the
+                # alive lead. gMain.callback2 IS the party menu while it owns input.)
                 self._wait(8)                              # let the screen finish drawing
                 # 2026-08-04 LIVE (the Gary wipe — FOUR Revives 'selected', ZERO consumed,
                 # full team down): _party_focus()'s eaten-tap retry presses B, and on the
@@ -1797,6 +1816,7 @@ class BattleAgent:
                 aimed = True
             self.log(f"   [engine] use_item walk n={n}: party={self._party_screen()} "
                      f"bag={self._bag_screen()} white={self._white_box()} "
+                     f"cb2party={self._party_menu_cb2()} cb2bag={self._bag_menu_cb2()} "
                      f"pcur={self._party_cursor_slot()} lead={self._party_cursor_on_lead()}")
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
             if not st.in_battle(self.b):
@@ -2234,6 +2254,21 @@ class BattleAgent:
                 hits += 1
         return hits >= 3
 
+    def _party_menu_cb2(self):
+        """gMain.callback2 says the PARTY/target-select screen owns input right now. RAM truth
+        the frozen-frame disease can't touch (the Revive insta-click class). Fail-closed."""
+        try:
+            return self.b.rd32(ram.GMAIN_CB2) in _CB2_PARTY_MENU
+        except Exception:
+            return False
+
+    def _bag_menu_cb2(self):
+        """gMain.callback2 says the BAG list owns input right now. Fail-closed."""
+        try:
+            return self.b.rd32(ram.GMAIN_CB2) in _CB2_BAG_MENU
+        except Exception:
+            return False
+
     # The BAG SCREEN (layer 8, the caterpie-7/40 wedge, frame stage_l8.png): an in-battle item flow
     # can leave/return the battle to the open bag, and EVERY state byte lies there (MENU_MODE reads a
     # stale 2, GBATTLE_MENU_UP a stale 1, and the USE/CANCEL sub-box lights the white-panel pixels) —
@@ -2600,7 +2635,8 @@ class BattleAgent:
         self.log(f"   [engine] STREAM COMMIT: {desc} slot {idx} "
                  f"(menu_up={int(self._menu_up())} action={self._at_action_menu()} "
                  f"moves={self._at_move_list()})")
-        if self._bag_screen() or self._party_screen():
+        if (self._bag_screen() or self._party_screen()
+                or self._bag_menu_cb2() or self._party_menu_cb2()):
             self.b.press("B", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
         if self._at_action_menu():
             # FORCE FIGHT FIRST (2026-08-04 LIVE, the mid-fight 'Teachy TV / Helix Fossil'
@@ -2620,7 +2656,8 @@ class BattleAgent:
             # STRAY-BAG RESCUE: the A opened the BAG/party anyway (the byte lied or the write
             # missed) — B out once, re-force FIGHT, re-open. One bounded lap, never a loop;
             # a still-open bag after this falls through to the verify loop's failure branch.
-            if self._bag_screen() or self._party_screen():
+            if (self._bag_screen() or self._party_screen()
+                    or self._bag_menu_cb2() or self._party_menu_cb2()):
                 self.log("   [engine] STREAM COMMIT: A opened the BAG/PARTY instead of FIGHT "
                          "(parked action cursor) — B out + re-forcing FIGHT")
                 self.b.press("B", self.hold, self.hold, self.render, owner=self.owner)
