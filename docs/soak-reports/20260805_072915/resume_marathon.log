@@ -1,9 +1,15 @@
-resume_marathon 20260805_061720  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260805_072915  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
-Already up to date.
+From https://github.com/JonathanDunkleberger/Kira_AI
+   8828803..5c94cc6  main       -> origin/main
+Updating 8828803..5c94cc6
+Fast-forward
+ pokemon_agent/campaign.py        | 240 ++++++++++++++++++++++++++++++++++++---
+ pokemon_agent/recon_lap_check.py | 144 ++++++++++++++++++++++-
+ 2 files changed, 367 insertions(+), 17 deletions(-)
 
-running commit: 265a17e report(soak): 20260804_161942 inventory/rescue (auto from resume_marathon.ps1)
+running commit: 5c94cc6 Break the Cinnabar<->Route-20 lap loop + THE BOX FLOW: bench-deposit so the birds get seats
 == crash forensics ==
 == logs\debug listing (newest 25) ==
 
@@ -219,25 +225,3 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 >> no PROMOTE_TARGET.txt -- defaulting to CANONICAL launch (canonical save as-is).
 == push soak report (this can take ~30s; console stays quiet on purpose) ==
 == push soak report ==
-[main 8828803] report(soak): 20260805_061720 inventory/rescue (auto from resume_marathon.ps1)
- 10 files changed, 4639 insertions(+)
- create mode 100644 docs/soak-reports/20260805_061720/canonical_health.json
- create mode 100644 docs/soak-reports/20260805_061720/engine_tail.log
- create mode 100644 docs/soak-reports/20260805_061720/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260805_061720/resume_marathon.log
- create mode 100644 docs/soak-reports/20260805_061720/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260805_061720/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260805_061720/tail_console_2026-08-04_16-19-50.log
- create mode 100644 docs/soak-reports/20260805_061720/tail_supervisor_playlive_2026-08-04_15-32-12.log
- create mode 100644 docs/soak-reports/20260805_061720/tail_supervisor_playlive_2026-08-04_16-20-43.log
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:436 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   265a17e..8828803  main -> main
-
-push soak report finished (see log if git complained).
-done (-NoLaunch).
