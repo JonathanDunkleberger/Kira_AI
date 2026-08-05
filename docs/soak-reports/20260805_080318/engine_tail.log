@@ -1,0 +1,530 @@
+===== playlive_2026-08-05_07-31-11.log =====
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] MAP TRANSITION (3, 38) -> (3, 8)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 8) coords=(23, 7)
+   [travel] start map=(3, 8) coords=(23, 7) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] step 0: (23, 7)->(22, 7) map=(3, 8) (path 15 to exit)
+   [travel] step 10: (18, 12)->(17, 12) map=(3, 8) (path 5 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(12, 5) (path 10 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(12, 5) (path 10 to exit)
+   [travel] step 10: (8, 7)->(7, 7) map=(12, 5) (path 2 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(12, 5) (path 10 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(12, 5) (path 10 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (19, 12) (budget 300s, surf-capable)
+   [travel] step 0: (14, 12)->(15, 12) map=(3, 8) (path 6 to exit)
+   [travel] reached target coord (19, 12)
+   [travel] start map=(12, 7) coords=(2, 5) -> coord (4, 6) (budget 60s, surf-capable)
+   [travel] step 0: (2, 5)->(3, 5) map=(12, 7) (path 4 to exit)
+   [travel] reached target coord (4, 6)
+   [travel] start map=(3, 8) coords=(19, 12) -> coord (14, 12) (budget 300s, surf-capable)
+   [travel] step 0: (19, 12)->(18, 12) map=(3, 8) (path 6 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(3, 8) coords=(19, 12) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (19, 12)->(20, 12) map=(3, 8) (path 21 to exit)
+   [travel] step 10: (20, 5)->(19, 5) map=(3, 8) (path 11 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.68s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF EDGE-MOUNT at (15, 0) facing N (map (3, 8)) — crossing the sea edge mounted
+   [travel] MAP TRANSITION (3, 8) -> (3, 40)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 40) coords=(15, 49)
+   [travel] start map=(3, 40) coords=(15, 49) -> map (3, 39) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 40) (path 50 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (dex_push) — tentacool: weaken+balls, never KO
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+   [travel] battle outcome=caught; resuming pathfind
+   [travel] step 20: (14, 34)->(14, 33) map=(3, 40) (path 35 to exit)
+   [travel] step 30: (14, 24)->(14, 23) map=(3, 40) (path 25 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 40) coords=(15, 15) elapsed=74s
+   [travel] step 40: (15, 15)->(15, 14) map=(3, 40) (path 16 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.52s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.67s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 13) -> (15, 12) (map (3, 40))
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — tentacool: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (tentacool) to chip it into the catchable band
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] catch: chipper switch didn't confirm — falling back to the full-HP throw (fail-safe)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] catch_now unresolved (fled) — LAW order KEPT for retry
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] MAP TRANSITION (3, 40) -> (3, 39)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] ARRIVED at target map (3, 39) coords=(15, 49)
+   [travel] start map=(3, 39) coords=(15, 49) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] releasing 1 stale NPC block(s) [(15, 48)] — tile(s) read empty now (wanderer moved on)
+   [travel] MAP TRANSITION (3, 39) -> (3, 40)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 40) coords=(15, 0)
+   [travel] start map=(3, 40) coords=(15, 0) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (15, 0)->(15, 1) map=(3, 40) (path 50 to exit)
+   [travel] step 10: (15, 10)->(15, 11) map=(3, 40) (path 40 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 17) -> (15, 18) (map (3, 40))
+   [travel] step 20: (15, 20)->(15, 21) map=(3, 40) (path 31 to exit)
+   [travel] step 30: (14, 29)->(14, 30) map=(3, 40) (path 21 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 40) coords=(14, 38) elapsed=13s
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — tentacool: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 1 (lapras) to chip it into the catchable band
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] catch: chipper switch didn't confirm — falling back to the full-HP throw (fail-safe)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] catch_now unresolved (fled) — LAW order KEPT for retry
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] step 50: (14, 45)->(14, 46) map=(3, 40) (path 5 to exit)
+   [travel] MAP TRANSITION (3, 40) -> (3, 8)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 8) coords=(14, 0)
+   [travel] start map=(3, 8) coords=(14, 0) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] step 0: (14, 0)->(14, 1) map=(3, 8) (path 27 to exit)
+   [travel] step 10: (17, 7)->(17, 8) map=(3, 8) (path 17 to exit)
+   [travel] step 20: (20, 12)->(19, 12) map=(3, 8) (path 7 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(12, 5) (path 10 to exit)
+   [travel] step 10: (7, 8)->(7, 7) map=(12, 5) (path 2 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (14, 12)->(15, 12) map=(3, 8) (path 26 to exit)
+   [travel] step 10: (21, 9)->(21, 8) map=(3, 8) (path 16 to exit)
+   [travel] step 20: (16, 4)->(16, 3) map=(3, 8) (path 6 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.68s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF EDGE-MOUNT at (15, 0) facing N (map (3, 8)) — crossing the sea edge mounted
+   [travel] MAP TRANSITION (3, 8) -> (3, 40)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 40) coords=(15, 49)
+   [travel] start map=(3, 40) coords=(15, 49) -> map (3, 39) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 40) (path 50 to exit)
+   [travel] step 10: (15, 39)->(14, 39) map=(3, 40) (path 41 to exit)
+   [travel] step 20: (14, 30)->(14, 29) map=(3, 40) (path 31 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — tentacool: weaken+balls, never KO
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] creator catch_now order CLEARED (fulfilled/released)
+   [play-live]    [engine] creator catch_now order CLEARED (fulfilled/released)
+   [travel] battle outcome=caught; resuming pathfind
+   [travel] HEARTBEAT step=40 map=(3, 40) coords=(15, 15) elapsed=60s
+   [travel] step 40: (15, 15)->(15, 14) map=(3, 40) (path 16 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 13) -> (15, 12) (map (3, 40))
+   [travel] step 50: (15, 5)->(15, 4) map=(3, 40) (path 6 to exit)
+   [travel] MAP TRANSITION (3, 40) -> (3, 39)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] ARRIVED at target map (3, 39) coords=(15, 49)
+   [travel] start map=(3, 39) coords=(15, 49) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] MAP TRANSITION (3, 39) -> (3, 40)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 40) coords=(15, 0)
+   [travel] start map=(3, 40) coords=(15, 0) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (15, 0)->(15, 1) map=(3, 40) (path 50 to exit)
+   [travel] step 10: (15, 10)->(15, 11) map=(3, 40) (path 40 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.51s (sink 1ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 1ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 17) -> (15, 18) (map (3, 40))
+   [travel] step 20: (15, 20)->(15, 21) map=(3, 40) (path 31 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L61 vs L8 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 26/26 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [travel] battle outcome=win; resuming pathfind
+   [travel] step 30: (14, 25)->(14, 26) map=(3, 40) (path 25 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 40) coords=(14, 35) elapsed=34s
+   [travel] step 40: (14, 35)->(14, 36) map=(3, 40) (path 15 to exit)
+   [travel] step 50: (14, 45)->(14, 46) map=(3, 40) (path 5 to exit)
+   [travel] MAP TRANSITION (3, 40) -> (3, 8)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 8) coords=(14, 0)
+   [travel] start map=(3, 8) coords=(14, 0) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] step 0: (14, 0)->(14, 1) map=(3, 8) (path 27 to exit)
+   [travel] step 10: (17, 7)->(17, 8) map=(3, 8) (path 17 to exit)
+   [travel] step 20: (20, 12)->(19, 12) map=(3, 8) (path 7 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(12, 5) (path 10 to exit)
+   [travel] step 10: (8, 7)->(7, 7) map=(12, 5) (path 2 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (19, 12) (budget 300s, surf-capable)
+   [travel] step 0: (14, 12)->(15, 12) map=(3, 8) (path 6 to exit)
+   [travel] reached target coord (19, 12)
+   [travel] start map=(12, 7) coords=(2, 5) -> coord (4, 6) (budget 60s, surf-capable)
+   [travel] step 0: (2, 5)->(3, 5) map=(12, 7) (path 4 to exit)
+   [travel] reached target coord (4, 6)
+   [travel] start map=(3, 8) coords=(19, 12) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (19, 12)->(20, 12) map=(3, 8) (path 21 to exit)
+   [travel] step 10: (20, 5)->(19, 5) map=(3, 8) (path 11 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 1ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF EDGE-MOUNT at (15, 0) facing N (map (3, 8)) — crossing the sea edge mounted
+   [travel] MAP TRANSITION (3, 8) -> (3, 40)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 40) coords=(15, 49)
+   [travel] start map=(3, 40) coords=(15, 49) -> map (3, 39) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 40) (path 50 to exit)
+   [travel] step 10: (15, 39)->(14, 39) map=(3, 40) (path 41 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L61 vs L9 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 28/28 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [travel] battle outcome=win; resuming pathfind
+   [travel] step 30: (14, 24)->(14, 23) map=(3, 40) (path 25 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 40) coords=(15, 15) elapsed=29s
+   [travel] step 40: (15, 15)->(15, 14) map=(3, 40) (path 16 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 13) -> (15, 12) (map (3, 40))
+   [travel] step 50: (15, 5)->(15, 4) map=(3, 40) (path 6 to exit)
+   [travel] MAP TRANSITION (3, 40) -> (3, 39)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] ARRIVED at target map (3, 39) coords=(15, 49)
+   [travel] start map=(3, 39) coords=(15, 49) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 39) (path 55 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 41) -> (15, 40) (map (3, 39))
+   [travel] step 10: (15, 39)->(15, 38) map=(3, 39) (path 45 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L61 vs L10 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 29/29 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [travel] battle outcome=win; resuming pathfind
+   [travel] step 20: (13, 35)->(13, 34) map=(3, 39) (path 39 to exit)
+   [travel] step 30: (13, 25)->(13, 24) map=(3, 39) (path 29 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 39) coords=(13, 15) elapsed=36s
+   [travel] step 40: (13, 15)->(13, 14) map=(3, 39) (path 19 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (dex_push) — tangela: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 1 (lapras) to chip it into the catchable band
+   [play-live]    [engine] switch: target party slot 1 sp=131 -> menu row 1
+   [play-live]    [engine] switch: SWITCHED to species 131 (slot 1)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+===== playlive_2026-08-04_16-20-43.log =====
+   [travel] start map=(3, 40) coords=(16, 49) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+   [travel] releasing 1 stale NPC block(s) [(16, 48)] — tile(s) read empty now (wanderer moved on)
+   [travel] MAP TRANSITION (3, 40) -> (3, 8)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 8) coords=(16, 0)
+   [travel] start map=(3, 8) coords=(16, 0) -> coord (14, 12) (budget 300s, surf-capable)
+   [travel] step 0: (16, 0)->(16, 1) map=(3, 8) (path 25 to exit)
+   [travel] step 10: (18, 8)->(19, 8) map=(3, 8) (path 15 to exit)
+   [travel] step 20: (18, 12)->(17, 12) map=(3, 8) (path 5 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(3, 8) coords=(16, 0) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] MAP TRANSITION (3, 8) -> (3, 40)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 40) coords=(16, 49)
+   [travel] start map=(3, 40) coords=(16, 49) -> map (3, 39) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (16, 49)->(16, 48) map=(3, 40) (path 51 to exit)
+   [travel] step 10: (15, 40)->(15, 39) map=(3, 40) (path 41 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — tentacool: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 4 (lapras) to chip it into the catchable band
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] catch: chipper switch didn't confirm — falling back to the full-HP throw (fail-safe)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] catch_now unresolved (fled) — LAW order KEPT for retry
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] step 30: (14, 25)->(14, 24) map=(3, 40) (path 26 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 40) coords=(15, 16) elapsed=27s
+   [travel] step 40: (15, 16)->(15, 15) map=(3, 40) (path 17 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.28s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.40s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 13) -> (15, 12) (map (3, 40))
+   [travel] step 50: (15, 6)->(15, 5) map=(3, 40) (path 7 to exit)
+   [travel] MAP TRANSITION (3, 40) -> (3, 39)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] ARRIVED at target map (3, 39) coords=(15, 49)
+   [travel] start map=(3, 39) coords=(15, 49) -> map (3, 0) (budget 300s, surf-capable)
+   [travel] north connection band cols: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 24]
+   [travel] step 0: (15, 49)->(15, 48) map=(3, 39) (path 55 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.28s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (15, 41) -> (15, 40) (map (3, 39))
+   [travel] step 10: (15, 39)->(15, 38) map=(3, 39) (path 45 to exit)
+   [travel] step 20: (13, 31)->(13, 30) map=(3, 39) (path 35 to exit)
+   [travel] step 30: (13, 21)->(13, 20) map=(3, 39) (path 25 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — tentacool: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 1 (rattata) to chip it into the catchable band
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] catch: chipper switch didn't confirm — falling back to the full-HP throw (fail-safe)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] catch_now unresolved (fled) — LAW order KEPT for retry
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] HEARTBEAT step=40 map=(3, 39) coords=(13, 15) elapsed=34s
+   [travel] step 40: (13, 15)->(13, 14) map=(3, 39) (path 19 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — tangela: weaken+balls, never KO
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+   [play-live]    [engine] catch no_balls — FLEEING (protect catch target from KO)
+   [play-live]    [engine] catch_now unresolved (no_balls) — LAW order KEPT for retry
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(3, 39) coords=(13, 8) -> map (3, 40) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] releasing 1 stale NPC block(s) [(13, 9)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 0: (13, 8)->(13, 9) map=(3, 39) (path 42 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 2.26s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.66s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (13, 10) -> (13, 11) (map (3, 39))
+   [travel] step 10: (13, 18)->(13, 19) map=(3, 39) (path 32 to exit)
+   [travel] step 20: (13, 28)->(13, 29) map=(3, 39) (path 22 to exit)
+   [travel] step 30: (13, 38)->(13, 39) map=(3, 39) (path 12 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 39) coords=(13, 48) elapsed=12s
+   [travel] step 40: (13, 48)->(13, 49) map=(3, 39) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 39) -> (3, 40)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 40) coords=(13, 0)
+   [travel] start map=(3, 40) coords=(13, 0) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+   [travel] step 0: (13, 0)->(13, 1) map=(3, 40) (path 50 to exit)
+   [travel] step 10: (13, 10)->(13, 11) map=(3, 40) (path 40 to exit)
+   [travel] step 20: (13, 20)->(13, 21) map=(3, 40) (path 30 to exit)
+   [travel] path blocked at (13, 29) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [campaign]    [engine] JUST FIGHT: L61 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [campaign]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs poliwhirl 83/83 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [campaign]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [campaign]    [engine] battle-progress: move resolved
+   [campaign]    [engine] battle-progress: enemy fainted
+   [campaign]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [campaign]    [engine] JUST FIGHT: L61 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [campaign]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 67/67 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [3]Earthquake(p100,pp=9,ref=0,sc=200)
+   [campaign]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [campaign]    [engine] battle-progress: move resolved
+   [campaign]    [engine] battle-progress: enemy fainted
+   [campaign]    [engine] JUST FIGHT: L61 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [campaign]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs seadra 77/77 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=8,ref=0,sc=100)
+   [campaign]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [campaign]    [engine] battle-progress: move resolved
+   [campaign]    [engine] battle-progress: enemy fainted
+   [campaign]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [travel] battle outcome=win; resuming pathfind
+   [travel] HEARTBEAT step=40 map=(3, 40) coords=(13, 32) elapsed=101s
+   [travel] step 40: (13, 32)->(13, 33) map=(3, 40) (path 18 to exit)
+   [travel] step 50: (13, 42)->(13, 43) map=(3, 40) (path 8 to exit)
+   [travel] MAP TRANSITION (3, 40) -> (3, 8)
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 8) coords=(13, 0)
+   [travel] start map=(3, 8) coords=(13, 0) -> coord (14, 12) (budget 120s, surf-capable)
+   [travel] step 0: (13, 0)->(13, 1) map=(3, 8) (path 28 to exit)
+   [travel] step 10: (16, 7)->(17, 7) map=(3, 8) (path 18 to exit)
+   [travel] step 20: (21, 12)->(20, 12) map=(3, 8) (path 8 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(12, 5) coords=(7, 4) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(1, 4), (7, 2), (9, 6), (11, 5), (14, 6)] -> approaching to interact/trigger
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (13, 0) (budget 120s, surf-capable)
+   [travel] step 0: (14, 12)->(15, 12) map=(3, 8) (path 28 to exit)
+   [travel] step 10: (21, 9)->(21, 8) map=(3, 8) (path 18 to exit)
+   [travel] step 20: (16, 4)->(16, 3) map=(3, 8) (path 8 to exit)
+   [travel] reached target coord (13, 0)
+   [travel] start map=(3, 8) coords=(13, 0) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] step 0: (13, 0)->(13, 1) map=(3, 8) (path 19 to exit)
+   [travel] step 10: (16, 7)->(17, 7) map=(3, 8) (path 9 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.29s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.41s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (22, 7) -> (23, 7) (map (3, 8))
+   [travel] MAP TRANSITION (3, 8) -> (3, 38)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 38) coords=(0, 7)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 8) (budget 120s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] MAP TRANSITION (3, 38) -> (3, 8)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 8) coords=(23, 7)
+   [travel] start map=(3, 8) coords=(23, 7) -> map (3, 38) (budget 120s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] step 0: (23, 7)->(0, 7) map=(3, 8) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 8) -> (3, 38)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 38) coords=(0, 7)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] MAP TRANSITION (3, 38) -> (3, 8)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 8) coords=(23, 7)
+   [travel] start map=(3, 8) coords=(23, 7) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] step 0: (23, 7)->(0, 7) map=(3, 8) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 8) -> (3, 38)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 38) coords=(0, 7)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 8) (budget 120s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off

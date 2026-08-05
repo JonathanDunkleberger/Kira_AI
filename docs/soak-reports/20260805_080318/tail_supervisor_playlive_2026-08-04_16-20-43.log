@@ -1,0 +1,1500 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 7ms]
+
+   [travel] HEARTBEAT step=40 map=(3, 39) coords=(13, 15) elapsed=34s
+
+   [travel] step 40: (13, 15)->(13, 14) map=(3, 39) (path 19 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against tangela — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this tangela. weaken, don't KO."
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — tangela: weaken+balls, never KO
+
+   [play-live]    [catch] target=tangela L27 hp=100% status=none balls=6 pref=best
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Earthquake est=89% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [catch] EARLY THROW — overkill risk on every move, no sleep/chipper; throwing at 100% HP rather than KO the target
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'no safe way to weaken this one — full-health throw it is. wish me luck.'
+
+   [play-live]    [catch] THROW Poké Ball (x6 left, pref=best) at tangela hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POK. BALL is selected."'  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Poké Ball (x5 left, pref=best) at tangela hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [catch] THROW Poké Ball (x4 left, pref=best) at tangela hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [play-live]    [catch] THROW Poké Ball (x3 left, pref=best) at tangela hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [play-live]    [catch] THROW Poké Ball (x2 left, pref=best) at tangela hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [play-live]    [catch] THROW Poké Ball (x1 left, pref=best) at tangela hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 4 (poké/other ball, pref=best)
+
+   [dialogue] +++ 'POK. BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "POK. BALL is selected."'
+
+   [kira-voice] -> T1·brisk· (event) "I'm out of Poké Balls - I'll come back for this one"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] catch no_balls — FLEEING (protect catch target from KO)
+
+   [play-live]    [engine] catch_now unresolved (no_balls) — LAW order KEPT for retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=no_balls; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+
+   [campaign]    [lap] 'moltres' questline step -> need_heal
+
+   [campaign]    [roam] RESULT: victory_lap -> need_heal | pos (3, 39)(15, 49) -> (3, 39)(13, 8) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick18] -> campaign/kira_campaign.state  (map=(3, 39) coords=(13, 8) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260804_163020_route-21_8b_29h59m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] afflicted by ['poison'] — remembering for a cure run
+
+   [campaign]    [roam] 💊 FIELD CURE: Blastoise is poison and the bag has Antidote — using it NOW (between-battles doctrine)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [cure] field cure: item 14 (bag row 8) -> party slot 0
+
+   [kira-voice] -> T1·brisk· (heal) "hang on — Blastoise is poison and I'm literally carrying the cure. one sec."  fired=True  [age 0.0s + post 10ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (3, 39)@(13, 8) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'ANTIDOTE is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ANTIDOTE is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Use on which POK.MON?"'
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'BLASTOISE was cured of its poisoning. .'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE was cured of its poisoning. ."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [cure] VERIFIED: slot 0 status cleared, item 14 consumed
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T1·brisk· (heal) 'there — Blastoise is back to fighting shape.'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 19/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (13, 8) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 39) (13,8) f1 -- badge8 $35730 party:42c5 bag:4629]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 39)@(13, 8) (reason=frozen_world, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [campaign]    [roam] wedge spot: blocking (13, 9) on (3, 39) (route around it) + marking (13, 8) a resolved talk-spot — unified block memory now 6 tile(s)
+
+   [kira-voice] ·floor· (<1s since last) T2 "I've been stuck on the same spot going nowhere — backing off and trying something different."
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 20/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 21 (13, 8) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 39) (13,8) f1 -- badge8 $35730 party:42c5 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'travel:3,8', 'travel:3,1', 'travel:3,2', 'travel:3,7']
+
+   [campaign]    [lap] !! heal BEFORE the lap leg — a combat dungeon is next; the lap re-forces at full HP
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to the Elite Four.
+
+   [campaign]    HEAL: no local Center mapped for (3, 39) — world-graph routing to Cinnabar Island's Center (multi-hop, fleeing wilds)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 39) coords=(13, 8) -> map (3, 40) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] releasing 1 stale NPC block(s) [(13, 9)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 0: (13, 8)->(13, 9) map=(3, 39) (path 42 to exit)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice] ·floor· (<1s since last) T2 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 2.26s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.66s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF MOUNT at (13, 10) -> (13, 11) (map (3, 39))
+
+   [kira-voice] -> T1·brisk· (beat) "okay — onto the water. Surf's up."  fired=True  [age 0.0s + post 10ms]
+
+   [travel] step 10: (13, 18)->(13, 19) map=(3, 39) (path 32 to exit)
+
+   [travel] step 20: (13, 28)->(13, 29) map=(3, 39) (path 22 to exit)
+
+   [travel] step 30: (13, 38)->(13, 39) map=(3, 39) (path 12 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 39) coords=(13, 48) elapsed=12s
+
+   [travel] step 40: (13, 48)->(13, 49) map=(3, 39) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 39) -> (3, 40)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 40) coords=(13, 0)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 40) coords=(13, 0) -> map (3, 8) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+
+   [travel] step 0: (13, 0)->(13, 1) map=(3, 40) (path 50 to exit)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 75ms]
+
+   [travel] step 10: (13, 10)->(13, 11) map=(3, 40) (path 40 to exit)
+
+   [travel] step 20: (13, 20)->(13, 21) map=(3, 40) (path 30 to exit)
+
+   [dialogue] +++ 'Ahh! Feel the sun and the wind!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Ahh! Feel the sun and the wind!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (13, 29) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against poliwhirl — your blastoise is up front'  fired=True  [age 0.0s + post 9ms]
+
+   [campaign]    [engine] JUST FIGHT: L61 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [campaign]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs poliwhirl 83/83 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+
+   [campaign]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [campaign]    [engine] battle-progress: move resolved
+
+   [campaign]    [order] creator order expired (30m TTL) — released
+
+   [campaign]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's poliwhirl fainted — your blastoise took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out tentacool'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [engine] JUST FIGHT: L61 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [campaign]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 67/67 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [3]Earthquake(p100,pp=9,ref=0,sc=200)
+
+   [campaign]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+
+   [campaign]    [engine] battle-progress: move resolved
+
+   [campaign]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's tentacool fainted — your blastoise took it down"  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out seadra'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [engine] JUST FIGHT: L61 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [campaign]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs seadra 77/77 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=8,ref=0,sc=100)
+
+   [campaign]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [campaign]    [engine] battle-progress: move resolved
+
+   [campaign]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's seadra went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+
+   [dialogue] +++ 'Yow! I lost!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Yow! I lost!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] HEARTBEAT step=40 map=(3, 40) coords=(13, 32) elapsed=101s
+
+   [travel] step 40: (13, 32)->(13, 33) map=(3, 40) (path 18 to exit)
+
+   [travel] step 50: (13, 42)->(13, 43) map=(3, 40) (path 8 to exit)
+
+   [travel] MAP TRANSITION (3, 40) -> (3, 8)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 8) coords=(13, 0)
+
+   [campaign]    HEAL: lead at 95/188 -> routing to the Pokemon Center on (3, 8) via door (14, 11) (will return to (13, 0))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 2ms]
+
+   [travel] start map=(3, 8) coords=(13, 0) -> coord (14, 12) (budget 120s, surf-capable)
+
+   [travel] step 0: (13, 0)->(13, 1) map=(3, 8) (path 28 to exit)
+
+   [travel] step 10: (16, 7)->(17, 7) map=(3, 8) (path 18 to exit)
+
+   [travel] step 20: (21, 12)->(20, 12) map=(3, 8) (path 8 to exit)
+
+   [travel] reached target coord (14, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "Thank you for waiting. We've restored your POK.MON to full health."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Thank you for waiting. We\'ve restored your POK.MON to full health."'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    HEAL: restored party to full (lead was 95/188)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(12, 5) coords=(7, 4) -> coord (7, 7) (budget 60s, surf-capable)
+
+   [travel] path blocked at (7, 4) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'We hope to see you again!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "We hope to see you again!"'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] no clean path from (7, 4); NPC-allowing path EXISTS (len 4), blocker NPC tile=None, npcs nearby=[(1, 4), (7, 2), (9, 6), (11, 5), (14, 6)] -> approaching to interact/trigger
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    EXIT-BUILDING: (12, 5) -> (3, 8)@(14, 12)
+
+   [campaign]    HEAL: exited Center -> map=(3, 8) coords=(14, 12)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (13, 0) (budget 120s, surf-capable)
+
+   [travel] step 0: (14, 12)->(15, 12) map=(3, 8) (path 28 to exit)
+
+   [travel] step 10: (21, 9)->(21, 8) map=(3, 8) (path 18 to exit)
+
+   [travel] step 20: (16, 4)->(16, 3) map=(3, 8) (path 8 to exit)
+
+   [travel] reached target coord (13, 0)
+
+   [campaign]    HEAL: returned toward (13, 0) -> arrived (now (13, 0))
+
+   [campaign]    [roam] RESULT: heal -> ok | pos (3, 39)(13, 8) -> (3, 8)(13, 0) (MOVED)
+
+   [kira-voice] -> T2·savor· (heal) "okay — patched up and ready. let's go."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 8) coords=(13, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_163335_cinnabar-island_8b_30h02m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 40) toward Route 21 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 21/100000000 --
+
+   [campaign]    [roam] STATE IN: Cinnabar Island (13, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 8) (13,0) f3 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'travel:3,5']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 8) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Cinnabar Island -> Fuchsia City (next hop east -> Route 20)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(13, 0) -> map (3, 38) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] step 0: (13, 0)->(13, 1) map=(3, 8) (path 19 to exit)
+
+   [travel] step 10: (16, 7)->(17, 7) map=(3, 8) (path 9 to exit)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 10ms]
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.29s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.41s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF MOUNT at (22, 7) -> (23, 7) (map (3, 8))
+
+   [kira-voice] -> T1·brisk· (beat) "okay — onto the water. Surf's up."  fired=True  [age 0.0s + post 4ms]
+
+   [travel] MAP TRANSITION (3, 8) -> (3, 38)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 38) coords=(0, 7)
+
+   [kira-voice] ·floor· (<1s since last) T1 'made it to a new area'
+
+   [campaign]    [roam] RESULT: victory_lap -> hop_ok | pos (3, 8)(13, 0) -> (3, 38)(0, 7) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_163345_route-20_8b_30h02m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 22/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'Reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Reach Mt. Ember summit and catch Moltres'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick22] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 23/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 10ms]
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 24/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick24] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 25/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember and catch Moltres'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember and catch Moltres'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 26/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick26] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 27/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 28/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="reach Cinnabar Island, get Bill's ferry, summit Mt. Ember for Moltres"
+
+   [campaign]    [soul] ORACLE pick -> "reach Cinnabar Island, get Bill's ferry, summit Mt. Ember for Moltres"
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'travel:no_path', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (want) "reach Cinnabar Island, get Bill's ferry, summit Mt. Ember for Moltres"  fired=True  [age 0.0s + post 7ms]
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick28] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 29/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 7 turns - it went 'travel:no_path', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 30/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [kira-voice] -> T2·savor· (recover) "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    HEAL: unmapped (3, 38) — ADJACENT city Cinnabar Island (W) has a registered Center; one-edge heal excursion
+
+   [campaign]    HEAL-EXCURSION: lead at (188, 188) - crossing west to (3, 8) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 8) (budget 120s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] MAP TRANSITION (3, 38) -> (3, 8)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 8) coords=(23, 7)
+
+   [kira-voice] ·floor· (<1s since last) T1 'made it to a new area'
+
+   [campaign]    HEAL: whole party already full - skipping
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(23, 7) -> map (3, 38) (budget 120s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] step 0: (23, 7)->(0, 7) map=(3, 8) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 8) -> (3, 38)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 38) coords=(0, 7)
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'made it to a new area'
+
+   [campaign]    HEAL-EXCURSION: healed + back on (3, 38) at (0, 7)
+
+   [campaign]    [roam] !! HARD RECOVERY was a no-op (healed + returned to the same tile) — breaking the position ONE-WAY to an adjacent Center city
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 8) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] MAP TRANSITION (3, 38) -> (3, 8)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 8) coords=(23, 7)
+
+   [campaign]    [roam] one-way position break west -> (3, 8): arrived
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 8) coords=(23, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_163411_cinnabar-island_8b_30h03m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 5 warp(s) on (3, 8): (8, 3)->(1, 59), (20, 4)->(12, 0), (8, 9)->(12, 1), (14, 11)->(12, 5), (19, 11)->(12, 7)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 40) toward Route 21 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 31/100000000 --
+
+   [campaign]    [roam] STATE IN: Cinnabar Island (23, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 8) (23,7) f3 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'travel:3,5', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Cinnabar Island
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Cinnabar Island — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 8), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='catch Moltres on Mt. Ember before the Elite Four'
+
+   [campaign]    [soul] ORACLE pick -> 'catch Moltres on Mt. Ember before the Elite Four'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'catch Moltres on Mt. Ember before the Elite Four'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 8) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Cinnabar Island -> Fuchsia City (next hop east -> Route 20)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 8) coords=(23, 7) -> map (3, 38) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] step 0: (23, 7)->(0, 7) map=(3, 8) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 8) -> (3, 38)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 38) coords=(0, 7)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: victory_lap -> hop_ok | pos (3, 8)(23, 7) -> (3, 38)(0, 7) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260804_163415_route-20_8b_30h03m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 32/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick32] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 33/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 34/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Moltres on Mt. Ember before the Elite Four'
+
+   [campaign]    [soul] ORACLE pick -> 'Moltres on Mt. Ember before the Elite Four'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (want) 'Moltres on Mt. Ember before the Elite Four'  fired=True  [age 0.0s + post 9ms]
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick34] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 35/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 36/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick36] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 37/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L61), rattata (L19), abra the kadabra (L19), diglett (L18), lapras (L25), pidgey (L3)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="Get to Cinnabar, then Bill's ferry, then Moltres"
+
+   [campaign]    [soul] ORACLE pick -> "Get to Cinnabar, then Bill's ferry, then Moltres"
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) "Get to Cinnabar, then Bill's ferry, then Moltres"  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 38/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'travel:no_path', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick38] -> campaign/kira_campaign.state  (map=(3, 38) coords=(0, 7) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 39/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,8', 'travel:3,7', 'travel:3,1', 'travel:3,2', 'use_surf']
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 7 turns - it went 'travel:no_path', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'moltres' is owed but the ball pocket is thin (0 spendable, need 6) — the lap restocks BEFORE the hunt
+
+   [campaign]    [lap] no ball shelf here (3, 38) — marching to (3, 7) for the restock
+
+   [campaign]    [roam] TRAVEL: Route 20 -> Fuchsia City (next hop east -> Route 19)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (0, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (0, 7) AND no NPC-allowing path (npcs nearby=[(-9, 6), (8, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 7) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 38)(0, 7) -> (3, 38)(0, 7) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 40/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (0, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, rattata L19, kadabra L19, diglett L18, lapras L25, pidgey L3] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 14 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(3, 38) (0,7) f4 -- badge8 $35858 party:63f2 bag:4629]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [kira-voice] -> T2·savor· (recover) "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    HEAL: unmapped (3, 38) — ADJACENT city Cinnabar Island (W) has a registered Center; one-edge heal excursion
+
+   [campaign]    HEAL-EXCURSION: lead at (188, 188) - crossing west to (3, 8) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(0, 7) -> map (3, 8) (budget 120s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 841s, restart 1/8) — GAME CONTINUES; respawning audio.
+

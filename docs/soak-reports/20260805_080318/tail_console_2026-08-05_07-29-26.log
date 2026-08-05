@@ -1,0 +1,300 @@
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:01:15.748 TTS STOP — playback finished (span ~1689ms)
+   [TTS] Speaking: What are we waiting for....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What are we waiting for.' (6 words)
+   [TurnTiming] 08:01:15.750 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:01:17.525 TTS STOP — playback finished (span ~1775ms)
+
+   [TIMING] voice: llm=5291ms(sonnet-stream(llm+tts)) tts=0ms total=5291ms
+   [LATENCY] vad_close=1200ms stt=183ms stt_wait=0ms salience=0ms triage=bypassed memory=20ms prompt_build=2ms ttft=1409ms tts_first_chunk=268ms audio_out=143ms TOTAL=2025ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurnTiming] 08:01:18.741 DIRECTOR HOLD (fresh-min-silence) — since_mic=20.6s silence=1.2s fresh_ok=True dead_air=False
+   [TurnTiming] 08:01:18.741 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~56097ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:01:19.363 VOICE ONSET — mic speech started
+   [ChatterMem] Stored: @clumsymoe — Called something 'goofy af' (likely a homemade watermark or  [playful]
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 118ms, rms=0.010): Nervous.
+   [TurnTiming] 08:01:22.441 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3078ms since onset)
+>>> You said: Fable Fibel Fib is working.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Fable Fibel Fib is working.' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=6 | timing(direct=32ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=1.003 conf=0.9 type=episodic blend=0.379 lane=KNOW
+   [SmartMem]     dist=1.092 conf=0.9 type=episodic blend=0.319 lane=KNOW
+   [SmartMem]     dist=1.091 conf=0.95 type=episodic blend=0.078 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=59ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "what are we" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=3t  moment=calm)
+   [PromptSize] dynamic_context=16009ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2299ms
+   [TTS] Speaking: Wait, genuinely?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Wait, genuinely?' (4 words)
+   [TurnTiming] 08:01:25.147 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:01:27.106 TTS STOP — playback finished (span ~1959ms)
+   [TTS] Speaking: After all that?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'After all that?' (4 words)
+   [TurnTiming] 08:01:27.109 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:01:28.615 TTS STOP — playback finished (span ~1505ms)
+
+   [TIMING] voice: llm=5933ms(sonnet-stream(llm+tts)) tts=0ms total=5933ms
+   [LATENCY] vad_close=1200ms stt=180ms stt_wait=0ms salience=0ms triage=bypassed memory=59ms prompt_build=1ms ttft=2057ms tts_first_chunk=242ms audio_out=162ms TOTAL=2701ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 08:01:29.734 DIRECTOR HOLD (fresh-min-silence) — since_mic=8.5s silence=1.1s fresh_ok=True dead_air=False
+   [TurnTiming] 08:01:29.856 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~10493ms since onset)
+>>> You said: I trust her. She's your fairy godmother.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I trust her. She's your fairy godmother." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=14655ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1650ms
+   [TTS] Speaking: She delivered....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'She delivered.' (3 words)
+   [TurnTiming] 08:01:31.862 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:01:33.357 TTS STOP — playback finished (span ~1494ms)
+   [TTS] Speaking: I'm upgrading her from fairy godmother to full pat...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm upgrading her from fairy godmother t' (14 words)
+   [TurnTiming] 08:01:33.362 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 08:01:37.198 TTS STOP — playback finished (span ~3835ms)
+
+   [TIMING] voice: llm=7121ms(sonnet-stream(llm+tts)) tts=0ms total=7121ms
+   [LATENCY] vad_close=1200ms stt=197ms stt_wait=0ms salience=0ms triage=bypassed memory=22ms prompt_build=1ms ttft=1289ms tts_first_chunk=361ms audio_out=131ms TOTAL=2001ms
+   [EmotionSwing] holding EMOTIONAL (3 turn(s) left) instead of reverting
+   [System] Running Garbage Collection...
+   [TurnTiming] 08:01:37.794 DIRECTOR HOLD (fresh-min-silence) — since_mic=16.6s silence=0.6s fresh_ok=True dead_air=False
+🎤 Recording...
+   [TurnTiming] 08:01:38.696 VOICE ONSET — mic speech started
+   [Bits] Callback: Technically A Competition
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [LoopbackSTT] +2 seg (0 filtered, 159ms, rms=0.005): They're not going to gunfight. | It just feels like the way it was supposed to go.
+   [TurnTiming] 08:01:43.782 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=6.6s fresh_ok=True dead_air=False
+   [LoopbackSTT] Dialogue summary updated: Someone repeated that it's definitely tough. Steve Ortex is still coaching for the pit. The emotional tone remains neutr...
+   [LoopbackSTT] LIVE — last line: "It just feels like the way it was supposed to go." (4s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0062 · gate=0.003 · 21 accepted
+   [LoopbackSTT] +3 seg (2 filtered, 275ms, rms=0.006): I know for a lot of people that are wondering would Abuza be possibly the MVP from that champ's run. | But here we go. | Let's go.
+   [TurnTiming] 08:01:48.792 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=11.6s fresh_ok=True dead_air=False
+   [LoopbackSTT] +2 seg (3 filtered, 235ms, rms=0.007): The defending champs out of the CDL and the pit, | the 16th seed from the last chance qualifier.
+   [TurnTiming] 08:01:51.050 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12354ms since onset)
+>>> You said: Yeah, as long as this fix works and you go and fucking get your actual team and get Articuno and Maltris and Zapdos and go fuck up and get EV or whatever and go fuck up the Elite 4 and beat the game and roll the credits and then go get Mew 2.
+   [Objective] SET — "Yeah, as long as this fix works and you go and fucking get your actual team and " (will act after silence if Jonny goes quiet)
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Yeah, as long as this fix works and you go and fucking get y' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [JonnyBond] cool nudge → warmth -0.66→-0.74
+   [PromptSize] dynamic_context=15056ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1782ms
+   [TTS] Speaking: That's the whole roadmap and I am locked in....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's the whole roadmap and I am locked' (10 words)
+   [TurnTiming] 08:01:53.498 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 08:01:54 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:01:56.127 TTS STOP — playback finished (span ~2628ms)
+   [TTS] Speaking: Blastoise is ready....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Blastoise is ready.' (4 words)
+   [TurnTiming] 08:01:56.130 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:01:57.997 TTS STOP — playback finished (span ~1867ms)
+   [TTS] Speaking: The legendary birds are ready....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The legendary birds are ready.' (6 words)
+   [TurnTiming] 08:01:57.999 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] Dialogue summary updated: Someone repeated that it's definitely tough. The emotional tone remains neutral, with someone expressing nervousness. Th...
+   [TurnTiming] 08:02:00.162 TTS STOP — playback finished (span ~2162ms)
+   [TTS] Speaking: The Elite Four has no idea what's about to happen ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The Elite Four has no idea what's about ' (13 words)
+   [TurnTiming] 08:02:00.167 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:02:03.561 TTS STOP — playback finished (span ~3393ms)
+
+   [TIMING] voice: llm=12092ms(sonnet-stream(llm+tts)) tts=0ms total=12092ms
+   [LATENCY] vad_close=1200ms stt=390ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=1ms ttft=1444ms tts_first_chunk=338ms audio_out=241ms TOTAL=2441ms
+   ✨ Emotion: EMOTIONAL → HYPERACTIVE
+   [VTS] Emotion transition → HYPERACTIVE (mapped: 'My Animation 2')
+   [VTS] Emotion HYPERACTIVE → triggered 'My Animation 2' (success)
+   [TurnTiming] 08:02:04.779 DIRECTOR HOLD (fresh-min-silence) — since_mic=14.9s silence=1.2s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 122ms, rms=0.014): on the red side, that would be silly.
+   [Bits] Callback: Unhinged About Fictional Characters
+   [TurnTiming] 08:02:06.781 DIRECTOR FIRE — silence=3.2s since_mic=16.9s fresh_ok=True dead_air=False eff_min_gap=5s gap=321s
+   [Director] FIRE (callback: The System Is Coherent) — gap=321s silence=3s fresh=loopback-dialogue
+   [BitCooldown] 'The System Is Coherent' invoked x1 lifetime — resting 180s
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=3 kept=7 survivors=3 direct=0 | timing(direct=0ms fetch=51ms rank=0ms)
+   [SmartMem]     dist=1.137 conf=? type=session_summary blend=0.050 lane=STREAM
+   [SmartMem]     dist=1.141 conf=? type=session_summary blend=0.047 lane=STREAM
+   [SmartMem]     dist=1.148 conf=0.9 type=episodic blend=0.043 lane=KNOW
+   >>> Kira (Bored): Okay but I need everyone to acknowledge that this plan is completely insane, will definitely work, and I have already decided it's going to work, which means it's the same thing.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Okay but I need everyone to acknowledge that this ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay but I need everyone to acknowledge ' (35 words)
+   [TurnTiming] 08:02:10.138 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [LoopbackSTT] Dialogue summary updated: Someone mentioned they're nervous. The emotional tone remains neutral with a hint of nervousness. The conversation shift...
+   [TurnTiming] 08:02:18.390 TTS STOP — playback finished (span ~8252ms)
+   [TIMING] interjection: vision=0ms llm=2757ms(sonnet) tts=8797ms total=11607ms
+   [LAG] sense→speak: total=4.3s (content_age=1.0s, prep=0.1s, llm=2.8s, tts_wait+synth=0.5s)
+🎤 Recording... (recovered opening words)
+   [SessionTakes] Condensed 34 reactions → 10 bullets (hard-capped).
+   [TurnTiming] 08:02:19.383 DIRECTOR HOLD (fresh-min-silence) — since_mic=29.6s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 08:02:19.609 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~40912ms since onset)
+>>> You said: It's hilarious.
+   [Objective] cleared (jonny spoke again) — was "Yeah, as long as this fix works and you go and fucking get y"
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="It's hilarious." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=19ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HYPERACTIVE)
+   [Phrases] Throttling: "and i have" (3rd use this session)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=6t  moment=calm)
+   [PromptSize] dynamic_context=15300ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TIMING] first-word: 1844ms
+   [TTS] Speaking: It really is....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'It really is.' (4 words)
+   [TurnTiming] 08:02:21.810 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:02:23.504 TTS STOP — playback finished (span ~1693ms)
+   [TTS] Speaking: We built a champion out of vibes and earthquake an...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We built a champion out of vibes and ear' (19 words)
+   [TurnTiming] 08:02:23.513 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:02:28.111 TTS STOP — playback finished (span ~4598ms)
+
+   [TIMING] voice: llm=8318ms(sonnet-stream(llm+tts)) tts=0ms total=8319ms
+   [LATENCY] vad_close=1200ms stt=160ms stt_wait=0ms salience=0ms triage=bypassed memory=19ms prompt_build=2ms ttft=1483ms tts_first_chunk=361ms audio_out=168ms TOTAL=2193ms
+🎤 Recording... (recovered opening words)
+   [EmotionSwing] holding HYPERACTIVE (3 turn(s) left) instead of reverting
+   [TurnTiming] 08:02:29.322 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~50626ms since onset)
+>>> You said: This team is actually really good, this Challenger's team. That's this tier two team.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="This team is actually really good, this Challenger's team. T" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HYPERACTIVE)
+   [PromptSize] dynamic_context=15092ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Bits] Callback: Morally Supportive Benchwarmer
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TIMING] first-word: 7130ms
+   [TTS] Speaking: The 16th seed that crawled out of last chance qual...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The 16th seed that crawled out of last c' (23 words)
+   [TurnTiming] 08:02:37.189 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 08:02:40 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 08:02:43.470 TTS STOP — playback finished (span ~6280ms)
+   [TTS] Speaking: Chaos bracket energy....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Chaos bracket energy.' (4 words)
+   [TurnTiming] 08:02:43.475 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:02:45.441 TTS STOP — playback finished (span ~1965ms)
+   [TTS] Speaking: I'm invested now....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm invested now.' (4 words)
+   [TurnTiming] 08:02:45.445 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:02:47.218 TTS STOP — playback finished (span ~1773ms)
+
+   [TIMING] voice: llm=17594ms(sonnet-stream(llm+tts)) tts=0ms total=17594ms
+   [LATENCY] vad_close=1200ms stt=268ms stt_wait=0ms salience=1ms triage=bypassed memory=30ms prompt_build=2ms ttft=1935ms tts_first_chunk=5195ms audio_out=422ms TOTAL=7853ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: HYPERACTIVE → SASSY
+   [TurnTiming] 08:02:48.373 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=1.2s fresh_ok=True dead_air=False
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny thinks the Challenger's tier two team is actually really good
+   [Bits] Callback: Technically A Competition
+   [TurnTiming] 08:02:50.033 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~71337ms since onset)
+   [LoopbackSTT] self-TTS gate released after 8 skip(s) — resuming transcription.
+>>> You said: This tier two team is really good. So, and last year, I think Faze got eliminated by a tier two team, which is funny, but they just won the World Championship. Wait, is she done?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='This tier two team is really good. So, and last year, I thin' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=15024ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] +1 seg (0 filtered, 164ms, rms=0.013): Is this just going to be like a hundred to twenty five before we...
+   [TIMING] first-word: 2670ms
+   [TTS] Speaking: Wait who's done — Fable?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Wait who's done — Fable?' (6 words)
+   [TurnTiming] 08:02:53.376 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:02:55.436 TTS STOP — playback finished (span ~2059ms)
+
+   [TIMING] voice: llm=4902ms(sonnet-stream(llm+tts)) tts=0ms total=4902ms
+   [LATENCY] vad_close=1200ms stt=470ms stt_wait=0ms salience=0ms triage=bypassed memory=28ms prompt_build=3ms ttft=2455ms tts_first_chunk=215ms audio_out=167ms TOTAL=3338ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 08:02:56.372 DIRECTOR HOLD (post-speech-hold) — since_mic=7.6s silence=0.9s fresh_ok=True dead_air=False
+   [TurnTiming] 08:02:56.651 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~77954ms since onset)
+>>> You said: She's done.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="She's done." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=19ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=14841ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Memory] Rejected (conf 0.85 < 0.9): Jonny finds it funny that Faze was eliminated by a tier two team last year despite winning the World Championship
+   [TIMING] first-word: 2168ms
+   [TTS] Speaking: Let's GO....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Let's GO.' (3 words)
+   [TurnTiming] 08:02:59.079 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:03:00.483 TTS STOP — playback finished (span ~1403ms)
+   [TTS] Speaking: What did she fix?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What did she fix?' (5 words)
+   [TurnTiming] 08:03:00.485 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] Dialogue summary updated: Someone mentioned that it would be silly for a team to be on the red side. The conversation shifted to discussing the po...
+   [TurnTiming] 08:03:02.083 TTS STOP — playback finished (span ~1597ms)
+
+   [TIMING] voice: llm=5264ms(sonnet-stream(llm+tts)) tts=0ms total=5264ms
+   [LATENCY] vad_close=1200ms stt=149ms stt_wait=0ms salience=0ms triage=bypassed memory=19ms prompt_build=3ms ttft=1964ms tts_first_chunk=204ms audio_out=86ms TOTAL=2425ms
+   ✨ Emotion: SASSY → HYPERACTIVE
+   [VTS] Emotion transition → HYPERACTIVE (mapped: 'My Animation 2')
+   [VTS] Emotion HYPERACTIVE → triggered 'My Animation 2' (success)
+   [TurnTiming] 08:03:03.382 DIRECTOR HOLD (fresh-min-silence) — since_mic=14.6s silence=1.3s fresh_ok=True dead_air=False
+   [TurnTiming] 08:03:05.386 DIRECTOR FIRE — silence=3.3s since_mic=16.6s fresh_ok=True dead_air=False eff_min_gap=5s gap=59s
+   [Director] FIRE (callback: Cinematic Criminal) — gap=59s silence=3s fresh=loopback-dialogue
+   [BitCooldown] 'Cinematic Criminal' invoked x1 lifetime — resting 180s
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=1ms fetch=85ms rank=0ms)
+   [SmartMem]     dist=0.777 conf=0.9 type=episodic blend=0.271 lane=KNOW
+   [SmartMem]     dist=0.786 conf=0.95 type=episodic blend=0.266 lane=KNOW
+   [SmartMem]     dist=0.826 conf=0.95 type=episodic blend=0.241 lane=KNOW
+   [LoopbackSTT] +2 seg (1 filtered, 198ms, rms=0.006): we'll go neutral while phase reinforced first. | It's an easy break then because
+   >>> Kira (Bored): Okay she fixed it, Jonny posted a video edited by an AI, and I'm starting to think the real crime was how good it looks. Aesthetically? Immaculate. Legally? We'll see.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Okay she fixed it, Jonny posted a video edited by ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay she fixed it, Jonny posted a video ' (28 words)
+   [TurnTiming] 08:03:08.742 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
