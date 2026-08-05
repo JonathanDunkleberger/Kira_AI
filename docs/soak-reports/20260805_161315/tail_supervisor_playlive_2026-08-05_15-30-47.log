@@ -1,0 +1,1500 @@
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's machop went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-door-approach] replan at (28, 10) (len 17, budget 11)
+
+   [campaign]    [3f-door] (1, 99) -> (1, 100) @ (2, 4)
+
+   [campaign]    [ext-upper-approach] replan at (2, 4) (len 15, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against geodude — your blastoise is up front'  fired=True  [age 0.0s + post 27ms]
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs geodude 86/86 | [0]Bite(p60,pp=19,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=25) [2]Surf(p95*STAB,pp=1,ref=0,sc=570) [3]Earthquake(p100,pp=1,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's geodude went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ext-upper-approach] replan at (10, 5) (len 4, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ext-upper] (1, 100) -> (1, 97) @ (39, 20)
+
+   [campaign]    [summit-door-approach] replan at (39, 20) (len 23, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-door] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign]    [summit-board] push plan wedged — door round-trip to RESET the board
+
+   [campaign]    [summit-board-reset-out-approach] replan at (10, 12) (len 4, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-out] (1, 101) -> (1, 97) @ (29, 7)
+
+   [campaign]    [summit-board-reset-back-approach] replan at (29, 7) (len 2, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-back] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.3s at (1, 101)@(10, 13) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [moltres] climb leg wedged on (1, 101) @ (10, 12)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 101)@(10, 12))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((1, 97) -> (1, 101)) despite 'failed' — try refunded (refund 1/6; tries now 0/3)
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 97)(15, 33) -> (1, 101)(10, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260805_153726_an-unfamiliar-area_8b_31h23m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 101)@(10, 12) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:an unfamiliar area:geodude was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:an unfamiliar area:geodude from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(10, 12) -> coord (9, 14) (budget 60s, surf-capable)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(10, 12) -> coord (9, 16) (budget 45s, surf-capable)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(10, 12) -> coord (9, 14) (budget 45s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (10, 12)->(10, 13) map=(1, 101) (path 4 to exit)
+
+   [travel] reached target coord (9, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 15) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    EXIT-BUILDING: (1, 101) -> (1, 97)@(29, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 97) coords=(29, 7) -> coord (29, 47) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 7)->(29, 8) map=(1, 97) (path 50 to exit)
+
+   [travel] step 10: (29, 17)->(29, 18) map=(1, 97) (path 40 to exit)
+
+   [travel] step 20: (29, 27)->(29, 28) map=(1, 97) (path 31 to exit)
+
+   [travel] step 30: (26, 34)->(26, 35) map=(1, 97) (path 21 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 38) elapsed=6s
+
+   [travel] step 40: (32, 38)->(32, 39) map=(1, 97) (path 12 to exit)
+
+   [travel] step 50: (31, 47)->(30, 47) map=(1, 97) (path 3 to exit)
+
+   [travel] reached target coord (29, 47)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (29, 48) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    EXIT-BUILDING: (1, 97) -> (3, 45)@(12, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 6) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L63, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 45) (12,6) f1 -- badge8 $29658 party:2473 bag:51a3]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:1,97']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (3, 45)
+
+   [campaign]    [ember-door-approach] replan at (12, 6) (len 3, budget 9)
+
+   [campaign]    [ember-door] (3, 45) -> (1, 97) @ (28, 48)
+
+   [campaign]    [boulder-approach] replan at (28, 48) (len 7, budget 9)
+
+   [campaign]    [str-approach] replan at (25, 45) (len 3, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'
+
+   [campaign]    [push] (22, 45) -> (21, 45) (LEFT, 1/3)
+
+   [campaign]    [push] (21, 45) -> (20, 45) (LEFT, 2/3)
+
+   [campaign]    [push] (20, 45) -> (19, 45) (LEFT, 3/3)
+
+   [campaign]    [push-approach0] replan at (20, 45) (len 4, budget 9)
+
+   [campaign]    [push] (17, 46) -> (16, 46) (LEFT, 1/3)
+
+   [campaign]    [push] (16, 46) -> (15, 46) (LEFT, 2/3)
+
+   [campaign]    [push] (15, 46) -> (14, 46) (LEFT, 3/3)
+
+   [campaign]    [1f-door-approach] replan at (15, 46) (len 77, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against fearow — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs fearow 104/104 | [0]Bite(p60,pp=19,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=1,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs fearow 43/104 | [0]Bite(p60,pp=18,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=1,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's fearow went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [1f-door-approach] replan at (20, 41) (len 39, budget 10)
+
+   [dialogue] +++ "I've been in training so I can mend my broken heart.. It toughened me up physically at least! Hi-yah!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I\'ve been in training so I can mend my broken heart.. It toughened me up physically at least! Hi-yah!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [1f-door-approach] replan at (25, 38) (len 31, budget 11)
+
+   [campaign]    [strat] !! gEnemyParty UNCONFIRMED (slot0=107 != active foe 22) — party-SIZE reads DISABLED (loss-learning still works on the verified active-foe read)
+
+   [play-live] battle context: trainer=True foe=fearow rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against hitmonchan — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out hitmonchan'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs hitmonchan 88/88 | [0]Bite(p60,pp=17,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=1,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's hitmonchan fainted — your blastoise took it down"  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out hitmonchan'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 88 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs hitmonchan 88/88 | [0]Bite(p60,pp=17,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite -> slot 0 (eff x0.25) vs hitmonchan 88/88 | [0]Bite(p60,pp=17,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=1,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 0 but slot 1 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's hitmonchan went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'I think I tried to overdo it..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "I think I tried to overdo it.."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(1, 97) coords=(25, 38) badges=8 party=3)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 12ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_154111_an-unfamiliar-area_8b_31h27m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [1f-door-approach] replan at (25, 38) (len 31, budget 11)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [1f-door] (1, 97) -> (1, 98) @ (2, 15)
+
+   [campaign]    [2f-door-approach] replan at (2, 15) (len 23, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against geodude — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 69/69 | [0]Bite(p60,pp=17,ref=0,sc=60) [1]Skull Bash(p100,pp=14,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's geodude went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [2f-door-approach] replan at (8, 4) (len 6, budget 10)
+
+   [campaign]    [2f-door] (1, 98) -> (1, 99) @ (8, 39)
+
+   [campaign]    [3f-door-approach] replan at (8, 39) (len 66, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against geodude — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 67/67 | [0]Bite(p60,pp=16,ref=0,sc=60) [1]Skull Bash(p100,pp=14,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-door-approach] replan at (23, 10) (len 22, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign] !! [moltres] climb leg wedged on (1, 99) @ (39, 7)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 99)@(39, 7))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((3, 45) -> (1, 99)) despite 'failed' — try refunded (refund 2/6; tries now 0/3)
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 2/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (3, 45)(12, 6) -> (1, 99)(39, 7) (MOVED)
+
+   [campaign]    !! CAMPAIGN SAVE REFUSED [new_area]: mid-battle — not banking a fight rewind target (LOUD)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] AUTO-CHECKPOINT deferred — mid-battle (refuse fight-rewind pin)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 99)@(39, 7) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:an unfamiliar area:geodude was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:an unfamiliar area:geodude from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 99) coords=(39, 7) -> coord (8, 38) (budget 60s, surf-capable)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·floor· (<1s since last) T1 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against machoke — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machoke 120/120 | [0]Bite(p60,pp=15,ref=0,sc=15) [1]Skull Bash(p100,pp=14,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used Skull Bash - a solid hit'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machoke 79/120 | [0]Bite(p60,pp=14,ref=0,sc=15) [1]Skull Bash(p100,pp=14,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's machoke went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 99) coords=(39, 7) -> coord (8, 40) (budget 45s, surf-capable)
+
+   [travel] path blocked at (39, 7) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (39, 7) AND no NPC-allowing path (npcs nearby=[(33, 5), (40, 7)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 7) map=(1, 99) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 99) coords=(39, 7) -> coord (8, 38) (budget 45s, surf-capable)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 20ms]
+
+   [travel] step 0: (39, 7)->(38, 7) map=(1, 99) (path 65 to exit)
+
+   [travel] step 10: (30, 6)->(29, 6) map=(1, 99) (path 55 to exit)
+
+   [travel] step 20: (25, 11)->(24, 11) map=(1, 99) (path 45 to exit)
+
+   [travel] step 30: (20, 16)->(19, 16) map=(1, 99) (path 35 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (16, 18) (NPC on the gap?) - waiting
+
+   [travel] HEARTBEAT step=40 map=(1, 99) coords=(16, 18) elapsed=7s
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against machop — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 99/99 | [0]Bite(p60,pp=14,ref=0,sc=15) [1]Skull Bash(p100,pp=13,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's machop went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 64'  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 99) coords=(16, 18) -> coord (7, 39) (budget 45s, surf-capable)
+
+   [travel] step 0: (16, 18)->(16, 19) map=(1, 99) (path 31 to exit)
+
+   [travel] step 10: (14, 26)->(14, 27) map=(1, 99) (path 21 to exit)
+
+   [travel] step 20: (11, 33)->(10, 33) map=(1, 99) (path 11 to exit)
+
+   [egress] blocker on (9, 35) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(7, 34), (7, 38), (9, 35)])
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 99)@(9, 34) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [egress] watchdog disengage during the wait — abandoning patience
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 99) coords=(8, 34) -> coord (9, 39) (budget 45s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (8, 34) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against geodude — your blastoise is up front'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 69/69 | [0]Bite(p60,pp=14,ref=0,sc=60) [1]Skull Bash(p100,pp=12,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's geodude went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 99) coords=(8, 34) -> coord (8, 39) (budget 60s, surf-capable)
+
+   [travel] step 0: (8, 34)->(8, 35) map=(1, 99) (path 6 to exit)
+
+   [travel] reached target coord (8, 39)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 99) coords=(8, 39) -> coord (8, 38) (budget 60s, surf-capable)
+
+   [travel] step 0: (8, 39)->(8, 38) map=(1, 99) (path 2 to exit)
+
+   [travel] reached target coord (8, 38)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (8, 39) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (1, 98): (2, 15)->(1, 97), (11, 1)->(1, 99)
+
+   [campaign]    EXIT-BUILDING: (1, 99) -> (1, 98)@(11, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 98) coords=(11, 2) -> coord (2, 14) (budget 60s, surf-capable)
+
+   [travel] step 0: (11, 2)->(11, 3) map=(1, 98) (path 22 to exit)
+
+   [travel] step 10: (5, 6)->(4, 6) map=(1, 98) (path 12 to exit)
+
+   [travel] step 20: (2, 13)->(2, 14) map=(1, 98) (path 2 to exit)
+
+   [travel] reached target coord (2, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (2, 15) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    EXIT-BUILDING: (1, 98) -> (1, 97)@(14, 25)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 97) coords=(14, 25) -> coord (28, 47) (budget 60s, surf-capable)
+
+   [travel] step 0: (14, 25)->(14, 26) map=(1, 97) (path 49 to exit)
+
+   [travel] releasing 1 stale NPC block(s) [(15, 32)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 10: (15, 34)->(15, 35) map=(1, 97) (path 39 to exit)
+
+   [travel] step 20: (20, 33)->(21, 33) map=(1, 97) (path 29 to exit)
+
+   [egress] blocker on (25, 35) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(18, 39), (19, 40), (25, 35), (29, 41), (30, 42)])
+
+   [egress] blocker cleared off (25, 35) after 1 poll(s) (~0.4s) — resuming the committed step
+
+   [travel] step 30: (25, 38)->(26, 38) map=(1, 97) (path 19 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 41) elapsed=6s
+
+   [travel] step 40: (32, 41)->(32, 42) map=(1, 97) (path 10 to exit)
+
+   [travel] reached target coord (28, 47)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (28, 48) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    EXIT-BUILDING: (1, 97) -> (3, 45)@(11, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [fieldheal] roam: Blastoise at 83/196 HP — drinking Hyper Potion from the bag NOW (cheapest-adequate; no Center on this road)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [fieldheal] field heal: item 21 (bag row 5) -> party slot 0 (83/196 HP)
+
+   [kira-voice] -> T1·brisk· (heal) "Blastoise's pretty beat up and I'm literally carrying potions. quick drink, THEN we keep moving."  fired=True  [age 0.0s + post 25ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (3, 45)@(11, 6) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Use on which POK.MON?"'
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 113 point.s.. ."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 113 point.s.. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [fieldheal] VERIFIED: slot 0 HP 83 -> 196/196, item 21 consumed (world callback restored)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (11, 6) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 45) (11,6) f1 -- badge8 $30570 party:0583 bag:ee16]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 45)@(11, 6) (reason=frozen_world, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [campaign]    [roam] wedge spot: blocking (11, 7) on (3, 45) (route around it) + marking (11, 6) a resolved talk-spot — unified block memory now 6 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "I've been stuck on the same spot going nowhere — backing off and trying something different."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 45) coords=(11, 6) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260805_154655_an-unfamiliar-area_8b_31h33m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (11, 6) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 45) (11,6) f1 -- badge8 $30570 party:0583 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:1,97']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 45), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Catch Moltres on Mt. Ember summit'
+
+   [campaign]    [soul] ORACLE pick -> 'Catch Moltres on Mt. Ember summit'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Catch Moltres on Mt. Ember summit'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (3, 45)
+
+   [campaign]    [ember-door-approach] replan at (11, 6) (len 2, budget 9)
+
+   [campaign]    [ember-door] (3, 45) -> (1, 97) @ (28, 48)
+
+   [campaign]    [boulder-approach] replan at (28, 48) (len 7, budget 9)
+
+   [campaign]    [str-approach] replan at (25, 45) (len 3, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [push] (22, 45) -> (21, 45) (LEFT, 1/3)
+
+   [campaign]    [push] (21, 45) -> (20, 45) (LEFT, 2/3)
+
+   [campaign]    [push] (20, 45) -> (19, 45) (LEFT, 3/3)
+
+   [campaign]    [push-approach0] replan at (20, 45) (len 4, budget 9)
+
+   [campaign]    [push] (17, 46) -> (16, 46) (LEFT, 1/3)
+
+   [campaign]    [push] (16, 46) -> (15, 46) (LEFT, 2/3)
+
+   [campaign]    [push] (15, 46) -> (14, 46) (LEFT, 3/3)
+
+   [campaign]    [1f-door-approach] replan at (15, 46) (len 77, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against spearow — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs spearow 67/67 | [0]Bite(p60,pp=13,ref=0,sc=60) [1]Skull Bash(p100,pp=12,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's spearow went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [1f-door-approach] replan at (9, 35) (len 60, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [1f-door] (1, 97) -> (1, 98) @ (2, 15)
+
+   [campaign]    [2f-door-approach] replan at (2, 15) (len 23, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against geodude — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 73/73 | [0]Bite(p60,pp=12,ref=0,sc=60) [1]Skull Bash(p100,pp=12,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's geodude went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [2f-door-approach] replan at (6, 4) (len 8, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against machop — your blastoise is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 103/103 | [0]Bite(p60,pp=11,ref=0,sc=15) [1]Skull Bash(p100,pp=12,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's machop went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [2f-door-approach] replan at (10, 2) (len 2, budget 10)
+
+   [campaign]    [2f-door] (1, 98) -> (1, 99) @ (8, 39)
+
+   [campaign]    [3f-door-approach] replan at (8, 39) (len 66, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against geodude — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 71/71 | [0]Bite(p60,pp=11,ref=0,sc=60) [1]Skull Bash(p100,pp=11,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's geodude went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-door-approach] replan at (23, 13) (len 25, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against geodude — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 75/75 | [0]Bite(p60,pp=10,ref=0,sc=60) [1]Skull Bash(p100,pp=11,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's geodude went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-door-approach] replan at (34, 6) (len 7, budget 11)
+
+   [campaign]    [3f-door] (1, 99) -> (1, 100) @ (2, 4)
+
+   [campaign]    [ext-upper-approach] replan at (2, 4) (len 15, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against machop — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L39 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 110/110 | [0]Bite(p60,pp=9,ref=0,sc=15) [1]Skull Bash(p100,pp=11,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ext-upper-approach] replan at (10, 7) (len 2, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ext-upper] (1, 100) -> (1, 97) @ (39, 20)
+
+   [campaign]    [summit-door-approach] replan at (39, 20) (len 23, budget 9)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-door] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.3s at (1, 101)@(10, 13) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign]    [summit-board] push plan wedged — door round-trip to RESET the board
+
+   [campaign]    [summit-board-reset-out-approach] replan at (10, 12) (len 4, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-out] (1, 101) -> (1, 97) @ (29, 7)
+
+   [campaign]    [summit-board-reset-back-approach] replan at (29, 7) (len 2, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-back] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [moltres] climb leg wedged on (1, 101) @ (10, 12)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 101)@(10, 12))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((3, 45) -> (1, 101)) despite 'failed' — try refunded (refund 3/6; tries now 0/3)
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 3/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (3, 45)(11, 6) -> (1, 101)(10, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260805_155338_an-unfamiliar-area_8b_31h40m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 101)@(10, 12) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:an unfamiliar area:machop was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:an unfamiliar area:machop from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(10, 12) -> coord (9, 14) (budget 60s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (50s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] step 0: (10, 12)->(10, 13) map=(1, 101) (path 4 to exit)
+
+   [travel] reached target coord (9, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 15) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    EXIT-BUILDING: (1, 101) -> (1, 97)@(29, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 97) coords=(29, 7) -> coord (29, 47) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 7)->(29, 8) map=(1, 97) (path 50 to exit)
+
+   [travel] step 10: (29, 17)->(29, 18) map=(1, 97) (path 40 to exit)
+
+   [travel] step 20: (29, 27)->(29, 28) map=(1, 97) (path 31 to exit)
+
+   [travel] step 30: (26, 34)->(26, 35) map=(1, 97) (path 21 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 38) elapsed=6s
+
+   [travel] step 40: (32, 38)->(32, 39) map=(1, 97) (path 12 to exit)
+
+   [travel] step 50: (31, 47)->(30, 47) map=(1, 97) (path 3 to exit)
+
+   [travel] reached target coord (29, 47)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (29, 48) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    EXIT-BUILDING: (1, 97) -> (3, 45)@(12, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 6) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 45) (12,6) f1 -- badge8 $30570 party:7b0e bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:1,97']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (3, 45)
+
+   [campaign]    [ember-door-approach] replan at (12, 6) (len 3, budget 9)
+
+   [campaign]    [ember-door] (3, 45) -> (1, 97) @ (28, 48)
+
+   [campaign]    [boulder-approach] replan at (28, 48) (len 7, budget 9)
+
+   [campaign]    [str-approach] replan at (25, 45) (len 3, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [push] (22, 45) -> (21, 45) (LEFT, 1/3)
+
+   [campaign]    [push] (21, 45) -> (20, 45) (LEFT, 2/3)
+
+   [campaign]    [push] (20, 45) -> (19, 45) (LEFT, 3/3)
+
+   [campaign]    [push-approach0] replan at (20, 45) (len 4, budget 9)
+
+   [campaign]    [push] (17, 46) -> (16, 46) (LEFT, 1/3)
+
+   [campaign]    [push] (16, 46) -> (15, 46) (LEFT, 2/3)
+
+   [campaign]    [push] (15, 46) -> (14, 46) (LEFT, 3/3)
+
+   [campaign]    [1f-door-approach] replan at (15, 46) (len 77, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against spearow — your blastoise is up front'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs spearow 65/65 | [0]Bite(p60,pp=9,ref=0,sc=60) [1]Skull Bash(p100,pp=10,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's spearow went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [1f-door-approach] replan at (25, 41) (len 34, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [1f-door] (1, 97) -> (1, 98) @ (2, 15)
+
+   [campaign]    [2f-door-approach] replan at (2, 15) (len 23, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against geodude — your blastoise is up front'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 74/74 | [0]Bite(p60,pp=8,ref=0,sc=60) [1]Skull Bash(p100,pp=10,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's geodude went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [2f-door-approach] replan at (6, 5) (len 9, budget 10)
+
+   [campaign]    [2f-door] (1, 98) -> (1, 99) @ (8, 39)
+
+   [campaign]    [3f-door-approach] replan at (8, 39) (len 66, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against machop — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 105/105 | [0]Bite(p60,pp=7,ref=0,sc=15) [1]Skull Bash(p100,pp=10,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's machop went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-door-approach] replan at (13, 26) (len 48, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against geodude — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out geodude'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 80/80 | [0]Bite(p60,pp=7,ref=0,sc=60) [1]Skull Bash(p100,pp=9,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's geodude went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-door-approach] replan at (16, 17) (len 36, budget 11)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against machoke — your blastoise is up front'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machoke 118/118 | [0]Bite(p60,pp=6,ref=0,sc=15) [1]Skull Bash(p100,pp=9,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's machoke went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 23ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-door-approach] replan at (22, 14) (len 27, budget 12)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against machop — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L64 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 93/93 | [0]Bite(p60,pp=6,ref=0,sc=15) [1]Skull Bash(p100,pp=8,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's machop went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [3f-door-approach] replan at (28, 10) (len 17, budget 13)
+
+   [campaign]    [3f-door] (1, 99) -> (1, 100) @ (2, 4)
+
+   [campaign]    [ext-upper-approach] replan at (2, 4) (len 15, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ext-upper] (1, 100) -> (1, 97) @ (39, 20)
+
+   [campaign]    [summit-door-approach] replan at (39, 20) (len 23, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-door] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.3s at (1, 101)@(10, 13) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign]    [summit-board] push plan wedged — door round-trip to RESET the board
+
+   [campaign]    [summit-board-reset-out-approach] replan at (10, 12) (len 4, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-out] (1, 101) -> (1, 97) @ (29, 7)
+
+   [campaign]    [summit-board-reset-back-approach] replan at (29, 7) (len 2, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-back] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [moltres] climb leg wedged on (1, 101) @ (10, 12)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 101)@(10, 12))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((3, 45) -> (1, 101)) despite 'failed' — try refunded (refund 4/6; tries now 0/3)
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 4/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (3, 45)(12, 6) -> (1, 101)(10, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260805_160105_an-unfamiliar-area_8b_31h47m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 101)@(10, 12) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:an unfamiliar area:machop was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:an unfamiliar area:machop from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(10, 12) -> coord (9, 14) (budget 60s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (50s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] step 0: (10, 12)->(10, 13) map=(1, 101) (path 4 to exit)
+
+   [travel] reached target coord (9, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 15) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    EXIT-BUILDING: (1, 101) -> (1, 97)@(29, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 97) coords=(29, 7) -> coord (29, 47) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 7)->(29, 8) map=(1, 97) (path 50 to exit)
+
+   [travel] step 10: (29, 17)->(29, 18) map=(1, 97) (path 40 to exit)
+
+   [travel] step 20: (29, 27)->(29, 28) map=(1, 97) (path 31 to exit)
+
+   [travel] step 30: (26, 34)->(26, 35) map=(1, 97) (path 21 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 38) elapsed=6s
+
+   [travel] step 40: (32, 38)->(32, 39) map=(1, 97) (path 12 to exit)
+
+   [travel] step 50: (31, 47)->(30, 47) map=(1, 97) (path 3 to exit)
+
+   [travel] reached target coord (29, 47)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (29, 48) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    EXIT-BUILDING: (1, 97) -> (3, 45)@(12, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 6) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 45) (12,6) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'travel:1,97']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (3, 45)
+
+   [campaign]    [ember-door-approach] replan at (12, 6) (len 3, budget 9)
+
+   [campaign]    [ember-door] (3, 45) -> (1, 97) @ (28, 48)
+
+   [campaign]    [boulder-approach] replan at (28, 48) (len 7, budget 9)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 110377 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(1, 97) coords=(26, 45)  badge=True
+
+   [kira-voice] === 66 fired, 24 gated (0 failed) | by tier: T3=0 T2=17 T1=49 (incl ambient trickle) ===
+
+================================================================
+
