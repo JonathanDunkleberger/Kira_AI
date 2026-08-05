@@ -258,6 +258,23 @@ class GiovanniGym:
                 return True
         return False
 
+    def nav_blockers(self):
+        """Tiles no plan may cross: live object bodies + object-event TEMPLATES still present —
+        EXCEPT boulder templates (2026-08-05 #4, THE summit 'can't reach (9,11)' loop): a
+        pushed boulder's TEMPLATE tile stays banked in the map header forever, so template-
+        blocking walled off the VACATED tile (9,12) that the next stand tile needed, every
+        approach BFS died, and the board reset in a loop while the physical puzzle was fine.
+        Boulders block at their LIVE coords only (victory_road's sea_walk law, ported)."""
+        npcs = self.live_npc_tiles() | {tuple(o[0]) for o in
+                                        tv.read_object_templates(self.b)
+                                        if o[2] and o[1] != fm.GFX_BOULDER}
+        try:
+            npcs |= {tuple(ob["coord"]) for ob in
+                     fm.scan_field_objects(self.b, {fm.GFX_BOULDER})}
+        except Exception:
+            pass
+        return npcs
+
     def sea_walk(self, goal_test, label, tries=10, avoid=()):
         b = self.b
         budget = tries
@@ -282,8 +299,7 @@ class GiovanniGym:
             g = tv.Grid(b)
             wset = self.water_save(g)
             wts = {tuple(w[0]) for w in tv.read_warps(b)}
-            npcs = self.live_npc_tiles() | {tuple(o[0]) for o in
-                                            tv.read_object_templates(b) if o[2]}
+            npcs = self.nav_blockers()
             ok0 = self.sea_ok(g, wset)
             p = tv.bfs(g, cur, goal_test,
                        walkable=lambda sx, sy: ok0(sx, sy) and (sx, sy) not in wts

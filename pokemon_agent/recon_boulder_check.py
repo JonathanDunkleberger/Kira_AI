@@ -32,7 +32,23 @@ Drives boulder_puzzle.solve_room over a scripted boulder world and the campaign 
      age (menu-frozen phantoms), leaves other maps untouched, saves once, no-ops idempotently;
  12. _reload_same_region_checkpoint: the NEWEST same-region checkpoint wins (strike labels
      like 'pre-moltres' are never filtered), skip depth walks progressively further back, and
-     wrong-region banks are never touched.
+     wrong-region banks are never touched;
+ 13. JAM SIMULATION (2026-08-05 #4): jam_reason proves a board solvable/wedged against the
+     room's own boulders; the clean summit template AND the live mid-plan board from Jonny's
+     screenshots both read solvable (the loop was the sea_walk template bug, not a jam);
+ 14. DELIBERATE RESET + poisoned-checkpoint resume: a resumed board that is off-plan/jammed
+     is detected by the solve-start survey and takes the door round-trip IMMEDIATELY (loud
+     'PROVABLY UNRECOVERABLE'), then the fresh template solves; a jammed room with NO reset
+     (the VR floors) fails honest with zero pushes and zero exits;
+ 15. NEVER A JAMMING PUSH: an on-plan push whose stand/dest tile is occupied by another live
+     boulder is REFUSED (no shove), and the ladder stays bounded (2 resets max);
+ 16. nav_blockers (giovanni sea_walk): boulder TEMPLATES are freed (the vacated-tile
+     'can't reach (9,11)' loop), live boulders block at their LIVE coords, NPC templates and
+     absent templates behave as before;
+ 17. THE MOLTRES ROUTE RAIL: on the real pret LAYOUT_MT_EMBER_SUMMIT collision, the template
+     boulders PROVABLY block the entrance->Moltres path (the puzzle IS required — Ruby Path
+     is the optional sidequest, not this), the shipped solved board opens it, and every
+     shipped push's stand/dest tile is walkable terrain.
 Run:  python3 recon_boulder_check.py   (from pokemon_agent/) — prints PASS/FAIL per check.
 """
 import os
@@ -201,22 +217,24 @@ def main():
     check("invisible template board: the look-walk finds it and the solve completes",
           ok5 is True and EMBER_SOLVED <= rig5.boulders)
 
-    print("== 6. honest failure ladder: unverifiable -> in-place -> ONE door reset ==")
+    print("== 6. honest failure ladder: unverifiable -> in-place -> bounded door resets ==")
     LOGS.clear()
     rig6 = FakeRig(EMBER_TEMPLATE, player=(2, 2), vis=6,
                    walk_fail=("ext-ascent#0-look",))          # every look-approach refused
     ok6 = bpz.solve_room(rig6, bpz.EMBER_ASCENT, log=LOGS.append)
-    check("UNVERIFIABLE boulder fails the chain LOUD (never 'assume pushed')",
-          ok6 is False and any("UNVERIFIABLE" in ln for ln in LOGS))
-    check("exactly ONE door-reset round-trip, taken LAST (round order: in-place first)",
-          rig6.exits == ["ext-ascent-reset-out", "ext-ascent-reset-back"]
-          and rig6.pushes == [])
+    check("UNVERIFIABLE boulder is a transient failure, never 'assume pushed' — no shove ever",
+          ok6 is False and rig6.pushes == []
+          and any("unverifiable" in ln for ln in LOGS))
+    check("in-place retries FIRST, then bounded escalation: exactly TWO door resets, honest "
+          "False after", rig6.exits == ["ext-ascent-reset-out", "ext-ascent-reset-back"] * 2)
+    LOGS.clear()
     rig6b = FakeRig({(23, 45), (17, 46)}, player=(22, 44))    # chain 0 boulder OFF its path
     rig6b.reset_board = EMBER_TEMPLATE
     ok6b = bpz.solve_room(rig6b, bpz.EMBER_ASCENT, log=LOGS.append)
-    check("verified-GONE (off-path) reads as divergence; the reset respawns the template "
-          "and the clean solve lands", ok6b is True and len(rig6b.exits) == 2
-          and EMBER_SOLVED <= rig6b.boulders)
+    check("verified-GONE (off-path) = PROVABLY UNRECOVERABLE -> IMMEDIATE deliberate reset, "
+          "then the clean template solve lands",
+          ok6b is True and len(rig6b.exits) == 2 and EMBER_SOLVED <= rig6b.boulders
+          and any("PROVABLY UNRECOVERABLE" in ln for ln in LOGS))
 
     print("== 7. vanish_ok rows (the VR 3F hole-drop shape) ==")
     hole_room = bpz.room(
@@ -341,6 +359,107 @@ def main():
               campR._reload_same_region_checkpoint(region) is False)
     finally:
         C.STATES_CAMPAIGN = old_root
+
+    print("== 13. JAM SIMULATION: prove solvable/wedged before any shove ==")
+    JROOM = bpz.room((0, 0), "jam-lab",
+                     [{"start": (5, 5), "segs": [("RIGHT", 2)]},   # A -> (7,5)
+                      {"start": (7, 4), "segs": [("DOWN", 2)]}])   # B's path crosses A's target
+    check("a plan whose chains collide reads JAMMED with the exact step named",
+          "occupied by another boulder" in (bpz.jam_reason(JROOM, {0: 0, 1: 0}) or ""))
+    check("the clean summit template is provably solvable (no false jam)",
+          bpz.jam_reason(bpz.EMBER_SUMMIT_BOARD, {0: 0, 1: 0, 2: 0, 3: 0}) is None)
+    check("the LIVE mid-plan board from Jonny's screenshots (chains C+D done, E+F pending) "
+          "was NEVER jammed — the loop was the sea_walk template bug",
+          bpz.jam_reason(bpz.EMBER_SUMMIT_BOARD, {0: 1, 1: 1, 2: 0, 3: 0}) is None)
+
+    print("== 14. deliberate reset: jammed/poisoned boards heal, no-reset rooms fail honest ==")
+    LOGS.clear()
+    PROOM = bpz.room((1, 101), "poison-lab",
+                     [{"start": (5, 5), "segs": [("RIGHT", 2)]}],
+                     reset=(((0, 0), (9, 9)), ((5, 8), (1, 101))))
+    rigP = FakeRig({(6, 4)}, player=(5, 6))                   # resumed board: boulder OFF-plan
+    rigP.reset_board = {(5, 5)}
+    okP = bpz.solve_room(rigP, PROOM, log=LOGS.append)
+    check("POISONED-CHECKPOINT RESUME: the solve-start survey distrusts the board, resets "
+          "IMMEDIATELY (loud), then solves the fresh template",
+          okP is True and len(rigP.exits) == 2 and (7, 5) in rigP.boulders
+          and any("PROVABLY UNRECOVERABLE" in ln for ln in LOGS))
+    LOGS.clear()
+    rigV = FakeRig({(5, 5), (7, 4)}, player=(5, 6))           # both chains live -> plan collides
+    okV = bpz.solve_room(rigV, JROOM, log=LOGS.append)
+    check("a jammed room with NO reset (the VR-floor shape) fails HONEST: zero pushes, zero "
+          "exits, loud log",
+          okV is False and rigV.pushes == [] and rigV.exits == []
+          and any("no reset available" in ln for ln in LOGS))
+
+    print("== 15. NEVER A JAMMING PUSH: occupied stand/dest is refused, never shoved ==")
+    LOGS.clear()
+    SROOM = bpz.room((0, 0), "stand-lab",
+                     [{"start": (5, 5), "segs": [("RIGHT", 1)]}],
+                     reset=(((0, 0), (9, 9)), ((5, 8), (0, 0))))
+    rigS = FakeRig({(5, 5), (4, 5)}, player=(5, 6))           # foreign boulder ON the stand tile
+    rigS.reset_board = {(5, 5), (4, 5)}                       # squatter survives the reset too
+    okS = bpz.solve_room(rigS, SROOM, log=LOGS.append)
+    check("push with an occupied stand tile is REFUSED — the boulder is never shoved and the "
+          "ladder stays bounded (2 resets, honest False)",
+          okS is False and rigS.pushes == [] and len(rigS.exits) == 4
+          and any("REFUSED push" in ln for ln in LOGS))
+
+    print("== 16. nav_blockers: boulder templates freed, live boulders block (the (9,11) fix) ==")
+    import giovanni_gym as GG
+    gg = GG.GiovanniGym.__new__(GG.GiovanniGym)
+    gg.b = types.SimpleNamespace(rd8=lambda a: 0, rds16=lambda a: 0)   # no live gObjectEvents
+    GG.tv.read_object_templates = lambda b: [((9, 12), GG.fm.GFX_BOULDER, True),
+                                             ((15, 28), 7, True),
+                                             ((13, 6), 5, False)]
+    GG.fm.scan_field_objects = lambda b, gfx: [{"coord": (8, 12), "gfx": GG.fm.GFX_BOULDER}]
+    nb = gg.nav_blockers()
+    check("a pushed boulder's TEMPLATE tile no longer blocks (the vacated (9,12) is walkable "
+          "again -> stand (9,11) reachable)", (9, 12) not in nb)
+    check("boulders block at their LIVE coords; NPC templates still block; absent templates "
+          "stay free", (8, 12) in nb and (15, 28) in nb and (13, 6) not in nb)
+
+    print("== 17. THE MOLTRES ROUTE RAIL (real pret LAYOUT_MT_EMBER_SUMMIT collision) ==")
+    _SUMMIT = {   # rows 4-16, cols 2-16 ('#' = solid terrain; boulders/Moltres are objects)
+        4:  "###############", 5:  "#####33333#####", 6:  "#####33333#####",
+        7:  "#####33333####3", 8:  "33333##33#33333", 9:  "3333#33333#3333",
+        10: "3333#33##3#3333", 11: "#333#3333#3#33#", 12: "#3#3##333#333##",
+        13: "##333##333#33##", 14: "#####3333#33###", 15: "####3##3#3#####",
+        16: "###############"}
+
+    def swalk(t):
+        row = _SUMMIT.get(t[1])
+        return row is not None and 2 <= t[0] <= 16 and row[t[0] - 2] != "#"
+
+    def spath(walls):
+        from collections import deque
+        q, seen = deque([(9, 15)]), {(9, 15)}
+        goals = {(9, 7), (8, 6), (10, 6)}                     # tiles beside Moltres (9,6)
+        while q:
+            c = q.popleft()
+            if c in goals:
+                return True
+            for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+                nx = (c[0] + dx, c[1] + dy)
+                if nx not in seen and swalk(nx) and nx not in walls:
+                    seen.add(nx)
+                    q.append(nx)
+        return False
+
+    check("the TEMPLATE boulders provably BLOCK entrance->Moltres (the summit puzzle IS "
+          "required — Ruby Path is the optional sidequest, not this route)",
+          spath(SUMMIT_TEMPLATE | {(9, 6)}) is False
+          and spath({(9, 6)}) is True)
+    check("the shipped solved board OPENS the corridor to the bird",
+          spath(SUMMIT_SOLVED | {(9, 6)}) is True)
+    pushes_ok = True
+    for ch in bpz.EMBER_SUMMIT_BOARD["chains"]:
+        p = ch["path"]
+        for k in range(len(p) - 1):
+            if not (swalk(p[k + 1]) and swalk(bpz._stand_tile(p[k], p[k + 1]))):
+                pushes_ok = False
+    check("every shipped summit push has walkable terrain under its stand AND dest tile "
+          "(no plan step can ever hit a wall)", pushes_ok)
 
     n = len(PASS)
     good = sum(PASS)

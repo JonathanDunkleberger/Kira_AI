@@ -25,9 +25,12 @@ THE DOCTRINE (each room is fixed content — a deterministic scripted solve beat
     boulder ON its path and pushes only the REMAINING steps, one push at a time, with live
     readback after every push. Already at target -> zero presses. Off its path -> diverged,
     never guessed at.
-  - FAIL-IN-PLACE: a failed push/approach retries from live boulder truth ON THE MAP. The door
-    round-trip reset (which re-zeroes the board by design) is the LAST resort, and after it the
-    solve restarts from the fresh template — correct by construction, no memory to clear.
+  - FAIL-IN-PLACE, RESET-ON-PROOF (refined 2026-08-05 #4): a TRANSIENT failure retries from
+    live boulder truth ON THE MAP; a PROVABLY UNRECOVERABLE board (jam simulation / off-path
+    divergence) takes the door round-trip reset IMMEDIATELY — FRLG's only boulder reset is the
+    map exit, so when the board is wedged the exit is the REQUIRED move, not the old
+    opportunistic one. Every push is validated (on-plan + stand/dest clear) before the shove:
+    an improvised or jamming push is structurally impossible.
   - MILESTONE DURABILITY: an optional checkpoint callback fires after verified pushes
     (`ckpt_every`) and at chain completion — emulator savestates capture full RAM, so pushed
     boulders SURVIVE a checkpoint reload (unlike in-game re-entry); a recovery mid-puzzle
@@ -129,6 +132,40 @@ EMBER_SUMMIT_BOARD = room(_EMBER_SUMMIT, "summit-board",
 
 
 # ── the solver ─────────────────────────────────────────────────────────────────────────────────
+# JAM ARMOR (2026-08-05 #4, the live summit loop): FRLG boulders can never be pushed onto an
+# occupied tile, so a wrong shove can make a board PERMANENTLY unsolvable — and the ONLY reset
+# is the map-exit round trip. The doctrine refined: never exit OPPORTUNISTICALLY mid-solve (the
+# original loop), but ALWAYS exit when the board is PROVABLY unrecoverable (jam / off-path
+# divergence). Every push is validated first (on-plan AND its stand/dest tiles clear of live
+# boulders — refuse-and-reset, never improvise a shove), and checkpoints only bank after a
+# verified on-plan push, so a banked board is jam-free by construction; a board resumed from
+# ANY old checkpoint gets the same jam survey before it is trusted (poisoned-checkpoint law).
+
+def _stand_tile(a, b):
+    """The tile you push FROM to move a boulder a -> b (one step)."""
+    return (2 * a[0] - b[0], 2 * a[1] - b[1])
+
+
+def jam_reason(room_, idxs):
+    """Pure solvability simulation vs the room's OWN boulders. idxs: {ci: current path index}.
+    Executes the chains in room order from their live indices; if any remaining step's dest
+    or stand tile is occupied by another chain's boulder AT THAT MOMENT, the plan cannot run
+    -> the board is jammed. Returns the human-readable reason, or None (solvable). Walls are
+    covered by plan validity (every shipped plan is map-collision-verified offline)."""
+    pos = {ci: room_["chains"][ci]["path"][i] for ci, i in idxs.items()}
+    for ci, ch in enumerate(room_["chains"]):
+        path = ch["path"]
+        for k in range(idxs.get(ci, 0), len(path) - 1):
+            others = {p for cj, p in pos.items() if cj != ci}
+            dst, st = path[k + 1], _stand_tile(path[k], path[k + 1])
+            if dst in others or st in others:
+                what, tile = ("dest", dst) if dst in others else ("stand tile", st)
+                return (f"chain {ci} step {k}: {what} {tile} is occupied by another boulder "
+                        f"(a shove would wedge the board)")
+        pos[ci] = path[-1]
+    return None
+
+
 def _locate(rig, ch, name, L):
     """Index of the chain's boulder on its path, from LIVE truth only. -1 = UNVERIFIED (the
     look itself failed — never assume anything), -2 = verified GONE from the whole path."""
@@ -159,7 +196,8 @@ def _locate(rig, ch, name, L):
     return -2 if verified else -1
 
 
-def _solve_chain(rig, room_, ci, ch, ckpt, L):
+def _run_chain(rig, room_, ci, ch, ckpt, L):
+    """Push one chain home from live truth. Returns ('done'|'transient'|'jam', detail)."""
     name = f"{room_['name']}#{ci}"
     path, keys, allows = ch["path"], ch["keys"], ch["allows"]
     last = len(path) - 1
@@ -170,36 +208,81 @@ def _solve_chain(rig, room_, ci, ch, ckpt, L):
         if idx == last:
             L(f"   [{name}] boulder VERIFIED at target {path[last]}")
             ckpt(f"{room_['name']}-chain{ci}", force=True)
-            return True
+            return "done", ""
         if idx == -1:
-            L(f"!! [{name}] boulder UNVERIFIABLE (the look-approach failed) — never assume; "
-              f"chain fails LOUD")
-            return False
+            return "transient", f"{name} unverifiable (the look-approach failed — never assume)"
         if idx == -2:
             if ch["vanish_ok"]:
                 L(f"   [{name}] boulder verified GONE (vanish_ok: hole/drop row) — done")
                 ckpt(f"{room_['name']}-chain{ci}", force=True)
-                return True
-            L(f"!! [{name}] boulder verified GONE from its whole path — the board diverged")
-            return False
+                return "done", ""
+            return "jam", f"{name} boulder verified GONE from its whole path (board diverged)"
         pos, key, allow = path[idx], keys[idx], allows[idx]
+        # NEVER A JAMMING PUSH: on-plan is necessary but not sufficient — the dest and the
+        # stand tile must be clear of live boulders RIGHT NOW. Refuse-and-reset, never shove.
+        others = {tuple(t) for t in rig.live_boulders()} - {pos}
+        nxt = path[idx + 1]
+        if nxt in others or _stand_tile(pos, nxt) in others:
+            what = "dest" if nxt in others else "stand tile"
+            return "jam", (f"{name}: REFUSED push {pos} {key} — its {what} is occupied by "
+                           f"another boulder (a shove here would wedge the board)")
         if idx > 0:
             L(f"   [{name}] RESUME mid-chain: boulder live at {pos} ({idx}/{last} done) — "
               f"pushing only the remainder (idempotent, never over-push)")
         ok = rig.push(pos, key, 1, allow) if allow else rig.push(pos, key, 1)
         if not ok:
-            L(f"!! [{name}] push {pos} {key} FAILED (live truth kept; retry replans in place)")
-            return False
-        ckpt(f"{room_['name']}-push")
-    L(f"!! [{name}] step budget spent without reaching {path[last]} (LOUD)")
-    return False
+            return "transient", f"{name} push {pos} {key} failed"
+        ckpt(f"{room_['name']}-push")          # post-verified-on-plan-push: jam-free by construction
+    return "transient", f"{name} step budget spent without reaching {path[last]}"
 
 
-def solve_room(rig, room_, checkpoint=None, log=None, max_rounds=3):
+def _attempt(rig, room_, ckpt, L):
+    """One full solve pass: arm Strength, SURVEY every chain from live truth, prove the board
+    solvable (jam simulation — the poisoned-checkpoint sanity gate), then run the chains.
+    Returns ('solved'|'transient'|'jam', detail)."""
+    if not rig.ensure_strength(room_["strength_at"]):
+        return "transient", "Strength never armed"
+    idxs = {}
+    for ci, ch in enumerate(room_["chains"]):
+        idx = _locate(rig, ch, f"{room_['name']}#{ci}", L)
+        if idx == -1:
+            return "transient", f"chain {ci} unverifiable (look-approach failed)"
+        if idx == -2:
+            if not ch["vanish_ok"]:
+                return "jam", f"chain {ci} boulder is OFF its whole path (board diverged)"
+            idx = len(ch["path"]) - 1
+        idxs[ci] = idx
+    reason = jam_reason(room_, idxs)
+    if reason:
+        return "jam", reason
+    for ci, ch in enumerate(room_["chains"]):
+        status, detail = _run_chain(rig, room_, ci, ch, ckpt, L)
+        if status != "done":
+            return status, detail
+    L(f"   [{room_['name']}] SOLVED — every chain verified at target")
+    return "solved", ""
+
+
+def _door_reset(rig, room_, L):
+    (out_tile, out_map), (back_tile, home_map) = room_["reset"]
+    ok = (rig.enter_step(tuple(out_tile), tuple(out_map), f"{room_['name']}-reset-out")
+          and rig.enter_step(tuple(back_tile), tuple(home_map), f"{room_['name']}-reset-back"))
+    if not ok:
+        L(f"!! [{room_['name']}] reset round-trip failed (LOUD)")
+    return ok
+
+
+def solve_room(rig, room_, checkpoint=None, log=None):
     """Solve one boulder room from live ground truth. Returns True iff EVERY chain is verified
-    at its target. Round 1 failures retry IN PLACE (map exit resets the board — it is the one
-    move guaranteed to make things worse); the door round-trip reset runs once, before the
-    final round, and only if the room defines one."""
+    at its target. The failure ladder, refined 2026-08-05 #4:
+      - TRANSIENT failures (approach flake, interrupted push) retry IN PLACE — an exit resets
+        the board, so only proof earns the door;
+      - a PROVABLY UNRECOVERABLE board (jam simulation / off-path divergence) takes the door
+        round-trip reset IMMEDIATELY and DELIBERATELY (the required move — FRLG's only boulder
+        reset — never the old opportunistic exit), then solves the fresh template;
+      - repeated transients escalate to the same reset (fresh start beats spinning);
+      - resets are bounded (2); rooms without a reset (the VR floors, whose whiteout-ratchet
+        machinery owns board resets) fail honest instead."""
     L = log or getattr(rig, "log", print)
     n_since = [0]
 
@@ -214,26 +297,35 @@ def solve_room(rig, room_, checkpoint=None, log=None, max_rounds=3):
             except Exception as e:
                 L(f"   [{room_['name']}] checkpoint '{reason}' skipped: {e}")
 
-    for round_ in range(max_rounds):
-        if not rig.ensure_strength(room_["strength_at"]):
-            L(f"!! [{room_['name']}] Strength never armed — no pushes this round")
-        elif all(_solve_chain(rig, room_, ci, ch, ckpt, L)
-                 for ci, ch in enumerate(room_["chains"])):
-            L(f"   [{room_['name']}] SOLVED — every chain verified at target")
+    resets = retries = 0
+    for _attempt_no in range(10):              # hard bound over the whole ladder
+        while rig.handle_interrupts():
+            pass
+        status, detail = _attempt(rig, room_, ckpt, L)
+        if status == "solved":
             return True
-        if round_ >= max_rounds - 1:
-            break
-        if round_ == max_rounds - 2 and room_.get("reset"):
-            L(f"   [{room_['name']}] board diverged beyond in-place repair — door round-trip "
-              f"RESET (LAST resort by design: re-entry respawns the template boulders)")
-            (out_tile, out_map), (back_tile, home_map) = room_["reset"]
-            if not (rig.enter_step(tuple(out_tile), tuple(out_map), f"{room_['name']}-reset-out")
-                    and rig.enter_step(tuple(back_tile), tuple(home_map),
-                                       f"{room_['name']}-reset-back")):
-                L(f"!! [{room_['name']}] reset round-trip failed (LOUD)")
-                return False
-        else:
-            L(f"   [{room_['name']}] attempt {round_ + 1} failed — retrying IN PLACE from live "
-              f"boulder truth (never exit mid-puzzle)")
-    L(f"!! [{room_['name']}] unsolved after {max_rounds} rounds (LOUD)")
+        if status == "jam":
+            L(f"!! [{room_['name']}] board PROVABLY UNRECOVERABLE: {detail} — the door-reset "
+              f"round-trip is REQUIRED now (deliberate reset, NOT the old opportunistic exit)")
+            if room_.get("reset") and resets < 2 and _door_reset(rig, room_, L):
+                resets += 1
+                retries = 0
+                continue
+            L(f"!! [{room_['name']}] no reset available/left for a jammed board — failing "
+              f"LOUD (unsolved)")
+            return False
+        retries += 1                           # transient
+        if retries < 2:
+            L(f"   [{room_['name']}] transient failure ({detail}) — retrying IN PLACE "
+              f"(exit resets the board; only a PROVEN jam or repeat failure earns the door)")
+            continue
+        L(f"   [{room_['name']}] transient failure repeats ({detail}) — escalating to the "
+          f"door reset (fresh template + fresh stand beats spinning)")
+        if room_.get("reset") and resets < 2 and _door_reset(rig, room_, L):
+            resets += 1
+            retries = 0
+            continue
+        L(f"!! [{room_['name']}] unsolved after {resets} reset(s) (LOUD)")
+        return False
+    L(f"!! [{room_['name']}] ladder budget spent — unsolved (LOUD)")
     return False
