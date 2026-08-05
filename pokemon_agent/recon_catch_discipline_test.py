@@ -1,7 +1,9 @@
 """recon_catch_discipline_test.py — weaken-then-throw discipline (2026-08-04, the badge-8
 full-HP ball-burn) + THE LEGENDARY BALL RESERVE / LAP NO-CATCH (2026-08-05, the Kindle Road
-Meowth Ultra burn). Pure synthetic tests — pol.chip_move_pick for the weaken pick, and the
-battle_agent ball-selection/divert gates driven through a stub bridge (no ROM/emulator).
+Meowth Ultra burn) + THE SEND-IN GATE / CATCH-ABORT LATCH / PARTY-WIPE GUARD (2026-08-05,
+the Magmar forced-send-in wedge). Pure synthetic tests — pol.chip_move_pick for the weaken
+pick, and the battle_agent ball-selection/divert/faint gates driven through a stub bridge
+(no ROM/emulator).
 
 RUN: python3 pokemon_agent/recon_catch_discipline_test.py
 Decision table under test:
@@ -14,6 +16,10 @@ Decision table under test:
   mixed bag + hunt pending ('cheap')                         -> throws the cheap tier only
   badge 8 pre-credits (victory lap)                          -> dex_push divert SUPPRESSED
   post-champion (FLAG_SYS_GAME_CLEAR)                        -> dex_push restored
+  fainted active mid-catch                                   -> throw ABANDONED, send-in first
+  3 consecutive throw aborts                                 -> CATCH-ABORT latch (no throws)
+  abort latch / party-wipe risk                              -> catch_now RELEASED (voiced)
+  last healthy mon + non-legendary target                    -> NO catch divert (fight/flee)
 """
 import json
 import os
@@ -206,6 +212,88 @@ def main():
     check("POKEMON_LAP_NO_CATCH=0 -> planner reverts",
           (act8b or {}).get("kind") == "catch_keeper", f"got {(act8b or {}).get('kind')}")
     pp.LAP_NO_CATCH = _saved_pp
+
+    print("== 13. SEND-IN GATE: fainted active -> catch abandoned, send-in allowed ==")
+    # The 2026-08-05 14:10 wedge verbatim: Lapras fainted mid-catch_now on a Machoke; the
+    # forced send-in state ate every bag-open A while the catch loop re-threw forever.
+    check("our active down -> send_in (throw abandoned this turn)",
+          BA.catch_turn_gate(True, 3, 0, False, False) == "send_in")
+    check("send-in outranks throws on a legendary hunt too",
+          BA.catch_turn_gate(True, 3, 0, False, True) == "send_in")
+    check("healthy field, healthy party -> normal throw turn",
+          BA.catch_turn_gate(False, 3, 0, False, False) == "throw")
+    # _catch_our_down: the verified-RAM read with the pitfall-26 party cross-check.
+    logs13 = []
+    ag13 = make_agent([(4, 5)], hunt_pending=False, logs=logs13)
+    ag13._is_double = lambda: False
+    _orig_rb = BA.st.read_battle
+    BA.st.read_battle = lambda b: {"ours": {"hp": 0, "maxhp": 100},
+                                   "enemy": {"hp": 50, "maxhp": 80}}
+    try:
+        ag13._true_active_party_hp = lambda: (0, 100)
+        check("gBattleMons 0 + party 0 -> DOWN (both structs agree)",
+              ag13._catch_our_down() is True)
+        ag13._true_active_party_hp = lambda: (100, 100)
+        check("party says STANDING -> not down (stale display corpse, pitfall 26)",
+              ag13._catch_our_down() is False)
+    finally:
+        BA.st.read_battle = _orig_rb
+    ag13._catch_our_down = lambda state=None: True
+    check("throw_ball REFUSES while our active is down (no press, 'our_down')",
+          ag13.throw_ball(pref="cheap") == "our_down")
+    check("the refusal is LOUD", any("THROW REFUSED" in l for l in logs13), f"logs={logs13}")
+
+    print("== 14. CATCH-ABORT LATCH: 3 consecutive bag-open aborts latch the battle ==")
+    logs14 = []
+    ag14 = make_agent([(4, 5)], hunt_pending=False, logs=logs14)
+    for _ in range(BA.CATCH_ABORT_MAX - 1):
+        ag14._note_throw_abort("bag would not open")
+    check(f"{BA.CATCH_ABORT_MAX - 1} aborts do NOT latch", not ag14._catch_abort)
+    ag14._note_throw_abort("bag would not open")
+    check(f"abort #{BA.CATCH_ABORT_MAX} LATCHES", ag14._catch_abort is True)
+    check("the latch is LOUD in the log",
+          any("CATCH-ABORT LATCHED" in l for l in logs14), f"logs={logs14}")
+    ag14._throw_bag_aborts = 0            # a real throw resets the streak...
+    check("...but the latch itself holds for the battle", ag14._catch_abort is True)
+    check("gate refuses throws under the latch",
+          BA.catch_turn_gate(False, 6, 0, True, False) == "abort")
+    check("abort count >= max reads latched even pre-flag",
+          BA.catch_turn_gate(False, 6, BA.CATCH_ABORT_MAX, False, False) == "abort")
+    check("latch outranks the send-in verdict (run()'s drain owns the recovery)",
+          BA.catch_turn_gate(True, 6, 0, True, False) == "abort")
+
+    print("== 15. ORDER RELEASE: latch / party-wipe releases catch_now with a voice line ==")
+    check("target fled (clean failure) -> LAW order KEPT",
+          BA.catch_order_release("fled", False, 3) is False)
+    check("no_balls with a healthy party -> KEPT (Mart first, then the catch)",
+          BA.catch_order_release("no_balls", False, 3) is False)
+    check("abort latch -> RELEASED", BA.catch_order_release("stuck", True, 3) is True)
+    check("catch_abort verdict -> RELEASED", BA.catch_order_release("catch_abort", False, 3) is True)
+    check("party-wipe risk (1 healthy) -> RELEASED",
+          BA.catch_order_release("no_balls", False, 1) is True)
+    check("party_risk verdict -> RELEASED", BA.catch_order_release("party_risk", False, 3) is True)
+    logs15, voiced = [], []
+    ag15 = BA.BattleAgent(FakeBridge(), on_event=lambda s, **k: voiced.append(s),
+                          render=lambda: None, log=logs15.append)
+    cleared = []
+    ag15._clear_creator_catch_order = lambda: cleared.append(True)
+    ag15._release_catch_order_loud("party-wipe risk: down to the last healthy mon",
+                                   "I can't catch right now — I'm down to my last Pokémon.")
+    check("release clears the latched order", bool(cleared))
+    check("release is VOICED so Jonny hears why",
+          any("last Pokémon" in v for v in voiced), f"voiced={voiced}")
+    check("release is LOUD in the log",
+          any("catch_now RELEASED" in l for l in logs15), f"logs={logs15}")
+
+    print("== 16. PARTY-WIPE GUARD: last healthy mon -> no catch divert (non-legendary) ==")
+    check("1 healthy + non-hunt target -> party_risk (fight/flee, never a catch)",
+          BA.catch_turn_gate(False, 1, 0, False, False) == "party_risk")
+    check("0 healthy reserves standing (mid-wipe) -> still refused",
+          BA.catch_turn_gate(False, 0, 0, False, False) == "party_risk")
+    check("1 healthy + LEGENDARY hunt -> attempt allowed (send-in still outranks throws)",
+          BA.catch_turn_gate(False, 1, 0, False, True) == "throw")
+    check("2 healthy + non-hunt -> normal catch",
+          BA.catch_turn_gate(False, 2, 0, False, False) == "throw")
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")

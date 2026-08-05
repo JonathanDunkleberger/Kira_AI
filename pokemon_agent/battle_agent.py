@@ -67,6 +67,55 @@ def dex_push_gate(badges, game_clear, aide_paid, owned_count, owns_species, spen
     lap_era = LAP_NO_CATCH and badges >= 8 and not game_clear
     return (would and not lap_era), (would and lap_era)
 
+
+# ── THE CATCH SEND-IN + ABORT-LATCH LAWS (2026-08-05, the Magmar forced-send-in wedge) ────────────
+# Live 14:10 (commit 50650f6, wedge present in current code too): Lapras fainted MID-CATCH
+# (creator catch_now on a Machoke, Blastoise already down) and the game entered the forced
+# send-in state ("BLASTOISE has no energy left to battle!" -> "use next POKéMON?"). In FRLG the
+# bag CANNOT open in that state — so throw_ball aborted "bag would not open (open-A eaten)" and
+# the catch loop re-offered the SAME throw forever: the session-ending wedge, with 2 of 3 mons
+# down the whole time. Three laws, one pure per-turn gate (catch_turn_gate):
+#   SEND-IN FIRST: our active battler DOWN (verified RAM — gBattleMons hp cross-checked against
+#   the party struct's plaintext HP, doubles via the e4002d9 per-battler read) -> this turn's
+#   throw is ABANDONED, the proven forced-send-in flow (_force_switch) runs, and the catch
+#   resumes only once a healthy mon is seated.
+#   CATCH-ABORT LATCH: CATCH_ABORT_MAX consecutive throw_ball aborts in one battle latch the
+#   catch OFF for the whole battle (the HEAL-FAIL LATCH / POTION-BLOCK pattern) — stop offering
+#   throws, fight/flee normally. Clears when the battle ends (run() attach resets it).
+#   PARTY-WIPE GUARD: <=1 healthy mon left and the target isn't a legendary hunt -> no catch is
+#   worth the wipe; fight/flee instead, and a latched creator order RELEASES loudly (voice +
+#   log) instead of spinning "KEPT for retry" forever (catch_order_release).
+CATCH_ABORT_MAX = int(os.getenv("POKEMON_CATCH_ABORT_MAX", "3"))
+
+
+def catch_turn_gate(our_active_down, healthy_left, throw_aborts, abort_latched, hunt_target):
+    """PURE per-turn catch-continuation gate (synthetic-testable — recon_catch_discipline_test).
+    Returns one of:
+      'abort'      -> the CATCH-ABORT latch is up (>= CATCH_ABORT_MAX consecutive throw aborts
+                      this battle): stop offering throws entirely, fight/flee normally;
+      'send_in'    -> OUR active battler is down: abandon this turn's throw and run the forced
+                      send-in flow first (the bag cannot open in that state);
+      'party_risk' -> <=1 healthy mon left and the target isn't a legendary hunt: abandon the
+                      catch — no catch is worth the party wipe (a creator order releases);
+      'throw'      -> normal catch turn (weaken/throw)."""
+    if abort_latched or throw_aborts >= CATCH_ABORT_MAX:
+        return "abort"
+    if our_active_down:
+        return "send_in"
+    if healthy_left <= 1 and not hunt_target:
+        return "party_risk"
+    return "throw"
+
+
+def catch_order_release(res, abort_latched, healthy_left):
+    """PURE order-hygiene rule for a latched creator catch_now (2026-08-05): must the LAW be
+    RELEASED instead of 'KEPT for retry'? Clean failures (target fled / balls ran out / PP
+    depleted / one flaky menu) keep the order — Jonny still gets his catch after the Mart or
+    heal. A WEDGED flow (the catch-abort latch) or a party-wipe risk (<=1 healthy mon) must
+    release it loudly: retrying either just re-arms the wedge that ended the 14:10 session."""
+    return (res in ("catch_abort", "party_risk")
+            or bool(abort_latched) or healthy_left <= 1)
+
 # SELF-DESTRUCT FAMILY (FireRed national-dex ids) — foes that can NUKE-TRADE our active: Self-
 # Destruct/Explosion one-shots even a dominant lead (koga_run3 2026-07-07: Koga's L37 Koffing
 # detonated on Venusaur L54 turn one; the bench then fed itself to Muk/Weezing — full wipe). The
@@ -384,6 +433,12 @@ class BattleAgent:
         self._catching = False         # F-7(c) guard: KOing a CATCH target is a failure, never a
                                        # "you won" beat — set for the catch_pokemon flow.
         self._switch_fail_n = 0        # voluntary matchup-switch fails this battle (latch at 1)
+        self._throw_bag_aborts = 0     # CATCH-ABORT LATCH (2026-08-05, the Magmar wedge):
+                                       # consecutive throw_ball aborts; a real throw resets it.
+        self._catch_abort = False      # latched at CATCH_ABORT_MAX -> no more throws this battle
+                                       # (campaign calls catch_pokemon on FRESH agents, so the
+                                       # __init__ zero is the direct-call battle scope; run()'s
+                                       # attach re-zeros it per battle for the divert path).
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -612,6 +667,24 @@ class BattleAgent:
         Blastoise one-shot the Route-12 Snorlax Jonny ordered caught. Creator / shiny / legendary
         NEVER fight-clear on empty balls — flee, keep the order live, Mart first."""
         _never_ko = reason in ("shiny", "legendary", "creator_catch_now")
+        # PARTY-WIPE GUARD at the DIVERT DOOR (2026-08-05, the Magmar wedge: 2 of 3 mons down
+        # and the catch flow still owned the battle): with <=1 healthy mon a non-hunt catch is
+        # never worth the wipe — fight/flee instead, and a latched creator order releases
+        # LOUDLY (never a silent forever-retry into the next faint). Legendary/shiny attempts
+        # stay allowed — the send-in gate inside catch_pokemon still outranks their throws.
+        if reason not in ("legendary", "shiny") and self._healthy_party_count() <= 1:
+            self.log(f"   [catch] PARTY-WIPE GUARD — {self._healthy_party_count()} healthy "
+                     f"mon left; refusing the {reason} catch divert (fight/flee instead)")
+            if reason == "creator_catch_now":
+                self._release_catch_order_loud(
+                    "party-wipe risk: down to the last healthy mon",
+                    f"I can't catch right now — I'm down to my last Pokémon. I have to get "
+                    f"out of this {foe_name} fight alive first.")
+            self._skip_catch_divert = True
+            try:
+                return self.run(max_seconds=max(120, max_seconds))
+            finally:
+                self._skip_catch_divert = False
         try:
             _is_mewtwo = (reason == "legendary"
                           and (st.read_battle(self.b) or {}).get("enemy", {}).get("species") == 150)
@@ -673,7 +746,8 @@ class BattleAgent:
             except Exception:
                 _master = False
         res = self.catch_pokemon(max_seconds=max(150, max_seconds), weaken=True,
-                                 ball_pref=_pref, allow_master=_master)
+                                 ball_pref=_pref, allow_master=_master,
+                                 divert_reason=reason)
         if reason == "creator_catch_now" and res == "caught":
             self._clear_creator_catch_order()
         elif reason == "creator_catch_now" and res in ("fainted",):
@@ -682,11 +756,40 @@ class BattleAgent:
             self.emit(f"no — I knocked out the {foe_name}. that was the catch order. I'm an idiot.",
                       beat=True, tier=3)
             self._clear_creator_catch_order()
-        elif reason == "creator_catch_now" and res in ("no_balls", "cant_weaken", "fled", "stuck"):
-            # Keep order — she still owes the catch after Mart / retry.
+        elif reason == "creator_catch_now" and catch_order_release(
+                res, getattr(self, "_catch_abort", False), self._healthy_party_count()):
+            # ORDER HYGIENE (2026-08-05): a WEDGED catch (abort latch) or a party-wipe risk
+            # RELEASES the LAW — 'KEPT for retry' is for clean failures only. Retrying a
+            # wedge just re-arms the 14:10 session-ender.
+            _wiped = self._healthy_party_count() <= 1
+            self._release_catch_order_loud(
+                f"res={res}, abort_latch={getattr(self, '_catch_abort', False)}, "
+                f"healthy={self._healthy_party_count()}",
+                "I can't catch right now — " +
+                ("I'm down to my last Pokémon. staying alive comes first." if _wiped else
+                 "my throw flow is wedged this fight. letting the order go — "
+                 "I'll get the next one."))
+        elif reason == "creator_catch_now" and res in ("no_balls", "cant_weaken", "fled",
+                                                       "stuck", "our_down"):
+            # Keep order — she still owes the catch after Mart / heal / retry (CLEAN failure).
             self.log(f"   [engine] catch_now unresolved ({res}) — LAW order KEPT for retry")
         if res == "caught" or not st.in_battle(self.b):
             return res
+        # ABANDON-VERDICT RESOLUTION (2026-08-05): the new verdicts hand back a LIVE battle —
+        # resolve it HERE (returning with the fight open makes travel re-enter it forever).
+        # Protected targets (legendary/shiny/an order that survived release) get one flee
+        # first; then WAR-MUST-ADVANCE — fight it out rather than idle (pitfall 34), loudly.
+        if res in ("catch_abort", "party_risk", "our_down"):
+            if _never_ko and res != "our_down":       # no flee from the send-in screen —
+                #                                       run()'s faint drain owns that state
+                self.log(f"   [engine] catch abandoned ({res}) on a protected target — "
+                         f"fleeing first (never KO)")
+                self.flee(max_seconds=45)
+                if not st.in_battle(self.b):
+                    return res
+                self.log(f"   [engine] flee failed after {res} — WAR-MUST-ADVANCE: "
+                         f"fighting the battle out (LOUD)")
+            return self._resolve_open_battle(max_seconds=max(120, max_seconds))
         if _never_ko:
             self.emit(f"I couldn't catch it ({res}) — I am NOT killing a {reason}, I'm backing out.",
                       beat=True, tier=3)
@@ -1011,6 +1114,73 @@ class BattleAgent:
             n -= self._ball_qty(self._BALL_ULTRA)
         return n
 
+    def _healthy_party_count(self):
+        """How many party mons can still fight — plaintext current-HP > 0 at +0x56 (the same
+        unencrypted read _healthy_reserve_slot trusts). Fail-OPEN (6): a read fault must keep
+        the pre-guard behavior — never suppress a catch off flaky RAM (the PARTY-WIPE GUARD
+        only bites on a VERIFIED thin party)."""
+        try:
+            cnt = min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)
+            if not cnt:
+                return 6
+            return sum(1 for s in range(cnt)
+                       if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) > 0)
+        except Exception:
+            return 6
+
+    def _catch_our_down(self, state=None):
+        """FAINT-STATE AWARENESS for the catch flow (2026-08-05, the Magmar send-in wedge):
+        True iff OUR active battler is DOWN, i.e. the game is in (or headed into) the forced
+        send-in state — in FRLG the bag CANNOT open there, so every throw is a guaranteed
+        'bag would not open' abort. VERIFIED RAM only (the cursor-readback law's sibling —
+        never a lone state byte):
+          - singles: gBattleMons battler-0 HP == 0 (st.read_battle 'ours'), CROSS-CHECKED
+            against the party struct's plaintext HP for the seated mon (_true_active_party_hp
+            — pret Cmd_datahpupdate syncs the party copy on every damage write, so a REAL
+            faint reads 0 in BOTH structs; a stale display corpse [pitfall 26] or an HP tear
+            reads 0 in only one and stays 'standing' here);
+          - doubles: _dbl_our_down (either of OUR battler slots 0/2 fainted/absent — the
+            e4002d9 per-battler read; catch is singles-only, the check just keeps the truth).
+        Fail-CLOSED False — a read fault must never abandon a live catch."""
+        try:
+            if self._is_double() and self._dbl_our_down():
+                return True
+            s = state if state is not None else st.read_battle(self.b)
+            if not s or not s.get("ours", {}).get("maxhp"):
+                return False
+            if s["ours"]["hp"] > 0:
+                return False
+            php, _pmx = self._true_active_party_hp()
+            if php is None:
+                return True          # battle struct says down; party unreadable -> trust it
+            return php == 0
+        except Exception:
+            return False
+
+    def _note_throw_abort(self, why):
+        """Feed the CATCH-ABORT LATCH: consecutive throw_ball LOUD aborts in this battle
+        (bag would not open / pocket unreachable / no ball consumed — the same wedge family).
+        A ball actually leaving the bag resets the streak; CATCH_ABORT_MAX in a row latch the
+        catch OFF for the battle (mirrors HEAL-FAIL LATCH / POTION-BLOCK: proven-failure-
+        scoped, cleared at the next battle attach)."""
+        self._throw_bag_aborts = getattr(self, "_throw_bag_aborts", 0) + 1
+        self.log(f"   [catch] throw abort ({why}) — consecutive "
+                 f"{self._throw_bag_aborts}/{CATCH_ABORT_MAX} this battle")
+        if self._throw_bag_aborts >= CATCH_ABORT_MAX and not getattr(self, "_catch_abort", False):
+            self._catch_abort = True
+            self.log(f"   [catch] !! CATCH-ABORT LATCHED — the throw flow aborted "
+                     f"{CATCH_ABORT_MAX}x in a row this battle: no more throws, fight/flee "
+                     f"normally (clears when the battle ends)")
+
+    def _release_catch_order_loud(self, why, voice):
+        """ORDER HYGIENE (2026-08-05, requirement of the Magmar fix): a catch_now order that
+        WEDGED (catch-abort latch) or that a party-wipe risk makes unaffordable must not spin
+        'KEPT for retry' forever — release it LOUDLY (log + voice) so Jonny hears why his LAW
+        was let go."""
+        self.log(f"   [engine] !! catch_now RELEASED ({why}) — order will NOT retry")
+        self.emit(voice, beat=True, tier=3)
+        self._clear_creator_catch_order()
+
     def _pick_ball(self, pref="cheap", allow_master=False):
         """(item_id, display_row) of the ball to throw, or (None, None). 'cheap' spends weakest
         first (dex push); 'best' spends strongest first (legendary/shiny). Master only when
@@ -1049,6 +1219,14 @@ class BattleAgent:
             else:
                 self.log("   [engine] throw_ball: no throwable ball in the bag")
             return "no_balls"
+        # FAINT-STATE AWARENESS (2026-08-05, the Magmar wedge): our active battler DOWN means
+        # the forced send-in owns the screen and FRLG will NOT open the bag — every attempt
+        # is a guaranteed "bag would not open" abort. Refuse before touching a menu; the
+        # caller runs the send-in flow (catch_pokemon's gate / run()'s drain) and re-asks.
+        if self._catch_our_down():
+            self.log("   [catch] !! THROW REFUSED — our active battler is DOWN "
+                     "(forced send-in owns the screen; the bag cannot open here)")
+            return "our_down"
         try:
             # LOUD [catch] THROW line (2026-08-04): species + HP fraction + the ball tier, so
             # soak reports confess the weaken-then-throw discipline per throw.
@@ -1126,6 +1304,7 @@ class BattleAgent:
                 opened = True; break
         if not opened:
             self.log("   [engine] !! throw_ball: bag would not open (open-A eaten) — aborting LOUDLY")
+            self._note_throw_abort("bag would not open")
             return "stuck"
         on_balls_pocket = False
         for _ in range(8):                            # steer the live pocket index toward Poké Balls
@@ -1139,6 +1318,7 @@ class BattleAgent:
                      f"on_balls_pocket={on_balls_pocket} item={self.b.rd16(ram.GSPECIALVAR_ITEMID)}")
         if not on_balls_pocket:
             self.log("   [engine] !! throw_ball: couldn't reach the Poké Balls pocket — aborting LOUDLY")
+            self._note_throw_abort("balls pocket unreachable")
             for _ in range(4):                        # leave the menu clean for the caller
                 if self._white_box():
                     break
@@ -1171,7 +1351,9 @@ class BattleAgent:
                 self.b.run_frame(); self.render()
         if not _thrown():
             self.log("   [engine] !! throw_ball: ball selected but no throw consumed a ball — aborting LOUDLY")
+            self._note_throw_abort("select did not consume a ball")
             return "stuck"
+        self._throw_bag_aborts = 0        # a ball actually left — the abort streak is broken
         self.emit("alright — throwing a Poké Ball", beat=True)
         while time.time() - t0 < max_seconds:
             if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0:
@@ -1372,13 +1554,19 @@ class BattleAgent:
             self.b.run_frame(); self.render()
         return "stuck"
 
-    def catch_pokemon(self, max_seconds=150, weaken=True, ball_pref="cheap", allow_master=False):
+    def catch_pokemon(self, max_seconds=150, weaken=True, ball_pref="cheap", allow_master=False,
+                      divert_reason=None):
         """Catch the WILD foe (the proven live flow, automated): optionally WEAKEN/STATUS it once to
         boost the catch rate + stop it attacking, then THROW balls until caught. COMMITS - it
         re-throws after a break instead of abandoning after one ball (the live Ekans flow). Returns
-        'caught' | 'no_balls' | 'trainer' | 'fled' | 'fainted' | 'stuck'. Gen-3 trainer mons can't
-        be caught (returns 'trainer'). ball_pref/allow_master: the BALL TIER doctrine (2026-08-04) —
-        legendaries get 'best' (Ultra-first) and Mewtwo alone may spend the Master Ball."""
+        'caught' | 'no_balls' | 'trainer' | 'fled' | 'fainted' | 'stuck' — plus the 2026-08-05
+        abandon verdicts 'catch_abort' (the CATCH-ABORT latch fired: throws are off this battle),
+        'party_risk' (<=1 healthy mon and not a legendary hunt: no catch is worth the wipe) and
+        'our_down' (our active fainted and the send-in did not seat — run()'s drain owns it).
+        Gen-3 trainer mons can't be caught (returns 'trainer'). ball_pref/allow_master: the BALL
+        TIER doctrine (2026-08-04) — legendaries get 'best' (Ultra-first) and Mewtwo alone may
+        spend the Master Ball. divert_reason: the _divert_wild_catch reason ('legendary'/'shiny'
+        exempt the PARTY-WIPE GUARD; the send-in gate outranks their throws regardless)."""
         t0 = time.time()
         if self._is_trainer_battle():
             return "trainer"
@@ -1466,6 +1654,40 @@ class BattleAgent:
         while time.time() - t0 < max_seconds:
             if not st.in_battle(self.b):
                 return _ended()
+            # ── THE SEND-IN GATE (2026-08-05, the Magmar wedge — catch_turn_gate) ─────────
+            # Checked FIRST every turn, before ball counts and before the white-box advance:
+            # a fainted active makes the "no energy left to battle!" dialogue + forced party
+            # screen own the game, and BOTH the B-advance below and throw_ball just spin on
+            # them (the 14:10 session-ending loop: "bag would not open" forever).
+            _verdict = catch_turn_gate(
+                self._catch_our_down(),
+                self._healthy_party_count(),
+                getattr(self, "_throw_bag_aborts", 0),
+                getattr(self, "_catch_abort", False),
+                divert_reason in ("legendary", "shiny"))
+            if _verdict == "abort":
+                self.log("   [catch] !! CATCH-ABORT latch is up — abandoning the catch "
+                         "(no more throws this battle; fight/flee normally)")
+                return "catch_abort"
+            if _verdict == "send_in":
+                self.log("   [catch] OUR ACTIVE IS DOWN mid-catch — abandoning this turn's "
+                         "throw; the forced send-in flow runs first (the bag cannot open "
+                         "in the send-in state)")
+                self.emit("hold the catch — my Pokémon just went down. next one up first.",
+                          beat=True, tier=2)
+                if self._force_switch():
+                    self._prev = st.read_battle(self.b)
+                    self.log("   [catch] send-in seated — re-asking whether the catch "
+                             "can resume (order still stands)")
+                    continue                 # gate re-checks with the fresh field/party
+                self.log("   [catch] !! send-in did not seat — handing the battle back "
+                         "(our_down); run()'s faint drain owns the recovery")
+                return "our_down"
+            if _verdict == "party_risk":
+                self.log(f"   [catch] PARTY-WIPE GUARD — {self._healthy_party_count()} "
+                         f"healthy mon left and this isn't a legendary hunt: abandoning "
+                         f"the catch (fight/flee instead)")
+                return "party_risk"
             if self._spendable_for_pref(ball_pref) <= 0 and not (allow_master
                                                 and self._ball_qty(self._BALL_MASTER) > 0):
                 if self._ball_count() > 0:
@@ -1596,7 +1818,10 @@ class BattleAgent:
                 self.flee(max_seconds=45)        # same wedge fix: resolve the live battle before reporting
             if res in ("caught", "no_balls", "trainer"):
                 return res
-            # 'broke_free' / 'stuck' -> the foe took its turn; loop and throw again (commit)
+            # 'broke_free' -> the foe took its turn; loop and throw again (commit).
+            # 'stuck' -> throw_ball already fed the CATCH-ABORT counter; the loop-top gate
+            # latches after CATCH_ABORT_MAX in a row (never the 14:10 infinite re-throw).
+            # 'our_down' -> the loop-top gate runs the forced send-in before any re-throw.
         return "stuck"
 
     # ── BATCH 2 PART B: USE A HEAL / CURE IN BATTLE (live-reconned recon_itemuse.py 2026-06-27) ────────
@@ -4359,6 +4584,10 @@ class BattleAgent:
         self._potion_blocked = False       # 2026-08-02 LIVE: Super Potion on FULL ace forever —
         # any no_effect/failed heal this battle kills ALL further potion offers (not just one species).
         self._cure_blocked = False         # same class: Awakening spam after already awake (stream end)
+        self._throw_bag_aborts = 0         # CATCH-ABORT LATCH (2026-08-05, the Magmar wedge):
+        # consecutive throw_ball aborts; a real throw resets, CATCH_ABORT_MAX in a row latch below.
+        self._catch_abort = False          # latched -> no more throws this battle; battle-scoped
+        # exactly like the HEAL-FAIL LATCH above (a fresh battle attach clears it here).
         self._last_battle_progress_t = time.time()  # MENU WEDGE: stall clock, NOT battle-start clock
         self._menu_wedge_n = 0                     # re-armable, bounded (was a one-shot latch)
         self._must_leave_tried = {}        # species -> tries: alive-but-stuck voluntary switch
