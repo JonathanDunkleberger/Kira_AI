@@ -1,0 +1,1434 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 101) coords=(10, 12) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 6 blocked tile(s), 8 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=9556).
+
+   [soul] continuity loaded: 15 roster bond(s), 760 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 142 place(s) known, 236 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 101)@(10, 12) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260805_161425_an-unfamiliar-area_8b_31h48m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (10,12) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45', 'use_strength']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 101), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Moltres on Mt. Ember'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Moltres on Mt. Ember'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 3
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (1, 101)
+
+   [campaign]    [roam] wedge-mark RELEASE (moltres strike start): 5 mark(s) dropped across 7 strike map(s) — the climb routes on live truth
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [moltres-leg] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [kira-voice] -> T2·savor· (want) 'reach Moltres on Mt. Ember'  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [moltres-leg] -> checkpoints/20260805_161430_an-unfamiliar-area_8b_31h48m_moltres-leg  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'moltres-leg' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161430_an-unfamiliar-area_8b_31h48m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161430_an-unfamiliar-area_8b_31h48m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign]    [summit-board] attempt 1 failed — retrying IN PLACE from live boulder truth (never exit mid-puzzle)
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161433_an-unfamiliar-area_8b_31h48m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161434_an-unfamiliar-area_8b_31h48m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign]    [summit-board] board diverged beyond in-place repair — door round-trip RESET (LAST resort by design: re-entry respawns the template boulders)
+
+   [campaign]    [summit-board-reset-out-approach] replan at (10, 12) (len 4, budget 9)
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-out] (1, 101) -> (1, 97) @ (29, 7)
+
+   [campaign]    [summit-board-reset-back-approach] replan at (29, 7) (len 2, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-back] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.3s at (1, 101)@(10, 13) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-push] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-push] -> checkpoints/20260805_161507_an-unfamiliar-area_8b_31h48m_summit-board-push  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-push' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161507_an-unfamiliar-area_8b_31h48m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-push] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-push] -> checkpoints/20260805_161510_an-unfamiliar-area_8b_31h48m_summit-board-push  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-push' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161510_an-unfamiliar-area_8b_31h48m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign] !! [summit-board] unsolved after 3 rounds (LOUD)
+
+   [campaign] !! [moltres] climb leg wedged on (1, 101) @ (10, 12)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 101)@(10, 12))
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 101)(10, 12) -> (1, 101)(10, 12) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(1, 101) (10,12) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (1, 101)@(10, 13) (reason=frozen_box, frozen 8.3s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (10, 12) on (1, 101) (route around it) + marking (10, 13) a resolved talk-spot — unified block memory now 5 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] disengage: stepped DOWN AWAY from the NPC -> (10, 13) (closed box + walked off — the real escape)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 2/3 from (1, 101)
+
+   [campaign]    [roam] wedge-mark RELEASE (moltres strike start): 2 mark(s) dropped across 7 strike map(s) — the climb routes on live truth
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [moltres-leg] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [moltres-leg] -> checkpoints/20260805_161515_an-unfamiliar-area_8b_31h48m_moltres-leg  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'moltres-leg' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161515_an-unfamiliar-area_8b_31h48m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161515_an-unfamiliar-area_8b_31h48m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 13) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 13) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign]    [summit-board] attempt 1 failed — retrying IN PLACE from live boulder truth (never exit mid-puzzle)
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161519_an-unfamiliar-area_8b_31h48m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161519_an-unfamiliar-area_8b_31h48m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 13) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 13) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign]    [summit-board] board diverged beyond in-place repair — door round-trip RESET (LAST resort by design: re-entry respawns the template boulders)
+
+   [campaign]    [summit-board-reset-out-approach] replan at (10, 13) (len 3, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-out] (1, 101) -> (1, 97) @ (29, 7)
+
+   [campaign]    [summit-board-reset-back-approach] replan at (29, 7) (len 2, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-back] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.3s at (1, 101)@(10, 13) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-push] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-push] -> checkpoints/20260805_161551_an-unfamiliar-area_8b_31h49m_summit-board-push  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-push' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161551_an-unfamiliar-area_8b_31h49m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-push] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-push] -> checkpoints/20260805_161554_an-unfamiliar-area_8b_31h49m_summit-board-push  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-push' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161554_an-unfamiliar-area_8b_31h49m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign] !! [summit-board] unsolved after 3 rounds (LOUD)
+
+   [campaign] !! [moltres] climb leg wedged on (1, 101) @ (10, 12)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 101)@(10, 12))
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 101)(10, 13) -> (1, 101)(10, 12) (MOVED)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (10,12) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (1, 101)@(10, 13) (reason=frozen_box, frozen 8.3s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (10, 12) on (1, 101) (route around it) + marking (10, 13) a resolved talk-spot — unified block memory now 5 tile(s)
+
+   [campaign]    [roam] disengage: stepped DOWN AWAY from the NPC -> (10, 13) (closed box + walked off — the real escape)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick4] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 3/3 from (1, 101)
+
+   [campaign]    [roam] wedge-mark RELEASE (moltres strike start): 2 mark(s) dropped across 7 strike map(s) — the climb routes on live truth
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [moltres-leg] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [moltres-leg] -> checkpoints/20260805_161559_an-unfamiliar-area_8b_31h49m_moltres-leg  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'moltres-leg' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161559_an-unfamiliar-area_8b_31h49m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161559_an-unfamiliar-area_8b_31h49m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 13) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 13) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign]    [summit-board] attempt 1 failed — retrying IN PLACE from live boulder truth (never exit mid-puzzle)
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161603_an-unfamiliar-area_8b_31h49m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161603_an-unfamiliar-area_8b_31h49m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 13) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 13) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign]    [summit-board] board diverged beyond in-place repair — door round-trip RESET (LAST resort by design: re-entry respawns the template boulders)
+
+   [campaign]    [summit-board-reset-out-approach] replan at (10, 13) (len 3, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-out] (1, 101) -> (1, 97) @ (29, 7)
+
+   [campaign]    [summit-board-reset-back-approach] replan at (29, 7) (len 2, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [summit-board-reset-back] (1, 97) -> (1, 101) @ (9, 15)
+
+   [campaign]    [str-approach] replan at (9, 15) (len 4, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.3s at (1, 101)@(10, 13) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [push] (10, 12) -> (10, 11) (UP, 1/1)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-push] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-push] -> checkpoints/20260805_161635_an-unfamiliar-area_8b_31h50m_summit-board-push  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-push' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260805_161636_an-unfamiliar-area_8b_31h50m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [push] (9, 12) -> (8, 12) (LEFT, 1/1)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-push] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-push] -> checkpoints/20260805_161638_an-unfamiliar-area_8b_31h50m_summit-board-push  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-push' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 12) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260805_161638_an-unfamiliar-area_8b_31h50m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [push-approach0] replan at (10, 12) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (10, 11) (push-approach0 only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 10), (8, 11), (8, 12), (9, 6), (10, 11)])
+
+   [campaign]    [egress] blocker on (10, 11) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [push-approach0] no path from (10, 12) (npc-severed at (10, 11); wait did not clear it)
+
+   [campaign] !! [push] can't reach (9, 11) to push (8, 11) LEFT
+
+   [campaign] !! [summit-board#2] push (8, 11) LEFT FAILED (live truth kept; retry replans in place)
+
+   [campaign] !! [summit-board] unsolved after 3 rounds (LOUD)
+
+   [campaign] !! [moltres] climb leg wedged on (1, 101) @ (10, 12)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 101)@(10, 12))
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 101)(10, 13) -> (1, 101)(10, 12) (MOVED)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (10,12) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (1, 101)@(10, 13) (reason=frozen_box, frozen 8.3s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (10, 12) on (1, 101) (route around it) + marking (10, 13) a resolved talk-spot — unified block memory now 5 tile(s)
+
+   [campaign]    [roam] disengage: stepped DOWN AWAY from the NPC -> (10, 13) (closed box + walked off — the real escape)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick6] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 101), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find my way to Bill and get to Mt. Ember for Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'find my way to Bill and get to Mt. Ember for Moltres'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'find my way to Bill and get to Mt. Ember for Moltres'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — FERRY-ONLY errand (no overworld road exists; a compass march would surf circles) -> surfacing questline_strike_failed so the lap's bounded-fail law counts it
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 2/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 101)(10, 13) -> (1, 101)(10, 13) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — FERRY-ONLY errand (no overworld road exists; a compass march would surf circles) -> surfacing questline_strike_failed so the lap's bounded-fail law counts it
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 3/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 101)(10, 13) -> (1, 101)(10, 13) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick8] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — FERRY-ONLY errand (no overworld road exists; a compass march would surf circles) -> surfacing questline_strike_failed so the lap's bounded-fail law counts it
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 4/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 101)(10, 13) -> (1, 101)(10, 13) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 101), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find my way out and get to Mt. Ember'
+
+   [campaign]    [soul] ORACLE pick -> 'find my way out and get to Mt. Ember'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'questline_strike_failed', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (moltres) — abandoning the errand; re-recognizing fresh
+
+   [kira-voice] ·floor· (<1s since last) T1 "hm — this plan's going nowhere from here. let me rethink."
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'moltres' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_abandoned) — bounded attempt 5/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (1, 101)(10, 13) -> (1, 101)(10, 13) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (want) 'find my way out and get to Mt. Ember'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick10] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign] -- ROAM TICK 11/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'questline_abandoned', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — FERRY-ONLY errand (no overworld road exists; a compass march would surf circles) -> surfacing questline_strike_failed so the lap's bounded-fail law counts it
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 6/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'moltres': 6 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the moltres side quest — 6 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 101)(10, 13) -> (1, 101)(10, 13) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'SKIPPED', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: articuno
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign] -- ROAM TICK 12/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'questline_strike_failed', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (1, 101)(10, 13) -> (1, 101)(10, 13) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick12] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign] -- ROAM TICK 13/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 101), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='figure out where I am, get to One Island'
+
+   [campaign]    [soul] ORACLE pick -> 'figure out where I am, get to One Island'
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'figure out where I am, get to One Island'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (1, 101)(10, 13) -> (1, 101)(10, 13) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign] -- ROAM TICK 14/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'travel:1,97', 'travel:3,45']
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 7 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (1, 101)(10, 13) -> (1, 101)(10, 13) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick14] -> campaign/kira_campaign.state  (map=(1, 101) coords=(10, 13) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(10, 13) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign] -- ROAM TICK 15/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (10, 13) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(1, 101) (10,13) f1 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."
+
+   [campaign]    HEAL: inside a building complex (1, 101) — exiting to the overworld before routing
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(10, 13) -> coord (9, 14) (budget 60s, surf-capable)
+
+   [travel] releasing 1 stale NPC block(s) [(10, 12)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 0: (10, 13)->(10, 14) map=(1, 101) (path 3 to exit)
+
+   [travel] reached target coord (9, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 15) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    EXIT-BUILDING: (1, 101) -> (1, 97)@(29, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 97) coords=(29, 7) -> coord (29, 47) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 7)->(29, 8) map=(1, 97) (path 50 to exit)
+
+   [travel] step 10: (29, 17)->(29, 18) map=(1, 97) (path 40 to exit)
+
+   [travel] step 20: (29, 27)->(29, 28) map=(1, 97) (path 31 to exit)
+
+   [travel] step 30: (26, 34)->(26, 35) map=(1, 97) (path 21 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 38) elapsed=6s
+
+   [travel] step 40: (32, 38)->(32, 39) map=(1, 97) (path 12 to exit)
+
+   [travel] step 50: (31, 47)->(30, 47) map=(1, 97) (path 3 to exit)
+
+   [travel] reached target coord (29, 47)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (29, 48) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    EXIT-BUILDING: (1, 97) -> (3, 45)@(12, 6)
+
+   [campaign]    HEAL: unmapped (3, 45) — ADJACENT city an unfamiliar area (W) has a registered Center; one-edge heal excursion
+
+   [campaign]    HEAL-EXCURSION: lead at (156, 196) - crossing west to (3, 12) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 45) coords=(12, 6) -> map (3, 12) (budget 120s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+
+   [travel] step 0: (12, 6)->(12, 7) map=(3, 45) (path 143 to exit)
+
+   [travel] step 10: (12, 16)->(12, 17) map=(3, 45) (path 133 to exit)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.52s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 1ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF MOUNT at (12, 19) -> (12, 20) (map (3, 45))
+
+   [kira-voice] -> T1·brisk· (beat) "okay — onto the water. Surf's up."  fired=True  [age 0.0s + post 22ms]
+
+   [travel] step 20: (12, 26)->(12, 27) map=(3, 45) (path 123 to exit)
+
+   [travel] step 30: (12, 36)->(12, 37) map=(3, 45) (path 113 to exit)
+
+   [egress] blocker on (12, 39) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(11, 32), (12, 39)])
+
+   [egress] blocker cleared off (12, 39) after 1 poll(s) (~0.4s) — resuming the committed step
+
+   [egress] blocker on (10, 42) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(10, 42)])
+
+   [egress] blocker cleared off (10, 42) after 1 poll(s) (~0.4s) — resuming the committed step
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] HEARTBEAT step=40 map=(3, 45) coords=(10, 43) elapsed=14s
+
+   [travel] step 40: (10, 43)->(10, 44) map=(3, 45) (path 104 to exit)
+
+   [travel] step 50: (10, 53)->(10, 54) map=(3, 45) (path 94 to exit)
+
+   [travel] step 60: (11, 62)->(11, 63) map=(3, 45) (path 84 to exit)
+
+   [travel] step 70: (12, 68)->(11, 68) map=(3, 45) (path 77 to exit)
+
+   [travel] HEARTBEAT step=80 map=(3, 45) coords=(9, 75) elapsed=20s
+
+   [travel] step 80: (9, 75)->(9, 76) map=(3, 45) (path 67 to exit)
+
+   [egress] blocker on (9, 84) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(9, 84), (10, 86), (11, 89), (19, 79)])
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.1s at (3, 45)@(9, 83) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [egress] watchdog disengage during the wait — abandoning patience
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! HEAL-EXCURSION: didn't reach (3, 12) (at (3, 45))
+
+   [campaign]    !! HEAL: no graph route to any known Center from (3, 45) — FALLBACK to a cross-region Viridian heal (FIX: add (3, 45)'s PC door to CITY_PC_DOORS)
+
+   [campaign]    HEAL-RETURN: lead at (156, 196) - routing south to Viridian to heal
+
+   [campaign]    HEAL-RETURN leg 0: no south edge on map (3, 45) - warping south
+
+   [campaign]    4 door(s); candidates (chosen order): [(-5, 129), (15, 58), (11, 6), (12, 6)]
+
+   [campaign]    directional warp (11, 6): no stand/neighbor reachable from (8, 83) — sealed pocket, skipping (0 legs)
+
+   [campaign]    directional warp (12, 6): no stand/neighbor reachable from (8, 83) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    !! HEAL-RETURN stuck on map (3, 45) (no south edge, no south warp)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 45) coords=(8, 83) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260805_161746_an-unfamiliar-area_8b_31h51m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 16/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 83) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 45) (8,83) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:1,97']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 45), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find Mt. Ember summit, catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'find Mt. Ember summit, catch Moltres'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'find Mt. Ember summit, catch Moltres'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 45)(8, 83) -> (3, 45)(8, 83) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick16] -> campaign/kira_campaign.state  (map=(3, 45) coords=(8, 83) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 17/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 83) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 45) (8,83) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:1,97']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 45)(8, 83) -> (3, 45)(8, 83) (NO MOVEMENT)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 18/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 83) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 45) (8,83) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:1,97']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 45)(8, 83) -> (3, 45)(8, 83) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick18] -> campaign/kira_campaign.state  (map=(3, 45) coords=(8, 83) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 19/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 83) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 45) (8,83) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:1,97']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 45), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find Mt. Ember summit, catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'find Mt. Ember summit, catch Moltres'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'ok', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 45)(8, 83) -> (3, 45)(8, 83) (NO MOVEMENT)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 20/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 83) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 45) (8,83) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:1,97']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'ok', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 45)(8, 83) -> (3, 45)(8, 83) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick20] -> campaign/kira_campaign.state  (map=(3, 45) coords=(8, 83) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 21/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 83) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 45) (8,83) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:1,97']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'ok', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 45)(8, 83) -> (3, 45)(8, 83) (NO MOVEMENT)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 22/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 83) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 45) (8,83) f3 -- badge8 $30570 party:f724 bag:ee16]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:1,97']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 45), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+

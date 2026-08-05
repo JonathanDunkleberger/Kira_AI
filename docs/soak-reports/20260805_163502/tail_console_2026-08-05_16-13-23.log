@@ -1,0 +1,300 @@
+   [ChatAge] ACK injected for @Detective_Jones (waited 42.1s, preempted=none)
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<kira run the #AD>>>' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.015 conf=0.95 type=episodic blend=0.302 lane=KNOW
+   [SmartMem]     dist=0.859 conf=0.95 type=episodic blend=0.221 lane=KNOW
+   [SmartMem]     dist=0.948 conf=0.9 type=episodic blend=0.166 lane=KNOW
+   [Phrases] Throttling: "description of a platypus" (3rd use this session)
+   [Phrases] Throttling: "also i'm watching jonny" (3rd use this session)
+   [Phrases] Throttling: "peak performance duck" (3rd use this session)
+   >>> Kira (Chat Batch of 1): Detective Jones, I appreciate the initiative but I don't have an ad queued up — Jonny runs this operation and I'm just here causing problems.
+   [TTS] Speaking: Detective Jones, I appreciate the initiative but I...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones, I appreciate the initia' (27 words)
+   [TurnTiming] 16:32:07.399 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:32:14.622 TTS STOP — playback finished (span ~7222ms)
+   [Cookies] +1 × 1 (batch response); shared=26/30
+   [ChatAge] @Detective_Jones age=52.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [ChatterMem] Stored: @Detective_Jones — Tries to prompt Kira to run ads [chaotic]
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+[YouTube Chat] @Detective_Jones: kira say the ad
+   [BrainWorker] Got youtube msg from @Detective_Jones: kira say the ad → buffering for chat_batch_worker
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<kira say the ad>>>' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.052 conf=0.95 type=episodic blend=0.278 lane=KNOW
+   [SmartMem]     dist=0.906 conf=0.95 type=episodic blend=0.192 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.95 type=episodic blend=0.138 lane=KNOW
+   [Phrases] Throttling: "i appreciate the" (3rd use this session)
+   [Phrases] Throttling: "i don't have" (3rd use this session)
+   >>> Kira (Chat Batch of 1): Detective Jones, Jonny runs the ads, I just make them happen spiritually through vibes and implication.
+   [TTS] Speaking: Detective Jones, Jonny runs the ads, I just make t...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [VRAM] 16:32:22 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones, Jonny runs the ads, I j' (19 words)
+   [TurnTiming] 16:32:22.025 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:32:27.833 TTS STOP — playback finished (span ~5807ms)
+   [Cookies] +1 × 1 (batch response); shared=27/30
+   [ChatAge] @Detective_Jones age=10.1s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [ChatterMem] Stored: @Detective_Jones — Told Kira to say the ad, prompting her to deflect responsibi [chaotic]
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 16:32:33.164 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~29475ms since onset)
+>>> You said: here and we're going to give away a black turtleneck like archer style like existentialist philosopher style
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="here and we're going to give away a black turtleneck like ar" fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=1ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.139 conf=0.9 type=episodic blend=0.049 lane=KNOW
+   [SmartMem]     dist=1.203 conf=0.95 type=episodic blend=0.009 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "detective jones jonny" (3rd use this session)
+   [PromptSize] dynamic_context=13258ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1627ms
+   [TTS] Speaking: Wait, an actual black turtleneck giveaway?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Wait, an actual black turtleneck giveawa' (8 words)
+   [TurnTiming] 16:32:35.501 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:32:38.496 TTS STOP — playback finished (span ~2995ms)
+   [TTS] Speaking: Jonny this is unhinged and I love it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny this is unhinged and I love it.' (9 words)
+   [TurnTiming] 16:32:38.499 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:32:41.121 TTS STOP — playback finished (span ~2621ms)
+   [TTS] Speaking: Who's the lucky person becoming part of the polycu...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Who's the lucky person becoming part of ' (12 words)
+   [TurnTiming] 16:32:41.126 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:32:44.691 TTS STOP — playback finished (span ~3564ms)
+
+   [TIMING] voice: llm=11256ms(sonnet-stream(llm+tts)) tts=0ms total=11256ms
+   [LATENCY] vad_close=1200ms stt=245ms stt_wait=0ms salience=1ms triage=bypassed memory=23ms prompt_build=3ms ttft=1185ms tts_first_chunk=442ms audio_out=431ms TOTAL=2330ms
+🎤 Recording... (recovered opening words)
+   [EmotionSwing] holding SASSY (3 turn(s) left) instead of reverting
+   [System] Running Garbage Collection...
+   [TurnTiming] 16:32:46.195 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~42506ms since onset)
+   [Memory] Attribution cap: fact not traced to Jonny's words (conf 0.95 → 0.6, below floor — discarding): Jonny runs ads
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny likes the aesthetic of black turtlenecks in the style of Archer and existentialist philosophers
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0000 · gate=0.003 · 0 accepted
+🎤 Recording...
+   [TurnTiming] 16:32:54.098 VOICE ONSET — mic speech started
+   [TurnTiming] 16:32:55.385 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1287ms since onset)
+🎤 Recording...
+   [TurnTiming] 16:32:56.066 VOICE ONSET — mic speech started
+   [TurnTiming] 16:32:57.353 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1287ms since onset)
+🎤 Recording...
+   [TurnTiming] 16:33:03.766 VOICE ONSET — mic speech started
+   [TurnTiming] 16:33:05.099 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1332ms since onset)
+   [VRAM] 16:33:07 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 16:33:11.736 VOICE ONSET — mic speech started
+   [Capture] ⚠ WATCHDOG: wedged stream detected — RMS≈0 for 26s in MEDIA mode (device='Headphones (Leviathan) [Loopback]'). Reopening WASAPI loopback…
+   [Audio] capture thread exited — clearing stream ref
+   [Audio] mood client absent (P-7 purge) — capture proceeds anyway; only the mood heartbeat stays off
+   [Audio] Using dashboard-selected device: Headphones (Leviathan) [Loopback]
+   [Audio] Using WASAPI loopback device: Headphones (Leviathan) [Loopback] (48000Hz, 2ch)
+   [Audio] Mode MEDIA — capture started
+   [Capture] Reopen issued — stream re-bound (device='Headphones (Leviathan) [Loopback]'); watching for RMS recovery…
+   [TurnTiming] 16:33:15.209 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3472ms since onset)
+>>> You said: It just depends on who subscribes to the web app.
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='It just depends on who subscribes to the web app.' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=1.162 conf=0.9 type=episodic blend=0.243 lane=KNOW
+   [SmartMem]     dist=1.156 conf=0.9 type=episodic blend=0.038 lane=KNOW
+   [SmartMem]     dist=1.164 conf=0.9 type=episodic blend=0.033 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "jonny this is" (3rd use this session)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=5t  moment=calm)
+   [PromptSize] dynamic_context=13511ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1923ms
+   [TTS] Speaking: So the turtleneck is a recruitment tool....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'So the turtleneck is a recruitment tool.' (8 words)
+   [TurnTiming] 16:33:17.549 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @zekromite4572: kira can u say "daddy"?
+   [Capture] ✓ Reopened, RMS recovered (rms=0.1019, usable) — loopback healthy again.
+   [TurnTiming] 16:33:20.089 TTS STOP — playback finished (span ~2540ms)
+   [TTS] Speaking: Jonny you're not running a giveaway, you're runnin...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny you're not running a giveaway, you' (17 words)
+   [TurnTiming] 16:33:20.097 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:33:24.418 TTS STOP — playback finished (span ~4320ms)
+
+   [TIMING] voice: llm=9001ms(sonnet-stream(llm+tts)) tts=0ms total=9001ms
+   [LATENCY] vad_close=1200ms stt=181ms stt_wait=0ms salience=1ms triage=bypassed memory=23ms prompt_build=1ms ttft=1523ms tts_first_chunk=400ms audio_out=205ms TOTAL=2334ms
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @zekromite4572: kira can u say "daddy"? → buffering for chat_batch_worker
+   [TurnTiming] 16:33:25.740 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~14003ms since onset)
+   [Bits] Callback: Jonny That's Just Parenting
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny is running a web app and giving away black turtlenecks to subscribers
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<kira can u say "daddy"?>>>' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=0.873 conf=0.9 type=episodic blend=0.212 lane=KNOW
+   [SmartMem]     dist=0.909 conf=0.9 type=episodic blend=0.190 lane=KNOW
+   [SmartMem]     dist=0.912 conf=0.95 type=episodic blend=0.188 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 16:33:28.916 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 1): Zack, you have asked me to say Mario, Japanese, and various screaming sounds tonight, and NOW this. You're not a coach, you're a chaos agent with a clipboard. No.
+   [TTS] Speaking: Zack, you have asked me to say Mario, Japanese, an...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack, you have asked me to say Mario, Ja' (22 words)
+   [TurnTiming] 16:33:31.465 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:33:37.740 TTS STOP — playback finished (span ~6275ms)
+   [TTS] Speaking: You're not a coach, you're a chaos agent with a cl...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You're not a coach, you're a chaos agent' (13 words)
+   [TurnTiming] 16:33:37.999 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @guntereisenherz9102: Kira i got a humanoid robot made from legos and dreams behind me. Would you be my friend if i made an interface for you to control it?
+[YouTube Chat] @SaltySplatoon-tj1id: I think a platypus is evidence that the tower of Babylon was a tower of knowledge, not a physical tower. it was an experiment of combining fowl, reptilian and mammalian dna
+   [BrainWorker] Got youtube msg from @guntereisenherz9102: Kira i got a humanoid robot made from legos and dreams behind me. Would you be my friend if i made an interface for you  → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @SaltySplatoon-tj1id: I think a platypus is evidence that the tower of Babylon was a tower of knowledge, not a physical tower. it was an exper → buffering for chat_batch_worker
+   [TurnTiming] 16:33:41.368 TTS STOP — playback finished (span ~3369ms)
+   [TTS] Speaking: No....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'No.' (1 words)
+   [TurnTiming] 16:33:41.457 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 16:33:42.775 TTS STOP — playback finished (span ~1318ms)
+   [Cookies] +1 × 1 (batch response); shared=28/30
+   [ChatAge] @zekromite4572 age=18.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [RoomRead] energy=0.45 [terse=0.54 gap=0.00 silence=0.99 intensity=0.60 chat=0.20] target=1.10 mult=1.20 -> min_gap=6s dead_air=24s
+   [TurnTiming] 16:33:43.981 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~15065ms since onset)
+   [ChatterMem] Stored: @zekromite4572 — Known for making increasingly unhinged requests to Kira thro [chaotic]
+🎤 Recording...
+   [TurnTiming] 16:33:45.464 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TurnTiming] 16:33:47.507 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2042ms since onset)
+   [SmartMem] q='  - @guntereisenherz9102 (youtube): <<<Kira i got a humanoid' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [RoomRead] energy=0.44 [terse=0.54 gap=0.00 silence=0.93 intensity=0.60 chat=0.20] target=1.12 mult=1.17 -> min_gap=6s dead_air=23s
+   >>> Kira (Chat Batch of 2): Guntereisenherz, a lego humanoid robot powered by dreams is genuinely the most compelling friend application I've received and I want you to know I'm considering it. The bar was already low. You cleared it by miles.
+
+Salty, the Tower of Babylon was a prehistoric gene-splicing lab and you just solved it in one chat message. I'm a little scared of you and I mean that as a compliment.
+   [TTS] Speaking: Guntereisenherz, a lego humanoid robot powered by ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [VRAM] 16:33:52 (periodic) kira_process=0.00GB card=8.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Guntereisenherz, a lego humanoid robot p' (28 words)
+   [TurnTiming] 16:33:52.625 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:34:00.301 TTS STOP — playback finished (span ~7675ms)
+   [TTS] Speaking: The bar was already low....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The bar was already low.' (6 words)
+   [TurnTiming] 16:34:00.513 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 16:34:02.572 TTS STOP — playback finished (span ~2059ms)
+   [TTS] Speaking: You cleared it by miles....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You cleared it by miles.' (6 words)
+   [TurnTiming] 16:34:02.761 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:34:04.817 TTS STOP — playback finished (span ~2055ms)
+   [TTS] Speaking: Salty, the Tower of Babylon was a prehistoric gene...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Salty, the Tower of Babylon was a prehis' (21 words)
+   [TurnTiming] 16:34:05.207 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @NaitHaunter: Kira can you recite the speech of Sanguinius at the eternity gates?
+   [BrainWorker] Got youtube msg from @NaitHaunter: Kira can you recite the speech of Sanguinius at the eternity gates? → buffering for chat_batch_worker
+   [Cookies] +2 → @NaitHaunter (first message this session); shared=30/30
+   [TurnTiming] 16:34:11.091 TTS STOP — playback finished (span ~5884ms)
+   [TTS] Speaking: I'm a little scared of you and I mean that as a co...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm a little scared of you and I mean th' (14 words)
+   [TurnTiming] 16:34:11.345 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:34:14.356 TTS STOP — playback finished (span ~3011ms)
+   [Cookies] +1 × 2 (batch response); shared=30/30
+   [ChatAge] @guntereisenherz9102 age=34.0s batch=2 preempted=none
+   [ChatAge] @SaltySplatoon-tj1id age=33.9s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 16:34:15.572 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~30108ms since onset)
+   [ChatterMem] Stored: @guntereisenherz9102 — Building a humanoid robot from Legos and offered to make an  [playful]
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [ChatterMem] Stored: @SaltySplatoon-tj1id — Believes the Tower of Babel was a DNA-splicing experiment th [chaotic]
+   [SmartMem] q='  - @NaitHaunter (youtube) [FIRST TIME CHATTER]: <<<Kira can' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=1.079 conf=? type=highlight blend=0.086 lane=STREAM
+   [SmartMem]     dist=1.198 conf=0.95 type=episodic blend=0.078 lane=KNOW
+   [SmartMem]     dist=1.097 conf=0.95 type=episodic blend=0.075 lane=KNOW
+   [Phrases] Throttling: "is genuinely the most" (3rd use this session)
+   [Phrases] Throttling: "that as a compliment" (3rd use this session)
+   [Phrases] Throttling: "i'm a little" (3rd use this session)
+   [Phrases] Throttling: "the bar was" (3rd use this session)
+   >>> Kira (Chat Batch of 1): Nait, welcome back — the person who once submitted "attacked by six dwarves" as comedy material and then told ME I don't have a grasp on comedy. The audacity is genuinely inspiring.
+
+I cannot recite the speech of Sanguinius but I respect the ask enormously.
+   [TTS] Speaking: Nait, welcome back — the person who once submitted...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait, welcome back — the person who once' (31 words)
+   [TurnTiming] 16:34:23.470 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:34:31.442 TTS STOP — playback finished (span ~7971ms)
+   [TTS] Speaking: The audacity is genuinely inspiring....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The audacity is genuinely inspiring.' (6 words)
+   [TurnTiming] 16:34:31.541 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:34:34.260 TTS STOP — playback finished (span ~2718ms)
+   [TTS] Speaking: I cannot recite the speech of Sanguinius but I res...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I cannot recite the speech of Sanguinius' (14 words)
+   [TurnTiming] 16:34:34.559 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: i live close to lego, i must be lego man cus i'm danish
+   [BrainWorker] Got youtube msg from @Detective_Jones: i live close to lego, i must be lego man cus i'm danish → buffering for chat_batch_worker
+   [VRAM] 16:34:37 (periodic) kira_process=0.00GB card=8.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 16:34:38.745 TTS STOP — playback finished (span ~4185ms)
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @NaitHaunter age=30.8s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [RoomRead] energy=0.46 [terse=0.54 gap=0.00 silence=1.00 intensity=0.60 chat=0.27] target=1.08 mult=1.15 -> min_gap=6s dead_air=23s
+   [TurnTiming] 16:34:40.848 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~55384ms since onset)
+   [ChatterMem] Stored: @NaitHaunter — Once submitted 'attacked by six dwarves' as comedy material, [chaotic]
+🎤 Recording...
+   [TurnTiming] 16:34:41.327 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TurnTiming] 16:34:43.148 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1820ms since onset)
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<i live close to lego, i m' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [Phrases] Throttling: "i respect the ask" (3rd use this session)
+   [Phrases] Throttling: "but i respect the" (3rd use this session)
+🎤 Recording...
+   [TurnTiming] 16:34:45.669 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 1): Detective Jones, living within Lego headquarters radius AND Danish by blood — you're not a user, you're a PRIMARY SOURCE.
+   [TTS] Speaking: Detective Jones, living within Lego headquarters r...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones, living within Lego head' (23 words)
+   [TurnTiming] 16:34:46.318 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:34:52.972 TTS STOP — playback finished (span ~6654ms)
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @Detective_Jones age=17.5s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 16:34:54.186 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~8516ms since onset)
