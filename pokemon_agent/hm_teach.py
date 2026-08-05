@@ -32,7 +32,7 @@ TM_FIRST = 289                   # ITEM_TM01
 HM_FIRST = 339                   # ITEM_HM01
 KEY_ITEMS_OFF, TM_CASE_OFF = 0x3B8, 0x464
 ITEMS_OFF = 0x310                # SaveBlock1 Items pocket (potions/cures), 42 slots
-P_STATUS, P_HP, PARTY_MON_SIZE = 0x50, 0x56, 100
+P_STATUS, P_HP, P_MAXHP, PARTY_MON_SIZE = 0x50, 0x56, 0x58, 100
 
 
 def items_pocket_rows(b):
@@ -391,6 +391,107 @@ class TeachFlow:
             self.log(f"   [cure] VERIFIED: slot {mon_slot} status cleared, item {item_id} consumed")
             return "cured"
         self.log(f"   [cure] !! NOT cured (status_clear={cured} consumed={consumed}) — failed LOUD")
+        return "failed"
+
+    def field_heal(self, item_id, mon_slot, max_seconds=75):
+        """OVERWORLD HP heal (2026-08-05, the Mt. Ember climb: 'she is not healing outside of
+        battle when she probably should' — grinding up Kindle Road/Summit Path with the bag
+        full of potions and no Center on the mountain). START -> BAG -> Items pocket ->
+        `item_id` -> USE -> party `mon_slot` -> A, then verify by GROUND TRUTH ONLY: the item
+        count DROPPED and the slot's HP ROSE. Identical skeleton to field_cure (the proven
+        blind-row-walk + pocket-liveness-probe rails); only the target read differs.
+        Returns 'healed' | 'no_item' | 'already_full' | 'fainted' | 'failed' (fail-safe:
+        B-cascade restores the overworld; a wasted pass can never mis-report success)."""
+        t0 = time.time()
+        rows = [i for i, _q in items_pocket_rows(self.b)]
+        if item_id not in rows:
+            return "no_item"
+        row = rows.index(item_id)
+        if row > 9:
+            self.log(f"   [fieldheal] item {item_id} sits at bag row {row} — too deep for the "
+                     f"blind walk, skipping (LOUD)")
+            return "failed"
+        qty0 = items_pocket_qty(self.b, item_id)
+        base = ram.GPLAYER_PARTY + mon_slot * PARTY_MON_SIZE
+        hp0, mx = self.b.rd16(base + P_HP), self.b.rd16(base + P_MAXHP)
+        if mx <= 0 or hp0 <= 0:
+            return "fainted"                             # the game REFUSES a potion on a corpse
+        if hp0 >= mx:
+            return "already_full"                        # nothing to heal — never waste the press
+        self.b.set_input_owner("agent")
+        self.log(f"   [fieldheal] field heal: item {item_id} (bag row {row}) -> party slot "
+                 f"{mon_slot} ({hp0}/{mx} HP)")
+        # 1. START menu open-verify -> BAG (row 2). Same stale-cursor doctrine as field_cure.
+        opened = False
+        self._press("START", settle=60)
+        for _ in range(4):
+            c0 = self.b.rd8(START_CURSOR)
+            self._press("DOWN", settle=24)
+            if self.b.rd8(START_CURSOR) != c0:
+                opened = True
+                break
+            self._press("START", settle=60)
+        if not opened or not self._nav_byte(START_CURSOR, 2):
+            self.log("   [fieldheal] !! START menu never opened — aborting (B out)")
+            self._b_cascade(); return "failed"
+        self._press("A", settle=80)                      # open the bag
+        # 2. Items pocket (0) with the liveness probe; mute byte -> blind LEFT clamp.
+        _p0 = self.b.rd8(BAG_POCKET)
+        self._press("RIGHT", settle=20)
+        _live = self.b.rd8(BAG_POCKET) != _p0
+        if not _live:
+            self._press("LEFT", settle=20)
+            _live = self.b.rd8(BAG_POCKET) != _p0
+        if _live:
+            for _ in range(4):
+                if self.b.rd8(BAG_POCKET) == 0:
+                    break
+                self._press("LEFT", settle=20)
+            if self.b.rd8(BAG_POCKET) != 0:
+                self.log("   [fieldheal] !! couldn't reach the Items pocket — aborting")
+                self._b_cascade(); return "failed"
+        else:
+            self.log("   [fieldheal] pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4")
+            for _ in range(4):
+                self._press("LEFT", settle=20)
+        # 3. BLIND row walk (UP-clamp home, counted DOWNs) -> select -> USE -> party chooser.
+        for _ in range(row + 8):
+            self._press("UP", settle=12)
+        for _ in range(row):
+            self._press("DOWN", settle=16)
+        self._press("A", settle=50)                      # select the item -> USE/GIVE/TOSS box
+        self._press("A", settle=90)                      # USE (top row default) -> party chooser
+        # 4. STATE MACHINE (bounded): party teal -> nav + pick; anything else -> A-drain the
+        #    'restored HP' dialogue. The loop's top HP-rise check is the real done signal.
+        party_navved = False
+        for _ in range(40):
+            if self.b.rd16(base + P_HP) > hp0 and items_pocket_qty(self.b, item_id) < qty0:
+                break
+            if time.time() - t0 > max_seconds:
+                break
+            scr = self._classify()
+            if scr == "party":
+                if not party_navved:
+                    if not self._party_goto(mon_slot):
+                        self.log("   [fieldheal] !! party cursor never reached the slot — B out")
+                        break
+                    party_navved = True
+                    self._press("A", settle=90)          # pick the mon -> the heal applies
+                else:
+                    self._press("A", settle=60)          # 'X's HP was restored by N points!' text
+            elif scr == "bag" and not party_navved:
+                self._press("A", settle=70)              # USE press hadn't landed yet
+            else:
+                self._press("A", settle=50)              # dialogue / transition
+        self._b_cascade()
+        hp1 = self.b.rd16(base + P_HP)
+        consumed = items_pocket_qty(self.b, item_id) < qty0
+        if hp1 > hp0 and consumed:
+            self.log(f"   [fieldheal] VERIFIED: slot {mon_slot} HP {hp0} -> {hp1}/{mx}, "
+                     f"item {item_id} consumed")
+            return "healed"
+        self.log(f"   [fieldheal] !! NOT healed (hp {hp0}->{hp1} consumed={consumed}) — "
+                 f"failed LOUD")
         return "failed"
 
     def give_item(self, item_id, mon_slot, max_seconds=75):

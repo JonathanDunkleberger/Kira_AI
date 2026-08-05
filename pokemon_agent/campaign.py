@@ -1346,6 +1346,20 @@ SHOP_CURE_QTY = 3
 # carry into the fight (Parlyz Heal vs Surge, Antidote vs Koga). Tunable; not a hoard.
 GYM_CURE_TARGET = int(os.getenv("POKEMON_GYM_CURE_TARGET", "4"))
 ITEM_FULL_HEAL = 23
+# ── FIELD-HEAL DOCTRINE (2026-08-05, the Mt. Ember climb: 'she is not healing outside of
+# battle when she probably should'): between battles / at strike leg boundaries, if the ACE
+# is under FIELDHEAL_ACE_FRAC (or any other standing member under FIELDHEAL_BENCH_FRAC),
+# drink from the bag via the PROVEN TeachFlow rails — cheapest-adequate tier first (never a
+# Full Restore on a 20-point chip). The legendary press adds a TOP-UP seam (ace to near-full
+# before the static A-press). Bounded, honest empty-pocket skip, never mid-battle (that's
+# battle_agent's item flow), never over an open dialogue box. All logs tagged [fieldheal].
+FIELD_HEAL_ENABLED = os.getenv("POKEMON_FIELD_HEAL", "1") == "1"
+FIELDHEAL_ACE_FRAC = float(os.getenv("POKEMON_FIELDHEAL_ACE_FRAC", "0.50"))
+FIELDHEAL_BENCH_FRAC = float(os.getenv("POKEMON_FIELDHEAL_BENCH_FRAC", "0.35"))
+FIELDHEAL_TOPUP_FRAC = float(os.getenv("POKEMON_FIELDHEAL_TOPUP_FRAC", "0.95"))
+FIELDHEAL_MAX_PER_SEAM = int(os.getenv("POKEMON_FIELDHEAL_MAX_PER_SEAM", "3"))
+# How much each potion tier heals (Gen 3) — same fact table battle_agent._POTION_HEALS uses.
+POTION_HEAL_AMOUNT = {13: 20, 22: 50, 21: 200, 20: 9999, 19: 9999}
 # BATCH 6 PHASE 3 — Poké Ball FORESIGHT: a teammate is the answer to a wall (Phase 2), and you can't
 # catch one with an empty bag. When she's running a thin team and low on balls, "grab some Poké Balls"
 # surfaces as a real shopping need — so she goes into the grass equipped to actually come home with a
@@ -9774,6 +9788,111 @@ class Campaign:
         except Exception as _fcx:
             log(f"   [roam] field-cure tick skipped: {_fcx}")
 
+    def _cheapest_adequate_heal(self, missing_hp):
+        """Smallest potion tier in the bag that covers `missing_hp` (Potion < Super < Hyper <
+        Max < Full Restore — never waste the big bottle on a chip); if no tier covers it
+        fully, the biggest bottle present (max value for the drink). None = heal pocket is
+        EMPTY. Pure ladder logic — recon-testable."""
+        best = None
+        for iid in (13, 22, 21, 20, 19):                 # cheapest -> priciest
+            if self.bag_count(iid) <= 0:
+                continue
+            best = iid                                   # biggest-present fallback (list ascends)
+            if POTION_HEAL_AMOUNT[iid] >= missing_hp:
+                return iid
+        return best
+
+    def _field_heal_pick(self, top_up=False):
+        """(slot, hp, mx, item_id) for the neediest heal-worthy member, or None. The ACE
+        (highest level — the mon that actually fights) heals under FIELDHEAL_ACE_FRAC and
+        OUTRANKS the bench; other standing members under FIELDHEAL_BENCH_FRAC. `top_up`
+        raises the ace's bar to FIELDHEAL_TOPUP_FRAC (the pre-legendary near-full seam).
+        Fainted mons are skipped (a potion is refused on a corpse — Revive/Center owns
+        them). An EMPTY heal pocket with a hurt mon logs an honest [fieldheal] skip
+        (rate-limited) and returns None — never a wedge."""
+        ph = self.party_health()
+        if not ph:
+            return None
+        ace = self._lap_ace_slot()
+        if ace is None:
+            ace = 0
+        need = []                                        # (ace-first, frac, slot, hp, mx)
+        for s, hp, mx, frac in ph:
+            if hp <= 0:
+                continue
+            thr = (FIELDHEAL_TOPUP_FRAC if (top_up and s == ace)
+                   else (FIELDHEAL_ACE_FRAC if s == ace else FIELDHEAL_BENCH_FRAC))
+            if frac < thr:
+                need.append((0 if s == ace else 1, frac, s, hp, mx))
+        if not need:
+            return None
+        need.sort()
+        _, _, s, hp, mx = need[0]
+        iid = self._cheapest_adequate_heal(mx - hp)
+        if iid is None:
+            if time.time() >= getattr(self, "_field_heal_empty_logged", 0):
+                self._field_heal_empty_logged = time.time() + 300
+                nm = st.SPECIES_NAME.get(st.read_party_species(self.b, s), f"slot{s}").title()
+                log(f"   [fieldheal] !! {nm} is hurt ({hp}/{mx}) but the heal pocket is "
+                    f"EMPTY — honest skip (the next Center/Mart owns it)")
+            return None
+        return (s, hp, mx, iid)
+
+    def field_heal_check(self, reason="tick", top_up=False):
+        """OUT-OF-BATTLE FIELD HEAL (2026-08-05, the Mt. Ember climb: 'she is not healing
+        outside of battle when she probably should' — badge-8 Blastoise grinding up Kindle
+        Road/Summit Path with potions in the bag and no Center on the mountain). The seam
+        runs between battles (free-roam tick), at strike leg boundaries, and as the
+        pre-legendary TOP-UP right before the static A-press (`top_up=True`). Drinks via
+        the PROVEN TeachFlow bag rails, cheapest-adequate first, up to
+        FIELDHEAL_MAX_PER_SEAM bottles per seam; a failed bag-drive backs off 10 minutes
+        (a Center heal still owns it — never a loop). Status on a standing mon rides the
+        existing field-cure flow at the end (the climb has no roam tick to catch it).
+        Returns how many heals landed. Best-effort + LOUD; never raises."""
+        if not FIELD_HEAL_ENABLED:
+            return 0
+        healed_n = 0
+        try:
+            if time.time() < getattr(self, "_field_heal_backoff", 0):
+                return 0
+            if st.in_battle(self.b):
+                return 0                    # mid-battle items are battle_agent's flow, never ours
+            if dd_box_open(self.b):
+                return 0                    # scripted scene / open box — never fight the script
+            voiced = False
+            for _pass in range(FIELDHEAL_MAX_PER_SEAM):
+                tgt = self._field_heal_pick(top_up=top_up)
+                if tgt is None:
+                    break
+                slot, hp, mx, iid = tgt
+                nm = st.SPECIES_NAME.get(st.read_party_species(self.b, slot),
+                                         f"slot{slot}").title()
+                log(f"   [fieldheal] {reason}{' TOP-UP' if top_up else ''}: {nm} at "
+                    f"{hp}/{mx} HP — drinking {ITEM_NAMES.get(iid, iid)} from the bag NOW "
+                    f"(cheapest-adequate; no Center on this road)")
+                if not voiced:
+                    voiced = True
+                    self.on_event(
+                        (f"before I take another step toward that thing — {nm} gets topped "
+                         f"up. walking into a legendary hurt is how runs die."
+                         if top_up else
+                         f"{nm}'s pretty beat up and I'm literally carrying potions. "
+                         f"quick drink, THEN we keep moving."), kind="heal", tier=1)
+                import hm_teach as _ht
+                res = _ht.TeachFlow(self, log=log, on_event=self.on_event).field_heal(iid, slot)
+                if res != "healed":
+                    self._field_heal_backoff = time.time() + 600
+                    log(f"   [fieldheal] !! bag-drive -> {res} — backing off 10 min "
+                        f"(LOUD; the Center path still heals)")
+                    break
+                healed_n += 1
+            # STATUS RIDE-ALONG: a poisoned/burned climber uses the proven cure flow here —
+            # during a strike the roam tick (its usual caller) never runs.
+            self._field_cure_tick()
+        except Exception as _fhx:
+            log(f"   [fieldheal] check skipped: {_fhx}")
+        return healed_n
+
     def _mart_index(self):
         """TRUE BUY-list selection = selectedRow + scrollOffset (see MART_CURSOR/MART_SCROLL)."""
         return self.b.rd16(MART_CURSOR) + self.b.rd16(MART_SCROLL)
@@ -13290,6 +13409,17 @@ class Campaign:
             cheap = next((t for t in (4, 3) if t in shelf and t != tier), None)
             if cheap is not None and self._balls_pocket_count(cheap) < 5:
                 want.append((cheap, 5 - self._balls_pocket_count(cheap)))
+            # FIELD-HEAL STOCK RIDE-ALONG (2026-08-05, the Mt. Ember climb): the same counter
+            # tops the heal pocket up so the climb's [fieldheal] doctrine has bottles to
+            # drink (Cinnabar shelves Hyper Potion at row 2). Best-effort — a read flake
+            # never blocks the ball restock this trip exists for.
+            try:
+                pot = next((p for p in (21, 22, 13) if p in shelf), None)
+                heals = sum(self.bag_count(i) for i in (13, 22, 21, 20, 19))
+                if pot is not None and heals < 8:
+                    want.append((pot, 8 - heals))
+            except Exception as _fpx:
+                log(f"   [lap] potion ride-along skipped: {_fpx}")
             bought = (self.buy_at_celadon_dept(want) if here == CELADON
                       else self.buy_at_mart(door, want)) or {}
             if bought.get(tier):
@@ -18185,6 +18315,13 @@ class Campaign:
             # the bag, USE it right here on the overworld (poison eats HP every few steps).
             if newly:
                 self._field_cure_tick()
+            # FIELD HEAL (2026-08-05, the Mt. Ember climb): the between-battles HP doctrine —
+            # ace under 50% (bench under 35%) + potions in the bag -> drink NOW ([fieldheal];
+            # skips-when-healthy is a cheap RAM scan, so this rides every tick).
+            try:
+                self.field_heal_check(reason="roam")
+            except Exception as _fhx:
+                log(f"   [fieldheal] roam seam skipped: {_fhx}")
             # THE JOLTEON RITE (2026-08-03 OP-team pass): Eevee + Thunder Stone -> evolve on the
             # spot; Eevee claimed but stone-less while standing in Celadon -> Dept 4F buys one.
             # Cheap RAM scan, self-backing-off — see _jolteon_tick.

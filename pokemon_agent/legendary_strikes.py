@@ -166,6 +166,19 @@ class LegendaryHunt(GiovanniGym):
             pass
         return None
 
+    # ── field healing (2026-08-05, the Mt. Ember climb) ─────────────────────────────────
+    def field_heal_seam(self, top_up=False):
+        """OUT-OF-BATTLE HEAL SEAM: a hunt owns the loop for up to ~47 minutes with NO roam
+        tick and (on Mt. Ember) no Center — wild/trainer chip accumulates unanswered. Between
+        legs (and as the pre-press TOP-UP) hand the turn to the campaign's [fieldheal]
+        doctrine: ace under 50% (near-full for top_up) drinks the cheapest-adequate potion
+        via the proven bag rails. Best-effort, bounded by the doctrine's own backoff —
+        a heal wedge can never void the hunt."""
+        try:
+            self.camp.field_heal_check(reason="strike", top_up=top_up)
+        except Exception as e:
+            self.log(f"   [fieldheal] strike seam skipped: {e}")
+
     # ── movement ─────────────────────────────────────────────────────────────────────────
     def enter_step(self, tile, dest, label):
         """Walk BESIDE a warp tile (sea_walk excludes warp tiles from its own paths), then STEP
@@ -220,6 +233,7 @@ class LegendaryHunt(GiovanniGym):
         for _hop in range(len(table) + 2):
             while self.handle_interrupts():
                 pass
+            self.field_heal_seam()          # between-legs drink (battles just drained above)
             here = tuple(tv.map_id(self.b))
             if here == goal_map:
                 return True
@@ -243,6 +257,9 @@ class LegendaryHunt(GiovanniGym):
         q, b = self.QUARRY, self.b
         tile = q["tile"]
         nbs = [(tile[0] + dx, tile[1] + dy) for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1))]
+        # PRE-LEGENDARY TOP-UP (2026-08-05): the static fight starts at HER choice of moment —
+        # a real player tops the ace to (near-)full BEFORE pressing A, not after turn 1.
+        self.field_heal_seam(top_up=True)
         try:
             self.camp.on_event(f"there it is. {q['name']}. okay — deep breath, balls ready. "
                                f"we are NOT blowing this.", kind="legendary", tier=3)
@@ -736,6 +753,10 @@ class MoltresHunt(LegendaryHunt):
         for _stage in range(64):
             while self.handle_interrupts():
                 pass
+            # STRIKE-LEG HEAL SEAM (2026-08-05): the climb's battles resolve inside the legs/
+            # interrupts above; this is the 'control is back on the overworld' moment — drink
+            # if the doctrine says so (no Center between One Island town and the summit).
+            self.field_heal_seam()
             if time.time() > self.deadline:
                 self.log("!! [moltres] deadline — surfacing (stage machine resumes by map)")
                 return "failed"
