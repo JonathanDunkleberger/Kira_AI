@@ -559,6 +559,20 @@ STUCK_LIMIT = 10         # consecutive no-progress steps -> LOUD ABORT. Was 16 (
                          # reads as ~15s of visible wall-bumping on stream. 10 keeps two wanderer-wait
                          # cycles (stuck%4) + the corner-jiggle at 6 before the loud abort re-routes.
 EXIT_TRIES = 5           # presses off the map edge before giving up loudly
+# ── EGRESS NPC-PATIENCE (2026-08-05, the Cinnabar-Center door-loop class) ─────
+# A WANDER_* NPC parked on a door approach blocks a tile for SECONDS, not forever (FRLG
+# wanderers re-roll a step every ~1-4s inside a 1-tile movement box — e.g. the Cinnabar
+# Center Gentleman boxed (8-10,6-8) beside the exit mats, the One Island Network Center
+# kid boxed (5-7,7-9) beside the single (9,9) door). Treating his tile as a wall made the
+# planner re-path an alternate approach every tick while he kept moving — the visible
+# "undershoots or overshoots her positioning every single time" door loop, ending in the
+# escape hatch. The correct HUMAN move is to STAND STILL and let him wander off: poll the
+# LIVE object list (readback law — never blind timing) every ~0.4s, bounded; only a
+# timed-out wait falls back to the old re-path machinery (escape hatch stays LAST resort).
+NPC_WAIT_POLL_FRAMES = 24    # frames between blocker re-reads (~0.4s at 1x speed)
+NPC_WAIT_TIMEOUT_S = 12.0    # bounded patience, then the old re-path machinery resumes
+NPC_WAIT_PROBE_S = 3.5       # motion gate: a body still this long is a squatter/trainer —
+#                              gauntlet trainers must NOT eat the full wait before a fight
 
 
 class Traveler:
@@ -723,6 +737,48 @@ class Traveler:
             x, y = self.b.rds16(o + 0x10) - MAP_OFFSET, self.b.rds16(o + 0x12) - MAP_OFFSET
             out.add((x, y))
         return out
+
+    def _wait_for_npc_clear(self, tile, why="step", require_motion=False):
+        """EGRESS NPC-PATIENCE (2026-08-05, the Cinnabar-Center door loop): a LIVE body
+        (object event, read back from RAM every poll) blocks `tile`. HOLD POSITION and wait
+        for it to wander off instead of re-pathing — per-tick replans against a moving
+        blocker tie-flip between near-equal approaches and she oscillates at the door.
+        require_motion: bail early (~NPC_WAIT_PROBE_S) if the live object set never changes
+        — a stationary body is a squatter/trainer and the old interact machinery should run
+        promptly (gauntlet trainers must not eat the full wait per fight).
+        Returns True when `tile` reads clear (caller resumes the SAME plan/step); False on
+        timeout / watchdog / battle / stationary (caller falls through to the old re-path)."""
+        import pokemon_state as st
+        t0 = time.time()
+        last = self._npc_tiles()
+        self.log(f"   [egress] blocker on {tile} ({why}) — holding position, waiting up to "
+                 f"{NPC_WAIT_TIMEOUT_S:.0f}s for it to wander off (live bodies={sorted(last)})")
+        moved = False
+        polls = 0
+        while time.time() - t0 < NPC_WAIT_TIMEOUT_S:
+            if self.stuck_check():
+                self.log("   [egress] watchdog disengage during the wait — abandoning patience")
+                return False
+            for _ in range(NPC_WAIT_POLL_FRAMES):
+                self.b.run_frame(); self.render()
+            polls += 1
+            if st.in_battle(self.b):
+                self.log("   [egress] a battle started during the wait — yielding to the handler")
+                return False
+            now = self._npc_tiles()
+            moved = moved or (now != last)
+            last = now
+            if tile not in now:
+                self.log(f"   [egress] blocker cleared off {tile} after {polls} poll(s) "
+                         f"(~{time.time() - t0:.1f}s) — resuming the committed step")
+                return True
+            if require_motion and not moved and (time.time() - t0) > NPC_WAIT_PROBE_S:
+                self.log(f"   [egress] blocker on {tile} hasn't moved in {NPC_WAIT_PROBE_S:.1f}s "
+                         f"— stationary (trainer/squatter); falling back to interact/re-path")
+                return False
+        self.log(f"   [egress] wait on {tile} TIMED OUT ({NPC_WAIT_TIMEOUT_S:.0f}s) — "
+                 f"re-pathing around it")
+        return False
 
     def _warmup_battle(self):
         """Let the encounter solidly BEGIN, then hand to the engine - which does its own
@@ -1098,9 +1154,22 @@ class Traveler:
             path = None
             if plan_cache and len(plan_cache) >= 2 and plan_cache[0] == cur:
                 nx_, ny_ = plan_cache[1]
-                if ((grid.walkable(nx_, ny_) or (can_surf and grid.is_water(nx_, ny_)))
-                        and free(nx_, ny_)):
+                _stepable = grid.walkable(nx_, ny_) or (can_surf and grid.is_water(nx_, ny_))
+                if _stepable and free(nx_, ny_):
                     path = plan_cache
+                elif (_stepable and (nx_, ny_) in npc
+                      and (nx_, ny_) not in static_blocked
+                      and (nx_, ny_) not in avoid
+                      and (nx_, ny_) not in blocked_here):
+                    # EGRESS NPC-PATIENCE (2026-08-05): a live wanderer stepped ONTO the
+                    # committed plan's next tile. Re-planning here tie-flips between
+                    # near-equal approaches while the blocker keeps moving (the door-mat
+                    # undershoot/overshoot loop). HOLD the plan and wait it out (bounded);
+                    # only a timed-out wait falls through to the normal re-plan below.
+                    if self._wait_for_npc_clear((nx_, ny_), why="committed step"):
+                        blocked.pop((nx_, ny_), None)
+                        path = plan_cache
+                    _pos_window.clear()      # deliberate stillness — the watchdog truce
             if path is None:
                 path = bfs(grid, cur, goal,
                            walkable=lambda sx, sy: grid.walkable_safe(sx, sy) and free(sx, sy))
@@ -1203,6 +1272,19 @@ class Traveler:
                         self.log(f"   [travel] no clean path from {cur}; NPC-allowing path EXISTS "
                                  f"(len {len(npc_path)}), blocker NPC tile={blk}, npcs nearby={nplist} "
                                  f"-> approaching to interact/trigger")
+                        # EGRESS NPC-PATIENCE (2026-08-05, the Cinnabar-Center door loop):
+                        # before walking up and TALKING to the blocker (which marks his tile
+                        # into block memory and re-paths — on a single-file door approach
+                        # that kills the leg with no_route_npc_blocked), give a MOVING body
+                        # the bounded wait: wanderers clear the gap on their own in seconds.
+                        # The motion gate keeps gauntlet trainers on the old fast path.
+                        if blk is not None and self._wait_for_npc_clear(
+                                blk, why="only-gap blocker", require_motion=True):
+                            no_path = fp_stall = 0
+                            last_fp = None
+                            plan_cache = None
+                            _pos_window.clear()
+                            continue
                         for _ in range(14):                       # walk up to the blocker
                             cur2 = coords(self.b)
                             ap = bfs(grid, cur2, goal, walkable=lambda sx, sy: grid.walkable(sx, sy)
@@ -1444,6 +1526,17 @@ class Traveler:
             if st.in_battle(self.b):
                 continue
             if after == cur:
+                # EGRESS NPC-PATIENCE (2026-08-05, the Cinnabar-Center door loop): the step
+                # failed and a LIVE body reads ON the planned tile (fresh read — the plan-time
+                # set is stale by now; a mid-step wanderer has finished its step onto it).
+                # Don't mark the tile blocked and detour (the undershoot/overshoot loop) —
+                # hold position, let the wanderer clear, then retry the SAME plan.
+                if (nxt in self._npc_tiles() and not st.in_battle(self.b)
+                        and self._wait_for_npc_clear(nxt, why=f"failed {d}-step")):
+                    blocked.pop(nxt, None)
+                    plan_cache = path            # path[0] == cur — the hysteresis re-arms
+                    _pos_window.clear()          # deliberate stillness — the watchdog truce
+                    continue
                 blocked[nxt] = step                 # dynamic block -> re-plan around it
                 fail_count[nxt] = fail_count.get(nxt, 0) + 1
                 # BLOCKER vs TERRAIN: a tile the grid says is walkable but we can't step onto is

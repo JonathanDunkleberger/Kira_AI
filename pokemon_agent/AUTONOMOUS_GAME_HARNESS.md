@@ -354,6 +354,23 @@ needs the long patience branch (bounded ~10s) and an honest npc-block reason whe
 fails. Hygiene twin: an A-press that opens a plain NPC's chatter with the blocker unmatched
 must CLOSE the box before continuing, or the open box eats every later press of the leg.
 
+**ENGINE PITFALL (added 2026-08-05, the Cinnabar-Center door loop): A ROAMING BLOCKER IS A
+WAIT, NOT A WALL.** A WANDER_* NPC beside a 1-tile door approach (Cinnabar PC's Gentleman
+boxed (8-10,6-8) over the exit-mat row; One Island Network Center's kid boxed (5-7,7-9) by
+the single (9,9) door) blocks a tile for SECONDS — but the executor treated every occupied
+tile as a wall: re-plan -> detour -> he moved -> re-plan back, the visible "undershoots or
+overshoots every single time" egress oscillation, ending in the escape hatch (which then
+rewound real progress). The human move is to STAND STILL: `_wait_for_npc_clear` (travel.py,
+`[egress]` logs) holds the COMMITTED plan and polls the live object list (readback law,
+never blind timing) ~every 0.4s, bounded 12s, at all three seams — plan hysteresis (blocker
+stepped onto the committed next tile), the failed-press race (body landed between plan and
+press), and the no-path only-gap probe (wait BEFORE walking up and talking, which used to
+mark the wanderer's tile and kill single-file approaches with no_route_npc_blocked). A
+MOTION GATE (~3.5s, live-set delta) keeps stationary squatters/gauntlet trainers on the old
+fast interact path, and every timeout falls through to the unchanged re-path machinery — the
+escape hatch stays the LAST resort, not the routine outcome. Proven offline by
+recon_egress_wait_check.py (real travel() loop vs a scripted sim wanderer, 16 checks).
+
 **ENGINE PITFALL (added 2026-07-08, night shift 11): FORCED-MOVEMENT FLOORS BLIND EVERY
 STILLNESS-SHAPED GUARD.** Wedge detectors tuned for "she can't move" (identical world
 fingerprint across retries; confined to ≤3 tiles) never fire on a floor that MOVES her —
