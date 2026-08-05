@@ -1,0 +1,8 @@
+# SPAWN DIRECTIVE (one-shot; resume_marathon.ps1 consumes this file).
+# 2026-08-05 Jonny's order (the Cinnabar door-loop, attempt #2): spawn her IN TOWN on
+# Cinnabar so she re-enters the Center with the fixed flow — finish the box bench (now a
+# ONE-TRIP latch), talk to BILL (sea_walk has NPC patience for the wandering Gentleman),
+# ride the ferry to One Island / Mt. Ember for Moltres, and WALK OUT. One door, no loops.
+# Pick = the NEWEST 8-badge cinnabar-island auto-checkpoint from this morning's inventory
+# (docs/soak-reports/20260805_080318/resume_marathon.log line 144, 7:49:34 AM, in town).
+CKPT 20260805_074934_cinnabar-island

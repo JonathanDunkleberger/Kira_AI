@@ -2178,6 +2178,19 @@ class VTubeBot:
         r"|\bstop\s+catching\b"
         r"|\bkeep\s+(?:going|moving)\b",
         re.IGNORECASE)
+    # NO-CATCH NEGATION GUARD (2026-08-05, the Route-21 tentacool spiral): "Don't try to catch
+    # it. We don't want it" and third-person commentary ("she wanted to catch it... what the
+    # fuck is she doing?") both matched _POKEMON_CATCH_ORDER_RX and LATCHED catch_now LAW —
+    # each accidental catch regrew the box-bench plan and fed the Cinnabar PC shuttle. A
+    # negated/commentary catch phrase must never latch; it RELEASES a live catch_now instead.
+    _POKEMON_NO_CATCH_RX = re.compile(
+        r"\b(?:do\s*not|don'?t|never|won'?t|not\s+(?:going\s+to|gonna))\b[^.!?]{0,40}\bcatch"
+        r"|\bstop\s+(?:trying\s+to\s+)?catch"
+        r"|\bwe\s+don'?t\s+want\s+(?:it|that|this|him|her)\b"
+        r"|\b(?:just\s+)?kill\s+it\b"
+        r"|\bshe\s+(?:wanted|tried|keeps?\s+trying|'?s\s+trying|is\s+trying)\s+to\s+catch\b"
+        r"|\bwhat\s+(?:the\s+\w+\s+)?is\s+she\s+doing\b",
+        re.IGNORECASE)
 
     def _pokemon_creator_order_live(self) -> bool:
         """True when a Pokémon campaign is actually running — health.json heartbeat fresh, OR
@@ -2201,6 +2214,11 @@ class VTubeBot:
         # Flash/forward OUTRANKS a lingering catch_now — "go get flash" must clear Diglett ball spam.
         if self._POKEMON_FLASH_FORWARD_RX.search(text):
             order = "get_flash"
+        elif self._POKEMON_NO_CATCH_RX.search(text):
+            # Negated/commentary catch talk ("don't try to catch it", "she wanted to catch
+            # it... what is she doing") — NEVER a latch; release any live catch_now instead.
+            self._pokemon_release_catch_order(text)
+            return
         elif self._POKEMON_CATCH_ORDER_RX.search(text):
             order = "catch_now"
         elif (self._POKEMON_GYM_ORDER_RX.search(text)
@@ -2229,6 +2247,31 @@ class VTubeBot:
                 print(f"   [CreatorOrder] write to {sub} failed: {e}")
         if wrote:
             print(f"   [CreatorOrder] !! LAW latched from Jonny's voice: {payload['raw']!r}")
+
+    def _pokemon_release_catch_order(self, text: str) -> None:
+        """RELEASE a live catch_now LAW when Jonny NEGATES it by voice (2026-08-05): the old
+        parser latched 'Don't try to catch it' AS a catch order — the harness then ball-spammed
+        Route-21 tentacools, each catch regrew the box-bench plan, and the lap shuttled her back
+        into the Cinnabar Center forever. Deletes creator_order.json (both timelines) iff it
+        holds a catch_now; other orders (fight_gym/get_flash) are untouched."""
+        import json as _j
+        root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "pokemon_agent", "states")
+        for sub in ("campaign", "kira"):
+            p = os.path.join(root, sub, "creator_order.json")
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    cur = _j.load(f)
+            except Exception:
+                continue
+            if (cur or {}).get("order") != "catch_now":
+                continue
+            try:
+                os.remove(p)
+                print(f"   [CreatorOrder] !! NO-CATCH heard — RELEASED the {sub} catch_now "
+                      f"LAW (was {cur.get('raw', '')!r:.80}); trigger: {text.strip()[:120]!r}")
+            except Exception as e:
+                print(f"   [CreatorOrder] catch_now release in {sub} failed: {e}")
 
     def _pokemon_perception_directive(self) -> str:
         """POKÉMON-MODE PERCEPTION (2026-07-08 immersion fix): when she's PLAYING Pokémon her

@@ -175,6 +175,51 @@ class GiovanniGym:
                      b.rds16(o + 0x12) - tv.MAP_OFFSET))
         return out
 
+    def npc_wait(self, tile, why="step", require_motion=True):
+        """STRIKE NPC-PATIENCE (2026-08-05, the Cinnabar Bill leg): commit 0ab3555 gave
+        Traveler.travel() patience for roaming blockers, but the STRIKES walk on sea_walk/
+        step_to — which treated a live body as a WALL, so the wandering Gentleman in the
+        Cinnabar PC no-pathed every approach to Bill and burned all 3 Moltres strike tries in
+        seconds. Mirror of travel._wait_for_npc_clear: HOLD POSITION, poll the live object
+        list (readback law), bounded by travel's NPC_WAIT_* knobs + the strike deadline.
+        require_motion bails fast on stationary squatters/trainers (old fast path).
+        True = tile reads clear (caller replans/resumes); False = fall through to the old
+        honest failure."""
+        t0 = time.time()
+        last = self.live_npc_tiles()
+        if tile not in last:
+            return True
+        self.log(f"   [egress] blocker on {tile} ({why}) — strike holding position, waiting "
+                 f"up to {tv.NPC_WAIT_TIMEOUT_S:.0f}s for it to wander off "
+                 f"(live bodies={sorted(last)})")
+        moved = False
+        polls = 0
+        while time.time() - t0 < tv.NPC_WAIT_TIMEOUT_S:
+            if time.time() > self.deadline:
+                self.log("   [egress] strike deadline hit during the wait — abandoning patience")
+                return False
+            for _ in range(tv.NPC_WAIT_POLL_FRAMES):
+                self.b.run_frame()
+            polls += 1
+            if self.fight_open() or st.in_battle(self.b):
+                self.log("   [egress] a battle started during the strike wait — yielding")
+                return False
+            now = self.live_npc_tiles()
+            moved = moved or (now != last)
+            last = now
+            if tile not in now:
+                self.log(f"   [egress] blocker cleared off {tile} after {polls} poll(s) "
+                         f"(~{time.time() - t0:.1f}s) — strike resumes")
+                return True
+            if require_motion and not moved and (time.time() - t0) > tv.NPC_WAIT_PROBE_S:
+                self.log(f"   [egress] blocker on {tile} hasn't moved in "
+                         f"{tv.NPC_WAIT_PROBE_S:.1f}s — stationary (trainer/squatter); "
+                         f"strike falls back to the old machinery")
+                return False
+        self.log(f"   [egress] strike wait on {tile} TIMED OUT "
+                 f"({tv.NPC_WAIT_TIMEOUT_S:.0f}s) — falling back")
+        return False
+
     def step_to(self, tile, wset=None):
         b, camp = self.b, self.camp
         cur = tuple(tv.coords(b) or (0, 0))
@@ -232,7 +277,22 @@ class GiovanniGym:
                        and (sx, sy) not in npcs and (sx, sy) not in avoid)
             self.log(f"   [{label}] replan at {cur} (len {len(p) if p else 0}, budget {budget})")
             if not p:
-                self.log(f"   [{label}] no path from {cur}")
+                # NPC-PATIENCE seam 1 (2026-08-05, the Cinnabar Bill leg): before declaring an
+                # honest no-path, re-plan IGNORING npc bodies — if a route exists then, a body
+                # severs the only gap (the wandering Gentleman on the PC corridor). Wait for a
+                # LIVE blocker to wander off, then replan; stationary bodies bail fast inside
+                # npc_wait and the old no-path fires as before.
+                p_npc = tv.bfs(g, cur, goal_test,
+                               walkable=lambda sx, sy: ok0(sx, sy) and (sx, sy) not in wts
+                               and (sx, sy) not in avoid)
+                live = self.live_npc_tiles()
+                blocker = next((tuple(t) for t in (p_npc or [])[1:] if tuple(t) in live), None)
+                if blocker is not None and self.npc_wait(blocker, f"{label} only-gap"):
+                    budget += 1
+                    continue
+                self.log(f"   [{label}] no path from {cur}"
+                         + (f" (npc-severed at {blocker}; wait did not clear it)"
+                            if blocker else ""))
                 self.snap(f"nopath_{label[:12]}_{cur[0]}_{cur[1]}")
                 return False
             m0 = tuple(tv.map_id(b))
@@ -241,6 +301,14 @@ class GiovanniGym:
                     budget += 1
                     break
                 if not self.step_to(tuple(t), wset):
+                    # NPC-PATIENCE seam 2: a body stepped INTO the committed plan mid-walk
+                    # (or raced the press). If the blocked tile reads as a live body, hold
+                    # and wait it off, then replan from here (budget refunded — patience must
+                    # not eat the crossing budget). Anything else = the old blocked break.
+                    if (tuple(t) in self.live_npc_tiles()
+                            and self.npc_wait(tuple(t), f"{label} committed step")):
+                        budget += 1
+                        break
                     self.log(f"   [{label}] step blocked {tuple(tv.coords(b) or ())} -> {tuple(t)} "
                              f"(npcs {sorted(self.live_npc_tiles())[:6]})")
                     break

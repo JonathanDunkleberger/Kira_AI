@@ -243,6 +243,20 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
     the menu is up; carrying an index across the open/close boundary mis-aims every later
     use (revives on corpses, switches to the wrong body). Re-derive selection indices AT
     menu time from the live struct, every time — never cache across a UI boundary.
+40. **A RE-DERIVED CHECKLIST ITEM NEEDS A ONE-TRIP LATCH; a visible "door loop" can be an
+    OUTER dispatch shuttle (2026-08-05, the Cinnabar Center).** box_bench re-read its
+    pending state from the live party every tick — so each mid-lap catch regrew the plan,
+    flipped it back to 'pending', and the lap marched her back into the Center: on stream it
+    LOOKED like a door bug, but the door worked fine. Diagnosis law: before debugging the
+    warp/egress layer, read the [lap] CHECKLIST lines for a done->pending flip. Fix law: an
+    at-most-once errand latches DONE on completion (session-scoped); later pickups ride
+    until the closing 'repack'. Three accomplices, all fixed the same shift: (a) a patience
+    fix in ONE movement layer (travel 0ab3555) does nothing for the OTHER (the strikes'
+    sea_walk — port npc_wait to every walker that treats bodies as walls); (b) an errand
+    with NO overworld road (Bill's ferry) must surface a bounded failure when its strike
+    exhausts — a compass fallback surfs circles forever and never counts a lap fail; (c) a
+    voice-order regex without a NEGATION guard turns "don't try to catch it" into a
+    catch_now LAW that keeps refilling the party and re-arming the shuttle.
 
 **STATUS ADDENDUM (2026-07-07): GAME #1 SUMMITED.** FireRed credits rolled autonomously
 (bedroom → 8 badges → E4 → Champion). The engine list above is what did it; the post-credits

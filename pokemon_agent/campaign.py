@@ -12323,6 +12323,11 @@ class Campaign:
         except Exception:
             return None
 
+    # FERRY-ONLY success sigs (2026-08-05): objectives with NO overworld road — the strike IS
+    # the only vehicle (Bill's ferry to the Sevii archipelago). Exhausting the strike on these
+    # must surface a bounded lap failure, never fall through to compass navigation.
+    _QL_FERRY_ONLY = {("flag", "FLAG_FOUGHT_MOLTRES")}
+
     def _questline_strike(self, step):
         """BESPOKE INTERIOR STRIKE dispatcher (night shift 7). Some questline targets sit behind a
         fixed dungeon RITUAL the general room-tour/GO-DEEPER can't crack — registered by the step's
@@ -12521,6 +12526,17 @@ class Campaign:
                 tries_map = self._ql_strike_tries_map = {}
             tries = tries_map.get(succ, 0)
             if tries >= 3:
+                # FERRY-ONLY errands (2026-08-05, the Cinnabar->Route-21 surf circles): Moltres
+                # sits across BILL'S FERRY — there is NO overworld road to One Island, so the
+                # general layer's compass fallback ("heading NORTH toward One Island") can only
+                # surf circles on Route 21 forever, and it never counts a lap failure (it reads
+                # 'arrived'/'hop_ok', hiding the wedge from VICTORY_LAP_MAX_FAILS). Exhaustion
+                # here must be an HONEST bounded failure, not a fall-through.
+                if succ in self._QL_FERRY_ONLY:
+                    log(f"   [roam] questline STRIKE: 3 attempts exhausted for {label} — FERRY-ONLY "
+                        f"errand (no overworld road exists; a compass march would surf circles) -> "
+                        f"surfacing questline_strike_failed so the lap's bounded-fail law counts it")
+                    return "questline_strike_failed"
                 log(f"   [roam] questline STRIKE: 3 attempts exhausted for {label} — surfacing so "
                     f"recovery/other options carry her (not looping the strike)")
                 return None
@@ -12529,6 +12545,22 @@ class Campaign:
             dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", dbg_sub)
             res = run_fn(self, log, dbg_dir=dbg)
             log(f"   [roam] 🎯 QUESTLINE STRIKE -> {res} (now {tv.map_id(self.b)}@{tv.coords(self.b)})")
+            # MAP-PROGRESS REFUND (2026-08-05): a multi-leg strike (sail to One Island, climb
+            # Mt. Ember) can end 'failed' while having made REAL map progress — it resumes from
+            # the new anchor next dispatch, so that attempt was not wasted. Refund the try
+            # (bounded: max 6 refunds per errand, so a ping-ponging strike still exhausts).
+            if res not in good and res != "not_here" and not str(res).startswith("in_"):
+                here_after = tuple(tv.map_id(self.b))
+                if here_after != here:
+                    refunds = getattr(self, "_ql_strike_refunds", None)
+                    if refunds is None:
+                        refunds = self._ql_strike_refunds = {}
+                    if refunds.get(succ, 0) < 6:
+                        refunds[succ] = refunds.get(succ, 0) + 1
+                        tries_map[succ] = max(0, tries_map[succ] - 1)
+                        log(f"   [roam] questline STRIKE made MAP PROGRESS ({here} -> {here_after}) "
+                            f"despite '{res}' — try refunded (refund {refunds[succ]}/6; "
+                            f"tries now {tries_map[succ]}/3)")
             if res in good:
                 # objective in bag. The deriver re-reads the flag/item next tick and the step self-
                 # clears -> questline advances. Clear the inside marker + reset this errand's tries.
@@ -13054,6 +13086,18 @@ class Campaign:
                 # POKEMON_BOX_FLOW=0 (or the PCBOX master flag) removes it cleanly.
                 if not (BOX_FLOW_ENABLED and PCBOX_ENABLED):
                     return False
+                # ONE-TRIP LATCH (2026-08-05, the Cinnabar deposit<->catch SHUTTLE): the executor
+                # completing its plan latches box_bench DONE for the session. Without it, ANY
+                # mid-lap pickup (a Route-21 tentacool off a misheard catch_now) regrew the plan,
+                # flipped this back to 'pending', and the lap marched her back into the Center —
+                # the logged door loop was the PC<->Route-21 shuttle, not the door itself. A
+                # pickup now rides in the trunk until 'repack'; the seat math still ran once.
+                if getattr(self, "_lap_bench_done", False):
+                    if self._lap_bench_plan() and not getattr(self, "_lap_bench_relatch_logged", False):
+                        self._lap_bench_relatch_logged = True
+                        log("   [box] bench already DONE this session — a mid-lap pickup regrew the "
+                            "plan but the LATCH holds (no march back to the Center; trunk until repack)")
+                    return False
                 return bool(self._lap_bench_plan())
             if key == "repack":
                 # Owed only when THIS run actually benched someone and the party ended short
@@ -13308,6 +13352,11 @@ class Campaign:
         after. All decisions log [box]; failures are bounded -> honest skip."""
         key = "box_bench"
         if not self._lap_bench_plan():
+            # plan already empty at dispatch = nothing owed -> LATCH (the shuttle law: this
+            # item runs at most ONE Center trip per session; see _lap_pending's latch).
+            if not getattr(self, "_lap_bench_done", False):
+                self._lap_bench_done = True
+                log("   [box] bench plan reads EMPTY — box_bench LATCHED done for this session")
             return "ok"                                   # pending re-derives done next tick
         cur = tuple(tv.map_id(self.b))
         pc_door = CITY_PC_DOORS.get(cur)
@@ -13342,6 +13391,14 @@ class Campaign:
                 f"the birds")
             self.on_event(f"benched {did} of the crew at the Center PC — the legendary birds "
                           f"get real team seats, not a storage box.", kind="roster", tier=3)
+        if not self._lap_bench_plan():
+            # the plan is CLEARED -> LATCH done for the session (the Cinnabar shuttle law):
+            # a later pickup regrowing the plan must NOT resurrect this item — one trip, then
+            # trunk-until-repack. A partial trip (deposit failed mid-plan) returns above via
+            # _lap_note_fail and does NOT latch, so the bounded-retry path is unchanged.
+            self._lap_bench_done = True
+            log("   [box] bench COMPLETE — box_bench LATCHED done for this session "
+                "(mid-lap pickups ride the trunk until 'repack')")
         self._lap_box_withdraw(pc_door, targets_only=True)
         return "ok"
 

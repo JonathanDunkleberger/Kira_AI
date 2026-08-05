@@ -21,6 +21,13 @@ This drives the REAL Traveler.travel() loop against a scripted sim world:
      wait + retry the same step (no static-obstacle mark);
   4. stationary squatter: never moves -> bounded fallback to the OLD machinery
      (no_route_npc_blocked) — the escape hatch stays the LAST resort, not the routine.
+PLUS (2026-08-05, attempt #2 — the Bill leg): the STRIKES walk on GiovanniGym.sea_walk,
+which never got 0ab3555's patience and treated a live body as a WALL — the wandering
+Gentleman (8-10,6-8) no-pathed every sea_walk approach to Bill (11,5) and burned all 3
+Moltres tries in seconds. Same scripted sim, driving the REAL sea_walk:
+  5. only-gap roaming blocker: npc_wait holds, he wanders off, she walks through;
+  6. committed-step cross: a wanderer steps INTO the plan mid-walk -> wait + replan;
+  7. stationary squatter: motion gate bails fast -> the old honest no-path surfaces.
 Run:  python3 recon_egress_wait_check.py   (from pokemon_agent/) — PASS/FAIL per check.
 """
 import os
@@ -41,6 +48,7 @@ sys.modules["mgba"] = _mgba
 import travel as T                        # noqa: E402
 import pokemon_state as st                # noqa: E402
 import world_fingerprint as wf            # noqa: E402
+import giovanni_gym as GG                 # noqa: E402  (the strikes' sea_walk base)
 
 # speed the bounded waits up for the suite (live values: 12s timeout / 3.5s motion probe)
 T.NPC_WAIT_TIMEOUT_S = 1.0
@@ -134,12 +142,24 @@ class SimBridge:
         return 0
 
 
+class _AllClear(dict):
+    """Collision layer stand-in for sea_ok: every buffer tile reads collision 0."""
+
+    def get(self, k, d=None):
+        return 0
+
+
 class FakeGrid:
     def __init__(self, sim):
         self.sim = sim
         self.spin = set()
         self.sx_lo, self.sx_hi = 0, sim.w - 1
         self.sy_lo, self.sy_hi = 0, sim.h - 1
+        # sea_walk (GiovanniGym) fields: buffer dims include the 7-tile border, no water,
+        # all-clear collision — walkable() stays the single source of blocking truth.
+        self.w, self.h = sim.w + 2 * 7, sim.h + 2 * 7
+        self.water = set()
+        self.col = _AllClear()
 
     def walkable(self, x, y):
         return (0 <= x < self.sim.w and 0 <= y < self.sim.h
@@ -184,6 +204,34 @@ def make_traveler(sim):
     trav = T.Traveler(b, battle_runner=lambda: "won", log=lambda s: logs.append(s))
     trav._npc_tiles = lambda: ({sim.npc} if sim.npc else set())
     return trav, logs
+
+
+def make_strike(sim):
+    """The REAL GiovanniGym (the strikes' movement base — LegendaryHunt subclasses it),
+    wired to the sim exactly like make_traveler. __new__ skips __init__ (no SpinNav/camp)."""
+    import time as _time
+    b = SimBridge(sim)
+    T.coords = lambda bb: sim.player
+    T.map_id = lambda bb: (12, 5)
+    T.Grid = lambda bb: FakeGrid(sim)
+    T.read_warps = lambda bb: []
+    T.read_object_templates = lambda bb: []
+    st.in_battle = lambda bb: False
+    GG.dd_box = lambda bb: False           # dialogue-box probe reads pixels — none in the sim
+    logs = []
+    g = GG.GiovanniGym.__new__(GG.GiovanniGym)
+    g.b = b
+    g.camp = types.SimpleNamespace(render=lambda: None, _step_to=lambda t: False,
+                                   battle_runner=lambda: "won")
+    g.log = lambda s: logs.append(s)
+    g.dbg = None
+    g.n_battles = 0
+    g.wedges = {}
+    g.deadline = _time.time() + 60
+    g.handle_interrupts = lambda: False
+    g.fight_open = lambda: False
+    g.live_npc_tiles = lambda: ({sim.npc} if sim.npc else set())
+    return g, logs
 
 
 def corridor_room():
@@ -256,6 +304,44 @@ def main():
     check("motion gate bailed the wait fast (stationary detected)",
           any("stationary (trainer/squatter)" in ln for ln in logs4))
     check("bounded: the leg didn't burn the budget waiting", took < 10)
+
+    print("== 5. STRIKE sea_walk, only-gap ROAMING blocker (the Bill leg, attempt #2) ==")
+    sim5 = Sim(15, 9, corridor_room(), player=(7, 2), npc=(7, 5),
+               npc_cycle=[(7, 5), (8, 4)], npc_period=160)
+    g5, logs5 = make_strike(sim5)
+    r5 = g5.sea_walk(lambda c: c == (7, 8), "bill-approach", tries=10)
+    check("sea_walk reaches the goal through the gap", r5 and sim5.player == (7, 8))
+    check("[egress] strike wait fired on the only-gap blocker",
+          any("blocker on (7, 5)" in ln and "only-gap" in ln for ln in logs5))
+    check("[egress] strike RESUMED when he wandered off",
+          any("strike resumes" in ln for ln in logs5))
+    check("never surfaced the old honest no-path",
+          not any("no path from" in ln for ln in logs5))
+
+    print("== 6. STRIKE sea_walk, committed-step cross (wanderer steps INTO the plan) ==")
+    walls6 = [(x, 6) for x in range(3, 12)] + [(x, 8) for x in range(3, 12)]
+    sim6 = Sim(15, 9, walls6, player=(2, 7), npc=(8, 5))
+    sim6.trigger = (lambda s: s.player == (7, 7), lambda s: setattr(s, "npc", (8, 7)))
+    sim6.after_fire = (400, (8, 5))            # he steps back off the corridor
+    g6, logs6 = make_strike(sim6)
+    r6 = g6.sea_walk(lambda c: c == (12, 7), "corridor", tries=10)
+    check("sea_walk crosses despite the mid-plan blocker", r6 and sim6.player == (12, 7))
+    check("[egress] committed-step strike wait fired",
+          any("committed step" in ln for ln in logs6))
+    check("no detour off the row-7 corridor", all(y == 7 for _x, y in sim6.visited))
+
+    print("== 7. STRIKE sea_walk, STATIONARY squatter: old honest no-path, fast ==")
+    sim7 = Sim(15, 9, corridor_room(), player=(7, 2), npc=(7, 5))   # parked, never moves
+    g7, logs7 = make_strike(sim7)
+    import time as _time7
+    t7 = _time7.time()
+    r7 = g7.sea_walk(lambda c: c == (7, 8), "squatter", tries=10)
+    took7 = _time7.time() - t7
+    check("old machinery surfaces the honest no-path", r7 is False)
+    check("motion gate bailed fast + the no-path names the npc seam",
+          any("stationary" in ln for ln in logs7)
+          and any("npc-severed" in ln for ln in logs7))
+    check("bounded: no budget burn", took7 < 10)
 
     ok = all(PASS)
     print(f"== {'ALL PASS' if ok else 'FAILURES PRESENT'} ({sum(PASS)}/{len(PASS)}) ==")

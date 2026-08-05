@@ -13,7 +13,14 @@ Stubs the bridge + state readers and drives the pure sequencing logic:
   6. _lap_box_bench multi-deposits end-to-end (stubbed deposit_mon), re-deriving slots per
      deposit (menu-time order law); _lap_box_withdraw prefers lap birds, repack refills;
   7. _lap_restock_balls buys at Cinnabar's OWN shelf (the 16:19 loop root), marches only to
-     RIDEABLE shelves, and a no-path march feeds the bounded fail counter -> honest skip.
+     RIDEABLE shelves, and a no-path march feeds the bounded fail counter -> honest skip;
+  8. (2026-08-05, the Cinnabar door loop) the box_bench ONE-TRIP LATCH: a mid-lap catch
+     regrowing the plan must NOT resurrect box_bench (the deposit<->catch shuttle from the
+     07:29 session logs); a FAILED deposit does not latch (bounded retry preserved);
+  9. (2026-08-05) FERRY-ONLY strike exhaustion: 3 spent Moltres tries surface
+     questline_strike_failed (feeding VICTORY_LAP_MAX_FAILS) instead of falling through to
+     the compass ("heading NORTH toward One Island" = surfing circles on Route 21); a
+     road-reachable strike still falls through; map progress refunds a try (bounded).
 Run:  python3 recon_lap_check.py   (from pokemon_agent/) — prints PASS/FAIL per check.
 """
 import sys
@@ -255,6 +262,91 @@ def main():
     check("a no-path restock march now feeds the bounded counter -> honest skip "
           "(the 16:19 infinite loop is structurally dead)",
           "moltres" in camp9._lap_skipped)
+
+    print("== 8. the deposit<->catch SHUTTLE latch (2026-08-05 Cinnabar door loop) ==")
+    # THE LOGGED FAILURE (tail_supervisor 07-31-11): box_bench completes -> moltres arms ->
+    # a misheard catch_now lands a Route-21 tentacool -> the plan REGROWS -> box_bench flips
+    # back to 'pending' -> the lap marches her back into the Center. Forever.
+    set_world(moves=[SURF, EQ, WITHDRAW, SKULL_BASH], here=(3, 8))
+    camp10 = make_camp()
+    levels10 = set_party(camp10, [61, 19, 19, 18, 25, 3])
+    camp10.world = types.SimpleNamespace(name=lambda m: str(m))
+    camp10._swap_party_slots = lambda i, j: None
+    camp10._box_scan = lambda: (0, {})
+
+    def _dep10(slot, pc_door):
+        levels10.pop(slot)
+        return "deposited"
+
+    camp10.deposit_mon = _dep10
+    r10 = camp10._lap_box_bench({"map": (3, 8)})
+    check("bench trip completes and LATCHES done",
+          r10 == "ok" and getattr(camp10, "_lap_bench_done", False)
+          and not camp10._lap_pending("box_bench"))
+    levels10.append(8)                     # the Route-21 tentacool (a misheard catch_now)
+    check("mid-lap catch REGROWS the raw plan (the old pending trigger)",
+          bool(camp10._lap_bench_plan()))
+    check("...but the LATCH holds: box_bench stays done, next is moltres (shuttle dead)",
+          not camp10._lap_pending("box_bench")
+          and camp10._victory_lap_next() == "moltres")
+    camp11 = make_camp()
+    set_party(camp11, [61, 19, 19, 18, 25, 3])
+    camp11.world = types.SimpleNamespace(name=lambda m: str(m))
+    camp11._swap_party_slots = lambda i, j: None
+    camp11._box_scan = lambda: (0, {})
+    camp11.deposit_mon = lambda slot, pc_door: "menu_wedge"
+    camp11._lap_box_bench({"map": (3, 8)})
+    check("a FAILED deposit does NOT latch (bounded retry preserved)",
+          not getattr(camp11, "_lap_bench_done", False)
+          and camp11._lap_pending("box_bench") and camp11._lap_fails.get("box_bench"))
+
+    print("== 9. FERRY-ONLY strike exhaustion (Moltres) -> bounded lap failure, never compass ==")
+    import legendary_strikes as LS
+    C.tv.coords = lambda b: (7, 7)                             # strike result-log read
+    logs9 = []
+    _oldlog, C.log = C.log, lambda s: logs9.append(str(s)) or _oldlog(s)
+    try:
+        succ_m = ("flag", "FLAG_FOUGHT_MOLTRES")
+        stepM = types.SimpleNamespace(success=succ_m, door=None)
+        WORLD["here"] = (3, 8)                                 # Cinnabar — a Moltres anchor
+        campF = make_camp()
+        campF._ql_strike_tries_map = {succ_m: 3}
+        rF = campF._questline_strike(stepM)
+        check("exhausted FERRY-ONLY strike surfaces questline_strike_failed "
+              "(feeds VICTORY_LAP_MAX_FAILS; the compass surf-circles are structurally dead)",
+              rF == "questline_strike_failed"
+              and any("FERRY-ONLY" in ln for ln in logs9))
+        succ_z = ("flag", "FLAG_FOUGHT_ZAPDOS")
+        stepZ = types.SimpleNamespace(success=succ_z, door=None)
+        WORLD["here"] = next(iter(LS.ZAPDOS_ANCHORS))
+        campZ = make_camp()
+        campZ._ql_strike_tries_map = {succ_z: 3}
+        rZ = campZ._questline_strike(stepZ)
+        check("exhausted ROAD-reachable strike still falls through to the general layer",
+              rZ is None and any("attempts exhausted" in ln and "FERRY-ONLY" not in ln
+                                 for ln in logs9))
+        # map-progress refund: a 'failed' hunt that SAILED somewhere keeps its try
+        WORLD["here"] = (3, 8)
+        campR = make_camp()
+        campR._ql_strike_tries_map = {}
+        _old_moltres = LS.run_moltres
+
+        def _fake_moltres(camp, log, dbg_dir=None):
+            WORLD["here"] = next(m for m in LS.MOLTRES_ANCHORS if m != (3, 8))
+            return "failed"
+
+        LS.run_moltres = _fake_moltres
+        try:
+            rR = campR._questline_strike(stepM)
+        finally:
+            LS.run_moltres = _old_moltres
+        check("a failed hunt with MAP PROGRESS refunds the try (resumes from the new anchor)",
+              rR == "questline_strike_failed"
+              and campR._ql_strike_tries_map.get(succ_m) == 0
+              and campR._ql_strike_refunds.get(succ_m) == 1
+              and any("MAP PROGRESS" in ln for ln in logs9))
+    finally:
+        C.log = _oldlog
 
     ok = all(PASS)
     print(f"== {'ALL PASS' if ok else 'FAILURES PRESENT'} ({sum(PASS)}/{len(PASS)}) ==")
