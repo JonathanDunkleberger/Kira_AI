@@ -116,6 +116,18 @@ class GiovanniGym:
         if dd_box(self.b):
             self.drain()
             return True
+        # MENU-LEAK GUARD (2026-08-05, the Mt. Ember bag wedge): a leaked overworld BAG/PARTY
+        # menu PAUSES the world — movement inputs eaten, NPC coords frozen — so every walker
+        # above this seam reads phantom 'step blocked' until the strike deadline burns. One
+        # cb2 read gates it (free when healthy); the campaign's pixel-verified sweep does the
+        # closing (it never Bs a real cutscene — the pixel classifier must see a bag/party
+        # screen first). 'closed' counts as a handled interrupt so the caller re-reads the world.
+        try:
+            if (not ram.battle_cb2_dead(self.b)
+                    and self.camp._sweep_stray_menus(reason="strike leg") == "closed"):
+                return True
+        except Exception:
+            pass
         return False
 
     def settle(self, n=90):

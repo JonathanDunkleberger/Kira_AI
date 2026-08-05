@@ -21,7 +21,19 @@ Stubs the bridge + the TeachFlow bag rails and drives the pure doctrine logic:
      static A-press (driven through the real LegendaryHunt method);
   7. the _lap_restock_balls potion RIDE-ALONG: a thin heal pocket adds the shelf's best
      potion row to the SAME buy list (balls still row 0); a stocked pocket adds nothing;
-     a bag-read flake degrades to balls-only (best-effort, never blocks the restock).
+     a bag-read flake degrades to balls-only (best-effort, never blocks the restock);
+  8. WORLD-BACK POSTCONDITION (2026-08-05, the Mt. Ember bag wedge): _confirm_world_back
+     Bs until gMain.callback2 reads the overworld again (bounded), hammers extra Bs LOUD
+     when it won't, and fails OPEN on an unreadable cb2;
+  9. the REAL TeachFlow.field_heal end-to-end on scripted rails: a verified heal whose
+     menu never closes returns 'menu_stuck' (never a silent leak) and the campaign books
+     it as a failure (backoff latched); the same rails with the callback restored return
+     'healed';
+ 10. the WATCHDOG side: _sweep_stray_menus close-confirm requires pixels clear AND cb2
+     back ('closed'/'stuck'/None), and _disengage_step1 closes a classified stray menu +
+     RELEASES the phantom wedge marks of the frozen window INSTEAD of wedge-marking;
+ 11. the STRIKE-LEG guard: GiovanniGym.handle_interrupts treats a closed stray menu as a
+     handled interrupt (one cb2 read gates it; overworld cb2 never sweeps).
 Run:  python3 recon_fieldheal_check.py   (from pokemon_agent/) — prints PASS/FAIL per check.
 """
 import sys
@@ -38,10 +50,14 @@ _mgba.log.silence = lambda *a, **k: None
 sys.modules["mgba"] = _mgba
 
 import campaign as C
+import dialogue_drive as dd
 import firered_ram as ram
+import giovanni_gym as GG
 import hm_teach as ht
 import legendary_strikes as LS
 import pokemon_state as st
+
+RealTeachFlow = ht.TeachFlow      # captured BEFORE main() swaps in the fake (sections 8-9)
 
 PASS = []
 WORLD = {}          # the ONE mutable world every patched reader closes over
@@ -129,6 +145,116 @@ class FakeTeachFlow:
 # canonical live party: Blastoise L61 ace (244 max) + Lapras L25 (130 max)
 BLASTOISE = dict(hp=244, mx=244, lv=61)
 LAPRAS = dict(hp=130, mx=130, lv=25)
+
+_CB2_MENU = 0x08107EE0 | 1        # a bag-menu callback — anything not overworld/whiteout
+
+
+class _BlackPx:
+    """frame_rgb().load() stand-in: every pixel black -> _classify never reads party/bag."""
+
+    def __getitem__(self, xy):
+        return (0, 0, 0)
+
+
+class RailsBridge:
+    """Scripted bridge for the REAL TeachFlow (sections 8-9). Simulates just enough rails:
+    the START cursor (DOWN/UP navigable), the bag pocket byte (LEFT/RIGHT), the party HP
+    reads, and gMain.callback2 — which flips back to the overworld only after
+    `world_after_b` total B presses (None = the menu NEVER closes, the live wedge)."""
+
+    def __init__(self, heal_after_a=6, world_after_b=None, cb2_raises=False):
+        self.a = self.bs = 0
+        self.start_cursor, self.pocket = 5, 1
+        self.heal_after_a, self.world_after_b = heal_after_a, world_after_b
+        self.cb2_raises = cb2_raises
+        self.healed = False
+
+    def set_input_owner(self, owner):
+        pass
+
+    def run_frame(self):
+        pass
+
+    def frame_rgb(self):
+        return types.SimpleNamespace(load=lambda: _BlackPx())
+
+    def press(self, key, hold, rel, render, owner=None):
+        if key == "A":
+            self.a += 1
+            if self.a >= self.heal_after_a and not self.healed and WORLD["party"]:
+                self.healed = True                      # the drink lands: HP up, bottle gone
+                WORLD["party"][0]["hp"] = WORLD["party"][0]["mx"]
+                WORLD["bag"][21] = max(0, WORLD["bag"].get(21, 0) - 1)
+        elif key == "B":
+            self.bs += 1
+        elif key == "DOWN":
+            self.start_cursor = min(6, self.start_cursor + 1)
+        elif key == "UP":
+            self.start_cursor = max(0, self.start_cursor - 1)
+        elif key == "RIGHT":
+            self.pocket = min(2, self.pocket + 1)
+        elif key == "LEFT":
+            self.pocket = max(0, self.pocket - 1)
+
+    def rd8(self, a):
+        if a == ht.START_CURSOR:
+            return self.start_cursor
+        if a == ht.BAG_POCKET:
+            return self.pocket
+        return 0
+
+    def rd16(self, a):
+        off = a - ram.GPLAYER_PARTY
+        if off >= 0:
+            s, r = divmod(off, st.PARTY_MON_SIZE)
+            if s < len(WORLD["party"]):
+                if r == C.P_HP:
+                    return WORLD["party"][s]["hp"]
+                if r == C.P_MAXHP:
+                    return WORLD["party"][s]["mx"]
+        return 0
+
+    def rd32(self, a):
+        if a == ram.GMAIN_CB2:
+            if self.cb2_raises:
+                raise RuntimeError("cb2 flake")
+            if self.world_after_b is not None and self.bs >= self.world_after_b:
+                return ram._CB2_OVERWORLD
+            return _CB2_MENU
+        return 0
+
+
+def make_real_tf(bridge):
+    tf = RealTeachFlow.__new__(RealTeachFlow)
+    tf.b = bridge
+    tf.c = types.SimpleNamespace(render=lambda: None, b=bridge)
+    tf.log = lambda s: LOGS.append(str(s))
+    tf.emit = lambda *a, **k: None
+    return tf
+
+
+def make_menu_camp(bs_to_close):
+    """Campaign rig for the sweep/disengage checks: a stray bag screen that closes after
+    `bs_to_close` B presses (None = never), with cb2 tracking the menu state."""
+    camp = C.Campaign.__new__(C.Campaign)
+    state = {"left": bs_to_close}
+
+    def press(key, hold, rel, render, owner=None):
+        if key == "B" and state["left"] is not None and state["left"] > 0:
+            state["left"] -= 1
+
+    def rd32(a):
+        if a == ram.GMAIN_CB2:
+            return ram._CB2_OVERWORLD if state["left"] == 0 else _CB2_MENU
+        return 0
+
+    camp.b = types.SimpleNamespace(press=press, run_frame=lambda: None, rd32=rd32,
+                                   rd8=lambda a: 0, rd16=lambda a: 0)
+    camp.render = lambda: None
+    camp.on_event = lambda *a, **k: None
+    camp._stray_menu_kind = lambda: "bag/case" if state["left"] != 0 else None
+    camp._menu_state = state
+    return camp
 
 
 def main():
@@ -292,6 +418,108 @@ def main():
     check("a bag-read flake degrades to balls-only (ride-along is best-effort)",
           r9 == "ok" and buys9 and buys9[0][0][0] == 2
           and any("ride-along skipped" in ln for ln in LOGS))
+
+    print("== 8. WORLD-BACK postcondition (_confirm_world_back, real method) ==")
+    set_world(party=[dict(BLASTOISE, hp=100)], bag={21: 3})
+    br = RailsBridge(world_after_b=3)
+    tf = make_real_tf(br)
+    check("cb2 back after 3 Bs -> True (3 unwind + 2 safety Bs, never more)",
+          tf._confirm_world_back("fieldheal") is True and br.bs == 5)
+    br = RailsBridge(world_after_b=None)
+    tf = make_real_tf(br)
+    r8 = tf._confirm_world_back("fieldheal")
+    check("menu NEVER closes -> False after 10 bounded + 6 LOUD hammer Bs",
+          r8 is False and br.bs == 16
+          and any("STILL open" in ln for ln in LOGS))
+    br = RailsBridge(cb2_raises=True)
+    tf = make_real_tf(br)
+    check("unreadable cb2 fails OPEN (a read flake never voids a verified heal)",
+          tf._confirm_world_back("fieldheal") is True and br.bs == 0)
+
+    print("== 9. REAL field_heal on scripted rails: the Mt. Ember leak, replayed ==")
+    _rows, _qty = ht.items_pocket_rows, ht.items_pocket_qty
+    ht.items_pocket_rows = lambda b: [(iid, q) for iid, q in WORLD["bag"].items() if q > 0]
+    ht.items_pocket_qty = lambda b, iid: WORLD["bag"].get(iid, 0)
+    set_world(party=[dict(BLASTOISE, hp=4)], bag={21: 3})
+    br9 = RailsBridge(world_after_b=None)                 # the live wedge: Bs all eaten
+    r9a = make_real_tf(br9).field_heal(21, 0)
+    check("heal LANDS (4 -> 244, bottle gone) but the menu never closes -> 'menu_stuck', LOUD",
+          r9a == "menu_stuck" and WORLD["party"][0]["hp"] == 244 and WORLD["bag"][21] == 2
+          and any("MENU STACK never closed" in ln for ln in LOGS))
+    set_world(party=[dict(BLASTOISE, hp=4)], bag={21: 3})
+    br9b = RailsBridge(world_after_b=13)                  # _b_cascade's 12 + 1 confirm B
+    check("same rails, callback restored after the unwind -> 'healed'",
+          make_real_tf(br9b).field_heal(21, 0) == "healed"
+          and any("world callback restored" in ln for ln in LOGS))
+    ht.items_pocket_rows, ht.items_pocket_qty = _rows, _qty
+    set_world(party=[dict(BLASTOISE, hp=100), LAPRAS], bag={21: 3},
+              heal_result="menu_stuck")
+    camp9b = make_camp()
+    n9 = camp9b.field_heal_check(reason="strike")
+    check("campaign books 'menu_stuck' as a FAILED drive: no heal counted, backoff latched",
+          n9 == 0 and camp9b._field_heal_backoff > time.time())
+
+    print("== 10. watchdog side: sweep close-confirm + the disengage MENU rung ==")
+    campA = make_menu_camp(bs_to_close=2)
+    check("stray bag closes after 2 Bs -> 'closed' (pixels clear AND cb2 back)",
+          campA._sweep_stray_menus(reason="watchdog frozen_world") == "closed")
+    campB = make_menu_camp(bs_to_close=None)
+    check("menu that will NOT close -> 'stuck' after the bounded cascade",
+          campB._sweep_stray_menus(reason="watchdog frozen_world") == "stuck")
+    campN = make_menu_camp(bs_to_close=0)
+    campN.b.press = lambda *a, **k: check("no stray menu -> no presses", False)
+    check("no stray menu -> None (nothing pressed)",
+          campN._sweep_stray_menus() is None)
+
+    dd.box_open = lambda b: WORLD.get("box", False)       # _disengage_step1 imports fresh
+    req = {"reason": "frozen_world", "map": (1, 97), "coords": (15, 33), "facing": 2}
+    now = time.time()
+    campD = make_menu_camp(bs_to_close=2)
+    campD._blocked_npcs = {((1, 97), (15, 34)), ((1, 97), (2, 2)), ((3, 8), (5, 5))}
+    campD._looped_spots = {((1, 97), (15, 33))}
+    campD._wedge_mem_ts = {("blocked_npcs", (1, 97), (15, 34)): now - 60,     # frozen window
+                           ("blocked_npcs", (1, 97), (2, 2)): now - 3600,     # a real old trap
+                           ("blocked_npcs", (3, 8), (5, 5)): now - 60,        # other map
+                           ("looped_spots", (1, 97), (15, 33)): now - 60}
+    campD._save_wedge_memory = lambda: None
+    marked = []
+    campD._mark_wedge_spot = lambda r: marked.append(r)
+    set_world(party=[BLASTOISE], bag={})
+    rung = campD._disengage_step1(req)
+    check("stray menu at disengage -> 'menu' rung: closed, NO wedge-mark",
+          rung == "menu" and not marked)
+    check("...phantom marks of the frozen window RELEASED (route tile (15,34) freed, "
+          "stand tile unlatched), old + other-map marks kept",
+          campD._blocked_npcs == {((1, 97), (2, 2)), ((3, 8), (5, 5))}
+          and campD._looped_spots == set())
+    campE = make_menu_camp(bs_to_close=None)
+    campE._mark_wedge_spot = lambda r: marked.append(r)
+    check("menu that won't close -> 'menu_stuck' rung, STILL no phantom wedge-mark",
+          campE._disengage_step1(req) == "menu_stuck" and not marked)
+    campF = make_menu_camp(bs_to_close=0)                 # a genuinely frozen WORLD
+    campF._mark_wedge_spot = lambda r: marked.append(r)
+    check("no box, no menu -> the classic 'mark' rung is untouched",
+          campF._disengage_step1(req) == "mark" and marked == [req])
+
+    print("== 11. strike-leg guard (GiovanniGym.handle_interrupts) ==")
+    GG.dd_box = lambda b: False
+    sweeps = []
+    g = GG.GiovanniGym.__new__(GG.GiovanniGym)
+    gstate = {"cb2": _CB2_MENU}
+    g.b = types.SimpleNamespace(
+        rd32=lambda a: gstate["cb2"] if a == ram.GMAIN_CB2 else 0)
+    g.camp = types.SimpleNamespace(
+        _sweep_stray_menus=lambda **kw: sweeps.append(kw) or "closed")
+    check("leaked menu mid-leg (cb2 non-overworld) -> sweep fires, interrupt HANDLED",
+          g.handle_interrupts() is True and sweeps == [{"reason": "strike leg"}])
+    sweeps.clear()
+    gstate["cb2"] = ram._CB2_OVERWORLD
+    check("healthy overworld cb2 -> one free read, sweep never called",
+          g.handle_interrupts() is False and not sweeps)
+    gstate["cb2"] = _CB2_MENU
+    g.camp._sweep_stray_menus = lambda **kw: "stuck"
+    check("sweep 'stuck' -> NOT handled (deadline machinery owns it, no busy loop)",
+          g.handle_interrupts() is False)
 
     C.log = _oldlog
     ok = all(PASS)

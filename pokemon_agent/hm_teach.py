@@ -229,6 +229,45 @@ class TeachFlow:
                 pass
             self._press("B", settle=16)
 
+    def _confirm_world_back(self, label, max_presses=10, extra=6):
+        """WORLD-BACK POSTCONDITION (2026-08-05, the Mt. Ember bag wedge): _b_cascade is
+        BLIND — on a just-attached/long-running core its Bs can be EATEN wholesale, leaving
+        the bag menu open UNDER a 'VERIFIED' return. A leaked menu PAUSES the world (movement
+        eaten, NPC coords frozen), so every walker upstream reads phantom 'step blocked'
+        forever — the live (15,33)->(15,34) boulder-approach spin. Ground truth is
+        gMain.callback2 (ram.battle_cb2_dead — the exact read the roam watchdog's scene gate
+        trusts): press B, settle, RE-READ, bounded; still open -> log LOUD and hammer a few
+        more with long settles. NEVER returns with the menu knowingly open and unsaid.
+        Returns True iff the world callback is confirmed back. A cb2 READ error fails OPEN
+        (an unreadable byte must not convert a verified item use into a failure; the
+        campaign's pixel sweep + watchdog own that backstop)."""
+        def _world():
+            try:
+                return ram.battle_cb2_dead(self.b)
+            except Exception:
+                return None
+        w = _world()
+        if w is None:
+            return True                                   # unreadable cb2 -> old blind semantics
+        for _ in range(max_presses):
+            if _world():
+                break
+            self._press("B", settle=24)
+        if not _world():
+            self.log(f"   [{label}] !! menu stack STILL open after {max_presses} B's "
+                     f"(callback2 non-overworld) — hammering {extra} more, long settles (LOUD)")
+            for _ in range(extra):
+                self._press("B", settle=60)
+                if _world():
+                    break
+        if _world() is False:
+            return False
+        # two safety Bs: the START menu runs UNDER the overworld callback, so cb2 alone can
+        # read 'world' with it still up — B on a clean overworld is a no-op, never a confirm
+        self._press("B", settle=16)
+        self._press("B", settle=16)
+        return True
+
     def use_field_move(self, mon_slot, verify, label="field-move", max_seconds=60,
                        drain_frames=90, fixed_row=None):
         """Use a FIELD MOVE from the overworld party menu: START -> POKEMON -> `mon_slot` ->
@@ -385,12 +424,18 @@ class TeachFlow:
             else:
                 self._press("A", settle=50)                  # dialogue / transition
         self._b_cascade()
+        world_back = self._confirm_world_back("cure")
         cured = not (self.b.rd32(stat_addr) & 0xFF)
         consumed = items_pocket_qty(self.b, item_id) < qty0
         if cured and consumed:
+            if not world_back:
+                self.log(f"   [cure] !! cure LANDED but the MENU STACK never closed — "
+                         f"'menu_stuck' (LOUD; same postcondition as field_heal)")
+                return "menu_stuck"
             self.log(f"   [cure] VERIFIED: slot {mon_slot} status cleared, item {item_id} consumed")
             return "cured"
-        self.log(f"   [cure] !! NOT cured (status_clear={cured} consumed={consumed}) — failed LOUD")
+        self.log(f"   [cure] !! NOT cured (status_clear={cured} consumed={consumed} "
+                 f"world_back={world_back}) — failed LOUD")
         return "failed"
 
     def field_heal(self, item_id, mon_slot, max_seconds=75):
@@ -484,14 +529,23 @@ class TeachFlow:
             else:
                 self._press("A", settle=50)              # dialogue / transition
         self._b_cascade()
+        world_back = self._confirm_world_back("fieldheal")
         hp1 = self.b.rd16(base + P_HP)
         consumed = items_pocket_qty(self.b, item_id) < qty0
         if hp1 > hp0 and consumed:
+            if not world_back:
+                # HARD POSTCONDITION (2026-08-05 live wedge): the heal LANDED but the bag
+                # never closed — returning 'healed' here is how the Mt. Ember session died
+                # (a paused world under a green log line). The caller backs off; the
+                # watchdog/strike sweeps own the leaked screen.
+                self.log(f"   [fieldheal] !! heal LANDED (HP {hp0}->{hp1}, item consumed) but "
+                         f"the MENU STACK never closed — 'menu_stuck' (LOUD, never a silent leak)")
+                return "menu_stuck"
             self.log(f"   [fieldheal] VERIFIED: slot {mon_slot} HP {hp0} -> {hp1}/{mx}, "
-                     f"item {item_id} consumed")
+                     f"item {item_id} consumed (world callback restored)")
             return "healed"
-        self.log(f"   [fieldheal] !! NOT healed (hp {hp0}->{hp1} consumed={consumed}) — "
-                 f"failed LOUD")
+        self.log(f"   [fieldheal] !! NOT healed (hp {hp0}->{hp1} consumed={consumed} "
+                 f"world_back={world_back}) — failed LOUD")
         return "failed"
 
     def give_item(self, item_id, mon_slot, max_seconds=75):

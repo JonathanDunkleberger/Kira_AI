@@ -16607,6 +16607,62 @@ class Campaign:
         except Exception as _e:
             log(f"   [roam] mark wedge spot skipped: {_e}")
 
+    def _release_recent_wedge_marks(self, req, window_s=900):
+        """WEDGE-MARK HYGIENE (2026-08-05, the Mt. Ember bag wedge): marks banked while a
+        leaked menu had the world PAUSED are PHANTOMS — coords/facing were frozen, so the
+        'blocker' was whatever tile she happened to face (a facing-south trip would block the
+        TRUE route tile, e.g. (15,34) on the 1F path). On a successful menu-close recovery,
+        drop every mark on the CURRENT map younger than the frozen window and persist.
+        Over-release is harmless: a REAL trap re-marks itself on the next 8s watchdog trip."""
+        try:
+            mp = tuple(req.get("map") or tv.map_id(self.b))
+            now = time.time()
+            ts_map = getattr(self, "_wedge_mem_ts", None) or {}
+            dropped = []
+            for kind, target in (("blocked_npcs", self._blocked_npcs),
+                                 ("looped_spots", self._looped_spots)):
+                for key in [k for k in target if tuple(k[0]) == mp]:
+                    ts = ts_map.get((kind, mp, tuple(key[1])), now)   # unstamped = this session = fresh
+                    if now - ts <= window_s:
+                        target.discard(key)
+                        ts_map.pop((kind, mp, tuple(key[1])), None)
+                        dropped.append((kind, tuple(key[1])))
+            if dropped:
+                log(f"   [roam] wedge-mark RELEASE: dropped {len(dropped)} phantom mark(s) on {mp} "
+                    f"banked during the menu-frozen window: {dropped}")
+                self._save_wedge_memory()
+        except Exception as _e:
+            log(f"   [roam] wedge-mark release skipped: {_e}")
+
+    def _disengage_step1(self, req):
+        """First rung of the WATCHDOG DISENGAGE (extracted 2026-08-05 so the menu path is
+        recon-testable). Order matters: (1) an open DIALOGUE box -> B + step-away + sticky-mark
+        the NPC (the classic loop); (2) a stray BAG/PARTY MENU -> close it (bounded B, pixel +
+        cb2 readback) and RELEASE the phantom marks this frozen window banked — with a menu up
+        the world is paused, so the tile was NEVER the problem and wedge-marking it poisons the
+        router; (3) only a genuinely frozen WORLD wedge-marks the facing tile as before.
+        Returns the rung taken: 'npc' | 'menu' | 'menu_stuck' | 'mark'."""
+        from dialogue_drive import box_open as _bx
+        if req.get("reason") == "frozen_box" or _bx(self.b):
+            self.on_event("this NPC's just looping the same lines and going nowhere — I'm "
+                          "closing it and walking away.", kind="recover", tier=2)
+            self._disengage_overworld_npc(req)      # B-to-close + step away + sticky mark
+            return "npc"
+        sw = self._sweep_stray_menus(reason=f"watchdog {req.get('reason')}")
+        if sw == "closed":
+            self._release_recent_wedge_marks(req)
+            self.on_event("oops — the bag was still open and eating my inputs. closed it; "
+                          "moving again.", kind="recover", tier=2)
+            return "menu"
+        if sw == "stuck":
+            log("   [roam] !! stray menu would NOT close — NOT wedge-marking (the marks would "
+                "be phantoms of a paused world); the escalation ladder continues LOUD")
+            return "menu_stuck"
+        self._mark_wedge_spot(req)
+        self.on_event("I've been stuck on the same spot going nowhere — backing off and "
+                      "trying something different.", kind="recover", tier=2)
+        return "mark"
+
     def _load_wedge_memory(self):
         """Restore _blocked_npcs/_looped_spots from the campaign sidecar, dropping entries older than
         WEDGE_MEM_TTL_S. Best-effort — a missing/corrupt file just means a fresh (empty) memory."""
@@ -16704,26 +16760,36 @@ class Campaign:
                 return "bag/case"
         return None
 
-    def _sweep_stray_menus(self, max_b=10):
+    def _sweep_stray_menus(self, max_b=10, reason="tick top"):
         """2026-08-03 NUCLEAR (the overworld Super-Potion loop): at a point where NO flow should
         own the screen, close any stray bag/party/case menu with B (never A — A is what walked the
-        bag onto a potion and the party onto a mon forever). Bounded, re-checked between presses."""
+        bag onto a potion and the party onto a mon forever). Bounded, re-checked between presses.
+        2026-08-05 (the Mt. Ember bag wedge): close-confirm now ALSO requires gMain.callback2
+        back in the world (ram.battle_cb2_dead — the watchdog scene gate's own read); pixels
+        clearing mid-fade is not 'closed'. Returns 'closed' (was open, confirmed shut) |
+        'stuck' (open, would NOT close — LOUD) | None (no stray menu; nothing done)."""
         if st.in_battle(self.b):
-            return False
+            return None
         kind = self._stray_menu_kind()
         if not kind:
-            return False
-        log(f"   [roam] !! STRAY MENU at tick top: {kind} screen open with no flow active — "
-            f"B-closing it (anti overworld potion/party loop)")
-        for _ in range(max_b):
+            return None
+        log(f"   [roam] !! STRAY MENU at {reason}: {kind} screen open with no flow active — "
+            f"B-closing it (the world is PAUSED under it: movement eaten, NPC coords frozen)")
+        for i in range(max_b):
             self.b.press("B", 4, 12, self.render, owner="agent")
             for _f in range(10):
                 self.b.run_frame(); self.render()
-            if not self._stray_menu_kind():
-                log("   [roam] stray menu closed")
-                return True
-        log("   [roam] !! stray menu would NOT close after B-cascade (LOUD)")
-        return False
+            if self._stray_menu_kind():
+                continue
+            try:
+                if not ram.battle_cb2_dead(self.b):
+                    continue                    # pixels clear but callback still menu/fade — keep B'ing
+            except Exception:
+                pass                            # unreadable cb2 -> pixel truth alone (old semantics)
+            log(f"   [roam] stray menu CLOSED after {i + 1} B(s) — world callback restored")
+            return "closed"
+        log(f"   [roam] !! stray {kind} menu would NOT close after {max_b} B's (LOUD)")
+        return "stuck"
 
     def _wait_overworld(self, max_frames=900):
         """Settle to overworld-idle (not in battle, no open dialogue box) before reading state / acting."""
@@ -18468,15 +18534,10 @@ class Campaign:
                 # PROBLEM 2 crash-hardening: the whole recovery is guarded LOUD so a disengage fault can't
                 # kill an unattended run (never swallow — full traceback logged).
                 try:
-                    from dialogue_drive import box_open as _bx
-                    if req["reason"] == "frozen_box" or _bx(self.b):
-                        self.on_event("this NPC's just looping the same lines and going nowhere — I'm "
-                                      "closing it and walking away.", kind="recover", tier=2)
-                        self._disengage_overworld_npc(req)      # B-to-close + step away + sticky mark
-                    else:
-                        self._mark_wedge_spot(req)
-                        self.on_event("I've been stuck on the same spot going nowhere — backing off and "
-                                      "trying something different.", kind="recover", tier=2)
+                    # RUNG 1 (extracted 2026-08-05, the Mt. Ember bag wedge): box -> B+step-away;
+                    # stray MENU -> bounded B-sweep + phantom-mark release, NEVER a wedge-mark
+                    # (the world was paused — the tile was never the problem); else wedge-mark.
+                    self._disengage_step1(req)
                     # ESCALATE only if she's STILL re-wedging this episode (the B+step-away didn't take):
                     if self._watchdog_trips >= 2:
                         log("   [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away")
