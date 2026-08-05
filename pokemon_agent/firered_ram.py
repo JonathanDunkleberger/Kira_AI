@@ -167,11 +167,36 @@ GBATTLE_PARTY_ORDER = 0x0203B0DC
 GBATTLER_PARTY_IDX = 0x02023BCE
 _CB2_OVERWORLD = 0x080565B4 | 1         # thumb bit set as stored
 _CB2_WHITEOUT = 0x080566A4 | 1
+# ── THE START-MENU BLIND SPOT (2026-08-05 #2, the Mt. Ember EXIT-cursor wedge) ────────────
+# The START menu runs UNDER CB2_Overworld (it's a field task, not a callback2 owner), so
+# callback2 truth can NEVER see it — travel's arrows scrolled POKeDEX..EXIT forever while
+# every cb2-gated recovery layer said "the world is fine". Ground truth is the gTasks table
+# (pret pokefirered.sym): Task_StartMenuHandleInput is alive exactly while the menu owns
+# input. Task struct: func u32 at +0, isActive u8 at +4, 40 bytes each, 16 slots.
+GTASKS = 0x03005090
+TASK_SIZE, NUM_TASKS = 40, 16
+_TASK_START_MENU_INPUT = 0x0806F1F0 | 1  # Task_StartMenuHandleInput (thumb bit as stored)
+
+
+def start_menu_open(bridge) -> bool:
+    """True iff the overworld START menu owns input right now (gTasks func-pointer scan —
+    cursor/RAM readback, never pixels; the cursor byte alone goes STALE after close).
+    Fail-CLOSED on a read error: 'no menu seen' just means the caller's old behavior."""
+    try:
+        for i in range(NUM_TASKS):
+            base = GTASKS + i * TASK_SIZE
+            if bridge.rd32(base) == _TASK_START_MENU_INPUT and bridge.rd8(base + 4):
+                return True
+    except Exception:
+        pass
+    return False
 
 
 def battle_cb2_dead(bridge) -> bool:
     """True iff gMain.callback2 says we are IN THE WORLD (overworld/whiteout) — any battle
-    struct still pointing somewhere is a corpse, not a fight."""
+    struct still pointing somewhere is a corpse, not a fight. NOTE: the START menu runs
+    UNDER the overworld callback — pair with start_menu_open() when 'world back' must also
+    mean 'no menu owns input' (the Mt. Ember EXIT-cursor wedge)."""
     return bridge.rd32(GMAIN_CB2) in (_CB2_OVERWORLD, _CB2_WHITEOUT)
 
 

@@ -16640,8 +16640,10 @@ class Campaign:
         the NPC (the classic loop); (2) a stray BAG/PARTY MENU -> close it (bounded B, pixel +
         cb2 readback) and RELEASE the phantom marks this frozen window banked — with a menu up
         the world is paused, so the tile was NEVER the problem and wedge-marking it poisons the
-        router; (3) only a genuinely frozen WORLD wedge-marks the facing tile as before.
-        Returns the rung taken: 'npc' | 'menu' | 'menu_stuck' | 'mark'."""
+        router; (3) NO classifier matched -> the universal B-FIRST probe (drift-calibrated
+        screen-change readback) catches menus we haven't met yet (the START wedge); (4) only
+        a genuinely frozen WORLD wedge-marks the facing tile as before.
+        Returns the rung taken: 'npc' | 'menu' | 'menu_stuck' | 'bfirst' | 'mark'."""
         from dialogue_drive import box_open as _bx
         if req.get("reason") == "frozen_box" or _bx(self.b):
             self.on_event("this NPC's just looping the same lines and going nowhere — I'm "
@@ -16658,10 +16660,63 @@ class Campaign:
             log("   [roam] !! stray menu would NOT close — NOT wedge-marking (the marks would "
                 "be phantoms of a paused world); the escalation ladder continues LOUD")
             return "menu_stuck"
+        # UNIVERSAL B-FIRST RUNG (2026-08-05 #2, the START wedge): even when NO classifier
+        # matches, an unknown menu may own the input — B is safe in the overworld (a no-op
+        # outside menus/dialogue; the box case was already handled above). If a B visibly
+        # changes the screen (beyond ambient tile-animation drift), the wedge WAS a menu:
+        # release + resume, never wedge-mark the phantom.
+        if self._b_first_probe():
+            self._release_recent_wedge_marks(req)
+            self.on_event("something was quietly eating my buttons — cleared it, "
+                          "moving again.", kind="recover", tier=2)
+            return "bfirst"
         self._mark_wedge_spot(req)
         self.on_event("I've been stuck on the same spot going nowhere — backing off and "
                       "trying something different.", kind="recover", tier=2)
         return "mark"
+
+    # sparse whole-screen sample for the B-first probe: 6x6 grid clear of the outer border
+    _SIG_PTS = tuple((x, y) for y in (12, 40, 68, 100, 128, 150)
+                     for x in (20, 60, 100, 140, 180, 220))
+
+    def _screen_sig(self):
+        p = self.b.frame_rgb().load()
+        return [p[x, y][:3] for x, y in self._SIG_PTS]
+
+    @staticmethod
+    def _sig_diff(a, b):
+        return sum(1 for c0, c1 in zip(a, b)
+                   if abs(c0[0] - c1[0]) + abs(c0[1] - c1[1]) + abs(c0[2] - c1[2]) > 40)
+
+    def _b_first_probe(self, presses=2):
+        """The catch-all for menus no classifier knows yet (the START wedge shape: cb2 reads
+        overworld, no bag/party pixels — yet a window is eating every input). DRIFT-CALIBRATED:
+        sample the 36-point signature, let the scene animate untouched to measure ambient
+        drift (water/flower tiles), then press B (bounded) and only count a change well beyond
+        that drift as 'a menu closed'. Returns True iff a B visibly changed the screen —
+        the caller then skips wedge-marking (the tile was never the problem)."""
+        try:
+            s0 = self._screen_sig()
+            for _ in range(20):
+                self.b.run_frame(); self.render()
+            s1 = self._screen_sig()
+            drift = self._sig_diff(s0, s1)
+            for i in range(presses):
+                self.b.press("B", 8, 12, self.render, owner="agent")
+                for _ in range(24):
+                    self.b.run_frame(); self.render()
+                s2 = self._screen_sig()
+                changed = self._sig_diff(s1, s2)
+                if changed > max(2 * drift, drift + 6):
+                    log(f"   [roam] B-FIRST rung: press {i + 1} changed the screen "
+                        f"({changed} pts vs drift {drift}) — an UNCLASSIFIED menu owned the "
+                        f"input; resuming WITHOUT wedge-marking")
+                    return True
+                s1 = s2
+            return False
+        except Exception as _e:
+            log(f"   [roam] B-first probe skipped: {_e}")
+            return False
 
     def _load_wedge_memory(self):
         """Restore _blocked_npcs/_looped_spots from the campaign sidecar, dropping entries older than
@@ -16732,8 +16787,16 @@ class Campaign:
             log(f"   [roam] wedge memory save skipped: {_e}")
 
     def _stray_menu_kind(self):
-        """PIXEL truth (TeachFlow._classify probes, native 240x160): which full-screen menu is up
-        right now — 'party' (teal panels) / 'bag'/'case' (pale-yellow list) — or None. Read-only."""
+        """Which stray menu owns the screen right now — 'start' (gTasks readback: the START
+        menu runs UNDER CB2_Overworld, so neither cb2 truth nor the bag/party pixel probes
+        can see it — the 2026-08-05 Mt. Ember EXIT-cursor wedge, arrows scrolling
+        POKeDEX..EXIT forever) / 'party' (teal panels) / 'bag'/'case' (pale-yellow list,
+        pixel truth per TeachFlow._classify probes, native 240x160) — or None. Read-only."""
+        try:
+            if ram.start_menu_open(self.b):
+                return "start"
+        except Exception:
+            pass
         p = self.b.frame_rgb().load()
         teal_hits = sum(1 for x, y in ((30, 110), (60, 115), (20, 90), (70, 108))
                         if p[x, y][0] < 100 and p[x, y][1] > 120 and p[x, y][2] > 120

@@ -33,7 +33,14 @@ Stubs the bridge + the TeachFlow bag rails and drives the pure doctrine logic:
      back ('closed'/'stuck'/None), and _disengage_step1 closes a classified stray menu +
      RELEASES the phantom wedge marks of the frozen window INSTEAD of wedge-marking;
  11. the STRIKE-LEG guard: GiovanniGym.handle_interrupts treats a closed stray menu as a
-     handled interrupt (one cb2 read gates it; overworld cb2 never sweeps).
+     handled interrupt (one cb2 read gates it; overworld cb2 never sweeps);
+ 12. THE START-MENU BLIND SPOT (2026-08-05 #2, the EXIT-cursor wedge): START runs UNDER
+     CB2_Overworld — ram.start_menu_open (gTasks scan for Task_StartMenuHandleInput) sees
+     it where cb2 + bag/party pixels are all blind; wired through _stray_menu_kind, the
+     sweep, the disengage rung, the strike-leg guard, and _confirm_world_back;
+ 13. the UNIVERSAL B-FIRST rung: a drift-calibrated screen-change probe closes menus no
+     classifier knows yet (2 bounded Bs), skipping the phantom wedge-mark; ambient tile
+     animation alone never reads as a menu.
 Run:  python3 recon_fieldheal_check.py   (from pokemon_agent/) — prints PASS/FAIL per check.
 """
 import sys
@@ -231,6 +238,85 @@ def make_real_tf(bridge):
     tf.log = lambda s: LOGS.append(str(s))
     tf.emit = lambda *a, **k: None
     return tf
+
+
+class StartBridge:
+    """THE START-WEDGE SHAPE (section 12): gMain.callback2 reads OVERWORLD the whole time
+    (the blind spot), while Task_StartMenuHandleInput sits alive in gTasks slot 3 until
+    `closes_after` B presses (None = never closes; 0 = menu not open)."""
+
+    _SLOT = ram.GTASKS + 3 * ram.TASK_SIZE
+
+    def __init__(self, closes_after=1, active=True):
+        self.closes_after, self.active, self.bs = closes_after, active, 0
+
+    def _menu_up(self):
+        return self.closes_after is None or self.bs < self.closes_after
+
+    def press(self, key, hold, rel, render, owner=None):
+        if key == "B":
+            self.bs += 1
+
+    def run_frame(self):
+        pass
+
+    def set_input_owner(self, owner):
+        pass
+
+    def frame_rgb(self):
+        return types.SimpleNamespace(load=lambda: _BlackPx())
+
+    def rd8(self, a):
+        if a == self._SLOT + 4 and self._menu_up():
+            return 1 if self.active else 0
+        return 0
+
+    def rd16(self, a):
+        return 0
+
+    def rd32(self, a):
+        if a == ram.GMAIN_CB2:
+            return ram._CB2_OVERWORLD
+        if a == self._SLOT and self._menu_up():
+            return 0x0806F1F0 | 1              # Task_StartMenuHandleInput, thumb bit
+        return 0
+
+
+class DriftScreen:
+    """B-first probe rig (section 13): a uniform white 'menu' that one B flips to a uniform
+    green 'world' — or a menu-less frozen world where B does nothing. `drift_cols` sampled
+    columns animate on a 20-frame cadence like water tiles (the ambient-drift calibration)."""
+
+    def __init__(self, menu=True, drift_cols=0):
+        self.menu, self.tick = menu, 0
+        self.cols = (20, 60, 100, 140, 180, 220)[:drift_cols]
+
+    def press(self, key, hold, rel, render, owner=None):
+        if key == "B" and self.menu:
+            self.menu = False
+
+    def run_frame(self):
+        self.tick += 1
+
+    def frame_rgb(self):
+        menu, tick, cols = self.menu, self.tick, self.cols
+
+        class _P:
+            def __getitem__(_s, xy):
+                if xy[0] in cols:
+                    return (0, 0, 0) if (tick // 20) % 2 else (200, 200, 200)
+                return (255, 255, 255) if menu else (40, 120, 60)
+
+        return types.SimpleNamespace(load=lambda: _P())
+
+
+def make_start_camp(bridge):
+    """Campaign rig with the REAL _stray_menu_kind/_sweep_stray_menus over a StartBridge."""
+    camp = C.Campaign.__new__(C.Campaign)
+    camp.b = bridge
+    camp.render = lambda: None
+    camp.on_event = lambda *a, **k: None
+    return camp
 
 
 def make_menu_camp(bs_to_close):
@@ -520,6 +606,68 @@ def main():
     g.camp._sweep_stray_menus = lambda **kw: "stuck"
     check("sweep 'stuck' -> NOT handled (deadline machinery owns it, no busy loop)",
           g.handle_interrupts() is False)
+
+    print("== 12. THE START-MENU BLIND SPOT (cb2 overworld, EXIT-cursor wedge) ==")
+    check("gTasks scan: Task_StartMenuHandleInput alive -> start_menu_open True",
+          ram.start_menu_open(StartBridge(closes_after=None)) is True)
+    check("menu not open / task inactive -> False (stale func ptr never lies)",
+          ram.start_menu_open(StartBridge(closes_after=0)) is False
+          and ram.start_menu_open(StartBridge(active=False)) is False)
+    _boom = types.SimpleNamespace(
+        rd32=lambda a: (_ for _ in ()).throw(RuntimeError("flake")), rd8=lambda a: 0)
+    check("unreadable gTasks fails CLOSED (old behavior, outer layers unaffected)",
+          ram.start_menu_open(_boom) is False)
+    set_world(party=[BLASTOISE], bag={})
+    campS = make_start_camp(StartBridge(closes_after=None))
+    check("_stray_menu_kind sees 'start' where cb2 truth AND bag/party pixels are blind",
+          campS._stray_menu_kind() == "start")
+    campS2 = make_start_camp(StartBridge(closes_after=1))
+    check("sweep closes the START menu: 1 B kills the task, cb2 was overworld all along "
+          "-> 'closed'", campS2._sweep_stray_menus(reason="tick top") == "closed")
+    campS3 = make_start_camp(StartBridge(closes_after=1))
+    campS3._blocked_npcs, campS3._looped_spots, campS3._wedge_mem_ts = set(), set(), {}
+    campS3._save_wedge_memory = lambda: None
+    marked12 = []
+    campS3._mark_wedge_spot = lambda r: marked12.append(r)
+    check("watchdog disengage on the START wedge -> 'menu' rung, closed, NO wedge-mark",
+          campS3._disengage_step1({"reason": "frozen_world", "map": (1, 96),
+                                   "coords": (24, 6)}) == "menu" and not marked12)
+    sweeps12 = []
+    g2 = GG.GiovanniGym.__new__(GG.GiovanniGym)
+    g2.b = StartBridge(closes_after=None)
+    g2.camp = types.SimpleNamespace(
+        _sweep_stray_menus=lambda **kw: sweeps12.append(kw) or "closed")
+    check("strike-leg guard fires on START despite a healthy overworld cb2",
+          g2.handle_interrupts() is True and sweeps12 == [{"reason": "strike leg"}])
+    br12 = StartBridge(closes_after=2)
+    tf12 = make_real_tf(br12)
+    check("_confirm_world_back: cb2-overworld-but-START-open is NOT 'world back' — "
+          "Bs until the task dies (2 + 2 safety Bs)",
+          tf12._confirm_world_back("fieldheal") is True and br12.bs == 4)
+
+    print("== 13. universal B-FIRST rung (menus we haven't met yet) ==")
+    campP = make_start_camp(DriftScreen(menu=True, drift_cols=1))
+    check("an UNCLASSIFIED menu: first B flips the screen far beyond drift -> True",
+          campP._b_first_probe() is True
+          and any("B-FIRST rung" in ln for ln in LOGS))
+    campQ = make_start_camp(DriftScreen(menu=False, drift_cols=1))
+    check("a menu-less frozen world: tile animation alone never reads as a menu "
+          "(2 Bs, no false positive)", campQ._b_first_probe() is False)
+    campR = make_menu_camp(bs_to_close=0)                 # no classified menu
+    campR._b_first_probe = lambda: True
+    released13, marked13 = [], []
+    campR._release_recent_wedge_marks = lambda r: released13.append(r)
+    campR._mark_wedge_spot = lambda r: marked13.append(r)
+    req13 = {"reason": "frozen_world", "map": (1, 96), "coords": (24, 6)}
+    check("disengage: no classifier match but B changed the screen -> 'bfirst' rung, "
+          "marks released, NO wedge-mark",
+          campR._disengage_step1(req13) == "bfirst"
+          and released13 == [req13] and not marked13)
+    campU = make_menu_camp(bs_to_close=0)
+    campU._b_first_probe = lambda: False
+    campU._mark_wedge_spot = lambda r: marked13.append(r)
+    check("...and a B that changes nothing still falls through to the classic wedge-mark",
+          campU._disengage_step1(req13) == "mark" and marked13 == [req13])
 
     C.log = _oldlog
     ok = all(PASS)

@@ -228,6 +228,14 @@ class TeachFlow:
                 # cheap 'menus gone' proxy: two Bs beyond the last visible change are harmless
                 pass
             self._press("B", settle=16)
+        # START-MENU TAIL (2026-08-05 #2, the Mt. Ember EXIT-cursor wedge): every hm_teach
+        # flow opens via START, and START runs UNDER CB2_Overworld — a blind cascade whose
+        # Bs got eaten can leave it up with every cb2 gate reading 'world fine'. gTasks is
+        # the readback: while Task_StartMenuHandleInput is alive, keep B'ing (bounded).
+        for _ in range(4):
+            if not ram.start_menu_open(self.b):
+                break
+            self._press("B", settle=24)
 
     def _confirm_world_back(self, label, max_presses=10, extra=6):
         """WORLD-BACK POSTCONDITION (2026-08-05, the Mt. Ember bag wedge): _b_cascade is
@@ -243,7 +251,9 @@ class TeachFlow:
         campaign's pixel sweep + watchdog own that backstop)."""
         def _world():
             try:
-                return ram.battle_cb2_dead(self.b)
+                # cb2 back in the world AND no START menu owning input — START runs UNDER
+                # CB2_Overworld (the Mt. Ember EXIT-cursor wedge), so cb2 alone can lie.
+                return ram.battle_cb2_dead(self.b) and not ram.start_menu_open(self.b)
             except Exception:
                 return None
         w = _world()
