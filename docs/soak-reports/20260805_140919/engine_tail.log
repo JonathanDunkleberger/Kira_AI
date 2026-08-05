@@ -1,0 +1,34 @@
+===== playlive_2026-08-05_13-49-43.log =====
+   [play-live]    [engine] JUST FIGHT: L61 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 86/86 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] WILD CATCH DIVERT (dex_push) — meowth: weaken+balls, never KO
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+   [play-live]    [engine] JUST FIGHT: L61 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs spearow 76/76 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [3]Earthquake(p100,pp=9,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] WILD CATCH DIVERT (dex_push) — psyduck: weaken+balls, never KO
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+===== playlive_2026-08-05_08-43-36.log =====
+   [travel] start map=(3, 8) coords=(14, 12) -> coord (19, 12) (budget 300s, surf-capable)
+   [travel] step 0: (14, 12)->(15, 12) map=(3, 8) (path 6 to exit)
+   [travel] reached target coord (19, 12)
+   [travel] start map=(12, 7) coords=(2, 5) -> coord (4, 6) (budget 60s, surf-capable)
+   [travel] step 0: (2, 5)->(3, 5) map=(12, 7) (path 4 to exit)
+   [travel] reached target coord (4, 6)
+   [travel] start map=(3, 8) coords=(19, 12) -> coord (14, 12) (budget 300s, surf-capable)
+   [travel] step 0: (19, 12)->(18, 12) map=(3, 8) (path 6 to exit)
+   [travel] reached target coord (14, 12)
+   [travel] start map=(3, 8) coords=(19, 12) -> map (3, 38) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] step 0: (19, 12)->(20, 12) map=(3, 8) (path 6 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.53s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.64s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (22, 12) -> (23, 12) (map (3, 8))
+   [travel] MAP TRANSITION (3, 8) -> (3, 38)

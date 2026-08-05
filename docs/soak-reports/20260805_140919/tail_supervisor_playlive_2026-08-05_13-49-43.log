@@ -1,0 +1,346 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(32, 0) coords=(11, 9) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+   [play-live] !! BOOT INTO OPEN MENU (bag/party banked mid-flow) — B-closing before roam
+
+   [play-live]    boot-menu sweep done: menu_open=True
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 5 blocked tile(s), 6 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=25028).
+
+   [soul] continuity loaded: 15 roster bond(s), 755 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 139 place(s) known, 228 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (32, 0)@(11, 9) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(32, 0) coords=(11, 9) badges=8 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260805_134945_an-unfamiliar-area_8b_30h44m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (32, 0)@(11, 9) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 2 warp(s) on (32, 0): (9, 9)->(3, 12), (1, 5)->(32, 1)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [world] learned 2 warp(s) on (32, 0): (9, 9)->(3, 12), (1, 5)->(32, 1)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 2, 15, 86) @ an unfamiliar area (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (11, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, lapras L25] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 15 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(32, 0) (11,9) f4 -- badge8 $21458 party:5574 bag:1842]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L61), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (32, 0), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 15 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L61), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find Bill, catch Moltres on Mt. Ember'
+
+   [campaign]    [soul] ORACLE pick -> 'find Bill, catch Moltres on Mt. Ember'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 2
+
+   [campaign]    [roam] STRATEGY roster: feeding team-shape awareness to the oracle
+
+   [campaign]    [teamplan] next action: catch_keeper (abra -> alakazam answers Bruno, Agatha, Champion) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'find Bill, catch Moltres on Mt. Ember'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (32, 0)
+
+   [campaign]    [nurse-front] replan at (11, 9) (len 12, budget 5)
+
+   [dialogue] +++ "BILL. I'll catch you later! Say hi to the guy for me!"  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "BILL. I\'ll catch you later! Say hi to the guy for me!"'
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 17ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 6ms]
+
+   [dialogue] +++ "Thank you for waiting. We've restored your POK.MON to full health."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Thank you for waiting. We\'ve restored your POK.MON to full health."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'We hope to see you again!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "We hope to see you again!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [pc-out-approach] replan at (5, 4) (len 9, budget 9)
+
+   [campaign]    [pc-out] (32, 0) -> (3, 12) @ (14, 6)
+
+   [campaign]    [to-kindle-band] replan at (14, 6) (len 22, budget 9)
+
+   [campaign]    [to-kindle-band] step blocked (2, 132) -> (24, 12) (npcs [])
+
+   [campaign]    [to-kindle-band] replan at (2, 132) (len 0, budget 9)
+
+   [campaign]    [to-kindle-band] no path from (2, 132)
+
+   [campaign]    [to-kindle-band] replan at (2, 132) (len 0, budget 9)
+
+   [campaign]    [to-kindle-band] no path from (2, 132)
+
+   [campaign]    [to-kindle-band] replan at (2, 132) (len 0, budget 9)
+
+   [campaign]    [to-kindle-band] no path from (2, 132)
+
+   [campaign]    [to-kindle-band] replan at (2, 132) (len 0, budget 9)
+
+   [campaign]    [to-kindle-band] no path from (2, 132)
+
+   [campaign]    [to-kindle-band] replan at (2, 132) (len 0, budget 9)
+
+   [campaign]    [to-kindle-band] no path from (2, 132)
+
+   [campaign]    [to-kindle-band] replan at (2, 132) (len 0, budget 9)
+
+   [campaign]    [to-kindle-band] no path from (2, 132)
+
+   [campaign] !! [to-kindle] east crossing never fired (at (3, 45)@(2, 132))
+
+   [campaign] !! [moltres] climb leg wedged on (3, 12) @ (2, 132)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (3, 45)@(2, 132))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((32, 0) -> (3, 45)) despite 'failed' — try refunded (refund 1/6; tries now 0/3)
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (32, 0)(11, 9) -> (3, 45)(2, 132) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 45) coords=(2, 132) badges=8 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260805_135050_an-unfamiliar-area_8b_30h45m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (2, 132) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, lapras L25] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 15 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 45) (2,132) f4 -- badge8 $21458 party:ce04 bag:1842]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle']
+
+   [campaign]    [roam] STRATEGY roster: feeding team-shape awareness to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (3, 45)
+
+   [campaign]    [ember-door-approach] replan at (2, 132) (len 143, budget 9)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [surf] MOUNTED at (2, 129) (attempt 1)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against tentacool — your blastoise is up front'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 86/86 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's tentacool went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 25ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ember-door-approach] replan at (9, 125) (len 129, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against meowth — your blastoise is up front'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "a meowth — that's a NEW one for the dex. balls out (15/50 caught — the Route 15 aide hands over an Exp. Share at fifty)."
+
+   [play-live]    [engine] WILD CATCH DIVERT (dex_push) — meowth: weaken+balls, never KO
+
+   [play-live]    [catch] target=meowth L31 hp=100% status=none balls=8 pref=cheap
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Bite est=163% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [catch] EARLY THROW — overkill risk on every move, no sleep/chipper; throwing at 100% HP rather than KO the target
+
+   [kira-voice] ·floor· (<1s since last) T1 'no safe way to weaken this one — full-health throw it is. wish me luck.'
+
+   [play-live]    [catch] THROW Ultra Ball (x8 left, pref=cheap) at meowth hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [kira-voice] -> T1·brisk· (event) "gotcha — it's caught!"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ember-door-approach] replan at (10, 106) (len 109, budget 11)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against spearow — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs spearow 76/76 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [3]Earthquake(p100,pp=9,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's spearow went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ember-door-approach] replan at (10, 96) (len 99, budget 12)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against psyduck — your blastoise is up front'  fired=True  [age 0.0s + post 16ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "a psyduck — that's a NEW one for the dex. balls out (16/50 caught — the Route 15 aide hands over an Exp. Share at fifty)."
+
+   [play-live]    [engine] WILD CATCH DIVERT (dex_push) — psyduck: weaken+balls, never KO
+
+   [play-live]    [catch] target=psyduck L34 hp=100% status=none balls=7 pref=cheap
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Surf est=80% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [catch] EARLY THROW — overkill risk on every move, no sleep/chipper; throwing at 100% HP rather than KO the target
+
+   [kira-voice] ·floor· (<1s since last) T1 'no safe way to weaken this one — full-health throw it is. wish me luck.'
+
+   [play-live]    [catch] THROW Ultra Ball (x7 left, pref=cheap) at psyduck hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 13047 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 45) coords=(8, 83)  badge=True
+
+   [kira-voice] === 17 fired, 7 gated (0 failed) | by tier: T3=0 T2=3 T1=14 (incl ambient trickle) ===
+
+================================================================
+
