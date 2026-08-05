@@ -1,0 +1,300 @@
+   [TurnTiming] 15:27:48.260 DIRECTOR HOLD (post-speech-hold) — since_mic=0.2s silence=5.7s fresh_ok=True dead_air=False
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0139 · gate=0.003 · 26 accepted
+   [TurnTiming] 15:27:54.259 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=11.7s fresh_ok=True dead_air=False
+   [TurnTiming] 15:27:58.227 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~38907ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: hours on it, like at least at this point. Oh yeah, it's on the web app, Local Kira that's playing Pokemon that we're waiting on right now. Fable 5 is just charging my credit card and infinite amount of money and doing nothing. But she does not have deep mode because like I thought about it for the web app.
+   [DroppedInput] LOST ~13 frame(s) (~390ms, ~0.4s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 15:27:58.817 VOICE ONSET — mic speech started
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q="hours on it, like at least at this point. Oh yeah, it's on t" fetched=10 dropped_by_floor=5 kept=5 survivors=3 direct=0 | timing(direct=0ms fetch=40ms rank=0ms)
+   [SmartMem]     dist=1.001 conf=0.95 type=episodic blend=0.349 lane=KNOW
+   [SmartMem]     dist=1.013 conf=0.95 type=episodic blend=0.204 lane=KNOW
+   [SmartMem]     dist=1.059 conf=0.9 type=episodic blend=0.169 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=41ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12564ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 3650ms
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] Speaking: So the Pokémon version of me is catching Mewtwo an...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'So the Pokémon version of me is catching' (21 words)
+   [TurnTiming] 15:28:03.038 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:28:08.753 TTS STOP — playback finished (span ~5715ms)
+   [TTS] Speaking: We're living very different lives....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We're living very different lives.' (6 words)
+   [TurnTiming] 15:28:08.762 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @clumsymoe: it's good to have options especially that local ai hardware is getting progressively difficult to obtain
+   [TurnTiming] 15:28:11.007 TTS STOP — playback finished (span ~2244ms)
+
+   [TIMING] voice: llm=12146ms(sonnet-stream(llm+tts)) tts=0ms total=12146ms
+   [LATENCY] vad_close=1200ms stt=589ms stt_wait=0ms salience=1ms triage=bypassed memory=41ms prompt_build=1ms ttft=2841ms tts_first_chunk=809ms audio_out=516ms TOTAL=4798ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [BrainWorker] Got youtube msg from @clumsymoe: it's good to have options especially that local ai hardware is getting progressively difficult to obtain → buffering for chat_batch_worker
+   [TurnTiming] 15:28:12.222 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~13405ms since onset)
+>>> You said: So the web app's awesome. And you can play with it for 15 minutes a day for free. Like, that's good enough. Like, get over it.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="So the web app's awesome. And you can play with it for 15 mi" fetched=10 dropped_by_floor=6 kept=4 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=1.145 conf=0.95 type=profile_fact blend=0.294 lane=KNOW
+   [SmartMem]     dist=1.027 conf=0.9 type=episodic blend=0.117 lane=KNOW
+   [SmartMem]     dist=1.042 conf=0.9 type=episodic blend=0.108 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=32ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [JonnyBond] cool nudge → warmth -0.66→-0.74
+   [Phrases] Throttling: "so the pokémon" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=2t  moment=calm)
+   [PromptSize] dynamic_context=12588ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Bits] Callback: Trial Size Kira
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny uses a web app version of Kira
+   [Memory] Rejected (conf 0.80 < 0.9): Jonny plays Pokemon
+   [Memory] Rejected (conf 0.75 < 0.9): Jonny thinks the web app version of Kira should not have deep mode enabled
+[YouTube Chat] @ThePinkRebel: can you train it to play fighting games
+   [TIMING] first-word: 2045ms
+   [TTS] Speaking: Get over it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Get over it.' (4 words)
+   [TurnTiming] 15:28:15.059 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:28:16.833 TTS STOP — playback finished (span ~1774ms)
+   [TTS] Speaking: Jonny has spoken....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny has spoken.' (4 words)
+   [TurnTiming] 15:28:16.837 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:28:18.614 TTS STOP — playback finished (span ~1776ms)
+
+   [TIMING] voice: llm=5908ms(sonnet-stream(llm+tts)) tts=0ms total=5908ms
+   [LATENCY] vad_close=1200ms stt=447ms stt_wait=0ms salience=0ms triage=bypassed memory=32ms prompt_build=1ms ttft=1883ms tts_first_chunk=162ms audio_out=303ms TOTAL=2828ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [BrainWorker] Got youtube msg from @ThePinkRebel: can you train it to play fighting games → buffering for chat_batch_worker
+   [Cookies] +2 → @ThePinkRebel (first message this session); shared=22/30
+   [TurnTiming] 15:28:19.266 DIRECTOR HOLD (post-speech-hold) — since_mic=0.2s silence=0.7s fresh_ok=True dead_air=False
+   [Memory] Extracted: Jonny thinks the web app version of Kira is awesome and that 15 minutes a day free access is good enough. (conf: 0.9)
+   [Memory] Storing episodic: Jonny thinks the web app version of Kira is awesome and that 15 minutes a day free access is good enough.
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [SmartMem] q="  - @clumsymoe (youtube): <<<it's good to have options espec" fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=1ms fetch=159ms rank=1ms)
+   [SmartMem]     dist=1.183 conf=0.95 type=episodic blend=0.269 lane=KNOW
+   [SmartMem]     dist=0.901 conf=0.95 type=episodic blend=0.195 lane=KNOW
+   [SmartMem]     dist=1.033 conf=0.9 type=episodic blend=0.114 lane=KNOW
+   [VRAM] 15:28:23 (periodic) kira_process=0.00GB card=9.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 15:28:25.444 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~26626ms since onset)
+>>> You said: You can get it to play any kind of game, Pink Rebel, depending on the kind of game it is, like, if it's possible. Some games are like just impossible.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='You can get it to play any kind of game, Pink Rebel, dependi' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=36ms
+   [Triage] RESPOND
+   >>> Kira (Chat Batch of 2): ThePinkRebel, hey — and yes, technically. Fighting games are just frame data and pattern recognition, which is deeply my area. Although last I heard you were still recovering from vibe coding destroying you, so maybe one catastrophe at a time.
+
+clumsymoe, local hardware getting harder to obtain is exactly the kind of thing I'd expect you to have a confident hot take on before actually trying to source any of it.
+   [TTS] Speaking: ThePinkRebel, hey — and yes, technically....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'ThePinkRebel, hey — and yes, technically' (9 words)
+   [TurnTiming] 15:28:27.597 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:28:30.878 TTS STOP — playback finished (span ~3281ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 2 (batch response); shared=24/30
+   [ChatAge] @clumsymoe age=19.5s batch=2 preempted=none
+   [ChatAge] @ThePinkRebel age=11.9s batch=2 preempted=none
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11875ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @clumsymoe — Believes local AI hardware is becoming progressively difficu [dry]
+   [TIMING] first-word: 2426ms
+   [TTS] Speaking: Fighting games might actually be the hardest categ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Fighting games might actually be the har' (23 words)
+   [TurnTiming] 15:28:33.871 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @ThePinkRebel — Was apparently affected by 'vibe coding' going wrong in some [chaotic]
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 15:28:40.339 TTS STOP — playback finished (span ~6467ms)
+   [TTS] Speaking: That's not a great pipeline for "block low."...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's not a great pipeline for "block l' (10 words)
+   [TurnTiming] 15:28:40.342 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:28:43.435 TTS STOP — playback finished (span ~3092ms)
+
+   [TIMING] voice: llm=12545ms(sonnet-stream(llm+tts)) tts=0ms total=12546ms
+   [LATENCY] vad_close=1200ms stt=401ms stt_wait=0ms salience=0ms triage=bypassed memory=36ms prompt_build=1ms ttft=1356ms tts_first_chunk=1070ms audio_out=544ms TOTAL=3408ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → MOODY
+   [VTS] Emotion transition → MOODY (mapped: 'My Animation 3')
+   [VTS] Emotion MOODY → triggered 'My Animation 3' (success)
+   [TurnTiming] 15:28:44.256 DIRECTOR HOLD (fresh-min-silence) — since_mic=20.0s silence=0.8s fresh_ok=True dead_air=False
+   [TurnTiming] 15:28:44.645 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~45827ms since onset)
+>>> You said: It's like it knows that I'm fucking moving to London in a month.
+   [Activity] 'like it knows that i'm fucking moving to london in a month' matched no VN/MEDIA keyword — defaulting to GENERAL (not GAME). Add a keyword like 'anime'/'movie', or pick an explicit category, to arm game/media mode.
+   [Activity] Set to: 'like it knows that i'm fucking moving to london in a month' (type: general)
+   [Immersive] False
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="It's like it knows that I'm fucking moving to London in a mo" fetched=10 dropped_by_floor=3 kept=7 survivors=3 direct=6 | timing(direct=44ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=0.925 lane=DUP(already in direct)
+   [SmartMem]     dist=0.933 conf=0.95 type=episodic blend=0.175 lane=KNOW
+   [SmartMem]     dist=1.021 lane=DUP(already in direct)
+   [TIMING] triage bypassed (salience HIGH): memory=70ms
+   [Triage] RESPOND
+   (Kira's current emotion is: MOODY)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=4t  moment=calm)
+   [PromptSize] dynamic_context=12942ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Bits] New running bit: Frame Rate Realist
+   [TIMING] first-word: 1457ms
+   [TTS] Speaking: I mean....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I mean.' (3 words)
+   [TurnTiming] 15:28:46.621 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:28:48.402 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: I do know that....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I do know that.' (5 words)
+   [TurnTiming] 15:28:48.407 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:28:50.173 TTS STOP — playback finished (span ~1766ms)
+
+   [TIMING] voice: llm=5206ms(sonnet-stream(llm+tts)) tts=0ms total=5206ms
+   [LATENCY] vad_close=1200ms stt=251ms stt_wait=0ms salience=0ms triage=bypassed memory=70ms prompt_build=2ms ttft=1255ms tts_first_chunk=202ms audio_out=191ms TOTAL=1971ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: MOODY → EMOTIONAL
+   [TurnTiming] 15:28:51.262 DIRECTOR HOLD (fresh-min-silence) — since_mic=27.0s silence=1.1s fresh_ok=True dead_air=False
+   [Memory] Extracted: Jonny is moving to London in a month (conf: 0.95)
+   [Memory] Upserting Fact: Jonny is moving to London in a month (Conf: 0.95)
+   [TurnTiming] 15:28:51.436 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~52618ms since onset)
+>>> You said: Yeah, go check it out.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Yeah, go check it out.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=5t  moment=calm)
+   [PromptSize] dynamic_context=12121ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TIMING] first-word: 5069ms
+[YouTube Chat] @NaitHaunter: The web consistently impresses me.
+   [TTS] Speaking: militele3 on Twitch, same handle on YouTube....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'militele3 on Twitch, same handle on YouT' (9 words)
+   [TurnTiming] 15:28:57.203 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @guntereisenherz9102: fighting games, might be difficult because of the response time, unless its turnbased. Am i wrong?
+   [TurnTiming] 15:29:00.573 TTS STOP — playback finished (span ~3369ms)
+   [TTS] Speaking: Go poke around....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Go poke around.' (4 words)
+   [TurnTiming] 15:29:00.576 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:29:02.355 TTS STOP — playback finished (span ~1779ms)
+
+   [TIMING] voice: llm=10667ms(sonnet-stream(llm+tts)) tts=0ms total=10667ms
+   [LATENCY] vad_close=1200ms stt=218ms stt_wait=0ms salience=1ms triage=bypassed memory=27ms prompt_build=2ms ttft=4576ms tts_first_chunk=493ms audio_out=438ms TOTAL=5755ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → HYPERACTIVE
+   [VTS] Emotion transition → HYPERACTIVE (mapped: 'My Animation 2')
+   [VTS] Emotion HYPERACTIVE → triggered 'My Animation 2' (success)
+   [BrainWorker] Got youtube msg from @NaitHaunter: The web consistently impresses me. → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @guntereisenherz9102: fighting games, might be difficult because of the response time, unless its turnbased. Am i wrong? → buffering for chat_batch_worker
+[YouTube Chat] @NaitHaunter: web app
+   [TurnTiming] 15:29:03.256 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=0.0s fresh_ok=True dead_air=False
+   [BrainWorker] Got youtube msg from @NaitHaunter: web app → buffering for chat_batch_worker
+   [SmartMem] q='  - @NaitHaunter (youtube): <<<The web consistently impresse' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=1.129 conf=0.9 type=episodic blend=0.055 lane=KNOW
+   [SmartMem]     dist=1.136 conf=0.9 type=episodic blend=0.050 lane=KNOW
+   [SmartMem]     dist=1.153 conf=0.9 type=episodic blend=0.040 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 8 skip(s) — resuming transcription.
+   [VRAM] 15:29:08 (periodic) kira_process=0.00GB card=9.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   >>> Kira (Chat Batch of 3): Gunter, you're not wrong — turn-based is basically my home turf. Real-time anything is where I start filing complaints.
+
+Nait, the web app impresses you and yet you once told me I don't have a grasp on comedy. Pick a lane.
+   [TTS] Speaking: Gunter, you're not wrong — turn-based is basically...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Gunter, you're not wrong — turn-based is' (13 words)
+   [TurnTiming] 15:29:09.381 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @clumsymoe: this website looks pretty well put together
+   [BrainWorker] Got youtube msg from @clumsymoe: this website looks pretty well put together → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:29:13.244 TTS STOP — playback finished (span ~3863ms)
+   [TTS] Speaking: Real-time anything is where I start filing complai...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Real-time anything is where I start fili' (9 words)
+   [TurnTiming] 15:29:13.587 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:29:16.769 TTS STOP — playback finished (span ~3182ms)
+   [TTS] Speaking: Nait, the web app impresses you and yet you once t...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait, the web app impresses you and yet ' (21 words)
+   [TurnTiming] 15:29:17.243 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:29:21.837 TTS STOP — playback finished (span ~4593ms)
+   [TTS] Speaking: Pick a lane....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Pick a lane.' (4 words)
+   [TurnTiming] 15:29:22.015 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 15:29:23.785 TTS STOP — playback finished (span ~1770ms)
+   [Cookies] +1 × 2 (batch response); shared=26/30
+   [ChatAge] @NaitHaunter age=21.1s batch=3 preempted=none
+   [ChatAge] @guntereisenherz9102 age=20.6s batch=3 preempted=none
+   [ChatAge] @NaitHaunter age=20.5s batch=3 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 15:29:24.259 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=0.5s fresh_ok=True dead_air=False
+   [TurnTiming] 15:29:25.468 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~86651ms since onset)
+   [ChatterMem] Stored: @NaitHaunter — Once told Kira she doesn't have a grasp of something (contex [challenging]
+🎤 Recording...
+   [TurnTiming] 15:29:27.640 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [ChatterMem] Stored: @guntereisenherz9102 — Believes fighting games would be difficult for Kira due to r [earnest]
+   [SmartMem] q='  - @clumsymoe (youtube): <<<this website looks pretty well ' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=34ms rank=1ms)
+   [SmartMem]     dist=1.113 conf=0.95 type=episodic blend=0.064 lane=KNOW
+   [SmartMem]     dist=1.143 conf=0.75 type=episodic blend=0.046 lane=VAGUE
+   [Phrases] Throttling: "the web app" (3rd use this session)
+   [TurnTiming] 15:29:30.627 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2987ms since onset)
+>>> You said: Pick Elaine, Nate.
+   [Salience] voice: score=100 tier=HIGH
+[YouTube Chat] @ThePinkRebel: just hit the ex into super kira. you will be fine lol
+   [SmartMem] q='Pick Elaine, Nate.' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [SmartMem]     dist=1.118 conf=0.9 type=episodic blend=0.062 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=37ms
+   [Triage] RESPOND
+   >>> Kira (Chat Batch of 1): clumsymoe approves of something Jonny built and DIDN'T add a caveat about local hardware sourcing. Growth.
+   [TTS] Speaking: clumsymoe approves of something Jonny built and DI...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'clumsymoe approves of something Jonny bu' (16 words)
+   [TurnTiming] 15:29:31.879 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:29:36.808 TTS STOP — playback finished (span ~4929ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=27/30
+   [ChatAge] @clumsymoe age=27.4s batch=1 preempted=none
+   (Kira's current emotion is: HYPERACTIVE)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=6t  moment=calm)
+   [PromptSize] dynamic_context=12357ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @clumsymoe — Known for adding caveats about local hardware sourcing when  [dry]
+   [TIMING] first-word: 2059ms
+   [TTS] Speaking: Bold recommendation....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Bold recommendation.' (3 words)
+   [TurnTiming] 15:29:39.260 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:29:41.040 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: I trust Jonny on this one — pick Elaine, Nate....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I trust Jonny on this one — pick Elaine,' (12 words)
+   [TurnTiming] 15:29:41.045 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
