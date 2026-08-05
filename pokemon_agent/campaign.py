@@ -441,9 +441,24 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 # on the menu AND force-picks (the order lives in code+logs, not in the oracle's mood).
 # Mewtwo is deliberately NOT on the lap: its gate only arms post-champion (FLAG_SYS_GAME_CLEAR).
 # Disable with POKEMON_VICTORY_LAP=0 (reverts to the straight-at-the-League NS#15 dispatch).
+# ── 2026-08-05 (the 16:19 restart's Cinnabar↔Route-20 loop postmortem): TWO new items ──
+#   box_bench (after earthquake, BEFORE the hunts) — the party is FULL (a dex-push Pidgey took
+#      seat 6), and FRLG auto-boxes any catch at party-6: without seats, Moltres/Articuno/Zapdos
+#      sail straight to storage and never fight. Deposit the dead-weight passengers (level <=
+#      BOX_BENCH_MAX_LEVEL, never the ace, never below BOX_BENCH_MIN_PARTY bodies) at a Center
+#      PC via the PROVEN deposit_mon vehicle, sized to exactly the owed join-items. [box] logs.
+#   repack (LAST) — if a hunt was honestly skipped the party ends short of six and the E4
+#      readiness gate's FULL-SIX law can never pass: withdraw box occupants (lap birds first,
+#      then the benched passengers) until the party is whole again.
+# Kill switch: POKEMON_BOX_FLOW=0 removes both items from the checklist entirely (the lap
+# collapses to the original five; passengers ride in the trunk, the E4 sort keeps them last).
 VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
-VICTORY_LAP_ORDER = ("earthquake", "moltres", "articuno", "eevee", "zapdos")
+VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "eevee", "zapdos",
+                     "repack")
 VICTORY_LAP_MAX_FAILS = int(os.getenv("POKEMON_VICTORY_LAP_FAILS", "6"))
+BOX_FLOW_ENABLED = os.getenv("POKEMON_BOX_FLOW", "1") != "0"
+BOX_BENCH_MAX_LEVEL = int(os.getenv("POKEMON_BOX_BENCH_LEVEL", "22"))  # a 'passenger' rides under this
+BOX_BENCH_MIN_PARTY = 2            # never deposit below ace + one body (whiteout/sacrifice safety)
 # ── RUN-4 (2026-07-14): the E4-READINESS GATE. The solo-ace disqualify failed THREE runs — the ace
 # out-levels the bench through the cave/gauntlet endgame and solos the E4 to L100 while the bench freezes
 # ~L31 (disqualified on team-shape all three times, even after the 5add821 map-type relax). Jonny-adjudicated
@@ -1007,6 +1022,11 @@ ERIKA_FRONT = (6, 5)     # Erika NPC at (6,4) FACE_DOWN (pret CeladonCity_Gym ma
 # (recon_blaine QUIZ_CHAIN) — if a live general walk wedges there, that seam is the port target.
 CINNABAR = (3, 8)
 CINNABAR_GYM_DOOR = (20, 4)
+# Cinnabar Mart door (2026-08-05, the ball-restock loop postmortem): pret CinnabarIsland
+# map.json warp (19,11) -> MAP_CINNABAR_ISLAND_MART. Without this row the victory lap read
+# "no ball shelf here (3,8)" while standing METERS from a mart that sells Ultra+Great Balls,
+# and marched at Fuchsia through the Seafoam-severed Route 20 forever (the 16:19 stream loop).
+CINNABAR_MART_DOOR = (19, 11)
 BLAINE_FRONT = (5, 5)
 FLAG_BADGE_VOLCANO = 0x826
 # Viridian (badge 8, Giovanni) — same fix. Door (36,10) -> interior (5,1), LIVE-read off
@@ -1194,7 +1214,9 @@ CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR,
                    # Fuchsia Mart (night-shift 1) — the badge-5 Koga potion-stall stock-up.
                    FUCHSIA: FUCHSIA_MART_DOOR,
                    # Saffron Mart (night-shift 4) — the pre-Silph Hyper-Potion stock-up (Gary/Charizard).
-                   SAFFRON: SAFFRON_MART_DOOR}
+                   SAFFRON: SAFFRON_MART_DOOR,
+                   # Cinnabar Mart (2026-08-05) — the endgame sea corridor's OWN ball/kit shelf.
+                   CINNABAR: CINNABAR_MART_DOOR}
 # Celadon "Mart" = Dept Store 2F items clerk (no CITY_MART_DOORS entry — buy_at_celadon_dept owns it).
 
 # DOOR APPROACH WAYPOINTS (game-knowledge, rule 14): some Mart/building doors sit in a pocket the
@@ -1234,6 +1256,11 @@ MART_STOCK = {
     # Keyed by overworld CELADON so _cure_item_on_shelf / _best_potion_for_sale see the shelf;
     # actual buys go through buy_at_celadon_dept (stairs + items clerk), not buy_at_mart.
     CELADON: [3, 22, 24, 14, 18, 17, 15, 16, 87],
+    # Cinnabar rows (2026-08-05) from pret CinnabarIsland_Mart scripts.inc pokemart list:
+    # UltraBall, GreatBall, HyperPotion, Revive, FullHeal, EscapeRope, MaxRepel. The per-purchase
+    # bag-delta verify guards any mis-row LOUD (balls land in the Balls pocket; the pocket-aware
+    # count covers them — pitfall 7). This shelf is the victory lap's hunt-restock anchor.
+    CINNABAR: [2, 3, 21, 24, 23, 85, 88],
 }
 MART_CURSOR = 0x02039940   # u16 sShopData.selectedRow (pret sym 0x02039934+0xC) — the WINDOW row only
 MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above the window
@@ -13022,6 +13049,20 @@ class Campaign:
                     self._lap_skip(key, "the ace can't learn TM26 per the ROM learnset")
                     return False
                 return True
+            if key == "box_bench":
+                # Owed while the party lacks seats for the still-owed join-items ([box]).
+                # POKEMON_BOX_FLOW=0 (or the PCBOX master flag) removes it cleanly.
+                if not (BOX_FLOW_ENABLED and PCBOX_ENABLED):
+                    return False
+                return bool(self._lap_bench_plan())
+            if key == "repack":
+                # Owed only when THIS run actually benched someone and the party ended short
+                # of six (a skipped hunt) — the E4 gate's FULL-SIX law needs the bodies back.
+                if not (BOX_FLOW_ENABLED and PCBOX_ENABLED):
+                    return False
+                if getattr(self, "_lap_deposited", 0) <= 0:
+                    return False
+                return self.b.rd8(ram.GPLAYER_PARTY_CNT) < 6
             if key == "eevee":
                 return EEVEE_FETCH_ENABLED and not fm.read_flag(b, 0x263)
             spec = self._LAP_HUNT_SPEC.get(key)
@@ -13157,18 +13198,180 @@ class Campaign:
                 return "ok"
             self._lap_note_fail(key, "mart restock bought nothing")
             return "ok"
-        tgt = next((c for c in (FUCHSIA, SAFFRON, CELADON, CERULEAN, VERMILION)
-                    if any(t in MART_STOCK.get(c, []) for t in (2, 3, 4))), FUCHSIA)
+        # RESTOCK MARCH (rewritten 2026-08-05, the Cinnabar↔Route-20 loop): the old fallback
+        # (a) never knew Cinnabar shelves balls and (b) blind-picked Fuchsia, whose Route-20
+        # road is SEVERED at Seafoam (pitfall 25's positional-reachability class) — the march
+        # no_path'd every tick and NOTHING counted the failure, so the lap parked forever.
+        # Now: candidates are RIDEABLE-filtered (the router's own next-step probe, CINNABAR
+        # first — it's the endgame sea corridor's shelf), and a failed march feeds the bounded
+        # fail counter -> honest skip. The lap can no longer wedge on an unreachable shop.
+        tgt = next((c for c in (CINNABAR, FUCHSIA, SAFFRON, CELADON, CERULEAN, VERMILION)
+                    if any(t in MART_STOCK.get(c, []) for t in (2, 3, 4))
+                    and self._next_step_rideable(here, c, set()) is not None), None)
+        if tgt is None:
+            self._lap_note_fail(key, "no rideable ball shelf from here")
+            return "ok"
         log(f"   [lap] no ball shelf here {here} — marching to {tgt} for the restock")
-        return self._travel_to_known(f"travel:{tgt[0]},{tgt[1]}", state, hunt_on_arrival=False)
+        r = self._travel_to_known(f"travel:{tgt[0]},{tgt[1]}", state, hunt_on_arrival=False)
+        if r in ("no_route", "bad_travel_target") or str(r).startswith("travel:"):
+            self._lap_note_fail(key, f"restock march -> {r}")
+        return r
+
+    # ── THE BOX FLOW ([box], 2026-08-05 — the full-party postmortem): a dex-push Pidgey took
+    # party seat 6, and FRLG auto-boxes ANY catch at party-6 — so without a deposit leg every
+    # lap bird would sail straight to storage and never fight. Rides the PROVEN screenshot-
+    # calibrated deposit_mon/withdraw_mon vehicles (Tier-1 #15 / NS#39; cursor-response +
+    # screen-state driven, never blind timing); everything here is selection + sequencing.
+    # Kill switch POKEMON_BOX_FLOW=0; failures are bounded (-> honest skip: passengers ride
+    # in the trunk and _lap_order_party_for_e4 keeps them last, the pre-flow worst case). ──
+    _LAP_JOIN_SPECIES = (146, 144, 145, 133)   # Moltres, Articuno, Zapdos, Eevee (join items)
+    _LAP_JOIN_KEYS = ("moltres", "articuno", "eevee", "zapdos")
+
+    def _lap_bench_plan(self):
+        """Which party SLOTS ride the box (lowest level first): passengers (non-ace, level <=
+        BOX_BENCH_MAX_LEVEL) up to exactly the seat shortfall for the still-owed join-items,
+        never below BOX_BENCH_MIN_PARTY bodies. Empty list = nothing owed. Sized per-tick from
+        LIVE RAM so a skipped hunt shrinks the deposit and a done deposit reads complete."""
+        b = self.b
+        cnt = min(b.rd8(ram.GPLAYER_PARTY_CNT) or 0, 6)
+        if cnt <= BOX_BENCH_MIN_PARTY:
+            return []
+        joins = sum(1 for k in self._LAP_JOIN_KEYS if self._lap_pending(k))
+        need = joins - (6 - cnt)
+        if need <= 0:
+            return []
+
+        def _lv(s):
+            return b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54)
+
+        ace = self._lap_ace_slot()
+        passengers = sorted((s for s in range(cnt)
+                             if s != ace and _lv(s) <= BOX_BENCH_MAX_LEVEL), key=_lv)
+        return passengers[:min(need, cnt - BOX_BENCH_MIN_PARTY)]
+
+    def _lap_pc_march(self, key, state):
+        """March toward the nearest RIDEABLE Center city for a [box] leg — CINNABAR first (the
+        endgame corridor's own Center; she's standing on or beside it after Giovanni), then the
+        mainland ring. The rideable filter is the Route-20 lesson: a flat-graph target can be
+        positionally unreachable (severed at Seafoam), and an uncounted march loops forever —
+        so unreachable = counted failure -> bounded honest skip, never an infinite park."""
+        cur = tuple(tv.map_id(self.b))
+        tgt = next((c for c in (CINNABAR, VIRIDIAN, FUCHSIA, VERMILION, CERULEAN, CELADON,
+                                SAFFRON, PEWTER)
+                    if c in CITY_PC_DOORS
+                    and self._next_step_rideable(cur, c, set()) is not None), None)
+        if tgt is None:
+            self._lap_note_fail(key, "no rideable Center city from here")
+            return "ok"
+        log(f"   [box] '{key}' needs a Center PC — marching to {self.world.name(tgt)} {tgt}")
+        r = self._travel_to_known(f"travel:{tgt[0]},{tgt[1]}", state, hunt_on_arrival=False)
+        if r in ("no_route", "bad_travel_target") or str(r).startswith("travel:"):
+            self._lap_note_fail(key, f"PC march -> {r}")
+        return r
+
+    def _lap_box_withdraw(self, pc_door, targets_only=False):
+        """Pull box occupants back into party room while seats exist: lap-target species
+        (birds/Eevee — an auto-box catch) first, then the benched passengers newest-slot-first
+        (repack). OPEN-box only — withdraw_mon aborts LOUD on wrong_box, never pulls blind.
+        Returns how many joined. Bounded; any non-'withdrawn' result stops the pull."""
+        got = 0
+        for _ in range(4):
+            try:
+                if self.b.rd8(ram.GPLAYER_PARTY_CNT) >= 6:
+                    break
+                cb, occ = self._box_scan()
+            except Exception as e:
+                log(f"   [box] box scan failed ({e}) — stopping the withdraw pull")
+                break
+            rows = [(sl, sp) for (bx, sl), sp in sorted(occ.items()) if bx == cb]
+            pick = next((sl for sl, sp in rows if sp in self._LAP_JOIN_SPECIES), None)
+            if pick is None and not targets_only and rows:
+                pick = rows[-1][0]        # highest slot ~= the most recent deposit
+            if pick is None:
+                break
+            sp = occ[(cb, pick)]
+            log(f"   [box] withdrawing {st.SPECIES_NAME.get(sp, sp)} (box {cb} slot {pick}) "
+                f"into the party")
+            r = self.withdraw_mon(cb, pick, pc_door)
+            if r != "withdrawn":
+                log(f"   [box] withdraw -> {r} (stopping the pull)")
+                break
+            got += 1
+            self._lap_deposited = max(0, getattr(self, "_lap_deposited", 0) - 1)
+        return got
+
+    def _lap_box_bench(self, state):
+        """EXECUTOR for 'box_bench': deposit the dead-weight passengers at a Center PC so every
+        owed legendary has a party seat (Jonny's E4-prep order — the dream comp needs the birds
+        ON the team, and a full party auto-boxes them). Deposits re-derive slots per iteration
+        (pitfall 39, the menu-time order law); a lap-target already in the open box joins right
+        after. All decisions log [box]; failures are bounded -> honest skip."""
+        key = "box_bench"
+        if not self._lap_bench_plan():
+            return "ok"                                   # pending re-derives done next tick
+        cur = tuple(tv.map_id(self.b))
+        pc_door = CITY_PC_DOORS.get(cur)
+        if pc_door is None:
+            return self._lap_pc_march(key, state)
+        try:                                              # ace to slot 0: deposit_mon's slot-0
+            ace = self._lap_ace_slot()                    # guard then protects exactly the ace
+            if ace:
+                self._swap_party_slots(0, ace)
+        except Exception as e:
+            log(f"   [box] ace-to-front swap skipped ({e})")
+        did = 0
+        for _ in range(5):
+            plan = self._lap_bench_plan()                 # LIVE slots — party shifts per deposit
+            if not plan:
+                break
+            slot = plan[0]
+            sp = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), f"slot{slot}")
+            lvl = self.b.rd8(ram.GPLAYER_PARTY + slot * st.PARTY_MON_SIZE + 0x54)
+            log(f"   [box] depositing {sp} L{lvl} (party slot {slot}) — freeing a seat for "
+                f"the lap's legendaries")
+            r = self.deposit_mon(slot, pc_door)
+            if r != "deposited":
+                self._lap_note_fail(key, f"deposit_mon -> {r}")
+                return "ok"
+            did += 1
+            self._lap_deposited = getattr(self, "_lap_deposited", 0) + 1
+        if did:
+            (getattr(self, "_lap_fails", None) or {}).pop(key, None)
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            log(f"   [box] ✅ bench deposited ({did} mon) — party {cnt}/6, seats open for "
+                f"the birds")
+            self.on_event(f"benched {did} of the crew at the Center PC — the legendary birds "
+                          f"get real team seats, not a storage box.", kind="roster", tier=3)
+        self._lap_box_withdraw(pc_door, targets_only=True)
+        return "ok"
+
+    def _lap_repack(self, state):
+        """EXECUTOR for 'repack', the lap's LAST item: the hunts are settled — if any was
+        honestly skipped the party is short of six, and the E4 readiness gate's FULL-SIX law
+        would stand down forever. Withdraw box occupants (lap birds first, then the benched
+        passengers) until the party is whole. Bounded -> honest skip like every lap item."""
+        key = "repack"
+        cur = tuple(tv.map_id(self.b))
+        pc_door = CITY_PC_DOORS.get(cur)
+        if pc_door is None:
+            return self._lap_pc_march(key, state)
+        got = self._lap_box_withdraw(pc_door, targets_only=False)
+        if got:
+            (getattr(self, "_lap_fails", None) or {}).pop(key, None)
+            log(f"   [box] ✅ repacked {got} mon — party "
+                f"{self.b.rd8(ram.GPLAYER_PARTY_CNT)}/6 for the League")
+        else:
+            self._lap_note_fail(key, "withdraw pulled nothing")
+        return "ok"
 
     def _run_victory_lap(self, state):
         """EXECUTOR for the 'victory_lap' pick: run the FIRST owed checklist item. Earthquake
-        teaches in place; the hunts/Eevee arm their own proactive gates (evicting a mismatched
-        parked luxury errand LOUD) and ride the questline machinery — FIRE-FIRST strikes on
-        anchors, ANCHOR-FIRST travel everywhere else. Ball-thin hunts run the restock leg
-        first. Every decision logs under [lap]; failures are bounded per item (-> honest
-        skip), so the checklist can never wedge the endgame."""
+        teaches in place; box_bench/repack drive the Center-PC box flow ([box]); the hunts/
+        Eevee arm their own proactive gates (evicting a mismatched parked luxury errand LOUD)
+        and ride the questline machinery — FIRE-FIRST strikes on anchors, ANCHOR-FIRST travel
+        everywhere else. Ball-thin hunts run the restock leg first. Every decision logs under
+        [lap]; failures are bounded per item (-> honest skip), so the checklist can never
+        wedge the endgame."""
         key = self._victory_lap_next(state)
         if key is None:
             return "lap_done"
@@ -13185,6 +13388,10 @@ class Campaign:
             else:
                 self._lap_note_fail(key, f"TeachFlow -> {r}")
             return "ok"
+        if key == "box_bench":
+            return self._lap_box_bench(state)
+        if key == "repack":
+            return self._lap_repack(state)
         gate = self._lap_gate_for(key, state)
         if gate is None:
             # Owed by raw truth but the gate self-suppresses. Ball-thin is OURS to fix; any
@@ -13223,7 +13430,8 @@ class Campaign:
         """DELIBERATE E4 party order (2026-08-04): ace first, then every fighter by level
         descending, the low-level passengers LAST — a lead faint falls through to bodies that
         fight, not to L18 chaff (e4_strike's answer_lead still retunes the lead per seat).
-        No proven PC-box flow exists, so nobody is boxed — passengers ride in the trunk.
+        The lap's box_bench normally deposits the passengers ([box], 2026-08-05); this sort is
+        the honest-skip fallback — if boxing failed, the trunk riders still go last.
         Overworld-only, save-safe (_swap_party_slots); no-op mid-battle or on read error."""
         try:
             if st.in_battle(self.b):
@@ -13745,7 +13953,9 @@ class Campaign:
             if (VICTORY_LAP_ENABLED and int(state.get("badge_count") or 0) >= 8
                     and not state.get("post_game")):
                 _lk = self._victory_lap_next(state)
-                if (_lk is not None and _lk != "earthquake"
+                # earthquake/box_bench/repack need no errand gate — they run in place via the
+                # victory_lap pick (TeachFlow / the Center-PC box flow).
+                if (_lk is not None and _lk not in ("earthquake", "box_bench", "repack")
                         and not (_lk != "moltres" and self._lap_sevii_stranded())):
                     _lg = self._lap_gate_for(_lk, state)
                     _cq = self._active_questline
@@ -14916,8 +15126,10 @@ class Campaign:
                 a["victory_lap"] = (
                     f"the VICTORY LAP — all 8 badges are banked and the League can wait one "
                     f"beat: '{_lap_key}' is next on the pre-E4 checklist (Earthquake on the ace, "
-                    f"then Moltres, Articuno, the promised Eevee, Zapdos — in that order). "
-                    f"Finish the lap, THEN storm the Elite Four with the team of a lifetime.")
+                    f"bench the low-level passengers at the PC so the birds get party seats, "
+                    f"then Moltres, Articuno, the promised Eevee, Zapdos, repack the party — "
+                    f"in that order). Finish the lap, THEN storm the Elite Four with the team "
+                    f"of a lifetime.")
                 log(f"   [lap] checklist owes '{_lap_key}' — victory_lap is the endgame action "
                     f"(head_to_league/enter_league held until the lap clears)")
             elif _emp != ENDGAME_INDIGO and VICTORY_ROAD_ENABLED:
