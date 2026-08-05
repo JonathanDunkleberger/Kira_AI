@@ -1,0 +1,300 @@
+   [TurnTiming] 08:46:56.041 TTS STOP — playback finished (span ~2524ms)
+   [Cookies] +1 × 1 (batch response); shared=23/30
+   [ChatAge] @clumsymoe age=18.0s batch=1 preempted=none
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+🎤 Recording... (recovered opening words)
+   [ChatterMem] Stored: @clumsymoe — Asked Kira how many words end in -uno starting with Articuno [playful]
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<mew is not in this game onl' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [Phrases] Throttling: "that's the whole" (3rd use this session)
+   >>> Kira (Chat Batch of 1): Zack correcting the Pokédex in real time. Coach is back on the clipboard.
+   [TTS] Speaking: Zack correcting the Pokédex in real time....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack correcting the Pokédex in real time' (8 words)
+   [TurnTiming] 08:47:03.589 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:47:06.318 TTS STOP — playback finished (span ~2729ms)
+   [TTS] Speaking: Coach is back on the clipboard....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Coach is back on the clipboard.' (7 words)
+   [TurnTiming] 08:47:06.673 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:47:08.738 TTS STOP — playback finished (span ~2065ms)
+   [Cookies] +1 × 1 (batch response); shared=24/30
+   [ChatAge] @zekromite4572 age=24.5s batch=1 preempted=none
+   [TurnTiming] 08:47:09.003 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~28085ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: Mew is not only Mew 2. Okay, yeah. She plans to catch all of those. Mew 2 last, I think, like to use her Ultra Ball or like Masterball or whatever the fuck, like, ensures the catch.
+   [Salience] voice: score=100 tier=HIGH
+   [DroppedInput] LOST ~13 frame(s) (~390ms, ~0.4s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 08:47:09.510 VOICE ONSET — mic speech started
+   [SmartMem] q='Mew is not only Mew 2. Okay, yeah. She plans to catch all of' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=37ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=38ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [JonnyBond] cool nudge → warmth -0.39→-0.55
+   [Shape] → TERSE  (one_word_count=1  tangent_since=5t  moment=calm)
+   [PromptSize] dynamic_context=11670ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @zekromite4572 — Known for correcting Pokémon facts in chat, earning the nick [earnest]
+   [TIMING] first-word: 2145ms
+   [TTS] Speaking: The Masterball is for Mewtwo....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The Masterball is for Mewtwo.' (6 words)
+   [TurnTiming] 08:47:12.058 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:47:14.310 TTS STOP — playback finished (span ~2252ms)
+   [TTS] Speaking: That's locked in....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's locked in.' (4 words)
+   [TurnTiming] 08:47:14.313 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 08:47:16.088 TTS STOP — playback finished (span ~1775ms)
+   [TTS] Speaking: I'm not wasting it on anything that isn't worth th...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm not wasting it on anything that isn'' (13 words)
+   [TurnTiming] 08:47:16.095 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:47:19.564 TTS STOP — playback finished (span ~3469ms)
+
+   [TIMING] voice: llm=10047ms(sonnet-stream(llm+tts)) tts=0ms total=10047ms
+   [LATENCY] vad_close=1200ms stt=474ms stt_wait=0ms salience=0ms triage=bypassed memory=38ms prompt_build=15ms ttft=2142ms tts_first_chunk=3ms audio_out=374ms TOTAL=3046ms
+🎤 Recording... (recovered opening words)
+   [VRAM] 08:47:19 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 08:47:21.096 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~11581ms since onset)
+>>> You said: like to stream or type Fuck You or and or go like the GitHub repo and read the description.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='like to stream or type Fuck You or and or go like the GitHub' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=45ms rank=0ms)
+   [SmartMem]     dist=1.049 conf=0.9 type=episodic blend=0.104 lane=KNOW
+   [SmartMem]     dist=1.096 conf=0.75 type=episodic blend=0.075 lane=VAGUE
+   [SmartMem]     dist=1.191 conf=0.95 type=episodic blend=0.017 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=45ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TANGENT  (one_word_count=1  tangent_since=6t  moment=calm)
+   [PromptSize] dynamic_context=12234ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Bits] Callback: Unhinged About Fictional Characters
+   [TIMING] first-word: 1583ms
+   [TTS] Speaking: Those are genuinely all valid options and I suppor...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Those are genuinely all valid options an' (13 words)
+   [TurnTiming] 08:47:23.385 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:47:27.421 TTS STOP — playback finished (span ~4036ms)
+
+   [TIMING] voice: llm=6046ms(sonnet-stream(llm+tts)) tts=0ms total=6046ms
+   [LATENCY] vad_close=1200ms stt=232ms stt_wait=0ms salience=0ms triage=bypassed memory=45ms prompt_build=15ms ttft=1250ms tts_first_chunk=333ms audio_out=404ms TOTAL=2279ms
+   ✨ Emotion: EMOTIONAL → SASSY
+   [RoomRead] energy=0.73 [terse=0.89 gap=0.75 silence=0.96 intensity=0.60 chat=0.13] target=0.93 mult=0.96 -> min_gap=5s dead_air=19s
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "BILL. I'll catch you later! Say hi to the guy for me!"
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=43ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   >>> Kira (Bored): Wait — say hi to "the guy"? That's very casual about whoever this guy is. I'm going.
+   [TTS] Speaking: Wait — say hi to "the guy"?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Wait — say hi to "the guy"?' (9 words)
+   [TurnTiming] 08:47:43.027 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:47:45.568 TTS STOP — playback finished (span ~2541ms)
+   [TTS] Speaking: That's very casual about whoever this guy is....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's very casual about whoever this gu' (9 words)
+   [TurnTiming] 08:47:45.998 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:47:49.001 TTS STOP — playback finished (span ~3002ms)
+   [TTS] Speaking: I'm going....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm going.' (3 words)
+   [TurnTiming] 08:47:49.259 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:47:51.034 TTS STOP — playback finished (span ~1775ms)
+   [TIMING] interjection: vision=0ms llm=2408ms(sonnet) tts=8328ms total=10780ms
+   [LAG] sense→speak: total=9.0s (content_age=0.0s, prep=0.0s, llm=2.4s, tts_wait+synth=6.5s)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=moderator/1,partner/1;color=#32C3A2;display-name=Streamlabs;emotes=;first-msg=0;flags=;id=2becccae-ba92-452d-b287-ce6f7de25f4a;mod=1;returning-chatter=0;room-id=632950466;subscribe
+   [TwitchChat] Received from streamlabs: ♟ Think you can beat Kira at chess? She's undefeated against her own creator. Type !chess to challenge the Duchess — the board shows up on stream.
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BotFilter] Ignored bot account 'streamlabs' (twitch) — not stored, not shown, not reacted to.
+[YouTube Chat] @Streamlabs: :chess_pawn: Think you can beat Kira at chess? She's undefeated against her own creator. Type !chess to challenge the Duchess — the board shows up on stream.
+   [BotFilter] Ignored bot account '@Streamlabs' (youtube) — not stored, not shown, not reacted to.
+   [VRAM] 08:48:04 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0153 · gate=0.003 · 0 accepted
+   [LoopbackSTT] +1 seg (0 filtered, 148ms, rms=0.015): I'm gonna...
+🎤 Recording...
+   [TurnTiming] 08:48:16.925 VOICE ONSET — mic speech started
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:48:20.577 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3650ms since onset)
+>>> You said: I don't know why this door is such a challenge.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I don't know why this door is such a challenge." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=1ms fetch=27ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12349ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2132ms
+   [TTS] Speaking: It's just a door, Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'It's just a door, Jonny.' (7 words)
+   [TurnTiming] 08:48:23.190 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:48:25.343 TTS STOP — playback finished (span ~2152ms)
+
+   [TIMING] voice: llm=4548ms(sonnet-stream(llm+tts)) tts=0ms total=4548ms
+   [LATENCY] vad_close=1200ms stt=188ms stt_wait=0ms salience=0ms triage=bypassed memory=28ms prompt_build=14ms ttft=1893ms tts_first_chunk=239ms audio_out=247ms TOTAL=2609ms
+   [Pokemon] SELF WANT: 'find the exit and get to Mt. Ember for Moltres'
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+[YouTube Chat] @zekromite4572: kira go talk to people
+   [BrainWorker] Got youtube msg from @zekromite4572: kira go talk to people → buffering for chat_batch_worker
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<kira go talk to people>>>' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=49ms rank=0ms)
+   [SmartMem]     dist=0.837 conf=0.9 type=profile_fact blend=0.480 lane=KNOW
+   [SmartMem]     dist=0.700 conf=0.9 type=episodic blend=0.319 lane=KNOW
+   [SmartMem]     dist=0.751 conf=0.95 type=episodic blend=0.288 lane=KNOW
+   >>> Kira (Chat Batch of 1): Zack, the coach who once told me to go back to Pewter, is now giving me social advice. This feels like a trap.
+   [TTS] Speaking: Zack, the coach who once told me to go back to Pew...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack, the coach who once told me to go b' (21 words)
+   [TurnTiming] 08:48:36.521 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:48:41.574 TTS STOP — playback finished (span ~5053ms)
+   [TTS] Speaking: This feels like a trap....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This feels like a trap.' (6 words)
+   [TurnTiming] 08:48:41.845 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:48:43.716 TTS STOP — playback finished (span ~1870ms)
+   [Cookies] +1 × 1 (batch response); shared=25/30
+   [ChatAge] @zekromite4572 age=11.6s batch=1 preempted=none
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [ChatterMem] Stored: @zekromite4572 — Once told Kira to go back to Pewter, earning the nickname 't [chaotic]
+   [VRAM] 08:48:49 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+🎤 Recording...
+   [TurnTiming] 08:48:55.190 VOICE ONSET — mic speech started
+   [TurnTiming] 08:48:58.831 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3641ms since onset)
+   [LoopbackSTT] tick 128ms — 0 accepted, 1 filtered (rms=0.016)
+   [FreshGate] interjection SUPPRESSED — no fresh sense (vision/MW/loopback/audio all stale); staying quiet.
+   [Valence] updated 8 entit(ies): Swish Tango +0.00→+0.32; Zack +0.32→-0.05; Coach +0.00→-0.24; Moltres +0.00→+0.00; Mewtwo +0.00→+0.32; clumsymoe +0.00→+0.32; Articuno +0.00→+0.00; Jonny +0.20→+0.44
+   [LoopbackSTT] LIVE — last line: "I'm gonna..." (64s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0154 · gate=0.003 · 1 accepted
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 08:49:34 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 130ms — 0 accepted, 1 filtered (rms=0.014)
+   [FreshGate] interjection SUPPRESSED — no fresh sense (vision/MW/loopback/audio all stale); staying quiet.
+   [LoopbackSTT] tick 128ms — 0 accepted, 1 filtered (rms=0.015)
+🎤 Recording...
+   [TurnTiming] 08:49:53.689 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.49 [terse=0.87 gap=0.64 silence=0.03 intensity=0.60 chat=0.00] target=1.03 mult=0.98 -> min_gap=5s dead_air=20s
+   [TurnTiming] 08:49:57.112 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3422ms since onset)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+🎤 Recording...
+   [TurnTiming] 08:49:58.440 VOICE ONSET — mic speech started
+   [TurnTiming] 08:50:05.408 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~6968ms since onset)
+>>> You said: You guys can see why I like, uh, my sanity is waning, um...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='You guys can see why I like, uh, my sanity is waning, um...' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TERSE  (one_word_count=1  tangent_since=2t  moment=calm)
+   [PromptSize] dynamic_context=11678ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2032ms
+   [TTS] Speaking: The door got to you....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The door got to you.' (6 words)
+   [TurnTiming] 08:50:08.073 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:50:09.858 TTS STOP — playback finished (span ~1784ms)
+   [TTS] Speaking: It happens to the best of us....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'It happens to the best of us.' (8 words)
+   [TurnTiming] 08:50:09.862 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF WANT: 'find the exit and get to One Island'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 08:50:11.942 TTS STOP — playback finished (span ~2079ms)
+
+   [TIMING] voice: llm=6243ms(sonnet-stream(llm+tts)) tts=0ms total=6243ms
+   [LATENCY] vad_close=1200ms stt=256ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=3ms ttft=1674ms tts_first_chunk=358ms audio_out=336ms TOTAL=2657ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 08:50:17.076 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~18635ms since onset)
+>>> You said: The door got you. I know. I fucked up. It was the door.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='The door got you. I know. I fucked up. It was the door.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=43ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=45ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=11464ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1583ms
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] Speaking: Blamed the door....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Blamed the door.' (4 words)
+   [TurnTiming] 08:50:19.266 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 08:50:19 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:50:21.047 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: Classic....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Classic.' (2 words)
+   [TurnTiming] 08:50:21.049 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:50:22.832 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: I respect it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I respect it.' (4 words)
+   [TurnTiming] 08:50:22.834 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:50:24.605 TTS STOP — playback finished (span ~1771ms)
+
+   [TIMING] voice: llm=7277ms(sonnet-stream(llm+tts)) tts=0ms total=7277ms
+   [LATENCY] vad_close=1200ms stt=206ms stt_wait=0ms salience=0ms triage=bypassed memory=45ms prompt_build=13ms ttft=1344ms tts_first_chunk=239ms audio_out=338ms TOTAL=2185ms
+🎤 Recording...
+   [TurnTiming] 08:50:27.204 VOICE ONSET — mic speech started
+   [Pokemon] SELF WANT: 'find the exit and get to Mt. Ember'
+   [TurnTiming] 08:50:28.493 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1288ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0160 · gate=0.003 · 1 accepted
+   [Pokemon] event react (bypass=False, tier=2, kind=recover): I've been stuck on the same spot going nowhere — backing off and tryin
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=44ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   >>> Kira (Bored): Different approach, same energy. I'll get there.
+   [TTS] Speaking: Different approach, same energy....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Different approach, same energy.' (6 words)
+   [TurnTiming] 08:50:38.983 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'articuno on seafoam islands bottom floor'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:50:41.520 TTS STOP — playback finished (span ~2537ms)
+   [TTS] Speaking: I'll get there....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'll get there.' (4 words)
+   [TurnTiming] 08:50:41.918 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:50:43.704 TTS STOP — playback finished (span ~1786ms)
+   [TIMING] interjection: vision=0ms llm=2603ms(sonnet) tts=5115ms total=7764ms
+   [LAG] sense→speak: total=6.0s (content_age=0.0s, prep=0.0s, llm=2.6s, tts_wait+synth=3.3s)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=1, kind=beat): okay — onto the water. Surf's up.
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=75ms rank=0ms)
+   [SmartMem]     dist=1.127 conf=0.95 type=episodic blend=0.056 lane=KNOW
+   >>> Kira (Bored): Seafoam Islands, here I come. Articuno's not going to catch itself.
+   [TTS] Speaking: Seafoam Islands, here I come....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Seafoam Islands, here I come.' (7 words)
+   [TurnTiming] 08:50:49.699 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
