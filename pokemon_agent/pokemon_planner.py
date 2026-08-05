@@ -392,6 +392,18 @@ PLAN_DUE_WINDOW = int(os.getenv("POKEMON_PLAN_DUE_WINDOW", "1"))
 # Bounded, watchable grind: top-of-party must be within this of the next milestone or she's "underleveled".
 PLAN_UNDERLEVEL_SLACK = int(os.getenv("POKEMON_PLAN_UNDERLEVEL_SLACK", "0"))
 
+# LAP NO-CATCH — the GM fix (2026-08-05, the Kindle Road 'abra -> alakazam answers Bruno' beat):
+# at badge 8 pre-credits the E4 team is already DECIDED (the victory lap's legendary strikes +
+# the built core) — a catch_keeper divert now is endgame-irrelevant (Alakazam literally needs a
+# link trade, impossible on this cart). While the lap owns the run (badges >= 8, post_game not
+# yet), assess() suppresses catch_keeper unless the species is on the curated endgame allowlist.
+# The allowlist is deliberately EMPTY: her real remaining route (Sevii sea legs + Kanto hunt
+# roads) holds nothing that out-values a strike bird — the birds arrive via the lap's strikes,
+# not diverts. Post-champion assess() already short-circuits (post_game -> on_track). Shares the
+# kill switch with the battle engine's dex_push suppression: POKEMON_LAP_NO_CATCH=0 reverts.
+LAP_NO_CATCH = os.getenv("POKEMON_LAP_NO_CATCH", "1") != "0"
+LAP_KEEPER_ALLOWLIST = frozenset()   # curated; empty = no keeper is worth a lap detour
+
 _GYM_SEQ = ["Brock", "Misty", "Lt. Surge", "Erika", "Koga", "Sabrina", "Blaine", "Giovanni"]
 _E4_SEQ = ["Lorelei", "Bruno", "Agatha", "Lance", "Champion"]
 
@@ -575,6 +587,23 @@ class TeamPlanner:
 
         # (1) DUE, MISSING keeper — the proactive heart. Earliest deadline, then highest multiplicity.
         planned = [s for s in self.state["slots"] if s["status"] == "planned" and self._due(s, badge_count)]
+        # LAP NO-CATCH (2026-08-05): while the victory lap owns the run (badge 8, pre-credits),
+        # drop every catch_keeper slot not on the endgame allowlist BEFORE picking — this is the
+        # single seam every consumer reads (_keeper_due, _plan_keeper_target, the keeper router,
+        # the chaff swap, the '[teamplan] next action' voice line), so one filter kills them all.
+        if planned and LAP_NO_CATCH and badge_count >= 8 and not post_game:
+            kept = [s for s in planned
+                    if not ((s.get("acquire") or {}).get("species")
+                            and str((s.get("acquire") or {}).get("species")).lower()
+                            not in LAP_KEEPER_ALLOWLIST)]
+            if len(kept) != len(planned) and not getattr(self, "_lap_keeper_hold_logged", False):
+                self._lap_keeper_hold_logged = True
+                _held = ", ".join(str((s.get("acquire") or {}).get("species"))
+                                  for s in planned if s not in kept)
+                self.log(f"   [teamplan] catch_keeper SUPPRESSED for the victory lap ({_held}) — "
+                         f"the E4 team arrives via the lap strikes, not diverts "
+                         f"(POKEMON_LAP_NO_CATCH=0 reverts)")
+            planned = kept
         if planned:
             def leverage(s):
                 by = (s["acquire"] or {}).get("by_badge", 99)

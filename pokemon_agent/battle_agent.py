@@ -29,6 +29,44 @@ _DIGLETT_LINE = frozenset({50, 51})  # Diglett, Dugtrio
 # Creator "catch that!" latch path (kira/bot.py -> states/*/creator_order.json).
 _CREATOR_ORDER_TTL_S = float(os.getenv("POKEMON_CREATOR_ORDER_TTL_S", "1800"))
 
+# ── THE LEGENDARY BALL RESERVE + LAP NO-CATCH (2026-08-05, the Kindle Road Meowth) ────────────────
+# Mid-victory-lap, a dex_push divert threw an ULTRA at a trash Meowth L31: 'cheap' degraded to the
+# only tier in the bag — the exact stock the legendary hunts need (_hunt_ready wants 6 spendable;
+# Moltres was minutes away). Two laws:
+#   RESERVE (HUNT_BALL_RESERVE): while any legendary hunt is still pending (the same signal the
+#   Mart Ultra-stock doctrine reads — campaign._shop_list 2026-08-04), a NON-hunt catch
+#   (pref='cheap') holds the ENTIRE Ultra tier for the hunt: 'cheap' means genuinely cheap
+#   (Poké/Great/specials), and when only reserved Ultras remain the catch is REFUSED
+#   ('[catch] RESERVE' log) — fight/flee via the normal flow. Holding the whole tier (not just a
+#   floor slice) guarantees the count never dips below the _hunt_ready floor AND trash never
+#   nibbles the hunt's break-free surplus. Hunt targets (pref='best': legendary/shiny) spend
+#   freely; the Master Ball stays Mewtwo-only; a creator catch_now spends cheap tiers under the
+#   reserve unless Jonny literally names the Ultra in the order. POKEMON_HUNT_BALL_RESERVE=0 kills.
+#   LAP NO-CATCH (LAP_NO_CATCH): badge 8 + credits not rolled = the victory lap owns the run —
+#   it ends at the E4, so the Route-15 Exp. Share (50 caught) is dead weight and dex_push diverts
+#   are SUPPRESSED until FLAG_SYS_GAME_CLEAR (the post-champion Mewtwo era may dex-push again).
+#   POKEMON_LAP_NO_CATCH=0 reverts (the same switch gates the planner's catch_keeper — see
+#   pokemon_planner.assess).
+HUNT_BALL_RESERVE = os.getenv("POKEMON_HUNT_BALL_RESERVE", "1") != "0"
+LAP_NO_CATCH = os.getenv("POKEMON_LAP_NO_CATCH", "1") != "0"
+# The hunt-pending signal's per-legendary (species, battled-away flag) pairs — MIRRORS the Mart
+# Ultra-stock doctrine exactly: Zapdos 0x2BF / Articuno 0x2BE / Moltres 0x2BD / Mewtwo 0x2BC.
+_HUNT_QUARRY = ((145, 0x2BF), (144, 0x2BE), (146, 0x2BD), (150, 0x2BC))
+
+
+def dex_push_gate(badges, game_clear, aide_paid, owned_count, owns_species, spendable):
+    """PURE decision core for the dex_push wild-catch divert (synthetic-testable —
+    recon_catch_discipline_test). Returns (fire, lap_suppressed):
+      fire           -> divert this wild to a catch (the 2026-08-04 Exp.-Share push);
+      lap_suppressed -> the push WOULD have fired but the VICTORY LAP owns the run
+                        (badge 8, credits not rolled — fight/flee, never a trash catch).
+    `spendable` is the RESERVE-AWARE ball count (_spendable_for_pref('cheap')), so a bag
+    of hunt-reserved Ultras reads 0 here and the divert never arms on the hunt's stock."""
+    would = (not aide_paid and badges >= 5 and owned_count < 50
+             and not owns_species and spendable >= 2)
+    lap_era = LAP_NO_CATCH and badges >= 8 and not game_clear
+    return (would and not lap_era), (would and lap_era)
+
 # SELF-DESTRUCT FAMILY (FireRed national-dex ids) — foes that can NUKE-TRADE our active: Self-
 # Destruct/Explosion one-shots even a dominant lead (koga_run3 2026-07-07: Koga's L37 Koffing
 # detonated on Venusaur L54 turn one; the bench then fed itself to Muk/Weezing — full wipe). The
@@ -504,6 +542,21 @@ class BattleAgent:
         except Exception:
             return False
 
+    def _creator_order_wants_ultra(self):
+        """Jonny NAMED the Ultra in the spoken catch order ('use an ultra ball') — the one
+        voice override that waives the legendary ball reserve for this catch. Reads the
+        latched order's raw transcript (kira/bot.py stores the spoken words in 'raw')."""
+        import json as _j
+        path = self._creator_catch_order_path()
+        if not path:
+            return False
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = _j.load(f) or {}
+            return "ultra" in str(data.get("raw") or "").lower()
+        except Exception:
+            return False
+
     def _clear_creator_catch_order(self):
         """Release catch_now after a committed catch attempt settles (caught or abandoned)."""
         import json as _j
@@ -564,12 +617,31 @@ class BattleAgent:
                           and (st.read_battle(self.b) or {}).get("enemy", {}).get("species") == 150)
         except Exception:
             _is_mewtwo = False
-        if self._ball_count() <= 0 and not (_is_mewtwo and self._ball_qty(self._BALL_MASTER) > 0):
+        # BALL TIER doctrine (2026-08-04) + THE LEGENDARY RESERVE (2026-08-05): a legendary/
+        # shiny gets the STRONGEST ball first and spends freely ('best'); everything else is
+        # 'cheap' and may not touch the hunt's Ultras. A creator catch_now spends cheap tiers
+        # under the reserve — UNLESS Jonny literally named the Ultra in the spoken order
+        # ("use an ultra ball"), the one voice override that waives it.
+        _pref = "best" if reason in ("legendary", "shiny") else "cheap"
+        if reason == "creator_catch_now" and self._creator_order_wants_ultra():
+            _pref = "best"
+            self.log("   [catch] creator order NAMES the Ultra — reserve waived for this catch")
+        _reserved = (self._spendable_for_pref(_pref) <= 0 < self._ball_count())
+        if self._spendable_for_pref(_pref) <= 0 \
+                and not (_is_mewtwo and self._ball_qty(self._BALL_MASTER) > 0):
+            if _reserved:
+                self.log("   [catch] RESERVE — ultras held for the hunt, skipping trash catch")
             if _never_ko:
-                self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — ZERO balls; "
+                self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — "
+                         f"{'only RESERVED ultras' if _reserved else 'ZERO balls'}; "
                          f"FLEEING (NOT fighting — that KOs the catch target)")
-                self.emit(f"I've got ZERO Poké Balls — I am NOT killing this {foe_name}. "
-                          f"backing out. Mart first, then we catch.", beat=True, tier=3)
+                if _reserved:
+                    self.emit(f"my Ultra Balls are the legendaries' — I'm not spending them "
+                              f"here and I'm NOT killing this {foe_name}. backing out; "
+                              f"cheap balls first, then we catch.", beat=True, tier=3)
+                else:
+                    self.emit(f"I've got ZERO Poké Balls — I am NOT killing this {foe_name}. "
+                              f"backing out. Mart first, then we catch.", beat=True, tier=3)
                 # KEEP catch_now live — clearing it made the next wake/fight a free KO.
                 fled = self.flee(max_seconds=60)
                 if not st.in_battle(self.b):
@@ -584,17 +656,16 @@ class BattleAgent:
                     finally:
                         self._skip_catch_divert = False
                 return "no_balls"
-            self.log(f"   [engine] WILD CATCH DIVERT skipped ({reason}) — no balls; fighting instead")
+            self.log(f"   [engine] WILD CATCH DIVERT skipped ({reason}) — "
+                     f"{'only reserved ultras' if _reserved else 'no balls'}; fighting instead")
             self._skip_catch_divert = True
             try:
                 return self.run(max_seconds=max(120, max_seconds))
             finally:
                 self._skip_catch_divert = False
         self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — {foe_name}: weaken+balls, never KO")
-        # BALL TIER doctrine (2026-08-04): a legendary/shiny gets the STRONGEST ball first
-        # (catch rate 3 with a Poké Ball is theater), and Mewtwo — alone — may spend the
-        # Silph Co. Master Ball (the classic move; any other target would waste it).
-        _pref = "best" if reason in ("legendary", "shiny", "creator_catch_now") else "cheap"
+        # Mewtwo — alone — may spend the Silph Co. Master Ball (the classic move; any other
+        # target would waste it). _pref was decided above (reserve-aware).
         _master = False
         if reason == "legendary":
             try:
@@ -915,17 +986,48 @@ class BattleAgent:
         Master Ball is deliberately EXCLUDED — it is Mewtwo's, never a wild-catch statistic."""
         return sum(q for iid, q in self._balls_pocket() if iid in self._SPENDABLE_BALLS)
 
+    def _hunt_pending(self):
+        """The Mart Ultra-stock doctrine's hunt-pending signal, mirrored (campaign._shop_list
+        2026-08-04): Surf is known (a legendary road is open) AND any of the four legendary
+        encounters is still alive (dex bit not owned, battled-away flag unset). Fail-closed
+        False — a read fault reverts to the pre-reserve spend-anything behavior rather than
+        ever wedging a catch."""
+        try:
+            import field_moves as _fm
+            if st.party_knows_move(self.b, 57, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is None:
+                return False
+            return any(ram.pokedex_owns(self.b, sp) is not True
+                       and not _fm.read_flag(self.b, fl)
+                       for sp, fl in _HUNT_QUARRY)
+        except Exception:
+            return False
+
+    def _spendable_for_pref(self, pref="cheap"):
+        """RESERVE-AWARE _ball_count: how many balls THIS catch may actually spend. 'best'
+        (hunt/shiny targets) sees everything; 'cheap' excludes the whole Ultra tier while
+        any legendary hunt is pending (the 2026-08-05 Kindle Road law — see HUNT_BALL_RESERVE)."""
+        n = self._ball_count()
+        if HUNT_BALL_RESERVE and pref != "best" and self._hunt_pending():
+            n -= self._ball_qty(self._BALL_ULTRA)
+        return n
+
     def _pick_ball(self, pref="cheap", allow_master=False):
         """(item_id, display_row) of the ball to throw, or (None, None). 'cheap' spends weakest
         first (dex push); 'best' spends strongest first (legendary/shiny). Master only when
-        explicitly allowed (the Mewtwo seat)."""
+        explicitly allowed (the Mewtwo seat). THE LEGENDARY RESERVE (2026-08-05): while any
+        hunt is pending, 'cheap' skips the Ultra tier entirely — cheap must mean genuinely
+        cheap, and a bag holding only reserved Ultras returns (None, None) so the caller
+        REFUSES the catch instead of draining the hunt's stock."""
         rows = self._balls_pocket()
         if allow_master:
             r = next((n for n, (i, q) in enumerate(rows) if i == self._BALL_MASTER and q > 0), None)
             if r is not None:
                 return self._BALL_MASTER, r
         order = self._BALL_ORDER_BEST if pref == "best" else self._BALL_ORDER_CHEAP
+        _hold_ultras = HUNT_BALL_RESERVE and pref != "best" and self._hunt_pending()
         for want in order:
+            if want == self._BALL_ULTRA and _hold_ultras:
+                continue                              # the hunt's tier — never a trash throw
             r = next((n for n, (i, q) in enumerate(rows) if i == want and q > 0), None)
             if r is not None:
                 return want, r
@@ -942,7 +1044,10 @@ class BattleAgent:
             return "trainer"
         ball_id, ball_row = self._pick_ball(pref=pref, allow_master=allow_master)
         if ball_id is None:
-            self.log("   [engine] throw_ball: no throwable ball in the bag")
+            if self._ball_count() > 0:
+                self.log("   [catch] RESERVE — ultras held for the hunt, skipping trash catch")
+            else:
+                self.log("   [engine] throw_ball: no throwable ball in the bag")
             return "no_balls"
         try:
             # LOUD [catch] THROW line (2026-08-04): species + HP fraction + the ball tier, so
@@ -1361,9 +1466,16 @@ class BattleAgent:
         while time.time() - t0 < max_seconds:
             if not st.in_battle(self.b):
                 return _ended()
-            if self._ball_count() <= 0 and not (allow_master
+            if self._spendable_for_pref(ball_pref) <= 0 and not (allow_master
                                                 and self._ball_qty(self._BALL_MASTER) > 0):
-                self.emit("I'm out of Poké Balls - I'll come back for this one", beat=True)
+                if self._ball_count() > 0:
+                    # Balls exist but they're the hunt's Ultras (mid-catch the cheap tier ran
+                    # dry) — same exit flow as genuinely empty, with the truth in the log.
+                    self.log("   [catch] RESERVE — ultras held for the hunt, skipping trash catch")
+                    self.emit("my Ultra Balls are spoken for — those are for the legendaries. "
+                              "backing off this one.", beat=True)
+                else:
+                    self.emit("I'm out of Poké Balls - I'll come back for this one", beat=True)
                 # NEVER fight-clear a catch_now / Snorlax / shiny / legendary — that was the
                 # 2026-08-02 LIVE KO of Jonny's ordered Snorlax (Blastoise Surf, zero balls).
                 _foe_sp = (st.read_battle(self.b) or {}).get("enemy", {}).get("species")
@@ -4354,7 +4466,8 @@ class BattleAgent:
                     mid = (0, 0)
                 _already = (self._dex_owns_species(50) or self._dex_owns_species(51)
                             or self._party_owns_species(50) or self._party_owns_species(51))
-                if mid in _DIGLETT_CAVE_MAPS and not _already and self._ball_count() > 0:
+                if mid in _DIGLETT_CAVE_MAPS and not _already \
+                        and self._spendable_for_pref("cheap") > 0:
                     self.emit(f"a {foe} — Diglett's Cave keeper. catching ONE for the Ground slot, "
                               f"then we're done balling Digletts.",
                               beat=True, tier=2)
@@ -4369,17 +4482,25 @@ class BattleAgent:
                 # unclaimed, the bar is short, and there are balls to spare (>=2 — the last
                 # ball stays reserved for a shiny/legendary moment). Fail-safe end to end:
                 # catch_pokemon is time-bounded, a miss fight-clears as normal, and any read
-                # fault just skips the divert (she fights like before).
+                # fault just skips the divert (she fights like before). LAP NO-CATCH +
+                # RESERVE (2026-08-05, the Kindle Road Meowth): the pure gate suppresses the
+                # push for the whole badge-8 pre-credits victory lap, and the ball count it
+                # reads is reserve-aware — hunt Ultras can never arm a trash catch.
                 try:
                     import field_moves as _fm
-                    _dexable = (not _fm.read_flag(self.b, 0x256)      # Exp. Share unclaimed
-                                and sum(1 for i in range(8)
-                                        if _fm.read_flag(self.b, 0x820 + i)) >= 5
-                                and (ram.pokedex_owned_count(self.b) or 0) < 50
-                                and self._dex_owns_species(esp) is False
-                                and self._ball_count() >= 2)
+                    _dexable, _lap_hold = dex_push_gate(
+                        sum(1 for i in range(8) if _fm.read_flag(self.b, 0x820 + i)),
+                        _fm.read_flag(self.b, 0x82C),           # FLAG_SYS_GAME_CLEAR
+                        _fm.read_flag(self.b, 0x256),           # Exp. Share claimed
+                        ram.pokedex_owned_count(self.b) or 0,
+                        self._dex_owns_species(esp) is not False,
+                        self._spendable_for_pref("cheap"))
                 except Exception:
-                    _dexable = False
+                    _dexable, _lap_hold = False, False
+                if _lap_hold:
+                    self.log(f"   [engine] dex_push SUPPRESSED — the victory lap owns the "
+                             f"run (badge 8, credits not rolled): {foe} is a fight/flee, "
+                             f"not a catch (POKEMON_LAP_NO_CATCH=0 reverts)")
                 if _dexable:
                     _owned_n = ram.pokedex_owned_count(self.b) or 0
                     self.emit(f"a {foe} — that's a NEW one for the dex. balls out "

@@ -13283,6 +13283,13 @@ class Campaign:
         tier = next((t for t in (2, 3, 4) if t in shelf), None)
         if tier is not None and self.money() > SHOP_MONEY_FLOOR and (door or here == CELADON):
             want = [(tier, max(2, 8 - have))]
+            # CHEAP-TIER CUSHION (2026-08-05, the Kindle Road Meowth): the hunt's Ultras are
+            # now RESERVED (battle_agent HUNT_BALL_RESERVE) — ride a handful of the cheapest
+            # tier this shelf sells alongside them so any post-lap opportunistic catch has a
+            # non-reserved ball to throw.
+            cheap = next((t for t in (4, 3) if t in shelf and t != tier), None)
+            if cheap is not None and self._balls_pocket_count(cheap) < 5:
+                want.append((cheap, 5 - self._balls_pocket_count(cheap)))
             bought = (self.buy_at_celadon_dept(want) if here == CELADON
                       else self.buy_at_mart(door, want)) or {}
             if bought.get(tier):
