@@ -20,7 +20,14 @@ Stubs the bridge + state readers and drives the pure sequencing logic:
   9. (2026-08-05) FERRY-ONLY strike exhaustion: 3 spent Moltres tries surface
      questline_strike_failed (feeding VICTORY_LAP_MAX_FAILS) instead of falling through to
      the compass ("heading NORTH toward One Island" = surfing circles on Route 21); a
-     road-reachable strike still falls through; map progress refunds a try (bounded).
+     road-reachable strike still falls through; map progress refunds a try (bounded);
+ 10. (2026-08-05, the One-Island teleport-back) the REGION-PARTITIONED reload law:
+     map_region splits every map Kanto|Sevii; a Sevii wedge REFUSES the Kanto recent-good
+     (the 08:50 cross-sea teleport) and falls to the newest SAME-REGION disk checkpoint;
+     an in-region hatch still fires (bound, don't blind); the gain guard is untouched;
+     a reload clears the in-memory strike try-counters (the moltres-outranked desync);
+     the deep-wedge ring excludes cross-region seams; NEW-AREA GRACE reads >0 only on a
+     recently-entered NAMELESS map (virgin territory = progress, not a wedge).
 Run:  python3 recon_lap_check.py   (from pokemon_agent/) — prints PASS/FAIL per check.
 """
 import sys
@@ -347,6 +354,127 @@ def main():
               and any("MAP PROGRESS" in ln for ln in logs9))
     finally:
         C.log = _oldlog
+
+    print("== 10. REGION-PARTITIONED reload law + new-area grace (the teleport-back fix) ==")
+    import json as _json
+    import os as _os
+    import tempfile as _tf
+    import time as _tm
+    check("map_region: partition ground truth (pret map_groups.json)",
+          C.map_region((3, 8)) == "kanto" and C.map_region((3, 44)) == "kanto"
+          and C.map_region((3, 12)) == "sevii" and C.map_region((3, 45)) == "sevii"
+          and C.map_region((1, 95)) == "kanto" and C.map_region((1, 96)) == "sevii"
+          and C.map_region((2, 0)) == "sevii" and C.map_region((32, 0)) == "sevii"
+          and C.map_region((12, 5)) == "kanto" and C.map_region((34, 1)) == "sevii")
+
+    def make_reload_camp(tmp, here, ckpts=()):
+        """A camp wedged at `here`, with a checkpoints/ tree of (name, map, blob) bundles."""
+        cw = make_camp()
+        WORLD["here"] = here
+        loaded = []
+        cw.b.save_state = lambda: b"LIVE"
+        cw.b.load_state = lambda s: loaded.append(bytes(s))
+        cw._gain_sig = lambda: (8, 2, 15, 86)
+        cw._save_campaign = lambda reason="t": True
+        cw._wait_overworld = lambda *a, **k: True
+        cw._map_first_seen = {}
+        cw._region_reload_skips = 0
+        cw._ql_strike_tries_map = {("flag", "FLAG_FOUGHT_MOLTRES"): 3}
+        cw._ql_strike_refunds = {("flag", "FLAG_FOUGHT_MOLTRES"): 2}
+        root = _os.path.join(tmp, "checkpoints")
+        for name, m, blob in ckpts:
+            d = _os.path.join(root, name)
+            _os.makedirs(d, exist_ok=True)
+            with open(_os.path.join(d, "checkpoint.json"), "w", encoding="utf-8") as f:
+                _json.dump({"map": list(m)}, f)
+            with open(_os.path.join(d, C.CAMPAIGN_SAVE), "wb") as f:
+                f.write(blob)
+        return cw, loaded
+
+    _oldlog10, logs10 = C.log, []
+    C.log = lambda s: logs10.append(str(s)) or _oldlog10(s)
+    _old_states = C.STATES_CAMPAIGN
+    try:
+        with _tf.TemporaryDirectory() as tmp:
+            C.STATES_CAMPAIGN = tmp
+            # a) Sevii wedge + Kanto recent-good -> REFUSED; newest SEVII disk bank loads instead
+            camp_a, loaded_a = make_reload_camp(
+                tmp, (32, 0),
+                ckpts=[("20260805_090000_cinnabar_8b_periodic", (3, 8), b"KANTO-NEW"),
+                       ("20260805_085019_unfam_8b_periodic", (32, 0), b"SEVII-MID"),
+                       ("20260805_084818_unfam_8b_gain", (32, 0), b"SEVII-OLD")])
+            camp_a._last_good_state = b"KANTO-GOOD"
+            camp_a._last_good_gain = (8, 2, 15, 86)
+            camp_a._last_good_map = (3, 8)
+            r_a = camp_a._escape_hatch_reload()
+            check("Sevii wedge REFUSES the Kanto recent-good (the cross-sea teleport is dead)",
+                  b"KANTO-GOOD" not in loaded_a
+                  and any("ACROSS THE SEA" in ln for ln in logs10))
+            check("...and reloads the NEWEST same-region (Sevii) disk checkpoint instead",
+                  r_a is True and loaded_a == [b"SEVII-MID"])
+            check("a reload CLEARS the strike try/refund memory (the moltres-outranked desync)",
+                  camp_a._ql_strike_tries_map == {} and camp_a._ql_strike_refunds == {})
+            check("the reloaded moment re-anchors as the new SAME-REGION recent-good",
+                  camp_a._last_good_map == (32, 0))
+            # b) walk-back: a re-wedge skips the already-tried newest bank; GREEN re-arms
+            r_b = camp_a._reload_same_region_checkpoint("sevii")
+            check("a re-wedge walks FURTHER BACK (skip depth) through the same-region banks",
+                  r_b is True and loaded_a[-1] == b"SEVII-OLD"
+                  and camp_a._region_reload_skips == 2)
+            # c) in-region wedge: the hatch still fires normally (bound, don't blind)
+            camp_c, loaded_c = make_reload_camp(tmp, (3, 8))
+            camp_c._last_good_state = b"KANTO-GOOD"
+            camp_c._last_good_gain = (8, 2, 15, 86)
+            camp_c._last_good_map = (3, 1)
+            check("an IN-REGION wedge still fires the hatch (its real purpose intact)",
+                  camp_c._escape_hatch_reload() is True and loaded_c == [b"KANTO-GOOD"]
+                  and camp_c._ql_strike_tries_map == {})
+            # d) gain guard untouched: a real gain since the bank refuses ANY rewind
+            camp_d, loaded_d = make_reload_camp(tmp, (3, 8))
+            camp_d._last_good_state = b"KANTO-GOOD"
+            camp_d._last_good_gain = (7, 2, 15, 80)     # live gain (8,...) EXCEEDS this
+            camp_d._last_good_map = (3, 8)
+            check("the GAIN GUARD is untouched (never rewind past a badge/teammate/catch)",
+                  camp_d._escape_hatch_reload() is False and loaded_d == [])
+            # e) no same-region bank at all -> honest decline (the ladder escalates loudly)
+            with _tf.TemporaryDirectory() as tmp2:
+                C.STATES_CAMPAIGN = tmp2
+                camp_e, loaded_e = make_reload_camp(
+                    tmp2, (32, 0),
+                    ckpts=[("20260805_090000_cinnabar_8b_periodic", (3, 8), b"KANTO-NEW")])
+                camp_e._last_good_state = b"KANTO-GOOD"
+                camp_e._last_good_gain = (8, 2, 15, 86)
+                camp_e._last_good_map = (3, 8)
+                check("no same-region bank -> honest decline, NOTHING cross-region loaded",
+                      camp_e._escape_hatch_reload() is False and loaded_e == [])
+            C.STATES_CAMPAIGN = tmp
+            # f) deep-wedge ring: cross-region gain-seams are excluded from the revert walk
+            camp_f, loaded_f = make_reload_camp(tmp, (32, 0), ckpts=[])
+            camp_f._deepwedge_reverts = 0
+            camp_f._safe_ring = [
+                {"state": b"RING-KANTO", "gain": (7, 2, 14, 80), "map": (3, 8), "label": "k"},
+                {"state": b"RING-SEVII", "gain": (8, 2, 15, 86), "map": (32, 0), "label": "s"},
+                {"state": b"RING-KANTO2", "gain": (8, 2, 15, 86), "map": (3, 3), "label": "k2"}]
+            check("deep-wedge revert picks the SAME-REGION seam (cross-region excluded)",
+                  camp_f._deep_wedge_revert() is True and loaded_f == [b"RING-SEVII"]
+                  and any("cross-region" in ln for ln in logs10))
+    finally:
+        C.STATES_CAMPAIGN = _old_states
+        C.log = _oldlog10
+
+    print("== 11. NEW-AREA GRACE (arriving somewhere never-visited is progress) ==")
+    campg = make_camp()
+    campg._map_first_seen = {(32, 0): _tm.time()}
+    WORLD["here"] = (32, 0)                      # nameless in _PLACE_NAMES -> virgin ground
+    check("fresh NAMELESS map -> grace holds (reload rungs stand down)",
+          campg._new_area_grace_left() > 0)
+    campg._map_first_seen[(32, 0)] = _tm.time() - C.NEW_AREA_GRACE_S - 1
+    check("grace EXPIRES (bounded: the breakers re-arm; never blinded)",
+          campg._new_area_grace_left() == 0.0)
+    campg._map_first_seen[(3, 8)] = _tm.time()
+    WORLD["here"] = (3, 8)                       # Cinnabar has a NAME -> charted ground
+    check("a NAMED map gets no grace (charted ground keeps full breaker coverage)",
+          campg._new_area_grace_left() == 0.0)
 
     ok = all(PASS)
     print(f"== {'ALL PASS' if ok else 'FAILURES PRESENT'} ({sum(PASS)}/{len(PASS)}) ==")

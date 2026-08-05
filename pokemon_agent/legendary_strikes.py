@@ -175,6 +175,18 @@ class LegendaryHunt(GiovanniGym):
         if tuple(tv.map_id(b)) == dest:
             return True
         nbs = [(tile[0] + dx, tile[1] + dy) for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1))]
+        # ARROW-MAT LAW (2026-08-05, the One-Island PC exit / the teleport-back incident):
+        # a directional MB_*_ARROW_WARP mat (every PC exit mat = SOUTH arrow) fires ONLY when
+        # stepped in the arrow's direction — walked across sideways it is plain floor. The old
+        # nearest-neighbor approach reached (10,9)/(8,9) beside the (9,9) mat, pressed LEFT/
+        # RIGHT across it, never warped, and burned every strike try. When the mat's behavior
+        # byte reads directional, the ONLY legal approach tile is the one OPPOSITE the arrow
+        # (the arrow press then falls out of the same KEY_OF math below). Behavior None
+        # (unreadable) keeps the old any-neighbor fan — bound, don't blind.
+        arrow = tv.ARROW_WARP_STEP.get(tv.behavior_at(b, *tile))
+        if arrow:
+            adx, ady = DELTA[arrow]
+            nbs = [(tile[0] - adx, tile[1] - ady)]
         for _att in range(3):
             if time.time() > self.deadline:
                 return False
@@ -522,11 +534,25 @@ class MoltresHunt(LegendaryHunt):
         return ok
 
     def heal_here(self, nurse_tile):
-        """Best-effort Center heal (the nurse YES/NO answers YES on A-drain)."""
+        """Best-effort Center heal (the nurse YES/NO answers YES on A-drain).
+        COUNTER LAW (2026-08-05, the One-Island 'nurse-approach no path' log): every Center
+        nurse stands BEHIND a counter — her 1-tile neighbors are furniture, so a poke() to an
+        adjacent tile no-paths forever. The talk happens ACROSS the counter: stand two south
+        of the nurse, face UP, press A (exactly how the campaign's heal_at_center does it)."""
+        b = self.b
         try:
-            self.poke(nurse_tile, "nurse")
+            front = (nurse_tile[0], nurse_tile[1] + 2)
+            if tuple(tv.coords(b) or ()) != front and not self.sea_walk(
+                    lambda c, f=front: c == f, "nurse-front", tries=6):
+                self.log(f"   [nurse] counter front {front} unreachable — skipping the "
+                         f"top-up (best-effort; the strike marches on)")
+                return
+            b.press("UP", 8, 10, self.camp.render, owner="agent")
+            b.press("A", 8, 12, self.camp.render, owner="agent")
             self.settle(120)
             self.drain(key="A")
+            self.settle(60)
+            self.drain()
         except Exception as e:
             self.log(f"   [nurse] heal errored: {e} — continuing (LOUD)")
 

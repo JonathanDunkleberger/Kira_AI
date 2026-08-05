@@ -476,6 +476,38 @@ class Grid:
         return True
 
 
+# ── directional ARROW-WARP mats (2026-08-05, the One-Island PC exit) ─────────────────────────
+# FRLG metatile behaviors (pret include/constants/metatile_behaviors.h): a MB_*_ARROW_WARP mat
+# fires ONLY when the player WALKS ONTO IT IN THE ARROW'S DIRECTION — every Pokémon-Center exit
+# mat is MB_SOUTH_ARROW_WARP (walk DOWN). Walking ACROSS one sideways is plain floor: the Moltres
+# strike crossed the One-Island PC's (9,9) mat east<->west three times, never warped, burned all
+# 3 tries, and the watchdog escalation teleported her back across the sea. Behavior -> the KEY
+# that fires the mat (i.e. the direction you must be travelling).
+ARROW_WARP_STEP = {0x62: "RIGHT",     # MB_EAST_ARROW_WARP
+                   0x63: "LEFT",      # MB_WEST_ARROW_WARP
+                   0x64: "UP",        # MB_NORTH_ARROW_WARP
+                   0x65: "DOWN"}      # MB_SOUTH_ARROW_WARP
+
+
+def behavior_at(b, sx, sy):
+    """Metatile BEHAVIOR byte at save coords (the same header-attr read Grid does, for ONE
+    tile). None when unreadable — callers must treat None as 'unknown', never as 'plain'."""
+    try:
+        ml = b.rd32(GMAPHEADER)
+        attr = (b.rd32(b.rd32(ml + 0x10) + 0x14), b.rd32(b.rd32(ml + 0x14) + 0x14))
+        w, h = b.rd32(BACKUP_LAYOUT), b.rd32(BACKUP_LAYOUT + 4)
+        mp = b.rd32(BACKUP_LAYOUT + 8)
+        bx, by = sx + MAP_OFFSET, sy + MAP_OFFSET
+        if not (0 < w < 1000 and 0 < h < 1000 and 0 <= bx < w and 0 <= by < h):
+            return None
+        e = b.rd16(mp + (by * w + bx) * 2)
+        mid = e & 0x3FF
+        base, idx = (attr[0], mid) if mid < NUM_PRIMARY else (attr[1], mid - NUM_PRIMARY)
+        return b.rd32(base + idx * 4) & 0xFF
+    except Exception:
+        return None
+
+
 def bfs(grid, start, goal_test, bound=None, walkable=None):
     """Breadth-first over 4-neighbours of walkable tiles. Returns the tile path
     (list incl. start+goal) or None. `bound` limits explored save-coords to

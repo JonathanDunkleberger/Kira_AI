@@ -28,6 +28,14 @@ Moltres tries in seconds. Same scripted sim, driving the REAL sea_walk:
   5. only-gap roaming blocker: npc_wait holds, he wanders off, she walks through;
   6. committed-step cross: a wanderer steps INTO the plan mid-walk -> wait + replan;
   7. stationary squatter: motion gate bails fast -> the old honest no-path surfaces.
+PLUS (2026-08-05, attempt #3 — the teleport-back): the ARROW-MAT LAW. Every PC exit mat is
+MB_SOUTH_ARROW_WARP — it fires ONLY when stepped onto travelling DOWN; crossed sideways it
+is plain floor. The strike's enter_step crossed One Island's (9,9) mat east<->west, never
+warped, burned all 3 Moltres tries, and the watchdog escalation reloaded her across the
+sea. Same scripted sim, driving the REAL LegendaryHunt.enter_step:
+  8. a directional mat forces the NORTH approach + DOWN entry (warp fires even when she
+     starts BESIDE the mat — the live failure geometry); an unreadable behavior byte keeps
+     the old any-neighbor fan (bound, don't blind).
 Run:  python3 recon_egress_wait_check.py   (from pokemon_agent/) — PASS/FAIL per check.
 """
 import os
@@ -342,6 +350,47 @@ def main():
           any("stationary" in ln for ln in logs7)
           and any("npc-severed" in ln for ln in logs7))
     check("bounded: no budget burn", took7 < 10)
+
+    print("== 8. ARROW-MAT LAW: the One-Island PC exit (MB_SOUTH_ARROW_WARP) ==")
+    import legendary_strikes as LS
+
+    def make_hunt(sim, mat, dest, directional=True):
+        """The REAL LegendaryHunt.enter_step over the sim. The mat warps ONLY on a
+        north->south entry when directional (FRLG arrow-mat semantics); a plain door
+        (behavior unreadable -> None) warps on ANY entry."""
+        g, logs = make_strike(sim)
+        g.__class__ = LS.LegendaryHunt          # enter_step + the GG movement base
+        state = {"map": (32, 0), "prev": tuple(sim.player)}
+        _orig = sim.step
+
+        def _warp_step(key):
+            before = sim.player
+            _orig(key)
+            if sim.player != before:
+                if tuple(sim.player) == mat and (
+                        not directional or before == (mat[0], mat[1] - 1)):
+                    state["map"] = dest
+        sim.step = _warp_step
+        T.map_id = lambda bb: state["map"]
+        T.behavior_at = (lambda bb, x, y:
+                         (0x65 if (x, y) == mat else 0x00) if directional else None)
+        return g, logs, state
+
+    # the live failure geometry: she stands BESIDE the mat (west) — the old code pressed
+    # RIGHT across it (plain floor, no warp) and burned every try
+    sim8 = Sim(15, 9, corridor_room(), player=(6, 8), npc=None)
+    g8, logs8, st8 = make_hunt(sim8, mat=(7, 8), dest=(3, 12), directional=True)
+    r8 = g8.enter_step((7, 8), (3, 12), "pc-out")
+    check("directional mat WARPS (enter_step routes to the north tile, enters DOWN)",
+          r8 is True and st8["map"] == (3, 12))
+    check("the winning entry came from the NORTH (the arrow's direction, never sideways)",
+          len(sim8.visited) >= 2 and sim8.visited[-1] == (7, 8)
+          and sim8.visited[-2] == (7, 7))
+    sim9 = Sim(15, 9, corridor_room(), player=(6, 8), npc=None)
+    g9, logs9, st9 = make_hunt(sim9, mat=(7, 8), dest=(3, 12), directional=False)
+    r9 = g9.enter_step((7, 8), (3, 12), "plain-door")
+    check("unreadable behavior byte -> the old any-neighbor fan still lands (bound, "
+          "don't blind)", r9 is True and st9["map"] == (3, 12))
 
     ok = all(PASS)
     print(f"== {'ALL PASS' if ok else 'FAILURES PRESENT'} ({sum(PASS)}/{len(PASS)}) ==")

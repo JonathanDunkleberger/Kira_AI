@@ -1052,14 +1052,56 @@ CITY_PC_DOORS = {VIRIDIAN: VIRIDIAN_PC_DOOR, PEWTER: PEWTER_PC_DOOR,
                  SAFFRON: SAFFRON_PC_DOOR,   # Saffron: (24,38) (disasm SaffronCity map.json 2026-07-07)
                  (3, 8): (14, 11),           # Cinnabar: (disasm CinnabarIsland map.json 2026-07-07;
                                              # the seafoam_run10 loud-fallback gap)
-                 (3, 9): (11, 6)}            # Indigo Plateau Exterior -> the League center door
+                 (3, 9): (11, 6),            # Indigo Plateau Exterior -> the League center door
                                              # (disasm IndigoPlateau_Exterior.json; victory_run10's
                                              # heal wandered south to R23 without this)
+                 # SEVII CENTERS (2026-08-05, the One-Island teleport-back: with no Sevii entry
+                 # here, _center_reachable_here read the WHOLE archipelago as un-healable, so no
+                 # known-good was ever banked post-ferry and the escape hatch's only target was
+                 # Kanto. pret map.json ground truth, cached .tmp_sym):
+                 (3, 12): (14, 5),           # One Island -> OneIsland_PokemonCenter_1F
+                 (3, 13): (21, 7),           # Two Island -> TwoIsland_PokemonCenter_1F
+                 (3, 14): (14, 27)}          # Three Island -> ThreeIsland_PokemonCenter_1F
 
 # PC interiors share ONE layout — EXCEPT the League center (2-story, nurse behind the long
-# counter at (13,10), stand (13,11)). heal_at_center consults this by DOOR before defaulting
-# to the shared NURSE_FRONT.
-NURSE_FRONT_OVERRIDES = {(11, 6): (13, 11)}
+# counter at (13,10), stand (13,11)) and the One-Island Network Center (nurse (5,2), stand
+# (5,4)). heal_at_center consults this by DOOR before defaulting to the shared NURSE_FRONT.
+NURSE_FRONT_OVERRIDES = {(11, 6): (13, 11), (14, 5): (5, 4)}
+
+# Standing INSIDE one of these maps IS heal-safe by definition (the nurse is in the room) —
+# _center_reachable_here's KB can't see interiors any other way on virgin ground.
+PC_INTERIOR_MAPS = {(32, 0), (33, 2), (34, 1)}   # One/Two/Three Island PokemonCenter_1F
+
+
+# ── REGION PARTITION: Kanto vs the Sevii archipelago (2026-08-05, the teleport-back) ─────────
+# There is NO overworld road between the regions — only Bill's ferry / the Seagallop. A wedge
+# on one side must therefore NEVER be answered with a savestate banked on the other side (the
+# 08:50 incident: two watchdog trips inside the One-Island PC reloaded the pre-ferry Cinnabar
+# bank — "teleported randomly back across the sea"). Partition (pret map_groups.json):
+#   group 3 (TownsAndRoutes): 0-11 Kanto towns, 12-18 the island hubs, 19-44 Kanto routes,
+#     45+ Sevii routes (Kindle Road (3,45) .. the later islands' paths);
+#   group 1 (Dungeons): 96+ are Sevii (Mt. Ember 96-108, Berry Forest 109, Icefall etc.);
+#   group 2 (SpecialArea: Navel Rock / Trainer Tower / Birth Island) = ferry-only = Sevii;
+#   interiors: groups 4-30 are Kanto city/route rooms, 31+ are island rooms.
+def map_region(m):
+    """'kanto' | 'sevii' for a (group, num) map id. Deterministic, total (unknowns bucket by
+    their group's side) — the reload law needs an answer for every map she can stand on."""
+    g, n = int(m[0]), int(m[1])
+    if g == 3:
+        return "sevii" if (12 <= n <= 18 or n >= 45) else "kanto"
+    if g == 1:
+        return "sevii" if n >= 96 else "kanto"   # 96 = MtEmber_RubyPath_B4F (oddly filed
+        #                                          BEFORE the Exterior in pret's group order)
+    if g == 2 or g >= 31:
+        return "sevii"
+    return "kanto"
+
+
+# NEW-AREA GRACE (2026-08-05): the first minutes on a map the harness has NO NAME for are
+# EXPLORATION, not a wedge — arriving somewhere never-visited is progress by definition. While
+# the grace holds, the watchdog's disengage ladder keeps its gentle rungs (B + step-away, exit
+# to the overworld) but must NOT escalate to a savestate reload.
+NEW_AREA_GRACE_S = float(os.getenv("POKEMON_NEW_AREA_GRACE_S", "300"))
 
 # Bill's PC console stand in the SHARED Center interior — top wall, right of the nurse (screenshot-
 # calibrated in recon_pcbox on the Route 10 Center). Same shared layout as NURSE_FRONT=(7,4), so this
@@ -1592,6 +1634,10 @@ class Campaign:
         # that moment (badges, party size, dex caught) so a reload can NEVER rewind past a real gain.
         self._last_good_state = None
         self._last_good_gain = None
+        self._last_good_map = None       # (group, num) at bank time — the region-partition law
+        self._map_first_seen = {}        # map -> first-tick ts this session (NEW-AREA grace)
+        self._region_reload_skips = 0    # region-local disk fallback: how many newest same-
+        #                                  region checkpoints to skip (walks BACK; GREEN resets)
         # PHASE 1 (deep-wedge floor) — rolling ring of checkpoints banked at GAIN SEAMS (badge/teammate/
         # catch): the progressively-older fallbacks the deep-wedge revert walks back through when the
         # escape-hatch (recent-good) keeps re-wedging. Each entry: {state, gain, label}. In-memory (the
@@ -1902,6 +1948,9 @@ class Campaign:
             here = tv.coords(self.b)
             if here is None:
                 return False
+            if tuple(m) in PC_INTERIOR_MAPS:         # standing INSIDE a Center — heal-safe by definition
+                return True                          # (2026-08-05: the One-Island PC read 'un-healable'
+                                                     #  and no known-good ever banked post-ferry)
             if m == ROUTE3:                          # Route 3 heals west at Pewter (its normal connection)
                 return True
             grid = tv.Grid(self.b)
@@ -16501,7 +16550,21 @@ class Campaign:
         yellow_hits = sum(1 for x, y in ((160, 30), (200, 60), (120, 10))
                           if p[x, y][0] > 240 and p[x, y][1] > 240 and 180 < p[x, y][2] < 230)
         if yellow_hits >= 2:
-            return "bag/case"
+            # CONFIRMATION STRIPS (2026-08-05, the One-Island frozen_box misfire): 3 spot-probes
+            # matched the cream walls/counters of the Sevii PC interiors DURING the Bill/Celio
+            # scene — the watchdog then counted a 'stray menu' through a legit cutscene and B-
+            # mashed into it. The REAL bag/case list is a near-uniform pale-cream sheet across
+            # the right 2/3; tile art never is. Tightens only — a genuinely open bag still trips.
+            total = hits = 0
+            for sy in (12, 44, 76):
+                for sx in range(116, 236, 6):
+                    total += 1
+                    r, g, bl = p[sx, sy][:3]
+                    if r > 230 and g > 230 and 170 < bl < 240:
+                        hits += 1
+            # 0.60: text glyphs eat ~30-40% of a heavy list row; tile art lands far below this
+            if hits >= int(total * 0.60):
+                return "bag/case"
         return None
 
     def _sweep_stray_menus(self, max_b=10):
@@ -18156,6 +18219,17 @@ class Campaign:
             fp = wf.fingerprint(self.b)
             macro = ledger.observe(fp)
             self._roam_progress = macro            # surfaced for the dashboard light to read later
+            # NEW-AREA GRACE bookkeeping (2026-08-05): stamp the first tick on every map this
+            # session — arriving somewhere never-visited is PROGRESS, and for NEW_AREA_GRACE_S
+            # the reload rungs stand down (gentle recovery only) while she learns the ground.
+            try:
+                _gm = tuple(tv.map_id(self.b))
+                if _gm not in self._map_first_seen:
+                    self._map_first_seen[_gm] = time.time()
+                if macro == ledger.GREEN:
+                    self._region_reload_skips = 0   # progress re-arms the region walk-back at newest
+            except Exception:
+                pass
             # ADDENDUM A — capture a KNOWN-GOOD snapshot on every PROGRESSING tick: this is the state the
             # escape-hatch rewinds to, so by construction it's from BEFORE any wedge and already carries
             # the latest gains. Cheap (one savestate held in memory); overwritten as she progresses.
@@ -18186,6 +18260,8 @@ class Campaign:
                     try:
                         self._last_good_state = self.b.save_state()
                         self._last_good_gain = self._gain_sig()
+                        self._last_good_map = _km      # region partition: the reload law needs
+                        #                                to know WHICH SIDE OF THE SEA this is
                     except Exception as _e:
                         log(f"   [roam] last-good snapshot skipped: {_e}")
                 # PHASE 1 — bank a deep-wedge fallback into the ring at a GAIN SEAM (a badge / a new
@@ -18197,6 +18273,7 @@ class Campaign:
                     if g is not None and g != self._ring_last_gain and (
                             self._ring_last_gain is None or any(c > p for c, p in zip(g, self._ring_last_gain))):
                         self._safe_ring.append({"state": self._last_good_state, "gain": g,
+                                                "map": _km,
                                                 "label": f"gain{g}@{state['place']}"})
                         self._ring_last_gain = g
                         log(f"   [roam] deep-wedge ring: banked safe checkpoint {g} @ {state['place']} "
@@ -18259,7 +18336,17 @@ class Campaign:
                     # ESCALATE only if she's STILL re-wedging this episode (the B+step-away didn't take):
                     if self._watchdog_trips >= 2:
                         log("   [roam] !! WATCHDOG re-trip this episode — escalating beyond B+step-away")
-                        if self._last_good_state:
+                        _grace = self._new_area_grace_left()
+                        if _grace > 0:
+                            # NEW-AREA GRACE (2026-08-05): virgin territory — a reload here is how
+                            # the One-Island teleport-back happened. Gentle rungs only while she
+                            # learns the ground; the reload rungs re-arm when the grace expires.
+                            log(f"   [roam] !! WATCHDOG escalation SOFTENED: never-visited map, "
+                                f"{_grace:.0f}s of new-area grace left — reload rungs stand down "
+                                f"(arriving here WAS the progress)")
+                            if tv.map_id(self.b)[0] != 3:
+                                self._exit_to_overworld()
+                        elif self._last_good_state:
                             self._escape_hatch_reload()
                         elif tv.map_id(self.b)[0] != 3:   # stranded in a building -> get to the overworld
                             self._exit_to_overworld()
@@ -18296,13 +18383,20 @@ class Campaign:
             # self-re-wedging spot still reaches ABANDON. Anti-misfire safety lives in _escape_hatch_reload.
             if (red_ticks >= PROGRESS_ESCAPE_TICKS and hard_recovered
                     and escape_reloads < MAX_ESCAPE_RELOADS):
-                log(f"   [roam] !! ESCAPE-HATCH considering reload: RED {red_ticks} ticks, hard-recovery "
-                    f"already tried, reload {escape_reloads + 1}/{MAX_ESCAPE_RELOADS}")
-                if self._escape_hatch_reload():
-                    escape_reloads += 1
-                    red_ticks = 0                  # the reload broke the position — give it a fresh streak
-                    continue
-            if red_ticks >= max(wf.PROGRESS_ABANDON_TICKS, DEEPWEDGE_TICKS):
+                _grace = self._new_area_grace_left()
+                if _grace > 0:
+                    log(f"   [roam] !! ESCAPE-HATCH deferred: RED {red_ticks} ticks but she's on a "
+                        f"never-visited map ({_grace:.0f}s new-area grace left) — exploration is not "
+                        f"a wedge; the reload rung re-arms when the grace expires")
+                else:
+                    log(f"   [roam] !! ESCAPE-HATCH considering reload: RED {red_ticks} ticks, hard-recovery "
+                        f"already tried, reload {escape_reloads + 1}/{MAX_ESCAPE_RELOADS}")
+                    if self._escape_hatch_reload():
+                        escape_reloads += 1
+                        red_ticks = 0              # the reload broke the position — give it a fresh streak
+                        continue
+            if red_ticks >= max(wf.PROGRESS_ABANDON_TICKS, DEEPWEDGE_TICKS) \
+                    and self._new_area_grace_left() <= 0:
                 # PHASE 1 — DEEP-WEDGE FLOOR: the escape-hatch (recent-good) is exhausted and the world is
                 # STILL frozen — a structural wedge. Before abandoning, revert PROGRESSIVELY FURTHER BACK
                 # through the gain-seam ring to a guaranteed-clear checkpoint. Each revert is surfaced
@@ -20364,12 +20458,28 @@ class Campaign:
         kept), then older on each repeat, until a checkpoint actually clears the wedge. Banks the
         current (even-wedged) state first so nothing is truly lost, then surfaces the revert
         in-character. Returns True if it reverted, False if the ring is exhausted (-> ABANDON)."""
-        idx = len(self._safe_ring) - 1 - self._deepwedge_reverts
+        # REGION PARTITION (2026-08-05, the One-Island teleport-back): the ring may span the sea —
+        # candidates are restricted to gain-seams banked in HER CURRENT region, so a Sevii wedge
+        # can never deep-revert to a Kanto checkpoint (or vice versa). Legacy entries without a
+        # banked map stay eligible (they predate the partition; in-memory, so rare after deploy).
+        try:
+            cur_region = map_region(tuple(tv.map_id(self.b)))
+        except Exception:
+            cur_region = "kanto"
+        candidates = [e for e in self._safe_ring
+                      if e.get("map") is None or map_region(tuple(e["map"])) == cur_region]
+        skipped = len(self._safe_ring) - len(candidates)
+        idx = len(candidates) - 1 - self._deepwedge_reverts
         if idx < 0:
             log(f"   [roam] deep-wedge ring EXHAUSTED ({self._deepwedge_reverts} reverts, "
-                f"{len(self._safe_ring)} banked) — no clean checkpoint left to fall back to")
-            return False
-        entry = self._safe_ring[idx]
+                f"{len(candidates)} same-region of {len(self._safe_ring)} banked"
+                + (f", {skipped} cross-region excluded" if skipped else "")
+                + ") — no clean checkpoint left to fall back to; trying the same-region disk banks")
+            return self._reload_same_region_checkpoint(cur_region)
+        entry = candidates[idx]
+        if skipped:
+            log(f"   [roam] deep-wedge ring: {skipped} cross-region checkpoint(s) excluded "
+                f"(she is in {cur_region} — the revert must not re-cross the sea)")
         try:
             # bank the current (wedged) state first — never blind-overwrite (an unbanked shiny survives a misfire)
             try:
@@ -20381,6 +20491,7 @@ class Campaign:
                 log(f"   [roam] deep-wedge pre-revert backup skipped: {_be}")
             self.b.load_state(entry["state"])
             self._deepwedge_reverts += 1
+            self._reset_strike_memory("deep-wedge revert")
             log(f"   [roam] !!!! DEEP-WEDGE REVERT #{self._deepwedge_reverts}: escape-hatch spent + still "
                 f"frozen -> reverted to safe checkpoint {entry['label']} (gain {entry['gain']})")
             # IN-CHARACTER COVER — watchable, never a silent blink (Constraint: announce, don't illusion-break)
@@ -20446,7 +20557,28 @@ class Campaign:
                 f"as the new known-good and declining (ABANDON will surface for a human instead).")
             self._last_good_state = self.b.save_state()
             self._last_good_gain = cur_gain
+            self._last_good_map = tuple(tv.map_id(self.b))
             self._save_campaign("escape_reanchor")
+            return False
+        # 2b) REGION GUARD (2026-08-05, the One-Island teleport-back): the gain sig is MAP-BLIND —
+        # sailing to the Sevii archipelago reads as ZERO gain, so nothing above stops a rewind
+        # that re-crosses the sea. A wedge is answered ON ITS OWN SIDE: cross-region recent-good
+        # is refused, and recovery falls to the newest SAME-REGION auto-checkpoint on disk. The
+        # hatch keeps its full purpose inside a region — bound, don't blind.
+        try:
+            cur_region = map_region(tuple(tv.map_id(self.b)))
+        except Exception:
+            cur_region = "kanto"
+        tgt_map = getattr(self, "_last_good_map", None)
+        if tgt_map is not None and map_region(tuple(tgt_map)) != cur_region:
+            log(f"   [roam] !! ESCAPE-HATCH: last-good was banked at {tuple(tgt_map)} "
+                f"({map_region(tuple(tgt_map))}) but she is wedged in {cur_region} — a reload would "
+                f"teleport her ACROSS THE SEA (the 08:50 One-Island incident). REFUSING the "
+                f"cross-region rewind; trying the newest same-region checkpoint instead.")
+            if self._reload_same_region_checkpoint(cur_region):
+                return True
+            log("   [roam] !! ESCAPE-HATCH: no same-region fallback either — declining (current "
+                "already banked; the ladder above escalates honestly)")
             return False
         # 3) reload the last known-good state — the actual escape
         try:
@@ -20455,12 +20587,105 @@ class Campaign:
                 f"(gain {good_gain}); current backed up to pre_reload_{ts}.state. Continuing the climb. (LOUD)")
             self.on_event("something got me properly stuck back there — I'm backing up to where I knew what "
                           "I was doing and picking it up from there.", kind="recover", tier=2)
+            self._reset_strike_memory("escape-hatch reload")
             self._wait_overworld()
             self._save_campaign("post_escape_reload")
             return True
         except Exception as e:
             log(f"   [roam] !! ESCAPE-HATCH: reload FAILED ({e}) — staying on current state (already backed up)")
             return False
+
+    def _new_area_grace_left(self):
+        """Seconds of NEW-AREA GRACE remaining on the map she's standing on (0.0 = none).
+        A map first seen this session under NEW_AREA_GRACE_S ago AND absent from the world
+        model's named places is virgin territory — arriving there was PROGRESS, and reload
+        rungs must stand down while she learns the ground (the gentle rungs still run)."""
+        try:
+            m = tuple(tv.map_id(self.b))
+            first = self._map_first_seen.get(m)
+            if first is None:
+                return 0.0
+            left = NEW_AREA_GRACE_S - (time.time() - first)
+            if left <= 0:
+                return 0.0
+            # a map the harness can already NAME is charted ground — no grace needed there
+            # (grace exists for honest "an unfamiliar area" territory, i.e. the Sevii crossing)
+            try:
+                if self._place_name(m, default=None):
+                    return 0.0
+            except Exception:
+                pass
+            return left
+        except Exception:
+            return 0.0
+
+    def _reset_strike_memory(self, why):
+        """A savestate reload REWOUND the world — the in-memory strike-try/refund counters were
+        fed by a timeline the save no longer remembers, so keeping them re-parks errands the
+        reloaded world never failed (the 08:50 desync: 3 spent Moltres tries survived the reload
+        and the lap armed 'articuno' over the still-owed bird). Lap fail counts stay — the
+        bounded-skip law still owns honest exhaustion across reloads."""
+        n = len(getattr(self, "_ql_strike_tries_map", {}) or {})
+        self._ql_strike_tries_map = {}
+        self._ql_strike_refunds = {}
+        self._moltres_home_tries = 0
+        if n:
+            log(f"   [roam] strike memory reset ({why}): {n} errand try-counter(s) cleared — "
+                f"the reloaded world gets fresh strike attempts")
+
+    def _reload_same_region_checkpoint(self, region):
+        """REGION-LOCAL DISK FALLBACK (2026-08-05): when the in-memory targets are all on the
+        wrong side of the sea, reload the newest on-disk auto-checkpoint whose banked map is in
+        the SAME region (checkpoint.json carries the map id). Walks progressively FURTHER BACK
+        on repeat calls (_region_reload_skips; GREEN resets it) so a re-wedging newest bank
+        still escapes. Loads only the .state — the live sidecars stay, same campaign."""
+        import json as _json
+        root = os.path.join(STATES_CAMPAIGN, "checkpoints")
+        try:
+            names = sorted((n for n in os.listdir(root)
+                            if os.path.isdir(os.path.join(root, n))
+                            and not n.endswith(".partial")), reverse=True)
+        except Exception as _le:
+            log(f"   [roam] region-local reload: no checkpoint dir readable ({_le}) — declining")
+            return False
+        skips = int(getattr(self, "_region_reload_skips", 0) or 0)
+        seen = 0
+        for name in names:
+            state_p = os.path.join(root, name, CAMPAIGN_SAVE)
+            try:
+                with open(os.path.join(root, name, "checkpoint.json"), "r", encoding="utf-8") as f:
+                    meta = _json.load(f)
+                m = tuple(meta.get("map") or ())
+                if len(m) != 2 or map_region(m) != region or not os.path.exists(state_p):
+                    continue
+                if seen < skips:
+                    seen += 1
+                    continue
+                with open(state_p, "rb") as f:
+                    self.b.load_state(f.read())
+                self._region_reload_skips = skips + 1
+                log(f"   [roam] !!!! REGION-LOCAL RELOAD: same-region ({region}) auto-checkpoint "
+                    f"'{name}' loaded (map {m}, skip depth {skips}) — recovery stays on this side "
+                    f"of the sea (LOUD)")
+                self.on_event("something glitched me out — backing up a little, but I'm staying "
+                              "right here on this island and pushing on.", kind="recover", tier=2)
+                # re-anchor: the reloaded moment is the new recent-good (region partition bounds
+                # any residual poison to THIS side of the sea; a re-wedge walks further back)
+                try:
+                    self._last_good_state = self.b.save_state()
+                    self._last_good_gain = self._gain_sig()
+                    self._last_good_map = tuple(tv.map_id(self.b))
+                except Exception:
+                    pass
+                self._reset_strike_memory("region-local reload")
+                self._wait_overworld()
+                self._save_campaign("post_region_reload")
+                return True
+            except Exception as _ce:
+                log(f"   [roam] region-local candidate {name} skipped: {_ce}")
+        log(f"   [roam] !! REGION-LOCAL RELOAD: no same-region ({region}) checkpoint bank on disk "
+            f"past skip depth {skips} — declining")
+        return False
 
     MAX_BLACKOUT_RETRIES = 12     # per segment — a thin solo roster needs several Miguel attempts;
                                   # each retry re-walks (more trainer XP) + re-heals, so it converges.
