@@ -57,6 +57,7 @@ ghost) | 'not_here' | 'failed' (fail-safe: leaves her fightable/walkable, the er
 """
 import time
 
+import boulder_puzzle as bp
 import field_moves as fm
 import firered_ram as ram
 import travel as tv
@@ -106,16 +107,10 @@ MOLTRES_ANCHORS = {CINNABAR, CINNABAR_PC, ONE_ISLAND, ONE_PC, ONE_HARBOR, KINDLE
 MEWTWO_ANCHORS = {CERULEAN, CAVE1F, CAVE2F, CAVEB1F}
 
 # Solver-verified Strength push plans (BFS over pret map.bin collision+elevation with the
-# map.json boulder templates, 2026-08-04). Boulders RESET to template tiles on every map
-# re-entry (FLAG_TEMP objects), so a botched board is fixed by a door round-trip.
-#   exterior ASCENT  (Kindle doors (28/29,48) -> 1F door (14,24)): 6 pushes
-#   exterior DESCENT (1F door (14,24) -> Kindle doors): 2 pushes (fresh board)
-#   summit  (entrance (9,15) -> beside Moltres (9,6)): 6 pushes — the last leg pushes ONE
-#   boulder (8,10) UP then RIGHT twice, so it ends parked at (10,9) clear of the corridor
-EMBER_ASCENT_PUSHES = [((22, 45), "LEFT", 3), ((17, 46), "LEFT", 3)]
-EMBER_DESCENT_PUSHES = [((17, 46), "RIGHT", 1), ((22, 45), "RIGHT", 1)]
-SUMMIT_PUSHES = [((10, 12), "UP", 1), ((9, 12), "LEFT", 1), ((8, 11), "LEFT", 1),
-                 ((8, 10), "UP", 1), ((8, 9), "RIGHT", 2)]
+# The Mt. Ember boulder boards live in boulder_puzzle.py now (2026-08-05 #3, the volcano
+# loop): bp.EMBER_ASCENT / bp.EMBER_DESCENT / bp.EMBER_SUMMIT_BOARD — same pret map.json
+# templates, but solved by the IDEMPOTENT chain engine (live readback per push, resume
+# mid-chain without over-pushing, fail-in-place, door-reset LAST resort, checkpoint-per-push).
 
 # Seagallop harbor menus while the detour is live (VAR_MAP_SCENE_CINNABAR_ISLAND < 4 —
 # pret seagallop.inc: no Vermilion row until Bill has sailed her home): row order per pier.
@@ -165,6 +160,24 @@ class LegendaryHunt(GiovanniGym):
         except Exception:
             pass
         return None
+
+    # ── milestone durability (2026-08-05 #3, 'respawn right where she is') ──────────────
+    def strike_checkpoint(self, reason=None):
+        """Bank a checkpoint + refresh the recent-good at a climb milestone, so ANY recovery
+        (watchdog escape hatch, region-local reload) resumes seconds back ON THIS MAP with the
+        puzzle state intact (savestates capture full RAM — pushed boulders survive). Also
+        refunds the lap's bounded-attempt counter for this quarry: a banked milestone IS
+        progress, so the errand can never honest-skip while the climb is genuinely advancing
+        (the GREEN law, applied to the hunt). Returns True (composable); never raises."""
+        camp = self.camp
+        key = ((self.QUARRY or {}).get("name") or "hunt").lower()
+        label = reason or f"{key}-leg"
+        try:
+            camp._bank_milestone(label)
+            (getattr(camp, "_lap_fails", None) or {}).pop(key, None)
+        except Exception as e:
+            self.log(f"   [ckpt] strike milestone '{label}' skipped: {e}")
+        return True
 
     # ── field healing (2026-08-05, the Mt. Ember climb) ─────────────────────────────────
     def field_heal_seam(self, top_up=False):
@@ -260,6 +273,10 @@ class LegendaryHunt(GiovanniGym):
         # PRE-LEGENDARY TOP-UP (2026-08-05): the static fight starts at HER choice of moment —
         # a real player tops the ace to (near-)full BEFORE pressing A, not after turn 1.
         self.field_heal_seam(top_up=True)
+        # PRE-LEGENDARY CHECKPOINT (2026-08-05 addendum): standing in front of the bird, topped
+        # up, board solved — the exact moment Jonny wants a recovery (or a manual
+        # PROMOTE_TARGET pin) to respawn into. Named 'pre-<quarry>' in the inventory.
+        self.strike_checkpoint(f"pre-{(q.get('name') or 'quarry').lower()}")
         try:
             self.camp.on_event(f"there it is. {q['name']}. okay — deep breath, balls ready. "
                                f"we are NOT blowing this.", kind="legendary", tier=3)
@@ -419,14 +436,19 @@ class MoltresHunt(LegendaryHunt):
         self.log(f"!! [strength] flag 0x805 never set (boulder {bl})")
         return False
 
-    def push(self, approx, key, n):
+    def push(self, approx, key, n, allow=()):
         b, camp = self.b, self.camp
         d = DELTA[key]
         for i in range(n):
             bl = self.nearest_boulder(approx)
             if bl is None:
-                self.log(f"!! [push] boulder near {approx} absent (i={i}) — assuming pushed")
-                return True
+                # 2026-08-05 #3: 'absent -> assuming pushed' was a LIE — the GBA unloads
+                # off-camera object events AND a failed approach also reads absent, so the
+                # old assumption green-lit unsolved boards. The chain engine owns absence
+                # (walk-near + verified look); an absent boulder HERE is an honest failure.
+                self.log(f"!! [push] boulder near {approx} absent (i={i}) — NOT assuming; "
+                         f"failing LOUD (the solver re-derives from live truth)")
+                return False
             stand = (bl[0] - d[0], bl[1] - d[1])
             if not self.sea_walk(lambda c, s=stand: c == s, f"push-approach{i}",
                                  avoid={tuple(bl)}):
@@ -450,20 +472,12 @@ class MoltresHunt(LegendaryHunt):
             self.settle(30)
         return True
 
-    def board_mission(self, plan, reset_out, reset_home, label):
-        """Run a push plan; a wedged board (mid-resume dirt) is RESET by a door round-trip
-        (boulders are FLAG_TEMP objects — they respawn at template tiles on map re-entry)."""
-        for round_ in range(2):
-            if self.ensure_strength(plan[0][0]) and all(self.push(a, k, n) for a, k, n in plan):
-                return True
-            if round_ == 0:
-                self.log(f"   [{label}] push plan wedged — door round-trip to RESET the board")
-                out_tile, out_map = reset_out
-                back_tile, here_map = reset_home
-                if not (self.enter_step(out_tile, out_map, f"{label}-reset-out")
-                        and self.enter_step(back_tile, here_map, f"{label}-reset-back")):
-                    return False
-        return False
+    def board_mission(self, room):
+        """One boulder room via the SHARED chain engine (boulder_puzzle.solve_room): live
+        readback per push, idempotent mid-chain resume (never over-push a solved board),
+        fail-IN-PLACE retries, the door-reset LAST resort, and a milestone checkpoint after
+        every verified push (savestates keep pushed boulders — recoveries resume mid-board)."""
+        return bp.solve_room(self, room, checkpoint=self.strike_checkpoint, log=self.log)
 
     # ── talk / scene primitives ──────────────────────────────────────────────────────────
     def poke(self, tile, label, avoid=()):
@@ -617,9 +631,7 @@ class MoltresHunt(LegendaryHunt):
         if here == EMBER_EXT:
             y = (tv.coords(b) or (0, 0))[1]
             if y > 30:                           # lower corridor — the 6-push ascent board
-                if not self.board_mission(EMBER_ASCENT_PUSHES,
-                                          ((28, 48), KINDLE), ((11, 6), EMBER_EXT),
-                                          "ext-ascent"):
+                if not self.board_mission(bp.EMBER_ASCENT):
                     return False
                 return self.enter_step((14, 24), EMBER_1F, "1f-door")
             return self.enter_step((29, 7), EMBER_SUMMIT, "summit-door")
@@ -630,9 +642,7 @@ class MoltresHunt(LegendaryHunt):
         if here == EMBER_3F:
             return self.enter_step((11, 8), EMBER_EXT, "ext-upper")
         if here == EMBER_SUMMIT:
-            if not self.board_mission(SUMMIT_PUSHES,
-                                      ((9, 15), EMBER_EXT), ((29, 7), EMBER_SUMMIT),
-                                      "summit-board"):
+            if not self.board_mission(bp.EMBER_SUMMIT_BOARD):
                 return False
             return self.press_quarry()
         return False
@@ -648,9 +658,7 @@ class MoltresHunt(LegendaryHunt):
             y = (tv.coords(b) or (0, 0))[1]
             if y <= 30:
                 return self.enter_step((39, 19), EMBER_3F, "3f-upper-door")
-            if not self.board_mission(EMBER_DESCENT_PUSHES,
-                                      ((14, 24), EMBER_1F), ((2, 15), EMBER_EXT),
-                                      "ext-descent"):
+            if not self.board_mission(bp.EMBER_DESCENT):
                 return False
             return (self.enter_step((28, 48), KINDLE, "kindle-door")
                     or self.enter_step((29, 48), KINDLE, "kindle-door2"))
@@ -750,9 +758,30 @@ class MoltresHunt(LegendaryHunt):
             return self.outcome() or "battled"
         if here not in MOLTRES_ANCHORS:
             return "not_here"
+        # WEDGE-MARK HYGIENE (2026-08-05 #3): today's menu-frozen windows banked phantom
+        # wedge marks on the climb maps (frozen coords made real tiles look like traps, 12h
+        # TTL) — drop every mark on the strike's map set before the first step; a REAL trap
+        # re-marks itself in seconds, a phantom one poisons the router for the whole climb.
+        if not getattr(self, "_hygiene_done", False):
+            self._hygiene_done = True
+            try:
+                self.camp._release_wedge_marks_on(
+                    (ONE_ISLAND, KINDLE, EMBER_EXT, EMBER_1F, EMBER_2F, EMBER_3F,
+                     EMBER_SUMMIT), "moltres strike start")
+            except Exception as e:
+                self.log(f"   [moltres] wedge hygiene skipped: {e}")
+        last_ckpt_map = None
         for _stage in range(64):
             while self.handle_interrupts():
                 pass
+            # CLIMB MILESTONE (2026-08-05 addendum): every leg boundary of the climb (each
+            # map of the volcano set) banks a checkpoint — a recovery resumes seconds back on
+            # THIS map, boulders intact, instead of five minutes down the mountain.
+            _m = tuple(tv.map_id(b))
+            if _m != last_ckpt_map and _m in (EMBER_EXT, EMBER_1F, EMBER_2F, EMBER_3F,
+                                              EMBER_SUMMIT):
+                last_ckpt_map = _m
+                self.strike_checkpoint("moltres-leg")
             # STRIKE-LEG HEAL SEAM (2026-08-05): the climb's battles resolve inside the legs/
             # interrupts above; this is the 'control is back on the overworld' moment — drink
             # if the doctrine says so (no Center between One Island town and the summit).

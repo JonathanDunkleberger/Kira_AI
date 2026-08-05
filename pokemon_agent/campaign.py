@@ -16634,6 +16634,53 @@ class Campaign:
         except Exception as _e:
             log(f"   [roam] wedge-mark release skipped: {_e}")
 
+    def _release_wedge_marks_on(self, maps, why):
+        """SCOPED WEDGE-MARK RELEASE (2026-08-05 #3, the Mt. Ember loop): a strike about to
+        work a known map set drops EVERY banked mark on those maps regardless of age — today's
+        marks were banked during menu-frozen windows (coords/facing frozen = the 'blocker' was
+        a lie) and a poisoned mark re-routes the climb for its whole 12h TTL. Scoped to the
+        given maps only, never the global memory; a REAL trap re-marks itself in 8s."""
+        try:
+            mset = {tuple(m) for m in maps}
+            ts_map = getattr(self, "_wedge_mem_ts", None) or {}
+            dropped = 0
+            for kind, target in (("blocked_npcs", self._blocked_npcs),
+                                 ("looped_spots", self._looped_spots)):
+                for key in [k for k in target if tuple(k[0]) in mset]:
+                    target.discard(key)
+                    ts_map.pop((kind, tuple(key[0]), tuple(key[1])), None)
+                    dropped += 1
+            if dropped:
+                self._save_wedge_memory()
+                log(f"   [roam] wedge-mark RELEASE ({why}): {dropped} mark(s) dropped across "
+                    f"{len(mset)} strike map(s) — the climb routes on live truth")
+        except Exception as _e:
+            log(f"   [roam] scoped wedge release skipped: {_e}")
+
+    def _bank_milestone(self, reason):
+        """MILESTONE BANK (2026-08-05 addendum — 'respawn right where she is'): one call banks
+        the on-disk auto-checkpoint AND refreshes the in-memory recent-good, so BOTH reload
+        rungs (escape hatch -> _last_good_state; region-local disk fallback -> newest
+        same-region checkpoint dir) land SECONDS back, ON THIS MAP. Emulator savestates capture
+        full RAM, so pushed boulders SURVIVE a reload — unlike in-game map re-entry, which
+        resets them; that makes a milestone after every verified push the durability layer that
+        kills the 'five minutes back + puzzle reset' spiral. Returns True always (composable
+        inside all() chains); never raises."""
+        try:
+            if st.in_battle(self.b):
+                return True                    # mid-battle RAM is not a resumable overworld moment
+            self._save_campaign(reason)
+            self._continuity_save()
+            self._auto_checkpoint(reason)
+            self._last_ckpt_t = time.time()
+            self._last_good_state = self.b.save_state()
+            self._last_good_gain = self._gain_sig()
+            self._last_good_map = tuple(tv.map_id(self.b))
+            log(f"   [ckpt] MILESTONE '{reason}' banked — any recovery now resumes right here")
+        except Exception as _e:
+            log(f"   [ckpt] milestone '{reason}' skipped: {_e} (LOUD)")
+        return True
+
     def _disengage_step1(self, req):
         """First rung of the WATCHDOG DISENGAGE (extracted 2026-08-05 so the menu path is
         recon-testable). Order matters: (1) an open DIALOGUE box -> B + step-away + sticky-mark

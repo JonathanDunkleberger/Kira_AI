@@ -34,6 +34,7 @@ x2 carries VR's Water/Rock/Ground; enable only with a clean droppable slot + a f
 import os
 import time
 
+import boulder_puzzle as bpz
 import travel as tv
 import pokemon_state as st
 import firered_ram as ram
@@ -517,17 +518,25 @@ class VictoryRoad:
             self.settle(30)
         return True
 
+    def _vr_checkpoint(self, reason):
+        """Milestone bank between pushes (2026-08-05 addendum): a mid-puzzle recovery resumes
+        seconds back on this floor with the chain intact (savestates keep pushed boulders)."""
+        try:
+            self.camp._bank_milestone(f"vr-{reason}")
+        except Exception as e:
+            self.log(f"   [ckpt] vr milestone '{reason}' skipped: {e}")
+        return True
+
     def run_puzzle(self, ops, barrier_tile, label):
-        for op in ops:
-            while self.handle_interrupts():
-                pass
-            self.log(f"-- op {op} (map {tv.map_id(self.b)} @ {tv.coords(self.b)})")
-            if op[0] == "strength":
-                if not self.ensure_strength(op[1]):
-                    return False
-            elif op[0] == "push":
-                if not self.push(op[1], op[2], op[3], allow=op[4] if len(op) > 4 else ()):
-                    return False
+        # 2026-08-05 #3 (the Mt. Ember loop, applied here BEFORE the E4 run stalls the same
+        # way): the op table is the same hand-solved recon_victory ground truth, but executed
+        # by the shared idempotent chain engine — a same-map retry resumes mid-chain from live
+        # boulder positions instead of re-running op 0 into an over-push; a whiteout re-entry
+        # (template board) re-derives from the start. No exit mid-puzzle: VR rooms define no
+        # reset (the whiteout ratchet is the only board reset that ever helps here).
+        room = bpz.room_from_ops(tuple(tv.map_id(self.b)), label, ops, ckpt_every=4)
+        if not bpz.solve_room(self, room, checkpoint=self._vr_checkpoint, log=self.log):
+            return False
         self.settle(150)                                   # switch scene (SE + map redraw)
         self.drain()
         g_now = tv.Grid(self.b)
