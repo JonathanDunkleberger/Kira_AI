@@ -1,0 +1,472 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 97) coords=(15, 33) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 5 blocked tile(s), 6 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=31036).
+
+   [soul] continuity loaded: 15 roster bond(s), 757 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 140 place(s) known, 231 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot0 4/193 (2%) — likely to blackout soon
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 97)@(15, 33) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 97) coords=(15, 33) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260805_145253_an-unfamiliar-area_8b_31h11m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 97)@(15, 33) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    [roam] afflicted by ['poison'] — remembering for a cure run
+
+   [campaign]    [roam] 💊 FIELD CURE: Blastoise is poison and the bag has Full Heal — using it NOW (between-battles doctrine)
+
+   [kira-voice] -> T1·brisk· (heal) "hang on — Blastoise is poison and I'm literally carrying the cure. one sec."  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [cure] field cure: item 23 (bag row 5) -> party slot 0
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 97)@(15, 33) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'FULL HEAL is selected.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "FULL HEAL is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Use on which POK.MON?"'
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'BLASTOISE became healthy. .'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE became healthy. ."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [cure] VERIFIED: slot 0 status cleared, item 23 consumed
+
+   [campaign]    [fieldheal] roam: Blastoise at 4/193 HP — drinking Hyper Potion from the bag NOW (cheapest-adequate; no Center on this road)
+
+   [kira-voice] ·floor· (<1s since last) T1 "Blastoise's pretty beat up and I'm literally carrying potions. quick drink, THEN we keep moving."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [fieldheal] field heal: item 21 (bag row 5) -> party slot 0 (4/193 HP)
+
+   [kira-voice] -> T1·brisk· (heal) 'there — Blastoise is back to fighting shape.'  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Use on which POK.MON?"'
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 189 point.s.. ."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 189 point.s.. ."'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [fieldheal] VERIFIED: slot 0 HP 4 -> 193/193, item 21 consumed
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (15, 33) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L63, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 97) (15,33) f2 -- badge8 $29658 party:2473 bag:51a3]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (1, 97)@(15, 33) (reason=frozen_world, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [campaign]    [roam] wedge spot: blocking (15, 32) on (1, 97) (route around it) + marking (15, 33) a resolved talk-spot — unified block memory now 6 tile(s)
+
+   [kira-voice] ·floor· (<1s since last) T2 "I've been stuck on the same spot going nowhere — backing off and trying something different."
+
+   [campaign]    [roam] tick opened inside interior (1, 97)@(15, 33) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (15, 33) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L63, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(1, 97) (15,33) f2 -- badge8 $29658 party:2473 bag:51a3]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45']
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 3
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (1, 97)
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 9)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 8)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 7)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.5s at (1, 97)@(15, 33) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 6)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 5)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 4)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 3)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 2)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 1)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 0)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign] !! [push] boulder near (22, 45) absent (i=0) — assuming pushed
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 9)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 8)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 7)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 6)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 5)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 4)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 3)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 2)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 1)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 0)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign] !! [push] boulder near (17, 46) absent (i=0) — assuming pushed
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 9)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 8)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 7)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 6)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 5)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 4)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 3)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 2)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 1)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 0)
+
+   [campaign]    [1f-door-approach] step blocked (15, 33) -> (14, 33) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign] !! [moltres] climb leg wedged on (1, 97) @ (15, 33)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 97)@(15, 33))
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 97)(15, 33) -> (1, 97)(15, 33) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(1, 97) coords=(15, 33) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260805_145529_an-unfamiliar-area_8b_31h14m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 97)@(15, 33) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (15, 33) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L63, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(1, 97) (15,33) f2 -- badge8 $29658 party:2473 bag:51a3]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (1, 97)@(15, 33) (reason=frozen_world, frozen 8.5s) — top-level recovery, sub-layer-agnostic
+
+   [campaign]    [roam] wedge spot: blocking (15, 32) on (1, 97) (route around it) + marking (15, 33) a resolved talk-spot — unified block memory now 6 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "I've been stuck on the same spot going nowhere — backing off and trying something different."  fired=True  [age 0.0s + post 19ms]
+
+   [campaign]    [roam] tick opened inside interior (1, 97)@(15, 33) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (15, 33) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L63, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(1, 97) (15,33) f2 -- badge8 $29658 party:2473 bag:51a3]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L63), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 97), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L63), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Find out where I am and get to Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'Find out where I am and get to Moltres'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to watchdog disengage but the world hasn't changed in 3 turns - it went 'frozen_world', and you don't seem to be getting anywhere."
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Find out where I am and get to Moltres'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 2/3 from (1, 97)
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 9)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 8)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 7)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.6s at (1, 97)@(15, 33) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 6)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 5)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 4)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 3)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 2)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 1)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 29, budget 0)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign] !! [push] boulder near (22, 45) absent (i=0) — assuming pushed
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 9)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 8)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 7)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 6)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 5)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 4)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 3)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 2)
+
+   [campaign]    [boulder-approach] step blocked (15, 33) -> (15, 34) (npcs [(14, 42), (15, 32), (18, 39), (19, 40), (23, 38)])
+
+   [campaign]    [boulder-approach] replan at (15, 33) (len 35, budget 1)
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 219s, restart 1/8) — GAME CONTINUES; respawning audio.
+

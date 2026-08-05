@@ -1,0 +1,1156 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 45) coords=(2, 132) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 5 blocked tile(s), 6 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=18192).
+
+   [soul] continuity loaded: 15 roster bond(s), 756 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 139 place(s) known, 228 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 45) coords=(2, 132) badges=8 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260805_141022_an-unfamiliar-area_8b_30h48m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 2, 15, 86) @ an unfamiliar area (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (2, 132) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L61, lapras L25] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 15 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 45) (2,132) f4 -- badge8 $21458 party:ce04 bag:1842]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L61), lapras (L25). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 45), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 15 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L61), lapras (L25)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember and catch Moltres'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 2
+
+   [campaign]    [roam] STRATEGY roster: feeding team-shape awareness to the oracle
+
+   [campaign]    [teamplan] next action: catch_keeper (abra -> alakazam answers Bruno, Agatha, Champion) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember and catch Moltres'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (3, 45)
+
+   [campaign]    [ember-door-approach] replan at (2, 132) (len 143, budget 9)
+
+   [dialogue] +++ 'We hope to see you again!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "We hope to see you again!"'
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [surf] MOUNTED at (2, 129) (attempt 1)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against tentacool — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L9 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 26/26 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's tentacool went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ember-door-approach] replan at (9, 125) (len 129, budget 10)
+
+   [dialogue] +++ 'My lunch filled us up, so will you battle us for some exercise?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "My lunch filled us up, so will you battle us for some exercise?"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ember-door-approach] replan at (10, 108) (len 111, budget 11)
+
+   [campaign]    [strat] !! gEnemyParty UNCONFIRMED (slot0=52 != active foe 72) — party-SIZE reads DISABLED (loss-learning still works on the verified active-foe read)
+
+   [play-live] battle context: trainer=True foe=tentacool rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 760ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against meowth — your blastoise is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out meowth'
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs meowth 73/73 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [3]Earthquake(p100,pp=9,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's meowth fainted — your blastoise took it down"  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out pikachu'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x4) vs pikachu 69/69 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [3]Earthquake(p100,pp=9,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pikachu fainted — your blastoise took it down"  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out meowth'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs meowth 73/73 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [3]Earthquake(p100,pp=8,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's meowth fainted — your blastoise took it down"  fired=True  [age 0.0s + post 7ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 3 was consumed (cursor desync survived the force-write; wrong-fires 2) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out clefairy'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs clefairy 94/94 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [3]Earthquake(p100,pp=7,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's clefairy went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'That made me all sweaty.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "That made me all sweaty."'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 45) coords=(10, 108) badges=8 party=2)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_141330_an-unfamiliar-area_8b_30h51m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [ember-door-approach] replan at (10, 108) (len 111, budget 11)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against geodude — your blastoise is up front'  fired=True  [age 0.0s + post 16ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "a geodude — that's a NEW one for the dex. balls out (15/50 caught — the Route 15 aide hands over an Exp. Share at fifty)."
+
+   [play-live]    [engine] WILD CATCH DIVERT (dex_push) — geodude: weaken+balls, never KO
+
+   [play-live]    [catch] target=geodude L31 hp=100% status=none balls=8 pref=cheap
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=136% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [catch] EARLY THROW — overkill risk on every move, no sleep/chipper; throwing at 100% HP rather than KO the target
+
+   [kira-voice] ·floor· (<1s since last) T1 'no safe way to weaken this one — full-health throw it is. wish me luck.'
+
+   [play-live]    [catch] THROW Ultra Ball (x8 left, pref=cheap) at geodude hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.1s at (3, 45)@(9, 94) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ember-door-approach] replan at (9, 94) (len 96, budget 12)
+
+   [dialogue] +++ "You know, everything tastes great when you're out in the wild."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "You know, everything tastes great when you\'re out in the wild."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ember-door-approach] replan at (9, 89) (len 91, budget 13)
+
+   [play-live] battle context: trainer=True foe=geodude rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 607ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against nidorino — your blastoise is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out nidorino'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x4) vs nidorino 89/89 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=142.5) [3]Earthquake(p100,pp=7,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Earthquake - a super-effective hit'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x4) vs nidorino 5/89 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=142.5) [3]Earthquake(p100,pp=7,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's nidorino fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out sandslash'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs sandslash 100/100 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=570) [3]Earthquake(p100,pp=6,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Surf - a super-effective hit'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 3 was consumed (cursor desync survived the force-write; wrong-fires 2) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L61 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs sandslash 26/100 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=570) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's sandslash fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 62'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out raticate'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '55/191', 'status': 'poison', 'foe': 'raticate'}
+
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 28% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+
+   [kira-voice] -> T1·brisk· (event) "nope, I'm about to drop — potion FIRST, pride later."  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 21, aim=active)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] use_item: USED item 21 (count 14->13)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "used an item — that's better"
+
+   [play-live]    [engine] battle-progress: item 21 consumed
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 136 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 136 point.s.. ."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs raticate 85/85 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's raticate went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Awww, blown!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Awww, blown!"'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 45) coords=(9, 89) badges=8 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_141725_an-unfamiliar-area_8b_30h55m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [ember-door-approach] replan at (9, 89) (len 91, budget 13)
+
+   [dialogue] +++ "MIK. Together with KIA, I'm afraid of nothing!"  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "MIK. Together with KIA, I\'m afraid of nothing!"'  fired=True  [age 0.0s + post 14ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ember-door-approach] replan at (8, 69) (len 70, budget 14)
+
+   [play-live] battle context: trainer=True foe=raticate rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against machoke — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [dbl] DOUBLE BATTLE detected (gBattleTypeFlags bit0 + battlers=4) — attack-only policy: both slots pick via move_score, target-select armed, items/voluntary switches PUNTED (forced faint send-ins still on)
+
+   [kira-voice] -> T2·savor· (event) 'hold on — this is a DOUBLE battle. two of mine are out there at once.'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out machoke'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L39 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [dbl] battler 0 is choosing — blastoise vs foe battler 1 machoke
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machoke 113/113 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=12,ref=0,sc=142.5) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=0 action=True moves=False)
+
+   [play-live]    [dbl] battler 0 action COMMITTED (comm state 4)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your lapras took a big hit'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 113 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [dbl] battler 2 is choosing — lapras vs foe battler 1 machoke
+
+   [play-live]    [engine] action menu: Body Slam - a solid hit -> slot 1 (eff x1) vs machoke 113/113 | [0]Strength(p80,pp=15,ref=0,sc=80) [1]Body Slam(p85,pp=15,ref=0,sc=85) [2]Confuse Ray(p0,pp=10,ref=0,sc=0) [3]Perish Song(p0,pp=5,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Body Slam - a solid hit slot 1 (menu_up=0 action=True moves=False)
+
+   [play-live]    [dbl] target-select: confirming battler 1 (want 1) — A
+
+   [play-live]    [dbl] battler 2 action COMMITTED (comm state 4)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Body Slam - a solid hit'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L39 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [dbl] battler 0 is choosing — blastoise vs foe battler 1 machoke
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machoke 10/113 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=142.5) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=0 action=True moves=False)
+
+   [play-live]    [dbl] battler 0 action COMMITTED (comm state 4)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 10 across the full turn -> accuracy-debuff spiral (streak 2/3)
+
+   [play-live]    [dbl] battler 2 is choosing — lapras vs foe battler 1 machoke
+
+   [play-live]    [engine] action menu: Body Slam - a solid hit -> slot 1 (eff x1) vs machoke 10/113 | [0]Strength(p80,pp=15,ref=0,sc=80) [1]Body Slam(p85,pp=14,ref=0,sc=85) [2]Confuse Ray(p0,pp=10,ref=0,sc=0) [3]Perish Song(p0,pp=5,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Body Slam - a solid hit slot 1 (menu_up=0 action=True moves=False)
+
+   [play-live]    [dbl] target-select: confirming battler 1 (want 1) — A
+
+   [play-live]    [dbl] battler 2 action COMMITTED (comm state 4)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's machoke went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 24ms]
+
+   [dialogue] +++ "MIK. Whoa! That's too much!"  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "MIK. Whoa! That\'s too much!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 45) coords=(8, 69) badges=8 party=2)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 20ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_141922_an-unfamiliar-area_8b_30h57m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [ember-door-approach] replan at (8, 69) (len 72, budget 14)
+
+   [dialogue] +++ 'Dress appropriately for battle! Lose that frivolous outfit!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Dress appropriately for battle! Lose that frivolous outfit!"'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ember-door-approach] replan at (13, 64) (len 62, budget 15)
+
+   [play-live] battle context: trainer=True foe=machoke rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against machop — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out machop'
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machop 103/103 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=10,ref=0,sc=142.5) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's machop fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out machoke'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machoke 110/110 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=9,ref=0,sc=142.5) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's machoke went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "phew — okay, that one's done. shake it off, back to the road."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 45) coords=(13, 64) badges=8 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_142043_an-unfamiliar-area_8b_30h58m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [ember-door-approach] replan at (13, 64) (len 62, budget 15)
+
+   [dialogue] +++ 'Every morning, before breakfast, I swim around this island.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Every morning, before breakfast, I swim around this island."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ember-door-approach] replan at (13, 64) (len 62, budget 15)
+
+   [play-live] battle context: trainer=True foe=machoke rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against machop — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out machop'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machop 105/105 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=8,ref=0,sc=142.5) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's machop fainted — your blastoise took it down"  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out machoke'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '51/191', 'status': 'poison', 'foe': 'machoke'}
+
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 26% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+
+   [kira-voice] -> T1·brisk· (event) "nope, I'm about to drop — potion FIRST, pride later."  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 21, aim=active)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item: USED item 21 (count 13->12)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "used an item — that's better"
+
+   [play-live]    [engine] battle-progress: item 21 consumed
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 140 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 140 point.s.. ."'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machoke 113/113 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=7,ref=0,sc=142.5) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's machoke went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Gasp.. Gasp..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Gasp.. Gasp.."'  fired=True  [age 0.0s + post 38ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 45) coords=(13, 64) badges=8 party=2)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 19ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_142224_an-unfamiliar-area_8b_31h00m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [ember-door-approach] replan at (13, 64) (len 62, budget 15)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [surf] MOUNTED at (11, 51) (attempt 1)
+
+   [dialogue] +++ 'Seen from here, MT. EMBER towers into the sky.'  tags=['PLACE']
+
+   [kira-voice]    (dialogue tags: place)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Seen from here, MT. EMBER towers into the sky."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [play-live] battle context: trainer=True foe=machoke rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against starmie — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out starmie'
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 0 (eff x2) vs starmie 93/93 | [0]Bite(p60,pp=23,ref=0,sc=120) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=71.25) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's starmie went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "Well, aren't you tough?"  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Well, aren\'t you tough?"'  fired=True  [age 0.0s + post 19ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "phew — okay, that one's done. shake it off, back to the road."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 45) coords=(10, 39) badges=8 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_142328_an-unfamiliar-area_8b_31h01m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [ember-door-approach] replan at (10, 39) (len 34, budget 16)
+
+   [dialogue] +++ "The weather's gorgeous! Perfect for a battle!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "The weather\'s gorgeous! Perfect for a battle!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [play-live] battle context: trainer=True foe=starmie rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against seadra — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out seadra'
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs seadra 87/87 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=35.625) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's seadra fainted — your blastoise took it down"  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out seadra'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 87 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs seadra 87/87 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=35.625) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's seadra went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 45) coords=(10, 32) badges=8 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_142441_an-unfamiliar-area_8b_31h02m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 701ms]
+
+   [campaign]    [ember-door-approach] replan at (10, 32) (len 27, budget 17)
+
+   [campaign]    [ember-door] (3, 45) -> (1, 97) @ (28, 48)
+
+   [campaign]    [boulder-approach] replan at (28, 48) (len 7, budget 9)
+
+   [campaign]    [str-approach] replan at (25, 45) (len 3, budget 9)
+
+   [dialogue] +++ "It's a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "It\'s a big boulder, but a POK.MON may be able to push it aside. Would you like to use STRENGTH?"'  fired=True  [age 0.0s + post 9ms]
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [push] (22, 45) -> (21, 45) (LEFT, 1/3)
+
+   [campaign]    [push] (21, 45) -> (20, 45) (LEFT, 2/3)
+
+   [campaign]    [push] (20, 45) -> (19, 45) (LEFT, 3/3)
+
+   [campaign]    [push-approach0] replan at (20, 45) (len 4, budget 9)
+
+   [campaign]    [push] (17, 46) -> (16, 46) (LEFT, 1/3)
+
+   [campaign]    [push] (16, 46) -> (15, 46) (LEFT, 2/3)
+
+   [campaign]    [push] (15, 46) -> (14, 46) (LEFT, 3/3)
+
+   [campaign]    [1f-door-approach] replan at (15, 46) (len 77, budget 9)
+
+   [dialogue] +++ 'Do you know how caves form inside volcanoes?'  tags=['PLACE']
+
+   [kira-voice]    (dialogue tags: place)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Do you know how caves form inside volcanoes?"'  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [1f-door-approach] replan at (13, 42) (len 71, budget 10)
+
+   [play-live] battle context: trainer=True foe=seadra rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against bellsprout — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out bellsprout'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs bellsprout 90/90 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=71.25) [3]Earthquake(p100,pp=4,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's bellsprout fainted — your blastoise took it down"  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out gloom'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L62 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs gloom 98/98 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=71.25) [3]Earthquake(p100,pp=3,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's gloom fainted — your blastoise took it down"  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 63'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out gloom'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 98 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L63 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs gloom 98/98 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=71.25) [3]Earthquake(p100,pp=2,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's gloom went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 12ms]
+
+   [dialogue] +++ "Atchah! You're shockingly good!"  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Atchah! You\'re shockingly good!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(1, 97) coords=(13, 42) badges=8 party=2)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_142738_an-unfamiliar-area_8b_31h05m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [1f-door-approach] replan at (13, 42) (len 71, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against fearow — your blastoise is up front'  fired=True  [age 0.0s + post 21ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "a fearow — that's a NEW one for the dex. balls out (15/50 caught — the Route 15 aide hands over an Exp. Share at fifty)."
+
+   [play-live]    [engine] WILD CATCH DIVERT (dex_push) — fearow: weaken+balls, never KO
+
+   [play-live]    [catch] target=fearow L38 hp=100% status=none balls=7 pref=cheap
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Bite est=115% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [catch] EARLY THROW — overkill risk on every move, no sleep/chipper; throwing at 100% HP rather than KO the target
+
+   [kira-voice] ·floor· (<1s since last) T1 'no safe way to weaken this one — full-health throw it is. wish me luck.'
+
+   [play-live]    [catch] THROW Ultra Ball (x7 left, pref=cheap) at fearow hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now 'Kira, you gotta do some damage before you try to catch them.'
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 9ms]
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x6 left, pref=cheap) at fearow hp=100% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=cheap)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T1·brisk· (event) "gotcha — it's caught!"  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [1f-door-approach] replan at (25, 41) (len 34, budget 11)
+
+   [dialogue] +++ "An active volcano is one that's erupting, or about to."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "An active volcano is one that\'s erupting, or about to."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 12)
+
+   [play-live] battle context: trainer=True foe=fearow rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. and we're going in HURT — this could get scary."  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against exeggcute — your blastoise is up front'  fired=True  [age 0.0s + post 28ms]
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '28/193', 'status': 'poison', 'foe': 'exeggcute'}
+
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 14% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+
+   [kira-voice] -> T1·brisk· (event) "nope, I'm about to drop — potion FIRST, pride later."  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 21, aim=active)
+
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 21 did not consume (failed) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] POTION-BLOCK: no more heal-item offers this battle (full-HP / no_effect abort)
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 0 (eff x2) vs exeggcute 95/95 | [0]Bite(p60,pp=21,ref=0,sc=120) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=71.25) [3]Earthquake(p100,pp=1,ref=0,sc=50)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 0 (menu_up=0 action=False moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's exeggcute fainted — your blastoise took it down"  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out exeggutor'  fired=True  [age 0.0s + post 15ms]
+
+   [play-live]    [engine] action menu: Bite - a super-effective hit -> slot 0 (eff x2) vs exeggutor 130/130 | [0]Bite(p60,pp=20,ref=0,sc=120) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=71.25) [3]Earthquake(p100,pp=1,ref=0,sc=50)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a super-effective hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's exeggutor went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 8ms]
+
+   [dialogue] +++ "Whew.. That was hot! Sweat's erupting from me!"  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Whew.. That was hot! Sweat\'s erupting from me!"'  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T3·BIG· (clutch) 'oh my god — 4 HP. 4 health left and we WON. that was so close.'  fired=True  [age 0.0s + post 9ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(1, 97) coords=(15, 33) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260805_143035_an-unfamiliar-area_8b_31h08m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [1f-door-approach] replan at (15, 33) (len 10, budget 12)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [1f-door] (1, 97) -> (1, 98) @ (2, 15)
+
+   [campaign]    [2f-door-approach] replan at (2, 15) (len 23, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against geodude — your blastoise is up front'  fired=True  [age 0.0s + post 22ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this geodude. weaken, don't KO."
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — geodude: weaken+balls, never KO
+
+   [play-live]    [catch] target=geodude L33 hp=100% status=none balls=5 pref=best
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=128% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (fearow) to chip it into the catchable band
+
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+
+   [play-live]    [engine] catch: chipper switch didn't confirm — falling back to the full-HP throw (fail-safe)
+
+   [play-live]    [catch] EARLY THROW — overkill risk on every move, no sleep/chipper; throwing at 100% HP rather than KO the target
+
+   [kira-voice] -> T1·brisk· (event) 'no safe way to weaken this one — full-health throw it is. wish me luck.'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·floor· (<1s since last) T1 "the enemy's geodude fainted — your blastoise took it down"
+
+   [play-live]    [engine] catch_now unresolved (fled) — LAW order KEPT for retry
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [2f-door-approach] replan at (4, 7) (len 13, budget 10)
+
+   [dialogue] +++ 'BLASTOISE fainted..'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE fainted.."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [2f-door-approach] replan at (6, 4) (len 8, budget 11)
+
+   [campaign]    [2f-door] (1, 98) -> (1, 99) @ (8, 39)
+
+   [campaign]    [3f-door-approach] replan at (8, 39) (len 66, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against machoke — your lapras is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this machoke. weaken, don't KO."
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — machoke: weaken+balls, never KO
+
+   [play-live]    [catch] target=machoke L40 hp=100% status=none balls=5 pref=best
+
+   [play-live]    [catch] weaken plan — chip with Strength (est 22%/hit) into the throw band
+
+   [play-live]    [catch] weaken — Strength (est 22%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Strength (est 22%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Strength (est 22%) at foe 89% HP
+
+   [play-live]    [catch] weaken — Strength (est 22%) at foe 61% HP
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now 'Catch a Magmar, okay.'
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 15ms]
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] ·floor· (<1s since last) T1 'your lapras fainted'
+
+   [kira-voice] -> T1·brisk· (event) 'your lapras used an attack'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at machoke hp=61% status=none
+
+   [dialogue] +++ 'BLASTOISE has no energy left to battle! .'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE has no energy left to battle! ."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] !! throw_ball: bag would not open (open-A eaten) — aborting LOUDLY
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at machoke hp=61% status=none
+
+   [dialogue] +++ 'BLASTOISE has no energy left to battle! .'  tags=[]
+
+   [play-live]    [engine] !! throw_ball: bag would not open (open-A eaten) — aborting LOUDLY
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at machoke hp=61% status=none
+
+   [dialogue] +++ 'BLASTOISE has no energy left to battle! .'  tags=[]
+
+   [play-live]    [engine] !! throw_ball: bag would not open (open-A eaten) — aborting LOUDLY
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at machoke hp=61% status=none
+
+   [dialogue] +++ 'BLASTOISE has no energy left to battle! .'  tags=[]
+
+   [play-live]    [engine] !! throw_ball: bag would not open (open-A eaten) — aborting LOUDLY
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at machoke hp=61% status=none
+
+   [dialogue] +++ 'BLASTOISE has no energy left to battle! .'  tags=[]
+
+   [play-live]    [engine] !! throw_ball: bag would not open (open-A eaten) — aborting LOUDLY
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at machoke hp=61% status=none
+
+   [dialogue] +++ 'BLASTOISE has no energy left to battle! .'  tags=[]
+
+   [play-live]    [engine] !! throw_ball: bag would not open (open-A eaten) — aborting LOUDLY
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at machoke hp=61% status=none
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1441s, restart 1/8) — GAME CONTINUES; respawning audio.
+

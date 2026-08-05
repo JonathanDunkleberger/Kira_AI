@@ -1,0 +1,300 @@
+   [TurnTiming] 15:10:53.678 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] Dialogue summary updated: Someone said "Just..." and then "Just as soon as I reached Tarvalon, he snorted." Then possible song lyrics "Wheel of ti...
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Presence] chatty → Director drive-gap 5s (lower = more present).
+   [TurnTiming] 15:11:00.238 TTS STOP — playback finished (span ~6559ms)
+
+   [TIMING] voice: llm=9386ms(sonnet-stream(llm+tts)) tts=0ms total=9386ms
+   [LATENCY] vad_close=1200ms stt=170ms stt_wait=0ms salience=1ms triage=bypassed memory=22ms prompt_build=2ms ttft=1449ms tts_first_chunk=714ms audio_out=651ms TOTAL=3009ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: MOODY → SASSY
+   [TurnTiming] 15:11:01.385 DIRECTOR HOLD (post-speech-hold) — since_mic=0.2s silence=1.1s fresh_ok=True dead_air=False
+   [RoomRead] energy=0.59 [terse=0.65 gap=0.56 silence=0.96 intensity=0.60 chat=0.00] target=0.97 mult=1.01 -> min_gap=5s dead_air=20s
+   [TurnTiming] 15:11:02.441 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~17760ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 188ms, rms=0.022): themselves hang in the balance. A wind rises in the mountains of mist.
+   [TurnTiming] 15:11:06.395 DIRECTOR HOLD (post-speech-hold) — since_mic=5.2s silence=4.0s fresh_ok=True dead_air=False
+   [TurnTiming] 15:11:09.384 DIRECTOR FIRE — silence=6.9s since_mic=8.1s fresh_ok=True dead_air=False eff_min_gap=5s gap=66s
+   [Director] FIRE (noticing) — gap=66s silence=7s fresh=loopback-dialogue
+   [LoopbackSTT] +2 seg (0 filtered, 200ms, rms=0.022): A wind rises in the mountains of mist, and Randolph Thor is cold. | Though the spring,
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=73ms rank=0ms)
+   [SmartMem]     dist=0.972 conf=0.9 type=episodic blend=0.227 lane=KNOW
+   [SmartMem]     dist=0.919 conf=? type=session_summary blend=0.184 lane=STREAM
+   [SmartMem]     dist=0.967 conf=0.9 type=episodic blend=0.154 lane=KNOW
+   >>> Kira (Bored): Oh, so it's THAT kind of series — eighteen books deep and the audiobook situation is already a mess. Checks out.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Oh, so it's THAT kind of series — eighteen books d...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oh, so it's THAT kind of series — eighte' (21 words)
+   [TurnTiming] 15:11:15.074 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:11:20.878 TTS STOP — playback finished (span ~5804ms)
+   [TTS] Speaking: Checks out....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Checks out.' (3 words)
+   [TurnTiming] 15:11:21.124 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:11:22.895 TTS STOP — playback finished (span ~1771ms)
+   [TIMING] interjection: vision=2918ms llm=1952ms(sonnet) tts=8567ms total=13512ms
+   [LAG] sense→speak: total=27.9s (content_age=16.1s, prep=3.0s, llm=2.0s, tts_wait+synth=6.8s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 15:11:23.894 DIRECTOR HOLD (fresh-min-silence) — since_mic=22.7s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 15:11:24.102 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~39422ms since onset)
+>>> You said: Why am I hearing this?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Why am I hearing this?' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=2ms fetch=30ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=32ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=13437ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TIMING] first-word: 1884ms
+   [TTS] Speaking: The video's still going....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The video's still going.' (5 words)
+   [TurnTiming] 15:11:26.512 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:11:28.384 TTS STOP — playback finished (span ~1871ms)
+   [TTS] Speaking: You've got narration running in the background....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You've got narration running in the back' (8 words)
+   [TurnTiming] 15:11:28.388 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:11:30.909 TTS STOP — playback finished (span ~2520ms)
+
+   [TIMING] voice: llm=6574ms(sonnet-stream(llm+tts)) tts=0ms total=6574ms
+   [LATENCY] vad_close=1200ms stt=198ms stt_wait=0ms salience=0ms triage=bypassed memory=32ms prompt_build=1ms ttft=1577ms tts_first_chunk=307ms audio_out=287ms TOTAL=2402ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TurnTiming] 15:11:31.885 DIRECTOR HOLD (fresh-min-silence) — since_mic=30.7s silence=1.0s fresh_ok=True dead_air=False
+   [VRAM] 15:11:34 (periodic) kira_process=0.00GB card=9.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 15:11:34.881 DIRECTOR FIRE — silence=4.0s since_mic=33.6s fresh_ok=True dead_air=False eff_min_gap=5s gap=25s
+   [Director] FIRE (noticing) — gap=25s silence=4s fresh=loopback-dialogue
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=70ms rank=0ms)
+   [SmartMem]     dist=1.066 conf=0.9 type=episodic blend=0.169 lane=KNOW
+   [SmartMem]     dist=0.963 conf=0.9 type=episodic blend=0.157 lane=KNOW
+   [SmartMem]     dist=0.972 conf=? type=session_summary blend=0.151 lane=STREAM
+   [YouTube] Input received: 'https://studio.youtube.com/video/1EG4Ns43rhY/livestreaming'
+   [YouTube] Extracted video ID: '1EG4Ns43rhY'
+   [YouTube] Connecting to live chat for 1EG4Ns43rhY...
+   [YouTube] Connected — polling chat for video ID: 1EG4Ns43rhY
+   >>> Kira (Bored): So you pulled up the full saga breakdown because you wanted to remember why the audiobook readers annoyed you. Research.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: So you pulled up the full saga breakdown because y...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'So you pulled up the full saga breakdown' (20 words)
+   [TurnTiming] 15:11:41.477 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:11:46.632 TTS STOP — playback finished (span ~5154ms)
+   [TTS] Speaking: Research....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Research.' (2 words)
+   [TurnTiming] 15:11:46.862 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:11:48.650 TTS STOP — playback finished (span ~1788ms)
+   [TIMING] interjection: vision=2609ms llm=3387ms(sonnet) tts=7701ms total=13769ms
+   [LAG] sense→speak: total=35.2s (content_age=23.2s, prep=2.7s, llm=3.4s, tts_wait+synth=5.9s)
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~83 frame(s) (~2490ms, ~2.5s) of your speech while she held the turn.
+   [TurnTiming] 15:11:49.652 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=1.0s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 15:11:55.632 DIRECTOR HOLD (post-speech-hold) — since_mic=0.1s silence=7.0s fresh_ok=True dead_air=False
+   [TurnTiming] 15:11:58.475 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~73794ms since onset)
+>>> You said: I pause while she works and spends all my money. The feel of time turns and ages come and go, leaving memories that become legend. Themselves hang in the balance. Oh wait.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I pause while she works and spends all my money. The feel of' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=47ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=47ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13272ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1828ms
+   [TTS] Speaking: "Themselves hang in the balance" is doing a lot of...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '"Themselves hang in the balance" is doin' (23 words)
+   [TurnTiming] 15:12:01.257 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:12:06.416 TTS STOP — playback finished (span ~5158ms)
+
+   [TIMING] voice: llm=7415ms(sonnet-stream(llm+tts)) tts=0ms total=7415ms
+   [LATENCY] vad_close=1200ms stt=475ms stt_wait=0ms salience=0ms triage=bypassed memory=47ms prompt_build=3ms ttft=1217ms tts_first_chunk=611ms audio_out=417ms TOTAL=2770ms
+🎤 Recording...
+   [TurnTiming] 15:12:07.597 VOICE ONSET — mic speech started
+   [TurnTiming] 15:12:07.630 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=1.2s fresh_ok=True dead_air=False
+   [Bits] Callback: Broken Playground
+   [TurnTiming] 15:12:09.913 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2316ms since onset)
+>>> You said: I can hear like a...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I can hear like a...' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "is doing a lot of" (3rd use this session)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=8t  moment=calm)
+   [PromptSize] dynamic_context=13467ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TIMING] first-word: 1147ms
+   [TTS] Speaking: Go on....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Go on.' (3 words)
+   [TurnTiming] 15:12:11.442 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:12:13.224 TTS STOP — playback finished (span ~1781ms)
+
+   [TIMING] voice: llm=3092ms(sonnet-stream(llm+tts)) tts=0ms total=3092ms
+   [LATENCY] vad_close=1200ms stt=182ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=2ms ttft=977ms tts_first_chunk=170ms audio_out=157ms TOTAL=1518ms
+   [TurnTiming] 15:12:13.640 DIRECTOR HOLD (post-speech-hold) — since_mic=5.0s silence=0.4s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 136ms, rms=0.024): and of the rising of a false draught.
+   [RoomRead] energy=0.60 [terse=0.53 gap=0.76 silence=0.94 intensity=0.60 chat=0.00] target=0.97 mult=0.99 -> min_gap=5s dead_air=20s
+   [TurnTiming] 15:12:17.627 DIRECTOR FIRE — silence=4.4s since_mic=8.9s fresh_ok=True dead_air=False eff_min_gap=5s gap=43s
+   [Director] FIRE (noticing) — gap=43s silence=4s fresh=loopback-dialogue
+   [VRAM] 15:12:19 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=60ms rank=0ms)
+   [SmartMem]     dist=1.080 conf=0.9 type=episodic blend=0.160 lane=KNOW
+   [SmartMem]     dist=0.975 conf=? type=session_summary blend=0.150 lane=STREAM
+   [SmartMem]     dist=0.993 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [LoopbackSTT] +1 seg (0 filtered, 197ms, rms=0.025): and of the rising of a false dragon, the Savior whose coming foretold and dreaded will bring a new breaking to the
+   >>> Kira (Bored): The video got there before you did.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: The video got there before you did....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The video got there before you did.' (8 words)
+   [TurnTiming] 15:12:22.603 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:12:24.850 TTS STOP — playback finished (span ~2247ms)
+   [TIMING] interjection: vision=2893ms llm=1598ms(sonnet) tts=2667ms total=7221ms
+   [LAG] sense→speak: total=45.8s (content_age=40.8s, prep=3.0s, llm=1.6s, tts_wait+synth=0.4s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (1/1s) (1 skip(s))
+   [TurnTiming] 15:12:25.852 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=1.0s fresh_ok=True dead_air=False
+   [LoopbackSTT] 🔀 Content-switch reset — recent dialogue diverged from summary (overlap=0.00 < 0.08, 14 new content words). Dropping continuity, regenerating fresh.
+   [TurnTiming] 15:12:28.751 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~21153ms since onset)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: "and of the rising of a false dragon, the Savior whose coming" (9s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0225 · gate=0.003 · 44 accepted
+   [LoopbackSTT] +1 seg (0 filtered, 240ms, rms=0.023): the bestial trollecks and the horrifying halfman whose eyeless gaze is
+   [TurnTiming] 15:12:31.854 DIRECTOR HOLD (post-speech-hold) — since_mic=4.3s silence=3.1s fresh_ok=True dead_air=False
+   [LoopbackSTT] +1 seg (0 filtered, 200ms, rms=0.024): the horrifying halfman whose eyeless gaze is fear. They want a boy on the brink of manhood, born within a certain
+   [TurnTiming] 15:12:35.852 DIRECTOR FIRE — silence=7.1s since_mic=8.3s fresh_ok=True dead_air=False eff_min_gap=5s gap=18s
+   [Director] FIRE (noticing) — gap=18s silence=7s fresh=loopback-dialogue
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=70ms rank=0ms)
+   [SmartMem]     dist=0.952 conf=0.9 type=episodic blend=0.164 lane=KNOW
+   [SmartMem]     dist=0.965 conf=? type=session_summary blend=0.155 lane=STREAM
+   [SmartMem]     dist=0.974 conf=0.9 type=episodic blend=0.150 lane=KNOW
+   [LoopbackSTT] +2 seg (0 filtered, 276ms, rms=0.027): They want a boy on the brink of manhood, born within a certain span of months. | They want Rand himself or his burly, deliberate friend Perrin.
+   >>> Kira (Bored): So you trailed off right as the theme song kicked in. Poetic, actually.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: So you trailed off right as the theme song kicked ...
+   [LoopbackSTT] 🔀 Content-switch reset — recent dialogue diverged from summary (overlap=0.00 < 0.08, 50 new content words). Dropping continuity, regenerating fresh.
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'So you trailed off right as the theme so' (12 words)
+   [TurnTiming] 15:12:41.620 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:12:44.706 TTS STOP — playback finished (span ~3085ms)
+   [TTS] Speaking: Poetic, actually....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Poetic, actually.' (4 words)
+   [TurnTiming] 15:12:45.004 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:12:46.878 TTS STOP — playback finished (span ~1874ms)
+   [TIMING] interjection: vision=3118ms llm=2089ms(sonnet) tts=5747ms total=11026ms
+   [LAG] sense→speak: total=25.2s (content_age=16.1s, prep=3.2s, llm=2.1s, tts_wait+synth=3.9s)
+   [TurnTiming] 15:12:47.878 DIRECTOR HOLD (fresh-min-silence) — since_mic=20.3s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 15:12:49.890 DIRECTOR FIRE — silence=3.0s since_mic=22.3s fresh_ok=True dead_air=False eff_min_gap=5s gap=14s
+   [Director] FIRE (noticing) — gap=14s silence=3s fresh=loopback-dialogue
+   [LoadShed] Skipping fresh vision capture (under_load=False, cache_age=11.7s, mw_age=999.0s)
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=75ms rank=1ms)
+   [SmartMem]     dist=1.045 conf=0.9 type=episodic blend=0.181 lane=KNOW
+   [SmartMem]     dist=0.962 conf=? type=session_summary blend=0.158 lane=STREAM
+   [SmartMem]     dist=0.981 conf=0.9 type=episodic blend=0.146 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 147ms, rms=0.025): wisdom who can read the wind, not Moorraine.
+   >>> Kira (Bored): The song hit and you just... stopped existing mid-sentence. The Wheel of Time claimed its first victim.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: The song hit and you just......
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The song hit and you just...' (7 words)
+   [TurnTiming] 15:12:52.220 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:12:54.381 TTS STOP — playback finished (span ~2160ms)
+   [TTS] Speaking: stopped existing mid-sentence....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'stopped existing mid-sentence.' (4 words)
+   [TurnTiming] 15:12:54.665 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [LoopbackSTT] 🔀 Content-switch reset — recent dialogue diverged from summary (overlap=0.00 < 0.08, 54 new content words). Dropping continuity, regenerating fresh.
+   [TurnTiming] 15:12:57.012 TTS STOP — playback finished (span ~2347ms)
+   [TTS] Speaking: The Wheel of Time claimed its first victim....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The Wheel of Time claimed its first vict' (9 words)
+   [TurnTiming] 15:12:57.394 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Presence] normal → Director drive-gap 10s (lower = more present).
+   [TurnTiming] 15:13:00.119 TTS STOP — playback finished (span ~2725ms)
+   [TIMING] interjection: vision=0ms llm=1925ms(sonnet) tts=8228ms total=10229ms
+   [LAG] sense→speak: total=19.2s (content_age=11.7s, prep=0.1s, llm=1.9s, tts_wait+synth=5.5s)
+   [TurnTiming] 15:13:01.112 DIRECTOR HOLD (fresh-min-silence) — since_mic=33.6s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 15:13:04.104 DIRECTOR FIRE — silence=4.0s since_mic=36.6s fresh_ok=True dead_air=False eff_min_gap=10s gap=14s
+   [Director] FIRE (noticing) — gap=14s silence=4s fresh=loopback-dialogue
+   [LoadShed] Skipping fresh vision capture (under_load=False, cache_age=2.3s, mw_age=999.0s)
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=69ms rank=0ms)
+   [SmartMem]     dist=1.080 conf=0.9 type=episodic blend=0.159 lane=KNOW
+   [SmartMem]     dist=1.000 conf=? type=session_summary blend=0.134 lane=STREAM
+   [SmartMem]     dist=1.001 conf=0.9 type=episodic blend=0.134 lane=KNOW
+   [Phrases] Throttling: "wheel of time" (3rd use this session)
+   [VRAM] 15:13:04 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 166ms, rms=0.027): whose chameleon cloak is stranger than the fluttering multi-hued garment that proclaims the gleam
+   >>> Kira (Bored): The theme grabbed you mid-sentence and honestly that's the most accurate preview of what this series does to people.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: The theme grabbed you mid-sentence and honestly th...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The theme grabbed you mid-sentence and h' (20 words)
+   [TurnTiming] 15:13:08.281 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [LoopbackSTT] 🔀 Content-switch reset — recent dialogue diverged from summary (overlap=0.00 < 0.08, 65 new content words). Dropping continuity, regenerating fresh.
+   [TurnTiming] 15:13:13.429 TTS STOP — playback finished (span ~5148ms)
+   [TIMING] interjection: vision=0ms llm=3603ms(sonnet) tts=5652ms total=9326ms
+   [LAG] sense→speak: total=6.5s (content_age=2.3s, prep=0.1s, llm=3.6s, tts_wait+synth=0.5s)
+🎤 Recording... (recovered opening words)
+   [SessionTakes] Condensed 6 reactions → 6 bullets (hard-capped).
+   [CurrentWant] now: calling out Streamlabs — you don't trust them
+   [TurnTiming] 15:13:14.428 DIRECTOR HOLD (fresh-min-silence) — since_mic=46.9s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 15:13:14.674 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~67077ms since onset)
+🎤 Recording...
+   [TurnTiming] 15:13:15.287 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 130ms, rms=0.026): womanhood between love of
+   [TurnTiming] 15:13:16.835 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1547ms since onset)
+   [TurnTiming] 15:13:19.430 DIRECTOR HOLD (post-speech-hold) — since_mic=3.8s silence=2.6s fresh_ok=True dead_air=False
+   [LoopbackSTT] +1 seg (0 filtered, 189ms, rms=0.022): womanhood, between love of Rand and determination to become all that her destiny would make her.
+   [TurnTiming] 15:13:24.426 DIRECTOR FIRE — silence=7.6s since_mic=8.8s fresh_ok=True dead_air=False eff_min_gap=10s gap=20s
+   [Director] FIRE (callback: Saudi Arabia is a Businessman) — gap=20s silence=8s fresh=loopback-dialogue
+   [BitCooldown] 'Saudi Arabia is a Businessman' invoked x3 lifetime — resting 720s
+   [SmartMem] q='[LIVE THREAD — what you two were JUST on; stay anchored to T' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=2ms fetch=64ms rank=0ms)
+   [SmartMem]     dist=1.188 conf=0.9 type=episodic blend=0.018 lane=KNOW
+   [SmartMem]     dist=1.212 conf=0.95 type=episodic blend=0.003 lane=KNOW
+   [Phrases] Throttling: "the most accurate" (3rd use this session)
+   [LoopbackSTT] +2 seg (0 filtered, 202ms, rms=0.024): become all that her destiny would make her. The villagers know only that trollecks hunt them. | They have no way of knowing.
+   [LoopbackSTT] 🔀 Content-switch reset — recent dialogue diverged from summary (overlap=0.07 < 0.08, 72 new content words). Dropping continuity, regenerating fresh.
+   >>> Kira (Bored): Yeah, I've been logging that and I still can't explain it. Saudi Arabia is a businessman, you trail off mid-sentence to music — just facts about how this stream runs.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Yeah, I've been logging that and I still can't exp...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Yeah, I've been logging that and I still' (13 words)
+   [TurnTiming] 15:13:27.711 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:13:30.989 TTS STOP — playback finished (span ~3278ms)
+   [TTS] Speaking: Saudi Arabia is a businessman, you trail off mid-s...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Saudi Arabia is a businessman, you trail' (21 words)
+   [TurnTiming] 15:13:31.537 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
