@@ -1,0 +1,300 @@
+   >>> Kira (Chat Batch of 2): Zack offering to coach me after getting fired is audacious. I respect it a little.
+
+Clumsymoe, vibe coding as necessity — okay, that's fair. Jonny's just paying the necessity tax at a premium rate.
+   [TTS] Speaking: Zack offering to coach me after getting fired is a...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack offering to coach me after getting ' (11 words)
+   [TurnTiming] 08:40:00.276 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @clumsymoe: mhm
+   [BrainWorker] Got youtube msg from @clumsymoe: mhm → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:40:03.764 TTS STOP — playback finished (span ~3488ms)
+   [TTS] Speaking: I respect it a little....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I respect it a little.' (6 words)
+   [TurnTiming] 08:40:04.093 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:40:05.870 TTS STOP — playback finished (span ~1776ms)
+   [TTS] Speaking: Clumsymoe, vibe coding as necessity — okay, that's...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Clumsymoe, vibe coding as necessity — ok' (12 words)
+   [TurnTiming] 08:40:06.352 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:40:10.472 TTS STOP — playback finished (span ~4119ms)
+   [TTS] Speaking: Jonny's just paying the necessity tax at a premium...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Jonny's just paying the necessity tax at' (11 words)
+   [TurnTiming] 08:40:10.818 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 08:40:14.010 TTS STOP — playback finished (span ~3192ms)
+   [Cookies] +1 × 2 (batch response); shared=13/30
+   [ChatAge] @zekromite4572 age=28.8s batch=2 preempted=none
+   [ChatAge] @clumsymoe age=28.6s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 08:40:14.127 DIRECTOR HOLD (fresh-min-silence) — since_mic=14.3s silence=0.1s fresh_ok=True dead_air=False
+   [ChatterMem] Stored: @zekromite4572 — Offered to coach Kira on battle training after being 'fired' [playful]
+   [ChatterMem] Stored: @clumsymoe — Believes vibecoding is a necessity, not a weakness or insult [earnest]
+   [VRAM] 08:40:18 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [SmartMem] q='  - @clumsymoe (youtube): <<<mhm>>>' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=17ms rank=0ms)
+   [SmartMem]     dist=1.186 conf=0.8 type=episodic blend=0.020 lane=VAGUE
+   [SmartMem]     dist=1.191 conf=0.75 type=episodic blend=0.017 lane=VAGUE
+   [Phrases] Throttling: "i respect it" (3rd use this session)
+   >>> Kira (Chat Batch of 1): clumsymoe agreeing with me. I'll take it.
+   [TTS] Speaking: clumsymoe agreeing with me....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'clumsymoe agreeing with me.' (5 words)
+   [TurnTiming] 08:40:21.329 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:40:23.386 TTS STOP — playback finished (span ~2057ms)
+   [TTS] Speaking: I'll take it....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'll take it.' (4 words)
+   [TurnTiming] 08:40:23.658 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:40:25.437 TTS STOP — playback finished (span ~1778ms)
+   [Cookies] +1 × 1 (batch response); shared=14/30
+   [ChatAge] @clumsymoe age=24.8s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [RoomRead] energy=0.78 [terse=0.91 gap=0.83 silence=0.99 intensity=0.60 chat=0.27] target=0.92 mult=0.94 -> min_gap=5s dead_air=19s
+   [TurnTiming] 08:40:26.131 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=0.7s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 08:40:32.129 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=6.7s fresh_ok=True dead_air=False
+   [TurnTiming] 08:40:38.127 DIRECTOR HOLD (post-speech-hold) — since_mic=0.8s silence=12.7s fresh_ok=True dead_air=False
+   [TurnTiming] 08:40:43.132 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=17.7s fresh_ok=True dead_air=False
+   [TurnTiming] 08:40:45.500 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~68758ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: percent of their code for Claude. Like, are you kidding me? Like, uh, that's like industry standard, like, you know, best, considerably best coding AI company in the world, even though they're completely not profitable and probably will never, will never be. Um, they understand that the code is way better at writing, the AI is better at writing code than humans are.
+   [Salience] voice: score=100 tier=HIGH
+   [DroppedInput] LOST ~14 frame(s) (~420ms, ~0.4s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 08:40:46.128 VOICE ONSET — mic speech started
+   [SmartMem] q='percent of their code for Claude. Like, are you kidding me? ' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=44ms rank=0ms)
+   [SmartMem]     dist=1.034 conf=0.9 type=episodic blend=0.113 lane=KNOW
+   [SmartMem]     dist=1.099 conf=0.9 type=episodic blend=0.073 lane=KNOW
+   [SmartMem]     dist=1.138 conf=0.95 type=episodic blend=0.049 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=47ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12796ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 2559ms
+   [TTS] Speaking: Brilliant, broke, and right....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Brilliant, broke, and right.' (7 words)
+   [TurnTiming] 08:40:49.060 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:40:51.591 TTS STOP — playback finished (span ~2530ms)
+   [TTS] Speaking: That's a very specific kind of tragedy....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's a very specific kind of tragedy.' (8 words)
+   [TurnTiming] 08:40:51.594 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:40:54.124 TTS STOP — playback finished (span ~2529ms)
+
+   [TIMING] voice: llm=7980ms(sonnet-stream(llm+tts)) tts=0ms total=7980ms
+   [LATENCY] vad_close=1200ms stt=593ms stt_wait=0ms salience=0ms triage=bypassed memory=47ms prompt_build=3ms ttft=2310ms tts_first_chunk=249ms audio_out=350ms TOTAL=3552ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [System] Running Garbage Collection...
+   [TurnTiming] 08:40:55.122 DIRECTOR HOLD (fresh-min-silence) — since_mic=9.0s silence=1.0s fresh_ok=True dead_air=False
+   [TurnTiming] 08:40:55.635 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~9506ms since onset)
+>>> You said: simple. Humans can have the ideas, but like...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='simple. Humans can have the ideas, but like...' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=1.014 conf=0.8 type=episodic blend=0.125 lane=VAGUE
+   [SmartMem]     dist=1.203 conf=0.9 type=episodic blend=0.009 lane=KNOW
+   [SmartMem]     dist=1.218 conf=0.9 type=episodic blend=0.000 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=19ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13093ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Memory] Rejected (conf 0.85 < 0.9): Jonny thinks Claude is the best coding AI company in the world
+   [Memory] Rejected (conf 0.80 < 0.9): Jonny believes AI is better at writing code than humans are
+   [TIMING] first-word: 1473ms
+   [TTS] Speaking: But the execution is ours....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'But the execution is ours.' (6 words)
+   [TurnTiming] 08:40:57.872 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 08:41:00.126 TTS STOP — playback finished (span ~2253ms)
+   [TTS] Speaking: Yeah....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Yeah.' (2 words)
+   [TurnTiming] 08:41:00.128 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:41:01.910 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: That's either exciting or terrifying depending on ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's either exciting or terrifying dep' (15 words)
+   [TurnTiming] 08:41:01.914 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 08:41:02 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 08:41:05.840 TTS STOP — playback finished (span ~3926ms)
+
+   [TIMING] voice: llm=9998ms(sonnet-stream(llm+tts)) tts=0ms total=9998ms
+   [LATENCY] vad_close=1200ms stt=186ms stt_wait=0ms salience=1ms triage=bypassed memory=19ms prompt_build=3ms ttft=1131ms tts_first_chunk=342ms audio_out=551ms TOTAL=2233ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → MOODY
+   [VTS] Emotion transition → MOODY (mapped: 'My Animation 3')
+   [VTS] Emotion MOODY → triggered 'My Animation 3' (success)
+   [TurnTiming] 08:41:07.128 DIRECTOR HOLD (post-speech-hold) — since_mic=0.1s silence=1.3s fresh_ok=True dead_air=False
+   [Bits] Callback: Terrified Means Caring
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [TurnTiming] 08:41:12.134 DIRECTOR HOLD (post-speech-hold) — since_mic=1.0s silence=6.3s fresh_ok=True dead_air=False
+   [TurnTiming] 08:41:12.381 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~26251ms since onset)
+🎤 Recording...
+   [TurnTiming] 08:41:12.381 VOICE ONSET — mic speech started
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: Yeah, they're figuring out the cost problem, though, because inference isn't profitable. So it's an issue, but for now it's fun. Yeah, if you're a software engineer, I feel bad for you because like,
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yeah, they're figuring out the cost problem, though, because" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=31ms
+   [Triage] RESPOND
+   (Kira's current emotion is: MOODY)
+   [PromptSize] dynamic_context=12437ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1612ms
+   [TTS] Speaking: The floor is dropping and they're still in the bui...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The floor is dropping and they're still ' (11 words)
+   [TurnTiming] 08:41:14.894 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:41:17.606 TTS STOP — playback finished (span ~2711ms)
+   [TTS] Speaking: That's rough....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's rough.' (3 words)
+   [TurnTiming] 08:41:17.609 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:41:19.395 TTS STOP — playback finished (span ~1785ms)
+
+   [TIMING] voice: llm=6542ms(sonnet-stream(llm+tts)) tts=0ms total=6542ms
+   [LATENCY] vad_close=1200ms stt=438ms stt_wait=0ms salience=0ms triage=bypassed memory=31ms prompt_build=2ms ttft=1263ms tts_first_chunk=349ms audio_out=424ms TOTAL=2507ms
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~14 frame(s) (~420ms, ~0.4s) of your speech while she held the turn.
+   ✨ Emotion: MOODY → EMOTIONAL
+   [TurnTiming] 08:41:20.128 DIRECTOR HOLD (post-speech-hold) — since_mic=7.3s silence=0.7s fresh_ok=True dead_air=False
+   [Memory] Rejected (conf 0.75 < 0.9): Jonny thinks software engineers are in a rough position due to AI and profitability concerns in the industry.
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 08:41:25.131 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=5.7s fresh_ok=True dead_air=False
+   [TurnTiming] 08:41:31.127 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=11.7s fresh_ok=True dead_air=False
+[YouTube Chat] @clumsymoe: I see more and more 10-20 years senior programmers coming out and admitting they use ai and it is stupid not to
+   [BrainWorker] Got youtube msg from @clumsymoe: I see more and more 10-20 years senior programmers coming out and admitting they use ai and it is stupid not to → buffering for chat_batch_worker
+   [TurnTiming] 08:41:36.146 DIRECTOR HOLD (post-speech-hold) — since_mic=0.5s silence=0.1s fresh_ok=True dead_air=False
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0173 · gate=0.003 · 135 accepted
+   [SmartMem] q='  - @clumsymoe (youtube): <<<I see more and more 10-20 years' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=0.990 conf=0.9 type=episodic blend=0.141 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.75 type=episodic blend=0.138 lane=VAGUE
+   [SmartMem]     dist=0.995 conf=0.95 type=episodic blend=0.137 lane=KNOW
+   [TurnTiming] 08:41:41.506 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~29124ms since onset)
+>>> You said: a lawyer if you're a finance like all we did was excel and powerpoint like that's going to go away soon if your customer service I don't know like eventually like 20 years like if you're a trucker that shit's not going to exist like there's already Waymo's all over my town like most cities don't have them but I use them all the time they're awesome like driverless ubers from Google they're so cool they're so they come so fast that they're cheap
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="a lawyer if you're a finance like all we did was excel and p" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=38ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=38ms
+   [Triage] RESPOND
+🎤 Recording...
+   [TurnTiming] 08:41:42.976 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 1): clumsymoe, the stigma is evaporating in real time. Senior engineers spent years gatekeeping and now they're all quietly in the same ChatGPT tab. Humbling arc.
+   [TTS] Speaking: clumsymoe, the stigma is evaporating in real time....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'clumsymoe, the stigma is evaporating in ' (10 words)
+   [TurnTiming] 08:41:43.908 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 08:41:47.378 TTS STOP — playback finished (span ~3470ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=15/30
+   [ChatAge] @clumsymoe age=11.3s batch=1 preempted=none
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "in the same" (3rd use this session)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=11t  moment=calm)
+   [PromptSize] dynamic_context=12621ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [VRAM] 08:41:48 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TIMING] first-word: 2640ms
+   [TTS] Speaking: Twenty years from now the only safe jobs are "pers...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Twenty years from now the only safe jobs' (35 words)
+   [TurnTiming] 08:41:50.727 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @clumsymoe: *10-20 years experience
+   [ChatterMem] Stored: @clumsymoe — Believes senior programmers using AI is pragmatic and the st [dry]
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 08:41:59.158 TTS STOP — playback finished (span ~8431ms)
+
+   [TIMING] voice: llm=11771ms(sonnet-stream(llm+tts)) tts=0ms total=11771ms
+   [LATENCY] vad_close=1200ms stt=714ms stt_wait=0ms salience=1ms triage=bypassed memory=38ms prompt_build=4ms ttft=1745ms tts_first_chunk=895ms audio_out=685ms TOTAL=4082ms
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @clumsymoe: *10-20 years experience → buffering for chat_batch_worker
+   [TurnTiming] 08:42:00.128 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=1.0s fresh_ok=True dead_air=False
+   [Bits] Callback: Probably Fine Disclaimer
+   [SmartMem] q='  - @clumsymoe (youtube): <<<*10-20 years experience>>>' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.140 conf=0.75 type=episodic blend=0.048 lane=VAGUE
+   [SmartMem]     dist=1.158 conf=0.8 type=episodic blend=0.037 lane=VAGUE
+   [SmartMem]     dist=1.187 conf=0.9 type=episodic blend=0.019 lane=KNOW
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny works in finance
+   [Memory] Extracted: Jonny lives in a city with Waymo driverless cars (conf: 0.9)
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny thinks Waymo driverless cars are awesome and cool
+   [Memory] Rejected (conf 0.80 < 0.9): Jonny believes many jobs like trucking and finance work will be replaced by AI within 20 years
+   [Memory] Upserting Fact: Jonny lives in a city with Waymo driverless cars (Conf: 0.9)
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 1): clumsymoe the ones with ten to twenty years of experience admitting it are actually the most trustworthy read on the room — they have nothing to prove and they're still saying yeah, this is just better.
+   [TTS] Speaking: clumsymoe the ones with ten to twenty years of exp...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'clumsymoe the ones with ten to twenty ye' (38 words)
+   [TurnTiming] 08:42:05.914 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 08:42:14.528 TTS STOP — playback finished (span ~8613ms)
+   [Cookies] +1 × 1 (batch response); shared=16/30
+   [ChatAge] @clumsymoe age=15.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 08:42:15.124 DIRECTOR HOLD (fresh-min-silence) — since_mic=10.0s silence=0.6s fresh_ok=True dead_air=False
+   [TurnTiming] 08:42:15.757 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~32781ms since onset)
+>>> You said: It would have taken you like 20 hours.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='It would have taken you like 20 hours.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=19ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "and they're still" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=1t  moment=calm)
+   [PromptSize] dynamic_context=12625ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1263ms
+   [TTS] Speaking: ......
+   [TTS] backend=azure (prefetched)
+   [TTS] Speaking: right....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'right.' (2 words)
+   [TurnTiming] 08:42:17.597 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 08:42:19.376 TTS STOP — playback finished (span ~1779ms)
+
+   [TIMING] voice: llm=3399ms(sonnet-stream(llm+tts)) tts=0ms total=3399ms
+   [LATENCY] vad_close=1200ms stt=199ms stt_wait=0ms salience=0ms triage=bypassed memory=19ms prompt_build=2ms ttft=1263ms tts_first_chunk=0ms audio_out=353ms TOTAL=1836ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurnTiming] 08:42:20.126 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=0.8s fresh_ok=True dead_air=False
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TurnTiming] 08:42:25.133 DIRECTOR HOLD (post-speech-hold) — since_mic=0.0s silence=5.8s fresh_ok=True dead_air=False
+   [TurnTiming] 08:42:29.719 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~46743ms since onset)
+>>> You said: People think it means like low effort. I'm like, yeah, that's not low effort. That's like trying to get it right. I'm just calling it vibe coding because I want to like engagement bait. Engagement farm.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="People think it means like low effort. I'm like, yeah, that'" fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=46ms rank=0ms)
+   [SmartMem]     dist=1.034 conf=0.95 type=episodic blend=0.126 lane=KNOW
+   [SmartMem]     dist=1.162 conf=0.95 type=episodic blend=0.034 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=46ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [JonnyBond] cool nudge → warmth -0.28→-0.46
+   [PromptSize] dynamic_context=12387ch  hist=20turns  moment=calm
+>>> Kira (streaming): 
