@@ -1,0 +1,88 @@
+===== playlive_2026-08-05_16-36-04.log =====
+   [play-live]    [engine] JUST FIGHT: L64 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs tentacool 67/67 | [0]Bite(p60,pp=6,ref=0,sc=60) [1]Skull Bash(p100,pp=7,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=71.25) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L64 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs tentacool 6/67 | [0]Bite(p60,pp=5,ref=0,sc=60) [1]Skull Bash(p100,pp=7,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=71.25) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L64 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 76/76 | [0]Bite(p60,pp=4,ref=0,sc=60) [1]Skull Bash(p100,pp=7,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L64 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 100/100 | [0]Bite(p60,pp=3,ref=0,sc=15) [1]Skull Bash(p100,pp=7,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L64 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 70/70 | [0]Bite(p60,pp=3,ref=0,sc=60) [1]Skull Bash(p100,pp=6,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L64 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 75/75 | [0]Bite(p60,pp=2,ref=0,sc=60) [1]Skull Bash(p100,pp=6,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L64 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 91/91 | [0]Bite(p60,pp=1,ref=0,sc=15) [1]Skull Bash(p100,pp=6,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] catch no_balls — FLEEING (protect catch target from KO)
+   [travel] start map=(1, 100) coords=(2, 3) -> coord (11, 7) (budget 60s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L64 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 100/100 | [0]Bite(p60,pp=0,ref=0,sc=15) [1]Skull Bash(p100,pp=5,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] JUST FIGHT: L64 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] !! MOVES EXHAUSTED — every usable move tried with no effect this streak (or none usable); not re-spamming a dead move
+   [play-live]    [engine] JUST FIGHT: L64 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] !! MOVES EXHAUSTED — every usable move tried with no effect this streak (or none usable); not re-spamming a dead move
+   [play-live]    [engine] !! ANTI-WEDGE FLOOR: 2 unresolved turns (last=no_usable_move) in a WILD battle -> FLEEING (self-preservation, never a frozen session)
+   [travel] battle outcome=fled; resuming pathfind
+===== playlive_2026-08-05_16-14-23.log =====
+   [travel] start map=(1, 101) coords=(10, 13) -> coord (9, 14) (budget 60s, surf-capable)
+   [travel] releasing 1 stale NPC block(s) [(10, 12)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 0: (10, 13)->(10, 14) map=(1, 101) (path 3 to exit)
+   [travel] reached target coord (9, 14)
+   [travel] start map=(1, 97) coords=(29, 7) -> coord (29, 47) (budget 60s, surf-capable)
+   [travel] step 0: (29, 7)->(29, 8) map=(1, 97) (path 50 to exit)
+   [travel] step 10: (29, 17)->(29, 18) map=(1, 97) (path 40 to exit)
+   [travel] step 20: (29, 27)->(29, 28) map=(1, 97) (path 31 to exit)
+   [travel] step 30: (26, 34)->(26, 35) map=(1, 97) (path 21 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 38) elapsed=6s
+   [travel] step 40: (32, 38)->(32, 39) map=(1, 97) (path 12 to exit)
+   [travel] step 50: (31, 47)->(30, 47) map=(1, 97) (path 3 to exit)
+   [travel] reached target coord (29, 47)
+   [travel] start map=(3, 45) coords=(12, 6) -> map (3, 12) (budget 120s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] step 0: (12, 6)->(12, 7) map=(3, 45) (path 143 to exit)
+   [travel] step 10: (12, 16)->(12, 17) map=(3, 45) (path 133 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.52s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 1ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (12, 19) -> (12, 20) (map (3, 45))
+   [travel] step 20: (12, 26)->(12, 27) map=(3, 45) (path 123 to exit)
+   [travel] step 30: (12, 36)->(12, 37) map=(3, 45) (path 113 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 45) coords=(10, 43) elapsed=14s
+   [travel] step 40: (10, 43)->(10, 44) map=(3, 45) (path 104 to exit)
+   [travel] step 50: (10, 53)->(10, 54) map=(3, 45) (path 94 to exit)
+   [travel] step 60: (11, 62)->(11, 63) map=(3, 45) (path 84 to exit)
+   [travel] step 70: (12, 68)->(11, 68) map=(3, 45) (path 77 to exit)
+   [travel] HEARTBEAT step=80 map=(3, 45) coords=(9, 75) elapsed=20s
+   [travel] step 80: (9, 75)->(9, 76) map=(3, 45) (path 67 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
