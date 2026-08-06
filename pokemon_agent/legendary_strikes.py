@@ -83,6 +83,8 @@ EMBER_EXT, EMBER_1F, EMBER_2F, EMBER_3F, EMBER_SUMMIT = ((1, 97), (1, 98), (1, 9
                                                          (1, 100), (1, 101))
 TWO_ISLAND, TWO_HARBOR, GAME_CORNER = (3, 13), (33, 4), (33, 0)
 THREE_ISLAND, THREE_PORT, THREE_HARBOR = (3, 14), (3, 49), (38, 0)
+THREE_MART = (34, 3)                 # IndoorThreeIsland map index 3 (pret map_groups)
+THREE_MART_DOOR = (18, 12)           # ThreeIsland overworld warp -> Mart
 BOND_BRIDGE, BERRY_FOREST = (3, 48), (1, 109)
 
 FLAG_SYS_GAME_CLEAR = 0x82C          # champion — the Cerulean Cave guard steps aside
@@ -108,7 +110,8 @@ ARTICUNO_ANCHORS = {R20, F1, B1F, B2F, B3F, B4F}
 MOLTRES_ANCHORS = {CINNABAR, CINNABAR_PC, ONE_ISLAND, ONE_PC, ONE_HARBOR, KINDLE,
                    EMBER_EXT, EMBER_1F, EMBER_2F, EMBER_3F, EMBER_SUMMIT,
                    TWO_ISLAND, TWO_HARBOR, GAME_CORNER,
-                   THREE_ISLAND, THREE_PORT, THREE_HARBOR, BOND_BRIDGE, BERRY_FOREST}
+                   THREE_ISLAND, THREE_PORT, THREE_HARBOR, THREE_MART,
+                   BOND_BRIDGE, BERRY_FOREST}
 MEWTWO_ANCHORS = {CERULEAN, CAVE1F, CAVE2F, CAVEB1F}
 
 # Solver-verified Strength push plans (BFS over pret map.bin collision+elevation with the
@@ -267,6 +270,74 @@ class LegendaryHunt(GiovanniGym):
     PARTY_SAFE_SWINGS_MIN = 8  # ...or the whole party's safe swings below this -> restore
     CENTER_LEG_WIRED = False   # a hunt with a coded descend->Center->re-climb leg sets True
     DOORSTEP_TILES = 6         # within this Manhattan distance of the quarry: ENGAGE, never audit
+    # Ultra war-chest (2026-08-06, Jonny/chat: 6 Ultras vs "~50 maybe"): thin Ultra pocket
+    # arms a Sevii mart restock BEFORE the A-press — even at the doorstep.
+    BALL_RESTOCK_WIRED = False
+    BALL_RESTOCK_FAILS_MAX = 2
+
+    def _ultra_count(self):
+        try:
+            return int(self.camp._balls_pocket_count(2) or 0)
+        except Exception:
+            try:
+                return int(self.camp.bag_count(2) or 0)
+            except Exception:
+                return 0
+
+    def _ultra_target(self):
+        try:
+            import campaign as _C
+            return int(getattr(_C, "HUNT_ULTRA_TARGET", 50) or 50)
+        except Exception:
+            return 50
+
+    def _maybe_arm_ball_restock(self):
+        """ULTRA WAR-CHEST GATE (2026-08-06 LIVE, Jonny: 'only 6 ultra balls… chat said
+        maybe 50'): before pressing A on a static legendary, if Ultras are under the hunt
+        target, leave the bird, sail to a Sevii Ultra shelf, buy what the wallet allows,
+        re-climb. Outranks the doorstep engage law — a 6-ball throw at 3/255 is theater.
+        Bounded: one successful buy trip per hunt instance + fail budget. True = armed."""
+        if not self.BALL_RESTOCK_WIRED:
+            return False
+        have = self._ultra_count()
+        want = self._ultra_target()
+        if have >= want:
+            return False
+        if getattr(self, "_ball_restock_done", False):
+            self.log(f"   [hunt] Ultra war-chest already filled this run ({have}/{want}) — "
+                     f"ENGAGING with the pocket we bought (LOUD)")
+            return False
+        key = ((self.QUARRY or {}).get("name") or "hunt").lower()
+        fails = getattr(self.camp, "_ball_restock_fails", None) or {}
+        if fails.get(key, 0) >= self.BALL_RESTOCK_FAILS_MAX:
+            self.log(f"   [hunt] !! Ultra war-chest fail budget spent ({fails.get(key, 0)}/"
+                     f"{self.BALL_RESTOCK_FAILS_MAX}) with {have}/{want} Ultras — ENGAGING "
+                     f"anyway (LOUD)")
+            return False
+        self._ball_restock_mode = True
+        self._ball_restock_returning = False
+        self.log(f"   [hunt] !!!! ULTRA WAR-CHEST ARMED — bag has {have}/{want} Ultra Balls; "
+                 f"descending to the Sevii Mart for a real stack, then re-climbing (LOUD)")
+        try:
+            self.camp.on_event(
+                f"chat's right — {have} Ultras is a prayer, not a plan. sailing to Three "
+                f"Island for a war-chest, THEN we do this bird properly.",
+                kind="legendary", tier=3)
+        except Exception:
+            pass
+        return True
+
+    def _ball_restock_fail(self, why):
+        self._ball_restock_mode = False
+        self._ball_restock_returning = False
+        key = ((self.QUARRY or {}).get("name") or "hunt").lower()
+        fails = getattr(self.camp, "_ball_restock_fails", None)
+        if fails is None:
+            fails = self.camp._ball_restock_fails = {}
+        fails[key] = fails.get(key, 0) + 1
+        self.log(f"!! [hunt] ULTRA WAR-CHEST FAILED ({why}) — fail {fails[key]}/"
+                 f"{self.BALL_RESTOCK_FAILS_MAX}; engaging with {self._ultra_count()} "
+                 f"Ultras (LOUD)")
 
     def _chip_pp_audit(self):
         """PRE-ENCOUNTER CHIP-PP AUDIT (2026-08-05 LIVE, the one-Bite ball-burn: the climb
@@ -626,6 +697,10 @@ class LegendaryHunt(GiovanniGym):
         # PRE-LEGENDARY TOP-UP (2026-08-05): the static fight starts at HER choice of moment —
         # a real player tops the ace to (near-)full BEFORE pressing A, not after turn 1.
         self.field_heal_seam(top_up=True)
+        # ULTRA WAR-CHEST (2026-08-06): thin Ultras outrank the doorstep engage — leave the
+        # bird, buy a real stack on Sevii, re-climb. Jonny/chat: 6 balls is not enough.
+        if self._maybe_arm_ball_restock():
+            return False
         # PP-RESTORE GATE + THE DOORSTEP LAW (2026-08-05 LIVE, the turn-around at the bird):
         # armed -> not a failure; run()'s stage loop routes the descent.
         if self._doorstep_or_restore():
@@ -781,6 +856,7 @@ class MoltresHunt(LegendaryHunt):
 
     QUARRY = MOLTRES
     CENTER_LEG_WIRED = True   # descend->One-Island-Center->re-climb is coded (leg_to_center)
+    BALL_RESTOCK_WIRED = True  # descend->Three-Island-Mart Ultras->re-climb
 
     def __init__(self, camp, log, dbg_dir=None):
         super().__init__(camp, log, dbg_dir)
@@ -1054,6 +1130,80 @@ class MoltresHunt(LegendaryHunt):
             return self.leg_home(here)
         return False
 
+    def leg_to_ball_mart(self, here):
+        """ULTRA WAR-CHEST DESCENT (2026-08-06): volcano descent like the Center leg, then
+        One Island Harbor -> Seagallop to Three -> Port -> town -> Mart. Buys Ultras at the
+        Three Island shelf (the only Sevii Ultra mart before Lostelle expands Two Island).
+        True = stage advanced; buy itself is owned by run() when standing on THREE_ISLAND."""
+        if here in (EMBER_SUMMIT, EMBER_EXT, EMBER_3F, EMBER_2F, EMBER_1F, KINDLE):
+            return self.leg_home(here)
+        if here == ONE_PC:
+            return self.enter_step((9, 9), ONE_ISLAND, "pc-out-balls")
+        if here == ONE_ISLAND:
+            return self.enter_step((12, 18), ONE_HARBOR, "one-harbor-balls")
+        if here == ONE_HARBOR:
+            return self.sail(THREE_HARBOR)
+        if here == THREE_HARBOR:
+            return self.enter_step((8, 2), THREE_PORT, "three-port-balls")
+        if here == THREE_PORT:
+            return self.cross_edge("north", "to-three-town-balls")
+        if here == THREE_MART:
+            # buy_at_mart owns enter/exit from the overworld — if we're inside, walk out.
+            return self.enter_step((4, 7), THREE_ISLAND, "mart-out") or True
+        if here == THREE_ISLAND:
+            return True                       # run() buys here
+        return False
+
+    def buy_ultra_war_chest(self):
+        """Standing on Three Island: buy Ultras up to HUNT_ULTRA_TARGET. Marks the trip done
+        on any successful purchase (wallet may stop short of the full target)."""
+        have0 = self._ultra_count()
+        want = self._ultra_target()
+        need = max(0, want - have0)
+        if need <= 0:
+            self._ball_restock_done = True
+            return True
+        self.log(f"   [hunt] !!!! ULTRA WAR-CHEST BUY — {have0}/{want} Ultras, buying up to "
+                 f"{need} at Three Island Mart (LOUD)")
+        try:
+            bought = self.camp.buy_at_mart(THREE_MART_DOOR, [(2, need)]) or {}
+        except Exception as e:
+            self.log(f"   [hunt] !! war-chest buy raised ({e}) (LOUD)")
+            bought = {}
+        got = int(bought.get(2, 0) or 0)
+        have1 = self._ultra_count()
+        self.log(f"   [hunt] war-chest buy done — +{got} Ultra(s), pocket now {have1}/{want}")
+        if got > 0 or have1 > have0:
+            self._ball_restock_done = True
+            try:
+                self.camp.on_event(
+                    f"war-chest loaded — {have1} Ultra Balls. back up the mountain.",
+                    kind="legendary", tier=2)
+            except Exception:
+                pass
+            return True
+        return False
+
+    def leg_from_ball_mart(self, here):
+        """Return from Three Island Mart to One Island, then the normal climb resumes."""
+        if here == THREE_MART:
+            return self.enter_step((4, 7), THREE_ISLAND, "mart-out-home")
+        if here == THREE_ISLAND:
+            return self.cross_edge("south", "to-three-port-home")
+        if here == THREE_PORT:
+            return self.enter_step((12, 13), THREE_HARBOR, "port-harbor-home")
+        if here == THREE_HARBOR:
+            return self.sail(ONE_HARBOR)
+        if here == ONE_HARBOR:
+            return self.enter_step((8, 2), ONE_ISLAND, "harbor-out-home")
+        if here == ONE_ISLAND:
+            self._ball_restock_mode = False
+            self._ball_restock_returning = False
+            self.log("   [hunt] !!!! ULTRA WAR-CHEST: back on One Island with "
+                     f"{self._ultra_count()} Ultras — re-climbing to the bird (LOUD)")
+            return True
+        return False
+
     # ── homebound stages ─────────────────────────────────────────────────────────────────
     def leg_home(self, here):
         """One stage of the ride home, keyed by map + the detour predicate."""
@@ -1179,7 +1329,8 @@ class MoltresHunt(LegendaryHunt):
             except Exception as e:
                 self.log(f"   [moltres] wedge hygiene skipped: {e}")
         last_ckpt_map = None
-        for _stage in range(64):
+        # 96 stages: climb + optional Ultra war-chest ferry to Three Island and back.
+        for _stage in range(96):
             while self.handle_interrupts():
                 pass
             # CLIMB MILESTONE (2026-08-05 addendum): every leg boundary of the climb (each
@@ -1211,6 +1362,38 @@ class MoltresHunt(LegendaryHunt):
                     self.log(f"!! [moltres] home leg wedged on {here} @ {tv.coords(b)}")
                     return "failed"
             else:
+                # ULTRA WAR-CHEST ROUTING (2026-08-06): thin Ultras → descend → ferry to
+                # Three Island Mart → buy → sail back → re-climb. Outranks PP-restore and
+                # the climb press — a 6-ball legendary attempt is the chat-called theater.
+                if getattr(self, "_ball_restock_mode", False):
+                    if getattr(self, "_ball_restock_returning", False):
+                        if here == ONE_ISLAND:
+                            if not self.leg_from_ball_mart(here):
+                                self._ball_restock_fail("return clear on One Island failed")
+                            continue
+                        if here in (THREE_MART, THREE_ISLAND, THREE_PORT, THREE_HARBOR,
+                                    ONE_HARBOR):
+                            if not self.leg_from_ball_mart(here):
+                                self._ball_restock_fail(
+                                    f"return wedged on {here} @ {tv.coords(b)}")
+                            continue
+                        self._ball_restock_fail(f"drifted to {here} mid-return")
+                        continue
+                    if here == THREE_ISLAND:
+                        if self.buy_ultra_war_chest():
+                            self._ball_restock_returning = True
+                        else:
+                            self._ball_restock_fail("Three Island Mart bought nothing")
+                        continue
+                    if here in (EMBER_SUMMIT, EMBER_EXT, EMBER_3F, EMBER_2F, EMBER_1F,
+                                KINDLE, ONE_PC, ONE_ISLAND, ONE_HARBOR, THREE_HARBOR,
+                                THREE_PORT, THREE_MART):
+                        if not self.leg_to_ball_mart(here):
+                            self._ball_restock_fail(
+                                f"descent wedged on {here} @ {tv.coords(b)}")
+                        continue
+                    self._ball_restock_fail(f"drifted to {here} mid-war-chest")
+                    continue
                 # PP-RESTORE ROUTING (2026-08-05): mode armed at the bird's doorstep — route
                 # DOWN to the One-Island Center instead of pressing. At the Center the mode
                 # clears and the normal climb router takes over (its ONE_PC leg does the free
@@ -1236,8 +1419,9 @@ class MoltresHunt(LegendaryHunt):
                 elif here in (ONE_PC, ONE_ISLAND, KINDLE, EMBER_EXT, EMBER_1F,
                               EMBER_2F, EMBER_3F, EMBER_SUMMIT):
                     if not self.leg_to_summit(here):
-                        if getattr(self, "_pp_restore_mode", False):
-                            continue          # press_quarry just ARMED the restore — descend
+                        if (getattr(self, "_pp_restore_mode", False)
+                                or getattr(self, "_ball_restock_mode", False)):
+                            continue          # press_quarry just ARMED a detour — route it
                         self.log(f"!! [moltres] climb leg wedged on {here} @ {tv.coords(b)}")
                         return "failed"
                 elif here == ONE_HARBOR:
@@ -1256,6 +1440,9 @@ class MoltresHunt(LegendaryHunt):
                             return "failed"
                     elif here == THREE_ISLAND:
                         if not self.cross_edge("south", "to-three-port"):
+                            return "failed"
+                    elif here == THREE_MART:
+                        if not self.enter_step((4, 7), THREE_ISLAND, "mart-out-drift"):
                             return "failed"
                     elif here == BOND_BRIDGE:
                         if not self.cross_edge("east", "to-three-town"):

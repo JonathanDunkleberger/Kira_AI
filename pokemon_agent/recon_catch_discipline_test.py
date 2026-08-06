@@ -29,7 +29,7 @@ Decision table under test:
   under-leveled bench vs a legendary                         -> chipper band admits it
   catch failed (fainted / no balls / whiteout)               -> FREE RETRY: 'pre-<quarry>'
                                                                 checkpoint reload, bounded
-  hunt owed + thin pocket at a mapped Ultra shelf            -> war-chest restock (20 Ultras)
+  hunt owed + thin pocket at a mapped Ultra shelf            -> war-chest restock (50 Ultras)
 + THE FLUID LAP / PROXIMITY TRUMP (2026-08-05 EMERGENCY, the Eevee divert two tiles from
   Moltres):
   fought-flag set, UNCAUGHT, 'pre-<key>' bank exists         -> lap item STAYS PENDING
@@ -516,7 +516,7 @@ def main():
 
     print("== 23. LABELED RELOAD picks the NEWEST 'pre-moltres' bank; war-chest dial ==")
     import campaign as C
-    check("HUNT_ULTRA_TARGET is the healthy stack (20)", C.HUNT_ULTRA_TARGET == 20)
+    check("HUNT_ULTRA_TARGET is the healthy stack (50)", C.HUNT_ULTRA_TARGET == 50)
     with tempfile.TemporaryDirectory() as td:
         _orig_sc = C.STATES_CAMPAIGN
         C.STATES_CAMPAIGN = td
@@ -1189,6 +1189,53 @@ def main():
               and C.Campaign.pp_restore_latched(camp34, "zapdos") is False)
     finally:
         C.PP_RESTORE_JSON = _orig_ppjson34
+
+    print("== 35. ULTRA WAR-CHEST: thin Ultras arm Three Island Mart restock ==")
+    logs35 = []
+    h35 = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h35.b = object()
+    h35.log = logs35.append
+    h35.camp = types.SimpleNamespace(
+        on_event=lambda *a, **k: None,
+        _balls_pocket_count=lambda i: 6 if i == 2 else 0,
+        _ball_restock_fails={})
+    h35.BALL_RESTOCK_WIRED = True
+    h35._ultra_target = lambda: 50
+    check("6 Ultras < target 50 -> WAR-CHEST ARMED",
+          h35._maybe_arm_ball_restock() is True
+          and h35._ball_restock_mode is True
+          and any("ULTRA WAR-CHEST ARMED" in l for l in logs35))
+    logs35.clear()
+    h35b = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h35b.b = object()
+    h35b.log = logs35.append
+    h35b.camp = types.SimpleNamespace(
+        on_event=lambda *a, **k: None,
+        _balls_pocket_count=lambda i: 50 if i == 2 else 0,
+        _ball_restock_fails={})
+    h35b.BALL_RESTOCK_WIRED = True
+    h35b._ultra_target = lambda: 50
+    check("50 Ultras already stacked -> no restock arm",
+          h35b._maybe_arm_ball_restock() is False and not logs35)
+    logs35.clear()
+    h35c = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h35c.b = object()
+    h35c.log = logs35.append
+    h35c.camp = types.SimpleNamespace(
+        on_event=lambda *a, **k: None,
+        _balls_pocket_count=lambda i: 6 if i == 2 else 0,
+        _ball_restock_fails={})
+    h35c.BALL_RESTOCK_WIRED = True
+    h35c._ball_restock_done = True
+    h35c._ultra_target = lambda: 50
+    check("war-chest already bought this run -> engage with pocket we have",
+          h35c._maybe_arm_ball_restock() is False
+          and any("already filled" in l for l in logs35))
+    check("Three Island Mart is in MART_STOCK with Ultra Ball row 0",
+          C.MART_STOCK.get((3, 14), [None])[0] == 2
+          and C.CITY_MART_DOORS.get((3, 14)) == (18, 12))
+    check("Moltres hunt wires the ball-restock leg",
+          LS.MoltresHunt.BALL_RESTOCK_WIRED is True)
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")

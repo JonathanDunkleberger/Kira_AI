@@ -1259,7 +1259,12 @@ CITY_MART_DOORS = {PEWTER: PEWTER_MART_DOOR, VIRIDIAN: VIRIDIAN_MART_DOOR,
                    # Saffron Mart (night-shift 4) — the pre-Silph Hyper-Potion stock-up (Gary/Charizard).
                    SAFFRON: SAFFRON_MART_DOOR,
                    # Cinnabar Mart (2026-08-05) — the endgame sea corridor's OWN ball/kit shelf.
-                   CINNABAR: CINNABAR_MART_DOOR}
+                   CINNABAR: CINNABAR_MART_DOOR,
+                   # Three Island Mart (2026-08-06) — Sevii Ultra shelf while stranded on the
+                   # archipelago (Bill's sail-home is Lostelle-gated; Two Island's market only
+                   # sells Great Balls until Lostelle is rescued). Door (18,12) from pret
+                   # ThreeIsland/map.json warp -> MAP_THREE_ISLAND_MART.
+                   (3, 14): (18, 12)}
 # Celadon "Mart" = Dept Store 2F items clerk (no CITY_MART_DOORS entry — buy_at_celadon_dept owns it).
 
 # DOOR APPROACH WAYPOINTS (game-knowledge, rule 14): some Mart/building doors sit in a pocket the
@@ -1304,6 +1309,10 @@ MART_STOCK = {
     # bag-delta verify guards any mis-row LOUD (balls land in the Balls pocket; the pocket-aware
     # count covers them — pitfall 7). This shelf is the victory lap's hunt-restock anchor.
     CINNABAR: [2, 3, 21, 24, 23, 85, 88],
+    # Three Island Mart (2026-08-06) from pret ThreeIsland_Mart scripts.inc:
+    # UltraBall, HyperPotion, Revive, FullHeal, EscapeRope, MaxRepel. The Moltres war-chest
+    # restock leg sails here from One Island Harbor (no Cinnabar road until Lostelle).
+    (3, 14): [2, 21, 24, 23, 85, 88],
 }
 MART_CURSOR = 0x02039940   # u16 sShopData.selectedRow (pret sym 0x02039934+0xC) — the WINDOW row only
 MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above the window
@@ -1317,11 +1326,12 @@ MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above t
 # into not-losing; the SHOP_MONEY_FLOOR still guards true bankruptcy.
 SHOP_POTION_TARGET = 12
 # THE ULTRA WAR-CHEST (2026-08-05 addendum, Jonny at Moltres: "maybe she needs more ultra
-# balls, like the buy limit"): while a legendary hunt is owed, the lap's ball restock fills
-# the Ultra tier to a HEALTHY STACK, not the old 8-ball trickle — ~1200 each, so 20 is ~24k;
-# buy_at_mart's SHOP_MONEY_FLOOR + the sell-loot-first pass keep the wallet honest, and the
-# buy loop simply stops early if funds run dry (buys what she can afford).
-HUNT_ULTRA_TARGET = 20
+# balls, like the buy limit"; 2026-08-06 chat: "~50 balls" with only 6 in the bag): while a
+# legendary hunt is owed, restock fills the Ultra tier to a HEALTHY STACK — ~1200 each, so
+# 50 is ~60k; buy_at_mart's SHOP_MONEY_FLOOR + the sell-loot-first pass keep the wallet
+# honest, and the buy loop stops early if funds run dry (buys what she can afford).
+# Env override for soak tuning without a code push.
+HUNT_ULTRA_TARGET = int(os.getenv("POKEMON_HUNT_ULTRA_TARGET", "50"))
 # Baseline potions EVERY gym gets before the door (2026-08-02 Erika chalk — she walked into
 # Celadon Gym empty-handed and blacked out). Stall gyms override with a deeper stock.
 GYM_POTION_TARGET = int(os.getenv("POKEMON_GYM_POTION_TARGET", "12"))
@@ -13556,7 +13566,9 @@ class Campaign:
         # Now: candidates are RIDEABLE-filtered (the router's own next-step probe, CINNABAR
         # first — it's the endgame sea corridor's shelf), and a failed march feeds the bounded
         # fail counter -> honest skip. The lap can no longer wedge on an unreachable shop.
-        tgt = next((c for c in (CINNABAR, FUCHSIA, SAFFRON, CELADON, CERULEAN, VERMILION)
+        # Three Island first when stranded on Sevii (Cinnabar sail-home is Lostelle-gated).
+        tgt = next((c for c in ((3, 14), CINNABAR, FUCHSIA, SAFFRON, CELADON, CERULEAN,
+                                VERMILION)
                     if any(t in MART_STOCK.get(c, []) for t in (2, 3, 4))
                     and self._next_step_rideable(here, c, set()) is not None), None)
         if tgt is None:
@@ -14627,9 +14639,9 @@ class Campaign:
                             for sp, fought in ((145, 0x2BF), (144, 0x2BE),
                                                (146, 0x2BD), (150, 0x2BC))))
                 _ultras = self._balls_pocket_count(2)
-                if (_hunt_pending and _ultras < 8
+                if (_hunt_pending and _ultras < HUNT_ULTRA_TARGET
                         and 2 in MART_STOCK.get(tv.map_id(self.b), [])):
-                    sl.append((2, 8 - _ultras))
+                    sl.append((2, HUNT_ULTRA_TARGET - _ultras))
             except Exception:
                 pass
         # Afflictions she's felt on the road + KB foresight for the NEXT gym (Surge Parlyz
