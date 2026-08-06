@@ -21123,9 +21123,7 @@ class Campaign:
         no-ops. Runs BEFORE the roam anchor banks, so 'roam_start' captures the at-the-bird
         moment. Dex-owned reads must be a hard False (an unreadable dex never rewinds a
         possibly-caught mon). Returns True when a rewind happened."""
-        specs = dict(self._LAP_HUNT_SPEC)
-        specs["mewtwo"] = (150, 0x081, 0x2BC)
-        for key, (sp, hide, fought) in specs.items():
+        for key, (sp, hide, fought) in self._HUNT_SPEC_ALL.items():
             try:
                 if ram.pokedex_owns(self.b, sp) is not False:
                     continue                     # caught (or unreadable — never rewind blind)
@@ -21133,7 +21131,7 @@ class Campaign:
                     continue                     # encounter still live — nothing to rewind
             except Exception:
                 continue
-            if self._reload_labeled_checkpoint(f"pre-{key}"):
+            if self._reload_hunt_checkpoint(key):
                 log(f"   [hunt] !!!! LEGENDARY REWIND AT BOOT: {key} was battled-away but NOT "
                     f"caught — resumed INTO the encounter from 'pre-{key}' (balls restored, "
                     f"flag clear, standing at the bird) (LOUD)")
@@ -21158,32 +21156,79 @@ class Campaign:
         except Exception:
             return False
 
-    def _reload_labeled_checkpoint(self, tag):
+    def _reload_labeled_checkpoint(self, tag, verify=None, ratchet_region=None, max_loads=10):
         """LABELED RELOAD (2026-08-05, THE FREE RETRY at Moltres): load the NEWEST on-disk
         auto-checkpoint whose dir name carries `tag` (labels are the _ckpt_label reason
         suffix — 'pre-moltres', 'moltres-leg', ...). Savestates restore FULL RAM, so a
         failed legendary catch rewinds to the pre-press moment: fought/hide flags clear,
         balls back in the bag, party topped up. Loads only the .state (live sidecars stay —
         same campaign, same soul). Re-anchors the recent-good so the watchdog's escape
-        hatch agrees this moment is home. Returns True on a verified load; never raises."""
+        hatch agrees this moment is home. Returns True on a verified load; never raises.
+
+        VERIFIED RATCHET (2026-08-05 URGENT, the poisoned 'pre-moltres' bank): a checkpoint's
+        NAME is a claim, not a proof — the live rewind loaded a 'pre-moltres' banked AFTER the
+        fled encounter, so the fought flag was set INSIDE the savestate and the summit was
+        empty. With `verify` (a zero-arg callback reading FRESH post-load RAM), every loaded
+        candidate must pass before it counts: a rejected bank logs 'poisoned' LOUDLY and the
+        ratchet steps to the next older candidate — first the remaining `tag` matches, then
+        (with `ratchet_region`) every older same-region bank on disk (moltres-leg, room-entry,
+        roam-start...), newest->oldest, bounded by `max_loads`. If every candidate is poisoned
+        the ORIGINAL live state is restored — a failed ratchet must not strand her in a
+        random rejected bank."""
+        import json as _json
         root = os.path.join(STATES_CAMPAIGN, "checkpoints")
         try:
-            names = sorted((n for n in os.listdir(root)
-                            if os.path.isdir(os.path.join(root, n))
-                            and not n.endswith(".partial")
-                            and tag in n), reverse=True)
+            all_names = sorted((n for n in os.listdir(root)
+                                if os.path.isdir(os.path.join(root, n))
+                                and not n.endswith(".partial")), reverse=True)
         except Exception as _le:
             log(f"   [ckpt] labeled reload '{tag}': checkpoint root unreadable ({_le}) — declining")
             return False
-        for name in names:
+        tagged = [n for n in all_names if tag in n]
+        candidates = list(tagged)
+        if verify is not None and ratchet_region:
+            # ratchet fallback: same-region banks OLDER than the newest tag match (all of them
+            # when no tag match exists). Region proven by the bank's own checkpoint.json map —
+            # an unprovable candidate is skipped, never a blind cross-sea teleport.
+            horizon = tagged[0] if tagged else None
+            for n in all_names:
+                if n in tagged or (horizon is not None and n >= horizon):
+                    continue
+                try:
+                    with open(os.path.join(root, n, "checkpoint.json"), "r",
+                              encoding="utf-8") as f:
+                        m = tuple(_json.load(f).get("map") or ())
+                    if len(m) == 2 and map_region(m) == ratchet_region:
+                        candidates.append(n)
+                except Exception:
+                    continue
+        orig = None
+        if verify is not None:
+            try:
+                orig = self.b.save_state()
+            except Exception:
+                orig = None
+        loads = 0
+        for name in candidates:
+            if loads >= max_loads:
+                log(f"   [ckpt] !! LABELED RELOAD '{tag}': ratchet budget spent "
+                    f"({max_loads} loads) — stopping the walk-back")
+                break
             state_p = os.path.join(root, name, CAMPAIGN_SAVE)
             try:
                 if not os.path.exists(state_p):
                     continue
                 with open(state_p, "rb") as f:
                     self.b.load_state(f.read())
-                log(f"   [ckpt] !!!! LABELED RELOAD '{tag}': checkpoint '{name}' loaded — "
-                    f"resuming at that banked moment (LOUD)")
+                loads += 1
+                if verify is not None and not verify():
+                    log(f"   [ckpt] !! LABELED RELOAD '{tag}': candidate '{name}' is POISONED "
+                        f"(post-load verify failed: fought-flag set / quarry gone) — "
+                        f"ratcheting to the next older bank (LOUD)")
+                    continue
+                log(f"   [ckpt] !!!! LABELED RELOAD '{tag}': checkpoint '{name}' loaded"
+                    + (" and VERIFIED" if verify is not None else "")
+                    + " — resuming at that banked moment (LOUD)")
                 try:
                     self._last_good_state = self.b.save_state()
                     self._last_good_gain = self._gain_sig()
@@ -21195,8 +21240,46 @@ class Campaign:
                 return True
             except Exception as _ce:
                 log(f"   [ckpt] labeled candidate {name} skipped: {_ce}")
-        log(f"   [ckpt] !! LABELED RELOAD '{tag}': no matching checkpoint bank on disk — declining")
+        if loads and orig is not None:
+            try:
+                self.b.load_state(orig)
+                log(f"   [ckpt] !! LABELED RELOAD '{tag}': every candidate rejected — "
+                    f"ORIGINAL live state restored (no stranding in a rejected bank)")
+            except Exception:
+                pass
+        log(f"   [ckpt] !! LABELED RELOAD '{tag}': no acceptable checkpoint bank on disk — declining")
         return False
+
+    _HUNT_SPEC_ALL = {"moltres": (146, 0x052, 0x2BD), "articuno": (144, 0x082, 0x2BE),
+                      "zapdos": (145, 0x05D, 0x2BF), "mewtwo": (150, 0x081, 0x2BC)}
+    _HUNT_SITE_ALL = {"moltres": (3, 12), "articuno": (3, 38), "zapdos": (3, 28),
+                      "mewtwo": (3, 3)}
+
+    def _hunt_bank_live(self, key):
+        """FRESH post-load RAM read (never a cached value): True when the state now in the
+        emulator still CONTAINS the encounter — fought/hide flags clear — or the quarry is
+        already owned (a post-catch bank is a fine place to stand). Unreadable -> False
+        (an unprovable bank is a rejected bank)."""
+        spec = self._HUNT_SPEC_ALL.get(key)
+        if not spec:
+            return False
+        sp, hide, fought = spec
+        try:
+            if ram.pokedex_owns(self.b, sp) is True:
+                return True
+            return not (fm.read_flag(self.b, fought) or fm.read_flag(self.b, hide))
+        except Exception:
+            return False
+
+    def _reload_hunt_checkpoint(self, key):
+        """The hunts' ONLY reload door (boot rewind + THE FREE RETRY): 'pre-<key>' first,
+        post-load flag verification, poisoned banks ratchet back through older same-region
+        banks until one still contains the bird. Returns True on a verified landing."""
+        key = str(key).lower()
+        site = self._HUNT_SITE_ALL.get(key)
+        return self._reload_labeled_checkpoint(
+            f"pre-{key}", verify=lambda: self._hunt_bank_live(key),
+            ratchet_region=map_region(site) if site else None)
 
     MAX_BLACKOUT_RETRIES = 12     # per segment — a thin solo roster needs several Miguel attempts;
                                   # each retry re-walks (more trainer XP) + re-heals, so it converges.

@@ -168,9 +168,12 @@ class LegendaryHunt(GiovanniGym):
                          f"({self._catch_retries}/{self.LEGEND_CATCH_RETRIES}) — accepting "
                          f"'battled' (LOUD; the ball war-chest restock is the road back)")
             return False
-        if not self.camp._reload_labeled_checkpoint(f"pre-{name}"):
-            self.log(f"   [hunt] !! {name} catch failed but no 'pre-{name}' checkpoint "
-                     f"reloadable — accepting the outcome (LOUD)")
+        # verified reload (2026-08-05, the poisoned 'pre-moltres' bank): the campaign's hunt
+        # door checks the fought/hide flags in the LOADED RAM and ratchets to older banks.
+        if not self.camp._reload_hunt_checkpoint(name):
+            self.log(f"   [hunt] !! {name} catch failed but no VERIFIED 'pre-{name}' bank "
+                     f"reloadable (all candidates poisoned or missing) — accepting the "
+                     f"outcome (LOUD)")
             return False
         self._catch_retries += 1
         self.log(f"   [hunt] !!!! FREE RETRY {self._catch_retries}/{self.LEGEND_CATCH_RETRIES}: "
@@ -229,6 +232,24 @@ class LegendaryHunt(GiovanniGym):
         camp = self.camp
         key = ((self.QUARRY or {}).get("name") or "hunt").lower()
         label = reason or f"{key}-leg"
+        # POISONED-BANK LAW (2026-08-05 URGENT): a 'pre-<quarry>' bank must contain the LIVE
+        # encounter. Re-banking after a fled/fainted fight wrote the fought flag INTO the
+        # newest 'pre-moltres' — the rewind then loaded an empty summit ("gone forever").
+        # Fresh flag read here; spent + uncaught -> REFUSE the bank, loudly.
+        if str(label).startswith("pre-"):
+            q = self.QUARRY or {}
+            try:
+                if (q.get("species")
+                        and ram.pokedex_owns(self.b, q["species"]) is not True
+                        and (fm.read_flag(self.b, q.get("fought", 0))
+                             or fm.read_flag(self.b, q.get("hide", 0)))):
+                    self.log(f"   [ckpt] !! REFUSED to bank '{label}': the quarry is already "
+                             f"battled-away in THIS state (fought/hide flag set, uncaught) — "
+                             f"a pre-encounter bank must contain the live encounter "
+                             f"(poisoned-bank law, LOUD)")
+                    return False
+            except Exception:
+                pass
         try:
             camp._bank_milestone(label)
             (getattr(camp, "_lap_fails", None) or {}).pop(key, None)

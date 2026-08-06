@@ -39,6 +39,13 @@ Decision table under test:
                                                                 order only as the tiebreak
   spent-but-retryable inside a hunt leg (spent_final)        -> reload, encounter live again
   boot with a battled-away uncaught legendary + bank         -> LEGENDARY REWIND to the bird
++ THE VERIFIED RATCHET (2026-08-05 URGENT, the poisoned 'pre-moltres' bank):
+  loaded bank has the fought-flag set, quarry uncaught       -> POISONED: ratchet to the
+                                                                next older same-region bank
+  cross-region banks in the ratchet walk                     -> skipped (never a sea teleport)
+  every candidate poisoned                                   -> original live state restored
+  banking 'pre-<key>' while the fought-flag is set           -> REFUSED (poisoned-bank law)
+  post-load flag read                                        -> fresh RAM, never cached
 """
 import json
 import os
@@ -459,7 +466,7 @@ def main():
     hunt.log = logs22.append
     reloads = []
     hunt.camp = types.SimpleNamespace(
-        _reload_labeled_checkpoint=lambda tag: (reloads.append(tag), True)[1],
+        _reload_hunt_checkpoint=lambda key: (reloads.append(f"pre-{key}"), True)[1],
         on_event=lambda *a, **k: None)
     _orig_owns, _orig_flag = LS.ram.pokedex_owns, LS.fm.read_flag
     world = {"owned": False, "fought": False}
@@ -480,7 +487,7 @@ def main():
               hunt._retry_failed_catch() is False
               and any("retry budget is spent" in l for l in logs22))
         hunt._catch_retries = 0
-        hunt.camp._reload_labeled_checkpoint = lambda tag: False
+        hunt.camp._reload_hunt_checkpoint = lambda key: False
         check("no checkpoint on disk -> honest decline",
               hunt._retry_failed_catch() is False and hunt._catch_retries == 0)
     finally:
@@ -606,7 +613,7 @@ def main():
     hunt26._catch_retries = 0
     reloads26 = []
     hunt26.camp = types.SimpleNamespace(
-        _reload_labeled_checkpoint=lambda tag: (reloads26.append(tag), True)[1],
+        _reload_hunt_checkpoint=lambda key: (reloads26.append(f"pre-{key}"), True)[1],
         on_event=lambda *a, **k: None)
     _orig_owns26, _orig_flag26 = LS.ram.pokedex_owns, LS.fm.read_flag
     world26 = {"owned": False, "fought": False}
@@ -653,7 +660,7 @@ def main():
         camp27b = C.Campaign.__new__(C.Campaign)
         camp27b.b = object()
         reloads27, voiced27 = [], []
-        camp27b._reload_labeled_checkpoint = lambda tag: (reloads27.append(tag), True)[1]
+        camp27b._reload_hunt_checkpoint = lambda key: (reloads27.append(f"pre-{key}"), True)[1]
         camp27b.on_event = lambda *a, **k: voiced27.append(a)
         check("battled-away uncaught moltres at boot -> REWOUND to 'pre-moltres', voiced",
               camp27b._legend_rewind_at_boot() is True and reloads27 == ["pre-moltres"]
@@ -667,6 +674,89 @@ def main():
               camp27b._legend_rewind_at_boot() is False and reloads27 == [])
     finally:
         C.ram.pokedex_owns, C.fm.read_flag = _orig_owns27, _orig_flag27
+
+    print("== 28. THE VERIFIED RATCHET: poisoned banks rejected, older clean bank wins ==")
+    # The live failure verbatim: the newest 'pre-moltres' was banked AFTER the fled fight —
+    # fought-flag set inside the savestate, summit empty. The ratchet must reject it by a
+    # FRESH post-load flag read and land on the next older same-region bank that still
+    # contains the bird (cross-region banks skipped; all-poisoned restores the live state).
+    class RatchetBridge:
+        def __init__(self):
+            self.body = b"LIVE"
+        def load_state(self, by):
+            self.body = by
+        def save_state(self):
+            return self.body
+    with tempfile.TemporaryDirectory() as td28:
+        _orig_sc28 = C.STATES_CAMPAIGN
+        C.STATES_CAMPAIGN = td28
+        root28 = os.path.join(td28, "checkpoints")
+
+        def _bank28(name, body, mp=None):
+            os.makedirs(os.path.join(root28, name), exist_ok=True)
+            with open(os.path.join(root28, name, C.CAMPAIGN_SAVE), "wb") as f:
+                f.write(body)
+            if mp is not None:
+                with open(os.path.join(root28, name, "checkpoint.json"), "w",
+                          encoding="utf-8") as f:
+                    json.dump({"map": list(mp)}, f)
+        _bank28("20260805_175000_mt-ember-summit_8b_pre-moltres", b"POISONED")
+        _bank28("20260805_174500_celadon-city_8b_roam", b"KANTO", mp=(3, 6))
+        _bank28("20260805_174000_mt-ember-2f_8b_moltres-leg", b"CLEAN", mp=(1, 99))
+        camp28 = C.Campaign.__new__(C.Campaign)
+        camp28.b = RatchetBridge()
+        camp28._gain_sig = lambda: 0
+        camp28._wait_overworld = lambda *a, **k: True
+        camp28._save_campaign = lambda *a, **k: True
+        # the flag reads key off WHICH savestate body is loaded — passing these checks IS
+        # the proof the verify reads fresh post-load RAM, not a cached pre-reload value.
+        _orig_owns28, _orig_flag28 = C.ram.pokedex_owns, C.fm.read_flag
+        C.ram.pokedex_owns = lambda b, sp: False
+        C.fm.read_flag = lambda b, f: camp28.b.body in (b"POISONED", b"KANTO")
+        try:
+            check("poisoned 'pre-moltres' rejected -> ratchet lands the older CLEAN sevii bank",
+                  camp28._reload_hunt_checkpoint("moltres") is True
+                  and camp28.b.body == b"CLEAN")
+            check("the kanto bank between them was never accepted (region law held)",
+                  camp28.b.body != b"KANTO")
+            # all-poisoned: overwrite the clean bank with a fought-flag state too
+            _bank28("20260805_174000_mt-ember-2f_8b_moltres-leg", b"POISONED", mp=(1, 99))
+            camp28.b.body = b"LIVE"
+            check("every candidate poisoned -> declined AND the live state is restored",
+                  camp28._reload_hunt_checkpoint("moltres") is False
+                  and camp28.b.body == b"LIVE")
+            # verify=None keeps the old single-shot behavior (test 23's contract)
+            check("no-verify reload still takes the newest tag match blind",
+                  camp28._reload_labeled_checkpoint("pre-moltres") is True
+                  and camp28.b.body == b"POISONED")
+        finally:
+            C.ram.pokedex_owns, C.fm.read_flag = _orig_owns28, _orig_flag28
+            C.STATES_CAMPAIGN = _orig_sc28
+
+    print("== 29. POISONED-BANK LAW: 'pre-<key>' never banked with the fought-flag set ==")
+    logs29, banked29 = [], []
+    hunt29 = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    hunt29.b = object()
+    hunt29.log = logs29.append
+    hunt29.camp = types.SimpleNamespace(_bank_milestone=lambda label: banked29.append(label),
+                                        _lap_fails={})
+    _orig_owns29, _orig_flag29 = LS.ram.pokedex_owns, LS.fm.read_flag
+    world29 = {"fought": True}
+    LS.ram.pokedex_owns = lambda b, sp: False
+    LS.fm.read_flag = lambda b, f: world29["fought"]
+    try:
+        check("fought-flag set + uncaught -> 'pre-moltres' bank REFUSED, loud",
+              hunt29.strike_checkpoint("pre-moltres") is False and banked29 == []
+              and any("REFUSED to bank" in l for l in logs29))
+        check("non-pre milestones still bank under the flag (climb durability untouched)",
+              hunt29.strike_checkpoint("moltres-leg") is True
+              and banked29 == ["moltres-leg"])
+        world29["fought"] = False
+        check("flags clear -> 'pre-moltres' banks normally",
+              hunt29.strike_checkpoint("pre-moltres") is True
+              and banked29 == ["moltres-leg", "pre-moltres"])
+    finally:
+        LS.ram.pokedex_owns, LS.fm.read_flag = _orig_owns29, _orig_flag29
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")
