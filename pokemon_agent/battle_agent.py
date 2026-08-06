@@ -1668,7 +1668,7 @@ class BattleAgent:
             if ci is None:
                 if legend:
                     self.log(f"   [catch] chip halting — the ACTIVE mon has no damaging move "
-                             f"with PP left (foe at {_frac:.0%}); a bench chipper must take over")
+                             f"with PP left (foe at {_frac:.0%}); ACE-ONLY ladder / free-retry owns it")
                 return "no_pp"                          # active's damaging PP is dry
             _mv_nm = state["ours"]["moves"][ci].get("name", f"slot {ci}")
             if not csafe:
@@ -1735,66 +1735,38 @@ class BattleAgent:
         return "stuck"
 
     def _legend_chip_ladder(self, chip_tgt, chip_hits, chipper_tried):
-        """PP LADDER rung 3 + HARD THROW FLOOR (2026-08-06 LIVE, soak 180943): after the
-        active's chip phase stops ABOVE the red zone, walk the bench — prefer a mon that
-        RESISTS the foe's STAB (Lapras into Moltres, not Fearow), skip already-tried /
-        fainted slots, stop the moment a chipper dies instead of puppeting a corpse.
-        Returns (chipper_tried_set, refuse_throw). refuse_throw=True means foe is STILL
-        above CATCH_THROW_FLOOR_LEGEND (half HP) with no safe chip left — caller MUST flee
-        for a free-retry, never dump Ultras."""
+        """ACE-ONLY legendary chip + HARD THROW FLOOR (2026-08-06 LIVE, Jonny: 'she needs
+        Blastoise to handle Moltres entirely himself — pulling Spearow/Fearow just gets it
+        killed and the bird flies away'). Voluntary bench switches are OFF for legendaries:
+        the ace (Water resist into Moltres) chips alone; if its safe PP runs dry above the
+        hard floor, flee → free-retry → Center heal banks a full Bite tank. Returns
+        (chipper_tried_set unused, refuse_throw)."""
         tried = set(chipper_tried or ())
-        for _round in range(4):
-            if not st.in_battle(self.b):
-                return tried, False
-            _s2 = st.read_battle(self.b)
-            if not _s2 or not _s2["enemy"].get("maxhp"):
-                return tried, False
-            _f2 = _hp_frac(_s2["enemy"])
-            if _f2 <= CATCH_READY_FRAC_LEGEND:
-                return tried, False
-            # If OUR active is already down, the catch loop's send-in owns the seat — don't
-            # pile another switch on a forced-replacement prompt.
-            if (_s2.get("ours") or {}).get("maxhp") and (_s2["ours"].get("hp", 1) <= 0):
-                self.log("   [catch] chip LADDER — active already down; deferring to "
-                         "forced send-in (not another voluntary switch)")
-                return tried, (_f2 > CATCH_THROW_FLOOR_LEGEND)
-            ch = self._catch_chipper_slot(
-                _s2["enemy"].get("level"), legend=True, exclude=tried,
-                foe_types=_s2["enemy"].get("types") or [])
-            if ch is None:
-                break
-            tried.add(ch)
-            _ch_nm = st.SPECIES_NAME.get(st.read_party_species(self.b, ch), "a teammate")
-            self.log(f"   [catch] chip LADDER — active stopped at {_f2:.0%} (band "
-                     f"{CATCH_READY_FRAC_LEGEND:.0%}): fielding slot {ch} ({_ch_nm}) "
-                     f"to keep chipping (fresh PP, soft hits; resist-preferred)")
-            if self._switch_to_slot(ch, _s2["ours"].get("species")) != "switched":
-                self.log("   [catch] chip LADDER — chipper switch didn't confirm "
-                         "(fail-safe B-out); trying next")
-                continue
-            self.emit(f"{_ch_nm}, tag in — soft hits only, we're wearing it down, "
-                      f"not finishing it.", beat=True, tier=1)
-            verdict = self._weaken_hp(target_frac=chip_tgt, max_hits=chip_hits, legend=True)
-            if verdict == "band":
-                return tried, False
-            if verdict == "our_down":
-                self.log(f"   [catch] chip LADDER — {_ch_nm} went down mid-chip; "
-                         f"trying the next resist chipper (not throwing yet)")
-                continue
-            # guard / no_pp / hits — try another chipper if foe still high
+        if not st.in_battle(self.b):
+            return tried, False
         _s3 = st.read_battle(self.b)
-        _f3 = (_hp_frac(_s3["enemy"]) if _s3 and _s3["enemy"].get("maxhp") else 0.0)
-        if _f3 > CATCH_THROW_FLOOR_LEGEND and st.in_battle(self.b):
-            self.log(f"   [catch] !! CHIP CAPABILITY EXHAUSTED above HARD FLOOR — foe still "
+        if not _s3 or not _s3["enemy"].get("maxhp"):
+            return tried, False
+        _f3 = _hp_frac(_s3["enemy"])
+        if _f3 <= CATCH_READY_FRAC_LEGEND:
+            return tried, False
+        # Never tag in Fearow/Lapras/etc. on a legendary — one free Fire STAB and the
+        # encounter is spent. Loud so the soak report shows the policy, not a missing switch.
+        _ace = st.SPECIES_NAME.get((_s3.get("ours") or {}).get("species"), "the ace")
+        self.log(f"   [catch] chip LADDER — ACE-ONLY on legendaries ({_ace} stays in; "
+                 f"NO bench switch — Jonny: Blastoise handles Moltres himself) "
+                 f"(foe at {_f3:.0%})")
+        if _f3 > CATCH_THROW_FLOOR_LEGEND:
+            self.log(f"   [catch] !! ACE chip stopped above HARD FLOOR — foe still "
                      f"at {_f3:.0%} HP (floor {CATCH_THROW_FLOOR_LEGEND:.0%}, band "
-                     f"{CATCH_READY_FRAC_LEGEND:.0%}): REFUSING the throw, free-retry owns "
-                     f"the next attempt (LOUD — never dump Ultras above half)")
+                     f"{CATCH_READY_FRAC_LEGEND:.0%}): REFUSING the throw, free-retry + "
+                     f"PP restore owns the next attempt (LOUD — never dump Ultras / never "
+                     f"sacrifice the bench)")
             return tried, True
-        if _f3 > CATCH_READY_FRAC_LEGEND and st.in_battle(self.b):
-            self.log(f"   [catch] !! CHIP CAPABILITY EXHAUSTED — foe at {_f3:.0%} HP "
-                     f"(at/under hard floor {CATCH_THROW_FLOOR_LEGEND:.0%}, above red band "
-                     f"{CATCH_READY_FRAC_LEGEND:.0%}): SANCTIONED throw (sleep rung still "
-                     f"applies) (LOUD)")
+        self.log(f"   [catch] !! ACE chip stopped at {_f3:.0%} HP "
+                 f"(at/under hard floor {CATCH_THROW_FLOOR_LEGEND:.0%}, above red band "
+                 f"{CATCH_READY_FRAC_LEGEND:.0%}): SANCTIONED throw (sleep rung still "
+                 f"applies) (LOUD)")
         return tried, False
 
     def catch_pokemon(self, max_seconds=150, weaken=True, ball_pref="cheap", allow_master=False,
@@ -2019,9 +1991,12 @@ class BattleAgent:
                 # non-confirm -> we just fall through to the old full-HP throw). One attempt per catch;
                 # the wild's free turn during the switch is priced in (flee-risk species never reach
                 # here — they take the ball-on-sight path above).
-                if not chipper_tried and not state["enemy"].get("asleep"):
+                # LEGENDARY: never voluntary-switch the bench in (Fearow into Moltres =
+                # free KO + bird spent). Ace chips alone; hard floor / free-retry owns thin PP.
+                if (not _legend and not chipper_tried
+                        and not state["enemy"].get("asleep")):
                     ch = self._catch_chipper_slot(
-                        state["enemy"].get("level"), legend=_legend,
+                        state["enemy"].get("level"), legend=False,
                         foe_types=state["enemy"].get("types") or [])
                     if ch is not None:
                         chipper_tried.add(ch)
@@ -2032,7 +2007,6 @@ class BattleAgent:
                         if self._switch_to_slot(ch, state["ours"].get("species")) == "switched":
                             self.emit(f"{_my_nm} hits way too hard for this — {_ch_nm}, you're up. "
                                       f"soften it, don't finish it.", beat=True, tier=1)
-                            # damage-aware chip with the fielded mon (legendary: red-zone target)
                             self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits,
                                             legend=_legend)
                             softened = True
@@ -2064,8 +2038,8 @@ class BattleAgent:
                 # depleted) and the foe is still near full HP, DON'T throw — a full-HP catch is low-odds
                 # and that's exactly how she burned her whole ball supply tonight. Flee (preserve the
                 # balls) and surface that she needs to restore PP (a Center tops up PP). Roam then heals.
-                # LEGENDARY EXEMPT: fleeing a static sets the fought flag — the ladder below (bench
-                # chipper, then the loud sanctioned early throw) owns the depleted case instead.
+                # LEGENDARY EXEMPT: fleeing a static sets the fought flag — the ACE-ONLY ladder
+                # below (hard floor refuse → free-retry / PP restore) owns the depleted case.
                 if not _legend and not self._can_weaken(state) and state["enemy"].get("maxhp") \
                         and state["enemy"]["hp"] > state["enemy"]["maxhp"] * self.CATCH_WEAKEN_CEIL:
                     self.emit("I can't even dent it — I'm out of PP to weaken it, and I'm not burning my "

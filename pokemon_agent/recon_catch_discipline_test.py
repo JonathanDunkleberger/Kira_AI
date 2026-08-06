@@ -53,9 +53,9 @@ Decision table under test:
 + THE PP LADDER (2026-08-05 LIVE, the one-Bite Moltres ball-burn):
   chip pick re-reads PP every swing                          -> a dry move never re-picked
   gentlest over the safety margin, can't faint from here     -> rung 2 swings anyway (legend)
-  active out of damaging PP / faint-guard above the band     -> rung 3: bench chipper switch
-  still above the band after field + bench                   -> LOUD sanctioned early throw
-  legendary never flees on depleted PP (fought-flag cost)    -> ladder owns it instead
+  active out of damaging PP / faint-guard above hard floor   -> ACE-ONLY refuse + free-retry
+  between red band and hard floor                            -> LOUD sanctioned throw (no bench)
+  legendary never tags Fearow/Spearow in (bird spends)       -> Blastoise chips alone
   pre-encounter chip-PP audit                                -> party PP confessed pre-bank
 + THE PP RESTORE LEG (2026-08-05, Jonny: 'restore Blastoise's PP so she can Bite repeatedly'):
   ace safe swings < 5 OR party-wide < 8 vs the quarry        -> descend, Center heal, re-climb,
@@ -893,59 +893,49 @@ def main():
     finally:
         BA.st.read_battle, BA.st.in_battle = _orig_rb30, _orig_ib30
 
-    print("== 31. LADDER rung 3 + HARD THROW FLOOR (_legend_chip_ladder) ==")
+    print("== 31. ACE-ONLY legendary chip + HARD THROW FLOOR (_legend_chip_ladder) ==")
     logs31 = []
     ag31 = make_agent([(2, 6)], hunt_pending=True, logs=logs31)
     world31 = {"foe_frac": 0.60}
     _orig_rb31, _orig_ib31 = BA.st.read_battle, BA.st.in_battle
-    _orig_rps31 = BA.st.read_party_species
     BA.st.read_battle = lambda b: {"ours": {"moves": [], "species": 9, "level": 63,
                                             "hp": 100, "maxhp": 100},
                                    "enemy": {"hp": int(world31["foe_frac"] * 100),
                                              "maxhp": 100, "level": 50,
                                              "types": ["fire", "flying"]}}
     BA.st.in_battle = lambda b: True
-    BA.st.read_party_species = lambda b, s=0: 22
-    switched31, chips31 = [], []
-    ag31._catch_chipper_slot = lambda lvl, legend=False, exclude=None, foe_types=None: (
-        None if 2 in set(exclude or ()) else 2)
+    switched31 = []
+    ag31._catch_chipper_slot = lambda *a, **k: 2
     ag31._switch_to_slot = lambda s, sp: (switched31.append(s), "switched")[1]
-    ag31._weaken_hp = lambda target_frac=None, max_hits=4, legend=False: (
-        chips31.append(legend), world31.__setitem__("foe_frac", 0.14), "band")[2]
     try:
+        # above hard floor -> ACE stays in, NO bench switch, refuse throw
         tried31, refuse31 = ag31._legend_chip_ladder(
             BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, set())
-        check("above the band -> bench chipper SWITCHED IN, chip continues (legend depth)",
-              2 in tried31 and refuse31 is False and switched31 == [2] and chips31 == [True])
-        check("after the bench chip reaches the band -> NO exhausted line (honest gate)",
-              not any("CHIP CAPABILITY EXHAUSTED" in l for l in logs31), f"logs={logs31[-2:]}")
-        # chipper already tried; still ABOVE hard floor -> REFUSE throw (not Ultra dump)
-        logs31.clear(); switched31.clear()
-        world31["foe_frac"] = 0.75
-        tried31b, refuse31b = ag31._legend_chip_ladder(
-            BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, {2})
-        check("chipper already tried + foe above half -> REFUSE throw (hard floor)",
-              refuse31b is True and switched31 == []
-              and any("HARD FLOOR" in l or "REFUSING the throw" in l for l in logs31))
-        # between red band and hard floor -> sanctioned throw OK
+        check("above half -> ACE-ONLY (no Fearow/Spearow switch), refuse throw",
+              refuse31 is True and switched31 == []
+              and any("ACE-ONLY" in l for l in logs31)
+              and any("HARD FLOOR" in l or "REFUSING" in l for l in logs31))
+        # between red band and hard floor -> sanctioned throw, still no switch
         logs31.clear(); switched31.clear()
         world31["foe_frac"] = 0.40
         tried31c, refuse31c = ag31._legend_chip_ladder(
-            BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, {2})
-        check("foe at 40% (under hard floor, above red) -> sanctioned throw, not refuse",
-              refuse31c is False and any("SANCTIONED throw" in l for l in logs31))
-        # already in the band -> nothing to do, nothing loud
+            BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, set())
+        check("foe at 40% -> sanctioned throw, still no bench switch",
+              refuse31c is False and switched31 == []
+              and any("SANCTIONED throw" in l for l in logs31))
+        # already in the band -> quiet
         logs31.clear(); switched31.clear()
         world31["foe_frac"] = 0.12
-        ag31._legend_chip_ladder(BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, set())
-        check("in the band -> no switch, no exhausted line",
-              switched31 == [] and not any("EXHAUSTED" in l for l in logs31))
+        _, refuse31d = ag31._legend_chip_ladder(
+            BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, set())
+        check("in the red band -> no switch, no refuse",
+              refuse31d is False and switched31 == []
+              and not any("REFUSING" in l for l in logs31))
         check("legend_throw_allowed: 50% OK, 51% blocked",
               BA.legend_throw_allowed(0.50) is True
               and BA.legend_throw_allowed(0.51) is False)
     finally:
         BA.st.read_battle, BA.st.in_battle = _orig_rb31, _orig_ib31
-        BA.st.read_party_species = _orig_rps31
 
     print("== 32. PRE-ENCOUNTER CHIP-PP AUDIT: safe-swing scoring vs the quarry ==")
     class AuditBridge:
