@@ -1,3 +1,0 @@
-CKPT 20260805_182052_an-unfamiliar-area_8b_32h26m_pre-moltres
-# Clean pre-fight summit (bird still there). Newest 182452 pre-moltres is mid-flee poison.
-# Boot rewind will also reject 182452 after settle and land here, then re-bank fresh.

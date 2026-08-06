@@ -1,0 +1,520 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 101) coords=(9, 7) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headset (@System32\\drivers\\bthhfenum.sys,#2;%1 Hands-Free%0\r\n;(Leviathan))', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=2716).
+
+   [soul] continuity loaded: 15 roster bond(s), 849 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 146 place(s) known, 240 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot1 FAINTED (0/106), slot2 FAINTED (0/104) — likely to blackout soon
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 101)@(9, 7) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260805_182452_an-unfamiliar-area_8b_32h30m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=3, ran 1s, restart 1/8) — GAME CONTINUES; respawning audio.
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [hunt] !!!! LEGENDARY REWIND AT BOOT: moltres was battled-away but NOT caught — resumed INTO the encounter from 'pre-moltres' (balls restored, flag clear, standing at the bird) (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [kira-voice] -> T3·BIG· (legendary) 'we are NOT leaving moltres behind like that. back to the summit moment — balls ready, doing it right this time.'  fired=True  [age 0.0s + post 19ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260806_075205_an-unfamiliar-area_8b_32h31m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(9, 7) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres (PROXIMITY TRUMP: standing at the moltres hunt)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (9, 7) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (9,7) f2 -- badge8 $30570 party:09a5 bag:d8e7]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['heal']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 101), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=9120).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1s, restart 2/8) — GAME CONTINUES; respawning audio.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get to Mt. Ember and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'get to Mt. Ember and catch Moltres'
+
+   [campaign]    [roam] !! SURVIVAL CRITICAL: 'Your team is badly hurt — Lapras is at 0/106 HP and 2 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.' — surfacing 'heal' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 3
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [kira-voice] -> T2·savor· (want) 'get to Mt. Ember and catch Moltres'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON\'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. Places you\'ve been with wild Pokémon you can walk back to: an unfamiliar area. You can walk to anywhere you\'ve already been. You have SURF — you can cross water. Field moves ready: STRENGTH.. Okay — to get past this I need Moltres — the fire legendary on Mt. Ember\'s summit, out on One Island. Bill\'s ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home. Heads up: you have ZERO Poké Balls — you literally can\'t catch a teammate until you buy some at a Mart, so a Mart run has to come before any catching.. Your team is badly hurt — Lapras is at 0/106 HP and 2 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. All 8 badges are yours — the Elite Four is the final challenge before the credits. Word on the road about the Elite Four: the Elite Four open with an ice-and-water lady — folks say lightning and grass are how you slip past her; and then the dragon master himself — and everyone says the same thing: ice is the only thing a dragon truly fears. YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): All eight Gym Badges are yours. The Elite Four and the Champion are the summit.. Time to pick up my zapdos from Power Plant (static L50 — Surf up the Route 10 water from the east bank). This has been on the plan since the start.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and push forward to the next objective. Next: FIRST Moltres — the fire legendary on Mt. Ember\'s summit, out on One Island. Bill\'s ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road. Bigger picture: Take on the Elite Four. Your team right now: blastoise (L64), lapras (L25), fearow (L38). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}, 'strategy': "1) SURVIVAL FIRST (outranks everything): Your team is badly hurt — Lapras is at 0/106 HP and 2 teammate(s) are down. A real trainer heals at a Pokémon Center before doing ANYTHING else — wandering into grass this hurt risks a blackout. — heal/cure BEFORE any fight or march. Blackouts end runs; Centers are free.\n2) WAR PREP: the Elite Four is five fights with NO Center between them — full restores, revives, ethers, and a levelled WHOLE team, or don't walk in.\n3) TEAM BUILD: zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO.\n4) DEX PUSH: 16/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n5) ICE BEAM FUND: ¥49,930 short of the Game Corner TM13 budget (~¥80,500 total). Ice Beam on the ace freezes everything left — Venusaur, Lance's dragons, the birds. Fight your battles for the payouts, sell loot at marts, buy supplies but never splurge. It arms itself when funded.\n6) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['heal']
+
+   [kira-voice] ORACLE kind=action options=['heal'] -> pick='heal'
+
+   [campaign]    [soul] ORACLE pick -> 'heal'
+
+   [campaign]    [roam] DECISION THINK: 2697ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: heal
+
+   [campaign]    [roam] RATIONALE: Topping up at a Pokémon Center, then back on the road then on to the Elite Four.
+
+   [campaign]    HEAL: inside a building complex (1, 101) — exiting to the overworld before routing
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(9, 7) -> coord (9, 14) (budget 60s, surf-capable)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "The MOLTRES flew away!"'  fired=True  [age 0.0s + post 24ms]
+
+   [travel] step 0: (9, 7)->(9, 8) map=(1, 101) (path 10 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=5228).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1s, restart 3/8) — GAME CONTINUES; respawning audio.
+
+   [travel] reached target coord (9, 14)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 601; bursts here = audible crackle)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 15) (behavior 0x65) entered via DOWN
+
+   [pkmn-audio] audio child started (pid=11612).
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    EXIT-BUILDING: (1, 101) -> (1, 97)@(29, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 97) coords=(29, 7) -> coord (29, 47) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 7)->(29, 8) map=(1, 97) (path 50 to exit)
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 4/8) — GAME CONTINUES; respawning audio.
+
+   [travel] step 10: (29, 17)->(29, 18) map=(1, 97) (path 40 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 901; bursts here = audible crackle)
+
+   [travel] step 20: (29, 27)->(29, 28) map=(1, 97) (path 31 to exit)
+
+   [travel] step 30: (26, 34)->(26, 35) map=(1, 97) (path 21 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 38) elapsed=6s
+
+   [travel] step 40: (32, 38)->(32, 39) map=(1, 97) (path 12 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1201; bursts here = audible crackle)
+
+   [travel] step 50: (31, 47)->(30, 47) map=(1, 97) (path 3 to exit)
+
+   [travel] reached target coord (29, 47)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1501; bursts here = audible crackle)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (29, 48) (behavior 0x65) entered via DOWN
+
+   [pkmn-audio] audio child started (pid=7404).
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    EXIT-BUILDING: (1, 97) -> (3, 45)@(12, 6)
+
+   [campaign]    HEAL: unmapped (3, 45) — ADJACENT city an unfamiliar area (W) has a registered Center; one-edge heal excursion
+
+   [campaign]    HEAL-EXCURSION: lead at (188, 196) - crossing west to (3, 12) to heal
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 45) coords=(12, 6) -> map (3, 12) (budget 120s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+
+   [travel] step 0: (12, 6)->(12, 7) map=(3, 45) (path 143 to exit)
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1s, restart 5/8) — GAME CONTINUES; respawning audio.
+
+   [travel] step 10: (12, 16)->(12, 17) map=(3, 45) (path 133 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1801; bursts here = audible crackle)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2101; bursts here = audible crackle)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.68s (sink 1ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF MOUNT at (12, 19) -> (12, 20) (map (3, 45))
+
+   [kira-voice] -> T1·brisk· (beat) "okay — onto the water. Surf's up."  fired=True  [age 0.0s + post 16ms]
+
+   [travel] step 20: (12, 26)->(12, 27) map=(3, 45) (path 123 to exit)
+
+   [travel] step 30: (12, 36)->(12, 37) map=(3, 45) (path 113 to exit)
+
+   [egress] blocker on (12, 39) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(11, 32), (12, 39)])
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2401; bursts here = audible crackle)
+
+   [egress] blocker cleared off (12, 39) after 1 poll(s) (~0.4s) — resuming the committed step
+
+   [egress] blocker on (10, 42) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(10, 42)])
+
+   [egress] blocker cleared off (10, 42) after 1 poll(s) (~0.4s) — resuming the committed step
+
+   [travel] HEARTBEAT step=40 map=(3, 45) coords=(10, 43) elapsed=14s
+
+   [travel] step 40: (10, 43)->(10, 44) map=(3, 45) (path 104 to exit)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 2ms]
+
+   [pkmn-audio] audio child started (pid=20264).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 6/8) — GAME CONTINUES; respawning audio.
+
+   [travel] step 50: (10, 53)->(10, 54) map=(3, 45) (path 94 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2701; bursts here = audible crackle)
+
+   [travel] step 60: (11, 62)->(11, 63) map=(3, 45) (path 84 to exit)
+
+   [travel] step 70: (12, 68)->(11, 68) map=(3, 45) (path 77 to exit)
+
+   [travel] HEARTBEAT step=80 map=(3, 45) coords=(9, 75) elapsed=20s
+
+   [travel] step 80: (9, 75)->(9, 76) map=(3, 45) (path 67 to exit)
+
+   [egress] blocker on (9, 84) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(9, 84), (10, 86), (11, 89), (19, 79)])
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3001; bursts here = audible crackle)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3301; bursts here = audible crackle)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (3, 45)@(9, 83) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [egress] watchdog disengage during the wait — abandoning patience
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    !! HEAL-EXCURSION: didn't reach (3, 12) (at (3, 45))
+
+   [campaign]    HEAL: no local Center mapped for (3, 45) — world-graph routing to an unfamiliar area's Center (multi-hop, fleeing wilds)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 45) coords=(8, 83) -> map (3, 12) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (8, 83)->(8, 84) map=(3, 45) (path 60 to exit)
+
+   [pkmn-audio] audio child started (pid=17460).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1s, restart 7/8) — GAME CONTINUES; respawning audio.
+
+   [travel] step 10: (8, 93)->(8, 94) map=(3, 45) (path 50 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3601; bursts here = audible crackle)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3901; bursts here = audible crackle)
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used an attack'  fired=True  [age 0.0s + post 13ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4201; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=31056).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1s, restart 8/8) — GAME CONTINUES; respawning audio.
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] step 20: (8, 99)->(8, 100) map=(3, 45) (path 44 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4501; bursts here = audible crackle)
+
+   [egress] blocker on (8, 104) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(8, 104), (9, 105), (9, 108), (9, 110), (12, 96), (17, 103), (18, 109), (18, 111), (18, 112)])
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4801; bursts here = audible crackle)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.7s at (3, 45)@(8, 103) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [egress] watchdog disengage during the wait — abandoning patience
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 45) coords=(9, 103) -> map (3, 12) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (9, 103)->(9, 104) map=(3, 45) (path 41 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 5101; bursts here = audible crackle)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio] audio child started (pid=28636).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1s, restart 9/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! audio child died too many times — DISABLING audio for this run (game keeps running, silent). Investigate the output device.
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] step 10: (10, 108)->(10, 109) map=(3, 45) (path 35 to exit)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [kira-voice] -> T1·brisk· (beat) 'you walk on under open sky, the next town somewhere past the horizon'  fired=True  [age 0.0s + post 10ms]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your blastoise used an attack'
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] step 30: (10, 120)->(10, 121) map=(3, 45) (path 23 to exit)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "BLASTOISE used SURF!"'
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF MOUNT at (10, 123) -> (10, 124) (map (3, 45))
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "okay — onto the water. Surf's up."
+
+   [travel] HEARTBEAT step=40 map=(3, 45) coords=(10, 130) elapsed=55s
+
+   [travel] step 40: (10, 130)->(10, 131) map=(3, 45) (path 13 to exit)
+
+   [travel] step 50: (2, 132)->(1, 132) map=(3, 45) (path 3 to exit)
+
+   [travel] MAP TRANSITION (3, 45) -> (3, 12)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 12) coords=(23, 12)
+
+   [campaign]    HEAL: lead at 188/196 -> routing to the Pokemon Center on (3, 12) via door (14, 5) (will return to (23, 12))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 2ms]
+
+   [travel] start map=(3, 12) coords=(23, 12) -> coord (14, 6) (budget 120s, surf-capable)
+
+   [travel] step 0: (23, 12)->(22, 12) map=(3, 12) (path 16 to exit)
+
+   [travel] step 10: (17, 8)->(16, 8) map=(3, 12) (path 6 to exit)
+
+   [travel] reached target coord (14, 6)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 6ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 18ms]
+
+   [campaign]    HEAL: restored party to full (lead was 188/196)
+
+   [dialogue] +++ "Thank you for waiting. We've restored your POK.MON to full health."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Thank you for waiting. We\'ve restored your POK.MON to full health."'  fired=True  [age 0.0s + post 4ms]
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(32, 0) coords=(5, 4)  badge=True
+
+   [kira-voice] === 15 fired, 10 gated (0 failed) | by tier: T3=1 T2=3 T1=11 (incl ambient trickle) ===
+
+================================================================
+
