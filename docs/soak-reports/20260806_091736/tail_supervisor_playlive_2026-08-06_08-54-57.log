@@ -1,0 +1,704 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 101) coords=(9, 9) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=5456).
+
+   [soul] continuity loaded: 15 roster bond(s), 852 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 146 place(s) known, 240 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 101)@(9, 9) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260806_085459_an-unfamiliar-area_8b_32h50m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(9, 9) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres (PROXIMITY TRUMP: standing at the moltres hunt)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (9, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (9,9) f4 -- badge8 $30570 party:7b0e bag:b60d]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'talk_npc', 'travel:1,97', 'travel:3,45', 'use_strength']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 101), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Moltres — Mt. Ember summit'
+
+   [campaign]    [soul] ORACLE pick -> 'Moltres — Mt. Ember summit'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 3
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (1, 101)
+
+   [kira-voice] -> T2·savor· (want) 'Moltres — Mt. Ember summit'  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [moltres-leg] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [moltres-leg] -> checkpoints/20260806_085504_an-unfamiliar-area_8b_32h50m_moltres-leg  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'moltres-leg' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260806_085504_an-unfamiliar-area_8b_32h50m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260806_085504_an-unfamiliar-area_8b_32h50m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#2] boulder VERIFIED at target (7, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain2] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain2] -> checkpoints/20260806_085504_an-unfamiliar-area_8b_32h50m_summit-board-chain2  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain2' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#3] boulder VERIFIED at target (10, 9)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain3] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain3] -> checkpoints/20260806_085504_an-unfamiliar-area_8b_32h50m_summit-board-chain3  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain3' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board] SOLVED — every chain verified at target
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L64 hp 188/196 dmgPP 4 safePP 0 (Bite:0, Skull Bash:4, Surf:0, Earthquake:0); slot1 L25 hp 106/106 dmgPP 29 safePP 29 (Strength:15, Body Slam:14, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 39 safePP 39 (Leer:30, Fury Attack:20, 228:19, Mirror Move:20) | ace slot0 safe 0, party safe 68 (vs Moltres fire/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP with EMPTY ace tank (safe=0) — Ether rail first, THEN soft-reload (NO mountain retreat) (LOUD)
+
+   [campaign]    [hunt] !!!! FIELD ETHER — item 35 on ace slot 0 (restore Bite BEFORE the bird press; soft-reload cannot mint PP) (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Bite's dry — Ether on the ace first. then we chip this bird properly."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [fieldpp] field PP restore: item 35 (bag row 2) -> party slot 0 (pp was [0, 4, 0, 0])
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'MAX ETHER is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "MAX ETHER is selected."'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "Use on which POK.MON?"'
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'Restore which move?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Restore which move?"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'PP was restored. .'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "PP was restored. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [fieldpp] VERIFIED: slot 0 pp [0, 4, 0, 0] -> [25, 4, 0, 0], item 35 consumed (world callback restored)
+
+   [campaign]    [hunt] field Ether -> restored
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L64 hp 188/196 dmgPP 29 safePP 25 (Bite:25, Skull Bash:4, Surf:0, Earthquake:0); slot1 L25 hp 106/106 dmgPP 29 safePP 29 (Strength:15, Body Slam:14, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 39 safePP 39 (Leer:30, Fury Attack:20, 228:19, Mirror Move:20) | ace slot0 safe 25, party safe 93 (vs Moltres fire/flying L50)
+
+   [campaign]    [hunt] doorstep empty-tank settle — ace safe now 25; ENGAGING (LOUD)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (3 tile(s) from Moltres) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L64 hp 188/196 dmgPP 29 safePP 25 (Bite:25, Skull Bash:4, Surf:0, Earthquake:0); slot1 L25 hp 106/106 dmgPP 29 safePP 29 (Strength:15, Body Slam:14, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 39 safePP 39 (Leer:30, Fury Attack:20, 228:19, Mirror Move:20) | ace slot0 safe 25, party safe 93 (vs Moltres fire/flying L50)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_085533_an-unfamiliar-area_8b_32h51m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [quarry-approach] replan at (9, 9) (len 3, budget 9)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Moltres. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 18ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against moltres — your blastoise is up front'  fired=True  [age 0.0s + post 31ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a moltres. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 29ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+
+   [play-live]    [catch] target=moltres L50 hp=100% status=none balls=5 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] weaken plan — chip with Bite (est 69%/hit) into the throw band
+
+   [play-live]    [catch] weaken — Bite (est 69%) at foe 100% HP
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 69% vs foe at 73% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] chip LADDER — ACE-ONLY on legendaries (blastoise stays in; NO bench switch — Jonny: Blastoise handles Moltres himself) (foe at 73%)
+
+   [play-live]    [catch] !! ACE chip stopped above HARD FLOOR — foe still at 73% HP (floor 50%, band 20%): REFUSING the throw — deepen/soft-reload owns recovery (NEVER flee / never dump Ultras) (LOUD)
+
+   [play-live]    [catch] !! ACE chip stopped above HARD FLOOR — foe at 73% (floor 50%); deepening ACE chip, NEVER fleeing (MonFlewAway spends the bird) (LOUD)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] chip DESPERATE — Bite est 69% vs foe at 73% HP: cannot faint from this HP — swinging (legendary depth, ace-only)
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 69% vs foe at 45% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] !! ACE deepen reached throw floor (45%) — throws are legal now (LOUD)
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used an attack'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x4 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x3 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [play-live]    [catch] THROW Ultra Ball (x2 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [play-live]    [catch] THROW Ultra Ball (x1 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [kira-voice] -> T1·brisk· (event) "I'm out of Poké Balls - I'll come back for this one"  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] catch no_balls on legendary — soft-reload (NEVER flee / MonFlewAway) (LOUD)
+
+   [play-live]    [catch] !!!! LEGEND SOFT-RELOAD — rewinding 'pre-moltres' WITHOUT RUN (no MonFlewAway; ace chips properly next press) (LOUD)
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_085533_an-unfamiliar-area_8b_32h51m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_085828_an-unfamiliar-area_8b_32h54m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_085533_an-unfamiliar-area_8b_32h51m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L64 hp 188/196 dmgPP 29 safePP 25 (Bite:25, Skull Bash:4, Surf:0, Earthquake:0); slot1 L25 hp 106/106 dmgPP 29 safePP 29 (Strength:15, Body Slam:14, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 39 safePP 39 (Leer:30, Fury Attack:20, 228:19, Mirror Move:20) | ace slot0 safe 25, party safe 93 (vs Moltres fire/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (3 tile(s) from Moltres) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] !! Moltres still LIVE after the fight return — re-pressing at the bird (NO retreat) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (9, 9) (len 3, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against moltres — your blastoise is up front'
+
+   [kira-voice] -> T3·BIG· (event) "that's a moltres. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 7ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+
+   [play-live]    [catch] target=moltres L50 hp=100% status=none balls=5 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] weaken plan — chip with Bite (est 69%/hit) into the throw band
+
+   [play-live]    [catch] weaken — Bite (est 69%) at foe 100% HP
+
+   [play-live]    [catch] chip STOPPING — foe at 86/162 HP, last chip hit for 76; another swing risks a KO. Throwing now.
+
+   [play-live]    [catch] chip LADDER — ACE-ONLY on legendaries (blastoise stays in; NO bench switch — Jonny: Blastoise handles Moltres himself) (foe at 53%)
+
+   [play-live]    [catch] !! ACE chip stopped above HARD FLOOR — foe still at 53% HP (floor 50%, band 20%): REFUSING the throw — deepen/soft-reload owns recovery (NEVER flee / never dump Ultras) (LOUD)
+
+   [play-live]    [catch] !! ACE chip stopped above HARD FLOOR — foe at 53% (floor 50%); deepening ACE chip, NEVER fleeing (MonFlewAway spends the bird) (LOUD)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 69% vs foe at 53% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] !!!! LEGEND SOFT-RELOAD — rewinding 'pre-moltres' WITHOUT RUN (no MonFlewAway; ace chips properly next press) (LOUD)
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_085828_an-unfamiliar-area_8b_32h54m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_085854_an-unfamiliar-area_8b_32h54m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_085828_an-unfamiliar-area_8b_32h54m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L64 hp 188/196 dmgPP 29 safePP 25 (Bite:25, Skull Bash:4, Surf:0, Earthquake:0); slot1 L25 hp 106/106 dmgPP 29 safePP 29 (Strength:15, Body Slam:14, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 39 safePP 39 (Leer:30, Fury Attack:20, 228:19, Mirror Move:20) | ace slot0 safe 25, party safe 93 (vs Moltres fire/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (3 tile(s) from Moltres) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] !! Moltres still LIVE after the fight return — re-pressing at the bird (NO retreat) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (9, 9) (len 3, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against moltres — your blastoise is up front'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a moltres. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+
+   [play-live]    [catch] target=moltres L50 hp=100% status=none balls=5 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] weaken plan — chip with Bite (est 69%/hit) into the throw band
+
+   [play-live]    [catch] weaken — Bite (est 69%) at foe 100% HP
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 69% vs foe at 71% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] chip LADDER — ACE-ONLY on legendaries (blastoise stays in; NO bench switch — Jonny: Blastoise handles Moltres himself) (foe at 71%)
+
+   [play-live]    [catch] !! ACE chip stopped above HARD FLOOR — foe still at 71% HP (floor 50%, band 20%): REFUSING the throw — deepen/soft-reload owns recovery (NEVER flee / never dump Ultras) (LOUD)
+
+   [play-live]    [catch] !! ACE chip stopped above HARD FLOOR — foe at 71% (floor 50%); deepening ACE chip, NEVER fleeing (MonFlewAway spends the bird) (LOUD)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] chip DESPERATE — Bite est 69% vs foe at 71% HP: cannot faint from this HP — swinging (legendary depth, ace-only)
+
+   [play-live]    [catch] chip DESPERATE — Bite est 69% vs foe at 71% HP: cannot faint from this HP — swinging (legendary depth, ace-only)
+
+   [play-live]    [catch] chip STOPPING — foe at 62/152 HP, last chip hit for 46; another swing risks a KO. Throwing now.
+
+   [play-live]    [catch] !! ACE deepen reached throw floor (41%) — throws are legal now (LOUD)
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used an attack'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at moltres hp=14% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 19ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [play-live]    [catch] THROW Ultra Ball (x4 left, pref=best) at moltres hp=14% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x3 left, pref=best) at moltres hp=14% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [play-live]    [catch] THROW Ultra Ball (x2 left, pref=best) at moltres hp=14% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [play-live]    [catch] THROW Ultra Ball (x1 left, pref=best) at moltres hp=14% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] -> T1·brisk· (event) "I'm out of Poké Balls - I'll come back for this one"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] catch no_balls on legendary — soft-reload (NEVER flee / MonFlewAway) (LOUD)
+
+   [play-live]    [catch] !!!! LEGEND SOFT-RELOAD — rewinding 'pre-moltres' WITHOUT RUN (no MonFlewAway; ace chips properly next press) (LOUD)
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_085854_an-unfamiliar-area_8b_32h54m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_090158_an-unfamiliar-area_8b_32h57m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_085854_an-unfamiliar-area_8b_32h54m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L64 hp 188/196 dmgPP 29 safePP 25 (Bite:25, Skull Bash:4, Surf:0, Earthquake:0); slot1 L25 hp 106/106 dmgPP 29 safePP 29 (Strength:15, Body Slam:14, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 39 safePP 39 (Leer:30, Fury Attack:20, 228:19, Mirror Move:20) | ace slot0 safe 25, party safe 93 (vs Moltres fire/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (3 tile(s) from Moltres) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] !! Moltres still LIVE after the fight return — re-pressing at the bird (NO retreat) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (9, 9) (len 3, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against moltres — your blastoise is up front'
+
+   [kira-voice] -> T3·BIG· (event) "that's a moltres. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+
+   [play-live]    [catch] target=moltres L50 hp=100% status=none balls=5 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] weaken plan — chip with Bite (est 69%/hit) into the throw band
+
+   [play-live]    [catch] weaken — Bite (est 69%) at foe 100% HP
+
+   [play-live]    [catch] chip LADDER — Bite est 69% vs foe at 74% HP: cannot faint from this HP — swinging (legendary depth, ace-only)
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 69% vs foe at 47% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] chip LADDER — ACE-ONLY on legendaries (blastoise stays in; NO bench switch — Jonny: Blastoise handles Moltres himself) (foe at 47%)
+
+   [play-live]    [catch] !! ACE chip stopped at 47% HP (at/under hard floor 50%, above red band 20%): SANCTIONED throw (sleep rung still applies) (LOUD)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your blastoise used an attack'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your blastoise used an attack'
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x4 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x3 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x2 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x1 left, pref=best) at moltres hp=21% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I'm out of Poké Balls - I'll come back for this one"
+
+   [play-live]    [engine] catch no_balls on legendary — soft-reload (NEVER flee / MonFlewAway) (LOUD)
+
+   [play-live]    [catch] !!!! LEGEND SOFT-RELOAD — rewinding 'pre-moltres' WITHOUT RUN (no MonFlewAway; ace chips properly next press) (LOUD)
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_090158_an-unfamiliar-area_8b_32h57m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_090453_an-unfamiliar-area_8b_33h00m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_090158_an-unfamiliar-area_8b_32h57m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L64 hp 188/196 dmgPP 29 safePP 25 (Bite:25, Skull Bash:4, Surf:0, Earthquake:0); slot1 L25 hp 106/106 dmgPP 29 safePP 29 (Strength:15, Body Slam:14, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 39 safePP 39 (Leer:30, Fury Attack:20, 228:19, Mirror Move:20) | ace slot0 safe 25, party safe 93 (vs Moltres fire/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (3 tile(s) from Moltres) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] !! Moltres still LIVE after the fight return — re-pressing at the bird (NO retreat) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (9, 9) (len 3, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against moltres — your blastoise is up front'  fired=True  [age 0.0s + post 11ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a moltres. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+
+   [play-live]    [catch] target=moltres L50 hp=100% status=none balls=5 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] weaken plan — chip with Bite (est 69%/hit) into the throw band
+
+   [play-live]    [catch] weaken — Bite (est 69%) at foe 100% HP
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 69% vs foe at 70% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] chip LADDER — ACE-ONLY on legendaries (blastoise stays in; NO bench switch — Jonny: Blastoise handles Moltres himself) (foe at 70%)
+
+   [play-live]    [catch] !! ACE chip stopped above HARD FLOOR — foe still at 70% HP (floor 50%, band 20%): REFUSING the throw — deepen/soft-reload owns recovery (NEVER flee / never dump Ultras) (LOUD)
+
+   [play-live]    [catch] !! ACE chip stopped above HARD FLOOR — foe at 70% (floor 50%); deepening ACE chip, NEVER fleeing (MonFlewAway spends the bird) (LOUD)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] chip DESPERATE — Bite est 69% vs foe at 70% HP: cannot faint from this HP — swinging (legendary depth, ace-only)
+
+   [play-live]    [catch] chip done — foe at 13% HP (target 15%); throwing
+
+   [play-live]    [catch] !! ACE deepen reached throw floor (13%) — throws are legal now (LOUD)
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used an attack'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x5 left, pref=best) at moltres hp=13% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x4 left, pref=best) at moltres hp=13% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 101ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x3 left, pref=best) at moltres hp=13% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
