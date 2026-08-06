@@ -30,6 +30,15 @@ Decision table under test:
   catch failed (fainted / no balls / whiteout)               -> FREE RETRY: 'pre-<quarry>'
                                                                 checkpoint reload, bounded
   hunt owed + thin pocket at a mapped Ultra shelf            -> war-chest restock (20 Ultras)
++ THE FLUID LAP / PROXIMITY TRUMP (2026-08-05 EMERGENCY, the Eevee divert two tiles from
+  Moltres):
+  fought-flag set, UNCAUGHT, 'pre-<key>' bank exists         -> lap item STAYS PENDING
+  standing in a hunt's anchor set, quarry uncaught           -> that hunt trumps EVERYTHING
+  loop-burned skip/fail marks while standing there           -> refunded once per run
+  lap ordering                                               -> cheapest by live cost, declared
+                                                                order only as the tiebreak
+  spent-but-retryable inside a hunt leg (spent_final)        -> reload, encounter live again
+  boot with a battled-away uncaught legendary + bank         -> LEGENDARY REWIND to the bird
 """
 import json
 import os
@@ -507,6 +516,157 @@ def main():
                   camp._reload_labeled_checkpoint("pre-zapdos") is False)
         finally:
             C.STATES_CAMPAIGN = _orig_sc
+
+    print("== 24. LAP HONESTY: a fought-flag never books an UNCAUGHT hunt done (bank live) ==")
+    # The Eevee-divert root cause verbatim: flee after 5 broken balls set FLAG_FOUGHT_MOLTRES,
+    # _lap_pending read 'done', the lap marched to eevee — two tiles from the bird.
+    _orig_owns24, _orig_flag24 = C.ram.pokedex_owns, C.fm.read_flag
+    world24 = {"owned": False, "fought": True, "bank": True}
+    C.ram.pokedex_owns = lambda b, sp: world24["owned"]
+    C.fm.read_flag = lambda b, f: world24["fought"]
+    try:
+        camp24 = C.Campaign.__new__(C.Campaign)
+        camp24.b = object()
+        camp24._lap_skipped = set()
+        camp24._has_labeled_checkpoint = lambda tag: world24["bank"]
+        check("fought + uncaught + 'pre-moltres' bank -> STILL PENDING (the free retry rewinds)",
+              camp24._lap_pending("moltres") is True)
+        world24["bank"] = False
+        check("fought + no bank on disk -> honestly done ('battled' stands)",
+              camp24._lap_pending("moltres") is False)
+        world24["owned"], world24["bank"] = True, True
+        check("caught -> done regardless of banks", camp24._lap_pending("moltres") is False)
+        # _hunt_ready mirrors the same law for the GATES (the armed view).
+        world24["owned"] = False
+        camp24._balls_pocket_count = lambda i: 0
+        check("_hunt_ready: fought + bank -> READY (gate arms; reload IS the restock)",
+              camp24._hunt_ready(146, 0x052, 0x2BD, key="moltres") is None)
+        world24["bank"] = False
+        check("_hunt_ready: fought + no bank -> 'spent' (old law holds)",
+              camp24._hunt_ready(146, 0x052, 0x2BD, key="moltres") == "spent")
+    finally:
+        C.ram.pokedex_owns, C.fm.read_flag = _orig_owns24, _orig_flag24
+
+    print("== 25. THE FLUID LAP: proximity trump + cost ordering from her live position ==")
+    _orig_map25, _orig_owns25 = C.tv.map_id, C.ram.pokedex_owns
+    pos25 = {"here": (1, 101)}                    # Mt. Ember summit — standing at the bird
+    C.tv.map_id = lambda b: pos25["here"]
+    C.ram.pokedex_owns = lambda b, sp: False
+    try:
+        camp25 = C.Campaign.__new__(C.Campaign)
+        camp25.b = object()
+        camp25._lap_skipped, camp25._lap_fails = set(), {}
+        pend25 = {"earthquake", "box_bench", "moltres", "articuno", "eevee", "zapdos"}
+        camp25._lap_pending = lambda k: k in pend25
+        check("summit -> MOLTRES (proximity trump beats earthquake/eevee/everything)",
+              camp25._victory_lap_next() == "moltres")
+        # loop-burned marks refund ONCE while she stands there
+        camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 6}
+        camp25._lap_verdict_logged = None
+        check("skipped+failed moltres AT ITS MAP -> refunded and picked anyway",
+              camp25._victory_lap_next() == "moltres"
+              and "moltres" not in camp25._lap_skipped
+              and "moltres" not in camp25._lap_fails)
+        # cost table sanity: the exact matchup Jonny named
+        check("summit prices: moltres=0, eevee(Celadon)=2 cross-region",
+              camp25._lap_item_cost("moltres", (1, 101)) == 0
+              and camp25._lap_item_cost("eevee", (1, 101)) == 2)
+        pos25["here"] = tuple(C.CELADON)          # standing in Celadon instead
+        camp25b = C.Campaign.__new__(C.Campaign)
+        camp25b.b = object()
+        camp25b._lap_skipped, camp25b._lap_fails = set(), {}
+        pend25b = {"moltres", "articuno", "eevee", "zapdos"}
+        camp25b._lap_pending = lambda k: k in pend25b
+        check("Celadon -> EEVEE (cost 0 beats the Kanto birds at 1, moltres ferry at 2)",
+              camp25b._victory_lap_next() == "eevee")
+        camp25c = C.Campaign.__new__(C.Campaign)
+        camp25c.b = object()
+        camp25c._lap_skipped, camp25c._lap_fails = set(), {}
+        pend25c = {"articuno", "zapdos"}
+        camp25c._lap_pending = lambda k: k in pend25c
+        check("comparable costs -> declared order is the tiebreak (articuno before zapdos)",
+              camp25c._victory_lap_next() == "articuno")
+        # trump requires UNCAUGHT: an owned bird never parks her at its map
+        pos25["here"] = (1, 101)
+        C.ram.pokedex_owns = lambda b, sp: True
+        camp25d = C.Campaign.__new__(C.Campaign)
+        camp25d.b = object()
+        camp25d._lap_skipped, camp25d._lap_fails = set(), {}
+        pend25d = {"eevee", "zapdos"}
+        camp25d._lap_pending = lambda k: k in pend25d
+        check("moltres CAUGHT -> no trump, lap moves on by cost/order",
+              camp25d._victory_lap_next() in ("eevee", "zapdos"))
+    finally:
+        C.tv.map_id, C.ram.pokedex_owns = _orig_map25, _orig_owns25
+
+    print("== 26. spent_final: a spent-but-UNCAUGHT quarry reloads before any leg home ==")
+    hunt26 = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    hunt26.b = object()
+    hunt26.log = [].append
+    hunt26._catch_retries = 0
+    reloads26 = []
+    hunt26.camp = types.SimpleNamespace(
+        _reload_labeled_checkpoint=lambda tag: (reloads26.append(tag), True)[1],
+        on_event=lambda *a, **k: None)
+    _orig_owns26, _orig_flag26 = LS.ram.pokedex_owns, LS.fm.read_flag
+    world26 = {"owned": False, "fought": False}
+    LS.ram.pokedex_owns = lambda b, sp: world26["owned"]
+    LS.fm.read_flag = lambda b, f: world26["fought"]
+    try:
+        hunt26.spent = lambda: False
+        check("not spent -> False (hunt proceeds normally)", hunt26.spent_final() is False)
+        hunt26.spent = lambda: True
+        world26["fought"] = True
+        check("spent + retryable -> RELOADED, reads NOT-spent (encounter live again)",
+              hunt26.spent_final() is False and reloads26 == ["pre-moltres"])
+        hunt26._catch_retries = hunt26.LEGEND_CATCH_RETRIES
+        check("spent + budget exhausted -> True (homebound flow may run)",
+              hunt26.spent_final() is True)
+    finally:
+        LS.ram.pokedex_owns, LS.fm.read_flag = _orig_owns26, _orig_flag26
+
+    print("== 27. LEGENDARY REWIND AT BOOT + the bank-exists predicate ==")
+    with tempfile.TemporaryDirectory() as td27:
+        _orig_sc27 = C.STATES_CAMPAIGN
+        C.STATES_CAMPAIGN = td27
+        try:
+            root27 = os.path.join(td27, "checkpoints")
+            good = os.path.join(root27, "20260805_171500_mt-ember_8b_9h15m_pre-moltres")
+            os.makedirs(good, exist_ok=True)
+            with open(os.path.join(good, C.CAMPAIGN_SAVE), "wb") as f:
+                f.write(b"BANK")
+            os.makedirs(os.path.join(root27, "20260805_171600_x_pre-zapdos.partial"),
+                        exist_ok=True)
+            camp27 = C.Campaign.__new__(C.Campaign)
+            camp27.b = object()
+            check("bank predicate: real dir True, partial/missing False",
+                  camp27._has_labeled_checkpoint("pre-moltres") is True
+                  and camp27._has_labeled_checkpoint("pre-zapdos") is False
+                  and camp27._has_labeled_checkpoint("pre-articuno") is False)
+        finally:
+            C.STATES_CAMPAIGN = _orig_sc27
+    _orig_owns27, _orig_flag27 = C.ram.pokedex_owns, C.fm.read_flag
+    world27 = {"owned": {146: False}, "fought": {0x2BD: True}}
+    C.ram.pokedex_owns = lambda b, sp: world27["owned"].get(sp, True)
+    C.fm.read_flag = lambda b, f: world27["fought"].get(f, False)
+    try:
+        camp27b = C.Campaign.__new__(C.Campaign)
+        camp27b.b = object()
+        reloads27, voiced27 = [], []
+        camp27b._reload_labeled_checkpoint = lambda tag: (reloads27.append(tag), True)[1]
+        camp27b.on_event = lambda *a, **k: voiced27.append(a)
+        check("battled-away uncaught moltres at boot -> REWOUND to 'pre-moltres', voiced",
+              camp27b._legend_rewind_at_boot() is True and reloads27 == ["pre-moltres"]
+              and bool(voiced27))
+        world27["owned"][146] = True
+        reloads27.clear()
+        check("caught -> boot rewind stands down", camp27b._legend_rewind_at_boot() is False
+              and reloads27 == [])
+        world27["owned"][146] = None              # unreadable dex — NEVER rewind blind
+        check("unreadable dex -> honest no-op (a possibly-caught mon is never rewound)",
+              camp27b._legend_rewind_at_boot() is False and reloads27 == [])
+    finally:
+        C.ram.pokedex_owns, C.fm.read_flag = _orig_owns27, _orig_flag27
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")

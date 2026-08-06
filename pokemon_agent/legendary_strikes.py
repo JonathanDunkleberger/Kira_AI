@@ -162,9 +162,11 @@ class LegendaryHunt(GiovanniGym):
             return False
         name = (q.get("name") or "quarry").lower()
         if self._catch_retries >= self.LEGEND_CATCH_RETRIES:
-            self.log(f"   [hunt] !! {name} catch FAILED and the retry budget is spent "
-                     f"({self._catch_retries}/{self.LEGEND_CATCH_RETRIES}) — accepting "
-                     f"'battled' (LOUD; the ball war-chest restock is the road back)")
+            if not getattr(self, "_retry_exhaust_logged", False):
+                self._retry_exhaust_logged = True
+                self.log(f"   [hunt] !! {name} catch FAILED and the retry budget is spent "
+                         f"({self._catch_retries}/{self.LEGEND_CATCH_RETRIES}) — accepting "
+                         f"'battled' (LOUD; the ball war-chest restock is the road back)")
             return False
         if not self.camp._reload_labeled_checkpoint(f"pre-{name}"):
             self.log(f"   [hunt] !! {name} catch failed but no 'pre-{name}' checkpoint "
@@ -180,6 +182,18 @@ class LegendaryHunt(GiovanniGym):
                                kind="legendary", tier=3)
         except Exception:
             pass
+        return True
+
+    def spent_final(self):
+        """spent() with THE FREE RETRY offered first: a spent-but-UNCAUGHT quarry reloads its
+        'pre-<quarry>' bank (bounded) before any hunt leg may treat 'battled' as the end of
+        the road. False after a reload — the encounter is live again and the caller re-runs
+        the press. Every spent()-keyed decision in the hunts routes through this, so a flee/
+        faint can never silently flip a hunt into its homebound/exit flow with retries left."""
+        if not self.spent():
+            return False
+        if self._retry_failed_catch():
+            return False
         return True
 
     # ── outcome truth ────────────────────────────────────────────────────────────────────
@@ -366,14 +380,15 @@ class ZapdosHunt(LegendaryHunt):
     def run(self):
         b = self.b
         here = tuple(tv.map_id(b))
-        if self.spent() and here != PLANT:
+        if self.spent_final() and here != PLANT:
             return self.outcome() or "battled"
+        here = tuple(tv.map_id(b))          # a FREE-RETRY reload may have moved her — re-read
         if here == R10:
             if not self.enter_step((7, 40), PLANT, "plant-door"):
                 return "failed"
         if tuple(tv.map_id(b)) != PLANT:
             return "not_here"
-        if not self.spent() and not self.press_quarry():
+        if not self.spent_final() and not self.press_quarry():
             return "failed"
         out = self.outcome() or "failed"
         # walk out (best-effort — a wedged exit never voids the banked outcome; the campaign's
@@ -388,8 +403,9 @@ class ArticunoHunt(LegendaryHunt):
     def run(self):
         b = self.b
         here = tuple(tv.map_id(b))
-        if self.spent() and here not in ARTICUNO_ANCHORS - {R20}:
+        if self.spent_final() and here not in ARTICUNO_ANCHORS - {R20}:
             return self.outcome() or "battled"
+        here = tuple(tv.map_id(b))          # a FREE-RETRY reload may have moved her — re-read
         # HARD SAFETY: without BOTH fallen boulders the B4F water still rips (the R21-reroute
         # stamp sets 0x2D2 without them — see seafoam_strike) — refuse rather than get swept.
         if fm.read_flag(b, FLAG_HIDE_B3F_BOULDER_1) or fm.read_flag(b, FLAG_HIDE_B3F_BOULDER_2):
@@ -406,7 +422,7 @@ class ArticunoHunt(LegendaryHunt):
             return "not_here"
         if tuple(tv.map_id(b)) != B4F and not self.ride(ARTICUNO_DESCENT, B4F, "descent"):
             return "failed"
-        if not self.spent() and not self.press_quarry():
+        if not self.spent_final() and not self.press_quarry():
             return "failed"
         out = self.outcome() or "failed"
         # walk out: back up the same ladder pairs (B4F tiles pair with B3F warps 3/4/7/8)
@@ -806,8 +822,9 @@ class MoltresHunt(LegendaryHunt):
     def run(self):
         b = self.b
         here = tuple(tv.map_id(b))
-        if self.spent() and here not in MOLTRES_ANCHORS - {CINNABAR, CINNABAR_PC}:
+        if self.spent_final() and here not in MOLTRES_ANCHORS - {CINNABAR, CINNABAR_PC}:
             return self.outcome() or "battled"
+        here = tuple(tv.map_id(b))          # a FREE-RETRY reload may have moved her — re-read
         if here not in MOLTRES_ANCHORS:
             return "not_here"
         # WEDGE-MARK HYGIENE (2026-08-05 #3): today's menu-frozen windows banked phantom
@@ -842,7 +859,10 @@ class MoltresHunt(LegendaryHunt):
                 self.log("!! [moltres] deadline — surfacing (stage machine resumes by map)")
                 return "failed"
             here = tuple(tv.map_id(b))
-            if self.spent():
+            # spent_final: a fled/fainted-but-UNCAUGHT bird reloads 'pre-moltres' RIGHT HERE
+            # (bounded) instead of flipping the stage machine homebound — the 2026-08-05
+            # emergency law: she finishes or honestly fails the encounter before any leg home.
+            if self.spent_final():
                 if here in (CINNABAR, CINNABAR_PC):
                     self.log("   [moltres] SPENT + home at Cinnabar — the hunt is complete")
                     return self.outcome() or "battled"
@@ -897,8 +917,9 @@ class MewtwoHunt(LegendaryHunt):
     def run(self):
         b = self.b
         here = tuple(tv.map_id(b))
-        if self.spent() and here not in {CAVE1F, CAVE2F, CAVEB1F}:
+        if self.spent_final() and here not in {CAVE1F, CAVE2F, CAVEB1F}:
             return self.outcome() or "battled"
+        here = tuple(tv.map_id(b))          # a FREE-RETRY reload may have moved her — re-read
         if not fm.read_flag(b, FLAG_SYS_GAME_CLEAR):
             self.log("   [mewtwo] not champion yet — the cave guard won't move (gate leak?)")
             return "failed"
@@ -916,7 +937,7 @@ class MewtwoHunt(LegendaryHunt):
                 return "failed"
         if tuple(tv.map_id(b)) != CAVEB1F:
             return "not_here"
-        if not self.spent() and not self.press_quarry():
+        if not self.spent_final() and not self.press_quarry():
             return "failed"
         out = self.outcome() or "failed"
         # walk out: B1F (5,7) -> 1F, then the long 1F crossing back to the mouth (33,21)

@@ -13023,14 +13023,23 @@ class Campaign:
 
     # ── LEGENDARY HUNTS (2026-08-04, Jonny: 'catching mew or mewtwo as a final endgame
     #    project ... all cool legendaries before or after the final 4') ─────────────────────
-    def _hunt_ready(self, quarry_species, hide, fought, need_balls=6):
+    def _hunt_ready(self, quarry_species, hide, fought, need_balls=6, key=None):
         """Shared hunt preconditions: the encounter still EXISTS (not caught, not battled-away)
         and the ball pocket can carry the fight (spendable Ultra/Great/Poké tiers; the mart
-        doctrine stocks Ultras while any hunt is pending). None = ready; else the reason."""
+        doctrine stocks Ultras while any hunt is pending). None = ready; else the reason.
+
+        SPENT-BUT-RETRYABLE (2026-08-05 EMERGENCY, two tiles from Moltres): fleeing/fainting a
+        static sets the fought flag — but a 'pre-<key>' checkpoint bank REWINDS that (full-RAM
+        savestate: flag clear, balls back). While that bank exists and the mon is uncaught,
+        the hunt is READY, not 'spent' — one fought-flag must never book a standing legendary
+        done and send the lap to Eevee. The ball floor is waived on that path too: the reload
+        IS the restock (the bank was taken with the full pocket)."""
         try:
             if ram.pokedex_owns(self.b, quarry_species) is True:
                 return "caught"
             if fm.read_flag(self.b, hide) or fm.read_flag(self.b, fought):
+                if key and self._has_labeled_checkpoint(f"pre-{key}"):
+                    return None                    # THE FREE RETRY rewinds it — still live
                 return "spent"
             if sum(self._balls_pocket_count(i) for i in (2, 3, 4)) < need_balls:
                 return "balls"
@@ -13047,7 +13056,7 @@ class Campaign:
         try:
             if st.party_knows_move(self.b, 57, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is None:
                 return None                       # no Surf, no road
-            if self._hunt_ready(145, 0x05D, 0x2BF) is not None:
+            if self._hunt_ready(145, 0x05D, 0x2BF, key="zapdos") is not None:
                 return None
         except Exception:
             return None
@@ -13070,7 +13079,7 @@ class Campaign:
                 return None                       # needs Surf + Strength inside
             if fm.read_flag(self.b, 0x046) or fm.read_flag(self.b, 0x047):
                 return None                       # boulders not truly down -> B4F rips
-            if self._hunt_ready(144, 0x082, 0x2BE) is not None:
+            if self._hunt_ready(144, 0x082, 0x2BE, key="articuno") is not None:
                 return None
         except Exception:
             return None
@@ -13102,7 +13111,7 @@ class Campaign:
             if (st.party_knows_move(self.b, 57, cnt) is None
                     or st.party_knows_move(self.b, 70, cnt) is None):
                 return None                   # needs Surf + Strength on the mountain
-            ready = self._hunt_ready(146, 0x052, 0x2BD)
+            ready = self._hunt_ready(146, 0x052, 0x2BD, key="moltres")
             if on_sevii:
                 if ready in ("caught", "spent"):
                     return None               # spent mid-trip: the ride-home hook drives
@@ -13287,8 +13296,15 @@ class Campaign:
             if spec is None or not LEGENDARY_HUNTS_ENABLED:
                 return False
             sp, hide, fought = spec
-            if ram.pokedex_owns(b, sp) is True or fm.read_flag(b, fought) or fm.read_flag(b, hide):
-                return False                                  # caught, or battled-away — done
+            if ram.pokedex_owns(b, sp) is True:
+                return False                                  # caught — genuinely done
+            if fm.read_flag(b, fought) or fm.read_flag(b, hide):
+                # battled-away — but NOT done while THE FREE RETRY can rewind it (2026-08-05
+                # EMERGENCY: a flee after 5 broken balls set the fought flag, this line booked
+                # moltres DONE two tiles from the bird, and the lap left for EEVEE). A
+                # 'pre-<key>' bank restores the un-fought world, so the item stays OWED and
+                # the dispatch reloads into the encounter. Bounded by the _lap_fails ledger.
+                return self._has_labeled_checkpoint(f"pre-{key}")
             if key == "moltres" and fm.read_flag(b, 0x0A2) and not self._lap_sevii_stranded():
                 self._lap_skip(key, "Bill is gone from the Cinnabar PC — the Sevii ferry is "
                                     "closed pre-champion")
@@ -13302,20 +13318,98 @@ class Campaign:
             log(f"   [lap] pending-check for '{key}' unreadable ({e}) — counting it done (LOUD)")
             return False
 
+    _LAP_HUNT_SITE = {"moltres": (3, 12), "articuno": (3, 38), "zapdos": (3, 28)}
+
+    def _lap_anchor_sets(self):
+        """key -> anchor map-set for the hunt items (lazy import; empty dict on any fault)."""
+        try:
+            import legendary_strikes as _ls
+            return {"moltres": _ls.MOLTRES_ANCHORS, "articuno": _ls.ARTICUNO_ANCHORS,
+                    "zapdos": _ls.ZAPDOS_ANCHORS}
+        except Exception:
+            return {}
+
+    def _lap_item_cost(self, key, here):
+        """FLUID-PLAN COST (2026-08-05 EMERGENCY, Jonny: \"the plan needs to be fluid — it
+        can't be 'lets go get eevee' when we are one step away from moltres\"): a coarse
+        travel-cost estimate from her LIVE position, deliberately NOT a planner —
+          0 = standing at/inside it (hunt anchor maps, the item's own city, or an
+              in-place item like the Earthquake teach),
+          1 = same region (Kanto<->Kanto or Sevii<->Sevii walking/surfing),
+          2 = cross-region (a FERRY — the most expensive move on the board).
+        The lap picks min(cost) with the declared VICTORY_LAP_ORDER as the tiebreak, so
+        Mt. Ember summit prices moltres at 0 and eevee (Celadon, a ferry + half of Kanto
+        away) at 2 — never again the other way around."""
+        try:
+            if key in ("earthquake", "box_bench", "repack"):
+                return 0 if key == "earthquake" else 1   # teach is in-place; PC work = a Center walk
+            anch = self._lap_anchor_sets().get(key)
+            if anch and here in anch:
+                return 0
+            site = CELADON if key == "eevee" else self._LAP_HUNT_SITE.get(key)
+            if site is None:
+                return 1
+            if key == "eevee" and here == tuple(CELADON):
+                return 0
+            return 1 if map_region(here) == map_region(site) else 2
+        except Exception:
+            return 1
+
     def _victory_lap_next(self, state=None):
-        """The FIRST owed item in the EXPLICIT route order (VICTORY_LAP_ORDER), or None when the
-        checklist is clear. Logs the full verdict whenever it changes so soak reports confess
-        the sequencing."""
+        """The next owed lap item, OPPORTUNITY-ORDERED (2026-08-05 EMERGENCY rewrite): the
+        cheapest item by live travel cost (_lap_item_cost), declared VICTORY_LAP_ORDER as the
+        tiebreak — with one absolute trump on top:
+
+        PROXIMITY OUTRANKS EVERYTHING — standing inside a legendary hunt's anchor set with
+        that legendary UNCAUGHT, the hunt IS the next item. No lap cursor, no luxury gate,
+        no force-pick preempts a legendary she is physically at (the Eevee divert, two tiles
+        from Moltres). Loop-burned skip/fail marks refund ONCE per key per session while she
+        stands there (today's boulder laps burned attempts that were never the hunt's fault);
+        after the refund the bounded-fail law stands even here — never an infinite park."""
         if not VICTORY_LAP_ENABLED:
             return None
+        here, prox = None, None
+        try:
+            here = tuple(tv.map_id(self.b))
+            for k, anch in self._lap_anchor_sets().items():
+                if here not in anch:
+                    continue
+                if ram.pokedex_owns(self.b, self._LAP_HUNT_SPEC[k][0]) is True:
+                    continue
+                refunded = getattr(self, "_lap_prox_refunds", None)
+                if refunded is None:
+                    refunded = self._lap_prox_refunds = set()
+                if k not in refunded and (k in getattr(self, "_lap_skipped", set())
+                                          or (getattr(self, "_lap_fails", None) or {}).get(k)):
+                    refunded.add(k)
+                    getattr(self, "_lap_skipped", set()).discard(k)
+                    (getattr(self, "_lap_fails", None) or {}).pop(k, None)
+                    log(f"   [lap] 🦅 PROXIMITY REFUND '{k}': standing on the hunt's own maps — "
+                        f"loop-burned skip/fail marks dropped (once per run; nothing outranks "
+                        f"a legendary she is standing next to)")
+                if self._lap_pending(k):
+                    prox = k
+                break
+        except Exception:
+            prox = None
         verdict = {}
         for k in VICTORY_LAP_ORDER:
             verdict[k] = ("pending" if self._lap_pending(k)
                           else ("SKIPPED" if k in getattr(self, "_lap_skipped", set()) else "done"))
-        nxt = next((k for k in VICTORY_LAP_ORDER if verdict[k] == "pending"), None)
-        if verdict != getattr(self, "_lap_verdict_logged", None):
-            self._lap_verdict_logged = dict(verdict)
-            log(f"   [lap] CHECKLIST {verdict} -> next: {nxt or '— CLEAR'}")
+        pend = [k for k in VICTORY_LAP_ORDER if verdict[k] == "pending"]
+        if prox is not None:
+            nxt = prox
+        elif pend and here is not None:
+            _order = {k: i for i, k in enumerate(VICTORY_LAP_ORDER)}
+            nxt = min(pend, key=lambda k: (self._lap_item_cost(k, here), _order[k]))
+        else:
+            nxt = pend[0] if pend else None
+        _sig = (tuple(sorted(verdict.items())), nxt, prox)
+        if _sig != getattr(self, "_lap_verdict_logged", None):
+            self._lap_verdict_logged = _sig
+            log(f"   [lap] CHECKLIST {verdict} -> next: {nxt or '— CLEAR'}"
+                + (f" (PROXIMITY TRUMP: standing at the {prox} hunt)" if prox else
+                   (f" (cost-ordered from {here})" if nxt else "")))
             if nxt is None:
                 log("   [lap] 🏁 CHECKLIST CLEAR — the League road opens (head_to_league resumes)")
         return nxt
@@ -18221,6 +18315,13 @@ class Campaign:
         except Exception as _ws:
             log(f"   [world] seed/caps skipped: {_ws}")
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
+        # LEGENDARY REWIND (2026-08-05 EMERGENCY): a battled-away-but-uncaught quarry with a
+        # 'pre-<key>' bank resumes INTO the encounter — before the anchor below banks, before
+        # any lap/questline machinery can read the fought flag as 'done' and wander off.
+        try:
+            self._legend_rewind_at_boot()
+        except Exception as _lr:
+            log(f"   [hunt] legendary rewind check skipped: {_lr}")
         # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
         # real progress (a badge, a new area, a catch), so the next GO resumes the CLIMB from where she
         # actually is. _camp_sig is the cheap progress fingerprint we diff each tick.
@@ -21012,6 +21113,50 @@ class Campaign:
         log(f"   [roam] !! REGION-LOCAL RELOAD: no same-region ({region}) checkpoint bank on disk "
             f"past skip depth {skips} — declining")
         return False
+
+    def _legend_rewind_at_boot(self):
+        """LEGENDARY REWIND AT BOOT (2026-08-05 EMERGENCY, Jonny: 'load her back there'): a
+        fought/hide flag with the quarry DEFINITIVELY uncaught plus a 'pre-<key>' bank on disk
+        means the last session ended mid-catch (fled, fainted it, whiteout, or a bad divert) —
+        resume INTO the encounter, not past it. The savestate restore clears the flag and
+        refills the thrown balls, so this self-limits: the next boot reads the flag clear and
+        no-ops. Runs BEFORE the roam anchor banks, so 'roam_start' captures the at-the-bird
+        moment. Dex-owned reads must be a hard False (an unreadable dex never rewinds a
+        possibly-caught mon). Returns True when a rewind happened."""
+        specs = dict(self._LAP_HUNT_SPEC)
+        specs["mewtwo"] = (150, 0x081, 0x2BC)
+        for key, (sp, hide, fought) in specs.items():
+            try:
+                if ram.pokedex_owns(self.b, sp) is not False:
+                    continue                     # caught (or unreadable — never rewind blind)
+                if not (fm.read_flag(self.b, fought) or fm.read_flag(self.b, hide)):
+                    continue                     # encounter still live — nothing to rewind
+            except Exception:
+                continue
+            if self._reload_labeled_checkpoint(f"pre-{key}"):
+                log(f"   [hunt] !!!! LEGENDARY REWIND AT BOOT: {key} was battled-away but NOT "
+                    f"caught — resumed INTO the encounter from 'pre-{key}' (balls restored, "
+                    f"flag clear, standing at the bird) (LOUD)")
+                try:
+                    self.on_event(f"we are NOT leaving {key} behind like that. back to the "
+                                  f"summit moment — balls ready, doing it right this time.",
+                                  kind="legendary", tier=3)
+                except Exception:
+                    pass
+                return True
+        return False
+
+    def _has_labeled_checkpoint(self, tag):
+        """True when a reloadable auto-checkpoint whose dir name carries `tag` exists on disk
+        (non-partial, with the .state present). The FREE-RETRY predicates read this — cheap
+        (one listdir of a pruned dir), never raises."""
+        try:
+            root = os.path.join(STATES_CAMPAIGN, "checkpoints")
+            return any(tag in n and not n.endswith(".partial")
+                       and os.path.exists(os.path.join(root, n, CAMPAIGN_SAVE))
+                       for n in os.listdir(root))
+        except Exception:
+            return False
 
     def _reload_labeled_checkpoint(self, tag):
         """LABELED RELOAD (2026-08-05, THE FREE RETRY at Moltres): load the NEWEST on-disk
