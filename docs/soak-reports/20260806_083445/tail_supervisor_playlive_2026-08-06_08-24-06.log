@@ -1,0 +1,82 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 101) coords=(9, 7) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=5728).
+
+   [soul] continuity loaded: 15 roster bond(s), 850 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 146 place(s) known, 240 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 101)@(9, 7) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "The MOLTRES flew away!"'  fired=True  [age 0.0s + post 22ms]
+
+   [campaign]    [ckpt] !! LABELED RELOAD 'pre-moltres': candidate '20260806_081635_an-unfamiliar-area_8b_32h39m_pre-moltres' is POISONED AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — ratcheting to the next older bank (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [campaign]    [ckpt] !! LABELED RELOAD 'pre-moltres': candidate '20260806_081631_an-unfamiliar-area_8b_32h38m_pre-moltres' is POISONED AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — ratcheting to the next older bank (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [campaign]    [ckpt] !! LABELED RELOAD 'pre-moltres': candidate '20260806_081627_an-unfamiliar-area_8b_32h38m_pre-moltres' is POISONED AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — ratcheting to the next older bank (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [campaign]    [ckpt] !! LABELED RELOAD 'pre-moltres': candidate '20260806_081623_an-unfamiliar-area_8b_32h38m_pre-moltres' is POISONED AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — ratcheting to the next older bank (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [campaign]    [ckpt] !! LABELED RELOAD 'pre-moltres': candidate '20260806_081540_an-unfamiliar-area_8b_32h38m_pre-moltres' is POISONED AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — ratcheting to the next older bank (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (1, 101)@(9, 7) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [ckpt] !! LABELED RELOAD 'pre-moltres': candidate '20260806_081536_an-unfamiliar-area_8b_32h38m_pre-moltres' is POISONED AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — ratcheting to the next older bank (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [campaign]    [ckpt] !! LABELED RELOAD 'pre-moltres': candidate '20260806_081532_an-unfamiliar-area_8b_32h37m_pre-moltres' is POISONED AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — ratcheting to the next older bank (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [campaign]    [ckpt] !! LABELED RELOAD 'pre-moltres': candidate '20260806_081528_an-unfamiliar-area_8b_32h37m_pre-moltres' is POISONED AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — ratcheting to the next older bank (LOUD)
+
