@@ -408,6 +408,22 @@ class LegendaryHunt(GiovanniGym):
         cur = tuple(tv.coords(self.b) or (0, 0))
         dist = abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
         if dist <= self.DOORSTEP_TILES:
+            # EMPTY CHIP TANK (2026-08-06 LIVE, soak 081352): Bite 0 PP, only Skull Bash
+            # (OHKO) left → OVERKILL → Fearow switch → bird flees → spawn-after-leave loop.
+            # Ace with ZERO safe chips must Center FIRST even at the doorstep — engaging
+            # an empty tank is what spends the bird.
+            try:
+                _ok, _ace_safe, _party_safe = self._chip_pp_audit()
+            except Exception:
+                _ace_safe = None
+            if _ace_safe is not None and _ace_safe < 1:
+                if self._maybe_arm_pp_restore():
+                    self.log(f"   [hunt] !!!! AT THE DOORSTEP but ACE has 0 safe chip "
+                             f"swings — Center heal FIRST (never engage a legendary on an "
+                             f"empty Bite tank) (LOUD)")
+                    return True
+                self.log(f"   [hunt] !! AT THE DOORSTEP, ace 0 safe chips, restore "
+                         f"unavailable — engaging in LADDER/soft-reload mode (LOUD)")
             _softs = getattr(self.camp, "_legend_soft_reloads", 0) or 0
             _retries = getattr(self, "_catch_retries", 0) or 0
             if _retries > 0 or _softs > 0:

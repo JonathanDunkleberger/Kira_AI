@@ -1,0 +1,3 @@
+CKPT 20260805_182052_an-unfamiliar-area_8b_32h26m_pre-moltres
+# HARD PIN (2026-08-06): known-clean summit bank BEFORE the flew-away poison chain.
+# Do NOT prefer newer 20260806_08* pre-moltres banks — those were re-banked after fled fights.

@@ -732,7 +732,7 @@ def main():
         camp28._save_campaign = lambda *a, **k: True
         rebanked28, pinned28 = [], []
         camp28._bank_milestone = lambda label: rebanked28.append(label)
-        camp28._pin_pre_hunt_promote = lambda key: pinned28.append(key)
+        camp28._pin_pre_hunt_promote = lambda key, name=None: pinned28.append(key)
         # the flag reads key off WHICH savestate body is loaded — passing these checks IS
         # the proof the verify reads fresh post-load RAM, not a cached pre-reload value.
         _orig_owns28, _orig_flag28 = C.ram.pokedex_owns, C.fm.read_flag
@@ -1067,25 +1067,37 @@ def main():
           h34._maybe_arm_pp_restore() is False
           and not getattr(h34, "_pp_restore_mode", False)
           and any("ALREADY BURNED" in l and "ENGAGING NOW" in l for l in logs33))
-    # (b) standing at the bird -> the audit's window has passed; engage regardless of PP
+    # (b) standing at the bird with a usable chip tank -> engage (no Center detour).
+    # Ace-empty tanks are a SEPARATE law (b3) — they must Center first.
     _orig_coords34 = LS.tv.coords
     try:
         LS.tv.coords = lambda b: (9, 7)          # 1 tile from Moltres' (9, 6)
         logs33.clear()
-        h34b = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))   # bone-dry tank
+        h34b = _mk_hunt33(LS.MoltresHunt, (True, 5, 10))
+        h34b._chip_pp_audit = lambda: (True, 5, 10)   # usable Bite tank
         h34b._maybe_arm_pp_restore = lambda: (_ for _ in ()).throw(AssertionError(
-            "the audit must NOT run at the doorstep"))
-        check("adjacent to the quarry -> audit SKIPPED entirely, engage now (LOUD)",
+            "restore must NOT arm at the doorstep when the ace still has safe chips"))
+        check("adjacent to the quarry with chip PP -> ENGAGING NOW (LOUD)",
               h34b._doorstep_or_restore() is False
               and any("AT THE DOORSTEP" in l and "ENGAGING NOW" in l for l in logs33))
         # (b2) AFTER a free-retry, thin PP at the doorstep may arm the ONE Center heal
         logs33.clear()
-        h34b2 = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))
+        h34b2 = _mk_hunt33(LS.MoltresHunt, (True, 5, 10))
         h34b2._catch_retries = 1
+        h34b2._chip_pp_audit = lambda: (True, 5, 10)  # has chips — free-retry path owns arming
         h34b2._maybe_arm_pp_restore = lambda: True
         check("doorstep AFTER free-retry -> ONE Center heal may arm (post-fail restore)",
               h34b2._doorstep_or_restore() is True
               and any("after failed attempt" in l and "free-retries=1" in l for l in logs33))
+        # (b3) ace 0 safe chips at the doorstep -> Center FIRST (never engage empty tank)
+        logs33.clear()
+        h34b3 = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))
+        h34b3._catch_retries = 0
+        h34b3._chip_pp_audit = lambda: (True, 0, 29)
+        h34b3._maybe_arm_pp_restore = lambda: True
+        check("doorstep + ace 0 safe chips -> Center heal FIRST (empty Bite tank)",
+              h34b3._doorstep_or_restore() is True
+              and any("ACE has 0 safe chip" in l for l in logs33))
         # (c) far from the bird (pre-approach) -> the gate delegates to the one-shot audit
         LS.tv.coords = lambda b: (29, 40)        # 54 tiles out — mid-climb
         h34c = _mk_hunt33(LS.MoltresHunt, (True, 1, 3))

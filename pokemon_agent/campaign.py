@@ -21237,7 +21237,28 @@ class Campaign:
             log(f"   [ckpt] labeled reload '{tag}': checkpoint root unreadable ({_le}) — declining")
             return False
         tagged = [n for n in all_names if tag in n]
-        candidates = list(tagged)
+        # Drop blacklisted poison banks (182452-class mid-flee) before any load attempt.
+        _bl = tuple(getattr(self, "_HUNT_BANK_BLACKLIST", ()) or ())
+        if _bl:
+            _dropped = [n for n in tagged if any(b in n for b in _bl)]
+            tagged = [n for n in tagged if n not in _dropped]
+            for n in _dropped:
+                log(f"   [ckpt] !! LABELED RELOAD '{tag}': skipping BLACKLISTED bank "
+                    f"'{n}' (known mid-flee / spent summit) (LOUD)")
+        # Preferred clean banks FIRST (exact name, then substring), then newest→oldest tagged.
+        _pref_first = []
+        try:
+            _key = tag[4:] if tag.startswith("pre-") else ""
+            for pref in (getattr(self, "_HUNT_PREFERRED_PRE", {}) or {}).get(_key, ()):
+                hit = next((n for n in tagged if n == pref or pref in n), None)
+                if hit and hit not in _pref_first:
+                    _pref_first.append(hit)
+        except Exception:
+            pass
+        candidates = _pref_first + [n for n in tagged if n not in _pref_first]
+        if _pref_first:
+            log(f"   [ckpt] labeled reload '{tag}': preferring clean bank(s) "
+                f"{_pref_first[:2]} ahead of newest-tagged (LOUD)")
         if verify is not None and ratchet_region:
             # ratchet fallback: same-region banks OLDER than the newest tag match (all of them
             # when no tag match exists). Region proven by the bank's own checkpoint.json map —
@@ -21342,6 +21363,18 @@ class Campaign:
         "zapdos":   ((1, 95), (5, 11), fm.GFX_ZAPDOS),
         "mewtwo":   ((1, 74), (7, 12), fm.GFX_MEWTWO),
     }
+    # PREFERRED clean pre-banks (tried FIRST). Newest-tagged is NOT safest — the 2026-08-06
+    # morning free-retry re-banked post-flee states and pinned them over the clean 182052.
+    _HUNT_PREFERRED_PRE = {
+        "moltres": (
+            "20260805_182052_an-unfamiliar-area_8b_32h26m_pre-moltres",
+            "20260805_182052",  # substring fallback
+        ),
+    }
+    # Name substrings that must NEVER be free-retried / boot-rewound (mid-flee / spent summit).
+    _HUNT_BANK_BLACKLIST = (
+        "20260805_182452",  # mid-script "The MOLTRES flew away!" after "VERIFIED"
+    )
 
     def _hunt_bank_live(self, key):
         """FRESH post-load RAM read (never a cached value): True when the state now in the
@@ -21429,13 +21462,27 @@ class Campaign:
         if ok:
             try:
                 if self._hunt_bank_live(key):
+                    # Re-bank for durability, but PIN the preferred clean bank (or the
+                    # bank we actually loaded) — never let a free-retry re-bank outrank
+                    # 182052 in PROMOTE_TARGET (soak 081352 pinned post-flee 081023).
+                    loaded = getattr(self, "_last_labeled_reload", None)
                     self._bank_milestone(f"pre-{key}")
                     log(f"   [hunt] !!!! re-banked fresh verified 'pre-{key}' after clean "
                         f"rewind — next resume has a known-good bird (LOUD)")
-                    # Fresh re-bank is now newest on disk — pin THAT, not the older
-                    # candidate we loaded (which may have been a near-poison settle win).
-                    self._last_labeled_reload = None
-                    self._pin_pre_hunt_promote(key)
+                    pref = (getattr(self, "_HUNT_PREFERRED_PRE", {}) or {}).get(key) or ()
+                    pin_name = None
+                    if pref:
+                        root = os.path.join(STATES_CAMPAIGN, "checkpoints")
+                        for p in pref:
+                            hit = next((n for n in os.listdir(root)
+                                        if (n == p or p in n) and f"pre-{key}" in n
+                                        and not n.endswith(".partial")
+                                        and os.path.exists(os.path.join(root, n, CAMPAIGN_SAVE))),
+                                       None)
+                            if hit:
+                                pin_name = hit
+                                break
+                    self._pin_pre_hunt_promote(key, name=pin_name or loaded)
             except Exception as e:
                 log(f"   [hunt] !! post-rewind re-bank of 'pre-{key}' skipped: {e}")
             return True
