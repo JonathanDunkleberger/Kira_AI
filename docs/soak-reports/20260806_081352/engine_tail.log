@@ -1,0 +1,28 @@
+===== playlive_2026-08-06_08-07-43.log =====
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (fearow) to chip it into the catchable band
+   [play-live]    [engine] switch: target party slot 2 sp=22 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 22 (slot 2)
+   [play-live]    [engine] fswitch: BUDGET 5s hit — blind-sending strongest live (anti 60–90s party theater)
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (fearow) to chip it into the catchable band
+   [play-live]    [engine] switch: target party slot 2 sp=22 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 22 (slot 2)
+   [play-live]    [engine] fswitch: BUDGET 5s hit — blind-sending strongest live (anti 60–90s party theater)
+   [play-live]    [engine] fswitch BLIND: row 2 blastoise L64
+   [play-live]    [engine] battle-progress: force-switch seated (blind)
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (fearow) to chip it into the catchable band
+   [play-live]    [engine] switch: target party slot 2 sp=22 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 22 (slot 2)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] flee: battle opened on the forced send-out screen -> sending a healthy reserve, then running
+   [play-live]    [engine] fswitch: selecting row 2 (sp=9 L64 hp=188)
+   [play-live]    [engine] battle-progress: force-switch seated
+===== playlive_2026-08-06_07-56-27.log =====
+   [travel] start map=(1, 101) coords=(9, 7) -> coord (9, 14) (budget 60s, surf-capable)
+   [travel] step 0: (9, 7)->(9, 8) map=(1, 101) (path 10 to exit)
+   [travel] reached target coord (9, 14)
