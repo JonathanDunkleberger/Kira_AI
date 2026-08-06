@@ -1,0 +1,688 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 101) coords=(9, 9) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=732).
+
+   [soul] continuity loaded: 15 roster bond(s), 850 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 146 place(s) known, 240 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 101)@(9, 9) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260806_081457_an-unfamiliar-area_8b_32h37m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 101)@(9, 9) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres (PROXIMITY TRUMP: standing at the moltres hunt)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."  fired=True  [age 0.0s + post 12ms]
+
+   [campaign]    [world] learned 1 warp(s) on (1, 101): (9, 15)->(1, 97)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (9, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 101) (9,9) f4 -- badge8 $30570 party:7b0e bag:b60d]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'talk_npc', 'travel:1,97', 'travel:3,45', 'use_strength']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're indoors, inside a building (rooms and doors — NOT a cave), somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L64), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 101), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L64), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick=None
+
+   [campaign]    [soul] ORACLE pick -> None
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 3
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (1, 101)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [moltres-leg] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [moltres-leg] -> checkpoints/20260806_081503_an-unfamiliar-area_8b_32h37m_moltres-leg  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'moltres-leg' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260806_081504_an-unfamiliar-area_8b_32h37m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260806_081504_an-unfamiliar-area_8b_32h37m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#2] boulder VERIFIED at target (7, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain2] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain2] -> checkpoints/20260806_081504_an-unfamiliar-area_8b_32h37m_summit-board-chain2  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain2' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#3] boulder VERIFIED at target (10, 9)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain3] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain3] -> checkpoints/20260806_081504_an-unfamiliar-area_8b_32h37m_summit-board-chain3  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain3' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board] SOLVED — every chain verified at target
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (3 tile(s) from Moltres) — the PP audit's window has passed: ENGAGING NOW, no detours (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 9) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081504_an-unfamiliar-area_8b_32h37m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [quarry-approach] replan at (9, 9) (len 3, budget 9)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Moltres. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against moltres — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a moltres. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 15ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+
+   [play-live]    [catch] target=moltres L50 hp=100% status=none balls=5 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=115% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [catch] !! EARLY THROW BLOCKED by HARD FLOOR — foe at 100% (floor 50%); fleeing to free-retry (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260806_081524_an-unfamiliar-area_8b_32h37m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260806_081524_an-unfamiliar-area_8b_32h37m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#2] boulder VERIFIED at target (7, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain2] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain2] -> checkpoints/20260806_081524_an-unfamiliar-area_8b_32h37m_summit-board-chain2  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain2' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#3] boulder VERIFIED at target (10, 9)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain3] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain3] -> checkpoints/20260806_081524_an-unfamiliar-area_8b_32h37m_summit-board-chain3  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain3' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board] SOLVED — every chain verified at target
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (1 tile(s) from Moltres) — the PP audit's window has passed: ENGAGING NOW, no detours (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081524_an-unfamiliar-area_8b_32h37m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Moltres. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 14ms]
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "The MOLTRES flew away!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_081524_an-unfamiliar-area_8b_32h37m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081528_an-unfamiliar-area_8b_32h37m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_081528_an-unfamiliar-area_8b_32h37m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 1/4: 'pre-moltres' reloaded — fought flag clear, balls restored, standing at the moltres again (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'no. we are NOT losing Moltres like that. rewinding to right before the fight — fresh balls, fresh plan.'  fired=True  [age 0.0s + post 14ms]
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "The MOLTRES flew away!"'
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_081528_an-unfamiliar-area_8b_32h37m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081532_an-unfamiliar-area_8b_32h37m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_081532_an-unfamiliar-area_8b_32h37m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 2/4: 'pre-moltres' reloaded — fought flag clear, balls restored, standing at the moltres again (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "The MOLTRES flew away!"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.2s at (1, 101)@(9, 7) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_081532_an-unfamiliar-area_8b_32h37m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081536_an-unfamiliar-area_8b_32h38m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_081536_an-unfamiliar-area_8b_32h38m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 3/4: 'pre-moltres' reloaded — fought flag clear, balls restored, standing at the moltres again (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "The MOLTRES flew away!"'
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_081536_an-unfamiliar-area_8b_32h38m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081540_an-unfamiliar-area_8b_32h38m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_081540_an-unfamiliar-area_8b_32h38m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 4/4: 'pre-moltres' reloaded — fought flag clear, balls restored, standing at the moltres again (LOUD)
+
+   [campaign] !! [moltres] climb leg wedged on (1, 101) @ (9, 7)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 101)@(9, 7))
+
+   [campaign]    [lap] 'moltres' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'moltres' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 101)(9, 9) -> (1, 101)(9, 7) (MOVED)
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 101)@(9, 7) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:an unfamiliar area:geodude was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:an unfamiliar area:geodude from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(9, 7) -> coord (9, 14) (budget 60s, surf-capable)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(9, 7) -> coord (9, 16) (budget 45s, surf-capable)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(9, 7) -> coord (9, 14) (budget 45s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (9, 7) (NPC on the gap?) - waiting
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "The MOLTRES flew away!"'
+
+   [travel] no clean path from (9, 7); NPC-allowing path EXISTS (len 10), blocker NPC tile=(8, 12), npcs nearby=[(7, 11), (8, 12), (10, 9), (10, 11)] -> approaching to interact/trigger
+
+   [egress] blocker on (8, 12) (only-gap blocker) — holding position, waiting up to 12s for it to wander off (live bodies=[(7, 11), (8, 12), (10, 9), (10, 11)])
+
+   [egress] blocker on (8, 12) hasn't moved in 3.5s — stationary (trainer/squatter); falling back to interact/re-path
+
+   [dialogue] +++ 'STRENGTH made it possible to move boulders around.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "STRENGTH made it possible to move boulders around."'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a boulder — STRENGTH time. heave!'  fired=True  [age 0.0s + post 24ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-strength] 'STRENGTH made it possible to move boulders around.'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (1, 101)@(8, 11) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [dlg-pace hm-strength] box 'STRENGTH made it possible to move boulders aroun' visible 2.45s (sink 0ms, hold 0.08s, end=closed)
+
+   [travel] FIELD OBSTACLE (8, 12) on (1, 101) CLEARED with strength — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(8, 11) -> coord (8, 15) (budget 45s, surf-capable)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(8, 11) -> coord (10, 15) (budget 45s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (8, 11) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (8, 11) AND no NPC-allowing path (npcs nearby=[(7, 11), (8, 12), (10, 9), (10, 11)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 11) map=(1, 101) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(8, 11) -> coord (9, 15) (budget 60s, surf-capable)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 15ms]
+
+   [travel] step 0: (8, 11)->(9, 11) map=(1, 101) (path 6 to exit)
+
+   [travel] reached target coord (9, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 101) coords=(9, 15) -> coord (9, 14) (budget 60s, surf-capable)
+
+   [travel] step 0: (9, 15)->(9, 14) map=(1, 101) (path 2 to exit)
+
+   [travel] reached target coord (9, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (9, 15) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (1, 97): (28, 48)->(3, 45), (29, 48)->(3, 45), (14, 24)->(1, 98), (39, 19)->(1, 100), (29, 7)->(1, 101), (42, 39)->(1, 103)
+
+   [campaign]    EXIT-BUILDING: (1, 101) -> (1, 97)@(29, 7)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 97) coords=(29, 7) -> coord (29, 47) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 7)->(29, 8) map=(1, 97) (path 50 to exit)
+
+   [travel] step 10: (29, 17)->(29, 18) map=(1, 97) (path 40 to exit)
+
+   [travel] step 20: (29, 27)->(29, 28) map=(1, 97) (path 31 to exit)
+
+   [travel] step 30: (26, 34)->(26, 35) map=(1, 97) (path 21 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 38) elapsed=6s
+
+   [travel] step 40: (32, 38)->(32, 39) map=(1, 97) (path 12 to exit)
+
+   [travel] step 50: (31, 47)->(30, 47) map=(1, 97) (path 3 to exit)
+
+   [travel] reached target coord (29, 47)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (29, 48) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    EXIT-BUILDING: (1, 97) -> (3, 45)@(12, 6)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 45): (11, 6)->(1, 97), (12, 6)->(1, 97), (15, 58)->(2, 57)
+
+   [campaign]    [lap] 🦅 PROXIMITY REFUND 'moltres': standing on the hunt's own maps — loop-burned skip/fail marks dropped (once per run; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 6) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L64, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 45) (12,6) f1 -- badge8 $30570 party:7b0e bag:b60d]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'travel:1,97']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 2/3 from (3, 45)
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_081540_an-unfamiliar-area_8b_32h38m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081623_an-unfamiliar-area_8b_32h38m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_081623_an-unfamiliar-area_8b_32h38m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 1/4: 'pre-moltres' reloaded — fought flag clear, balls restored, standing at the moltres again (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [moltres-leg] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [kira-voice] -> T3·BIG· (legendary) 'no. we are NOT losing Moltres like that. rewinding to right before the fight — fresh balls, fresh plan.'  fired=True  [age 0.0s + post 16ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [moltres-leg] -> checkpoints/20260806_081623_an-unfamiliar-area_8b_32h38m_moltres-leg  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'moltres-leg' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#0] boulder VERIFIED at target (10, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain0] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain0] -> checkpoints/20260806_081623_an-unfamiliar-area_8b_32h38m_summit-board-chain0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain0' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#1] boulder VERIFIED at target (8, 12)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain1] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain1] -> checkpoints/20260806_081623_an-unfamiliar-area_8b_32h38m_summit-board-chain1  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain1' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#2] boulder VERIFIED at target (7, 11)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain2] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain2] -> checkpoints/20260806_081623_an-unfamiliar-area_8b_32h38m_summit-board-chain2  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain2' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board#3] boulder VERIFIED at target (10, 9)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [summit-board-chain3] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [summit-board-chain3] -> checkpoints/20260806_081623_an-unfamiliar-area_8b_32h38m_summit-board-chain3  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'summit-board-chain3' banked — any recovery now resumes right here
+
+   [campaign]    [summit-board] SOLVED — every chain verified at target
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L64 hp 188/196 dmgPP 4 safePP 0 (Bite:0, Skull Bash:4, Surf:0, Earthquake:0); slot1 L25 hp 106/106 dmgPP 29 safePP 29 (Strength:15, Body Slam:14, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 39 safePP 39 (Leer:30, Fury Attack:20, 228:19, Mirror Move:20) | ace slot0 safe 0, party safe 68 (vs Moltres fire/flying L50)
+
+   [campaign]    [hunt] !!!! chip PP THIN (ace 0, party 68) but the one-shot restore latch for 'moltres' is ALREADY BURNED this campaign — ENGAGING NOW in LADDER MODE, no more retreats (LOUD)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (1 tile(s) from Moltres) — the PP audit's window has passed: ENGAGING NOW, no detours (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081623_an-unfamiliar-area_8b_32h38m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Moltres. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 18ms]
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "The MOLTRES flew away!"'
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_081623_an-unfamiliar-area_8b_32h38m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081627_an-unfamiliar-area_8b_32h38m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_081627_an-unfamiliar-area_8b_32h38m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 2/4: 'pre-moltres' reloaded — fought flag clear, balls restored, standing at the moltres again (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'no. we are NOT losing Moltres like that. rewinding to right before the fight — fresh balls, fresh plan.'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "The MOLTRES flew away!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_081627_an-unfamiliar-area_8b_32h38m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081631_an-unfamiliar-area_8b_32h38m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_081631_an-unfamiliar-area_8b_32h38m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 3/4: 'pre-moltres' reloaded — fought flag clear, balls restored, standing at the moltres again (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'no. we are NOT losing Moltres like that. rewinding to right before the fight — fresh balls, fresh plan.'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "The MOLTRES flew away!"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (1, 101)@(9, 7) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-moltres': checkpoint '20260806_081631_an-unfamiliar-area_8b_32h38m_pre-moltres' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-moltres] -> campaign/kira_campaign.state  (map=(1, 101) coords=(9, 7) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-moltres] -> checkpoints/20260806_081635_an-unfamiliar-area_8b_32h39m_pre-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-moltres' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260806_081635_an-unfamiliar-area_8b_32h39m_pre-moltres (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 4/4: 'pre-moltres' reloaded — fought flag clear, balls restored, standing at the moltres again (LOUD)
+
+   [dialogue] +++ 'The MOLTRES flew away!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "The MOLTRES flew away!"'
+
+   [campaign]    [hunt] !! moltres catch FAILED and the retry budget is spent (4/4) — accepting 'battled' (LOUD; the ball war-chest restock is the road back)
+
+   [campaign]    [summit-out-approach] replan at (9, 7) (len 10, budget 9)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 6466 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(1, 97) coords=(29, 7)  badge=True
+
+   [kira-voice] === 17 fired, 8 gated (0 failed) | by tier: T3=9 T2=2 T1=6 (incl ambient trickle) ===
+
+================================================================
+

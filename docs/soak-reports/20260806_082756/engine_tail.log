@@ -1,0 +1,36 @@
+===== playlive_2026-08-06_08-24-06.log =====
+===== playlive_2026-08-06_08-14-55.log =====
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — moltres: weaken+balls, never KO
+   [travel] start map=(1, 101) coords=(9, 7) -> coord (9, 14) (budget 60s, surf-capable)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 101) coords=(9, 7) -> coord (9, 16) (budget 45s, surf-capable)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 101) coords=(9, 7) -> coord (9, 14) (budget 45s, surf-capable)
+   [travel] path blocked at (9, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (9, 7); NPC-allowing path EXISTS (len 10), blocker NPC tile=(8, 12), npcs nearby=[(7, 11), (8, 12), (10, 9), (10, 11)] -> approaching to interact/trigger
+   [campaign]    [dlg hm-strength] 'STRENGTH made it possible to move boulders around.'
+   [campaign]    [dlg-pace hm-strength] box 'STRENGTH made it possible to move boulders aroun' visible 2.45s (sink 0ms, hold 0.08s, end=closed)
+   [travel] FIELD OBSTACLE (8, 12) on (1, 101) CLEARED with strength — continuing the leg
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 101) coords=(8, 11) -> coord (8, 15) (budget 45s, surf-capable)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 101) coords=(8, 11) -> coord (10, 15) (budget 45s, surf-capable)
+   [travel] path blocked at (8, 11) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 11) AND no NPC-allowing path (npcs nearby=[(7, 11), (8, 12), (10, 9), (10, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 11) map=(1, 101) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 101) coords=(8, 11) -> coord (9, 15) (budget 60s, surf-capable)
+   [travel] step 0: (8, 11)->(9, 11) map=(1, 101) (path 6 to exit)
+   [travel] reached target coord (9, 15)
+   [travel] start map=(1, 101) coords=(9, 15) -> coord (9, 14) (budget 60s, surf-capable)
+   [travel] step 0: (9, 15)->(9, 14) map=(1, 101) (path 2 to exit)
+   [travel] reached target coord (9, 14)
+   [travel] start map=(1, 97) coords=(29, 7) -> coord (29, 47) (budget 60s, surf-capable)
+   [travel] step 0: (29, 7)->(29, 8) map=(1, 97) (path 50 to exit)
+   [travel] step 10: (29, 17)->(29, 18) map=(1, 97) (path 40 to exit)
+   [travel] step 20: (29, 27)->(29, 28) map=(1, 97) (path 31 to exit)
+   [travel] step 30: (26, 34)->(26, 35) map=(1, 97) (path 21 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 38) elapsed=6s
+   [travel] step 40: (32, 38)->(32, 39) map=(1, 97) (path 12 to exit)
+   [travel] step 50: (31, 47)->(30, 47) map=(1, 97) (path 3 to exit)
+   [travel] reached target coord (29, 47)
