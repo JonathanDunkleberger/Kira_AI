@@ -1,24 +1,25 @@
-resume_marathon 20260806_083445  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260806_084549  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
 From https://github.com/JonathanDunkleberger/Kira_AI
-   e87d86e..e5da358  main       -> origin/main
-Updating e87d86e..e5da358
+   08520ae..94fcc4f  main       -> origin/main
+Updating 08520ae..94fcc4f
 Fast-forward
- pokemon_agent/campaign.py                    | 25 +++++++++++++++++++
- pokemon_agent/legendary_strikes.py           | 37 +++++++++++++++++++++++++---
- pokemon_agent/recon_catch_discipline_test.py | 22 ++++++++++++++---
- 3 files changed, 76 insertions(+), 8 deletions(-)
+ pokemon_agent/campaign.py                    |  7 ++-
+ pokemon_agent/legendary_strikes.py           | 75 ++++++++++++----------------
+ pokemon_agent/recon_catch_discipline_test.py | 24 +++++----
+ 3 files changed, 52 insertions(+), 54 deletions(-)
 
-running commit: e5da358 fix(moltres): empty Bite tank forces Center GÇö override burned PP latch
+running commit: 94fcc4f fix(moltres): never Center-retreat from the bird GÇö doorstep law is absolute
 == crash forensics ==
 == logs\debug listing (newest 25) ==
 
 Name                            LastWriteTime       Length
 ----                            -------------       ------
+console_2026-08-06_08-34-54.log 8/6/2026 8:44:49 AM 101675
+latest.log                      8/6/2026 8:44:49 AM 101675
+playlive_faulthandler.log       8/6/2026 8:35:58 AM  14960
 console_2026-08-06_08-28-03.log 8/6/2026 8:30:24 AM  20600
-latest.log                      8/6/2026 8:30:24 AM  20600
-playlive_faulthandler.log       8/6/2026 8:28:58 AM  14850
 console_2026-08-06_08-23-07.log 8/6/2026 8:24:21 AM  10532
 console_2026-08-06_08-14-00.log 8/6/2026 8:16:44 AM  21821
 console_2026-08-06_08-06-49.log 8/6/2026 8:11:23 AM  43866
@@ -40,13 +41,12 @@ console_2026-08-05_14-09-27.log 8/5/2026 2:51:38 PM 347186
 console_2026-08-05_13-48-19.log 8/5/2026 1:53:26 PM  31913
 console_2026-08-05_08-42-46.log 8/5/2026 8:50:49 AM  60094
 console_2026-08-05_08-03-26.log 8/5/2026 8:42:30 AM 373891
-console_2026-08-05_07-29-26.log 8/5/2026 8:03:10 AM 264038
 
 
 
-tailed newest debug log: console_2026-08-06_08-28-03.log
+tailed newest debug log: console_2026-08-06_08-34-54.log
+tailed supervisor log: playlive_2026-08-06_08-35-58.log
 tailed supervisor log: playlive_2026-08-06_08-28-58.log
-tailed supervisor log: playlive_2026-08-06_08-24-06.log
 extracted engine forensics -> engine_tail.log
 == sandbox inventory (G:\temp\kira_watch) ==
 [1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
@@ -56,13 +56,14 @@ extracted engine forensics -> engine_tail.log
     last activity: 07/28/2026 12:57:41
     badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
 == canonical campaign ==
-    last activity: 08/06/2026 08:30:21
-    badges=8 party=[blastoise L64, lapras L25, fearow L38] place=an unfamiliar area played=1960min timeline=sherpa
+    last activity: 08/06/2026 08:44:47
+    badges=8 party=[blastoise L64, lapras L25, fearow L38] place=an unfamiliar area played=1969min timeline=sherpa
 == campaign snapshot inventory (*.state, newest first) ==
 
 Name                             LastWriteTime         Length
 ----                             -------------         ------
-kira_campaign.state              8/6/2026 8:30:20 AM   397312
+kira_campaign.state              8/6/2026 8:44:39 AM   397312
+replaced_20260806_083445.state   8/6/2026 8:30:20 AM   397312
 replaced_20260806_082756.state   8/6/2026 8:16:35 AM   397312
 replaced_20260806_082259.state   8/6/2026 8:16:35 AM   397312
 replaced_20260806_081352.state   8/6/2026 8:11:17 AM   397312
@@ -146,26 +147,26 @@ seg_opening.state                7/28/2026 2:02:29 PM 397312
 
 Name                                                             LastWriteTime      
 ----                                                             -------------      
-20260806_083020_an-unfamiliar-area_8b_32h40m_pre-moltres         8/6/2026 8:30:20 AM
-20260806_082949_an-unfamiliar-area_8b_32h39m_pre-moltres         8/6/2026 8:29:49 AM
-20260806_082933_an-unfamiliar-area_8b_32h39m_pre-moltres         8/6/2026 8:29:33 AM
-20260806_082906_an-unfamiliar-area_8b_32h39m_summit-board-chain3 8/6/2026 8:29:06 AM
-20260806_082906_an-unfamiliar-area_8b_32h39m_summit-board-chain2 8/6/2026 8:29:06 AM
-20260806_082906_an-unfamiliar-area_8b_32h39m_summit-board-chain1 8/6/2026 8:29:06 AM
-20260806_082906_an-unfamiliar-area_8b_32h39m_summit-board-chain0 8/6/2026 8:29:06 AM
-20260806_082906_an-unfamiliar-area_8b_32h39m_pre-moltres         8/6/2026 8:29:06 AM
-20260806_082905_an-unfamiliar-area_8b_32h39m_moltres-leg         8/6/2026 8:29:06 AM
-20260806_082900_an-unfamiliar-area_8b_32h38m_roam-start          8/6/2026 8:29:00 AM
-20260806_081635_an-unfamiliar-area_8b_32h39m_pre-moltres         8/6/2026 8:16:35 AM
-20260806_081631_an-unfamiliar-area_8b_32h38m_pre-moltres         8/6/2026 8:16:31 AM
-20260806_081627_an-unfamiliar-area_8b_32h38m_pre-moltres         8/6/2026 8:16:27 AM
-20260806_081623_an-unfamiliar-area_8b_32h38m_summit-board-chain3 8/6/2026 8:16:23 AM
-20260806_081623_an-unfamiliar-area_8b_32h38m_summit-board-chain2 8/6/2026 8:16:23 AM
-20260806_081623_an-unfamiliar-area_8b_32h38m_summit-board-chain1 8/6/2026 8:16:23 AM
-20260806_081623_an-unfamiliar-area_8b_32h38m_summit-board-chain0 8/6/2026 8:16:23 AM
-20260806_081623_an-unfamiliar-area_8b_32h38m_pre-moltres         8/6/2026 8:16:23 AM
-20260806_081623_an-unfamiliar-area_8b_32h38m_moltres-leg         8/6/2026 8:16:23 AM
-20260806_081540_an-unfamiliar-area_8b_32h38m_pre-moltres         8/6/2026 8:15:40 AM
+20260806_084439_an-unfamiliar-area_8b_32h48m_moltres-leg         8/6/2026 8:44:39 AM
+20260806_084431_an-unfamiliar-area_8b_32h48m_summit-board-chain3 8/6/2026 8:44:31 AM
+20260806_084430_an-unfamiliar-area_8b_32h48m_summit-board-push   8/6/2026 8:44:30 AM
+20260806_084428_an-unfamiliar-area_8b_32h48m_summit-board-push   8/6/2026 8:44:28 AM
+20260806_084425_an-unfamiliar-area_8b_32h48m_summit-board-push   8/6/2026 8:44:25 AM
+20260806_084422_an-unfamiliar-area_8b_32h48m_summit-board-push   8/6/2026 8:44:22 AM
+20260806_084422_an-unfamiliar-area_8b_32h48m_summit-board-chain2 8/6/2026 8:44:22 AM
+20260806_084419_an-unfamiliar-area_8b_32h48m_summit-board-push   8/6/2026 8:44:19 AM
+20260806_084419_an-unfamiliar-area_8b_32h48m_summit-board-chain1 8/6/2026 8:44:19 AM
+20260806_084416_an-unfamiliar-area_8b_32h48m_summit-board-push   8/6/2026 8:44:16 AM
+20260806_084416_an-unfamiliar-area_8b_32h48m_summit-board-chain0 8/6/2026 8:44:16 AM
+20260806_084359_an-unfamiliar-area_8b_32h48m_moltres-leg         8/6/2026 8:43:59 AM
+20260806_084342_an-unfamiliar-area_8b_32h48m_moltres-leg         8/6/2026 8:43:42 AM
+20260806_084254_an-unfamiliar-area_8b_32h47m_moltres-leg         8/6/2026 8:42:54 AM
+20260806_084240_an-unfamiliar-area_8b_32h46m_moltres-leg         8/6/2026 8:42:40 AM
+20260806_084202_an-unfamiliar-area_8b_32h46m_summit-board-push   8/6/2026 8:42:02 AM
+20260806_084202_an-unfamiliar-area_8b_32h46m_summit-board-chain3 8/6/2026 8:42:02 AM
+20260806_084159_an-unfamiliar-area_8b_32h46m_summit-board-push   8/6/2026 8:41:59 AM
+20260806_084156_an-unfamiliar-area_8b_32h46m_summit-board-push   8/6/2026 8:41:56 AM
+20260806_084154_an-unfamiliar-area_8b_32h46m_summit-board-chain2 8/6/2026 8:41:54 AM
 
 
 
@@ -174,12 +175,12 @@ Name                                                             LastWriteTime
 FullName                                                                                                                             LastWriteTime        
 --------                                                                                                                             -------------        
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                                                   6/26/2026 4:11:48 PM 
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/6/2026 8:30:21 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/6/2026 8:44:47 AM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423                                                         7/29/2026 9:04:20 AM 
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      8/5/2026 2:40:59 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      8/6/2026 8:44:38 AM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427                                                          7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                                                  7/15/2026 12:12:19 PM
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/6/2026 8:30:20 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/6/2026 8:44:40 AM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427                       7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\checkpoints                                             7/29/2026 8:59:40 AM 
@@ -232,42 +233,6 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 
 
 
-CKPT promoted: 20260805_182052_an-unfamiliar-area_8b_32h26m_pre-moltres -> kira_campaign.state (old save backed up as replaced_20260806_083445.state)
-  sidecar restored: world_model.json -> world_model.json
-  sidecar restored: strat_memory.json -> strat_memory.json
-  sidecar restored: journey_core.json -> journey_core.json
-  sidecar restored: team_plan_state.json -> team_plan_state.json
-  sidecar restored: dialogue_hints.json -> dialogue_hints.json
+>> no PROMOTE_TARGET.txt -- defaulting to CANONICAL launch (canonical save as-is).
 == push soak report (this can take ~30s; console stays quiet on purpose) ==
 == push soak report ==
-[main 08520ae] report(soak): 20260806_083445 inventory/rescue (auto from resume_marathon.ps1)
- 10 files changed, 1260 insertions(+)
- create mode 100644 docs/soak-reports/20260806_083445/canonical_health.json
- create mode 100644 docs/soak-reports/20260806_083445/engine_tail.log
- create mode 100644 docs/soak-reports/20260806_083445/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260806_083445/resume_marathon.log
- create mode 100644 docs/soak-reports/20260806_083445/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260806_083445/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260806_083445/tail_console_2026-08-06_08-28-03.log
- create mode 100644 docs/soak-reports/20260806_083445/tail_supervisor_playlive_2026-08-06_08-24-06.log
- create mode 100644 docs/soak-reports/20260806_083445/tail_supervisor_playlive_2026-08-06_08-28-58.log
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:436 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   e5da358..08520ae  main -> main
-
-push soak report finished (see log if git complained).
-== launching bot (window 1) ==
-    expect: a PowerShell titled roughly 'python run.py' + browser dashboard at :8766
-waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
-    still waiting for bot... (15s)
-    still waiting for bot... (30s)
-bot is up. == launching supervised marathon (window 2) ==
-    expect: a PowerShell for supervisor.py, THEN the FireRed / mGBA game window
-She is live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking.
-If the GAME window never appears: look at window 2 for a Traceback (ROM path / SDL / mgba).
-To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T
