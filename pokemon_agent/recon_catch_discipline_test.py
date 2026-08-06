@@ -840,41 +840,56 @@ def main():
     finally:
         BA.st.read_battle, BA.st.in_battle = _orig_rb30, _orig_ib30
 
-    print("== 31. LADDER rung 3 + the HONEST THROW GATE (_legend_chip_ladder) ==")
+    print("== 31. LADDER rung 3 + HARD THROW FLOOR (_legend_chip_ladder) ==")
     logs31 = []
     ag31 = make_agent([(2, 6)], hunt_pending=True, logs=logs31)
     world31 = {"foe_frac": 0.60}
     _orig_rb31, _orig_ib31 = BA.st.read_battle, BA.st.in_battle
     _orig_rps31 = BA.st.read_party_species
-    BA.st.read_battle = lambda b: {"ours": {"moves": [], "species": 9, "level": 63},
+    BA.st.read_battle = lambda b: {"ours": {"moves": [], "species": 9, "level": 63,
+                                            "hp": 100, "maxhp": 100},
                                    "enemy": {"hp": int(world31["foe_frac"] * 100),
-                                             "maxhp": 100, "level": 50}}
+                                             "maxhp": 100, "level": 50,
+                                             "types": ["fire", "flying"]}}
     BA.st.in_battle = lambda b: True
     BA.st.read_party_species = lambda b, s=0: 22
     switched31, chips31 = [], []
-    ag31._catch_chipper_slot = lambda lvl, legend=False: 2
+    ag31._catch_chipper_slot = lambda lvl, legend=False, exclude=None, foe_types=None: (
+        None if 2 in set(exclude or ()) else 2)
     ag31._switch_to_slot = lambda s, sp: (switched31.append(s), "switched")[1]
     ag31._weaken_hp = lambda target_frac=None, max_hits=4, legend=False: (
         chips31.append(legend), world31.__setitem__("foe_frac", 0.14), "band")[2]
     try:
-        t31 = ag31._legend_chip_ladder(BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, False)
+        tried31, refuse31 = ag31._legend_chip_ladder(
+            BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, set())
         check("above the band -> bench chipper SWITCHED IN, chip continues (legend depth)",
-              t31 is True and switched31 == [2] and chips31 == [True])
+              2 in tried31 and refuse31 is False and switched31 == [2] and chips31 == [True])
         check("after the bench chip reaches the band -> NO exhausted line (honest gate)",
               not any("CHIP CAPABILITY EXHAUSTED" in l for l in logs31), f"logs={logs31[-2:]}")
-        # switch is one-per-encounter; still above the band -> the LOUD sanctioned throw
+        # chipper already tried; still ABOVE hard floor -> REFUSE throw (not Ultra dump)
         logs31.clear(); switched31.clear()
-        world31["foe_frac"] = 0.55
-        t31b = ag31._legend_chip_ladder(BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, True)
-        check("chipper already tried -> no second switch, EXHAUSTED throw is LOUD",
-              t31b is True and switched31 == []
-              and any("CHIP CAPABILITY EXHAUSTED" in l for l in logs31))
+        world31["foe_frac"] = 0.75
+        tried31b, refuse31b = ag31._legend_chip_ladder(
+            BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, {2})
+        check("chipper already tried + foe above half -> REFUSE throw (hard floor)",
+              refuse31b is True and switched31 == []
+              and any("HARD FLOOR" in l or "REFUSING the throw" in l for l in logs31))
+        # between red band and hard floor -> sanctioned throw OK
+        logs31.clear(); switched31.clear()
+        world31["foe_frac"] = 0.40
+        tried31c, refuse31c = ag31._legend_chip_ladder(
+            BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, {2})
+        check("foe at 40% (under hard floor, above red) -> sanctioned throw, not refuse",
+              refuse31c is False and any("SANCTIONED throw" in l for l in logs31))
         # already in the band -> nothing to do, nothing loud
-        logs31.clear()
+        logs31.clear(); switched31.clear()
         world31["foe_frac"] = 0.12
-        ag31._legend_chip_ladder(BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, False)
+        ag31._legend_chip_ladder(BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, set())
         check("in the band -> no switch, no exhausted line",
               switched31 == [] and not any("EXHAUSTED" in l for l in logs31))
+        check("legend_throw_allowed: 50% OK, 51% blocked",
+              BA.legend_throw_allowed(0.50) is True
+              and BA.legend_throw_allowed(0.51) is False)
     finally:
         BA.st.read_battle, BA.st.in_battle = _orig_rb31, _orig_ib31
         BA.st.read_party_species = _orig_rps31
@@ -1010,6 +1025,14 @@ def main():
         check("adjacent to the quarry -> audit SKIPPED entirely, engage now (LOUD)",
               h34b._doorstep_or_restore() is False
               and any("AT THE DOORSTEP" in l and "ENGAGING NOW" in l for l in logs33))
+        # (b2) AFTER a free-retry, thin PP at the doorstep may arm the ONE Center heal
+        logs33.clear()
+        h34b2 = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))
+        h34b2._catch_retries = 1
+        h34b2._maybe_arm_pp_restore = lambda: True
+        check("doorstep AFTER free-retry -> ONE Center heal may arm (post-fail restore)",
+              h34b2._doorstep_or_restore() is True
+              and any("after FREE-RETRY" in l for l in logs33))
         # (c) far from the bird (pre-approach) -> the gate delegates to the one-shot audit
         LS.tv.coords = lambda b: (29, 40)        # 54 tiles out — mid-climb
         h34c = _mk_hunt33(LS.MoltresHunt, (True, 1, 3))

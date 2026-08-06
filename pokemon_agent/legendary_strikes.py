@@ -396,12 +396,24 @@ class LegendaryHunt(GiovanniGym):
         window has PASSED: engage NOW with whatever the tank holds — the b235cb0 ladder
         (bench chipper + honest throw gate) is the net. Farther out, the ONE persisted trip
         per campaign may still fire. True = restore leg armed (the caller returns to the
-        stage loop); False = engage now."""
+        stage loop); False = engage now.
+
+        POST-FAIL RESTORE (2026-08-06 LIVE, soak 180943): first doorstep arrival still
+        engages (no turn-around). AFTER a free-retry has fired (_catch_retries > 0) the
+        previous attempt already proved the thin-PP tank can't reach the hard throw floor —
+        ONE persisted Center heal is then allowed even at the doorstep, so the re-climb
+        banks a full-Bite pre-<quarry> and every later retry starts armed."""
         q = self.QUARRY or {}
         tile = q.get("tile") or (0, 0)
         cur = tuple(tv.coords(self.b) or (0, 0))
         dist = abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
         if dist <= self.DOORSTEP_TILES:
+            if getattr(self, "_catch_retries", 0) > 0:
+                if self._maybe_arm_pp_restore():
+                    self.log(f"   [hunt] !!!! AT THE DOORSTEP after FREE-RETRY "
+                             f"#{self._catch_retries} — thin PP proven; arming the ONE "
+                             f"persisted Center heal before re-engaging (LOUD)")
+                    return True
             self.log(f"   [hunt] !!!! AT THE DOORSTEP ({dist} tile(s) from "
                      f"{q.get('name', 'the quarry')}) — the PP audit's window has passed: "
                      f"ENGAGING NOW, no detours (LOUD)")
