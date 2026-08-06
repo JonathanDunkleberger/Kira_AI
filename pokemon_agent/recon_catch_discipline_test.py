@@ -42,10 +42,14 @@ Decision table under test:
 + THE VERIFIED RATCHET (2026-08-05 URGENT, the poisoned 'pre-moltres' bank):
   loaded bank has the fought-flag set, quarry uncaught       -> POISONED: ratchet to the
                                                                 next older same-region bank
+  loaded bank has the hide-flag set, quarry uncaught         -> POISONED (same — either bit)
+  mid-script bank (flags clear, settle flips hide/fought)    -> POISONED after settle re-verify
   cross-region banks in the ratchet walk                     -> skipped (never a sea teleport)
   every candidate poisoned                                   -> original live state restored
-  banking 'pre-<key>' while the fought-flag is set           -> REFUSED (poisoned-bank law)
+                                                                + SCREAM if live is also spent
+  banking 'pre-<key>' while fought OR hide is set            -> REFUSED (poisoned-bank law)
   post-load flag read                                        -> fresh RAM, never cached
+  verified clean landing                                     -> re-banks fresh 'pre-<key>'
 + THE PP LADDER (2026-08-05 LIVE, the one-Bite Moltres ball-burn):
   chip pick re-reads PP every swing                          -> a dry move never re-picked
   gentlest over the safety margin, can't faint from here     -> rung 2 swings anyway (legend)
@@ -694,9 +698,10 @@ def main():
 
     print("== 28. THE VERIFIED RATCHET: poisoned banks rejected, older clean bank wins ==")
     # The live failure verbatim: the newest 'pre-moltres' was banked AFTER the fled fight —
-    # fought-flag set inside the savestate, summit empty. The ratchet must reject it by a
-    # FRESH post-load flag read and land on the next older same-region bank that still
-    # contains the bird (cross-region banks skipped; all-poisoned restores the live state).
+    # fought/hide set (or mid-script about to flip) inside the savestate, summit empty. The
+    # ratchet must reject it by a FRESH post-load (+ settle) read and land on the next older
+    # same-region bank that still contains the bird (cross-region banks skipped; all-poisoned
+    # restores the live state and SCREAMS when that live state is also spent).
     class RatchetBridge:
         def __init__(self):
             self.body = b"LIVE"
@@ -725,20 +730,60 @@ def main():
         camp28._gain_sig = lambda: 0
         camp28._wait_overworld = lambda *a, **k: True
         camp28._save_campaign = lambda *a, **k: True
+        rebanked28, pinned28 = [], []
+        camp28._bank_milestone = lambda label: rebanked28.append(label)
+        camp28._pin_pre_hunt_promote = lambda key: pinned28.append(key)
         # the flag reads key off WHICH savestate body is loaded — passing these checks IS
         # the proof the verify reads fresh post-load RAM, not a cached pre-reload value.
         _orig_owns28, _orig_flag28 = C.ram.pokedex_owns, C.fm.read_flag
         C.ram.pokedex_owns = lambda b, sp: False
-        C.fm.read_flag = lambda b, f: camp28.b.body in (b"POISONED", b"KANTO")
+        C.fm.read_flag = lambda b, f: camp28.b.body in (b"POISONED", b"KANTO", b"LIVE_POISON")
         try:
             check("poisoned 'pre-moltres' rejected -> ratchet lands the older CLEAN sevii bank",
                   camp28._reload_hunt_checkpoint("moltres") is True
                   and camp28.b.body == b"CLEAN")
             check("the kanto bank between them was never accepted (region law held)",
                   camp28.b.body != b"KANTO")
-            # all-poisoned: overwrite the clean bank with a fought-flag state too
+            check("successful clean load re-banks a fresh verified 'pre-moltres'",
+                  "pre-moltres" in rebanked28 and pinned28 == ["moltres"])
+            # hide-only / fought-only: either bit alone poisons (_hunt_bank_live)
+            C.fm.read_flag = lambda b, f: f == 0x052
+            check("hide-only poison (0x052) rejected by _hunt_bank_live",
+                  camp28._hunt_bank_live("moltres") is False)
+            C.fm.read_flag = lambda b, f: f == 0x2BD
+            check("fought-only poison (0x2BD) rejected by _hunt_bank_live",
+                  camp28._hunt_bank_live("moltres") is False)
+            C.fm.read_flag = lambda b, f: False
+            check("both flags clear -> _hunt_bank_live accepts (off-quarry / no map decode)",
+                  camp28._hunt_bank_live("moltres") is True)
+            # MID-SCRIPT class (182452): flags clear at load, settle flips to spent — must
+            # NOT fail-closed onto the poisoned LIVE summit when an older clean bank exists.
+            _bank28("20260805_182452_mt-ember-summit_8b_pre-moltres", b"MID_SCRIPT")
+            _bank28("20260805_182052_mt-ember-summit_8b_pre-moltres", b"CLEAN2", mp=(1, 99))
+            camp28.b.body = b"LIVE_POISON"
+            rebanked28.clear(); pinned28.clear()
+
+            def _settle_flip(*a, **k):
+                if camp28.b.body == b"MID_SCRIPT":
+                    camp28.b.body = b"POISONED"
+
+            camp28._wait_overworld = _settle_flip
+            C.fm.read_flag = lambda b, f: camp28.b.body in (b"POISONED", b"KANTO",
+                                                            b"LIVE_POISON")
+            check("mid-script 'pre-moltres' fails settle verify -> older CLEAN2 wins "
+                  "(never fail-closed into poisoned live)",
+                  camp28._reload_hunt_checkpoint("moltres") is True
+                  and camp28.b.body == b"CLEAN2"
+                  and "pre-moltres" in rebanked28)
+            # all-poisoned: overwrite the clean banks with fought-flag states too
             _bank28("20260805_174000_mt-ember-2f_8b_moltres-leg", b"POISONED", mp=(1, 99))
+            _bank28("20260805_182052_mt-ember-summit_8b_pre-moltres", b"POISONED", mp=(1, 99))
+            _bank28("20260805_182452_mt-ember-summit_8b_pre-moltres", b"POISONED")
+            _bank28("20260805_175000_mt-ember-summit_8b_pre-moltres", b"POISONED")
             camp28.b.body = b"LIVE"
+            camp28._wait_overworld = lambda *a, **k: True
+            C.fm.read_flag = lambda b, f: camp28.b.body in (b"POISONED", b"KANTO",
+                                                            b"LIVE_POISON")
             check("every candidate poisoned -> declined AND the live state is restored",
                   camp28._reload_hunt_checkpoint("moltres") is False
                   and camp28.b.body == b"LIVE")
@@ -750,7 +795,7 @@ def main():
             C.ram.pokedex_owns, C.fm.read_flag = _orig_owns28, _orig_flag28
             C.STATES_CAMPAIGN = _orig_sc28
 
-    print("== 29. POISONED-BANK LAW: 'pre-<key>' never banked with the fought-flag set ==")
+    print("== 29. POISONED-BANK LAW: 'pre-<key>' never banked with fought OR hide set ==")
     logs29, banked29 = [], []
     hunt29 = LS.MoltresHunt.__new__(LS.MoltresHunt)
     hunt29.b = object()
@@ -758,17 +803,25 @@ def main():
     hunt29.camp = types.SimpleNamespace(_bank_milestone=lambda label: banked29.append(label),
                                         _lap_fails={})
     _orig_owns29, _orig_flag29 = LS.ram.pokedex_owns, LS.fm.read_flag
-    world29 = {"fought": True}
+    world29 = {"fought": False, "hide": False}
     LS.ram.pokedex_owns = lambda b, sp: False
-    LS.fm.read_flag = lambda b, f: world29["fought"]
+    LS.fm.read_flag = lambda b, f: ((f == 0x2BD and world29["fought"])
+                                    or (f == 0x052 and world29["hide"]))
     try:
-        check("fought-flag set + uncaught -> 'pre-moltres' bank REFUSED, loud",
+        world29["fought"] = True
+        check("fought-only set + uncaught -> 'pre-moltres' bank REFUSED, loud",
+              hunt29.strike_checkpoint("pre-moltres") is False and banked29 == []
+              and any("REFUSED to bank" in l for l in logs29))
+        logs29.clear()
+        world29["fought"] = False
+        world29["hide"] = True
+        check("hide-only set + uncaught -> 'pre-moltres' bank REFUSED, loud",
               hunt29.strike_checkpoint("pre-moltres") is False and banked29 == []
               and any("REFUSED to bank" in l for l in logs29))
         check("non-pre milestones still bank under the flag (climb durability untouched)",
               hunt29.strike_checkpoint("moltres-leg") is True
               and banked29 == ["moltres-leg"])
-        world29["fought"] = False
+        world29["hide"] = False
         check("flags clear -> 'pre-moltres' banks normally",
               hunt29.strike_checkpoint("pre-moltres") is True
               and banked29 == ["moltres-leg", "pre-moltres"])

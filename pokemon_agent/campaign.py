@@ -21210,7 +21210,13 @@ class Campaign:
         (with `ratchet_region`) every older same-region bank on disk (moltres-leg, room-entry,
         roam-start...), newest->oldest, bounded by `max_loads`. If every candidate is poisoned
         the ORIGINAL live state is restored — a failed ratchet must not strand her in a
-        random rejected bank."""
+        random rejected bank.
+
+        SETTLE RE-VERIFY (2026-08-06 URGENT, the 'flew away' mid-script bank): MonFlewAway
+        removeobject/msgbox can still be PENDING inside a savestate whose fought/hide flags
+        read clear. Instant flag-verify alone accepted that bank (182452); advancing frames
+        then played "The MOLTRES flew away!". After a flag-clear load we `_wait_overworld`
+        and verify AGAIN — a settle that flips fought|hide|sprite-gone rejects and ratchets."""
         import json as _json
         root = os.path.join(STATES_CAMPAIGN, "checkpoints")
         try:
@@ -21259,7 +21265,17 @@ class Campaign:
                 loads += 1
                 if verify is not None and not verify():
                     log(f"   [ckpt] !! LABELED RELOAD '{tag}': candidate '{name}' is POISONED "
-                        f"(post-load verify failed: fought-flag set / quarry gone) — "
+                        f"(post-load verify failed: fought|hide set / quarry gone / no sprite) "
+                        f"— ratcheting to the next older bank (LOUD)")
+                    continue
+                # Settle BEFORE accepting: mid-flee scripts complete here (hide flips, dialogue).
+                try:
+                    self._wait_overworld()
+                except Exception:
+                    pass
+                if verify is not None and not verify():
+                    log(f"   [ckpt] !! LABELED RELOAD '{tag}': candidate '{name}' is POISONED "
+                        f"AFTER SETTLE (mid-script flew-away / hide flipped / sprite gone) — "
                         f"ratcheting to the next older bank (LOUD)")
                     continue
                 log(f"   [ckpt] !!!! LABELED RELOAD '{tag}': checkpoint '{name}' loaded"
@@ -21271,7 +21287,6 @@ class Campaign:
                     self._last_good_map = tuple(tv.map_id(self.b))
                 except Exception:
                     pass
-                self._wait_overworld()
                 self._save_campaign(f"post_labeled_reload_{tag}")
                 return True
             except Exception as _ce:
@@ -21286,16 +21301,27 @@ class Campaign:
         log(f"   [ckpt] !! LABELED RELOAD '{tag}': no acceptable checkpoint bank on disk — declining")
         return False
 
+    # (species, hide, fought) — hide OR fought with uncaught dex = poisoned hunt bank
     _HUNT_SPEC_ALL = {"moltres": (146, 0x052, 0x2BD), "articuno": (144, 0x082, 0x2BE),
                       "zapdos": (145, 0x05D, 0x2BF), "mewtwo": (150, 0x081, 0x2BC)}
-    _HUNT_SITE_ALL = {"moltres": (3, 12), "articuno": (3, 38), "zapdos": (3, 28),
-                      "mewtwo": (3, 3)}
+    # Region anchors for the same-region ratchet walk (must be Sevii for Moltres).
+    _HUNT_SITE_ALL = {"moltres": (1, 101), "articuno": (1, 87), "zapdos": (1, 95),
+                      "mewtwo": (1, 74)}
+    # On-quarry-map bird-present proof: (map, tile, gfx_id). Mid-flee banks can read BOTH
+    # flags clear while removeobject already despawned the sprite (182452 class).
+    _HUNT_PRESENCE_ALL = {
+        "moltres":  ((1, 101), (9, 6), fm.GFX_MOLTRES),
+        "articuno": ((1, 87), (9, 2), fm.GFX_ARTICUNO),
+        "zapdos":   ((1, 95), (5, 11), fm.GFX_ZAPDOS),
+        "mewtwo":   ((1, 74), (7, 12), fm.GFX_MEWTWO),
+    }
 
     def _hunt_bank_live(self, key):
         """FRESH post-load RAM read (never a cached value): True when the state now in the
-        emulator still CONTAINS the encounter — fought/hide flags clear — or the quarry is
-        already owned (a post-catch bank is a fine place to stand). Unreadable -> False
-        (an unprovable bank is a rejected bank)."""
+        emulator still CONTAINS the encounter — fought AND hide clear (either bit poisons),
+        and on the quarry map the legendary sprite is still an active object — or the quarry
+        is already owned (a post-catch bank is a fine place to stand). Unreadable flag/dex
+        -> False (an unprovable bank is a rejected bank)."""
         spec = self._HUNT_SPEC_ALL.get(key)
         if not spec:
             return False
@@ -21303,19 +21329,83 @@ class Campaign:
         try:
             if ram.pokedex_owns(self.b, sp) is True:
                 return True
-            return not (fm.read_flag(self.b, fought) or fm.read_flag(self.b, hide))
+            if fm.read_flag(self.b, fought) or fm.read_flag(self.b, hide):
+                return False
         except Exception:
             return False
+        site = self._HUNT_PRESENCE_ALL.get(key)
+        if not site:
+            return True
+        qmap, qtile, qgfx = site
+        try:
+            here = tuple(tv.map_id(self.b) or ())
+        except Exception:
+            # Synthetic/recon bridges often can't decode map — flag-clear is enough off-emulator.
+            return True
+        if here != qmap:
+            return True                          # climb/leg bank: flags alone prove live-enough
+        try:
+            objs = fm.scan_field_objects(self.b, {qgfx})
+            return any(tuple(ob.get("coord") or ()) == qtile for ob in (objs or []))
+        except Exception:
+            return False                         # on quarry map, unreadable sprite = reject
+
+    def _pin_pre_hunt_promote(self, key):
+        """Write PROMOTE_TARGET.txt -> CKPT <newest pre-<key>> so the next resume_marathon
+        hard-teleports onto the fresh verified bird bank (one-shot; consumed on launch)."""
+        try:
+            root = os.path.join(STATES_CAMPAIGN, "checkpoints")
+            names = sorted(
+                (n for n in os.listdir(root)
+                 if f"pre-{key}" in n and not n.endswith(".partial")
+                 and os.path.exists(os.path.join(root, n, CAMPAIGN_SAVE))),
+                reverse=True)
+            if not names:
+                return
+            pin = os.path.join(os.path.dirname(os.path.abspath(__file__)), "PROMOTE_TARGET.txt")
+            with open(pin, "w", encoding="utf-8") as f:
+                f.write(f"CKPT {names[0]}\n")
+            log(f"   [hunt] pinned PROMOTE_TARGET.txt -> CKPT {names[0]} "
+                f"(next resume_marathon hard-teleports here)")
+        except Exception as e:
+            log(f"   [hunt] !! PROMOTE_TARGET pin skipped: {e}")
 
     def _reload_hunt_checkpoint(self, key):
         """The hunts' ONLY reload door (boot rewind + THE FREE RETRY): 'pre-<key>' first,
-        post-load flag verification, poisoned banks ratchet back through older same-region
-        banks until one still contains the bird. Returns True on a verified landing."""
+        post-load flag+sprite verification (settle re-check), poisoned banks ratchet back
+        through older same-region banks (climb / roam-start / fight-won / moltres-leg…)
+        until one still contains the bird. On a verified landing, immediately re-banks a
+        fresh 'pre-<key>' and pins PROMOTE_TARGET. Never silently accepts a spent summit.
+        Returns True on a verified landing."""
         key = str(key).lower()
         site = self._HUNT_SITE_ALL.get(key)
-        return self._reload_labeled_checkpoint(
+        ok = self._reload_labeled_checkpoint(
             f"pre-{key}", verify=lambda: self._hunt_bank_live(key),
-            ratchet_region=map_region(site) if site else None)
+            ratchet_region=map_region(site) if site else None,
+            max_loads=40)
+        if ok:
+            try:
+                if self._hunt_bank_live(key):
+                    self._bank_milestone(f"pre-{key}")
+                    log(f"   [hunt] !!!! re-banked fresh verified 'pre-{key}' after clean "
+                        f"rewind — next resume has a known-good bird (LOUD)")
+                    self._pin_pre_hunt_promote(key)
+            except Exception as e:
+                log(f"   [hunt] !! post-rewind re-bank of 'pre-{key}' skipped: {e}")
+            return True
+        # Fail-closed into a poisoned live summit is the 182452 morning failure mode —
+        # SCREAM so we never pretend she's at a live bird.
+        try:
+            sp = (self._HUNT_SPEC_ALL.get(key) or (None,))[0]
+            if (sp is not None and ram.pokedex_owns(self.b, sp) is False
+                    and not self._hunt_bank_live(key)):
+                log(f"   [hunt] !!!! SCREAMING: every '{key}' candidate rejected AND the "
+                    f"live/canonical state is ALSO poisoned (uncaught + fought|hide|no "
+                    f"sprite) — she is NOT at a live bird. Pin CKPT to an older climb/"
+                    f"pre-{key} bank (LOUD)")
+        except Exception:
+            pass
+        return False
 
     MAX_BLACKOUT_RETRIES = 12     # per segment — a thin solo roster needs several Miguel attempts;
                                   # each retry re-walks (more trainer XP) + re-heals, so it converges.

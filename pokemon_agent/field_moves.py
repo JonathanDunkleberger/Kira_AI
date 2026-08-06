@@ -67,6 +67,10 @@ FLAG_SYS_FLASH_ACTIVE = 0x806
 GFX_ITEM_BALL = 92      # 0x5C — ground item ball (unique to pickups; not an NPC)
 GFX_CUT_TREE  = 95      # cuttable tree
 GFX_BOULDER   = 97      # Strength-pushable boulder
+GFX_ZAPDOS    = 136     # Power Plant static
+GFX_MOLTRES   = 137     # Mt. Ember Summit static
+GFX_ARTICUNO  = 138     # Seafoam B4F static
+GFX_MEWTWO    = 139     # Cerulean Cave B1F static
 
 # ── Surfable-water metatile behaviors (source: metatile_behaviors.h) ─────────
 # 0x10 pond, 0x12 deep, 0x15 ocean = surfable; 0x11 fast-water (current), 0x13
