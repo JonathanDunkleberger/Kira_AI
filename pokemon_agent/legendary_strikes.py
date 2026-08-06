@@ -60,6 +60,7 @@ import time
 import boulder_puzzle as bp
 import field_moves as fm
 import firered_ram as ram
+import pokemon_policy as pol
 import pokemon_state as pst
 import travel as tv
 from dialogue_drive import box_open as dd_box
@@ -93,11 +94,14 @@ FLAG_RESCUED_LOSTELLE = 0x2A3        # Berry Forest rescue done (Hypno beaten)
 FLAG_STR_ACTIVE = 0x805              # FLAG_SYS_USE_STRENGTH — resets per map load
 ITEM_METEORITE = 280                 # Celio's parcel; REMOVED from the bag on delivery
 
-ZAPDOS = dict(name="Zapdos", species=145, tile=(5, 11), map=PLANT, hide=0x05D, fought=0x2BF)
-ARTICUNO = dict(name="Articuno", species=144, tile=(9, 2), map=B4F, hide=0x082, fought=0x2BE)
+ZAPDOS = dict(name="Zapdos", species=145, tile=(5, 11), map=PLANT, hide=0x05D, fought=0x2BF,
+              types=("electric", "flying"), level=50)
+ARTICUNO = dict(name="Articuno", species=144, tile=(9, 2), map=B4F, hide=0x082, fought=0x2BE,
+                types=("ice", "flying"), level=50)
 MOLTRES = dict(name="Moltres", species=146, tile=(9, 6), map=EMBER_SUMMIT,
-               hide=0x052, fought=0x2BD)
-MEWTWO = dict(name="Mewtwo", species=150, tile=(7, 12), map=CAVEB1F, hide=0x081, fought=0x2BC)
+               hide=0x052, fought=0x2BD, types=("fire", "flying"), level=50)
+MEWTWO = dict(name="Mewtwo", species=150, tile=(7, 12), map=CAVEB1F, hide=0x081, fought=0x2BC,
+              types=("psychic",), level=70)
 
 ZAPDOS_ANCHORS = {R10, PLANT}
 ARTICUNO_ANCHORS = {R20, F1, B1F, B2F, B3F, B4F}
@@ -258,40 +262,125 @@ class LegendaryHunt(GiovanniGym):
             self.log(f"   [ckpt] strike milestone '{label}' skipped: {e}")
         return True
 
+    # ── PP economy (2026-08-05, Jonny: 'restore Blastoise's PP so she can Bite repeatedly') ─
+    ACE_SAFE_PP_MIN = 5        # ace's safe chip swings vs THIS quarry below this -> restore
+    PARTY_SAFE_SWINGS_MIN = 8  # ...or the whole party's safe swings below this -> restore
+    CENTER_LEG_WIRED = False   # a hunt with a coded descend->Center->re-climb leg sets True
+
     def _chip_pp_audit(self):
         """PRE-ENCOUNTER CHIP-PP AUDIT (2026-08-05 LIVE, the one-Bite ball-burn: the climb
         drained Bite to 1 PP, the chip phase died after one swing and Ultras flew at a
         near-full bird). Before pressing A, read every healthy mon's moves + CURRENT PP from
         the party struct (pst.read_party_moves/read_party_pp — the encrypted Attacks
-        substructure, fresh RAM) and log the chip picture LOUDLY. No Ether/Elixir bag rail
-        exists in the harness, so the audit's job is the honest headline: the in-battle PP
-        ladder (per-swing PP recheck -> bench chipper switch) does the adapting, and the
-        FREE-RETRY savestate restores this exact PP picture on every attempt — a
-        thin-but-nonzero audit stays sufficient forever. Zero damaging PP on the WHOLE party
-        is the one truly bad state; scream it (sleep+throw only). Returns True when any
-        healthy mon still carries damaging PP; never raises."""
+        substructure, fresh RAM) and score each PP as a SAFE CHIP SWING against THIS quarry
+        (pol.chip_hit_frac within the KO-safety margin at full HP; STAB omitted — this is a
+        threshold audit, the in-fight picker stays exact). Returns
+        (any_damaging_pp, ace_safe_swings, party_safe_swings); ace = the highest-level
+        healthy mon. Unreadable -> (True, 99, 99): a bad read must never send her on a
+        restore trip. Zero damaging PP party-wide SCREAMS (sleep+throw only)."""
+        q = self.QUARRY or {}
+        q_types = list(q.get("types") or [])
+        q_level = int(q.get("level") or 50)
         try:
-            any_pp = False
-            rows = []
+            any_pp, rows, per_slot, levels = False, [], {}, {}
             for s, hp, mx, frac in (self.camp.party_health() or []):
                 if hp <= 0:
                     continue
+                try:
+                    lvl = self.b.rd8(ram.GPLAYER_PARTY + s * pst.PARTY_MON_SIZE + 0x54) or 50
+                except Exception:
+                    lvl = 50
+                levels[s] = lvl
                 ids = pst.read_party_moves(self.b, s) or []
                 pps = pst.read_party_pp(self.b, s) or []
-                dmg = sum(int(p) for m, p in zip(ids, pps)
-                          if m and p and (pst.move_info_full(self.b, m)[1] or 0) > 0)
+                dmg = safe = 0
+                names = []
+                for m, p in zip(ids, pps):
+                    if not m:
+                        continue
+                    t, pw, _acc = pst.move_info_full(self.b, m)
+                    names.append(f"{pst.MOVE_NAMES.get(m, m)}:{p}")
+                    if p and (pw or 0) > 0:
+                        dmg += int(p)
+                        est = pol.chip_hit_frac({"id": m, "type": t or "normal", "power": pw},
+                                                q_types, lvl, q_level)
+                        if 0 < est <= pol.CHIP_KO_SAFETY:
+                            safe += int(p)
                 any_pp = any_pp or dmg > 0
-                rows.append(f"slot{s} hp {hp}/{mx} dmgPP {dmg} "
-                            f"({', '.join(f'{pst.MOVE_NAMES.get(m, m)}:{p}' for m, p in zip(ids, pps) if m)})")
-            self.log("   [hunt] CHIP-PP AUDIT — " + ("; ".join(rows) or "party unreadable"))
+                per_slot[s] = safe
+                rows.append(f"slot{s} L{lvl} hp {hp}/{mx} dmgPP {dmg} safePP {safe} "
+                            f"({', '.join(names)})")
+            ace = max(levels, key=levels.get) if levels else None
+            ace_safe = per_slot.get(ace, 0) if ace is not None else 0
+            party_safe = sum(per_slot.values())
+            self.log("   [hunt] CHIP-PP AUDIT — " + ("; ".join(rows) or "party unreadable")
+                     + f" | ace slot{ace} safe {ace_safe}, party safe {party_safe} "
+                       f"(vs {q.get('name', 'quarry')} {'/'.join(q_types) or '?'} L{q_level})")
             if not any_pp:
                 self.log("   [hunt] !! CHIP-PP AUDIT: ZERO damaging PP on the whole party — "
                          "the encounter will be sleep+throw only (no Ether rail exists; a "
                          "Center visit restores PP but costs the summit) (LOUD)")
-            return any_pp
+            return any_pp, ace_safe, party_safe
         except Exception as e:
             self.log(f"   [hunt] chip-PP audit skipped: {e}")
-            return True
+            return True, 99, 99
+
+    def _maybe_arm_pp_restore(self):
+        """PP-RESTORE GATE (2026-08-05, Jonny: 'restore Blastoise's PP — she can't carry the
+        bird on a 1-PP Bite; he wants the ACE chipping, not the Fearow fallback'): at the
+        quarry's doorstep, audit the party's safe chip swings vs THIS quarry. THIN (ace's
+        safe swings < ACE_SAFE_PP_MIN, or party-wide < PARTY_SAFE_SWINGS_MIN) must NOT be
+        frozen into the pre-bank — arm the CENTER RESTORE LEG instead: descend, the free
+        full-party Center heal (all HP + ALL PP), re-climb on the boulder solver + milestone
+        checkpoints, and re-bank a FRESH full-tank 'pre-<quarry>' that every retry then
+        reloads forever. Bounded: once per hunt instance + a 2-strike camp budget across
+        dispatches; exhausted or unwired hunts engage in LADDER MODE (the b235cb0 bench-
+        chipper engine) with the decision logged LOUD. True = armed (press_quarry returns
+        to the stage loop, which routes the descent)."""
+        any_pp, ace_safe, party_safe = self._chip_pp_audit()
+        if ace_safe >= self.ACE_SAFE_PP_MIN and party_safe >= self.PARTY_SAFE_SWINGS_MIN:
+            return False
+        key = ((self.QUARRY or {}).get("name") or "hunt").lower()
+        fails = getattr(self.camp, "_pp_restore_fails", None) or {}
+        if not self.CENTER_LEG_WIRED:
+            self.log(f"   [hunt] !! chip PP THIN (ace {ace_safe} safe swing(s), party "
+                     f"{party_safe}; mins {self.ACE_SAFE_PP_MIN}/{self.PARTY_SAFE_SWINGS_MIN}) "
+                     f"and no Center leg is wired for {key} — engaging in LADDER MODE "
+                     f"(bench chipper carries the chip) (LOUD)")
+            return False
+        if getattr(self, "_pp_restore_armed_once", False) or fails.get(key, 0) >= 2:
+            self.log(f"   [hunt] !! chip PP still THIN (ace {ace_safe}, party {party_safe}) "
+                     f"but the restore budget is spent (this-run="
+                     f"{getattr(self, '_pp_restore_armed_once', False)}, "
+                     f"fails {fails.get(key, 0)}/2) — engaging in LADDER MODE (LOUD)")
+            return False
+        self._pp_restore_armed_once = True
+        self._pp_restore_mode = True
+        self.log(f"   [hunt] !!!! PP RESTORE LEG ARMED — ace has {ace_safe} safe chip "
+                 f"swing(s) (min {self.ACE_SAFE_PP_MIN}), party {party_safe} (min "
+                 f"{self.PARTY_SAFE_SWINGS_MIN}): descending to the Center for the free "
+                 f"full-PP heal, then re-climbing to a FRESH 'pre-{key}' bank — every retry "
+                 f"after that starts with a full tank (LOUD)")
+        try:
+            self.camp.on_event("hold on — my moves are running on fumes. quick trip down to "
+                               "the Center, full restore, and THEN we do this properly.",
+                               kind="legendary", tier=2)
+        except Exception:
+            pass
+        return True
+
+    def _pp_restore_fail(self, why):
+        """The restore leg wedged — drop the mode, count the bounded fail (2 per quarry per
+        session, camp-level so re-dispatches can't loop the trip) and fall back to LADDER
+        MODE for the actual encounter. Loud always."""
+        self._pp_restore_mode = False
+        key = ((self.QUARRY or {}).get("name") or "hunt").lower()
+        fails = getattr(self.camp, "_pp_restore_fails", None)
+        if fails is None:
+            fails = self.camp._pp_restore_fails = {}
+        fails[key] = fails.get(key, 0) + 1
+        self.log(f"!! [hunt] PP RESTORE LEG FAILED ({why}) — fail {fails[key]}/2; falling "
+                 f"back to LADDER MODE for the encounter (LOUD)")
 
     # ── field healing (2026-08-05, the Mt. Ember climb) ─────────────────────────────────
     def field_heal_seam(self, top_up=False):
@@ -387,9 +476,11 @@ class LegendaryHunt(GiovanniGym):
         # PRE-LEGENDARY TOP-UP (2026-08-05): the static fight starts at HER choice of moment —
         # a real player tops the ace to (near-)full BEFORE pressing A, not after turn 1.
         self.field_heal_seam(top_up=True)
-        # PRE-ENCOUNTER CHIP-PP AUDIT (2026-08-05, the one-Bite ball-burn): the PP picture
-        # about to be frozen into 'pre-<quarry>' is what every FREE RETRY replays — confess it.
-        self._chip_pp_audit()
+        # PP-RESTORE GATE (2026-08-05, 'restore Blastoise's PP so she can Bite repeatedly'):
+        # the PP picture about to be frozen into 'pre-<quarry>' is what every FREE RETRY
+        # replays FOREVER — a thin tank goes down for the free Center heal + re-climb first.
+        if self._maybe_arm_pp_restore():
+            return False              # not a failure: run()'s stage loop routes the descent
         # PRE-LEGENDARY CHECKPOINT (2026-08-05 addendum): standing in front of the bird, topped
         # up, board solved — the exact moment Jonny wants a recovery (or a manual
         # PROMOTE_TARGET pin) to respawn into. Named 'pre-<quarry>' in the inventory.
@@ -515,10 +606,12 @@ class MoltresHunt(LegendaryHunt):
     in bag + rescued -> Two (Game Corner); delivered -> One (the trigger walk)."""
 
     QUARRY = MOLTRES
+    CENTER_LEG_WIRED = True   # descend->One-Island-Center->re-climb is coded (leg_to_center)
 
     def __init__(self, camp, log, dbg_dir=None):
         super().__init__(camp, log, dbg_dir)
-        self.deadline = time.time() + 2800   # the longest hunt: two ferries + the detour
+        self.deadline = time.time() + 3600   # the longest hunt: two ferries + the detour
+        #                                      (+800s 2026-08-05: the PP-restore round trip)
 
     # ── boulder machinery (seafoam_strike verbatim-adapted) ────────────────────────────────
     def live_boulders(self):
@@ -775,6 +868,18 @@ class MoltresHunt(LegendaryHunt):
             return self.press_quarry()
         return False
 
+    def leg_to_center(self, here):
+        """PP-RESTORE DESCENT (2026-08-05): the leg_home descent stages re-keyed to END at
+        the One-Island Center — never the harbor (leg_home's Meteorite predicate would sail
+        the Lostelle detour; a PP heal must not become a ferry odyssey). The volcano stages
+        (summit -> exterior -> 3F/2F/1F -> descent board -> Kindle) are Meteorite-free in
+        leg_home and reused verbatim; ONE_ISLAND alone is re-keyed to the Center door."""
+        if here == ONE_ISLAND:
+            return self.enter_step((14, 5), ONE_PC, "one-pc")
+        if here in (EMBER_SUMMIT, EMBER_EXT, EMBER_3F, EMBER_2F, EMBER_1F, KINDLE):
+            return self.leg_home(here)
+        return False
+
     # ── homebound stages ─────────────────────────────────────────────────────────────────
     def leg_home(self, here):
         """One stage of the ride home, keyed by map + the detour predicate."""
@@ -932,12 +1037,33 @@ class MoltresHunt(LegendaryHunt):
                     self.log(f"!! [moltres] home leg wedged on {here} @ {tv.coords(b)}")
                     return "failed"
             else:
+                # PP-RESTORE ROUTING (2026-08-05): mode armed at the bird's doorstep — route
+                # DOWN to the One-Island Center instead of pressing. At the Center the mode
+                # clears and the normal climb router takes over (its ONE_PC leg does the free
+                # full-party heal — all HP + ALL PP — then walks out and re-climbs to a fresh
+                # full-tank 'pre-moltres' bank). A wedged descent burns one bounded restore
+                # fail and falls back to LADDER MODE rather than looping the mountain.
+                if getattr(self, "_pp_restore_mode", False):
+                    if here == ONE_PC:
+                        self._pp_restore_mode = False
+                        self.log("   [hunt] !!!! PP RESTORE: reached the One-Island Center — "
+                                 "healing (full PP) and re-climbing to a FRESH 'pre-moltres' "
+                                 "bank (LOUD)")
+                    elif here in (EMBER_SUMMIT, EMBER_EXT, EMBER_3F, EMBER_2F, EMBER_1F,
+                                  KINDLE, ONE_ISLAND):
+                        if not self.leg_to_center(here):
+                            self._pp_restore_fail(f"descent wedged on {here} @ {tv.coords(b)}")
+                        continue
+                    else:
+                        self._pp_restore_fail(f"drifted to {here} mid-descent")
                 if here in (CINNABAR, CINNABAR_PC):
                     if not self.board_with_bill():
                         return "failed"
                 elif here in (ONE_PC, ONE_ISLAND, KINDLE, EMBER_EXT, EMBER_1F,
                               EMBER_2F, EMBER_3F, EMBER_SUMMIT):
                     if not self.leg_to_summit(here):
+                        if getattr(self, "_pp_restore_mode", False):
+                            continue          # press_quarry just ARMED the restore — descend
                         self.log(f"!! [moltres] climb leg wedged on {here} @ {tv.coords(b)}")
                         return "failed"
                 elif here == ONE_HARBOR:

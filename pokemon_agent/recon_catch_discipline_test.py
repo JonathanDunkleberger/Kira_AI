@@ -53,6 +53,12 @@ Decision table under test:
   still above the band after field + bench                   -> LOUD sanctioned early throw
   legendary never flees on depleted PP (fought-flag cost)    -> ladder owns it instead
   pre-encounter chip-PP audit                                -> party PP confessed pre-bank
++ THE PP RESTORE LEG (2026-08-05, Jonny: 'restore Blastoise's PP so she can Bite repeatedly'):
+  ace safe swings < 5 OR party-wide < 8 vs the quarry        -> descend, Center heal, re-climb,
+                                                                re-bank a full-tank pre-bank
+  once per hunt run + 2-fail camp budget / unwired hunt      -> LADDER MODE, logged loud
+  descent routing                                            -> leg_home stages, Center door
+                                                                (never the harbor/detour)
 """
 import json
 import os
@@ -869,9 +875,14 @@ def main():
         BA.st.read_battle, BA.st.in_battle = _orig_rb31, _orig_ib31
         BA.st.read_party_species = _orig_rps31
 
-    print("== 32. PRE-ENCOUNTER CHIP-PP AUDIT (press_quarry seam) ==")
+    print("== 32. PRE-ENCOUNTER CHIP-PP AUDIT: safe-swing scoring vs the quarry ==")
+    class AuditBridge:
+        """rd8 answers only the plaintext level offset reads: slot0 L63, slot1 L25."""
+        def rd8(self, a):
+            s = (a - LS.ram.GPLAYER_PARTY - 0x54) // LS.pst.PARTY_MON_SIZE
+            return {0: 63, 1: 25}.get(s, 0)
     hunt32 = LS.MoltresHunt.__new__(LS.MoltresHunt)
-    hunt32.b = object()
+    hunt32.b = AuditBridge()
     logs32 = []
     hunt32.log = logs32.append
     hunt32.camp = types.SimpleNamespace(party_health=lambda: [(0, 193, 193, 1.0),
@@ -880,26 +891,94 @@ def main():
     _orig_rpm32 = LS.pst.read_party_moves
     _orig_rpp32 = LS.pst.read_party_pp
     _orig_mif32 = LS.pst.move_info_full
-    # slot 0 = Blastoise, Bite DRY but Surf/Ice Beam carry PP; slot 1 = Lapras full; 2 fainted
+    _MOVES32 = {57: ("water", 95, 100), 58: ("ice", 95, 100), 44: ("dark", 60, 100),
+                55: ("water", 40, 100), 47: ("normal", 0, 55)}   # Sing = status (power 0)
+    # the live picture: Blastoise's Bite at 1 PP (Surf/Ice Beam overkill vs Moltres);
+    # Lapras' Water Gun soft and full. Fainted slot 2 must never be audited.
     LS.pst.read_party_moves = lambda b, s: ([57, 58, 44, 0] if s == 0 else [55, 47, 0, 0])
-    LS.pst.read_party_pp = lambda b, s: ([15, 10, 0, 0] if s == 0 else [25, 15, 0, 0])
-    LS.pst.move_info_full = lambda b, m: (("normal", 0, 55) if m == 47
-                                          else ("water", 60, 100))   # Sing is status (power 0)
+    LS.pst.read_party_pp = lambda b, s: ([15, 10, 1, 0] if s == 0 else [25, 15, 0, 0])
+    LS.pst.move_info_full = lambda b, m: _MOVES32.get(m, ("normal", 0, 100))
     try:
-        check("audit reads party PP fresh and reports damaging PP present",
-              hunt32._chip_pp_audit() is True
-              and any("CHIP-PP AUDIT" in l for l in logs32), f"logs={logs32[:1]}")
+        a32 = hunt32._chip_pp_audit()
+        check("audit scores SAFE swings vs Moltres: ace 1 (the lone Bite), party 26",
+              a32 == (True, 1, 26), f"got {a32}")
+        check("the audit line is LOUD and names the quarry",
+              any("CHIP-PP AUDIT" in l and "Moltres" in l for l in logs32), f"logs={logs32[:1]}")
         check("fainted slot 2 never audited (only the healthy bench counts)",
               not any("slot2" in l for l in logs32))
         logs32.clear()
         LS.pst.read_party_pp = lambda b, s: [0, 0, 0, 0]
-        check("ZERO damaging PP party-wide -> audit False and SCREAMS (sleep+throw only)",
-              hunt32._chip_pp_audit() is False
+        check("ZERO damaging PP party-wide -> (False, 0, 0) and SCREAMS (sleep+throw only)",
+              hunt32._chip_pp_audit() == (False, 0, 0)
               and any("ZERO damaging PP" in l for l in logs32))
     finally:
         LS.pst.read_party_moves = _orig_rpm32
         LS.pst.read_party_pp = _orig_rpp32
         LS.pst.move_info_full = _orig_mif32
+
+    print("== 33. THE PP RESTORE LEG: threshold, arming, budget, descent routing ==")
+    def _mk_hunt33(cls, audit, camp=None):
+        h = cls.__new__(cls)
+        h.b = object()
+        h.log = logs33.append
+        h.camp = camp or types.SimpleNamespace(on_event=lambda *a, **k: None)
+        h._chip_pp_audit = lambda: audit
+        return h
+    logs33 = []
+    # (a) thin ace (1 safe Bite) -> ARMED once; the second ask falls to LADDER MODE
+    h33 = _mk_hunt33(LS.MoltresHunt, (True, 1, 26))
+    check("ace below 5 safe swings -> RESTORE LEG ARMED (mode latched)",
+          h33._maybe_arm_pp_restore() is True and h33._pp_restore_mode is True
+          and any("PP RESTORE LEG ARMED" in l for l in logs33))
+    logs33.clear()
+    check("second ask this run -> LADDER MODE (once per hunt instance)",
+          h33._maybe_arm_pp_restore() is False
+          and any("LADDER MODE" in l for l in logs33))
+    # (b) healthy tank -> never armed
+    logs33.clear()
+    h33b = _mk_hunt33(LS.MoltresHunt, (True, 25, 60))
+    check("full tank (Bite 25) -> no restore, no ladder chatter",
+          h33b._maybe_arm_pp_restore() is False and not logs33)
+    # (c) party-wide famine triggers even with a mid ace
+    h33c = _mk_hunt33(LS.MoltresHunt, (True, 6, 7))
+    check("party-wide < 8 safe swings -> armed (the OR trigger)",
+          h33c._maybe_arm_pp_restore() is True)
+    # (d) unwired hunt (Zapdos has no Center leg) -> LOUD ladder, never a trip
+    logs33.clear()
+    h33d = _mk_hunt33(LS.ZapdosHunt, (True, 1, 3))
+    check("no Center leg wired -> LADDER MODE loudly, mode never set",
+          h33d._maybe_arm_pp_restore() is False
+          and not getattr(h33d, "_pp_restore_mode", False)
+          and any("no Center leg is wired" in l for l in logs33))
+    # (e) camp budget: 2 failed trips -> refuse further restore attempts
+    logs33.clear()
+    camp33 = types.SimpleNamespace(on_event=lambda *a, **k: None,
+                                   _pp_restore_fails={"moltres": 2})
+    h33e = _mk_hunt33(LS.MoltresHunt, (True, 1, 3), camp=camp33)
+    check("restore budget spent (2 fails) -> LADDER MODE, no third trip",
+          h33e._maybe_arm_pp_restore() is False
+          and any("LADDER MODE" in l for l in logs33))
+    # (f) _pp_restore_fail counts the bounded fail and drops the mode
+    logs33.clear()
+    h33f = _mk_hunt33(LS.MoltresHunt, (True, 1, 3))
+    h33f._pp_restore_mode = True
+    h33f._pp_restore_fail("descent wedged on (1, 99)")
+    check("a wedged descent counts 1/2 and clears the mode (fallback logged)",
+          h33f._pp_restore_mode is False
+          and h33f.camp._pp_restore_fails == {"moltres": 1}
+          and any("falling back to LADDER MODE" in l for l in logs33))
+    # (g) descent routing: volcano maps delegate to leg_home; One Island re-keys to the PC
+    h33g = _mk_hunt33(LS.MoltresHunt, (True, 1, 3))
+    routed33 = []
+    h33g.leg_home = lambda here: (routed33.append(("home", here)), True)[1]
+    h33g.enter_step = lambda tile, dest, label: (routed33.append((label, dest)), True)[1]
+    check("EMBER_2F descends via the leg_home stage",
+          h33g.leg_to_center((1, 99)) is True and routed33 == [("home", (1, 99))])
+    routed33.clear()
+    check("ONE_ISLAND routes to the CENTER door, never the harbor",
+          h33g.leg_to_center((3, 12)) is True and routed33 == [("one-pc", (32, 0))])
+    check("an off-leg map declines (run()'s router counts the bounded fail)",
+          h33g.leg_to_center((3, 13)) is False)
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")
