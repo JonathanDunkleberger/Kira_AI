@@ -276,13 +276,20 @@ class LegendaryHunt(GiovanniGym):
     BALL_RESTOCK_FAILS_MAX = 2
 
     def _ultra_count(self):
+        """Ultras in the Balls pocket. Caps garbage XOR reads (soak 090652: a silent
+        have>=50 skip engaged with balls=5 — never trust an absurd decrypt)."""
+        n = 0
         try:
-            return int(self.camp._balls_pocket_count(2) or 0)
+            n = int(self.camp._balls_pocket_count(2) or 0)
         except Exception:
             try:
-                return int(self.camp.bag_count(2) or 0)
+                n = int(self.camp.bag_count(2) or 0)
             except Exception:
-                return 0
+                n = 0
+        if n < 0 or n > 200:
+            self.log(f"   [hunt] !! Ultra count read {n} is garbage — treating as 0 (LOUD)")
+            return 0
+        return n
 
     def _ultra_target(self):
         try:
@@ -307,39 +314,47 @@ class LegendaryHunt(GiovanniGym):
         HARD FLOOR (Jonny 09:13: back at the bird with 5-6): below MIN_ENGAGE the done-latch
         and fail budget CANNOT force an engage — soft-reload of an old 6-ball pre-bank must
         re-arm the ferry. Above the floor, one successful buy trip per hunt instance is enough
-        even if wallet stopped short of TARGET."""
-        if not self.BALL_RESTOCK_WIRED:
-            return False
+        even if wallet stopped short of TARGET.
+
+        EVERY decision is LOUD (soak 090652: silent skip engaged with 5 Ultras)."""
         have = self._ultra_count()
         want = self._ultra_target()
         floor = self._ultra_min_engage()
-        if have >= want:
+        done = bool(getattr(self, "_ball_restock_done", False))
+        key = ((self.QUARRY or {}).get("name") or "hunt").lower()
+        fails = getattr(self.camp, "_ball_restock_fails", None) or {}
+        nfail = int(fails.get(key, 0) or 0)
+        self.log(f"   [hunt] Ultra pocket check — {have} Ultras (floor {floor}, target "
+                 f"{want}, wired={self.BALL_RESTOCK_WIRED}, done={done}, fails={nfail})")
+        if not self.BALL_RESTOCK_WIRED:
+            self.log("   [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)")
             return False
-        if have >= floor and getattr(self, "_ball_restock_done", False):
+        if have >= want:
+            self.log(f"   [hunt] Ultra pocket at target ({have}>={want}) — no restock")
+            return False
+        if have >= floor and done:
             self.log(f"   [hunt] Ultra war-chest already filled this run ({have}/{want}, "
                      f"floor {floor}) — ENGAGING with the pocket we bought (LOUD)")
             return False
-        if have < floor and getattr(self, "_ball_restock_done", False):
+        if have < floor and done:
             # Soft-reload / preferred-bank pin undid the stack — burn the latch, buy again.
             self._ball_restock_done = False
             self.log(f"   [hunt] !!!! Ultra pocket COLLAPSED to {have} (floor {floor}) — "
                      f"clearing war-chest done-latch, RE-ARMING the ferry (LOUD)")
             try:
-                fails = getattr(self.camp, "_ball_restock_fails", None)
                 if isinstance(fails, dict):
-                    fails[((self.QUARRY or {}).get("name") or "hunt").lower()] = 0
+                    fails[key] = 0
+                    nfail = 0
             except Exception:
                 pass
-        key = ((self.QUARRY or {}).get("name") or "hunt").lower()
-        fails = getattr(self.camp, "_ball_restock_fails", None) or {}
-        if have >= floor and fails.get(key, 0) >= self.BALL_RESTOCK_FAILS_MAX:
-            self.log(f"   [hunt] !! Ultra war-chest fail budget spent ({fails.get(key, 0)}/"
+        if have >= floor and nfail >= self.BALL_RESTOCK_FAILS_MAX:
+            self.log(f"   [hunt] !! Ultra war-chest fail budget spent ({nfail}/"
                      f"{self.BALL_RESTOCK_FAILS_MAX}) with {have}/{want} Ultras — ENGAGING "
                      f"anyway (LOUD)")
             return False
-        if have < floor and fails.get(key, 0) >= self.BALL_RESTOCK_FAILS_MAX:
+        if have < floor and nfail >= self.BALL_RESTOCK_FAILS_MAX:
             # Below the floor the fail budget does NOT green-light a 6-ball prayer.
-            self.log(f"   [hunt] !! Ultra war-chest fails={fails.get(key, 0)} but pocket "
+            self.log(f"   [hunt] !! Ultra war-chest fails={nfail} but pocket "
                      f"{have} < floor {floor} — still RE-ARMING (never engage this thin) (LOUD)")
             try:
                 fails[key] = 0
@@ -731,11 +746,17 @@ class LegendaryHunt(GiovanniGym):
         self.field_heal_seam(top_up=True)
         # ULTRA WAR-CHEST (2026-08-06): thin Ultras outrank the doorstep engage — leave the
         # bird, buy a real stack on Sevii, re-climb. Jonny/chat: 6 balls is not enough.
+        # Checked BOTH before and after doorstep (soak 090652: first check somehow skipped
+        # and she engaged with balls=5 — the second check is the belt).
         if self._maybe_arm_ball_restock():
             return False
         # PP-RESTORE GATE + THE DOORSTEP LAW (2026-08-05 LIVE, the turn-around at the bird):
         # armed -> not a failure; run()'s stage loop routes the descent.
         if self._doorstep_or_restore():
+            return False
+        if self._maybe_arm_ball_restock():
+            self.log("   [hunt] !! Ultra pocket still thin AFTER doorstep settle — "
+                     "war-chest wins over engage (LOUD)")
             return False
         # PRE-LEGENDARY CHECKPOINT (2026-08-05 addendum): standing in front of the bird, topped
         # up, board solved — the exact moment Jonny wants a recovery (or a manual

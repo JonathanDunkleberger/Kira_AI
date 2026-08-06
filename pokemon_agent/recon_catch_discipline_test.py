@@ -1218,7 +1218,8 @@ def main():
     h35b._ultra_target = lambda: 50
     h35b._ultra_min_engage = lambda: 20
     check("50 Ultras already stacked -> no restock arm",
-          h35b._maybe_arm_ball_restock() is False and not logs35)
+          h35b._maybe_arm_ball_restock() is False
+          and any("at target" in l for l in logs35))
     logs35.clear()
     h35c = LS.MoltresHunt.__new__(LS.MoltresHunt)
     h35c.b = object()
