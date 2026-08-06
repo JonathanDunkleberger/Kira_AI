@@ -136,11 +136,17 @@ CATCH_CHIP_TARGET_LEGEND = float(os.getenv("POKEMON_CATCH_CHIP_LEGEND", "0.15"))
 # HARD THROW FLOOR (2026-08-06 LIVE, soak 180943: Fearow fainted mid-chip, loop kept
 # "attacking" a corpse, then SANCTIONED early throw at 75% HP — 5 Ultras burned for
 # nothing). Jonny: at least half HP before any legendary ball. Ideal is still the red
-# zone above; this floor is the NEVER-WORSE-THAN line. Above it: flee → free-retry,
-# never dump the Ultra stack.
+# zone above; this floor is the NEVER-WORSE-THAN line. Above it: deepen the ace chip
+# or SOFT-RELOAD the pre-bank — NEVER flee (flee runs MonFlewAway and "respawns" via
+# free-retry — the 2026-08-06 morning spectacle).
 CATCH_THROW_FLOOR_LEGEND = float(os.getenv("POKEMON_CATCH_THROW_FLOOR_LEGEND", "0.50"))
 LEGEND_RESLEEP_MAX = 4        # total sleep casts per encounter (Sing is 55%-acc — misses priced in)
 LEGEND_CHIP_HITS = 10         # deep-chip swing budget (each swing re-guarded; generic stays at 4)
+# Species → hunt key for the soft-reload door (wired by campaign at boot).
+_LEGEND_SOFT_KEYS = {144: "articuno", 145: "zapdos", 146: "moltres", 150: "mewtwo"}
+# Optional campaign hook: callable(key) -> bool. Set by Campaign.__init__; None in pure
+# unit tests. Soft-reloads 'pre-<key>' WITHOUT pressing RUN (no MonFlewAway).
+LEGEND_SOFT_RELOAD = None
 
 
 def catch_ready(hp_frac, status1, legend):
@@ -154,7 +160,7 @@ def catch_ready(hp_frac, status1, legend):
 
 def legend_throw_allowed(hp_frac):
     """HARD FLOOR: legendary Ultras may fly at/below half HP. Above that the attempt is
-    refused (flee → free-retry / PP restore), never a ball dump."""
+    refused (deepen ace chip / soft-reload — never a ball dump, never RUN)."""
     return hp_frac <= CATCH_THROW_FLOOR_LEGEND
 
 
@@ -749,7 +755,8 @@ class BattleAgent:
             if _never_ko:
                 self.log(f"   [engine] WILD CATCH DIVERT ({reason}) — "
                          f"{'only RESERVED ultras' if _reserved else 'ZERO balls'}; "
-                         f"FLEEING (NOT fighting — that KOs the catch target)")
+                         f"{'soft-reload' if reason == 'legendary' else 'FLEEING'} "
+                         f"(NOT fighting — that KOs the catch target)")
                 if _reserved:
                     self.emit(f"my Ultra Balls are the legendaries' — I'm not spending them "
                               f"here and I'm NOT killing this {foe_name}. backing out; "
@@ -757,6 +764,18 @@ class BattleAgent:
                 else:
                     self.emit(f"I've got ZERO Poké Balls — I am NOT killing this {foe_name}. "
                               f"backing out. Mart first, then we catch.", beat=True, tier=3)
+                # LEGENDARY: never RUN (MonFlewAway spends the static). Soft-reload the
+                # pre-bank so balls come back without the flew-away spectacle.
+                if reason == "legendary":
+                    try:
+                        _sp0b = (st.read_battle(self.b) or {}).get("enemy", {}).get("species")
+                    except Exception:
+                        _sp0b = None
+                    if self._try_legend_soft_reload(_sp0b):
+                        return "no_balls"
+                    self.log("   [engine] !! legendary + 0 balls + soft-reload failed — "
+                             "NOT fleeing (LOUD)")
+                    return "no_balls"
                 # KEEP catch_now live — clearing it made the next wake/fight a free KO.
                 fled = self.flee(max_seconds=60)
                 if not st.in_battle(self.b):
@@ -824,24 +843,55 @@ class BattleAgent:
         if res in ("catch_abort", "party_risk", "our_down"):
             if _never_ko and res != "our_down":       # no flee from the send-in screen —
                 #                                       run()'s faint drain owns that state
-                self.log(f"   [engine] catch abandoned ({res}) on a protected target — "
-                         f"fleeing first (never KO)")
-                self.flee(max_seconds=45)
-                if not st.in_battle(self.b):
-                    return res
-                self.log(f"   [engine] flee failed after {res} — WAR-MUST-ADVANCE: "
+                if reason == "legendary":
+                    try:
+                        _sp_ab = (st.read_battle(self.b) or {}).get("enemy", {}).get("species")
+                    except Exception:
+                        _sp_ab = None
+                    self.log(f"   [engine] catch abandoned ({res}) on legendary — "
+                             f"soft-reload (NEVER flee / MonFlewAway) (LOUD)")
+                    if self._try_legend_soft_reload(_sp_ab):
+                        return res
+                else:
+                    self.log(f"   [engine] catch abandoned ({res}) on a protected target — "
+                             f"fleeing first (never KO)")
+                    self.flee(max_seconds=45)
+                    if not st.in_battle(self.b):
+                        return res
+                self.log(f"   [engine] flee/soft-reload failed after {res} — WAR-MUST-ADVANCE: "
                          f"fighting the battle out (LOUD)")
             return self._resolve_open_battle(max_seconds=max(120, max_seconds))
+        if res == "chip_exhausted" and reason == "legendary":
+            # Soft-reload already attempted inside catch_pokemon; battle may be closed.
+            # NEVER flee here — that was the walk-up-run-flew-away-respawn loop.
+            self.log(f"   [engine] legendary chip_exhausted — no RUN "
+                     f"(soft-reload/deepen already owned it) (LOUD)")
+            return res
         if _never_ko:
-            self.emit(f"I couldn't catch it ({res}) — I am NOT killing a {reason}, I'm backing out.",
-                      beat=True, tier=3)
-            self.log(f"   [engine] {reason} capture failed ({res}) — fleeing to avoid KOing it")
-            fled = self.flee(max_seconds=60)
-            if not st.in_battle(self.b):
-                return fled
-            if reason == "creator_catch_now" and not self._foe_blocks_flee():
-                return "no_balls"
-            self.emit("can't run — finishing the fight carefully.", beat=True, tier=2)
+            if reason == "legendary":
+                try:
+                    _sp_fl = (st.read_battle(self.b) or {}).get("enemy", {}).get("species")
+                except Exception:
+                    _sp_fl = None
+                self.emit(f"I couldn't catch it ({res}) — rewinding, NOT letting "
+                          f"{foe_name} fly away.", beat=True, tier=3)
+                self.log(f"   [engine] {reason} capture failed ({res}) — soft-reload "
+                         f"(NEVER flee / MonFlewAway) (LOUD)")
+                if self._try_legend_soft_reload(_sp_fl):
+                    return res
+                if not st.in_battle(self.b):
+                    return res
+                self.emit("can't rewind — finishing carefully, no KO.", beat=True, tier=2)
+            else:
+                self.emit(f"I couldn't catch it ({res}) — I am NOT killing a {reason}, I'm backing out.",
+                          beat=True, tier=3)
+                self.log(f"   [engine] {reason} capture failed ({res}) — fleeing to avoid KOing it")
+                fled = self.flee(max_seconds=60)
+                if not st.in_battle(self.b):
+                    return fled
+                if reason == "creator_catch_now" and not self._foe_blocks_flee():
+                    return "no_balls"
+                self.emit("can't run — finishing the fight carefully.", beat=True, tier=2)
         return self._resolve_open_battle(max_seconds=max(120, max_seconds))
 
     def _enemy_live_remaining(self):
@@ -1601,7 +1651,62 @@ class BattleAgent:
                     return i
         return None
 
-    def _weaken_hp(self, target_frac=None, max_hits=4, legend=False):
+    def _try_legend_soft_reload(self, species=None):
+        """SOFT-RELOAD a static legendary WITHOUT pressing RUN (2026-08-06 LIVE, Jonny:
+        'walked up, ran, it flew away, now respawning'). Fleeing sets fought/hide and plays
+        MonFlewAway; free-retry then looks like a respawn. Loading 'pre-<key>' rewinds RAM
+        cleanly — bird live, balls back, no flew-away script. Bounded per BattleAgent."""
+        if species is None:
+            try:
+                species = (st.read_battle(self.b) or {}).get("enemy", {}).get("species")
+            except Exception:
+                species = None
+        key = _LEGEND_SOFT_KEYS.get(species)
+        hook = LEGEND_SOFT_RELOAD
+        if not key or not callable(hook):
+            self.log(f"   [catch] !! legend soft-reload unavailable "
+                     f"(key={key!r}, hook={'set' if hook else 'None'}) — NOT fleeing "
+                     f"(MonFlewAway would spend the bird) (LOUD)")
+            return False
+        n = getattr(self, "_legend_soft_reloads", 0)
+        if n >= 2:
+            self.log(f"   [catch] !! legend soft-reload budget spent ({n}/2) — NOT fleeing (LOUD)")
+            return False
+        self.log(f"   [catch] !!!! LEGEND SOFT-RELOAD — rewinding 'pre-{key}' WITHOUT RUN "
+                 f"(no MonFlewAway; ace chips properly next press) (LOUD)")
+        try:
+            ok = bool(hook(key))
+        except Exception as e:
+            self.log(f"   [catch] !! legend soft-reload raised ({e}) — NOT fleeing (LOUD)")
+            return False
+        if ok:
+            self._legend_soft_reloads = n + 1
+        return ok
+
+    def _legend_refuse_throw(self, foe_frac, why):
+        """HARD FLOOR refuse: deepen the ace chip, then soft-reload. NEVER flee a static
+        legendary. Returns 'chip_exhausted' after soft-reload / stuck-above-floor, or None
+        when the foe is now throw-legal (caller continues into the throw path)."""
+        self.log(f"   [catch] !! {why} — foe at {foe_frac:.0%} (floor "
+                 f"{CATCH_THROW_FLOOR_LEGEND:.0%}); deepening ACE chip, NEVER fleeing "
+                 f"(MonFlewAway spends the bird) (LOUD)")
+        if st.in_battle(self.b):
+            self._weaken_hp(target_frac=CATCH_CHIP_TARGET_LEGEND, max_hits=LEGEND_CHIP_HITS,
+                            legend=True, desperate=True)
+        if not st.in_battle(self.b):
+            return "chip_exhausted"
+        after = st.read_battle(self.b)
+        if after and after["enemy"].get("maxhp") and legend_throw_allowed(_hp_frac(after["enemy"])):
+            self.log(f"   [catch] !! ACE deepen reached throw floor "
+                     f"({_hp_frac(after['enemy']):.0%}) — throws are legal now (LOUD)")
+            return None
+        if self._try_legend_soft_reload((after or {}).get("enemy", {}).get("species")):
+            return "chip_exhausted"
+        self.log("   [catch] !! still above hard floor and soft-reload failed — "
+                 "staying in the fight to keep chipping (no RUN) (LOUD)")
+        return "chip_exhausted"
+
+    def _weaken_hp(self, target_frac=None, max_hits=4, legend=False, desperate=False):
         """Chip the wild foe's HP into the catchable band so a HANDFUL of balls suffices (a status
         alone leaves it near full HP -> 5 balls broke free). Fires the GENTLEST damaging move
         one hit at a time, re-reading HP, and STOPS once HP <= target_frac (faint-guard: never swing
@@ -1668,16 +1773,19 @@ class BattleAgent:
             if ci is None:
                 if legend:
                     self.log(f"   [catch] chip halting — the ACTIVE mon has no damaging move "
-                             f"with PP left (foe at {_frac:.0%}); ACE-ONLY ladder / free-retry owns it")
+                             f"with PP left (foe at {_frac:.0%}); ACE-ONLY / soft-reload owns it")
                 return "no_pp"                          # active's damaging PP is dry
             _mv_nm = state["ours"]["moves"][ci].get("name", f"slot {ci}")
             if not csafe:
-                if legend and cest + 0.05 <= _frac:
-                    # LADDER RUNG 2: over the polite margin, but the foe's current HP clearly
-                    # exceeds the estimate — this hit CANNOT faint from here. Legal depth.
-                    self.log(f"   [catch] chip LADDER — {_mv_nm} est {cest:.0%} vs foe at "
-                             f"{_frac:.0%} HP: over the safety margin but cannot faint from "
-                             f"this HP — swinging (legendary depth)")
+                if legend and cest is not None and (
+                        cest + 0.05 <= _frac or (desperate and cest < _frac)):
+                    # LADDER RUNG 2 / DESPERATE: over the polite margin, but the foe's current
+                    # HP clearly exceeds the estimate — this hit CANNOT faint from here.
+                    _tag = ("DESPERATE" if desperate and not (cest + 0.05 <= _frac)
+                            else "LADDER")
+                    self.log(f"   [catch] chip {_tag} — {_mv_nm} est {cest:.0%} vs foe at "
+                             f"{_frac:.0%} HP: cannot faint from this HP — swinging "
+                             f"(legendary depth, ace-only)")
                 else:
                     self.log(f"   [catch] chip STOPPING — gentlest move {_mv_nm} est {cest:.0%} vs "
                              f"foe at {_frac:.0%} HP; a swing risks the KO. Throwing now.")
@@ -1738,8 +1846,8 @@ class BattleAgent:
         """ACE-ONLY legendary chip + HARD THROW FLOOR (2026-08-06 LIVE, Jonny: 'she needs
         Blastoise to handle Moltres entirely himself — pulling Spearow/Fearow just gets it
         killed and the bird flies away'). Voluntary bench switches are OFF for legendaries:
-        the ace (Water resist into Moltres) chips alone; if its safe PP runs dry above the
-        hard floor, flee → free-retry → Center heal banks a full Bite tank. Returns
+        the ace chips alone; above the hard floor the caller deepens the chip / soft-reloads
+        — NEVER flees (flee = MonFlewAway + fake respawn). Returns
         (chipper_tried_set unused, refuse_throw)."""
         tried = set(chipper_tried or ())
         if not st.in_battle(self.b):
@@ -1759,9 +1867,8 @@ class BattleAgent:
         if _f3 > CATCH_THROW_FLOOR_LEGEND:
             self.log(f"   [catch] !! ACE chip stopped above HARD FLOOR — foe still "
                      f"at {_f3:.0%} HP (floor {CATCH_THROW_FLOOR_LEGEND:.0%}, band "
-                     f"{CATCH_READY_FRAC_LEGEND:.0%}): REFUSING the throw, free-retry + "
-                     f"PP restore owns the next attempt (LOUD — never dump Ultras / never "
-                     f"sacrifice the bench)")
+                     f"{CATCH_READY_FRAC_LEGEND:.0%}): REFUSING the throw — deepen/"
+                     f"soft-reload owns recovery (NEVER flee / never dump Ultras) (LOUD)")
             return tried, True
         self.log(f"   [catch] !! ACE chip stopped at {_f3:.0%} HP "
                  f"(at/under hard floor {CATCH_THROW_FLOOR_LEGEND:.0%}, above red band "
@@ -1936,6 +2043,10 @@ class BattleAgent:
                         self.run(max_seconds=120)
                     finally:
                         self._skip_catch_divert = False
+                elif _legend or (_foe_sp in _LEGEND_SOFT_KEYS):
+                    self.log("   [engine] catch no_balls on legendary — soft-reload "
+                             "(NEVER flee / MonFlewAway) (LOUD)")
+                    self._try_legend_soft_reload(_foe_sp)
                 else:
                     self.log("   [engine] catch no_balls — FLEEING (protect catch target from KO)")
                     self.flee(max_seconds=45)
@@ -2020,12 +2131,12 @@ class BattleAgent:
                     # LEGENDARY HARD FLOOR: above half HP this is a refuse, not a dump.
                     _ef_early = _hp_frac(state["enemy"])
                     if _legend and not legend_throw_allowed(_ef_early):
-                        self.log(f"   [catch] !! EARLY THROW BLOCKED by HARD FLOOR — foe at "
-                                 f"{_ef_early:.0%} (floor {CATCH_THROW_FLOOR_LEGEND:.0%}); "
-                                 f"fleeing to free-retry (LOUD)")
-                        if st.in_battle(self.b):
-                            self.flee(max_seconds=45)
-                        return "chip_exhausted"
+                        _ref = self._legend_refuse_throw(
+                            _ef_early, "EARLY THROW BLOCKED by HARD FLOOR")
+                        if _ref is not None:
+                            return _ref
+                        softened = True
+                        continue
                     self.log(f"   [catch] EARLY THROW — overkill risk on every move, no sleep/"
                              f"chipper; throwing at {_ef_early:.0%} HP rather "
                              f"than KO the target")
@@ -2039,7 +2150,7 @@ class BattleAgent:
                 # and that's exactly how she burned her whole ball supply tonight. Flee (preserve the
                 # balls) and surface that she needs to restore PP (a Center tops up PP). Roam then heals.
                 # LEGENDARY EXEMPT: fleeing a static sets the fought flag — the ACE-ONLY ladder
-                # below (hard floor refuse → free-retry / PP restore) owns the depleted case.
+                # below (hard floor refuse → deepen / soft-reload, never RUN) owns depleted PP.
                 if not _legend and not self._can_weaken(state) and state["enemy"].get("maxhp") \
                         and state["enemy"]["hp"] > state["enemy"]["maxhp"] * self.CATCH_WEAKEN_CEIL:
                     self.emit("I can't even dent it — I'm out of PP to weaken it, and I'm not burning my "
@@ -2059,22 +2170,25 @@ class BattleAgent:
                     chipper_tried, _refuse = self._legend_chip_ladder(
                         _chip_tgt, _chip_hits, chipper_tried)
                     if _refuse:
-                        if st.in_battle(self.b):
-                            self.flee(max_seconds=45)
-                        return "chip_exhausted"
+                        _s_ref = st.read_battle(self.b) if st.in_battle(self.b) else None
+                        _ef_ref = (_hp_frac(_s_ref["enemy"])
+                                   if _s_ref and _s_ref.get("enemy", {}).get("maxhp") else 1.0)
+                        _ref = self._legend_refuse_throw(
+                            _ef_ref, "ACE chip stopped above HARD FLOOR")
+                        if _ref is not None:
+                            return _ref
                 softened = True
                 continue
             # HARD THROW FLOOR (legendary): never dump Ultras above half HP — even if some
-            # other path latched softened=True early. Flee → free-retry / PP restore.
+            # other path latched softened=True early. Deepen / soft-reload — never RUN.
             if _legend and state is not None and state["enemy"].get("maxhp"):
                 _ef_floor = _hp_frac(state["enemy"])
                 if not legend_throw_allowed(_ef_floor):
-                    self.log(f"   [catch] !! HARD THROW FLOOR — foe at {_ef_floor:.0%} HP "
-                             f"(need <={CATCH_THROW_FLOOR_LEGEND:.0%}); REFUSING the Ultra "
-                             f"dump, fleeing for free-retry (LOUD)")
-                    if st.in_battle(self.b):
-                        self.flee(max_seconds=45)
-                    return "chip_exhausted"
+                    _ref = self._legend_refuse_throw(
+                        _ef_floor, "HARD THROW FLOOR — REFUSING the Ultra dump")
+                    if _ref is not None:
+                        return _ref
+                    continue
             # THE SLEEP RUNG (legendary doctrine): before EVERY throw, a status-free legendary
             # gets a sleep cast (or the one sleeper switch) — x2 on the ball math, and it
             # covers the wake-up mid-throws. Bounded inside the rung; False -> just throw.
@@ -2084,7 +2198,15 @@ class BattleAgent:
             res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))),
                                   pref=ball_pref, allow_master=allow_master)
             if res == "no_balls" and st.in_battle(self.b):
-                self.flee(max_seconds=45)        # same wedge fix: resolve the live battle before reporting
+                # Legendary: soft-reload (never RUN — MonFlewAway). Others: flee to clear.
+                _sp_nb = (st.read_battle(self.b) or {}).get("enemy", {}).get("species")
+                if _legend or _sp_nb in _LEGEND_SOFT_KEYS:
+                    if self._try_legend_soft_reload(_sp_nb):
+                        return "no_balls"
+                    self.log("   [catch] !! no_balls on legendary + soft-reload failed — "
+                             "NOT fleeing (LOUD)")
+                else:
+                    self.flee(max_seconds=45)
             if res in ("caught", "no_balls", "trainer"):
                 return res
             # 'broke_free' -> the foe took its turn; loop and throw again (commit).

@@ -915,6 +915,16 @@ def main():
               refuse31 is True and switched31 == []
               and any("ACE-ONLY" in l for l in logs31)
               and any("HARD FLOOR" in l or "REFUSING" in l for l in logs31))
+        # refuse path must NEVER flee (MonFlewAway / fake respawn) — deepen + soft-reload
+        fled31 = []
+        ag31.flee = lambda **k: fled31.append("fled") or "fled"
+        ag31._weaken_hp = lambda **k: "guard"
+        ag31._try_legend_soft_reload = lambda sp=None: True
+        world31["foe_frac"] = 0.75
+        out31 = ag31._legend_refuse_throw(0.75, "HARD FLOOR test")
+        check("hard-floor refuse deepens/soft-reloads — NEVER calls flee()",
+              out31 == "chip_exhausted" and fled31 == []
+              and any("NEVER fleeing" in l for l in logs31))
         # between red band and hard floor -> sanctioned throw, still no switch
         logs31.clear(); switched31.clear()
         world31["foe_frac"] = 0.40
@@ -1075,7 +1085,7 @@ def main():
         h34b2._maybe_arm_pp_restore = lambda: True
         check("doorstep AFTER free-retry -> ONE Center heal may arm (post-fail restore)",
               h34b2._doorstep_or_restore() is True
-              and any("after FREE-RETRY" in l for l in logs33))
+              and any("after failed attempt" in l and "free-retries=1" in l for l in logs33))
         # (c) far from the bird (pre-approach) -> the gate delegates to the one-shot audit
         LS.tv.coords = lambda b: (29, 40)        # 54 tiles out — mid-climb
         h34c = _mk_hunt33(LS.MoltresHunt, (True, 1, 3))

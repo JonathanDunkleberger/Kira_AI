@@ -1601,6 +1601,16 @@ class Campaign:
         self._raw_battle_runner = battle_runner
         self.battle_runner = self._observed_battle_runner
         battle_runner = self._observed_battle_runner   # travel + every consumer gets the observed one
+        # LEGEND SOFT-RELOAD hook (2026-08-06 LIVE): catch_pokemon MUST NOT flee a static
+        # legendary (RUN → MonFlewAway → free-retry "respawn"). BattleAgent calls this to
+        # rewind 'pre-<key>' without pressing RUN.
+        def _legend_soft_reload(key):
+            ok = self._reload_hunt_checkpoint(key)
+            if ok:
+                self._legend_soft_reloads = getattr(self, "_legend_soft_reloads", 0) + 1
+            return ok
+        battle_agent.LEGEND_SOFT_RELOAD = _legend_soft_reload
+        self._legend_soft_reloads = 0
         # default sink must accept emit's kwargs (PokemonSoul.emit calls on_event(text, kind=, tier=));
         # a 1-arg default crashed headless soul fires (live passes voice.emit which already accepts them).
         self.on_event = on_event or (lambda s, **_k: log(f"[event] {s}"))
@@ -21269,8 +21279,22 @@ class Campaign:
                         f"— ratcheting to the next older bank (LOUD)")
                     continue
                 # Settle BEFORE accepting: mid-flee scripts complete here (hide flips, dialogue).
+                # Drain A on pending textboxes — MonFlewAway's msgbox needs presses; frames alone
+                # left 182452 "verified" then played "The MOLTRES flew away!" on the next walk.
                 try:
                     self._wait_overworld()
+                except Exception:
+                    pass
+                try:
+                    from dialogue_drive import box_open as _dd_box
+                    for _ in range(120):
+                        if not _dd_box(self.b):
+                            break
+                        self.b.press("A", 6, 6, self.render, owner="agent")
+                        for __ in range(10):
+                            self.b.run_frame(); self.render()
+                    for _ in range(90):
+                        self.b.run_frame(); self.render()
                 except Exception:
                     pass
                 if verify is not None and not verify():
@@ -21288,6 +21312,9 @@ class Campaign:
                 except Exception:
                     pass
                 self._save_campaign(f"post_labeled_reload_{tag}")
+                # Remember which bank landed so the promote pin targets THIS name, not a
+                # newer poison that happens to share the tag.
+                self._last_labeled_reload = name
                 return True
             except Exception as _ce:
                 log(f"   [ckpt] labeled candidate {name} skipped: {_ce}")
@@ -21346,26 +21373,42 @@ class Campaign:
             return True                          # climb/leg bank: flags alone prove live-enough
         try:
             objs = fm.scan_field_objects(self.b, {qgfx})
-            return any(tuple(ob.get("coord") or ()) == qtile for ob in (objs or []))
+            if not any(tuple(ob.get("coord") or ()) == qtile for ob in (objs or [])):
+                return False
         except Exception:
             return False                         # on quarry map, unreadable sprite = reject
+        # ZERO-BALL summit bank can't catch — reject (soak 080642 oracle: "ZERO Poké Balls"
+        # after a "verified" pre-moltres load; free-retry then looped flee/respawn).
+        try:
+            n_balls = sum(self._balls_pocket_count(i) for i in (2, 3, 4))  # Ultra/Great/Poké
+            if n_balls <= 0:
+                return False
+        except Exception:
+            pass
+        return True
 
-    def _pin_pre_hunt_promote(self, key):
-        """Write PROMOTE_TARGET.txt -> CKPT <newest pre-<key>> so the next resume_marathon
-        hard-teleports onto the fresh verified bird bank (one-shot; consumed on launch)."""
+    def _pin_pre_hunt_promote(self, key, name=None):
+        """Write PROMOTE_TARGET.txt -> CKPT <verified bank> so the next resume_marathon
+        hard-teleports onto that bird (one-shot; consumed on launch). Prefer the explicit
+        `name` (the bank we just verified) over a newest-on-disk scan — scanning re-pinned
+        the poison 182452 after a clean load."""
         try:
             root = os.path.join(STATES_CAMPAIGN, "checkpoints")
-            names = sorted(
-                (n for n in os.listdir(root)
-                 if f"pre-{key}" in n and not n.endswith(".partial")
-                 and os.path.exists(os.path.join(root, n, CAMPAIGN_SAVE))),
-                reverse=True)
-            if not names:
+            if not name:
+                name = getattr(self, "_last_labeled_reload", None)
+            if not name or f"pre-{key}" not in name:
+                names = sorted(
+                    (n for n in os.listdir(root)
+                     if f"pre-{key}" in n and not n.endswith(".partial")
+                     and os.path.exists(os.path.join(root, n, CAMPAIGN_SAVE))),
+                    reverse=True)
+                name = names[0] if names else None
+            if not name:
                 return
             pin = os.path.join(os.path.dirname(os.path.abspath(__file__)), "PROMOTE_TARGET.txt")
             with open(pin, "w", encoding="utf-8") as f:
-                f.write(f"CKPT {names[0]}\n")
-            log(f"   [hunt] pinned PROMOTE_TARGET.txt -> CKPT {names[0]} "
+                f.write(f"CKPT {name}\n")
+            log(f"   [hunt] pinned PROMOTE_TARGET.txt -> CKPT {name} "
                 f"(next resume_marathon hard-teleports here)")
         except Exception as e:
             log(f"   [hunt] !! PROMOTE_TARGET pin skipped: {e}")
@@ -21389,6 +21432,9 @@ class Campaign:
                     self._bank_milestone(f"pre-{key}")
                     log(f"   [hunt] !!!! re-banked fresh verified 'pre-{key}' after clean "
                         f"rewind — next resume has a known-good bird (LOUD)")
+                    # Fresh re-bank is now newest on disk — pin THAT, not the older
+                    # candidate we loaded (which may have been a near-poison settle win).
+                    self._last_labeled_reload = None
                     self._pin_pre_hunt_promote(key)
             except Exception as e:
                 log(f"   [hunt] !! post-rewind re-bank of 'pre-{key}' skipped: {e}")

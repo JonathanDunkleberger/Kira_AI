@@ -408,11 +408,14 @@ class LegendaryHunt(GiovanniGym):
         cur = tuple(tv.coords(self.b) or (0, 0))
         dist = abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
         if dist <= self.DOORSTEP_TILES:
-            if getattr(self, "_catch_retries", 0) > 0:
+            _softs = getattr(self.camp, "_legend_soft_reloads", 0) or 0
+            _retries = getattr(self, "_catch_retries", 0) or 0
+            if _retries > 0 or _softs > 0:
                 if self._maybe_arm_pp_restore():
-                    self.log(f"   [hunt] !!!! AT THE DOORSTEP after FREE-RETRY "
-                             f"#{self._catch_retries} — thin PP proven; arming the ONE "
-                             f"persisted Center heal before re-engaging (LOUD)")
+                    self.log(f"   [hunt] !!!! AT THE DOORSTEP after failed attempt "
+                             f"(free-retries={_retries}, soft-reloads={_softs}) — thin PP "
+                             f"proven; arming the ONE persisted Center heal before "
+                             f"re-engaging (LOUD)")
                     return True
             self.log(f"   [hunt] !!!! AT THE DOORSTEP ({dist} tile(s) from "
                      f"{q.get('name', 'the quarry')}) — the PP audit's window has passed: "
@@ -570,6 +573,18 @@ class LegendaryHunt(GiovanniGym):
                 # the battle resolved — a failed catch (fainted / out of balls / whiteout)
                 # reloads 'pre-<quarry>' and loops into a fresh attempt (bounded).
                 if self._retry_failed_catch():
+                    continue
+                # Soft-reload / aborted catch leaves the bird LIVE (flags clear, not owned) —
+                # re-press instead of treating the fight return as 'done' (the walk-up-run-
+                # flew-away loop ended here with return True after a futile flee).
+                try:
+                    if ram.pokedex_owns(self.b, q["species"]) is True:
+                        return True
+                except Exception:
+                    pass
+                if not self.spent():
+                    self.log(f"   [hunt] !! {q.get('name', 'quarry')} still LIVE after the "
+                             f"fight return — re-pressing (soft-reload / aborted catch) (LOUD)")
                     continue
                 return True
         return self.spent()
