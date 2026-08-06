@@ -1201,6 +1201,7 @@ def main():
         _ball_restock_fails={})
     h35.BALL_RESTOCK_WIRED = True
     h35._ultra_target = lambda: 50
+    h35._ultra_min_engage = lambda: 20
     check("6 Ultras < target 50 -> WAR-CHEST ARMED",
           h35._maybe_arm_ball_restock() is True
           and h35._ball_restock_mode is True
@@ -1215,6 +1216,7 @@ def main():
         _ball_restock_fails={})
     h35b.BALL_RESTOCK_WIRED = True
     h35b._ultra_target = lambda: 50
+    h35b._ultra_min_engage = lambda: 20
     check("50 Ultras already stacked -> no restock arm",
           h35b._maybe_arm_ball_restock() is False and not logs35)
     logs35.clear()
@@ -1223,19 +1225,38 @@ def main():
     h35c.log = logs35.append
     h35c.camp = types.SimpleNamespace(
         on_event=lambda *a, **k: None,
-        _balls_pocket_count=lambda i: 6 if i == 2 else 0,
+        _balls_pocket_count=lambda i: 25 if i == 2 else 0,
         _ball_restock_fails={})
     h35c.BALL_RESTOCK_WIRED = True
     h35c._ball_restock_done = True
     h35c._ultra_target = lambda: 50
-    check("war-chest already bought this run -> engage with pocket we have",
+    h35c._ultra_min_engage = lambda: 20
+    check("war-chest bought (>=floor) this run -> engage even if under TARGET",
           h35c._maybe_arm_ball_restock() is False
           and any("already filled" in l for l in logs35))
+    logs35.clear()
+    h35d = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h35d.b = object()
+    h35d.log = logs35.append
+    h35d.camp = types.SimpleNamespace(
+        on_event=lambda *a, **k: None,
+        _balls_pocket_count=lambda i: 6 if i == 2 else 0,
+        _ball_restock_fails={"moltres": 2})
+    h35d.BALL_RESTOCK_WIRED = True
+    h35d._ball_restock_done = True
+    h35d._ultra_target = lambda: 50
+    h35d._ultra_min_engage = lambda: 20
+    check("soft-reload collapsed to 6 Ultras -> RE-ARM even if done/fails spent",
+          h35d._maybe_arm_ball_restock() is True
+          and any("COLLAPSED" in l or "RE-ARMING" in l for l in logs35))
     check("Three Island Mart is in MART_STOCK with Ultra Ball row 0",
           C.MART_STOCK.get((3, 14), [None])[0] == 2
           and C.CITY_MART_DOORS.get((3, 14)) == (18, 12))
     check("Moltres hunt wires the ball-restock leg",
           LS.MoltresHunt.BALL_RESTOCK_WIRED is True)
+    check("HUNT_ULTRA_MIN_ENGAGE is the hard floor (20)", C.HUNT_ULTRA_MIN_ENGAGE == 20)
+    check("old 6-ball 182052 preferred pin is CLEARED (war-chest banks win)",
+          C.Campaign._HUNT_PREFERRED_PRE.get("moltres") == ())
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")

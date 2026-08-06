@@ -291,33 +291,65 @@ class LegendaryHunt(GiovanniGym):
         except Exception:
             return 50
 
+    def _ultra_min_engage(self):
+        try:
+            import campaign as _C
+            return int(getattr(_C, "HUNT_ULTRA_MIN_ENGAGE", 20) or 20)
+        except Exception:
+            return 20
+
     def _maybe_arm_ball_restock(self):
         """ULTRA WAR-CHEST GATE (2026-08-06 LIVE, Jonny: 'only 6 ultra balls… chat said
         maybe 50'): before pressing A on a static legendary, if Ultras are under the hunt
         target, leave the bird, sail to a Sevii Ultra shelf, buy what the wallet allows,
         re-climb. Outranks the doorstep engage law — a 6-ball throw at 3/255 is theater.
-        Bounded: one successful buy trip per hunt instance + fail budget. True = armed."""
+
+        HARD FLOOR (Jonny 09:13: back at the bird with 5-6): below MIN_ENGAGE the done-latch
+        and fail budget CANNOT force an engage — soft-reload of an old 6-ball pre-bank must
+        re-arm the ferry. Above the floor, one successful buy trip per hunt instance is enough
+        even if wallet stopped short of TARGET."""
         if not self.BALL_RESTOCK_WIRED:
             return False
         have = self._ultra_count()
         want = self._ultra_target()
+        floor = self._ultra_min_engage()
         if have >= want:
             return False
-        if getattr(self, "_ball_restock_done", False):
-            self.log(f"   [hunt] Ultra war-chest already filled this run ({have}/{want}) — "
-                     f"ENGAGING with the pocket we bought (LOUD)")
+        if have >= floor and getattr(self, "_ball_restock_done", False):
+            self.log(f"   [hunt] Ultra war-chest already filled this run ({have}/{want}, "
+                     f"floor {floor}) — ENGAGING with the pocket we bought (LOUD)")
             return False
+        if have < floor and getattr(self, "_ball_restock_done", False):
+            # Soft-reload / preferred-bank pin undid the stack — burn the latch, buy again.
+            self._ball_restock_done = False
+            self.log(f"   [hunt] !!!! Ultra pocket COLLAPSED to {have} (floor {floor}) — "
+                     f"clearing war-chest done-latch, RE-ARMING the ferry (LOUD)")
+            try:
+                fails = getattr(self.camp, "_ball_restock_fails", None)
+                if isinstance(fails, dict):
+                    fails[((self.QUARRY or {}).get("name") or "hunt").lower()] = 0
+            except Exception:
+                pass
         key = ((self.QUARRY or {}).get("name") or "hunt").lower()
         fails = getattr(self.camp, "_ball_restock_fails", None) or {}
-        if fails.get(key, 0) >= self.BALL_RESTOCK_FAILS_MAX:
+        if have >= floor and fails.get(key, 0) >= self.BALL_RESTOCK_FAILS_MAX:
             self.log(f"   [hunt] !! Ultra war-chest fail budget spent ({fails.get(key, 0)}/"
                      f"{self.BALL_RESTOCK_FAILS_MAX}) with {have}/{want} Ultras — ENGAGING "
                      f"anyway (LOUD)")
             return False
+        if have < floor and fails.get(key, 0) >= self.BALL_RESTOCK_FAILS_MAX:
+            # Below the floor the fail budget does NOT green-light a 6-ball prayer.
+            self.log(f"   [hunt] !! Ultra war-chest fails={fails.get(key, 0)} but pocket "
+                     f"{have} < floor {floor} — still RE-ARMING (never engage this thin) (LOUD)")
+            try:
+                fails[key] = 0
+            except Exception:
+                pass
         self._ball_restock_mode = True
         self._ball_restock_returning = False
-        self.log(f"   [hunt] !!!! ULTRA WAR-CHEST ARMED — bag has {have}/{want} Ultra Balls; "
-                 f"descending to the Sevii Mart for a real stack, then re-climbing (LOUD)")
+        self.log(f"   [hunt] !!!! ULTRA WAR-CHEST ARMED — bag has {have}/{want} Ultra Balls "
+                 f"(engage floor {floor}); descending to Three Island Mart, then re-climbing "
+                 f"(LOUD)")
         try:
             self.camp.on_event(
                 f"chat's right — {have} Ultras is a prayer, not a plan. sailing to Three "
@@ -709,14 +741,21 @@ class LegendaryHunt(GiovanniGym):
         # up, board solved — the exact moment Jonny wants a recovery (or a manual
         # PROMOTE_TARGET pin) to respawn into. Named 'pre-<quarry>' in the inventory.
         # NEVER bank a dry ace tank (soak 083445: Bite:0 froze into preferred pre-moltres
-        # and every soft-reload re-armed the OVERKILL loop).
+        # and every soft-reload re-armed the OVERKILL loop). NEVER bank a thin Ultra pocket
+        # either (Jonny 09:13: soft-reload of a 6-ball pre undid the war-chest).
         try:
             _, _bank_safe, _ = self._chip_pp_audit()
         except Exception:
             _bank_safe = 99
+        _bank_ultras = self._ultra_count()
+        _ultra_floor = self._ultra_min_engage()
         if _bank_safe is not None and _bank_safe < 1:
             self.log(f"   [hunt] !! SKIPPING pre-{(q.get('name') or 'quarry').lower()} bank "
                      f"— ace safe chip PP is {_bank_safe} (would poison soft-reload) (LOUD)")
+        elif _bank_ultras < _ultra_floor:
+            self.log(f"   [hunt] !! SKIPPING pre-{(q.get('name') or 'quarry').lower()} bank "
+                     f"— only {_bank_ultras} Ultras (floor {_ultra_floor}; would poison "
+                     f"soft-reload back to a prayer stack) (LOUD)")
         else:
             self.strike_checkpoint(f"pre-{(q.get('name') or 'quarry').lower()}")
         try:
@@ -764,9 +803,20 @@ class LegendaryHunt(GiovanniGym):
                 except Exception:
                     pass
                 if not self.spent():
+                    # Soft-reload of an old 6-ball pre-bank must NOT re-press — re-arm the
+                    # war-chest ferry instead (Jonny 09:13).
+                    if self._maybe_arm_ball_restock():
+                        self.log(f"   [hunt] !! {q.get('name', 'quarry')} still LIVE but "
+                                 f"Ultra pocket too thin after the fight return — leaving "
+                                 f"for the war-chest (LOUD)")
+                        return False
                     # Still at the bird — doorstep law: never Center-retreat. Soft-reload /
                     # re-press in place (empty tank handled inside _doorstep_or_restore).
                     self._doorstep_or_restore()  # may soft-reload preferred bank; always False
+                    if self._maybe_arm_ball_restock():
+                        self.log(f"   [hunt] !! soft-reload left Ultras thin — war-chest "
+                                 f"RE-ARMED, not re-pressing (LOUD)")
+                        return False
                     self.log(f"   [hunt] !! {q.get('name', 'quarry')} still LIVE after the "
                              f"fight return — re-pressing at the bird (NO retreat) (LOUD)")
                     continue
@@ -1175,6 +1225,13 @@ class MoltresHunt(LegendaryHunt):
         self.log(f"   [hunt] war-chest buy done — +{got} Ultra(s), pocket now {have1}/{want}")
         if got > 0 or have1 > have0:
             self._ball_restock_done = True
+            # Drop the old 6-ball preferred pin so the next free-retry keeps THIS stack.
+            try:
+                pref = getattr(self.camp, "_HUNT_PREFERRED_PRE", None)
+                if isinstance(pref, dict):
+                    pref["moltres"] = ()
+            except Exception:
+                pass
             try:
                 self.camp.on_event(
                     f"war-chest loaded — {have1} Ultra Balls. back up the mountain.",

@@ -1332,6 +1332,11 @@ SHOP_POTION_TARGET = 12
 # honest, and the buy loop stops early if funds run dry (buys what she can afford).
 # Env override for soak tuning without a code push.
 HUNT_ULTRA_TARGET = int(os.getenv("POKEMON_HUNT_ULTRA_TARGET", "50"))
+# HARD ENGAGE FLOOR (2026-08-06 LIVE, Jonny: 'going back to Moltres with only 5-6'):
+# never press A on a legendary below this Ultra count — war-chest re-arms even after a
+# soft-reload of an old 6-ball pre-bank. Wallet may stop short of TARGET; this is the
+# "enough to try" bar (~$24k + sell-loot at 1200 each).
+HUNT_ULTRA_MIN_ENGAGE = int(os.getenv("POKEMON_HUNT_ULTRA_MIN_ENGAGE", "20"))
 # Baseline potions EVERY gym gets before the door (2026-08-02 Erika chalk — she walked into
 # Celadon Gym empty-handed and blacked out). Stall gyms override with a deeper stock.
 GYM_POTION_TARGET = int(os.getenv("POKEMON_GYM_POTION_TARGET", "12"))
@@ -21405,13 +21410,11 @@ class Campaign:
         "zapdos":   ((1, 95), (5, 11), fm.GFX_ZAPDOS),
         "mewtwo":   ((1, 74), (7, 12), fm.GFX_MEWTWO),
     }
-    # PREFERRED clean pre-banks (tried FIRST). Newest-tagged is NOT safest — the 2026-08-06
-    # morning free-retry re-banked post-flee states and pinned them over the clean 182052.
+    # PREFERRED clean pre-banks (tried FIRST). Cleared for moltres 2026-08-06: 182052 was
+    # "clean bird" but only ~6 Ultras + often Bite:0 — soft-reload/pin kept undoing the
+    # Three Island war-chest. Newest verified 'pre-moltres' (post-buy) must win.
     _HUNT_PREFERRED_PRE = {
-        "moltres": (
-            "20260805_182052_an-unfamiliar-area_8b_32h26m_pre-moltres",
-            "20260805_182052",  # substring fallback
-        ),
+        "moltres": (),
     }
     # Name substrings that must NEVER be free-retried / boot-rewound (mid-flee / spent summit).
     _HUNT_BANK_BLACKLIST = (
