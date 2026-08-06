@@ -1315,6 +1315,12 @@ MART_SCROLL = 0x02039942   # u16 sShopData.scrollOffset — items hidden above t
 # battle with a near-empty bag proved 6 was a snack, not a kit. Money exists to be converted
 # into not-losing; the SHOP_MONEY_FLOOR still guards true bankruptcy.
 SHOP_POTION_TARGET = 12
+# THE ULTRA WAR-CHEST (2026-08-05 addendum, Jonny at Moltres: "maybe she needs more ultra
+# balls, like the buy limit"): while a legendary hunt is owed, the lap's ball restock fills
+# the Ultra tier to a HEALTHY STACK, not the old 8-ball trickle — ~1200 each, so 20 is ~24k;
+# buy_at_mart's SHOP_MONEY_FLOOR + the sell-loot-first pass keep the wallet honest, and the
+# buy loop simply stops early if funds run dry (buys what she can afford).
+HUNT_ULTRA_TARGET = 20
 # Baseline potions EVERY gym gets before the door (2026-08-02 Erika chalk — she walked into
 # Celadon Gym empty-handed and blacked out). Stall gyms override with a deeper stock.
 GYM_POTION_TARGET = int(os.getenv("POKEMON_GYM_POTION_TARGET", "12"))
@@ -13401,7 +13407,12 @@ class Campaign:
         shelf = MART_STOCK.get(here, [])
         tier = next((t for t in (2, 3, 4) if t in shelf), None)
         if tier is not None and self.money() > SHOP_MONEY_FLOOR and (door or here == CELADON):
-            want = [(tier, max(2, 8 - have))]
+            # ULTRA WAR-CHEST: the hunt tier restocks to HUNT_ULTRA_TARGET (a legendary
+            # attempt eats balls in fistfuls); the cheap tiers keep the old 8-ball top-up.
+            if tier == 2:
+                want = [(2, max(2, HUNT_ULTRA_TARGET - self._balls_pocket_count(2)))]
+            else:
+                want = [(tier, max(2, 8 - have))]
             # CHEAP-TIER CUSHION (2026-08-05, the Kindle Road Meowth): the hunt's Ultras are
             # now RESERVED (battle_agent HUNT_BALL_RESERVE) — ride a handful of the cheapest
             # tier this shelf sells alongside them so any post-lap opportunistic catch has a
@@ -21000,6 +21011,46 @@ class Campaign:
                 log(f"   [roam] region-local candidate {name} skipped: {_ce}")
         log(f"   [roam] !! REGION-LOCAL RELOAD: no same-region ({region}) checkpoint bank on disk "
             f"past skip depth {skips} — declining")
+        return False
+
+    def _reload_labeled_checkpoint(self, tag):
+        """LABELED RELOAD (2026-08-05, THE FREE RETRY at Moltres): load the NEWEST on-disk
+        auto-checkpoint whose dir name carries `tag` (labels are the _ckpt_label reason
+        suffix — 'pre-moltres', 'moltres-leg', ...). Savestates restore FULL RAM, so a
+        failed legendary catch rewinds to the pre-press moment: fought/hide flags clear,
+        balls back in the bag, party topped up. Loads only the .state (live sidecars stay —
+        same campaign, same soul). Re-anchors the recent-good so the watchdog's escape
+        hatch agrees this moment is home. Returns True on a verified load; never raises."""
+        root = os.path.join(STATES_CAMPAIGN, "checkpoints")
+        try:
+            names = sorted((n for n in os.listdir(root)
+                            if os.path.isdir(os.path.join(root, n))
+                            and not n.endswith(".partial")
+                            and tag in n), reverse=True)
+        except Exception as _le:
+            log(f"   [ckpt] labeled reload '{tag}': checkpoint root unreadable ({_le}) — declining")
+            return False
+        for name in names:
+            state_p = os.path.join(root, name, CAMPAIGN_SAVE)
+            try:
+                if not os.path.exists(state_p):
+                    continue
+                with open(state_p, "rb") as f:
+                    self.b.load_state(f.read())
+                log(f"   [ckpt] !!!! LABELED RELOAD '{tag}': checkpoint '{name}' loaded — "
+                    f"resuming at that banked moment (LOUD)")
+                try:
+                    self._last_good_state = self.b.save_state()
+                    self._last_good_gain = self._gain_sig()
+                    self._last_good_map = tuple(tv.map_id(self.b))
+                except Exception:
+                    pass
+                self._wait_overworld()
+                self._save_campaign(f"post_labeled_reload_{tag}")
+                return True
+            except Exception as _ce:
+                log(f"   [ckpt] labeled candidate {name} skipped: {_ce}")
+        log(f"   [ckpt] !! LABELED RELOAD '{tag}': no matching checkpoint bank on disk — declining")
         return False
 
     MAX_BLACKOUT_RETRIES = 12     # per segment — a thin solo roster needs several Miguel attempts;

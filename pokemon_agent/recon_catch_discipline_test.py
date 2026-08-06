@@ -20,6 +20,16 @@ Decision table under test:
   3 consecutive throw aborts                                 -> CATCH-ABORT latch (no throws)
   abort latch / party-wipe risk                              -> catch_now RELEASED (voiced)
   last healthy mon + non-legendary target                    -> NO catch divert (fight/flee)
++ THE LEGENDARY CATCH DOCTRINE (2026-08-05, standing at Moltres with 6 Ultras):
+  legendary + status at full HP                              -> NOT ready (red zone only)
+  legendary chip                                             -> aims 15%, guards outrank
+  Surf/Water Pulse vs fire/flying                            -> excluded (overkill estimate)
+  no status on the legendary before a throw                  -> SLEEP RUNG (active / switch)
+  sleep casts / sleeper switch                               -> bounded, wipe-guarded
+  under-leveled bench vs a legendary                         -> chipper band admits it
+  catch failed (fainted / no balls / whiteout)               -> FREE RETRY: 'pre-<quarry>'
+                                                                checkpoint reload, bounded
+  hunt owed + thin pocket at a mapped Ultra shelf            -> war-chest restock (20 Ultras)
 """
 import json
 import os
@@ -294,6 +304,209 @@ def main():
           BA.catch_turn_gate(False, 1, 0, False, True) == "throw")
     check("2 healthy + non-hunt -> normal catch",
           BA.catch_turn_gate(False, 2, 0, False, False) == "throw")
+
+    print("== 17. LEGENDARY ready band: red zone only — a status never green-lights ==")
+    _SLP = 0x07                                   # any nonzero status1 (sleep turns)
+    check("legendary at 18% -> ready", BA.catch_ready(0.18, 0, True) is True)
+    check("legendary ASLEEP at full HP -> NOT ready (the full-HP Sing throw ban)",
+          BA.catch_ready(1.0, _SLP, True) is False)
+    check("legendary asleep at 50% -> still NOT ready", BA.catch_ready(0.50, _SLP, True) is False)
+    check("legendary asleep in the red zone -> ready", BA.catch_ready(0.19, _SLP, True) is True)
+    check("generic keeps the old law: status alone -> ready", BA.catch_ready(0.95, _SLP, False))
+    check("generic 45% no status -> ready", BA.catch_ready(0.45, 0, False))
+    check("generic 60% no status -> NOT ready", BA.catch_ready(0.60, 0, False) is False)
+    check("red-zone dials: ready 20% / chip 15%",
+          BA.CATCH_READY_FRAC_LEGEND == 0.20 and BA.CATCH_CHIP_TARGET_LEGEND == 0.15)
+
+    print("== 18. Moltres move table: Surf/Water Pulse excluded, Bite chips, guards stop ==")
+    # Blastoise L63 vs L50 Moltres (fire/flying) — the live matchup at the summit.
+    moltres = ["fire", "flying"]
+    surf = {"id": 57, "name": "Surf", "type": "water", "power": 95, "pp": 15}
+    wpulse = {"id": 352, "name": "Water Pulse", "type": "water", "power": 60, "pp": 20}
+    icebeam = {"id": 58, "name": "Ice Beam", "type": "ice", "power": 95, "pp": 10}
+    bite = {"id": 44, "name": "Bite", "type": "dark", "power": 60, "pp": 25}
+    check("Surf estimate is pure overkill (2x SE + STAB)",
+          pol.chip_hit_frac(surf, moltres, 63, 50, ["water", "water"]) > 1.0)
+    check("Water Pulse likewise excluded",
+          pol.chip_hit_frac(wpulse, moltres, 63, 50, ["water", "water"]) > 1.0)
+    check("Ice Beam is NOT the gentle option (2x flying x 0.5 fire = neutral, still hot)",
+          pol.chip_hit_frac(icebeam, moltres, 63, 50, ["water", "water"]) > pol.CHIP_KO_SAFETY)
+    i18, est18, safe18 = pol.chip_move_pick([surf, wpulse, icebeam, bite], moltres, 63, 50,
+                                            foe_hp_frac=1.0, our_types=["water", "water"])
+    check("the pick is Bite (lowest estimate), and it is safe at full HP",
+          i18 == 3 and safe18 is True, f"est={est18:.0%}")
+    _, _, safe18b = pol.chip_move_pick([surf, wpulse, icebeam, bite], moltres, 63, 50,
+                                       foe_hp_frac=0.33, our_types=["water", "water"])
+    check("near the band even Bite is refused — throw, never the KO", safe18b is False)
+
+    print("== 19. deep chip: legendary target 15% honored, generic stops high ==")
+    logs19 = []
+    ag19 = make_agent([(2, 6)], hunt_pending=True, logs=logs19)
+    foe19 = {"hp": 100}
+    weak = [{"id": 33, "name": "Tackle", "type": "normal", "power": 10, "pp": 30}]
+    _orig_rb19, _orig_ib19 = BA.st.read_battle, BA.st.in_battle
+    BA.st.read_battle = lambda b: {"ours": {"moves": list(weak), "level": 50,
+                                            "types": ["normal"]},
+                                   "enemy": {"hp": foe19["hp"], "maxhp": 100, "level": 50,
+                                             "types": ["normal"]}}
+    BA.st.in_battle = lambda b: True
+    ag19._fire_move = lambda i: foe19.__setitem__("hp", foe19["hp"] - 15)
+    try:
+        ag19._weaken_hp(target_frac=BA.CATCH_CHIP_TARGET_LEGEND, max_hits=BA.LEGEND_CHIP_HITS)
+        check("legendary chip drives into the red zone (<=15%)", foe19["hp"] <= 15,
+              f"ended at {foe19['hp']}%")
+        foe19["hp"] = 100
+        ag19._weaken_hp()                                  # generic defaults: 30% / 4 hits
+        check("generic chip stays bounded high (old behavior untouched)", foe19["hp"] >= 30,
+              f"ended at {foe19['hp']}%")
+    finally:
+        BA.st.read_battle, BA.st.in_battle = _orig_rb19, _orig_ib19
+
+    print("== 20. THE SLEEP RUNG: party sleeper found, casts bounded, wipe-guarded ==")
+    class PartyBridge:
+        """rd8/rd16 party struct stub: mons = {slot: (level, hp, maxhp)}."""
+        def __init__(self, cnt, mons):
+            self.cnt, self.mons = cnt, mons
+        def set_input_owner(self, o):
+            pass
+        def rd8(self, a):
+            if a == BA.ram.GPLAYER_PARTY_CNT:
+                return self.cnt
+            s, r = divmod(a - BA.ram.GPLAYER_PARTY, 100)
+            return self.mons.get(s, (0, 0, 0))[0] if r == 0x54 else 0
+        def rd16(self, a):
+            s, r = divmod(a - BA.ram.GPLAYER_PARTY, 100)
+            if r == 0x56:
+                return self.mons.get(s, (0, 0, 0))[1]
+            if r == 0x58:
+                return self.mons.get(s, (0, 0, 0))[2]
+            return 0
+    # party: Blastoise L63 (active), Lapras L25 at 46% with Sing, Fearow L38 fainted
+    logs20 = []
+    ag20 = BA.BattleAgent(PartyBridge(3, {0: (63, 200, 200), 1: (25, 60, 130),
+                                          2: (38, 0, 90)}),
+                          on_event=lambda *a, **k: None, render=lambda: None,
+                          log=logs20.append)
+    _orig_rpm, _orig_rps = BA.st.read_party_moves, BA.st.read_party_species
+    BA.st.read_party_moves = lambda b, s: [57, 47, 0, 0] if s == 1 else [64, 0, 0, 0]
+    BA.st.read_party_species = lambda b, s=0: 131
+    try:
+        check("party sleeper found: Lapras slot 1 carries Sing (47)",
+              ag20._party_sleeper_slot() == (1, 47))
+        # rung 1: active (Blastoise) has no sleep move -> the ONE sleeper switch
+        switched = []
+        ag20._switch_to_slot = lambda s, sp: (switched.append(s), "switched")[1]
+        ag20._legend_sleeps, ag20._legend_sleeper_tried = 0, False
+        st20 = {"enemy": {"status1": 0}, "ours": {"moves": list(BLASTOISE_L59[:1]),
+                                                  "species": 9}}
+        check("no sleep on the active -> sleeper SWITCH consumed the turn",
+              ag20._legend_sleep_rung(st20) is True and switched == [1])
+        check("the switch is one-shot (second ask throws instead)",
+              ag20._legend_sleep_rung(st20) is False)
+        # rung 2: active now HAS Sing -> fire it, budget counts
+        fired = []
+        ag20._fire_move = lambda i: fired.append(i)
+        sing_state = {"enemy": {"status1": 0},
+                      "ours": {"moves": [{"id": 47, "name": "Sing", "power": 0, "pp": 15}],
+                               "species": 131}}
+        check("active Sing fires (cast 1)", ag20._legend_sleep_rung(sing_state) is True
+              and fired == [0] and ag20._legend_sleeps == 1)
+        ag20._legend_sleeps = BA.LEGEND_RESLEEP_MAX
+        check("cast budget spent -> throw instead", ag20._legend_sleep_rung(sing_state) is False)
+        ag20._legend_sleeps = 0
+        check("foe already statused -> rung stands down (go throw)",
+              ag20._legend_sleep_rung({"enemy": {"status1": 0x07},
+                                       "ours": sing_state["ours"]}) is False)
+        # wipe guard: 1 healthy mon -> no sleeper switch, ever
+        ag21 = BA.BattleAgent(PartyBridge(3, {0: (63, 200, 200), 1: (25, 0, 130),
+                                              2: (38, 0, 90)}),
+                              on_event=lambda *a, **k: None, render=lambda: None,
+                              log=logs20.append)
+        ag21._legend_sleeps, ag21._legend_sleeper_tried = 0, False
+        ag21._switch_to_slot = lambda s, sp: "switched"
+        check("party too thin (1 healthy) -> switch refused",
+              ag21._legend_sleep_rung(st20) is False)
+    finally:
+        BA.st.read_party_moves, BA.st.read_party_species = _orig_rpm, _orig_rps
+
+    print("== 21. chipper band vs a legendary: the under-leveled bench qualifies ==")
+    ag22 = BA.BattleAgent(PartyBridge(4, {0: (63, 200, 200), 1: (38, 90, 90),
+                                          2: (25, 60, 130), 3: (63, 180, 200)}),
+                          on_event=lambda *a, **k: None, render=lambda: None,
+                          log=[].append)
+    check("generic band vs L50: nobody fits (bench under-levels the foe)",
+          ag22._catch_chipper_slot(50) is None)
+    check("legendary band admits the bench, prefers the strongest under the ceiling",
+          ag22._catch_chipper_slot(50, legend=True) == 1)
+    check("a 13-over teammate stays excluded even for a legendary (ceiling holds)",
+          ag22._catch_chipper_slot(50, legend=True) != 3)
+
+    print("== 22. THE FREE RETRY: failed catch reloads 'pre-<quarry>', bounded ==")
+    import legendary_strikes as LS
+    hunt = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    hunt.b = object()
+    hunt._catch_retries = 0
+    logs22 = []
+    hunt.log = logs22.append
+    reloads = []
+    hunt.camp = types.SimpleNamespace(
+        _reload_labeled_checkpoint=lambda tag: (reloads.append(tag), True)[1],
+        on_event=lambda *a, **k: None)
+    _orig_owns, _orig_flag = LS.ram.pokedex_owns, LS.fm.read_flag
+    world = {"owned": False, "fought": False}
+    LS.ram.pokedex_owns = lambda b, sp: world["owned"]
+    LS.fm.read_flag = lambda b, f: world["fought"]
+    try:
+        check("encounter still live -> nothing to retry", hunt._retry_failed_catch() is False)
+        world["fought"] = True
+        check("fainted/failed -> RELOAD 'pre-moltres', budget counts",
+              hunt._retry_failed_catch() is True and reloads == ["pre-moltres"]
+              and hunt._catch_retries == 1)
+        world["owned"] = True
+        check("caught -> never a retry (owned outranks the fought flag)",
+              hunt._retry_failed_catch() is False)
+        world["owned"] = False
+        hunt._catch_retries = hunt.LEGEND_CATCH_RETRIES
+        check("retry budget spent -> accept 'battled', LOUD",
+              hunt._retry_failed_catch() is False
+              and any("retry budget is spent" in l for l in logs22))
+        hunt._catch_retries = 0
+        hunt.camp._reload_labeled_checkpoint = lambda tag: False
+        check("no checkpoint on disk -> honest decline",
+              hunt._retry_failed_catch() is False and hunt._catch_retries == 0)
+    finally:
+        LS.ram.pokedex_owns, LS.fm.read_flag = _orig_owns, _orig_flag
+
+    print("== 23. LABELED RELOAD picks the NEWEST 'pre-moltres' bank; war-chest dial ==")
+    import campaign as C
+    check("HUNT_ULTRA_TARGET is the healthy stack (20)", C.HUNT_ULTRA_TARGET == 20)
+    with tempfile.TemporaryDirectory() as td:
+        _orig_sc = C.STATES_CAMPAIGN
+        C.STATES_CAMPAIGN = td
+        try:
+            root = os.path.join(td, "checkpoints")
+            for name, body in (("20260805_170000_mt-ember_8b_9h00m_pre-moltres", b"OLD"),
+                               ("20260805_171500_mt-ember_8b_9h15m_pre-moltres", b"NEW"),
+                               ("20260805_171600_mt-ember_8b_9h16m_moltres-leg", b"LEG")):
+                os.makedirs(os.path.join(root, name), exist_ok=True)
+                with open(os.path.join(root, name, C.CAMPAIGN_SAVE), "wb") as f:
+                    f.write(body)
+            camp = C.Campaign.__new__(C.Campaign)
+            loaded = []
+            camp.b = types.SimpleNamespace(load_state=lambda by: loaded.append(by),
+                                           save_state=lambda: b"resnap")
+            camp._gain_sig = lambda: 0
+            camp._wait_overworld = lambda *a, **k: True
+            camp._save_campaign = lambda *a, **k: True
+            check("newest 'pre-moltres' bank wins (not the older one, not the leg)",
+                  camp._reload_labeled_checkpoint("pre-moltres") is True
+                  and loaded == [b"NEW"])
+            check("re-anchored the recent-good to the reloaded moment",
+                  camp._last_good_state == b"resnap")
+            check("a tag with no banks declines honestly",
+                  camp._reload_labeled_checkpoint("pre-zapdos") is False)
+        finally:
+            C.STATES_CAMPAIGN = _orig_sc
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")

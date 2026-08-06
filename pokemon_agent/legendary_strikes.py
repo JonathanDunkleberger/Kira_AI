@@ -134,10 +134,53 @@ class LegendaryHunt(GiovanniGym):
     Subclasses set QUARRY and implement run()."""
 
     QUARRY = None
+    # THE FREE RETRY (2026-08-05, standing at Moltres with 6 Ultras): a failed catch —
+    # fainted quarry, balls exhausted, even a whiteout — reloads the 'pre-<quarry>'
+    # checkpoint banked seconds before the press. Savestates restore FULL RAM: the fought/
+    # hide flags read clear again, the spent balls are back in the bag, and she is standing
+    # topped-up in front of the bird. Each reload is a fresh 6-ball, sleep-assisted attempt;
+    # bounded so a truly cursed RNG night still ends (LOUD, and the errand books 'battled').
+    LEGEND_CATCH_RETRIES = 4
 
     def __init__(self, camp, log, dbg_dir=None):
         super().__init__(camp, log, dbg_dir)
         self.deadline = time.time() + 1500
+        self._catch_retries = 0
+
+    def _retry_failed_catch(self):
+        """After a quarry battle resolves: True = the pre-quarry checkpoint was RELOADED (the
+        caller loops into a fresh attempt), False = nothing to retry (caught / encounter still
+        live / budget spent / no checkpoint). Never raises — a reload fault reads as 'accept
+        the outcome' (the errand's bounded attempts own any further recovery)."""
+        q = self.QUARRY or {}
+        try:
+            if ram.pokedex_owns(self.b, q["species"]) is True:
+                return False                                   # CAUGHT — nothing to retry
+            if not (fm.read_flag(self.b, q["fought"]) or fm.read_flag(self.b, q["hide"])):
+                return False                                   # encounter still live/unspent
+        except Exception:
+            return False
+        name = (q.get("name") or "quarry").lower()
+        if self._catch_retries >= self.LEGEND_CATCH_RETRIES:
+            self.log(f"   [hunt] !! {name} catch FAILED and the retry budget is spent "
+                     f"({self._catch_retries}/{self.LEGEND_CATCH_RETRIES}) — accepting "
+                     f"'battled' (LOUD; the ball war-chest restock is the road back)")
+            return False
+        if not self.camp._reload_labeled_checkpoint(f"pre-{name}"):
+            self.log(f"   [hunt] !! {name} catch failed but no 'pre-{name}' checkpoint "
+                     f"reloadable — accepting the outcome (LOUD)")
+            return False
+        self._catch_retries += 1
+        self.log(f"   [hunt] !!!! FREE RETRY {self._catch_retries}/{self.LEGEND_CATCH_RETRIES}: "
+                 f"'pre-{name}' reloaded — fought flag clear, balls restored, standing at the "
+                 f"{name} again (LOUD)")
+        try:
+            self.camp.on_event(f"no. we are NOT losing {q.get('name', 'it')} like that. "
+                               f"rewinding to right before the fight — fresh balls, fresh plan.",
+                               kind="legendary", tier=3)
+        except Exception:
+            pass
+        return True
 
     # ── outcome truth ────────────────────────────────────────────────────────────────────
     def spent(self):
@@ -282,8 +325,13 @@ class LegendaryHunt(GiovanniGym):
                                f"we are NOT blowing this.", kind="legendary", tier=3)
         except Exception:
             pass
-        for _att in range(4):
+        for _att in range(4 + self.LEGEND_CATCH_RETRIES):
             if self.spent():
+                # spent-but-not-caught: offer THE FREE RETRY before accepting 'battled'
+                # (covers a resume landing here post-battle too — the reload restores the
+                # un-fought world and the loop presses again).
+                if self._retry_failed_catch():
+                    continue
                 return True
             if time.time() > self.deadline:
                 return False
@@ -304,6 +352,10 @@ class LegendaryHunt(GiovanniGym):
             if self.fight_open():
                 self.fight()
                 self.drain()
+                # the battle resolved — a failed catch (fainted / out of balls / whiteout)
+                # reloads 'pre-<quarry>' and loops into a fresh attempt (bounded).
+                if self._retry_failed_catch():
+                    continue
                 return True
         return self.spent()
 

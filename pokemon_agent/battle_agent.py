@@ -116,6 +116,36 @@ def catch_order_release(res, abort_latched, healthy_left):
     return (res in ("catch_abort", "party_risk")
             or bool(abort_latched) or healthy_left <= 1)
 
+
+# ── THE LEGENDARY CATCH DOCTRINE (2026-08-05, standing at Moltres with 6 Ultras) ──────────────────
+# The generic weaken-then-throw discipline is tuned for trash dex-catches: 'any status OR <=50%
+# HP -> throw'. On a 3/255-base-rate legendary that wastes the whole thin ball stock — at 50% HP
+# an Ultra lands ~2%, and 'status = ready' meant one Sing at FULL HP opened the throws. The
+# legendary band (divert_reason == 'legendary') overrides three dials, nothing else:
+#   RED ZONE   — throw-ready only at <= CATCH_READY_FRAC_LEGEND HP; a status is a MULTIPLIER on
+#                top, never a substitute for the chip (Jonny: 'LOW HP before throwing any ball').
+#   DEEP CHIP  — the chip loop aims CATCH_CHIP_TARGET_LEGEND, with a bigger hit budget (the
+#                faint-guards — measured-damage 1.6x + est-vs-current-HP — still outrank the
+#                target: she stops ABOVE it rather than risk the KO; a 33% throw beats a corpse).
+#   SLEEP RUNG — before every throw, if the foe carries NO status: fire a sleep move (x2 catch
+#                rate in Gen 3) from the ACTIVE mon, or switch ONCE to a party sleeper (Lapras'
+#                Sing) — bounded by LEGEND_RESLEEP_MAX total casts, refused when the party is
+#                too thin to absorb the switch (the wipe outranks the multiplier).
+CATCH_READY_FRAC_LEGEND = float(os.getenv("POKEMON_CATCH_READY_LEGEND", "0.20"))
+CATCH_CHIP_TARGET_LEGEND = float(os.getenv("POKEMON_CATCH_CHIP_LEGEND", "0.15"))
+LEGEND_RESLEEP_MAX = 4        # total sleep casts per encounter (Sing is 55%-acc — misses priced in)
+LEGEND_CHIP_HITS = 10         # deep-chip swing budget (each swing re-guarded; generic stays at 4)
+
+
+def catch_ready(hp_frac, status1, legend):
+    """PURE throw-ready rule (synthetic-testable). Generic targets: ANY status or the 50% band
+    (unchanged). Legendary targets: the RED ZONE alone decides — a status boosts the throw it
+    does NOT green-light one (the full-HP Sing-then-throw ball burn)."""
+    if legend:
+        return hp_frac <= CATCH_READY_FRAC_LEGEND
+    return bool(status1) or hp_frac <= BattleAgent.CATCH_READY_FRAC
+
+
 # SELF-DESTRUCT FAMILY (FireRed national-dex ids) — foes that can NUKE-TRADE our active: Self-
 # Destruct/Explosion one-shots even a dominant lead (koga_run3 2026-07-07: Koga's L37 Koffing
 # detonated on Venusaur L54 turn one; the bench then fed itself to Muk/Weezing — full wipe). The
@@ -1416,11 +1446,17 @@ class BattleAgent:
     # this margin ABOVE the foe — close enough that its gentlest move chips instead of one-shots.
     CATCH_CHIPPER_MAX_OVER = int(os.getenv("POKEMON_CATCH_CHIPPER_OVER", "9"))
 
-    def _catch_chipper_slot(self, foe_level):
+    def _catch_chipper_slot(self, foe_level, legend=False):
         """Best party slot to do the CHIPPING when the lead would one-shot the catch target: alive,
         >40% HP (it will eat one wild hit during the switch turn), level above the foe (it must win
         the trade) but within CATCH_CHIPPER_MAX_OVER of it (its hits stay survivable). Prefers the
-        strongest in-band teammate. None = nobody fits (caller keeps the old full-HP-throw path)."""
+        strongest in-band teammate. None = nobody fits (caller keeps the old full-HP-throw path).
+
+        LEGENDARY BAND (2026-08-05, Moltres): the generic band demands foe_level < lv — but a
+        legendary OUT-levels the whole bench (L50 vs Lapras L25 / Fearow L38), so nobody ever
+        qualified and the flow fell to the full-HP early throw. Against a legendary an UNDER-
+        leveled teammate is the gentle chipper by definition (level-ratio² shrinks its hits),
+        so the band drops the lower bound and keeps only the ceiling + health gate."""
         if not foe_level:
             return None
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
@@ -1431,9 +1467,79 @@ class BattleAgent:
             if hp <= 0 or (maxhp and hp / maxhp <= 0.40):
                 continue
             lv = self.b.rd8(base + 0x54)
-            if foe_level < lv <= foe_level + self.CATCH_CHIPPER_MAX_OVER and lv > best_lv:
+            floor_ok = legend or foe_level < lv
+            if floor_ok and lv <= foe_level + self.CATCH_CHIPPER_MAX_OVER and lv > best_lv:
                 best, best_lv = s, lv
         return best
+
+    def _party_sleeper_slot(self):
+        """Party slot (1..5, never the active seat 0) holding a usable SLEEP move — the Sing/
+        Hypnosis carrier the LEGENDARY SLEEP RUNG may field. Gates: alive and >=35% HP (it
+        eats the foe's free hit during the switch turn). Moves via the decrypted substruct
+        read (st.read_party_moves — the same read the HM checks trust). Returns (slot,
+        move_id) or (None, None); any read fault reads as 'no sleeper' (fail-closed: a flaky
+        decrypt must never trigger a switch)."""
+        try:
+            cnt = min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)
+            for s in range(1, cnt):
+                base = ram.GPLAYER_PARTY + s * 100
+                hp, maxhp = self.b.rd16(base + 0x56), self.b.rd16(base + 0x58)
+                if hp <= 0 or (maxhp and hp / maxhp < 0.35):
+                    continue
+                mid = next((m for m in st.read_party_moves(self.b, s)
+                            if m in self._SLEEP_MOVES), None)
+                if mid:
+                    return s, mid
+        except Exception:
+            pass
+        return None, None
+
+    def _legend_sleep_rung(self, state):
+        """THE SLEEP RUNG of the legendary doctrine — runs before EVERY throw. Foe carries no
+        status -> fire a sleep move from the ACTIVE mon (covers re-sleeping after it wakes
+        mid-throws), else switch ONCE to the party's sleeper (Lapras' Sing) so the next loop
+        iteration fires it. Bounded: LEGEND_RESLEEP_MAX total casts, one switch attempt, and
+        the switch is refused when <2 healthy mons stand (the wipe outranks the x2). Returns
+        True when it consumed the turn (caller `continue`s), False -> just throw."""
+        try:
+            foe = state["enemy"]
+            if foe.get("status1", 0) or foe.get("asleep"):
+                return False                       # status up — it multiplies the throw; go throw
+            if getattr(self, "_legend_sleeps", 0) >= LEGEND_RESLEEP_MAX:
+                return False
+            moves = state["ours"]["moves"]
+            si = next((i for i, m in enumerate(moves)
+                       if m.get("id", 0) in self._SLEEP_MOVES and m.get("pp", 0) > 0), None)
+            if si is not None:
+                self._legend_sleeps = getattr(self, "_legend_sleeps", 0) + 1
+                self.log(f"   [catch] LEGENDARY SLEEP — {moves[si].get('name', f'slot {si}')} "
+                         f"(x2 catch rate; cast {self._legend_sleeps}/{LEGEND_RESLEEP_MAX})")
+                self._fire_move(si)
+                return True
+            if getattr(self, "_legend_sleeper_tried", False):
+                return False                       # one switch attempt per encounter
+            self._legend_sleeper_tried = True
+            if self._healthy_party_count() < 2:
+                self.log("   [catch] LEGENDARY SLEEP — party too thin for a sleeper switch "
+                         "(<2 healthy); throwing without the multiplier")
+                return False
+            slot, mid = self._party_sleeper_slot()
+            if slot is None:
+                self.log("   [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; "
+                         "the red-zone chip + balls carry it alone")
+                return False
+            _sl_nm = st.SPECIES_NAME.get(st.read_party_species(self.b, slot), "a teammate")
+            self.log(f"   [catch] LEGENDARY SLEEP — fielding slot {slot} ({_sl_nm}) to cast "
+                     f"move #{mid}; the ball math doubles while it sleeps")
+            if self._switch_to_slot(slot, state["ours"].get("species")) == "switched":
+                self.emit(f"{_sl_nm}, you're on — sing it to sleep. that doubles my odds.",
+                          beat=True, tier=2)
+                return True                        # next loop fires the sleep move
+            self.log("   [catch] LEGENDARY SLEEP — sleeper switch didn't confirm; "
+                     "throwing without the multiplier (fail-safe)")
+        except Exception:
+            pass
+        return False
 
     def _can_weaken(self, state):
         """True iff she has a move that can actually SOFTEN the foe — a usable status move OR a usable
@@ -1582,6 +1688,13 @@ class BattleAgent:
         self._catching = True              # F-7(c): KOing a catch target is a FAILURE — the
         #                                    certain-win beat stays silent for this whole flow
         self._skip_streak = set()
+        # THE LEGENDARY CATCH DOCTRINE (2026-08-05): red-zone ready band, deep chip target,
+        # sleep rung before every throw. Per-encounter budgets reset here.
+        _legend = (divert_reason == "legendary")
+        self._legend_sleeps = 0
+        self._legend_sleeper_tried = False
+        _chip_tgt = CATCH_CHIP_TARGET_LEGEND if _legend else None
+        _chip_hits = LEGEND_CHIP_HITS if _legend else 4
         self._reach_first_menu(t0, max_seconds)
         self._prev = st.read_battle(self.b)
         p0 = self.b.rd8(ram.GPLAYER_PARTY_CNT)
@@ -1605,7 +1718,10 @@ class BattleAgent:
                 self.log(f"   [catch] target={st.SPECIES_NAME.get(_foe_sp0, f'#{_foe_sp0}')} "
                          f"L{_rb0['enemy'].get('level', '?')} hp={_hp_frac(_rb0['enemy']):.0%} "
                          f"status={_decode_status(_rb0['enemy'].get('status1', 0)) or 'none'} "
-                         f"balls={self._ball_count()} pref={ball_pref}")
+                         f"balls={self._ball_count()} pref={ball_pref}"
+                         + (f" LEGENDARY DOCTRINE (ready<={CATCH_READY_FRAC_LEGEND:.0%}, "
+                            f"chip->{CATCH_CHIP_TARGET_LEGEND:.0%}, sleep rung armed)"
+                            if _legend else ""))
             if _foe_sp0 in self._FLEES_ON_FREE_TURN:
                 weaken = False
                 _fname = st.SPECIES_NAME.get(_foe_sp0, "this one")
@@ -1739,8 +1855,10 @@ class BattleAgent:
                 # ALREADY WEAK / STATUSED -> THROW NOW (weaken-then-throw discipline): any
                 # status multiplies the Gen-3 catch rate, and at/below the ready band another
                 # swing only risks the KO. Verified live RAM read (doubles-aware accessor).
+                # LEGENDARY: the RED ZONE alone decides (catch_ready) — a status never
+                # green-lights a near-full-HP throw on a 3/255 base rate.
                 _ef = _hp_frac(state["enemy"])
-                if state["enemy"].get("status1", 0) or _ef <= self.CATCH_READY_FRAC:
+                if catch_ready(_ef, state["enemy"].get("status1", 0), _legend):
                     self.log(f"   [catch] target ready — hp={_ef:.0%} status="
                              f"{_decode_status(state['enemy'].get('status1', 0)) or 'none'} "
                              f"— THROWING (no more weakening)")
@@ -1766,7 +1884,7 @@ class BattleAgent:
                 # here — they take the ball-on-sight path above).
                 if not chipper_tried and not state["enemy"].get("asleep"):
                     chipper_tried = True
-                    ch = self._catch_chipper_slot(state["enemy"].get("level"))
+                    ch = self._catch_chipper_slot(state["enemy"].get("level"), legend=_legend)
                     if ch is not None:
                         _ch_nm = st.SPECIES_NAME.get(st.read_party_species(self.b, ch), "a teammate")
                         _my_nm = st.SPECIES_NAME.get(state["ours"].get("species"), "my ace")
@@ -1775,7 +1893,8 @@ class BattleAgent:
                         if self._switch_to_slot(ch, state["ours"].get("species")) == "switched":
                             self.emit(f"{_my_nm} hits way too hard for this — {_ch_nm}, you're up. "
                                       f"soften it, don't finish it.", beat=True, tier=1)
-                            self._weaken_hp()            # damage-aware chip with the close-level mon
+                            # damage-aware chip with the fielded mon (legendary: red-zone target)
+                            self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits)
                             softened = True
                             continue
                         self.log("   [engine] catch: chipper switch didn't confirm — falling back to "
@@ -1809,8 +1928,15 @@ class BattleAgent:
                 if wi is not None:
                     self.emit("let me wear it down first", beat=True)
                     self._fire_move(wi)
-                self._weaken_hp()                    # chip HP into the catchable band (faint-guarded)
+                # chip HP into the catchable band (faint-guarded; legendary: red-zone target)
+                self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits)
                 softened = True
+                continue
+            # THE SLEEP RUNG (legendary doctrine): before EVERY throw, a status-free legendary
+            # gets a sleep cast (or the one sleeper switch) — x2 on the ball math, and it
+            # covers the wake-up mid-throws. Bounded inside the rung; False -> just throw.
+            if _legend and state is not None and st.in_battle(self.b) \
+                    and self._legend_sleep_rung(state):
                 continue
             res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))),
                                   pref=ball_pref, allow_master=allow_master)

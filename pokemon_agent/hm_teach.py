@@ -932,7 +932,11 @@ def tm_compatible(b, tm_no, species):
 
 # expendable move classes for the forget choice: pure-status/no-power utility first, never the
 # mon's strongest damaging move.
-_PRECIOUS = {73}                              # leech seed etc. — never auto-forget
+# SLEEP MOVES ARE PRECIOUS (2026-08-05, the Moltres catch doctrine): asleep = x2 catch rate in
+# Gen 3 — the single biggest legendary-catch lever the party carries. They are 0-power, so the
+# 'pure status first' tier was EXACTLY the auto-forget's favorite snack (Lapras' Strength teach
+# likely ate Sing this way). Never again: Sing/Sleep Powder/Hypnosis/Lovely Kiss/Spore protected.
+_PRECIOUS = {73, 47, 79, 95, 142, 147}        # leech seed + the sleep family — never auto-forget
 # Field / battle-useless fillers — prefer these when a 4-move mon must forget for a bag TM.
 _FORGET_FIRST = {100}                         # Teleport (Abra's only move until Kadabra)
 
