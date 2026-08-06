@@ -1,16 +1,23 @@
-resume_marathon 20260805_175929  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260805_180943  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 == git pull ==
-Already up to date.
+From https://github.com/JonathanDunkleberger/Kira_AI
+   9c8a6e8..710ea44  main       -> origin/main
+Updating 9c8a6e8..710ea44
+Fast-forward
+ pokemon_agent/legendary_strikes.py           | 174 +++++++++++++++++++++++----
+ pokemon_agent/recon_catch_discipline_test.py | 101 ++++++++++++++--
+ 2 files changed, 240 insertions(+), 35 deletions(-)
 
-running commit: f7c39a0 report(soak): 20260805_175447 inventory/rescue (auto from resume_marathon.ps1)
+running commit: 710ea44 THE PP RESTORE LEG (Jonny: 'restore Blastoise's PP so she can Bite repeatedly'): Center heal + re-climb + fresh full-tank pre-bank
 == crash forensics ==
 == logs\debug listing (newest 25) ==
 
 Name                            LastWriteTime        Length
 ----                            -------------        ------
+console_2026-08-05_17-59-37.log 8/5/2026 6:01:05 PM    4357
+latest.log                      8/5/2026 6:01:05 PM    4357
 console_2026-08-05_17-54-55.log 8/5/2026 5:59:18 PM   40821
-latest.log                      8/5/2026 5:59:18 PM   40821
 playlive_faulthandler.log       8/5/2026 5:55:49 PM   13970
 console_2026-08-05_17-40-03.log 8/5/2026 5:44:05 PM   33101
 console_2026-08-05_17-30-08.log 8/5/2026 5:33:22 PM   29768
@@ -33,11 +40,10 @@ console_2026-08-04_12-24-55.log 8/4/2026 1:20:29 PM  470539
 console_2026-08-04_11-52-25.log 8/4/2026 12:23:47 PM 280913
 console_2026-08-04_10-58-46.log 8/4/2026 11:25:17 AM 249879
 console_2026-08-04_10-22-30.log 8/4/2026 10:58:38 AM 327196
-console_2026-08-04_09-50-32.log 8/4/2026 10:01:00 AM 102883
 
 
 
-tailed newest debug log: console_2026-08-05_17-54-55.log
+tailed newest debug log: console_2026-08-05_17-59-37.log
 tailed supervisor log: playlive_2026-08-05_17-55-48.log
 tailed supervisor log: playlive_2026-08-05_17-40-57.log
 extracted engine forensics -> engine_tail.log
@@ -224,30 +230,3 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 >> no PROMOTE_TARGET.txt -- defaulting to CANONICAL launch (canonical save as-is).
 == push soak report (this can take ~30s; console stays quiet on purpose) ==
 == push soak report ==
-[main 9c8a6e8] report(soak): 20260805_175929 inventory/rescue (auto from resume_marathon.ps1)
- 10 files changed, 1422 insertions(+)
- create mode 100644 docs/soak-reports/20260805_175929/canonical_health.json
- create mode 100644 docs/soak-reports/20260805_175929/engine_tail.log
- create mode 100644 docs/soak-reports/20260805_175929/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260805_175929/resume_marathon.log
- create mode 100644 docs/soak-reports/20260805_175929/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260805_175929/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260805_175929/tail_console_2026-08-05_17-54-55.log
- create mode 100644 docs/soak-reports/20260805_175929/tail_supervisor_playlive_2026-08-05_17-40-57.log
- create mode 100644 docs/soak-reports/20260805_175929/tail_supervisor_playlive_2026-08-05_17-55-48.log
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:436 char:5
-+     git push origin main
-+     ~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   f7c39a0..9c8a6e8  main -> main
-
-push soak report finished (see log if git complained).
-== launching bot (window 1) ==
-    expect: a PowerShell titled roughly 'python run.py' + browser dashboard at :8766
-waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
-    still waiting for bot... (15s)
-    still waiting for bot... (30s)
-    still waiting for bot... (45s)
