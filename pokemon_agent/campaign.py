@@ -16984,6 +16984,31 @@ class Campaign:
         except Exception as _e:
             log(f"   [hunt] pp-restore latch save skipped: {_e}")
 
+    def pp_restore_unlatch(self, key):
+        """Clear the one-shot latch for `key` (2026-08-06 LIVE, soak 082259: latch burned
+        with Bite at 0 PP → she engaged Skull-Bash-only → froze/fled the bird in a loop).
+        EMPTY ACE TANK outranks the latch — a Center trip must be allowed again. Never raises."""
+        import json as _json
+        try:
+            data = {}
+            try:
+                with open(PP_RESTORE_JSON, encoding="utf-8") as f:
+                    data = _json.load(f) or {}
+            except Exception:
+                pass
+            k = str(key).lower()
+            if k not in data:
+                return
+            data.pop(k, None)
+            tmp = PP_RESTORE_JSON + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                _json.dump(data, f)
+            os.replace(tmp, PP_RESTORE_JSON)
+            log(f"   [hunt] !! pp-restore latch CLEARED for '{k}' — empty ace tank overrides "
+                f"the one-shot (Center trip allowed again) (LOUD)")
+        except Exception as _e:
+            log(f"   [hunt] pp-restore unlatch skipped: {_e}")
+
     def _stray_menu_kind(self):
         """Which stray menu owns the screen right now — 'start' (gTasks readback: the START
         menu runs UNDER CB2_Overworld, so neither cb2 truth nor the bag/party pixel probes

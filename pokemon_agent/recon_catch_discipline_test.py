@@ -989,11 +989,16 @@ def main():
         LS.pst.move_info_full = _orig_mif32
 
     print("== 33. THE PP RESTORE LEG: threshold, arming, budget, descent routing ==")
-    burned33 = []
+    burned33, unlatched33 = [], []
     def _mk_camp33(latched=False, **kw):
-        return types.SimpleNamespace(on_event=lambda *a, **k: None,
-                                     pp_restore_latched=lambda k: latched,
-                                     pp_restore_latch=lambda k: burned33.append(k), **kw)
+        state = {"latched": bool(latched)}
+        return types.SimpleNamespace(
+            on_event=lambda *a, **k: None,
+            pp_restore_latched=lambda k: state["latched"],
+            pp_restore_latch=lambda k: (burned33.append(k), state.__setitem__("latched", True)),
+            pp_restore_unlatch=lambda k: (unlatched33.append(k),
+                                         state.__setitem__("latched", False)),
+            **kw)
     def _mk_hunt33(cls, audit, camp=None):
         h = cls.__new__(cls)
         h.b = object()
@@ -1067,6 +1072,15 @@ def main():
           h34._maybe_arm_pp_restore() is False
           and not getattr(h34, "_pp_restore_mode", False)
           and any("ALREADY BURNED" in l and "ENGAGING NOW" in l for l in logs33))
+    # empty ace tank overrides burned latch (soak 082259 Skull-Bash-only freeze)
+    logs33.clear(); unlatched33.clear(); burned33.clear()
+    h34empty = _mk_hunt33(LS.MoltresHunt, (True, 0, 29), camp=_mk_camp33(latched=True))
+    _armed_empty = h34empty._maybe_arm_pp_restore()
+    check("burned latch + EMPTY ace tank -> unlatch + Center armed (LOUD)",
+          _armed_empty is True
+          and unlatched33 == ["moltres"]
+          and any("EMPTY ACE TANK" in l for l in logs33)
+          and any("PP RESTORE LEG ARMED" in l for l in logs33))
     # (b) standing at the bird with a usable chip tank -> engage (no Center detour).
     # Ace-empty tanks are a SEPARATE law (b3) — they must Center first.
     _orig_coords34 = LS.tv.coords

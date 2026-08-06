@@ -350,11 +350,31 @@ class LegendaryHunt(GiovanniGym):
             latched = bool(self.camp.pp_restore_latched(key))
         except Exception:
             latched = False
-        if latched:
+        # EMPTY ACE TANK (2026-08-06 LIVE, soak 082259): Bite 0 / only Skull Bash (OHKO) —
+        # burned latch forced ENGAGE → OVERKILL → hard-floor refuse → freeze/flee loop until
+        # retry budget died. Zero safe chip swings ALWAYS outranks the one-shot latch.
+        _empty_ace = ace_safe < 1
+        if latched and not _empty_ace:
             self.log(f"   [hunt] !!!! chip PP THIN (ace {ace_safe}, party {party_safe}) but "
                      f"the one-shot restore latch for '{key}' is ALREADY BURNED this campaign "
                      f"— ENGAGING NOW in LADDER MODE, no more retreats (LOUD)")
             return False
+        if latched and _empty_ace:
+            self.log(f"   [hunt] !!!! EMPTY ACE TANK (ace safe={ace_safe}) overrides burned "
+                     f"restore latch for '{key}' — clearing latch, Center trip REQUIRED "
+                     f"(Skull Bash-only engages spend the bird) (LOUD)")
+            try:
+                self.camp.pp_restore_unlatch(key)
+            except Exception:
+                pass
+            # Also clear this-run / fail budget so the forced trip can arm.
+            self._pp_restore_armed_once = False
+            try:
+                fails = getattr(self.camp, "_pp_restore_fails", None)
+                if isinstance(fails, dict):
+                    fails[key] = 0
+            except Exception:
+                pass
         fails = getattr(self.camp, "_pp_restore_fails", None) or {}
         if not self.CENTER_LEG_WIRED:
             self.log(f"   [hunt] !! chip PP THIN (ace {ace_safe} safe swing(s), party "
@@ -362,7 +382,8 @@ class LegendaryHunt(GiovanniGym):
                      f"and no Center leg is wired for {key} — engaging in LADDER MODE "
                      f"(bench chipper carries the chip) (LOUD)")
             return False
-        if getattr(self, "_pp_restore_armed_once", False) or fails.get(key, 0) >= 2:
+        if (not _empty_ace and (
+                getattr(self, "_pp_restore_armed_once", False) or fails.get(key, 0) >= 2)):
             self.log(f"   [hunt] !! chip PP still THIN (ace {ace_safe}, party {party_safe}) "
                      f"but the restore budget is spent (this-run="
                      f"{getattr(self, '_pp_restore_armed_once', False)}, "
@@ -374,8 +395,9 @@ class LegendaryHunt(GiovanniGym):
             self.camp.pp_restore_latch(key)   # burn the one-shot NOW: armed = consumed
         except Exception:
             pass
-        self.log(f"   [hunt] !!!! PP RESTORE LEG ARMED — routing to heal (FIRST AND ONLY "
-                 f"time this campaign; latch burned + persisted). Ace has {ace_safe} safe "
+        self.log(f"   [hunt] !!!! PP RESTORE LEG ARMED — routing to heal"
+                 f"{' (EMPTY-TANK FORCE)' if _empty_ace else ' (FIRST AND ONLY time this campaign)'}"
+                 f"; latch burned + persisted). Ace has {ace_safe} safe "
                  f"chip swing(s) (min {self.ACE_SAFE_PP_MIN}), party {party_safe} (min "
                  f"{self.PARTY_SAFE_SWINGS_MIN}): descending to the Center for the free "
                  f"full-PP heal, then re-climbing to a FRESH 'pre-{key}' bank — every retry "
@@ -599,6 +621,13 @@ class LegendaryHunt(GiovanniGym):
                 except Exception:
                     pass
                 if not self.spent():
+                    # soak 082259: soft-reload with Bite=0 re-pressed immediately → same
+                    # OVERKILL freeze loop. Empty tank must Center BEFORE the next A.
+                    if self._doorstep_or_restore():
+                        self.log(f"   [hunt] !! {q.get('name', 'quarry')} still LIVE but "
+                                 f"chip tank empty/thin after fight return — Center BEFORE "
+                                 f"re-press (LOUD)")
+                        return False
                     self.log(f"   [hunt] !! {q.get('name', 'quarry')} still LIVE after the "
                              f"fight return — re-pressing (soft-reload / aborted catch) (LOUD)")
                     continue
