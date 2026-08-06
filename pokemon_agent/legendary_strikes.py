@@ -319,12 +319,61 @@ class LegendaryHunt(GiovanniGym):
                        f"(vs {q.get('name', 'quarry')} {'/'.join(q_types) or '?'} L{q_level})")
             if not any_pp:
                 self.log("   [hunt] !! CHIP-PP AUDIT: ZERO damaging PP on the whole party — "
-                         "the encounter will be sleep+throw only (no Ether rail exists; a "
-                         "Center visit restores PP but costs the summit) (LOUD)")
+                         "Ether rail / Center restore must fire before the press (LOUD)")
             return any_pp, ace_safe, party_safe
         except Exception as e:
             self.log(f"   [hunt] chip-PP audit skipped: {e}")
             return True, 99, 99
+
+    def _field_ether_ace(self):
+        """OVERWORLD ETHER RAIL (2026-08-06 LIVE, soak 083445: preferred pre-moltres bank
+        already had Bite:0 — soft-reload could never refill chip PP). Drink Ether/Elixir on
+        the highest-level healthy mon (the ace) so Bite returns BEFORE the A-press. Returns
+        True iff TeachFlow verified a PP rise + bag consume."""
+        _ETHER = (34, 36, 35, 37)           # Ether, Elixir, Max Ether, Max Elixir
+        ether = None
+        for iid in _ETHER:
+            try:
+                if self.camp.bag_count(iid) > 0:
+                    ether = iid
+                    break
+            except Exception:
+                continue
+        if ether is None:
+            self.log("   [hunt] !! field Ether rail: bag has NO Ether/Elixir — cannot "
+                     "refill Bite at the doorstep (LOUD)")
+            return False
+        ace = None
+        ace_lv = -1
+        for s, hp, mx, frac in (self.camp.party_health() or []):
+            if hp <= 0:
+                continue
+            try:
+                lv = self.b.rd8(ram.GPLAYER_PARTY + s * pst.PARTY_MON_SIZE + 0x54) or 0
+            except Exception:
+                lv = 0
+            if lv > ace_lv:
+                ace, ace_lv = s, lv
+        if ace is None:
+            return False
+        try:
+            import hm_teach as _ht
+            self.log(f"   [hunt] !!!! FIELD ETHER — item {ether} on ace slot {ace} "
+                     f"(restore Bite BEFORE the bird press; soft-reload cannot mint PP) (LOUD)")
+            try:
+                self.camp.on_event(
+                    "Bite's dry — Ether on the ace first. then we chip this bird properly.",
+                    kind="legendary", tier=2)
+            except Exception:
+                pass
+            res = _ht.TeachFlow(self.camp, log=self.log,
+                                on_event=getattr(self.camp, "on_event", None)
+                                ).field_pp_restore(ether, ace)
+            self.log(f"   [hunt] field Ether -> {res}")
+            return res == "restored"
+        except Exception as e:
+            self.log(f"   [hunt] !! field Ether raised ({e}) (LOUD)")
+            return False
 
     def _maybe_arm_pp_restore(self):
         """PP-RESTORE GATE (2026-08-05, Jonny: 'restore Blastoise's PP — she can't carry the
@@ -423,8 +472,10 @@ class LegendaryHunt(GiovanniGym):
         cur = tuple(tv.coords(self.b) or (0, 0))
         dist = abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
         if dist <= self.DOORSTEP_TILES:
-            # EMPTY TANK AT THE BIRD: soft-reload preferred clean pre-bank (Bite PP) here —
-            # NEVER walk down the mountain (the spectacle Jonny just watched).
+            # EMPTY TANK AT THE BIRD (2026-08-06 soak 083445): preferred pre-bank can ALSO
+            # be Bite:0 — soft-reload alone loops forever (OVERKILL → refuse → reload).
+            # Order: (1) field Ether on the ace, (2) soft-reload once if still dry, (3)
+            # Ether again after reload. NEVER Center-retreat from the bird.
             try:
                 _ok, _ace_safe, _party_safe = self._chip_pp_audit()
             except Exception:
@@ -432,22 +483,36 @@ class LegendaryHunt(GiovanniGym):
             if _ace_safe is not None and _ace_safe < 1:
                 key = (q.get("name") or "hunt").lower()
                 self.log(f"   [hunt] !!!! AT THE DOORSTEP with EMPTY ace tank "
-                         f"(safe={_ace_safe}) — soft-reloading preferred 'pre-{key}' for "
-                         f"Bite PP IN PLACE (NO mountain retreat) (LOUD)")
-                try:
-                    if self.camp._reload_hunt_checkpoint(key):
-                        try:
-                            _, _ace2, _ = self._chip_pp_audit()
-                        except Exception:
-                            _ace2 = None
-                        self.log(f"   [hunt] doorstep soft-reload landed — ace safe now "
-                                 f"{_ace2!r}; ENGAGING (LOUD)")
-                    else:
-                        self.log("   [hunt] !! doorstep soft-reload declined — ENGAGING "
-                                 "anyway (in-fight soft-reload owns thin PP) (LOUD)")
-                except Exception as e:
-                    self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — ENGAGING "
-                             f"(LOUD)")
+                         f"(safe={_ace_safe}) — Ether rail first, THEN soft-reload "
+                         f"(NO mountain retreat) (LOUD)")
+                if self._field_ether_ace():
+                    try:
+                        _, _ace_safe, _ = self._chip_pp_audit()
+                    except Exception:
+                        pass
+                if _ace_safe is not None and _ace_safe < 1:
+                    try:
+                        if self.camp._reload_hunt_checkpoint(key):
+                            try:
+                                _, _ace_safe, _ = self._chip_pp_audit()
+                            except Exception:
+                                _ace_safe = None
+                            self.log(f"   [hunt] doorstep soft-reload landed — ace safe now "
+                                     f"{_ace_safe!r} (LOUD)")
+                            if _ace_safe is not None and _ace_safe < 1:
+                                self._field_ether_ace()
+                                try:
+                                    _, _ace_safe, _ = self._chip_pp_audit()
+                                except Exception:
+                                    pass
+                        else:
+                            self.log("   [hunt] !! doorstep soft-reload declined — "
+                                     "in-fight Ether owns thin PP (LOUD)")
+                    except Exception as e:
+                        self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — "
+                                 f"in-fight Ether owns thin PP (LOUD)")
+                self.log(f"   [hunt] doorstep empty-tank settle — ace safe now "
+                         f"{_ace_safe!r}; ENGAGING (LOUD)")
             self.log(f"   [hunt] !!!! AT THE DOORSTEP ({dist} tile(s) from "
                      f"{q.get('name', 'the quarry')}) — ENGAGING NOW, no detours "
                      f"(doorstep law is absolute — never Center-retreat from the bird) (LOUD)")
@@ -568,7 +633,17 @@ class LegendaryHunt(GiovanniGym):
         # PRE-LEGENDARY CHECKPOINT (2026-08-05 addendum): standing in front of the bird, topped
         # up, board solved — the exact moment Jonny wants a recovery (or a manual
         # PROMOTE_TARGET pin) to respawn into. Named 'pre-<quarry>' in the inventory.
-        self.strike_checkpoint(f"pre-{(q.get('name') or 'quarry').lower()}")
+        # NEVER bank a dry ace tank (soak 083445: Bite:0 froze into preferred pre-moltres
+        # and every soft-reload re-armed the OVERKILL loop).
+        try:
+            _, _bank_safe, _ = self._chip_pp_audit()
+        except Exception:
+            _bank_safe = 99
+        if _bank_safe is not None and _bank_safe < 1:
+            self.log(f"   [hunt] !! SKIPPING pre-{(q.get('name') or 'quarry').lower()} bank "
+                     f"— ace safe chip PP is {_bank_safe} (would poison soft-reload) (LOUD)")
+        else:
+            self.strike_checkpoint(f"pre-{(q.get('name') or 'quarry').lower()}")
         try:
             self.camp.on_event(f"there it is. {q['name']}. okay — deep breath, balls ready. "
                                f"we are NOT blowing this.", kind="legendary", tier=3)

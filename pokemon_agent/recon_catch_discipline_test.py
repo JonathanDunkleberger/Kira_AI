@@ -919,12 +919,21 @@ def main():
         fled31 = []
         ag31.flee = lambda **k: fled31.append("fled") or "fled"
         ag31._weaken_hp = lambda **k: "guard"
+        ag31._legend_ether_for_chip = lambda: False
         ag31._try_legend_soft_reload = lambda sp=None: True
         world31["foe_frac"] = 0.75
         out31 = ag31._legend_refuse_throw(0.75, "HARD FLOOR test")
         check("hard-floor refuse deepens/soft-reloads — NEVER calls flee()",
               out31 == "chip_exhausted" and fled31 == []
               and any("NEVER fleeing" in l for l in logs31))
+        # Ether rail: refuse tries Ether BEFORE deepen when Bite is dry
+        logs31.clear()
+        ether31 = []
+        ag31._legend_ether_tried = False
+        ag31._legend_ether_for_chip = lambda: (ether31.append(1), False)[1]
+        ag31._legend_refuse_throw(0.80, "OVERKILL / empty Bite")
+        check("hard-floor refuse hits Ether rail before deepen/soft-reload",
+              ether31 == [1])
         # between red band and hard floor -> sanctioned throw, still no switch
         logs31.clear(); switched31.clear()
         world31["foe_frac"] = 0.40
@@ -944,6 +953,26 @@ def main():
         check("legend_throw_allowed: 50% OK, 51% blocked",
               BA.legend_throw_allowed(0.50) is True
               and BA.legend_throw_allowed(0.51) is False)
+        # _legend_ether_for_chip itself: bag Ether + post-use safe chip -> True once
+        logs31.clear()
+        ag31e = make_agent([(2, 6)], hunt_pending=True, logs=logs31)
+        ag31e._legend_ether_tried = False
+        ag31e._items_count = lambda i: 1 if i == 34 else 0
+        used31 = []
+        ag31e.use_item_in_battle = lambda item, **k: (used31.append(item), "used")[1]
+        BA.st.read_battle = lambda b: {
+            "ours": {"moves": [{"id": 44, "name": "Bite", "type": "dark",
+                                "power": 60, "pp": 10}],
+                     "level": 64, "types": ["water"], "species": 9,
+                     "hp": 188, "maxhp": 196},
+            "enemy": {"hp": 150, "maxhp": 150, "level": 50,
+                      "types": ["fire", "flying"], "species": 146}}
+        check("legend Ether restores Bite -> safe chip True (once)",
+              ag31e._legend_ether_for_chip() is True
+              and used31 == [34]
+              and any("LEGEND ETHER" in l for l in logs31))
+        check("legend Ether latches — second call is a no-op",
+              ag31e._legend_ether_for_chip() is False)
     finally:
         BA.st.read_battle, BA.st.in_battle = _orig_rb31, _orig_ib31
 
@@ -1103,18 +1132,40 @@ def main():
         check("doorstep AFTER free-retry -> still ENGAGE (no mountain retreat)",
               h34b2._doorstep_or_restore() is False
               and any("ENGAGING NOW" in l and "absolute" in l for l in logs33))
-        # (b3) empty ace at doorstep -> soft-reload in place, NEVER Center-retreat
+        # (b3) empty ace at doorstep, no Ether -> soft-reload in place, NEVER Center-retreat
         logs33.clear()
         reloads34 = []
         h34b3 = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))
         h34b3._catch_retries = 0
         h34b3._chip_pp_audit = lambda: (True, 0, 29)
+        h34b3._field_ether_ace = lambda: False
         h34b3.camp = types.SimpleNamespace(
             _reload_hunt_checkpoint=lambda key: (reloads34.append(key), True)[1])
-        check("doorstep + empty ace -> soft-reload in place, ENGAGE (no retreat)",
+        check("doorstep + empty ace (no Ether) -> soft-reload in place, ENGAGE (no retreat)",
               h34b3._doorstep_or_restore() is False
               and reloads34 == ["moltres"]
               and any("NO mountain retreat" in l for l in logs33)
+              and any("ENGAGING NOW" in l for l in logs33))
+        # (b4) empty ace + Ether restores Bite -> engage WITHOUT soft-reload
+        logs33.clear()
+        reloads34b4 = []
+        _ether_calls = []
+        h34b4 = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))
+        h34b4._catch_retries = 0
+        _audit_n = {"n": 0}
+        def _audit_b4():
+            _audit_n["n"] += 1
+            # first audit empty; after Ether, safe=5
+            return (True, 0, 29) if _audit_n["n"] == 1 else (True, 5, 34)
+        h34b4._chip_pp_audit = _audit_b4
+        h34b4._field_ether_ace = lambda: (_ether_calls.append(1), True)[1]
+        h34b4.camp = types.SimpleNamespace(
+            _reload_hunt_checkpoint=lambda key: (reloads34b4.append(key), True)[1])
+        check("doorstep + empty ace + Ether restores Bite -> ENGAGE, no soft-reload",
+              h34b4._doorstep_or_restore() is False
+              and _ether_calls == [1]
+              and reloads34b4 == []
+              and any("Ether rail first" in l for l in logs33)
               and any("ENGAGING NOW" in l for l in logs33))
         # (c) far from the bird (pre-approach) -> the gate delegates to the one-shot audit
         LS.tv.coords = lambda b: (29, 40)        # 54 tiles out — mid-climb

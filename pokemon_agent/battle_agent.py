@@ -1651,6 +1651,42 @@ class BattleAgent:
                     return i
         return None
 
+    def _legend_ether_for_chip(self):
+        """FORCE Ether/Elixir on the active ace when a legendary catch has no safe chip
+        (2026-08-06 soak 083445: Bite:0, only Skull Bash ~115% OHKO — OVERKILL refused every
+        FIGHT, soft-reload of a dry pre-bank looped forever). The proven use_item path aims
+        the active (lead) and Ether's move box defaults to move 0 (Bite). Once per catch.
+        Returns True iff the item consumed AND chip_move_pick now finds a safe swing."""
+        if getattr(self, "_legend_ether_tried", False):
+            return False
+        self._legend_ether_tried = True
+        ether = next((i for i in _ETHER_ITEMS_PREF if self._items_count(i) > 0), None)
+        if ether is None:
+            self.log("   [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore "
+                     "Bite (soft-reload cannot mint PP) (LOUD)")
+            return False
+        self.log(f"   [catch] !!!! LEGEND ETHER — restoring ace chip PP with item {ether} "
+                 f"(Bite dry / only OHKO left — then chip, THEN throw at the floor) (LOUD)")
+        self.emit("Bite's empty — Ether first. then we chip this bird, then the Ultras.",
+                  beat=True, tier=2)
+        res = self.use_item_in_battle(ether, target="active")
+        if res != "used":
+            self.log(f"   [catch] !! legend Ether -> {res} — still no safe chip (LOUD)")
+            return False
+        state = st.read_battle(self.b)
+        if not state or not state.get("enemy", {}).get("maxhp"):
+            return False
+        ci, cest, csafe = pol.chip_move_pick(
+            state["ours"]["moves"], state["enemy"].get("types") or [],
+            state["ours"].get("level", 0), state["enemy"].get("level", 0),
+            foe_hp_frac=_hp_frac(state["enemy"]),
+            our_types=state["ours"].get("types"))
+        mv = ("none" if ci is None
+              else state["ours"]["moves"][ci].get("name", f"slot {ci}"))
+        self.log(f"   [catch] legend Ether landed — safe chip={bool(csafe and ci is not None)} "
+                 f"gentlest={mv} est={'n/a' if cest is None else f'{cest:.0%}'} (LOUD)")
+        return bool(csafe and ci is not None)
+
     def _try_legend_soft_reload(self, species=None):
         """SOFT-RELOAD a static legendary WITHOUT pressing RUN (2026-08-06 LIVE, Jonny:
         'walked up, ran, it flew away, now respawning'). Fleeing sets fought/hide and plays
@@ -1691,6 +1727,8 @@ class BattleAgent:
                  f"{CATCH_THROW_FLOOR_LEGEND:.0%}); deepening ACE chip, NEVER fleeing "
                  f"(MonFlewAway spends the bird) (LOUD)")
         if st.in_battle(self.b):
+            # Bite dry → OVERKILL → this refuse used to soft-reload forever. Ether first.
+            self._legend_ether_for_chip()
             self._weaken_hp(target_frac=CATCH_CHIP_TARGET_LEGEND, max_hits=LEGEND_CHIP_HITS,
                             legend=True, desperate=True)
         if not st.in_battle(self.b):
@@ -1955,11 +1993,24 @@ class BattleAgent:
                 # the chip path weakens first; every usable move likely one-shots -> the
                 # status_only path (sleep, then chipper, else the SANCTIONED early throw —
                 # a wasted ball beats a dead target).
+                #
+                # LEGEND ETHER (2026-08-06 soak 083445): Bite:0 leaves only Skull Bash
+                # (OHKO) → OVERKILL → hard-floor refuse → soft-reload loop with ZERO FIGHT
+                # presses. Restore Bite with Ether BEFORE declaring status_only so the ace
+                # actually chips into the throw floor.
                 _ci, _cest, _csafe = pol.chip_move_pick(
                     _rb0["ours"]["moves"], _rb0["enemy"].get("types") or [],
                     _rb0["ours"].get("level", 0), _rb0["enemy"].get("level", 0),
                     foe_hp_frac=_hp_frac(_rb0["enemy"]),
                     our_types=_rb0["ours"].get("types"))
+                if (_legend and _foe_sp0 != 143 and (_ci is None or not _csafe)
+                        and self._legend_ether_for_chip()):
+                    _rb0 = st.read_battle(self.b) or _rb0
+                    _ci, _cest, _csafe = pol.chip_move_pick(
+                        _rb0["ours"]["moves"], _rb0["enemy"].get("types") or [],
+                        _rb0["ours"].get("level", 0), _rb0["enemy"].get("level", 0),
+                        foe_hp_frac=_hp_frac(_rb0["enemy"]),
+                        our_types=_rb0["ours"].get("types"))
                 if _foe_sp0 == 143 or _ci is None or not _csafe:
                     # Snorlax stays a hard never-chip (Surf/Hydro from Blastoise OHKOs).
                     status_only = True

@@ -558,6 +558,122 @@ class TeachFlow:
                  f"world_back={world_back}) — failed LOUD")
         return "failed"
 
+    def field_pp_restore(self, item_id, mon_slot, max_seconds=75):
+        """OVERWORLD PP restore (2026-08-06 LIVE, Mt. Ember: Bite:0 / only Skull Bash OHKO —
+        soft-reload of a dry pre-bank cannot refill PP, and the catch path refused every FIGHT).
+        START -> BAG -> Items -> Ether/Elixir/Max* -> USE -> party `mon_slot` -> (move 0 for
+        Ether/Max Ether; Elixir applies all) -> verify by GROUND TRUTH: bag count DROPPED and
+        that slot's total PP ROSE. Same blind-walk / pocket-liveness rails as field_heal.
+        Returns 'restored' | 'no_item' | 'already_full' | 'fainted' | 'failed' | 'menu_stuck'."""
+        t0 = time.time()
+        rows = [i for i, _q in items_pocket_rows(self.b)]
+        if item_id not in rows:
+            return "no_item"
+        row = rows.index(item_id)
+        if row > 9:
+            self.log(f"   [fieldpp] item {item_id} sits at bag row {row} — too deep for the "
+                     f"blind walk, skipping (LOUD)")
+            return "failed"
+        qty0 = items_pocket_qty(self.b, item_id)
+        base = ram.GPLAYER_PARTY + mon_slot * PARTY_MON_SIZE
+        hp0 = self.b.rd16(base + P_HP)
+        if hp0 <= 0:
+            return "fainted"
+        try:
+            pps0 = list(st.read_party_pp(self.b, mon_slot) or [])
+        except Exception:
+            pps0 = []
+        sum0 = sum(int(p or 0) for p in pps0)
+        # Already topped (every move has PP) — never waste an Ether on a full tank.
+        if pps0 and all(int(p or 0) > 0 for p in pps0):
+            return "already_full"
+        self.b.set_input_owner("agent")
+        self.log(f"   [fieldpp] field PP restore: item {item_id} (bag row {row}) -> party "
+                 f"slot {mon_slot} (pp was {pps0})")
+        opened = False
+        self._press("START", settle=60)
+        for _ in range(4):
+            c0 = self.b.rd8(START_CURSOR)
+            self._press("DOWN", settle=24)
+            if self.b.rd8(START_CURSOR) != c0:
+                opened = True
+                break
+            self._press("START", settle=60)
+        if not opened or not self._nav_byte(START_CURSOR, 2):
+            self.log("   [fieldpp] !! START menu never opened — aborting (B out)")
+            self._b_cascade(); return "failed"
+        self._press("A", settle=80)
+        _p0 = self.b.rd8(BAG_POCKET)
+        self._press("RIGHT", settle=20)
+        _live = self.b.rd8(BAG_POCKET) != _p0
+        if not _live:
+            self._press("LEFT", settle=20)
+            _live = self.b.rd8(BAG_POCKET) != _p0
+        if _live:
+            for _ in range(4):
+                if self.b.rd8(BAG_POCKET) == 0:
+                    break
+                self._press("LEFT", settle=20)
+            if self.b.rd8(BAG_POCKET) != 0:
+                self.log("   [fieldpp] !! couldn't reach the Items pocket — aborting")
+                self._b_cascade(); return "failed"
+        else:
+            self.log("   [fieldpp] pocket byte is MUTE (frozen RAM) — BLIND clamp LEFT x4")
+            for _ in range(4):
+                self._press("LEFT", settle=20)
+        for _ in range(row + 8):
+            self._press("UP", settle=12)
+        for _ in range(row):
+            self._press("DOWN", settle=16)
+        self._press("A", settle=50)                      # select -> USE/GIVE/TOSS
+        self._press("A", settle=90)                      # USE -> party chooser
+        party_navved = False
+        for _ in range(50):
+            try:
+                pps_now = list(st.read_party_pp(self.b, mon_slot) or [])
+            except Exception:
+                pps_now = []
+            if (sum(int(p or 0) for p in pps_now) > sum0
+                    and items_pocket_qty(self.b, item_id) < qty0):
+                break
+            if time.time() - t0 > max_seconds:
+                break
+            scr = self._classify()
+            if scr == "party":
+                if not party_navved:
+                    if not self._party_goto(mon_slot):
+                        self.log("   [fieldpp] !! party cursor never reached the slot — B out")
+                        break
+                    party_navved = True
+                    self._press("A", settle=90)          # pick mon -> Ether move box / Elixir apply
+                else:
+                    # Ether/Max Ether: "Restore which move?" defaults to move 0 (Bite).
+                    # Elixir/Max Elixir: PP-restored dialogue. Extra A is harmless either way.
+                    self._press("A", settle=60)
+            elif scr == "bag" and not party_navved:
+                self._press("A", settle=70)
+            else:
+                self._press("A", settle=50)
+        self._b_cascade()
+        world_back = self._confirm_world_back("fieldpp")
+        try:
+            pps1 = list(st.read_party_pp(self.b, mon_slot) or [])
+        except Exception:
+            pps1 = []
+        sum1 = sum(int(p or 0) for p in pps1)
+        consumed = items_pocket_qty(self.b, item_id) < qty0
+        if sum1 > sum0 and consumed:
+            if not world_back:
+                self.log(f"   [fieldpp] !! PP restore LANDED (pp {pps0}->{pps1}, item "
+                         f"consumed) but MENU STACK never closed — 'menu_stuck' (LOUD)")
+                return "menu_stuck"
+            self.log(f"   [fieldpp] VERIFIED: slot {mon_slot} pp {pps0} -> {pps1}, "
+                     f"item {item_id} consumed (world callback restored)")
+            return "restored"
+        self.log(f"   [fieldpp] !! NOT restored (pp {pps0}->{pps1} consumed={consumed} "
+                 f"world_back={world_back}) — failed LOUD")
+        return "failed"
+
     def give_item(self, item_id, mon_slot, max_seconds=75):
         """OVERWORLD hold-item give (2026-08-03, the Exp. Share equip: 'she needs exp share').
         START -> BAG -> Items pocket -> `item_id` -> GIVE (one DOWN below USE in the sub-box)
