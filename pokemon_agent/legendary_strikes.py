@@ -412,52 +412,45 @@ class LegendaryHunt(GiovanniGym):
 
     def _doorstep_or_restore(self):
         """THE DOORSTEP LAW (2026-08-05 LIVE, the turn-around at the bird: she stood NEXT to
-        Moltres and walked away to heal — Jonny watched it happen; boot rewinds land AT the
-        bird, so the doorstep audit re-armed the trip on every restart). The PP audit is a
-        PRE-APPROACH decision only. Standing at the quarry (<= DOORSTEP_TILES Manhattan) the
-        window has PASSED: engage NOW with whatever the tank holds — the b235cb0 ladder
-        (bench chipper + honest throw gate) is the net. Farther out, the ONE persisted trip
-        per campaign may still fire. True = restore leg armed (the caller returns to the
-        stage loop); False = engage now.
-
-        POST-FAIL RESTORE (2026-08-06 LIVE, soak 180943): first doorstep arrival still
-        engages (no turn-around). AFTER a free-retry has fired (_catch_retries > 0) the
-        previous attempt already proved the thin-PP tank can't reach the hard throw floor —
-        ONE persisted Center heal is then allowed even at the doorstep, so the re-climb
-        banks a full-Bite pre-<quarry> and every later retry starts armed."""
+        Moltres and walked away to heal — Jonny watched it happen). ABSOLUTE as of 2026-08-06
+        08:43 (Jonny: 'reached Moltres, healed barely, then turned around. wtf!'): standing
+        at the quarry NEVER returns True. No Center retreat from the bird — not for empty
+        Bite, not after free-retry. Empty tank soft-reloads the preferred pre-bank IN PLACE
+        (full Bite from 182052) then engages. Farther out, the pre-approach PP restore may
+        still fire. True = restore leg armed (stage loop descends); False = engage now."""
         q = self.QUARRY or {}
         tile = q.get("tile") or (0, 0)
         cur = tuple(tv.coords(self.b) or (0, 0))
         dist = abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
         if dist <= self.DOORSTEP_TILES:
-            # EMPTY CHIP TANK (2026-08-06 LIVE, soak 081352): Bite 0 PP, only Skull Bash
-            # (OHKO) left → OVERKILL → Fearow switch → bird flees → spawn-after-leave loop.
-            # Ace with ZERO safe chips must Center FIRST even at the doorstep — engaging
-            # an empty tank is what spends the bird.
+            # EMPTY TANK AT THE BIRD: soft-reload preferred clean pre-bank (Bite PP) here —
+            # NEVER walk down the mountain (the spectacle Jonny just watched).
             try:
                 _ok, _ace_safe, _party_safe = self._chip_pp_audit()
             except Exception:
                 _ace_safe = None
             if _ace_safe is not None and _ace_safe < 1:
-                if self._maybe_arm_pp_restore():
-                    self.log(f"   [hunt] !!!! AT THE DOORSTEP but ACE has 0 safe chip "
-                             f"swings — Center heal FIRST (never engage a legendary on an "
-                             f"empty Bite tank) (LOUD)")
-                    return True
-                self.log(f"   [hunt] !! AT THE DOORSTEP, ace 0 safe chips, restore "
-                         f"unavailable — engaging in LADDER/soft-reload mode (LOUD)")
-            _softs = getattr(self.camp, "_legend_soft_reloads", 0) or 0
-            _retries = getattr(self, "_catch_retries", 0) or 0
-            if _retries > 0 or _softs > 0:
-                if self._maybe_arm_pp_restore():
-                    self.log(f"   [hunt] !!!! AT THE DOORSTEP after failed attempt "
-                             f"(free-retries={_retries}, soft-reloads={_softs}) — thin PP "
-                             f"proven; arming the ONE persisted Center heal before "
-                             f"re-engaging (LOUD)")
-                    return True
+                key = (q.get("name") or "hunt").lower()
+                self.log(f"   [hunt] !!!! AT THE DOORSTEP with EMPTY ace tank "
+                         f"(safe={_ace_safe}) — soft-reloading preferred 'pre-{key}' for "
+                         f"Bite PP IN PLACE (NO mountain retreat) (LOUD)")
+                try:
+                    if self.camp._reload_hunt_checkpoint(key):
+                        try:
+                            _, _ace2, _ = self._chip_pp_audit()
+                        except Exception:
+                            _ace2 = None
+                        self.log(f"   [hunt] doorstep soft-reload landed — ace safe now "
+                                 f"{_ace2!r}; ENGAGING (LOUD)")
+                    else:
+                        self.log("   [hunt] !! doorstep soft-reload declined — ENGAGING "
+                                 "anyway (in-fight soft-reload owns thin PP) (LOUD)")
+                except Exception as e:
+                    self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — ENGAGING "
+                             f"(LOUD)")
             self.log(f"   [hunt] !!!! AT THE DOORSTEP ({dist} tile(s) from "
-                     f"{q.get('name', 'the quarry')}) — the PP audit's window has passed: "
-                     f"ENGAGING NOW, no detours (LOUD)")
+                     f"{q.get('name', 'the quarry')}) — ENGAGING NOW, no detours "
+                     f"(doorstep law is absolute — never Center-retreat from the bird) (LOUD)")
             return False
         return self._maybe_arm_pp_restore()
 
@@ -621,15 +614,11 @@ class LegendaryHunt(GiovanniGym):
                 except Exception:
                     pass
                 if not self.spent():
-                    # soak 082259: soft-reload with Bite=0 re-pressed immediately → same
-                    # OVERKILL freeze loop. Empty tank must Center BEFORE the next A.
-                    if self._doorstep_or_restore():
-                        self.log(f"   [hunt] !! {q.get('name', 'quarry')} still LIVE but "
-                                 f"chip tank empty/thin after fight return — Center BEFORE "
-                                 f"re-press (LOUD)")
-                        return False
+                    # Still at the bird — doorstep law: never Center-retreat. Soft-reload /
+                    # re-press in place (empty tank handled inside _doorstep_or_restore).
+                    self._doorstep_or_restore()  # may soft-reload preferred bank; always False
                     self.log(f"   [hunt] !! {q.get('name', 'quarry')} still LIVE after the "
-                             f"fight return — re-pressing (soft-reload / aborted catch) (LOUD)")
+                             f"fight return — re-pressing at the bird (NO retreat) (LOUD)")
                     continue
                 return True
         return self.spent()

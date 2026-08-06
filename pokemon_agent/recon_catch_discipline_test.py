@@ -1094,24 +1094,28 @@ def main():
         check("adjacent to the quarry with chip PP -> ENGAGING NOW (LOUD)",
               h34b._doorstep_or_restore() is False
               and any("AT THE DOORSTEP" in l and "ENGAGING NOW" in l for l in logs33))
-        # (b2) AFTER a free-retry, thin PP at the doorstep may arm the ONE Center heal
+        # (b2) doorstep law is ABSOLUTE — free-retry never arms a Center retreat from the bird
         logs33.clear()
         h34b2 = _mk_hunt33(LS.MoltresHunt, (True, 5, 10))
         h34b2._catch_retries = 1
-        h34b2._chip_pp_audit = lambda: (True, 5, 10)  # has chips — free-retry path owns arming
+        h34b2._chip_pp_audit = lambda: (True, 5, 10)
         h34b2._maybe_arm_pp_restore = lambda: True
-        check("doorstep AFTER free-retry -> ONE Center heal may arm (post-fail restore)",
-              h34b2._doorstep_or_restore() is True
-              and any("after failed attempt" in l and "free-retries=1" in l for l in logs33))
-        # (b3) ace 0 safe chips at the doorstep -> Center FIRST (never engage empty tank)
+        check("doorstep AFTER free-retry -> still ENGAGE (no mountain retreat)",
+              h34b2._doorstep_or_restore() is False
+              and any("ENGAGING NOW" in l and "absolute" in l for l in logs33))
+        # (b3) empty ace at doorstep -> soft-reload in place, NEVER Center-retreat
         logs33.clear()
+        reloads34 = []
         h34b3 = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))
         h34b3._catch_retries = 0
         h34b3._chip_pp_audit = lambda: (True, 0, 29)
-        h34b3._maybe_arm_pp_restore = lambda: True
-        check("doorstep + ace 0 safe chips -> Center heal FIRST (empty Bite tank)",
-              h34b3._doorstep_or_restore() is True
-              and any("ACE has 0 safe chip" in l for l in logs33))
+        h34b3.camp = types.SimpleNamespace(
+            _reload_hunt_checkpoint=lambda key: (reloads34.append(key), True)[1])
+        check("doorstep + empty ace -> soft-reload in place, ENGAGE (no retreat)",
+              h34b3._doorstep_or_restore() is False
+              and reloads34 == ["moltres"]
+              and any("NO mountain retreat" in l for l in logs33)
+              and any("ENGAGING NOW" in l for l in logs33))
         # (c) far from the bird (pre-approach) -> the gate delegates to the one-shot audit
         LS.tv.coords = lambda b: (29, 40)        # 54 tiles out — mid-climb
         h34c = _mk_hunt33(LS.MoltresHunt, (True, 1, 3))

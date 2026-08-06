@@ -1363,7 +1363,8 @@ ITEM_FULL_HEAL = 23
 FIELD_HEAL_ENABLED = os.getenv("POKEMON_FIELD_HEAL", "1") == "1"
 FIELDHEAL_ACE_FRAC = float(os.getenv("POKEMON_FIELDHEAL_ACE_FRAC", "0.50"))
 FIELDHEAL_BENCH_FRAC = float(os.getenv("POKEMON_FIELDHEAL_BENCH_FRAC", "0.35"))
-FIELDHEAL_TOPUP_FRAC = float(os.getenv("POKEMON_FIELDHEAL_TOPUP_FRAC", "0.95"))
+FIELDHEAL_TOPUP_FRAC = float(os.getenv("POKEMON_FIELDHEAL_TOPUP_FRAC", "0.85"))
+FIELDHEAL_TOPUP_MIN_MISSING = int(os.getenv("POKEMON_FIELDHEAL_TOPUP_MIN_MISSING", "20"))
 FIELDHEAL_MAX_PER_SEAM = int(os.getenv("POKEMON_FIELDHEAL_MAX_PER_SEAM", "3"))
 # How much each potion tier heals (Gen 3) — same fact table battle_agent._POTION_HEALS uses.
 POTION_HEAL_AMOUNT = {13: 20, 22: 50, 21: 200, 20: 9999, 19: 9999}
@@ -9839,6 +9840,10 @@ class Campaign:
                 continue
             thr = (FIELDHEAL_TOPUP_FRAC if (top_up and s == ace)
                    else (FIELDHEAL_ACE_FRAC if s == ace else FIELDHEAL_BENCH_FRAC))
+            # Micro top-ups at the legendary doorstep look insane (Jonny 08:43: "healed
+            # Blastoise barely for no reason, then turned around") — skip <20 missing HP.
+            if top_up and s == ace and (mx - hp) < FIELDHEAL_TOPUP_MIN_MISSING:
+                continue
             if frac < thr:
                 need.append((0 if s == ace else 1, frac, s, hp, mx))
         if not need:
