@@ -59,6 +59,10 @@ Decision table under test:
   once per hunt run + 2-fail camp budget / unwired hunt      -> LADDER MODE, logged loud
   descent routing                                            -> leg_home stages, Center door
                                                                 (never the harbor/detour)
++ THE DOORSTEP LAW (2026-08-05 LIVE, the turn-around at the bird):
+  within DOORSTEP_TILES of the quarry                        -> audit skipped, ENGAGE NOW
+  persisted one-shot latch (burned the moment the leg arms)  -> restarts/rewinds never re-arm;
+                                                                thin PP engages in LADDER MODE
 """
 import json
 import os
@@ -917,11 +921,16 @@ def main():
         LS.pst.move_info_full = _orig_mif32
 
     print("== 33. THE PP RESTORE LEG: threshold, arming, budget, descent routing ==")
+    burned33 = []
+    def _mk_camp33(latched=False, **kw):
+        return types.SimpleNamespace(on_event=lambda *a, **k: None,
+                                     pp_restore_latched=lambda k: latched,
+                                     pp_restore_latch=lambda k: burned33.append(k), **kw)
     def _mk_hunt33(cls, audit, camp=None):
         h = cls.__new__(cls)
         h.b = object()
         h.log = logs33.append
-        h.camp = camp or types.SimpleNamespace(on_event=lambda *a, **k: None)
+        h.camp = camp or _mk_camp33()
         h._chip_pp_audit = lambda: audit
         return h
     logs33 = []
@@ -930,6 +939,8 @@ def main():
     check("ace below 5 safe swings -> RESTORE LEG ARMED (mode latched)",
           h33._maybe_arm_pp_restore() is True and h33._pp_restore_mode is True
           and any("PP RESTORE LEG ARMED" in l for l in logs33))
+    check("arming BURNS the persisted campaign latch immediately (armed = consumed)",
+          burned33 == ["moltres"], f"burned={burned33}")
     logs33.clear()
     check("second ask this run -> LADDER MODE (once per hunt instance)",
           h33._maybe_arm_pp_restore() is False
@@ -979,6 +990,48 @@ def main():
           h33g.leg_to_center((3, 12)) is True and routed33 == [("one-pc", (32, 0))])
     check("an off-leg map declines (run()'s router counts the bounded fail)",
           h33g.leg_to_center((3, 13)) is False)
+
+    print("== 34. THE DOORSTEP LAW + persisted latch (the turn-around at the bird) ==")
+    # (a) burned latch -> thin PP still ENGAGES (no second trip, ever, across restarts)
+    logs33.clear()
+    h34 = _mk_hunt33(LS.MoltresHunt, (True, 1, 3), camp=_mk_camp33(latched=True))
+    check("latch already burned this campaign -> ENGAGING NOW, no retreat",
+          h34._maybe_arm_pp_restore() is False
+          and not getattr(h34, "_pp_restore_mode", False)
+          and any("ALREADY BURNED" in l and "ENGAGING NOW" in l for l in logs33))
+    # (b) standing at the bird -> the audit's window has passed; engage regardless of PP
+    _orig_coords34 = LS.tv.coords
+    try:
+        LS.tv.coords = lambda b: (9, 7)          # 1 tile from Moltres' (9, 6)
+        logs33.clear()
+        h34b = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))   # bone-dry tank
+        h34b._maybe_arm_pp_restore = lambda: (_ for _ in ()).throw(AssertionError(
+            "the audit must NOT run at the doorstep"))
+        check("adjacent to the quarry -> audit SKIPPED entirely, engage now (LOUD)",
+              h34b._doorstep_or_restore() is False
+              and any("AT THE DOORSTEP" in l and "ENGAGING NOW" in l for l in logs33))
+        # (c) far from the bird (pre-approach) -> the gate delegates to the one-shot audit
+        LS.tv.coords = lambda b: (29, 40)        # 54 tiles out — mid-climb
+        h34c = _mk_hunt33(LS.MoltresHunt, (True, 1, 3))
+        h34c._maybe_arm_pp_restore = lambda: True
+        check("far from the quarry -> pre-approach audit still owns the decision",
+              h34c._doorstep_or_restore() is True)
+    finally:
+        LS.tv.coords = _orig_coords34
+    # (d) the latch sidecar round-trips on disk (survives restarts; rewinds never touch it)
+    import tempfile as _tf
+    _orig_ppjson34 = C.PP_RESTORE_JSON
+    try:
+        C.PP_RESTORE_JSON = os.path.join(_tf.mkdtemp(), "pp_restore_latch.json")
+        camp34 = C.Campaign.__new__(C.Campaign)
+        check("fresh campaign -> latch clear (an honest first trip is allowed)",
+              C.Campaign.pp_restore_latched(camp34, "moltres") is False)
+        C.Campaign.pp_restore_latch(camp34, "Moltres")
+        check("burned latch persists on disk (case-folded key) and reads back True",
+              C.Campaign.pp_restore_latched(camp34, "moltres") is True
+              and C.Campaign.pp_restore_latched(camp34, "zapdos") is False)
+    finally:
+        C.PP_RESTORE_JSON = _orig_ppjson34
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")

@@ -266,6 +266,7 @@ class LegendaryHunt(GiovanniGym):
     ACE_SAFE_PP_MIN = 5        # ace's safe chip swings vs THIS quarry below this -> restore
     PARTY_SAFE_SWINGS_MIN = 8  # ...or the whole party's safe swings below this -> restore
     CENTER_LEG_WIRED = False   # a hunt with a coded descend->Center->re-climb leg sets True
+    DOORSTEP_TILES = 6         # within this Manhattan distance of the quarry: ENGAGE, never audit
 
     def _chip_pp_audit(self):
         """PRE-ENCOUNTER CHIP-PP AUDIT (2026-08-05 LIVE, the one-Bite ball-burn: the climb
@@ -341,6 +342,19 @@ class LegendaryHunt(GiovanniGym):
         if ace_safe >= self.ACE_SAFE_PP_MIN and party_safe >= self.PARTY_SAFE_SWINGS_MIN:
             return False
         key = ((self.QUARRY or {}).get("name") or "hunt").lower()
+        # ONE-SHOT CAMPAIGN LATCH (2026-08-05 LIVE, the doorstep turn-around): the leg fires
+        # AT MOST ONCE per quarry per campaign — the latch is PERSISTED the moment it arms
+        # (success or bounded failure alike), so restarts and boot rewinds (which restore
+        # RAM, never the sidecar) can never re-arm the trip. Burned -> engage, no retreat.
+        try:
+            latched = bool(self.camp.pp_restore_latched(key))
+        except Exception:
+            latched = False
+        if latched:
+            self.log(f"   [hunt] !!!! chip PP THIN (ace {ace_safe}, party {party_safe}) but "
+                     f"the one-shot restore latch for '{key}' is ALREADY BURNED this campaign "
+                     f"— ENGAGING NOW in LADDER MODE, no more retreats (LOUD)")
+            return False
         fails = getattr(self.camp, "_pp_restore_fails", None) or {}
         if not self.CENTER_LEG_WIRED:
             self.log(f"   [hunt] !! chip PP THIN (ace {ace_safe} safe swing(s), party "
@@ -356,8 +370,13 @@ class LegendaryHunt(GiovanniGym):
             return False
         self._pp_restore_armed_once = True
         self._pp_restore_mode = True
-        self.log(f"   [hunt] !!!! PP RESTORE LEG ARMED — ace has {ace_safe} safe chip "
-                 f"swing(s) (min {self.ACE_SAFE_PP_MIN}), party {party_safe} (min "
+        try:
+            self.camp.pp_restore_latch(key)   # burn the one-shot NOW: armed = consumed
+        except Exception:
+            pass
+        self.log(f"   [hunt] !!!! PP RESTORE LEG ARMED — routing to heal (FIRST AND ONLY "
+                 f"time this campaign; latch burned + persisted). Ace has {ace_safe} safe "
+                 f"chip swing(s) (min {self.ACE_SAFE_PP_MIN}), party {party_safe} (min "
                  f"{self.PARTY_SAFE_SWINGS_MIN}): descending to the Center for the free "
                  f"full-PP heal, then re-climbing to a FRESH 'pre-{key}' bank — every retry "
                  f"after that starts with a full tank (LOUD)")
@@ -368,6 +387,26 @@ class LegendaryHunt(GiovanniGym):
         except Exception:
             pass
         return True
+
+    def _doorstep_or_restore(self):
+        """THE DOORSTEP LAW (2026-08-05 LIVE, the turn-around at the bird: she stood NEXT to
+        Moltres and walked away to heal — Jonny watched it happen; boot rewinds land AT the
+        bird, so the doorstep audit re-armed the trip on every restart). The PP audit is a
+        PRE-APPROACH decision only. Standing at the quarry (<= DOORSTEP_TILES Manhattan) the
+        window has PASSED: engage NOW with whatever the tank holds — the b235cb0 ladder
+        (bench chipper + honest throw gate) is the net. Farther out, the ONE persisted trip
+        per campaign may still fire. True = restore leg armed (the caller returns to the
+        stage loop); False = engage now."""
+        q = self.QUARRY or {}
+        tile = q.get("tile") or (0, 0)
+        cur = tuple(tv.coords(self.b) or (0, 0))
+        dist = abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
+        if dist <= self.DOORSTEP_TILES:
+            self.log(f"   [hunt] !!!! AT THE DOORSTEP ({dist} tile(s) from "
+                     f"{q.get('name', 'the quarry')}) — the PP audit's window has passed: "
+                     f"ENGAGING NOW, no detours (LOUD)")
+            return False
+        return self._maybe_arm_pp_restore()
 
     def _pp_restore_fail(self, why):
         """The restore leg wedged — drop the mode, count the bounded fail (2 per quarry per
@@ -476,11 +515,10 @@ class LegendaryHunt(GiovanniGym):
         # PRE-LEGENDARY TOP-UP (2026-08-05): the static fight starts at HER choice of moment —
         # a real player tops the ace to (near-)full BEFORE pressing A, not after turn 1.
         self.field_heal_seam(top_up=True)
-        # PP-RESTORE GATE (2026-08-05, 'restore Blastoise's PP so she can Bite repeatedly'):
-        # the PP picture about to be frozen into 'pre-<quarry>' is what every FREE RETRY
-        # replays FOREVER — a thin tank goes down for the free Center heal + re-climb first.
-        if self._maybe_arm_pp_restore():
-            return False              # not a failure: run()'s stage loop routes the descent
+        # PP-RESTORE GATE + THE DOORSTEP LAW (2026-08-05 LIVE, the turn-around at the bird):
+        # armed -> not a failure; run()'s stage loop routes the descent.
+        if self._doorstep_or_restore():
+            return False
         # PRE-LEGENDARY CHECKPOINT (2026-08-05 addendum): standing in front of the bird, topped
         # up, board solved — the exact moment Jonny wants a recovery (or a manual
         # PROMOTE_TARGET pin) to respawn into. Named 'pre-<quarry>' in the inventory.

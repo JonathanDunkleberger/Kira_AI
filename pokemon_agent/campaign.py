@@ -645,6 +645,7 @@ WORLD_JSON = os.path.join(STATES_CAMPAIGN, "world_model.json")
 # TTL-bounded (a wanderer NPC's transient block must not poison a corridor forever; travel's live
 # staleness-release still un-marks any of these the moment the tile reads empty).
 WEDGE_MEM_JSON = os.path.join(STATES_CAMPAIGN, "wedge_memory.json")
+PP_RESTORE_JSON = os.path.join(STATES_CAMPAIGN, "pp_restore_latch.json")
 WEDGE_MEM_TTL_S = float(os.getenv("POKEMON_WEDGE_MEM_TTL_S", str(12 * 3600)))
 # SCHEMA v2 (2026-07-30, the thinking-gate fix): every mark recorded BEFORE the watchdog learned to
 # tell "thinking" from "wedged" is untrustworthy — the 8s watch tripped during normal LLM decisions
@@ -16937,6 +16938,41 @@ class Campaign:
             self._wedge_mem_saved_at = now
         except Exception as _e:
             log(f"   [roam] wedge memory save skipped: {_e}")
+
+    def pp_restore_latched(self, key):
+        """ONE-SHOT PP-RESTORE LATCH, read side (2026-08-05 LIVE, the doorstep turn-around at
+        Moltres: the restore leg's once-guard was per-instance in-memory, so every restart's
+        boot rewind landed her AT the bird with the thin bank and re-armed the trip — she
+        turned around and walked away from the encounter, forever). True when the descend-
+        heal-re-climb leg has ALREADY fired for this quarry THIS CAMPAIGN. Persisted sidecar:
+        savestate rewinds restore RAM, never this file, so the latch survives every restart
+        and reload. Unreadable -> False (never blocks an honest first trip)."""
+        import json as _json
+        try:
+            with open(PP_RESTORE_JSON, encoding="utf-8") as f:
+                return bool((_json.load(f) or {}).get(str(key).lower()))
+        except Exception:
+            return False
+
+    def pp_restore_latch(self, key):
+        """Burn the one-shot: recorded the moment the leg ARMS — success or bounded failure,
+        it ran once and never runs again; from then on she engages with whatever PP she has
+        (the b235cb0 ladder is the net). Atomic write; never raises."""
+        import json as _json
+        try:
+            data = {}
+            try:
+                with open(PP_RESTORE_JSON, encoding="utf-8") as f:
+                    data = _json.load(f) or {}
+            except Exception:
+                pass
+            data[str(key).lower()] = time.time()
+            tmp = PP_RESTORE_JSON + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as f:
+                _json.dump(data, f)
+            os.replace(tmp, PP_RESTORE_JSON)
+        except Exception as _e:
+            log(f"   [hunt] pp-restore latch save skipped: {_e}")
 
     def _stray_menu_kind(self):
         """Which stray menu owns the screen right now — 'start' (gTasks readback: the START
