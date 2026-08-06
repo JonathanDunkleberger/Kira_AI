@@ -1565,7 +1565,7 @@ class BattleAgent:
                     return i
         return None
 
-    def _weaken_hp(self, target_frac=None, max_hits=4):
+    def _weaken_hp(self, target_frac=None, max_hits=4, legend=False):
         """Chip the wild foe's HP into the catchable band so a HANDFUL of balls suffices (a status
         alone leaves it near full HP -> 5 balls broke free). Fires the GENTLEST damaging move
         one hit at a time, re-reading HP, and STOPS once HP <= target_frac (faint-guard: never swing
@@ -1584,43 +1584,66 @@ class BattleAgent:
         base-power sort — blind to STAB, type-eff and the level gap, so a 'gentle' ace move
         could still one-shot. The pick is now pol.chip_move_pick (lowest ESTIMATED hit), and
         an unsafe estimate (likely KO from the foe's current HP) refuses the swing BEFORE the
-        first hit lands — the measured-damage guard stays as the belt."""
+        first hit lands — the measured-damage guard stays as the belt.
+
+        PP-AWARE LADDER (2026-08-05 LIVE, the one-Bite Moltres ball-burn: Bite had 1 PP after
+        the volcano climb, one swing, then every remaining move read overkill-unsafe and she
+        threw at a barely-injured bird): PP is re-read from gBattleMons EVERY swing
+        (chip_move_pick skips PP<=0), and `legend=True` adds a second rung — when the gentlest
+        usable move fails the KO-safety margin, it may STILL swing while its estimate + 5%
+        headroom is under the foe's CURRENT HP fraction (a 60%-est hit at 100% HP cannot
+        faint). Returns a VERDICT the caller can act on: 'band' (target reached), 'guard'
+        (faint-guard stop — as deep as the active can safely go), 'no_pp' (the active has NO
+        damaging move with PP: switch a bench chipper in), 'hits' (swing budget spent),
+        'ended' (battle over / unreadable)."""
         if target_frac is None:
             target_frac = self.CATCH_CHIP_TARGET
         last_dmg = None
         for _ in range(max_hits):
             state = st.read_battle(self.b)
             if not state or not st.in_battle(self.b):
-                return
+                return "ended"
             foe = state["enemy"]
             if not foe.get("maxhp") or foe["hp"] <= 0:
-                return
+                return "ended"
             _frac = foe["hp"] / foe["maxhp"]
             if _frac <= target_frac:
                 self.log(f"   [catch] chip done — foe at {_frac:.0%} HP (target "
                          f"{target_frac:.0%}); throwing")
-                return                                  # already in the catchable band
+                return "band"                           # already in the catchable band
             if last_dmg and foe["hp"] <= last_dmg * 1.6:
                 self.log(f"   [catch] chip STOPPING — foe at {foe['hp']}/{foe['maxhp']} HP, "
                          f"last chip hit for {last_dmg}; another swing risks a KO. Throwing now.")
-                return                                  # next hit plausibly kills it — throw instead
+                return "guard"                          # next hit plausibly kills it — throw instead
             ci, cest, csafe = pol.chip_move_pick(
                 state["ours"]["moves"], foe.get("types") or [],
                 state["ours"].get("level", 0), foe.get("level", 0),
                 foe_hp_frac=_frac, our_types=state["ours"].get("types"))
             if ci is None:
-                return                                  # no damaging move with PP -> just throw
+                if legend:
+                    self.log(f"   [catch] chip halting — the ACTIVE mon has no damaging move "
+                             f"with PP left (foe at {_frac:.0%}); a bench chipper must take over")
+                return "no_pp"                          # active's damaging PP is dry
             _mv_nm = state["ours"]["moves"][ci].get("name", f"slot {ci}")
             if not csafe:
-                self.log(f"   [catch] chip STOPPING — gentlest move {_mv_nm} est {cest:.0%} vs "
-                         f"foe at {_frac:.0%} HP; a swing risks the KO. Throwing now.")
-                return
-            self.log(f"   [catch] weaken — {_mv_nm} (est {cest:.0%}) at foe {_frac:.0%} HP")
+                if legend and cest + 0.05 <= _frac:
+                    # LADDER RUNG 2: over the polite margin, but the foe's current HP clearly
+                    # exceeds the estimate — this hit CANNOT faint from here. Legal depth.
+                    self.log(f"   [catch] chip LADDER — {_mv_nm} est {cest:.0%} vs foe at "
+                             f"{_frac:.0%} HP: over the safety margin but cannot faint from "
+                             f"this HP — swinging (legendary depth)")
+                else:
+                    self.log(f"   [catch] chip STOPPING — gentlest move {_mv_nm} est {cest:.0%} vs "
+                             f"foe at {_frac:.0%} HP; a swing risks the KO. Throwing now.")
+                    return "guard"
+            else:
+                self.log(f"   [catch] weaken — {_mv_nm} (est {cest:.0%}) at foe {_frac:.0%} HP")
             hp_before = foe["hp"]
             self._fire_move(ci)
             after = st.read_battle(self.b)
             if after and after["enemy"].get("hp") is not None and after["enemy"]["hp"] < hp_before:
                 last_dmg = hp_before - after["enemy"]["hp"]   # measure what a chip actually costs
+        return "hits"
 
     def _fire_move(self, idx):
         """Open the move list, navigate to slot idx, fire it + verify it executed (PP drop / HP
@@ -1659,6 +1682,40 @@ class BattleAgent:
                     return "done"
             self.b.run_frame(); self.render()
         return "stuck"
+
+    def _legend_chip_ladder(self, chip_tgt, chip_hits, chipper_tried):
+        """PP LADDER rung 3 + the HONEST THROW GATE (2026-08-05 LIVE, the one-Bite Moltres
+        ball-burn): after the active's chip phase stops ABOVE the red zone (PP dry / faint-
+        guard), field the bench chipper (Fearow/Lapras hit soft with near-full PP) and KEEP
+        chipping — one switch per encounter, wipe-guarded by _catch_chipper_slot's own party
+        math. A throw above the band is legal ONLY after chip capability is exhausted on the
+        field AND the bench, and that state is logged LOUDLY as a decision, never a bug.
+        Returns the updated chipper_tried latch."""
+        _s2 = st.read_battle(self.b)
+        _f2 = (_hp_frac(_s2["enemy"]) if _s2 and _s2["enemy"].get("maxhp") else 0.0)
+        if _f2 > CATCH_READY_FRAC_LEGEND and not chipper_tried and st.in_battle(self.b):
+            chipper_tried = True
+            ch = self._catch_chipper_slot(_s2["enemy"].get("level"), legend=True)
+            if ch is not None:
+                _ch_nm = st.SPECIES_NAME.get(st.read_party_species(self.b, ch), "a teammate")
+                self.log(f"   [catch] chip LADDER — active stopped at {_f2:.0%} (band "
+                         f"{CATCH_READY_FRAC_LEGEND:.0%}): fielding slot {ch} ({_ch_nm}) "
+                         f"to keep chipping (fresh PP, soft hits)")
+                if self._switch_to_slot(ch, _s2["ours"].get("species")) == "switched":
+                    self.emit(f"{_ch_nm}, tag in — soft hits only, we're wearing it down, "
+                              f"not finishing it.", beat=True, tier=1)
+                    self._weaken_hp(target_frac=chip_tgt, max_hits=chip_hits, legend=True)
+                else:
+                    self.log("   [catch] chip LADDER — chipper switch didn't confirm "
+                             "(fail-safe B-out); proceeding")
+        _s3 = st.read_battle(self.b)
+        _f3 = (_hp_frac(_s3["enemy"]) if _s3 and _s3["enemy"].get("maxhp") else 0.0)
+        if _f3 > CATCH_READY_FRAC_LEGEND and st.in_battle(self.b):
+            self.log(f"   [catch] !! CHIP CAPABILITY EXHAUSTED — foe still at {_f3:.0%} HP "
+                     f"(band {CATCH_READY_FRAC_LEGEND:.0%}) and no safe chip remains on the "
+                     f"field or the bench: SANCTIONED early throw (sleep rung still applies) "
+                     f"(LOUD)")
+        return chipper_tried
 
     def catch_pokemon(self, max_seconds=150, weaken=True, ball_pref="cheap", allow_master=False,
                       divert_reason=None):
@@ -1894,7 +1951,8 @@ class BattleAgent:
                             self.emit(f"{_my_nm} hits way too hard for this — {_ch_nm}, you're up. "
                                       f"soften it, don't finish it.", beat=True, tier=1)
                             # damage-aware chip with the fielded mon (legendary: red-zone target)
-                            self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits)
+                            self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits,
+                                            legend=_legend)
                             softened = True
                             continue
                         self.log("   [engine] catch: chipper switch didn't confirm — falling back to "
@@ -1915,7 +1973,9 @@ class BattleAgent:
                 # depleted) and the foe is still near full HP, DON'T throw — a full-HP catch is low-odds
                 # and that's exactly how she burned her whole ball supply tonight. Flee (preserve the
                 # balls) and surface that she needs to restore PP (a Center tops up PP). Roam then heals.
-                if not self._can_weaken(state) and state["enemy"].get("maxhp") \
+                # LEGENDARY EXEMPT: fleeing a static sets the fought flag — the ladder below (bench
+                # chipper, then the loud sanctioned early throw) owns the depleted case instead.
+                if not _legend and not self._can_weaken(state) and state["enemy"].get("maxhp") \
                         and state["enemy"]["hp"] > state["enemy"]["maxhp"] * self.CATCH_WEAKEN_CEIL:
                     self.emit("I can't even dent it — I'm out of PP to weaken it, and I'm not burning my "
                               "Poké Balls on a full-health throw. Backing out to restore my moves first.",
@@ -1929,7 +1989,10 @@ class BattleAgent:
                     self.emit("let me wear it down first", beat=True)
                     self._fire_move(wi)
                 # chip HP into the catchable band (faint-guarded; legendary: red-zone target)
-                self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits)
+                self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits, legend=_legend)
+                if _legend:
+                    chipper_tried = self._legend_chip_ladder(_chip_tgt, _chip_hits,
+                                                             chipper_tried)
                 softened = True
                 continue
             # THE SLEEP RUNG (legendary doctrine): before EVERY throw, a status-free legendary

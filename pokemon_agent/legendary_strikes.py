@@ -60,6 +60,7 @@ import time
 import boulder_puzzle as bp
 import field_moves as fm
 import firered_ram as ram
+import pokemon_state as pst
 import travel as tv
 from dialogue_drive import box_open as dd_box
 from giovanni_gym import GiovanniGym, KEY_OF
@@ -257,6 +258,41 @@ class LegendaryHunt(GiovanniGym):
             self.log(f"   [ckpt] strike milestone '{label}' skipped: {e}")
         return True
 
+    def _chip_pp_audit(self):
+        """PRE-ENCOUNTER CHIP-PP AUDIT (2026-08-05 LIVE, the one-Bite ball-burn: the climb
+        drained Bite to 1 PP, the chip phase died after one swing and Ultras flew at a
+        near-full bird). Before pressing A, read every healthy mon's moves + CURRENT PP from
+        the party struct (pst.read_party_moves/read_party_pp — the encrypted Attacks
+        substructure, fresh RAM) and log the chip picture LOUDLY. No Ether/Elixir bag rail
+        exists in the harness, so the audit's job is the honest headline: the in-battle PP
+        ladder (per-swing PP recheck -> bench chipper switch) does the adapting, and the
+        FREE-RETRY savestate restores this exact PP picture on every attempt — a
+        thin-but-nonzero audit stays sufficient forever. Zero damaging PP on the WHOLE party
+        is the one truly bad state; scream it (sleep+throw only). Returns True when any
+        healthy mon still carries damaging PP; never raises."""
+        try:
+            any_pp = False
+            rows = []
+            for s, hp, mx, frac in (self.camp.party_health() or []):
+                if hp <= 0:
+                    continue
+                ids = pst.read_party_moves(self.b, s) or []
+                pps = pst.read_party_pp(self.b, s) or []
+                dmg = sum(int(p) for m, p in zip(ids, pps)
+                          if m and p and (pst.move_info_full(self.b, m)[1] or 0) > 0)
+                any_pp = any_pp or dmg > 0
+                rows.append(f"slot{s} hp {hp}/{mx} dmgPP {dmg} "
+                            f"({', '.join(f'{pst.MOVE_NAMES.get(m, m)}:{p}' for m, p in zip(ids, pps) if m)})")
+            self.log("   [hunt] CHIP-PP AUDIT — " + ("; ".join(rows) or "party unreadable"))
+            if not any_pp:
+                self.log("   [hunt] !! CHIP-PP AUDIT: ZERO damaging PP on the whole party — "
+                         "the encounter will be sleep+throw only (no Ether rail exists; a "
+                         "Center visit restores PP but costs the summit) (LOUD)")
+            return any_pp
+        except Exception as e:
+            self.log(f"   [hunt] chip-PP audit skipped: {e}")
+            return True
+
     # ── field healing (2026-08-05, the Mt. Ember climb) ─────────────────────────────────
     def field_heal_seam(self, top_up=False):
         """OUT-OF-BATTLE HEAL SEAM: a hunt owns the loop for up to ~47 minutes with NO roam
@@ -351,6 +387,9 @@ class LegendaryHunt(GiovanniGym):
         # PRE-LEGENDARY TOP-UP (2026-08-05): the static fight starts at HER choice of moment —
         # a real player tops the ace to (near-)full BEFORE pressing A, not after turn 1.
         self.field_heal_seam(top_up=True)
+        # PRE-ENCOUNTER CHIP-PP AUDIT (2026-08-05, the one-Bite ball-burn): the PP picture
+        # about to be frozen into 'pre-<quarry>' is what every FREE RETRY replays — confess it.
+        self._chip_pp_audit()
         # PRE-LEGENDARY CHECKPOINT (2026-08-05 addendum): standing in front of the bird, topped
         # up, board solved — the exact moment Jonny wants a recovery (or a manual
         # PROMOTE_TARGET pin) to respawn into. Named 'pre-<quarry>' in the inventory.

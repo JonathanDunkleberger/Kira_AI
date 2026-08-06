@@ -46,6 +46,13 @@ Decision table under test:
   every candidate poisoned                                   -> original live state restored
   banking 'pre-<key>' while the fought-flag is set           -> REFUSED (poisoned-bank law)
   post-load flag read                                        -> fresh RAM, never cached
++ THE PP LADDER (2026-08-05 LIVE, the one-Bite Moltres ball-burn):
+  chip pick re-reads PP every swing                          -> a dry move never re-picked
+  gentlest over the safety margin, can't faint from here     -> rung 2 swings anyway (legend)
+  active out of damaging PP / faint-guard above the band     -> rung 3: bench chipper switch
+  still above the band after field + bench                   -> LOUD sanctioned early throw
+  legendary never flees on depleted PP (fought-flag cost)    -> ladder owns it instead
+  pre-encounter chip-PP audit                                -> party PP confessed pre-bank
 """
 import json
 import os
@@ -757,6 +764,142 @@ def main():
               and banked29 == ["moltres-leg", "pre-moltres"])
     finally:
         LS.ram.pokedex_owns, LS.fm.read_flag = _orig_owns29, _orig_flag29
+
+    print("== 30. THE PP LADDER in _weaken_hp: live PP recheck, rung-2 depth, verdicts ==")
+    # (a) the live failure verbatim: Bite at 1 PP fires once; the re-pick next swing skips
+    # the dry Bite, Ice Beam (est ~106% vs Moltres) can faint -> honest 'guard' stop.
+    logs30 = []
+    ag30 = make_agent([(2, 6)], hunt_pending=True, logs=logs30)
+    moves30 = [{"id": 44, "name": "Bite", "type": "dark", "power": 60, "pp": 1},
+               {"id": 58, "name": "Ice Beam", "type": "ice", "power": 95, "pp": 10}]
+    foe30 = {"hp": 160, "maxhp": 160}
+    fired30 = []
+    _orig_rb30, _orig_ib30 = BA.st.read_battle, BA.st.in_battle
+    BA.st.read_battle = lambda b: {"ours": {"moves": [dict(m) for m in moves30], "level": 63,
+                                            "types": ["water", "water"]},
+                                   "enemy": {"hp": foe30["hp"], "maxhp": foe30["maxhp"],
+                                             "level": 50, "types": ["fire", "flying"]}}
+    BA.st.in_battle = lambda b: True
+
+    def _fire30(i):
+        fired30.append(moves30[i]["name"])
+        moves30[i]["pp"] = max(0, moves30[i]["pp"] - 1)
+        foe30["hp"] = max(1, foe30["hp"] - 100)
+    ag30._fire_move = _fire30
+    try:
+        v30 = ag30._weaken_hp(target_frac=BA.CATCH_CHIP_TARGET_LEGEND,
+                              max_hits=BA.LEGEND_CHIP_HITS, legend=True)
+        check("Bite fires once, the DRY re-pick never fires it again",
+              fired30 == ["Bite"], f"fired={fired30}")
+        check("overkill Ice Beam refused even on the ladder -> honest 'guard' verdict",
+              v30 == "guard", f"verdict={v30}")
+        # (b) rung 2: over the polite margin but CANNOT faint from current HP -> swings
+        moves30b = [{"id": 33, "name": "Slam", "type": "normal", "power": 114, "pp": 20}]
+        foe30b, fired30b = {"hp": 100, "maxhp": 100}, []
+        # water attacker, normal move (NO STAB): est = (114/50)*0.35 ~ 80% — over the 70%
+        # safety margin yet clearly unable to faint from 100% HP.
+        BA.st.read_battle = lambda b: {"ours": {"moves": [dict(m) for m in moves30b],
+                                                "level": 50, "types": ["water"]},
+                                       "enemy": {"hp": foe30b["hp"], "maxhp": 100, "level": 50,
+                                                 "types": ["normal"]}}
+        ag30._fire_move = lambda i: (fired30b.append(i), foe30b.__setitem__("hp", 20))
+        v30b = ag30._weaken_hp(target_frac=0.15, max_hits=4, legend=True)
+        check("rung 2: est ~80% at 100% HP (unsafe by margin, can't faint) -> SWINGS, "
+              "then honest guard at 20%", fired30b == [0] and v30b == "guard",
+              f"fired={fired30b} verdict={v30b}")
+        check("the ladder swing is LOUD", any("chip LADDER" in l for l in logs30))
+        # (c) generic path unchanged: same setup, legend=False -> refuses the unsafe swing
+        foe30b["hp"], fired30b[:] = 100, []
+        v30c = ag30._weaken_hp(target_frac=0.30, max_hits=4, legend=False)
+        check("generic (legend=False) still refuses the over-margin swing",
+              fired30b == [] and v30c == "guard", f"fired={fired30b} verdict={v30c}")
+        # (d) verdicts: no damaging PP anywhere on the active / already in the band
+        BA.st.read_battle = lambda b: {"ours": {"moves": [{"id": 33, "name": "Tackle",
+                                                           "type": "normal", "power": 35,
+                                                           "pp": 0}], "level": 50,
+                                                "types": ["normal"]},
+                                       "enemy": {"hp": 80, "maxhp": 100, "level": 50,
+                                                 "types": ["normal"]}}
+        check("active PP dry -> 'no_pp' (the switch signal)",
+              ag30._weaken_hp(target_frac=0.15, max_hits=4, legend=True) == "no_pp")
+        BA.st.read_battle = lambda b: {"ours": {"moves": [], "level": 50, "types": ["normal"]},
+                                       "enemy": {"hp": 10, "maxhp": 100, "level": 50,
+                                                 "types": ["normal"]}}
+        check("foe already in the band -> 'band'",
+              ag30._weaken_hp(target_frac=0.15, max_hits=4, legend=True) == "band")
+    finally:
+        BA.st.read_battle, BA.st.in_battle = _orig_rb30, _orig_ib30
+
+    print("== 31. LADDER rung 3 + the HONEST THROW GATE (_legend_chip_ladder) ==")
+    logs31 = []
+    ag31 = make_agent([(2, 6)], hunt_pending=True, logs=logs31)
+    world31 = {"foe_frac": 0.60}
+    _orig_rb31, _orig_ib31 = BA.st.read_battle, BA.st.in_battle
+    _orig_rps31 = BA.st.read_party_species
+    BA.st.read_battle = lambda b: {"ours": {"moves": [], "species": 9, "level": 63},
+                                   "enemy": {"hp": int(world31["foe_frac"] * 100),
+                                             "maxhp": 100, "level": 50}}
+    BA.st.in_battle = lambda b: True
+    BA.st.read_party_species = lambda b, s=0: 22
+    switched31, chips31 = [], []
+    ag31._catch_chipper_slot = lambda lvl, legend=False: 2
+    ag31._switch_to_slot = lambda s, sp: (switched31.append(s), "switched")[1]
+    ag31._weaken_hp = lambda target_frac=None, max_hits=4, legend=False: (
+        chips31.append(legend), world31.__setitem__("foe_frac", 0.14), "band")[2]
+    try:
+        t31 = ag31._legend_chip_ladder(BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, False)
+        check("above the band -> bench chipper SWITCHED IN, chip continues (legend depth)",
+              t31 is True and switched31 == [2] and chips31 == [True])
+        check("after the bench chip reaches the band -> NO exhausted line (honest gate)",
+              not any("CHIP CAPABILITY EXHAUSTED" in l for l in logs31), f"logs={logs31[-2:]}")
+        # switch is one-per-encounter; still above the band -> the LOUD sanctioned throw
+        logs31.clear(); switched31.clear()
+        world31["foe_frac"] = 0.55
+        t31b = ag31._legend_chip_ladder(BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, True)
+        check("chipper already tried -> no second switch, EXHAUSTED throw is LOUD",
+              t31b is True and switched31 == []
+              and any("CHIP CAPABILITY EXHAUSTED" in l for l in logs31))
+        # already in the band -> nothing to do, nothing loud
+        logs31.clear()
+        world31["foe_frac"] = 0.12
+        ag31._legend_chip_ladder(BA.CATCH_CHIP_TARGET_LEGEND, BA.LEGEND_CHIP_HITS, False)
+        check("in the band -> no switch, no exhausted line",
+              switched31 == [] and not any("EXHAUSTED" in l for l in logs31))
+    finally:
+        BA.st.read_battle, BA.st.in_battle = _orig_rb31, _orig_ib31
+        BA.st.read_party_species = _orig_rps31
+
+    print("== 32. PRE-ENCOUNTER CHIP-PP AUDIT (press_quarry seam) ==")
+    hunt32 = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    hunt32.b = object()
+    logs32 = []
+    hunt32.log = logs32.append
+    hunt32.camp = types.SimpleNamespace(party_health=lambda: [(0, 193, 193, 1.0),
+                                                              (1, 60, 130, 0.46),
+                                                              (2, 0, 90, 0.0)])
+    _orig_rpm32 = LS.pst.read_party_moves
+    _orig_rpp32 = LS.pst.read_party_pp
+    _orig_mif32 = LS.pst.move_info_full
+    # slot 0 = Blastoise, Bite DRY but Surf/Ice Beam carry PP; slot 1 = Lapras full; 2 fainted
+    LS.pst.read_party_moves = lambda b, s: ([57, 58, 44, 0] if s == 0 else [55, 47, 0, 0])
+    LS.pst.read_party_pp = lambda b, s: ([15, 10, 0, 0] if s == 0 else [25, 15, 0, 0])
+    LS.pst.move_info_full = lambda b, m: (("normal", 0, 55) if m == 47
+                                          else ("water", 60, 100))   # Sing is status (power 0)
+    try:
+        check("audit reads party PP fresh and reports damaging PP present",
+              hunt32._chip_pp_audit() is True
+              and any("CHIP-PP AUDIT" in l for l in logs32), f"logs={logs32[:1]}")
+        check("fainted slot 2 never audited (only the healthy bench counts)",
+              not any("slot2" in l for l in logs32))
+        logs32.clear()
+        LS.pst.read_party_pp = lambda b, s: [0, 0, 0, 0]
+        check("ZERO damaging PP party-wide -> audit False and SCREAMS (sleep+throw only)",
+              hunt32._chip_pp_audit() is False
+              and any("ZERO damaging PP" in l for l in logs32))
+    finally:
+        LS.pst.read_party_moves = _orig_rpm32
+        LS.pst.read_party_pp = _orig_rpp32
+        LS.pst.move_info_full = _orig_mif32
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")
