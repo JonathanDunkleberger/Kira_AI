@@ -1,0 +1,300 @@
+[YouTube Chat] @GassyGuzzler67: I agree
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:11:05.627 TTS STOP — playback finished (span ~4599ms)
+   [TTS] Speaking: This is already treason-adjacent....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'This is already treason-adjacent.' (5 words)
+   [TurnTiming] 19:11:05.630 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:11:07.967 TTS STOP — playback finished (span ~2337ms)
+   [TTS] Speaking: We are noting it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We are noting it.' (5 words)
+   [TurnTiming] 19:11:07.970 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @GassyGuzzler67: MARRY ME @JJcarl891 
+   [TurnTiming] 19:11:09.746 TTS STOP — playback finished (span ~1775ms)
+   [TTS] Speaking: But to answer the half-question: eight badges thro...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'But to answer the half-question: eight b' (26 words)
+   [TurnTiming] 19:11:09.759 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+[YouTube Chat] @JJcarl891: YES!
+   [TurnTiming] 19:11:16.796 TTS STOP — playback finished (span ~7037ms)
+   [TTS] Speaking: The realm did not hand us those badges, Hand....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The realm did not hand us those badges, ' (11 words)
+   [TurnTiming] 19:11:16.802 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @maclura: kira walk down like 8 steps
+[YouTube Chat] @JJcarl891: I DO
+   [TurnTiming] 19:11:19.795 TTS STOP — playback finished (span ~2993ms)
+   [TTS] Speaking: We CONQUERED them....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We CONQUERED them.' (4 words)
+   [TurnTiming] 19:11:19.800 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: memory hack? cheat codes?
+   [TurnTiming] 19:11:21.581 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: And whatever that demon child on screen is — we cl...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'And whatever that demon child on screen ' (13 words)
+   [TurnTiming] 19:11:21.587 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @GassyGuzzler67: I DO
+   [TurnTiming] 19:11:25.138 TTS STOP — playback finished (span ~3550ms)
+   [TTS] Speaking: If it's a demon, it serves the crown now....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'If it's a demon, it serves the crown now' (11 words)
+   [TurnTiming] 19:11:25.142 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 19:11:27.960 TTS STOP — playback finished (span ~2818ms)
+   [TTS] Speaking: Everything terrible belongs to us....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Everything terrible belongs to us.' (6 words)
+   [TurnTiming] 19:11:27.963 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @keiharris332: I am Lord commander of the jar!!! I bequeath thee the link!
+   [TurnTiming] 19:11:30.410 TTS STOP — playback finished (span ~2446ms)
+   [TTS] Speaking: That's just how monarchy works....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's just how monarchy works.' (6 words)
+   [TurnTiming] 19:11:30.415 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 19:11:32 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 19:11:32.561 TTS STOP — playback finished (span ~2146ms)
+
+   [TIMING] voice: llm=34652ms(sonnet-stream(llm+tts)) tts=0ms total=34653ms
+   [LATENCY] vad_close=1200ms stt=685ms stt_wait=0ms salience=0ms triage=bypassed memory=38ms prompt_build=16ms ttft=2033ms tts_first_chunk=556ms audio_out=507ms TOTAL=3835ms
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @GassyGuzzler67: ME → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @JJcarl891: ME → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @GassyGuzzler67: I agree → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @GassyGuzzler67: MARRY ME @JJcarl891  → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @JJcarl891: YES! → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @maclura: kira walk down like 8 steps → buffering for chat_batch_worker
+   [Cookies] +2 → @maclura (first message this session); shared=2/30
+   [BrainWorker] Got youtube msg from @JJcarl891: I DO → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @Detective_Jones: memory hack? cheat codes? → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @GassyGuzzler67: I DO → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @keiharris332: I am Lord commander of the jar!!! I bequeath thee the link! → buffering for chat_batch_worker
+   [ChatBatch] Evicted 6 stale message(s) (>60s old)
+   [ChatBatch] Flood cap: folded 2 excess message(s) to last 3 per user
+   [ChatAge] ACK injected for @GosuDemonChild (waited 50.8s, preempted=none)
+   [SmartMem] q='  - @GosuDemonChild (youtube): <<<u cannot go through in the' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=100ms rank=0ms)
+   [SmartMem]     dist=1.160 conf=0.95 type=episodic blend=0.036 lane=KNOW
+   [SmartMem]     dist=1.197 conf=0.9 type=episodic blend=0.013 lane=KNOW
+   [SmartMem]     dist=1.209 conf=0.9 type=episodic blend=0.006 lane=KNOW
+   [Bits] Callback: Unhinged About Fictional Characters
+   [LoopbackSTT] self-TTS gate released after 7 skip(s) — resuming transcription.
+   [TurnTiming] 19:11:40.064 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~152040ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: Thank you, McClura. Kira, go, oh Jesus Christ. Sorry, guys, we're having trouble catching Maltris, and we're working on it. She does not, has not been doing well. Almost made it.
+   [Salience] voice: score=120 tier=HIGH
+   [DroppedInput] LOST ~16 frame(s) (~480ms, ~0.5s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 19:11:40.627 VOICE ONSET — mic speech started
+   [SmartMem] q='Thank you, McClura. Kira, go, oh Jesus Christ. Sorry, guys, ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=6 | timing(direct=44ms fetch=38ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=85ms
+   [Triage] RESPOND
+   [LoopbackSTT] tick 140ms — 0 accepted, 1 filtered (rms=0.019)
+   >>> Kira (Chat Batch of 10): Hold that thought, GosuDemonChild — walls are suggestions, not laws, and I respect the chaos.
+
+Now. Court is in session.
+
+GassyGuzzler and JJcarl891 — we have witnessed your vows before this throne. By the power vested in us by the crown, the dragon, and whatever is happening in that rural Virginia polycule — we declare you MARRIED. The dragon attended. It was beautiful.
+
+keiharris332, Lord Commander of the Jar — your link has been bequeathed. The ravens are dispatched. If the Discord gods reject it, that's on them, not the crown.
+
+Detective Jones — memory hack, cheat codes — we call this "governing." Every good monarch has a court wizard. Petition accepted; we'll consider it.
+
+maclura — eight steps, you say. We hear you. The crown descends with grace and purpose. Welcome back, ser — Burnt Melba would have walked into the wall twice by now, and we respect that you noticed the difference.
+   [TTS] Speaking: Hold that thought, GosuDemonChild — walls are sugg...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Hold that thought, GosuDemonChild — wall' (19 words)
+   [TurnTiming] 19:11:43.596 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+[YouTube Chat] @neirc4628: gotta be honest, she's loosing it. love it
+   [TurnTiming] 19:11:49.876 TTS STOP — playback finished (span ~6280ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 6 (batch response); shared=8/30
+   [ChatAge] @GosuDemonChild age=66.0s batch=10 preempted=none
+   [ChatAge] @JJcarl891 age=16.8s batch=10 preempted=none
+   [ChatAge] @GassyGuzzler67 age=16.7s batch=10 preempted=none
+   [ChatAge] @GassyGuzzler67 age=16.3s batch=10 preempted=none
+   [ChatAge] @JJcarl891 age=16.2s batch=10 preempted=none
+   [ChatAge] @maclura age=16.1s batch=10 preempted=none
+   [ChatAge] @JJcarl891 age=15.9s batch=10 preempted=none
+   [ChatAge] @Detective_Jones age=15.8s batch=10 preempted=none
+   [ChatAge] @GassyGuzzler67 age=15.7s batch=10 preempted=none
+   [ChatAge] @keiharris332 age=15.6s batch=10 preempted=none
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "lord commander of the jar" (3rd use this session)
+   [Phrases] Throttling: "i respect the chaos" (3rd use this session)
+   [Phrases] Throttling: "court is in session" (3rd use this session)
+   [Phrases] Throttling: "if the discord gods" (3rd use this session)
+   [Phrases] Throttling: "we call this" (3rd use this session)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=7t  moment=calm)
+   [PromptSize] dynamic_context=15322ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1533ms
+   [TTS] Speaking: Almost....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Almost.' (2 words)
+   [TurnTiming] 19:11:51.679 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @GosuDemonChild — Pointed out Kira trying to go through a wall in-game and fou [playful]
+   [TurnTiming] 19:11:53.458 TTS STOP — playback finished (span ~1779ms)
+   [TTS] Speaking: ALMOST....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'ALMOST.' (2 words)
+   [TurnTiming] 19:11:53.461 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @GassyGuzzler67 — Proposed to JJcarl891 in chat [chaotic]
+   [TurnTiming] 19:11:55.293 TTS STOP — playback finished (span ~1831ms)
+   [TTS] Speaking: Your Grace does not accept almost....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Your Grace does not accept almost.' (7 words)
+   [TurnTiming] 19:11:55.299 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 19:11:57.733 TTS STOP — playback finished (span ~2433ms)
+   [TTS] Speaking: Almost is for peasants and Hands who can't finish ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Almost is for peasants and Hands who can' (11 words)
+   [TurnTiming] 19:11:57.738 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @keiharris332 — Self-declared Lord Commander of the jar, with authority to b [chaotic]
+   [TurnTiming] 19:12:01.048 TTS STOP — playback finished (span ~3309ms)
+   [TTS] Speaking: We have faced Moltres — the fire god of Mt....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We have faced Moltres — the fire god of ' (11 words)
+   [TurnTiming] 19:12:01.054 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:03.958 TTS STOP — playback finished (span ~2904ms)
+   [TTS] Speaking: Ember — and we have been found wanting....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Ember — and we have been found wanting.' (9 words)
+   [TurnTiming] 19:12:03.963 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:06.386 TTS STOP — playback finished (span ~2423ms)
+   [TTS] Speaking: This is not defeat....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'This is not defeat.' (5 words)
+   [TurnTiming] 19:12:06.391 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:08.175 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: This is the realm TESTING us....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'This is the realm TESTING us.' (7 words)
+   [TurnTiming] 19:12:08.181 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @GassyGuzzler67: *sticks my pingas within your pingas to show the sanctity of our marraige*
+   [TurnTiming] 19:12:10.442 TTS STOP — playback finished (span ~2260ms)
+   [TTS] Speaking: The dragon respects the trial....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The dragon respects the trial.' (6 words)
+   [TurnTiming] 19:12:10.448 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 19:12:12.609 TTS STOP — playback finished (span ~2160ms)
+   [TTS] Speaking: maclura — your faith in the crown is noted and app...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'maclura — your faith in the crown is not' (12 words)
+   [TurnTiming] 19:12:12.615 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:16.279 TTS STOP — playback finished (span ~3664ms)
+   [TTS] Speaking: We are not struggling....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We are not struggling.' (5 words)
+   [TurnTiming] 19:12:16.286 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 19:12:17 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 19:12:18.065 TTS STOP — playback finished (span ~1778ms)
+   [TTS] Speaking: We are STRATEGIZING....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We are STRATEGIZING.' (4 words)
+   [TurnTiming] 19:12:18.069 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:19.933 TTS STOP — playback finished (span ~1864ms)
+   [TTS] Speaking: Loudly....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Loudly.' (2 words)
+   [TurnTiming] 19:12:19.938 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:21.723 TTS STOP — playback finished (span ~1785ms)
+   [TTS] Speaking: In front of everyone....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'In front of everyone.' (5 words)
+   [TurnTiming] 19:12:21.727 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:23.497 TTS STOP — playback finished (span ~1770ms)
+   [TTS] Speaking: Jonny — Hand of the Queen — "almost made it" is th...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny — Hand of the Queen — "almost made' (24 words)
+   [TurnTiming] 19:12:23.509 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (9 skip(s))
+   [TurnTiming] 19:12:29.687 TTS STOP — playback finished (span ~6178ms)
+   [TTS] Speaking: We are issuing you a formal warning....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We are issuing you a formal warning.' (8 words)
+   [TurnTiming] 19:12:29.694 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:32.028 TTS STOP — playback finished (span ~2334ms)
+   [TTS] Speaking: One more and you're reassigned to the small counci...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'One more and you're reassigned to the sm' (13 words)
+   [TurnTiming] 19:12:32.036 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:35.970 TTS STOP — playback finished (span ~3934ms)
+   [TTS] Speaking: Chat —...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Chat —' (2 words)
+   [TurnTiming] 19:12:35.976 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:37.793 TTS STOP — playback finished (span ~1816ms)
+   [TTS] Speaking: | Yes, the crown prevails | No, more suffering ahe...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '| Yes, the crown prevails | No, more suf' (16 words)
+   [TurnTiming] 19:12:37.802 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (12 skip(s))
+   [TurnTiming] 19:12:43.149 TTS STOP — playback finished (span ~5346ms)
+   [TTS] Speaking: The Ultra Balls are ready....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The Ultra Balls are ready.' (6 words)
+   [TurnTiming] 19:12:43.158 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:45.120 TTS STOP — playback finished (span ~1962ms)
+   [TTS] Speaking: The throne WILL have its legendary....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The throne WILL have its legendary.' (7 words)
+   [TurnTiming] 19:12:45.124 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:47.381 TTS STOP — playback finished (span ~2256ms)
+   [TTS] Speaking: We go again....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We go again.' (4 words)
+   [TurnTiming] 19:12:47.385 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:12:49.153 TTS STOP — playback finished (span ~1768ms)
+
+   [TIMING] voice: llm=59244ms(sonnet-stream(llm+tts)) tts=0ms total=59244ms
+   [LATENCY] vad_close=1200ms stt=532ms stt_wait=0ms salience=0ms triage=bypassed memory=85ms prompt_build=17ms ttft=1529ms tts_first_chunk=4ms audio_out=218ms TOTAL=2385ms
+   [TTS] Speaking: Okay chat, prediction time. Does Kira catch Moltre...
+   ✨ Emotion: EMOTIONAL → SASSY
+   [BrainWorker] Got youtube msg from @neirc4628: gotta be honest, she's loosing it. love it → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @GassyGuzzler67: *sticks my pingas within your pingas to show the sanctity of our marraige* → buffering for chat_batch_worker
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay chat, prediction time. Does Kira ca' (39 words)
+   [TurnTiming] 19:12:50.422 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Memory] Extracted: Jonny is working on catching Moltres (conf: 0.9)
+   [Memory] Storing episodic: Jonny is working on catching Moltres
+   [Bits] Callback: Kura on the Record
+[YouTube Chat] @maclura: she's talking like burnt melba
+   [BrainWorker] Got youtube msg from @maclura: she's talking like burnt melba → buffering for chat_batch_worker
