@@ -1,0 +1,488 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 14) coords=(8, 24) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 5 blocked tile(s), 0 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=15544).
+
+   [soul] continuity loaded: 15 roster bond(s), 934 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 147 place(s) known, 240 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 14) coords=(8, 24) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260806_202317_an-unfamiliar-area_8b_34h10m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 7 warp(s) on (3, 14): (3, 31)->(34, 0), (14, 27)->(34, 1), (18, 12)->(34, 3), (4, 6)->(34, 4), (12, 6)->(34, 5), (12, 12)->(34, 6)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres (PROXIMITY TRUMP: standing at the moltres hunt)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 3, 16, 128) @ an unfamiliar area (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 24) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 14) (8,24) f4 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'stock_up', 'talk_npc', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 14), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Moltres on Mt. Ember'
+
+   [campaign]    [soul] ORACLE pick -> 'Moltres on Mt. Ember'
+
+   [campaign]    [roam] SHOP: "There's a Mart right here. you're light on Poké Balls — grab some so you can actually catch a teammate out there — a real trainer stocks up before pushing on." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 3
+
+   [kira-voice] -> T2·savor· (want) 'Moltres on Mt. Ember'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (3, 14)
+
+   [campaign]    [hunt] Ultra pocket check — 5 Ultras (floor 20, target 50, wired=True, done=False, fails=0)
+
+   [campaign]    [hunt] !!!! ULTRA WAR-CHEST ARMED — bag has 5/50 Ultra Balls (engage floor 20); descending to Three Island Mart, then re-climbing (LOUD)
+
+   [campaign]    [hunt] Ultra war-chest armed at hunt entry — ferry before climb (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) "chat's right — 5 Ultras is a prayer, not a plan. sailing to Three Island for a war-chest, THEN we do this bird properly."  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [to-port-for-prime-band] replan at (8, 24) (len 18, budget 9)
+
+   [dialogue] +++ "Who's gonna make me?"  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "Who\'s gonna make me?"'
+
+   [campaign]    [to-port-for-prime] EDGE south: (3, 14) -> (3, 49) @ (10, 1)
+
+   [campaign]    [port-harbor-for-prime-approach] replan at (10, 1) (len 14, budget 9)
+
+   [campaign]    [port-harbor-for-prime] (3, 49) -> (38, 0) @ (8, 3)
+
+   [campaign]    [sail] (38, 0) -> (33, 4); trying menu rows [1, 2] (LOUD)
+
+   [campaign]    [sailor-approach] replan at (8, 3) (len 3, budget 9)
+
+   [dialogue] +++ 'All right! All aboard SEAGALLOP HI-SPEED 2!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "All right! All aboard SEAGALLOP HI-SPEED 2!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [ferry] scene done at (33, 4)@(8, 5)
+
+   [campaign]    [sail] (38, 0) -> (33, 4) (row=1)
+
+   [campaign]    [two-town-prime-approach] replan at (8, 5) (len 3, budget 9)
+
+   [campaign]    [two-town-prime] (33, 4) -> (3, 13) @ (10, 8)
+
+   [campaign]    [hunt] !!!! WAR-CHEST: entering Joyful Game Corner to arm the Three Island biker gauntlet (Mart is behind them) (LOUD)
+
+   [campaign]    [corner-in-prime-approach] replan at (10, 8) (len 40, budget 9)
+
+   [campaign]    [corner-in-prime] (3, 13) -> (33, 0) @ (5, 8)
+
+   [campaign]    [hunt] !!!! WAR-CHEST: draining Lostelle-help scene at Game Corner (A-confirm; arms Three Island) (LOUD)
+
+   [dialogue] +++ "Now, where's LOSTELLE gotten to today? She always brings me lunch every day right about now.."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Now, where\'s LOSTELLE gotten to today? She always brings me lunch every day right about now.."'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ "Hm? You, there! Are you a friend of LOSTELLE's? Have you seen LOSTELLE around? I don't know where she might be. She should've been here long ago. LOSTELLE's a cutie - she got my looks - so wha"  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hm? You, there! Are you a friend of LOSTELLE\'s? Have you seen LOSTELLE around? I don\'t know where she might be. She should\'ve been here long ago. LOSTELLE\'s a cutie - she got my looks - so wha"'  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (33, 0)@(5, 8) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [dialogue] +++ "Hah? What is this GAME CORNER? How much sadder can this get? Those clowns.. They said they'd be waiting on the island, so where are they? Hey, you! Is this the only THREE ISLAND around here?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hah? What is this GAME CORNER? How much sadder can this get? Those clowns.. They said they\'d be waiting on the island, so where are they? Hey, you! Is this the only THREE ISLAND around here?"'  fired=True  [age 0.0s + post 7ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\audio_child.py", line 101, in <module>
+
+    sys.exit(main())
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\audio_child.py", line 87, in main
+
+    st.write(pcm)
+
+  File "G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\sounddevice.py", line 1565, in write
+
+    return RawOutputStream.write(self, data)
+
+  File "G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\sounddevice.py", line 1346, in write
+
+    _check(err)
+
+  File "G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\sounddevice.py", line 2802, in _check
+
+    raise PortAudioError(errormsg, err, hosterror_info)
+
+sounddevice.PortAudioError: Unanticipated host error [PaErrorCode -9999]: 'There is no driver installed on your system.' [MME error 6]
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 97s, restart 1/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] audio child started (pid=12304).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=11, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 2/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 601; bursts here = audible crackle)
+
+   [dialogue] +++ 'Try waking up before you crawl out of bed, you punk. This is TWO ISLAND! Move it! Get your filthy motorbike out of my place!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Try waking up before you crawl out of bed, you punk. This is TWO ISLAND! Move it! Get your filthy motorbike out of my place!"'  fired=True  [age 0.0s + post 8ms]
+
+   [pkmn-audio] audio child started (pid=10492).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=11, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 3/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 901; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=27956).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=11, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 4/8) — GAME CONTINUES; respawning audio.
+
+   [dialogue] +++ 'Huh.. Oh, oh, gotcha. Tch.. These islands are confusing..'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Huh.. Oh, oh, gotcha. Tch.. These islands are confusing.."'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1201; bursts here = audible crackle)
+
+   [dialogue] +++ 'Would you look at that? That punk scuffed up my floor.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Would you look at that? That punk scuffed up my floor."'  fired=True  [age 0.0s + post 4ms]
+
+   [pkmn-audio] audio child started (pid=11960).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=11, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 5/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1501; bursts here = audible crackle)
+
+   [kira-voice] -> T2·savor· (legendary) "ok — Lostelle's dad sent us to Three Island. clearing those bikers, THEN we buy the Ultra stack."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [corner-out-prime-approach] replan at (4, 8) (len 3, budget 9)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1801; bursts here = audible crackle)
+
+   [campaign]    [corner-out-prime] (33, 0) -> (3, 13) @ (39, 10)
+
+   [campaign]    [two-harbor-balls-approach] replan at (39, 10) (len 39, budget 9)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2101; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=2976).
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2401; bursts here = audible crackle)
+
+   [pkmn-audio-child] !! could not open OutputStream (device=11, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 6/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2701; bursts here = audible crackle)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3001; bursts here = audible crackle)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3301; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=12700).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=11, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 7/8) — GAME CONTINUES; respawning audio.
+
+   [campaign]    [two-harbor-balls] (3, 13) -> (33, 4) @ (8, 3)
+
+   [campaign]    [sail] (33, 4) -> (38, 0); trying menu rows [1, 2] (LOUD)
+
+   [campaign]    [sailor-approach] replan at (8, 3) (len 3, budget 9)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3601; bursts here = audible crackle)
+
+   [dialogue] +++ 'All right! All aboard SEAGALLOP HI-SPEED 2!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "All right! All aboard SEAGALLOP HI-SPEED 2!"'
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3901; bursts here = audible crackle)
+
+   [campaign]    [ferry] scene done at (38, 0)@(8, 5)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4201; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=24376).
+
+   [campaign]    [sail] (33, 4) -> (38, 0) (row=1)
+
+   [campaign]    [three-port-balls-approach] replan at (8, 5) (len 3, budget 9)
+
+   [pkmn-audio-child] !! could not open OutputStream (device=11, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 8/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4501; bursts here = audible crackle)
+
+   [campaign]    [three-port-balls] (38, 0) -> (3, 49) @ (12, 13)
+
+   [campaign]    [to-three-town-balls-band] replan at (12, 13) (len 14, budget 9)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4801; bursts here = audible crackle)
+
+   [campaign]    [to-three-town-balls] EDGE north: (3, 49) -> (3, 14) @ (12, 39)
+
+   [campaign]    [hunt] !!!! WAR-CHEST: clearing Three Island biker gauntlet (YES to the fight — Mart is north of the pack) (LOUD)
+
+   [campaign]    [biker-south-0] replan at (12, 39) (len 3, budget 9)
+
+   [campaign]    [biker-trig-9-27] replan at (10, 39) (len 14, budget 9)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 5101; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=29184).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=11, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=3, ran 1s, restart 9/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! audio child died too many times — DISABLING audio for this run (game keeps running, silent). Investigate the output device.
+
+   [dialogue] +++ 'Are you the boss? Go back to KANTO right now!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Are you the boss? Go back to KANTO right now!"'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ "Hah? I just got here, pal. What's with the hostile attitude? It's mighty cold of you!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hah? I just got here, pal. What\'s with the hostile attitude? It\'s mighty cold of you!"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Your gang of followers have been raising havoc on their bikes. Do you have any idea how much trouble they've caused us on the island?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your gang of followers have been raising havoc on their bikes. Do you have any idea how much trouble they\'ve caused us on the island?"'  fired=True  [age 0.0s + post 18ms]
+
+   [dialogue] +++ "No, man, I don't get it at all. Look at this place. What do you do for entertainment? You ought to be thanking us for livening up this sleepy village. But hey, if you insist, you can try makin"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "No, man, I don\'t get it at all. Look at this place. What do you do for entertainment? You ought to be thanking us for livening up this sleepy village. But hey, if you insist, you can try makin"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Grr.. You cowards.. So tough in a pack..'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Grr.. You cowards.. So tough in a pack.."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [biker-trig-9-27] replan at (10, 27) (len 2, budget 9)
+
+   [campaign]    [biker-trig-9-26] replan at (9, 27) (len 2, budget 9)
+
+   [campaign]    [biker-south-1] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Heh, I like your guts. You'll be losing money to me, but.."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Heh, I like your guts. You\'ll be losing money to me, but.."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [biker-south-1] replan at (9, 26) (len 3, budget 9)
+
+   [campaign]    [strat] gEnemyParty CONFIRMED (slot0=109 == active foe) — roster reads live
+
+   [play-live] battle context: trainer=True foe=koffing rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 162ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against koffing — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L65 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] avoided a type-immune move -> Bite (eff x1) instead
+
+   [play-live]    [engine] action menu: Bite -> slot 0 (eff x1) vs koffing 76/76 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=8,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Bite slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's koffing fainted — your blastoise took it down"  fired=True  [age 0.0s + post 13ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out grimer'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] JUST FIGHT: L65 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x4) vs grimer 106/106 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=8,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's grimer went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'Wha.. What is this kid?!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Wha.. What is this kid?!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 14) coords=(9, 26) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260806_202801_an-unfamiliar-area_8b_34h15m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [dialogue] +++ "Aww, man.. Don't you dare laugh!"  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "Aww, man.. Don\'t you dare laugh!"'
+
+   [dialogue] +++ "Aren't you from KANTO? You should be on our side!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Aren\'t you from KANTO? You should be on our side!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [biker-south-1] replan at (9, 26) (len 3, budget 9)
+
+   [play-live] battle context: trainer=True foe=grimer rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against koffing — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 'the trainer sent out koffing'
+
+   [play-live]    [engine] JUST FIGHT: L65 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] avoided a type-immune move -> Bite (eff x1) instead
+
+   [play-live]    [engine] action menu: Bite -> slot 0 (eff x1) vs koffing 78/78 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=7,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Bite slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's koffing went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Stop fooling around!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Stop fooling around!"'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "phew — okay, that one's done. shake it off, back to the road."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 14) coords=(9, 26) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260806_202841_an-unfamiliar-area_8b_34h16m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [dialogue] +++ "What's the matter with you, getting all hot like that? Totally uncool, man!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "What\'s the matter with you, getting all hot like that? Totally uncool, man!"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'We invited the boss out here, but you had to mess it up! You embarrassed us, man!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "We invited the boss out here, but you had to mess it up! You embarrassed us, man!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [biker-south-1] replan at (9, 26) (len 3, budget 9)
+
+   [play-live] battle context: trainer=True foe=koffing rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 3ms]
+
