@@ -101,8 +101,11 @@ FLAG_HIDE_THREE_ISLAND_BIKERS = 0x079
 FLAG_HIDE_THREE_ISLAND_LONE_BIKER = 0x091   # CLEAR = Paxton present (gauntlet armed)
 VAR_MAP_SCENE_THREE_ISLAND = 0x407B         # 2=armed, 3=boss intro done, 4=cleared
 VAR_MAP_SCENE_TWO_ISLAND_JOYFUL_GAME_CORNER = 0x4079  # >=1 after HelpFindLostelle scene
+VAR_MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F = 0x4076  # 0=Celio meet, 1=has Meteorite,
+                                                     # 2=Daddy delivered (Bill leave ARMED),
+                                                     # 3=sailed home, 4+=Ruby/Sapphire quest
 GAME_CORNER_DOOR = (39, 9)                  # TwoIsland overworld warp
-ITEM_METEORITE = 280                 # Celio's parcel; REMOVED from the bag on delivery
+ITEM_METEORITE = 280                 # Celio's parcel (KEY ITEM); REMOVED on Daddy delivery
 
 ZAPDOS = dict(name="Zapdos", species=145, tile=(5, 11), map=PLANT, hide=0x05D, fought=0x2BF,
               types=("electric", "flying"), level=50)
@@ -1350,10 +1353,30 @@ class MoltresHunt(LegendaryHunt):
             self.log(f"   [nurse] heal errored: {e} — continuing (LOUD)")
 
     def meteorite_in_bag(self):
+        """Meteorite is a KEY ITEM (Celio scene giveitem). camp.bag_count only reads the
+        Items pocket and ALWAYS returned 0 — LIVE 2026-08-06: leg_home treated 'not in bag'
+        as 'delivered', walked the Bill leave-trigger forever, and she stared at Celio's
+        Network Machine while chat asked why. Use the Key Items pocket."""
         try:
-            return self.camp.bag_count(ITEM_METEORITE) > 0
+            if getattr(self.camp, "_key_item_owned", None):
+                return bool(self.camp._key_item_owned(ITEM_METEORITE))
+        except Exception:
+            pass
+        try:
+            import hm_teach as ht
+            return ITEM_METEORITE in ht.pocket_items(self.b, ht.KEY_ITEMS_OFF, 30)
         except Exception:
             return False
+
+    def one_pc_scene(self):
+        try:
+            return int(fm.read_var(self.b, VAR_MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F) or 0)
+        except Exception:
+            return 0
+
+    def bill_leave_armed(self):
+        """Bill's x=12 leave-trigger ONLY fires when scene == 2 (Daddy took the Meteorite)."""
+        return self.one_pc_scene() == 2
 
     # ── outbound stages ──────────────────────────────────────────────────────────────────
     def board_with_bill(self):
@@ -1817,24 +1840,53 @@ class MoltresHunt(LegendaryHunt):
                 return True
             return self.cross_edge("west", "to-one-island")
         if here == ONE_ISLAND:
+            # Bill leave-armed (scene==2) -> Center for the sail-home trigger.
+            # Meteorite still in Key Items -> harbor for Lostelle / Daddy.
+            # Otherwise Center (Celio meet scene 0, or heal then re-read).
+            if self.bill_leave_armed():
+                return self.enter_step((14, 5), ONE_PC, "one-pc-sail-home")
             if met:
                 return self.enter_step((12, 18), ONE_HARBOR, "one-harbor")
+            self.log("   [moltres] !! no Meteorite in Key Items and Bill leave not armed "
+                     f"(scene={self.one_pc_scene()}) — Center for Celio / re-read (LOUD)")
             return self.enter_step((14, 5), ONE_PC, "one-pc")
         if here == ONE_PC:
             self.heal_here((5, 2))
+            met = self.meteorite_in_bag()          # re-read after heal (Key Items pocket)
+            if self.bill_leave_armed():
+                # Daddy delivery set scene=2 — x=12 trigger column (y 6-9) fires Bill's sail.
+                try:
+                    self.camp.on_event("detour done, Meteorite delivered — Bill's sailing us "
+                                       "home to Cinnabar. what a trip.", kind="legendary", tier=2)
+                except Exception:
+                    pass
+                if not self.sea_walk(lambda c: c[0] == 12 and 6 <= c[1] <= 9, "leave-trigger"):
+                    return False
+                return self.wait_scene(lambda: tuple(tv.map_id(b)) == CINNABAR, "sail-home",
+                                       quiet_n=12)
             if met:
+                self.log("   [moltres] Meteorite still in Key Items — leaving Center for the "
+                         "Lostelle detour (NOT the Bill leave-trigger; scene "
+                         f"{self.one_pc_scene()} != 2) (LOUD)")
                 return self.enter_step((9, 9), ONE_ISLAND, "pc-out")
-            # Meteorite delivered -> the x=12 trigger column (y 6-9, scene var == 2) fires
-            # Bill's leave scene: walks, the sail, the Cinnabar return cutscene.
-            try:
-                self.camp.on_event("detour done, Meteorite delivered — Bill's sailing us "
-                                   "home to Cinnabar. what a trip.", kind="legendary", tier=2)
-            except Exception:
-                pass
-            if not self.sea_walk(lambda c: c[0] == 12 and 6 <= c[1] <= 9, "leave-trigger"):
-                return False
-            return self.wait_scene(lambda: tuple(tv.map_id(b)) == CINNABAR, "sail-home",
-                                   quiet_n=12)
+            # scene 0: MeetCelioScene should fire on enter; drain then re-check.
+            self.log(f"   [moltres] !! ONE_PC scene={self.one_pc_scene()} and no Meteorite "
+                     f"in Key Items — draining Celio scene / talking Celio (LOUD)")
+            self.settle(90)
+            self.drain(key="A")
+            self.settle(60)
+            self.drain()
+            if self.meteorite_in_bag() or self.bill_leave_armed():
+                return True
+            # Celio stands at (15, 6) (pret OneIsland_PokemonCenter_1F_map.json).
+            for tile in ((15, 6), (14, 6), (15, 7), (14, 7)):
+                if self.poke(tile, "celio-meteorite"):
+                    self.drain(key="A")
+                    if self.meteorite_in_bag():
+                        self.log("   [moltres] Meteorite obtained from Celio — Lostelle next")
+                        return self.enter_step((9, 9), ONE_ISLAND, "pc-out")
+            self.log("!! [moltres] still no Meteorite after Celio poke — surfacing (LOUD)")
+            return False
         if here == ONE_HARBOR:
             if met:
                 return self.sail(THREE_HARBOR if not resc else TWO_HARBOR)

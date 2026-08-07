@@ -1759,6 +1759,60 @@ def main():
         LS.fm.read_var = _orig_rv
         print()
 
+    # 39. METEORITE IS A KEY ITEM (2026-08-06 LIVE): bag_count (Items pocket) always
+    #     missed it → false 'delivered' → Bill leave-trigger thrash at Celio's machine.
+    print("== 39. METEORITE KEY-ITEM + BILL LEAVE ARMED ==")
+    h39 = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h39.b = object()
+    h39.log = lambda *a, **k: None
+    h39.camp = types.SimpleNamespace(
+        bag_count=lambda i: 0,                    # Items pocket ALWAYS empty for Meteorite
+        _key_item_owned=lambda i: i == LS.ITEM_METEORITE)
+    check("meteorite_in_bag reads Key Items (not bag_count Items pocket)",
+          h39.meteorite_in_bag() is True)
+    h39.camp._key_item_owned = lambda i: False
+    check("meteorite_in_bag False when Key Items empty",
+          h39.meteorite_in_bag() is False)
+    _rv39 = LS.fm.read_var
+    try:
+        LS.fm.read_var = lambda _b, v: (
+            2 if v == LS.VAR_MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F else 0)
+        check("bill_leave_armed when One-Island PC scene == 2",
+              h39.bill_leave_armed() is True)
+        LS.fm.read_var = lambda _b, v: (
+            1 if v == LS.VAR_MAP_SCENE_ONE_ISLAND_POKEMON_CENTER_1F else 0)
+        check("bill_leave_armed False when scene == 1 (Meteorite still owed)",
+              h39.bill_leave_armed() is False)
+    finally:
+        LS.fm.read_var = _rv39
+    # ONE_PC with Meteorite in Key Items must EXIT for Lostelle, not leave-trigger.
+    entered39 = []
+    h39b = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h39b.b = object()
+    h39b.log = lambda m: None
+    h39b.camp = types.SimpleNamespace(
+        bag_count=lambda i: 0,
+        _key_item_owned=lambda i: i == LS.ITEM_METEORITE,
+        on_event=lambda *a, **k: None)
+    h39b.heal_here = lambda *a, **k: None
+    h39b.enter_step = lambda tile, dest, label: (
+        entered39.append((tile, dest, label)), True)[1]
+    h39b.sea_walk = lambda *a, **k: (_ for _ in ()).throw(
+        AssertionError("leave-trigger must NOT run while Meteorite still owned"))
+    h39b.bill_leave_armed = lambda: False
+    h39b.meteorite_in_bag = lambda: True
+    h39b.one_pc_scene = lambda: 1
+    _rf39 = LS.fm.read_flag
+    try:
+        LS.fm.read_flag = lambda _b, f: False
+        check("ONE_PC + Meteorite in Key Items -> pc-out (Lostelle), not leave-trigger",
+              h39b.leg_home(LS.ONE_PC) is True
+              and entered39
+              and entered39[0][1] == LS.ONE_ISLAND)
+    finally:
+        LS.fm.read_flag = _rf39
+    print()
+
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")
         sys.exit(1)
