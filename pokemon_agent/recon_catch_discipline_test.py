@@ -1612,6 +1612,14 @@ def main():
                 key2 = camp37._lap_drive_moltres_ride_home()
         check("Sevii ride-home DRIVES after bird spent (not no-op)",
               key2 == "ok" and "drive" in driven)
+        # Even when checklist key is still 'moltres', spent bird MUST ride-home
+        # (not fall through to gate-self-suppressed caught no-op).
+        driven.clear()
+        key3 = "moltres"
+        if camp37._lap_sevii_stranded() and camp37._lap_bird_spent():
+            key3 = camp37._lap_drive_moltres_ride_home()
+        check("Sevii + spent drives ride-home even when key==moltres",
+              key3 == "ok" and "drive" in driven)
         # eevee gate must not arm while Sevii-stranded.
         camp37._lap_sevii_stranded = lambda: True
         eg = C.Campaign._eevee_gate(camp37, {"badge_count": 8})

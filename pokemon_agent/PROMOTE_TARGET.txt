@@ -1,0 +1,5 @@
+CKPT 20260806_211713
+# Post-catch bank (periodic, Moltres L50 in party). The replaced_212026 SNAPSHOT restore
+# landed on EMPTY summit (1,101) party=3 and she re-climbed / chat-looped. This CKPT is the
+# newest known-good AFTER gain-catch 211217 and BEFORE the bad pre-moltres overwrite chain.
+# Code also forces ride-home whenever bird spent on Sevii (Articuno next on Cinnabar).

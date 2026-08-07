@@ -13884,26 +13884,27 @@ class Campaign:
         # on One Island with no boat home armed (2026-08-06 live strand — 200+ RED ticks).
         if self._lap_sevii_stranded():
             bird_spent = self._lap_bird_spent()
-            if not bird_spent:
-                skipped = getattr(self, "_lap_skipped", None)
-                if skipped and "moltres" in skipped:
-                    skipped.discard("moltres")
-                    fails = getattr(self, "_lap_fails", None) or {}
-                    fails.pop("moltres", None)
-                    log("   [lap] ♻️ RE-ARM 'moltres': Sevii-stranded after honest skip, "
-                        "bird unspent — war-chest / summit still owns the archipelago "
-                        "(ride-home is post-catch only)")
-                if key != "moltres":
-                    log(f"   [lap] '{key}' deferred — still on Sevii with Moltres unspent; "
-                        f"forcing moltres questline")
-                    key = "moltres"
-            elif key != "moltres":
-                # DRIVE the ride-home HERE — do NOT return a no-op 'ok' and hope the
-                # proactive hook fires. LIVE 2026-08-06: eevee proactive armed first,
-                # victory_lap returned 'ok', she narrated Celadon roof while frozen on Sevii.
-                log(f"   [lap] '{key}' deferred — still on Sevii after Moltres; "
-                    f"DRIVING the Lostelle ride-home (not Celadon from here)")
+            if bird_spent:
+                # ALWAYS drive home once the bird is spent — even if the checklist key is
+                # still 'moltres' (gate-caught / SKIPPED / articuno). LIVE 2026-08-06: the
+                # old `key != "moltres"` guard fell through into questline dispatch which
+                # self-suppressed (caught) and she stood still narrating Celadon in Celio's
+                # Network Center / on the summit.
+                log(f"   [lap] '{key}' deferred — Moltres spent, still on Sevii; "
+                    f"DRIVING Lostelle ride-home NOW (Articuno/Eevee wait on Cinnabar)")
                 return self._lap_drive_moltres_ride_home()
+            skipped = getattr(self, "_lap_skipped", None)
+            if skipped and "moltres" in skipped:
+                skipped.discard("moltres")
+                fails = getattr(self, "_lap_fails", None) or {}
+                fails.pop("moltres", None)
+                log("   [lap] ♻️ RE-ARM 'moltres': Sevii-stranded after honest skip, "
+                    "bird unspent — war-chest / summit still owns the archipelago "
+                    "(ride-home is post-catch only)")
+            if key != "moltres":
+                log(f"   [lap] '{key}' deferred — still on Sevii with Moltres unspent; "
+                    f"forcing moltres questline")
+                key = "moltres"
         if key == "earthquake":
             r = self._lap_teach_earthquake()
             if r == "taught":
@@ -19102,11 +19103,25 @@ class Campaign:
             if not avail:
                 log("   [roam] no honest action available here — ending free roam"); break
             if self.soul is not None and (tick == 1 or tick % want_every == 1):
-                log(f"   [soul] surface_want FIRE -> {state['place']}")
-                self.soul.surface_want({"place": self._location_block(state), "map": state["map"],
-                                        "badges": state["badges"], "progress": state["progress"],
-                                        "party": self._party_brief(state),     # PHASE 1: team by NAME
-                                        "goal": self._goal_layers(state)})      # PHASE 1: 3-tier goal
+                # LIVE 2026-08-06: want oracle kept narrating Celadon/Eevee while victory_lap
+                # owned a Sevii ride-home turn — looked like she was "stuck talking in chat"
+                # with zero feet moving. Suppress the want while the lap drives the islands.
+                _lap_owns = False
+                try:
+                    # Only while Sevii-stranded: mainland lap legs can still voice wants.
+                    _lap_owns = (VICTORY_LAP_ENABLED and "victory_lap" in avail
+                                 and self._lap_sevii_stranded())
+                except Exception:
+                    _lap_owns = False
+                if _lap_owns:
+                    log(f"   [soul] surface_want SUPPRESSED — Sevii ride-home owns the turn "
+                        f"({state['place']})")
+                else:
+                    log(f"   [soul] surface_want FIRE -> {state['place']}")
+                    self.soul.surface_want({"place": self._location_block(state), "map": state["map"],
+                                            "badges": state["badges"], "progress": state["progress"],
+                                            "party": self._party_brief(state),     # PHASE 1: team by NAME
+                                            "goal": self._goal_layers(state)})      # PHASE 1: 3-tier goal
             # On YELLOW+, fold STUCK-AWARENESS into the oracle ctx via the existing `place` seam (the
             # only general field her oracle prompt renders — firewall: no core edit). She becomes AWARE
             # she's stuck; she still decides the next move HERSELF (capability-not-script).
