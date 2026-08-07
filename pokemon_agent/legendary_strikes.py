@@ -375,16 +375,29 @@ class LegendaryHunt(GiovanniGym):
         return True
 
     def _ball_restock_fail(self, why):
-        self._ball_restock_mode = False
-        self._ball_restock_returning = False
+        """A wedged war-chest trip. Below the Ultra engage floor we do NOT clear the mode
+        and do NOT green-light a 5-ball prayer (soak 091736: fail → 'engaging with 5 Ultras'
+        → soft-reload loop). Above the floor the fail budget still allows a thinish engage."""
+        have = self._ultra_count()
+        floor = self._ultra_min_engage()
         key = ((self.QUARRY or {}).get("name") or "hunt").lower()
         fails = getattr(self.camp, "_ball_restock_fails", None)
         if fails is None:
             fails = self.camp._ball_restock_fails = {}
         fails[key] = fails.get(key, 0) + 1
+        if have < floor:
+            self._ball_restock_mode = True
+            self._ball_restock_returning = False
+            if fails[key] >= self.BALL_RESTOCK_FAILS_MAX:
+                fails[key] = 0
+            self.log(f"!! [hunt] ULTRA WAR-CHEST FAILED ({why}) — fail {fails[key]}/"
+                     f"{self.BALL_RESTOCK_FAILS_MAX}; pocket {have}<{floor} — STAYING on "
+                     f"the ferry (never engage this thin) (LOUD)")
+            return
+        self._ball_restock_mode = False
+        self._ball_restock_returning = False
         self.log(f"!! [hunt] ULTRA WAR-CHEST FAILED ({why}) — fail {fails[key]}/"
-                 f"{self.BALL_RESTOCK_FAILS_MAX}; engaging with {self._ultra_count()} "
-                 f"Ultras (LOUD)")
+                 f"{self.BALL_RESTOCK_FAILS_MAX}; engaging with {have} Ultras (LOUD)")
 
     def _chip_pp_audit(self):
         """PRE-ENCOUNTER CHIP-PP AUDIT (2026-08-05 LIVE, the one-Bite ball-burn: the climb
@@ -1159,6 +1172,19 @@ class MoltresHunt(LegendaryHunt):
         return self.wait_scene(lambda: tuple(tv.map_id(b)) == ONE_PC, "sail-to-one",
                                quiet_n=12)
 
+    @staticmethod
+    def _ember_ext_1f_mouth(coords):
+        """1F Summit-Path door mouth on Ember Exterior. Pret enter tile (14,24); exit from
+        1F lands ~(14,25). That pad has y≤30 so the old 'upper ledge' heuristic misrouted
+        descent to the 3F door (soak 091736: war-chest 'descent wedged @ (14,25)')."""
+        if not coords or len(coords) < 2:
+            return False
+        try:
+            x, y = int(coords[0]), int(coords[1])
+        except (TypeError, ValueError):
+            return False
+        return abs(x - 14) <= 5 and 18 <= y <= 32
+
     def leg_to_summit(self, here):
         """One stage of the climb, keyed by map; run() loops until the summit press."""
         b = self.b
@@ -1171,7 +1197,11 @@ class MoltresHunt(LegendaryHunt):
             return (self.enter_step((11, 6), EMBER_EXT, "ember-door")
                     or self.enter_step((12, 6), EMBER_EXT, "ember-door2"))
         if here == EMBER_EXT:
-            y = (tv.coords(b) or (0, 0))[1]
+            cur = tuple(tv.coords(b) or (0, 0))
+            # Already past the lower boulder board at the 1F mouth — just walk in.
+            if self._ember_ext_1f_mouth(cur):
+                return self.enter_step((14, 24), EMBER_1F, "1f-door")
+            y = cur[1]
             if y > 30:                           # lower corridor — the 6-push ascent board
                 if not self.board_mission(bp.EMBER_ASCENT):
                     return False
@@ -1290,13 +1320,15 @@ class MoltresHunt(LegendaryHunt):
         if here == EMBER_SUMMIT:
             return self.enter_step((9, 15), EMBER_EXT, "summit-out")
         if here == EMBER_EXT:
-            y = (tv.coords(b) or (0, 0))[1]
-            if y <= 30:
-                return self.enter_step((39, 19), EMBER_3F, "3f-upper-door")
-            if not self.board_mission(bp.EMBER_DESCENT):
-                return False
-            return (self.enter_step((28, 48), KINDLE, "kindle-door")
-                    or self.enter_step((29, 48), KINDLE, "kindle-door2"))
+            cur = tuple(tv.coords(b) or (0, 0))
+            # 1F mouth is LOWER corridor end (y≈25) — run the descent boulder board to Kindle.
+            # Upper ledge (summit / 3F approach) is the only y≤30 case that goes to 3F.
+            if self._ember_ext_1f_mouth(cur) or cur[1] > 30:
+                if not self.board_mission(bp.EMBER_DESCENT):
+                    return False
+                return (self.enter_step((28, 48), KINDLE, "kindle-door")
+                        or self.enter_step((29, 48), KINDLE, "kindle-door2"))
+            return self.enter_step((39, 19), EMBER_3F, "3f-upper-door")
         if here == EMBER_3F:
             return self.enter_step((2, 4), EMBER_2F, "3f-down")
         if here == EMBER_2F:

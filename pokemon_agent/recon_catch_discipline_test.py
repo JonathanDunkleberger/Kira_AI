@@ -1258,6 +1258,27 @@ def main():
     check("HUNT_ULTRA_MIN_ENGAGE is the hard floor (20)", C.HUNT_ULTRA_MIN_ENGAGE == 20)
     check("old 6-ball 182052 preferred pin is CLEARED (war-chest banks win)",
           C.Campaign._HUNT_PREFERRED_PRE.get("moltres") == ())
+    check("Ember EXT (14,25) is the 1F mouth (not upper 3F ledge)",
+          LS.MoltresHunt._ember_ext_1f_mouth((14, 25)) is True
+          and LS.MoltresHunt._ember_ext_1f_mouth((29, 7)) is False
+          and LS.MoltresHunt._ember_ext_1f_mouth((39, 19)) is False)
+    logs35.clear()
+    h35e = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h35e.b = object()
+    h35e.log = logs35.append
+    h35e.camp = types.SimpleNamespace(
+        on_event=lambda *a, **k: None,
+        _balls_pocket_count=lambda i: 5 if i == 2 else 0,
+        _ball_restock_fails={})
+    h35e.BALL_RESTOCK_WIRED = True
+    h35e._ultra_target = lambda: 50
+    h35e._ultra_min_engage = lambda: 20
+    h35e._ball_restock_mode = True
+    h35e._ball_restock_fail("descent wedged on (1, 97) @ (14, 25)")
+    check("war-chest fail below floor STAYS on ferry (no 'engaging with 5')",
+          h35e._ball_restock_mode is True
+          and any("STAYING on the ferry" in l for l in logs35)
+          and not any("engaging with 5" in l for l in logs35))
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")
