@@ -1,0 +1,350 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 14) coords=(8, 24) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 5 blocked tile(s), 0 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=31860).
+
+   [soul] continuity loaded: 15 roster bond(s), 934 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 147 place(s) known, 240 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 14) coords=(8, 24) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260806_201352_an-unfamiliar-area_8b_34h05m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 7 warp(s) on (3, 14): (3, 31)->(34, 0), (14, 27)->(34, 1), (18, 12)->(34, 3), (4, 6)->(34, 4), (12, 6)->(34, 5), (12, 12)->(34, 6)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'pending', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: moltres (PROXIMITY TRUMP: standing at the moltres hunt)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/moltres → steps=['surf', 'moltres'] actionable=moltres (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'moltres' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'moltres' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home."  fired=True  [age 0.0s + post 12ms]
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 3, 16, 128) @ an unfamiliar area (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (8, 24) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 14) (8,24) f4 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'stock_up', 'talk_npc', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 14), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Reach Mt. Ember and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'Reach Mt. Ember and catch Moltres'
+
+   [campaign]    [roam] SHOP: "There's a Mart right here. you're light on Poké Balls — grab some so you can actually catch a teammate out there — a real trainer stocks up before pushing on." — surfacing 'stock_up' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 3
+
+   [kira-voice] -> T2·savor· (want) 'Reach Mt. Ember and catch Moltres'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Mt. Ember summit, One Island (MOLTRES — the legendary fire bird) — attempt 1/3 from (3, 14)
+
+   [campaign]    [hunt] Ultra pocket check — 5 Ultras (floor 20, target 50, wired=True, done=False, fails=0)
+
+   [campaign]    [hunt] !!!! ULTRA WAR-CHEST ARMED — bag has 5/50 Ultra Balls (engage floor 20); descending to Three Island Mart, then re-climbing (LOUD)
+
+   [campaign]    [hunt] Ultra war-chest armed at hunt entry — ferry before climb (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) "chat's right — 5 Ultras is a prayer, not a plan. sailing to Three Island for a war-chest, THEN we do this bird properly."  fired=True  [age 0.0s + post 12ms]
+
+   [campaign]    [to-port-for-prime-band] replan at (8, 24) (len 18, budget 9)
+
+   [dialogue] +++ "Who's gonna make me?"  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "Who\'s gonna make me?"'
+
+   [campaign]    [to-port-for-prime] EDGE south: (3, 14) -> (3, 49) @ (10, 1)
+
+   [campaign]    [port-harbor-for-prime-approach] replan at (10, 1) (len 14, budget 9)
+
+   [campaign]    [port-harbor-for-prime] (3, 49) -> (38, 0) @ (8, 3)
+
+   [campaign]    [sail] (38, 0) -> (33, 4); trying menu rows [1, 2] (LOUD)
+
+   [campaign]    [sailor-approach] replan at (8, 3) (len 3, budget 9)
+
+   [dialogue] +++ 'All right! All aboard SEAGALLOP HI-SPEED 2!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "All right! All aboard SEAGALLOP HI-SPEED 2!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [ferry] scene done at (33, 4)@(8, 5)
+
+   [campaign]    [sail] (38, 0) -> (33, 4) (row=1)
+
+   [campaign]    [two-town-prime-approach] replan at (8, 5) (len 3, budget 9)
+
+   [campaign]    [two-town-prime] (33, 4) -> (3, 13) @ (10, 8)
+
+   [campaign]    [hunt] !!!! WAR-CHEST: entering Joyful Game Corner to arm the Three Island biker gauntlet (Mart is behind them) (LOUD)
+
+   [campaign]    [corner-in-prime-approach] replan at (10, 8) (len 40, budget 9)
+
+   [campaign]    [corner-in-prime] (3, 13) -> (33, 0) @ (5, 8)
+
+   [campaign]    [hunt] !!!! WAR-CHEST: draining Lostelle-help scene at Game Corner (A-confirm; arms Three Island) (LOUD)
+
+   [dialogue] +++ "Now, where's LOSTELLE gotten to today? She always brings me lunch every day right about now.."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Now, where\'s LOSTELLE gotten to today? She always brings me lunch every day right about now.."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Hm? You, there! Are you a friend of LOSTELLE's? Have you seen LOSTELLE around? I don't know where she might be. She should've been here long ago. LOSTELLE's a cutie - she got my looks - so wha"  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hm? You, there! Are you a friend of LOSTELLE\'s? Have you seen LOSTELLE around? I don\'t know where she might be. She should\'ve been here long ago. LOSTELLE\'s a cutie - she got my looks - so wha"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (33, 0)@(5, 8) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ "Hah? What is this GAME CORNER? How much sadder can this get? Those clowns.. They said they'd be waiting on the island, so where are they? Hey, you! Is this the only THREE ISLAND around here?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hah? What is this GAME CORNER? How much sadder can this get? Those clowns.. They said they\'d be waiting on the island, so where are they? Hey, you! Is this the only THREE ISLAND around here?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Try waking up before you crawl out of bed, you punk. This is TWO ISLAND! Move it! Get your filthy motorbike out of my place!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Try waking up before you crawl out of bed, you punk. This is TWO ISLAND! Move it! Get your filthy motorbike out of my place!"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Huh.. Oh, oh, gotcha. Tch.. These islands are confusing..'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Huh.. Oh, oh, gotcha. Tch.. These islands are confusing.."'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [dialogue] +++ 'Would you look at that? That punk scuffed up my floor.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Would you look at that? That punk scuffed up my floor."'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (legendary) "ok — Lostelle's dad sent us to Three Island. clearing those bikers, THEN we buy the Ultra stack."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [corner-out-prime-approach] replan at (4, 8) (len 3, budget 9)
+
+   [campaign]    [corner-out-prime] (33, 0) -> (3, 13) @ (39, 10)
+
+   [campaign]    [two-harbor-balls-approach] replan at (39, 10) (len 39, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [two-harbor-balls] (3, 13) -> (33, 4) @ (8, 3)
+
+   [campaign]    [sail] (33, 4) -> (38, 0); trying menu rows [1, 2] (LOUD)
+
+   [campaign]    [sailor-approach] replan at (8, 3) (len 3, budget 9)
+
+   [dialogue] +++ 'All right! All aboard SEAGALLOP HI-SPEED 2!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "All right! All aboard SEAGALLOP HI-SPEED 2!"'
+
+   [campaign]    [ferry] scene done at (38, 0)@(8, 5)
+
+   [campaign]    [sail] (33, 4) -> (38, 0) (row=1)
+
+   [campaign]    [three-port-balls-approach] replan at (8, 5) (len 3, budget 9)
+
+   [campaign]    [three-port-balls] (38, 0) -> (3, 49) @ (12, 13)
+
+   [campaign]    [to-three-town-balls-band] replan at (12, 13) (len 14, budget 9)
+
+   [campaign]    [to-three-town-balls] EDGE north: (3, 49) -> (3, 14) @ (12, 39)
+
+   [campaign]    [hunt] !!!! WAR-CHEST: clearing Three Island biker gauntlet (YES to the fight — Mart is north of the pack) (LOUD)
+
+   [campaign]    [biker-south-0] replan at (12, 39) (len 3, budget 9)
+
+   [campaign]    [biker-trig-9-27] replan at (10, 39) (len 14, budget 9)
+
+   [dialogue] +++ 'Are you the boss? Go back to KANTO right now!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Are you the boss? Go back to KANTO right now!"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Hah? I just got here, pal. What's with the hostile attitude? It's mighty cold of you!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hah? I just got here, pal. What\'s with the hostile attitude? It\'s mighty cold of you!"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "Your gang of followers have been raising havoc on their bikes. Do you have any idea how much trouble they've caused us on the island?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your gang of followers have been raising havoc on their bikes. Do you have any idea how much trouble they\'ve caused us on the island?"'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ "No, man, I don't get it at all. Look at this place. What do you do for entertainment? You ought to be thanking us for livening up this sleepy village. But hey, if you insist, you can try makin"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "No, man, I don\'t get it at all. Look at this place. What do you do for entertainment? You ought to be thanking us for livening up this sleepy village. But hey, if you insist, you can try makin"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Grr.. You cowards.. So tough in a pack..'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Grr.. You cowards.. So tough in a pack.."'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [biker-trig-9-27] replan at (10, 27) (len 2, budget 9)
+
+   [campaign]    [biker-trig-9-26] replan at (9, 27) (len 2, budget 9)
+
+   [campaign]    [biker-south-1] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'  fired=True  [age 0.0s + post 12ms]
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "That\'s smart. Keep your nose out of this."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [biker-south-1] replan at (9, 27) (len 2, budget 10)
+
+   [campaign]    [biker-trig-9-27] replan at (9, 28) (len 2, budget 9)
+
+   [campaign]    [biker-south-2] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [campaign]    [biker-south-2] replan at (9, 27) (len 2, budget 10)
+
+   [campaign]    [biker-trig-9-27] replan at (9, 28) (len 2, budget 9)
+
+   [campaign]    [biker-south-3] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [campaign]    [biker-south-3] replan at (9, 27) (len 2, budget 10)
+
+   [campaign]    [biker-trig-9-27] replan at (9, 28) (len 2, budget 9)
+
+   [campaign]    [biker-south-4] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [campaign]    [biker-south-4] replan at (9, 27) (len 2, budget 10)
+
+   [campaign]    [biker-trig-9-27] replan at (9, 28) (len 2, budget 9)
+
+   [campaign]    [biker-south-5] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [campaign]    [biker-south-5] replan at (9, 27) (len 2, budget 10)
+
+   [campaign]    [biker-trig-9-27] replan at (9, 28) (len 2, budget 9)
+
+   [campaign]    [biker-south-6] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [campaign]    [biker-south-6] replan at (9, 27) (len 2, budget 10)
+
+   [campaign]    [biker-trig-9-27] replan at (9, 28) (len 2, budget 9)
+
+   [campaign]    [biker-south-7] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [campaign]    [biker-south-7] replan at (9, 27) (len 2, budget 10)
+
+   [campaign]    [biker-trig-9-27] replan at (9, 28) (len 2, budget 9)
+
+   [campaign] !! [hunt] biker gauntlet still up @ (9, 26) scene=3 (LOUD)
+
+   [campaign] !! [hunt] ULTRA WAR-CHEST FAILED (biker roadblock @ (9, 26)) — fail 1/2; pocket 5<20 — STAYING on the ferry (never engage this thin) (LOUD)
+
+   [campaign]    [hunt] !!!! WAR-CHEST: clearing Three Island biker gauntlet (YES to the fight — Mart is north of the pack) (LOUD)
+
+   [campaign]    [biker-south-0] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [campaign]    [biker-south-0] replan at (9, 27) (len 2, budget 10)
+
+   [campaign]    [biker-trig-9-27] replan at (9, 28) (len 2, budget 9)
+
+   [campaign]    [biker-south-1] replan at (9, 26) (len 3, budget 9)
+
+   [dialogue] +++ "You, what are you staring at? Don't you know it's not polite? You wanna make something of it or what?"  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "You, what are you staring at? Don\'t you know it\'s not polite? You wanna make something of it or what?"'
+
+   [dialogue] +++ "That's smart. Keep your nose out of this."  tags=[]
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 308s, restart 1/8) — GAME CONTINUES; respawning audio.
+

@@ -1,0 +1,21 @@
+===== playlive_2026-08-06_20-23-15.log =====
+   [play-live]    [engine] JUST FIGHT: L65 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] avoided a type-immune move -> Bite (eff x1) instead
+   [play-live]    [engine] action menu: Bite -> slot 0 (eff x1) vs koffing 76/76 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=8,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x4) vs grimer 106/106 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=8,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L65 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] avoided a type-immune move -> Bite (eff x1) instead
+   [play-live]    [engine] action menu: Bite -> slot 0 (eff x1) vs koffing 78/78 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=7,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Bite slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+===== playlive_2026-08-06_20-13-50.log =====
