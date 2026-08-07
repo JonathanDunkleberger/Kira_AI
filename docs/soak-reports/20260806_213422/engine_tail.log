@@ -1,0 +1,31 @@
+===== playlive_2026-08-06_21-28-05.log =====
+===== playlive_2026-08-06_21-21-30.log =====
+   [play-live]    [engine] JUST FIGHT: L66 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 73/73 | [0]Bite(p60,pp=15,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L66 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machoke 122/122 | [0]Bite(p60,pp=14,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L66 vs L40 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machoke 18/122 | [0]Bite(p60,pp=14,ref=0,sc=15) [1]Skull Bash(p100,pp=14,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L66 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 63/63 | [0]Bite(p60,pp=14,ref=0,sc=60) [1]Skull Bash(p100,pp=13,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L66 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 84/84 | [0]Bite(p60,pp=13,ref=0,sc=15) [1]Skull Bash(p100,pp=13,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L66 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 1 (eff x1) vs machop 104/104 | [0]Bite(p60,pp=13,ref=0,sc=15) [1]Skull Bash(p100,pp=12,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted

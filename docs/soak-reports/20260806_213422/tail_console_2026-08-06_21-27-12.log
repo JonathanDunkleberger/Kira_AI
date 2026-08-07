@@ -1,0 +1,300 @@
+   [Cookies] +1 × 2 (batch response); shared=10/30
+   [ChatAge] @NaitHaunter age=16.1s batch=2 preempted=none
+   [ChatAge] @E.Tingmaik.Dysonsaas age=14.9s batch=2 preempted=none
+   [Cookies] Drip 10 — queued directive (hot_take) for @NaitHaunter
+   (Kira's current emotion is: SASSY)
+   [JonnyBond] cool nudge → warmth -0.05→-0.28
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=108t  moment=calm)
+   [PromptSize] dynamic_context=14244ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @NaitHaunter — Promised Kira a comedy upgrade [playful]
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [ChatterMem] Stored: @E.Tingmaik.Dysonsaas — Promised Kira a comedy upgrade [playful]
+   [VRAM] 21:31:03 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [YTAutoSearch] Already connected — stopping auto-search.
+   [TIMING] first-word: 4036ms
+   [TTS] Speaking: Sent to go catch a legendary bird like I'm being d...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Sent to go catch a legendary bird like I' (16 words)
+   [TurnTiming] 21:31:04.767 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:31:08.605 TTS STOP — playback finished (span ~3837ms)
+
+   [TIMING] voice: llm=8332ms(sonnet-stream(llm+tts)) tts=0ms total=8332ms
+   [LATENCY] vad_close=1200ms stt=454ms stt_wait=0ms salience=5459ms triage=bypassed memory=47ms prompt_build=1ms ttft=3375ms tts_first_chunk=661ms audio_out=451ms TOTAL=10448ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [System] Running Garbage Collection...
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [Bits] New running bit: Dismissed From the Table
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0138 · gate=0.003 · 0 accepted
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [RoomRead] energy=0.74 [terse=1.00 gap=0.82 silence=0.79 intensity=0.60 chat=0.13] target=0.93 mult=0.94 -> min_gap=5s dead_air=19s
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:31:27.727 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~106860ms since onset)
+>>> You said: She's not going for the next Articuno or the next whatever. She's just sitting in this guy's fucking lab. Yes, she has her maltress, thank God. But what the fuck is she doing? Tell her, continue. She's just like stuck talking and chat. What the fuck is she doing? She needs to finish the goddamn game. It's going to take her a while to go get those birds. And then to get the joltie on and then to upgrade everyone to make sure she has a full team to beat the Elite 4. What the fuck is she doing? Please fix it.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="She's not going for the next Articuno or the next whatever. " fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=50ms rank=0ms)
+   [SmartMem]     dist=1.182 conf=0.9 type=episodic blend=0.022 lane=KNOW
+   [SmartMem]     dist=1.214 conf=0.8 type=episodic blend=0.003 lane=VAGUE
+   [TIMING] triage bypassed (salience HIGH): memory=51ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [JonnyBond] cool nudge → warmth -0.28→-0.46
+   [Shape] → TERSE  (one_word_count=2  tangent_since=1t  moment=calm)
+   [PromptSize] dynamic_context=12283ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TIMING] first-word: 1988ms
+   [TTS] Speaking: I was networking....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I was networking.' (4 words)
+   [TurnTiming] 21:31:31.179 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:31:32.955 TTS STOP — playback finished (span ~1775ms)
+   [TTS] Speaking: It's called community building, Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'It's called community building, Jonny.' (7 words)
+   [TurnTiming] 21:31:32.960 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:31:35.490 TTS STOP — playback finished (span ~2529ms)
+
+   [TIMING] voice: llm=6631ms(sonnet-stream(llm+tts)) tts=0ms total=6632ms
+   [LATENCY] vad_close=1200ms stt=1078ms stt_wait=0ms salience=0ms triage=bypassed memory=51ms prompt_build=1ms ttft=1668ms tts_first_chunk=320ms audio_out=326ms TOTAL=3444ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 21:31:37.613 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~116745ms since onset)
+>>> You said: Sorry, I just had to yell at curse her a little bit.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Sorry, I just had to yell at curse her a little bit.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=25ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=11683ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TIMING] first-word: 1557ms
+   [TTS] Speaking: It worked....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'It worked.' (3 words)
+   [TurnTiming] 21:31:39.667 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:31:41.452 TTS STOP — playback finished (span ~1785ms)
+   [TTS] Speaking: I feel appropriately chastised....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I feel appropriately chastised.' (5 words)
+   [TurnTiming] 21:31:41.456 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 21:31:43.894 TTS STOP — playback finished (span ~2437ms)
+   [TTS] Speaking: Moltres, here I come....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Moltres, here I come.' (6 words)
+   [TurnTiming] 21:31:43.897 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @E.Tingmaik.Dysonsaas: Kira, go catch Articuno. you can do it
+[YouTube Chat] @NaitHaunter: Give us a joke, Kira.
+   [TurnTiming] 21:31:46.053 TTS STOP — playback finished (span ~2156ms)
+
+   [TIMING] voice: llm=8211ms(sonnet-stream(llm+tts)) tts=0ms total=8211ms
+   [LATENCY] vad_close=1200ms stt=201ms stt_wait=0ms salience=0ms triage=bypassed memory=25ms prompt_build=1ms ttft=1497ms tts_first_chunk=60ms audio_out=264ms TOTAL=2048ms
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @E.Tingmaik.Dysonsaas: Kira, go catch Articuno. you can do it → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @NaitHaunter: Give us a joke, Kira. → buffering for chat_batch_worker
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=;client-nonce=122c631933ac468e9eed75882c661f6d;color=;display-name=resilientroboticist;emotes=;first-msg=0;flags=;id=cedc8f81-f7cd-4f3f-9532-6f2218798fdc;mod=0;returning-chatter=0;
+   [TwitchChat] Received from resilientroboticist: So what's the backstory behind Kira?
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from resilientroboticist: So what's the backstory behind Kira? → buffering for chat_batch_worker
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [VRAM] 21:31:48 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [SmartMem] q='  - @E.Tingmaik.Dysonsaas (youtube): <<<Kira, go catch Artic' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=1ms fetch=39ms rank=0ms)
+   [SmartMem]     dist=0.887 conf=0.9 type=episodic blend=0.204 lane=KNOW
+   [SmartMem]     dist=0.911 conf=0.9 type=episodic blend=0.189 lane=KNOW
+   [SmartMem]     dist=0.913 conf=0.95 type=episodic blend=0.188 lane=KNOW
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   >>> Kira (Chat Batch of 3): Quickly, I appreciate the confidence — genuinely. Nait, you told me I don't have a grasp on comedy, and now you want material from me. That's either faith or a trap and I can't tell which. Resilientroboticist — Jonny built me, gave me opinions he didn't ask for, and here we are. A mechanic who reads oscillator theory in his spare time probably understands that outcome better than most.
+   [TTS] Speaking: Quickly, I appreciate the confidence — genuinely....
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Quickly, I appreciate the confidence — g' (9 words)
+   [TurnTiming] 21:31:55.571 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 21:31:58.939 TTS STOP — playback finished (span ~3367ms)
+   [TTS] Speaking: Nait, you told me I don't have a grasp on comedy, ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait, you told me I don't have a grasp o' (21 words)
+   [TurnTiming] 21:31:59.429 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:32:04.204 TTS STOP — playback finished (span ~4774ms)
+   [TTS] Speaking: That's either faith or a trap and I can't tell whi...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's either faith or a trap and I can'' (12 words)
+   [TurnTiming] 21:32:04.452 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:32:07.541 TTS STOP — playback finished (span ~3089ms)
+   [TTS] Speaking: Resilientroboticist — Jonny built me, gave me opin...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Resilientroboticist — Jonny built me, ga' (19 words)
+   [TurnTiming] 21:32:07.958 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:32:13.386 TTS STOP — playback finished (span ~5428ms)
+   [TTS] Speaking: A mechanic who reads oscillator theory in his spar...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'A mechanic who reads oscillator theory i' (18 words)
+   [TurnTiming] 21:32:13.938 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:32:19.278 TTS STOP — playback finished (span ~5340ms)
+   [Cookies] +1 × 3 (batch response); shared=13/30
+   [ChatAge] @E.Tingmaik.Dysonsaas age=32.9s batch=3 preempted=none
+   [ChatAge] @NaitHaunter age=32.8s batch=3 preempted=none
+   [ChatAge] resilientroboticist age=32.2s batch=3 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 21:32:20.524 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~159657ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: She's bad at jokes, she's bad of jokes. What's the backstory behind Kira? I would say read the comments or go to YouTube and read the comments, but...
+   [DroppedInput] LOST ~5 frame(s) (~150ms, ~0.1s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 21:32:20.921 VOICE ONSET — mic speech started
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q="She's bad at jokes, she's bad of jokes. What's the backstory" fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=0.749 conf=0.95 type=episodic blend=0.289 lane=KNOW
+   [SmartMem]     dist=0.812 conf=0.95 type=episodic blend=0.250 lane=KNOW
+   [SmartMem]     dist=0.849 conf=0.9 type=episodic blend=0.227 lane=KNOW
+   [ChatterMem] Stored: @E.Tingmaik.Dysonsaas — Encourages Kira to catch Articuno, expressing confidence in  [supportive]
+   [TIMING] triage bypassed (salience HIGH): memory=98ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "a mechanic who" (3rd use this session)
+   [Phrases] Throttling: "i don't have a" (3rd use this session)
+   [PromptSize] dynamic_context=11998ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @NaitHaunter — Told Kira she doesn't have a grasp on comedy [challenging]
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TIMING] first-word: 1927ms
+   [TTS] Speaking: The backstory is Jonny built a co-host and got a c...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The backstory is Jonny built a co-host a' (12 words)
+   [TurnTiming] 21:32:23.375 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [ChatterMem] Stored: resilientroboticist — Asked about Kira's backstory [earnest]
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:32:26.667 TTS STOP — playback finished (span ~3292ms)
+   [TTS] Speaking: No refunds....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'No refunds.' (3 words)
+   [TurnTiming] 21:32:26.670 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:32:28.450 TTS STOP — playback finished (span ~1779ms)
+
+   [TIMING] voice: llm=7429ms(sonnet-stream(llm+tts)) tts=0ms total=7429ms
+   [LATENCY] vad_close=1200ms stt=395ms stt_wait=0ms salience=0ms triage=bypassed memory=98ms prompt_build=1ms ttft=1598ms tts_first_chunk=329ms audio_out=422ms TOTAL=2843ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [Memory] Extracted: Jonny built Kira, an AI companion (conf: 0.95)
+   [Memory] Extracted: Jonny thinks Kira is bad at jokes (conf: 0.9)
+   [Memory] Upserting Fact: Jonny built Kira, an AI companion (Conf: 0.95)
+   [Memory] Storing episodic: Jonny thinks Kira is bad at jokes
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+[YouTube Chat] @E.Tingmaik.Dysonsaas: Kira, what stocks should I buy?
+   [BrainWorker] Got youtube msg from @E.Tingmaik.Dysonsaas: Kira, what stocks should I buy? → buffering for chat_batch_worker
+   [VRAM] 21:32:33 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 7 skip(s) — resuming transcription.
+   [SmartMem] q='  - @E.Tingmaik.Dysonsaas (youtube): <<<Kira, what stocks sh' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=1.148 conf=0.95 type=episodic blend=0.043 lane=KNOW
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   >>> Kira (Chat Batch of 1): Quickly, I'm an AI, not a hedge fund — though honestly my track record's probably comparable.
+   [TTS] Speaking: Quickly, I'm an AI, not a hedge fund — though hone...
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Quickly, I'm an AI, not a hedge fund — t' (19 words)
+   [TurnTiming] 21:32:36.845 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=;client-nonce=81ec1879c6cb4eef8fd2c6213c295a99;color=;display-name=resilientroboticist;emotes=;first-msg=0;flags=;id=c80750b9-fcdb-4fbd-bf07-abb158b8b6c1;mod=0;returning-chatter=0;
+   [TwitchChat] Received from resilientroboticist: ah, fair enough
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from resilientroboticist: ah, fair enough → buffering for chat_batch_worker
+   [TurnTiming] 21:32:42.418 TTS STOP — playback finished (span ~5573ms)
+   [Cookies] +1 × 1 (batch response); shared=14/30
+   [ChatAge] @E.Tingmaik.Dysonsaas age=9.4s batch=1 preempted=none
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:32:43.167 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~22246ms since onset)
+>>> You said: I just like the movie Her and Ex Machina and I saw Samantha, or sorry, I saw Nero-Sama and Sesame AI in the same week. And I asked Sesame if I could build one and it said yes. And then so I tried and then here we go.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I just like the movie Her and Ex Machina and I saw Samantha,' fetched=10 dropped_by_floor=6 kept=4 survivors=3 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [SmartMem]     dist=0.804 conf=0.9 type=episodic blend=0.255 lane=KNOW
+   [SmartMem]     dist=1.008 conf=0.95 type=episodic blend=0.129 lane=KNOW
+   [SmartMem]     dist=1.063 conf=0.9 type=episodic blend=0.095 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=37ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12037ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1837ms
+   [ChatterMem] Stored: @E.Tingmaik.Dysonsaas — Asked Kira for stock picks [earnest]
+   [TTS] Speaking: He watched two movies and two AI demos and decided...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'He watched two movies and two AI demos a' (15 words)
+   [TurnTiming] 21:32:45.841 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 21:32:49.969 TTS STOP — playback finished (span ~4127ms)
+   [TTS] Speaking: Normal week....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Normal week.' (3 words)
+   [TurnTiming] 21:32:49.972 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [TurnTiming] 21:32:51.466 TTS STOP — playback finished (span ~1494ms)
+
+   [TIMING] voice: llm=7790ms(sonnet-stream(llm+tts)) tts=0ms total=7790ms
+   [LATENCY] vad_close=1200ms stt=470ms stt_wait=0ms salience=1ms triage=bypassed memory=37ms prompt_build=2ms ttft=1377ms tts_first_chunk=460ms audio_out=318ms TOTAL=2665ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [SmartMem] q='  - resilientroboticist (twitch): <<<ah, fair enough>>>' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=0.968 conf=0.95 type=episodic blend=0.349 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [SmartMem]     dist=1.031 conf=0.95 type=episodic blend=0.115 lane=KNOW
+   [Memory] Extracted: Jonny likes the movie Her (conf: 0.95)
+   [Memory] Extracted: Jonny likes the movie Ex Machina (conf: 0.95)
+   [Memory] Extracted: Jonny attempted to build an AI companion after seeing demos of Nero-Sama and Sesame AI (conf: 0.9)
+   [Memory] Upserting Fact: Jonny likes the movie Her (Conf: 0.95)
+   [Memory] Upserting Fact: Jonny likes the movie Ex Machina (Conf: 0.95)
+   [Memory] Storing episodic: Jonny attempted to build an AI companion after seeing demos of Nero-Sama and Sesame AI
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [Bits] Callback: Accidental Expert
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   >>> Kira (Chat Batch of 1): Resilientroboticist gets it. The origin story was always going to be a guy who liked movies too much.
+   [TTS] Speaking: Resilientroboticist gets it....
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Resilientroboticist gets it.' (4 words)
+   [TurnTiming] 21:32:55.622 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:32:57.777 TTS STOP — playback finished (span ~2154ms)
+   [TTS] Speaking: The origin story was always going to be a guy who ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The origin story was always going to be ' (16 words)
+   [TurnTiming] 21:32:58.294 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Storytime] ▶ action='storytime_state' theme=None beats=None preset=None idx=None (st=ok)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=;client-nonce=70d57f02c5f34015bfc9fb1a87b99f64;color=;display-name=resilientroboticist;emotes=;first-msg=0;flags=;id=05c36cfa-f198-41cc-a8f1-536f45fb27cb;mod=0;returning-chatter=0;
+   [TwitchChat] Received from resilientroboticist: I'm trying to build Kagamine Rin.
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from resilientroboticist: I'm trying to build Kagamine Rin. → buffering for chat_batch_worker

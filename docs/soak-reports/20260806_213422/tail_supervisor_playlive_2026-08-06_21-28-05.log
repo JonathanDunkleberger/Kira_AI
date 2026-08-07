@@ -1,0 +1,152 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 12) coords=(23, 12) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 2 blocked tile(s), 1 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=33652).
+
+   [soul] continuity loaded: 17 roster bond(s), 977 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 149 place(s) known, 250 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 12) coords=(23, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260806_212807_an-unfamiliar-area_8b_35h04m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'pending', 'eevee': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: articuno (cost-ordered from (3, 12))
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 5, 18, 213) @ an unfamiliar area (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (23, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L66, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 12) (23,12) f4 -- badge8 $166 party:df71 bag:7245]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L66), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L66), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'Press on through the league', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='locate the Pokémon League entrance'
+
+   [campaign]    [soul] ORACLE pick -> 'locate the Pokémon League entrance'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 5
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four   [kira-voice] -> T2·savor· (want) 'locate the Pokémon League entrance'  fired=True  [age 0.0s + post 3ms]
+
+
+
+   [campaign]    [lap] 'articuno' deferred — still on Sevii after Moltres; DRIVING the Lostelle ride-home (not Celadon from here)
+
+   [campaign]    [lap] 🔥 MOLTRES RIDE-HOME: bird spent, still on Sevii ((3, 12)) — driving Lostelle detour + sail home (attempt 1)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [caught-moltres] -> campaign/kira_campaign.state  (map=(3, 12) coords=(23, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [caught-moltres] -> checkpoints/20260806_212813_an-unfamiliar-area_8b_35h04m_caught-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'caught-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [one-pc-approach] replan at (23, 12) (len 16, budget 9)
+
+   [dialogue] +++ "Oh, you're a stranger here! Hi! Where did you come from? ..PALLET TOWN? I don't know it!"  tags=['PLACE']
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "Oh, you\'re a stranger here! Hi! Where did you come from? ..PALLET TOWN? I don\'t know it!"'
+
+   [dialogue] +++ 'Expanding the POK.MON World! POK.MON NET CENTER'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Expanding the POK.MON World! POK.MON NET CENTER"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [one-pc-approach] replan at (15, 7) (len 3, budget 10)
+
+   [campaign]    [one-pc] (3, 12) -> (32, 0) @ (9, 9)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [caught-moltres] -> campaign/kira_campaign.state  (map=(32, 0) coords=(9, 9) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [caught-moltres] -> checkpoints/20260806_212829_an-unfamiliar-area_8b_35h04m_caught-moltres  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'caught-moltres' banked — any recovery now resumes right here
+
+   [campaign]    [nurse-front] replan at (9, 9) (len 10, budget 5)
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ "Thank you for waiting. We've restored your POK.MON to full health."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Thank you for waiting. We\'ve restored your POK.MON to full health."'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'We hope to see you again!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "We hope to see you again!"'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T2·savor· (legendary) "detour done, Meteorite delivered — Bill's sailing us home to Cinnabar. what a trip."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [leave-trigger] replan at (5, 4) (len 10, budget 9)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 288s, restart 1/8) — GAME CONTINUES; respawning audio.
+
