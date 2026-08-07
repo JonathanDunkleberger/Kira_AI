@@ -96,11 +96,56 @@ Say "== stopping any running Kira python processes =="
 taskkill /F /IM python.exe /T 2>&1 | Out-Null
 Start-Sleep -Seconds 2
 
+# ENDGAME BRANCH GUARD (2026-08-07): soak 20260807_112459 relaunched on main after
+# `git checkout cursor/endgame-credits-path-bdbc` aborted on a dirty soak log — she
+# looped Articuno forever with Eevee still in the lap order. Prefer the fix branch
+# when it exists remotely; stash only docs/soak-reports so checkout can proceed.
+$endgameBranch = "cursor/endgame-credits-path-bdbc"
+$curBranch = (git rev-parse --abbrev-ref HEAD 2>&1 | Out-String).Trim()
+Say "git branch at start: $curBranch"
+RunLogged "git fetch origin" { git fetch origin 2>&1 | ForEach-Object { "$_" } } | Out-Null
+$hasEndgame = $false
+try {
+    git rev-parse --verify "origin/$endgameBranch" 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) { $hasEndgame = $true }
+} catch { $hasEndgame = $false }
+if ($hasEndgame -and $curBranch -ne $endgameBranch) {
+    Say "== endgame fix branch exists on origin — switching off '$curBranch' =="
+    # Dirty soak reports commonly block checkout; stash ONLY that tree (never campaign saves).
+    $dirtySoak = git status --porcelain -- docs/soak-reports 2>&1
+    if ($dirtySoak) {
+        RunLogged "stash soak-reports for branch switch" {
+            git stash push -m "resume_marathon soak dirty $ts" -- docs/soak-reports 2>&1 |
+                ForEach-Object { "$_" }
+        } | Out-Null
+    }
+    RunLogged "checkout $endgameBranch" {
+        git checkout $endgameBranch 2>&1 | ForEach-Object { "$_" }
+    } | Out-Null
+    $curBranch = (git rev-parse --abbrev-ref HEAD 2>&1 | Out-String).Trim()
+    if ($curBranch -ne $endgameBranch) {
+        Say "!! FATAL: still on '$curBranch' — cannot load Articuno/credits fixes. Aborting launch."
+        Say "   Manual: git stash push -- docs/soak-reports/; git checkout $endgameBranch; re-run."
+        exit 1
+    }
+    Say "now on $endgameBranch — Articuno softlock + credits-first lap code is live"
+}
+
 # git writes fetch progress to STDERR; PowerShell turns that into a NativeCommandError inside
 # RunLogged (seen in soak 20260803_090134) and the report loses the ACTUAL pull result. Merge
 # streams and echo the result LOUD so every soak report proves which commit this session runs.
 RunLogged "git pull" { git pull 2>&1 | ForEach-Object { "$_" } } | Out-Null
 Say ("running commit: " + (git log -1 --format='%h %s' 2>&1))
+Say ("running branch: " + (git rev-parse --abbrev-ref HEAD 2>&1))
+
+# Sanity: stale main still ships Eevee on the victory lap — refuse to launch that code.
+$lapOrderLine = Select-String -Path (Join-Path $RepoRoot "pokemon_agent\campaign.py") `
+    -Pattern 'VICTORY_LAP_ORDER\s*=' -Context 0,2 | Out-String
+if ($lapOrderLine -match '"eevee"' -or $lapOrderLine -match "'eevee'") {
+    Say "!! FATAL: VICTORY_LAP_ORDER still lists eevee — this tree is pre-credits-first. Aborting."
+    Say "   Need branch $endgameBranch (or a merge of it). Do NOT launch stale main into Seafoam."
+    exit 1
+}
 
 $activate = Join-Path $RepoRoot ".venv\Scripts\Activate.ps1"
 if (Test-Path $activate) { & $activate } else { Say "!! .venv not found - using system python" }
@@ -455,13 +500,17 @@ if (Test-Path $targetFile) {
 # 4) push the report (and the consumed target file) to GitHub
 # NOTE: separate git add calls - a pathspec that matches nothing must not sink the whole add.
 Say "== push soak report (this can take ~30s; console stays quiet on purpose) =="
+$pushBranch = (git rev-parse --abbrev-ref HEAD 2>&1 | Out-String).Trim()
+if (-not $pushBranch -or $pushBranch -eq "HEAD") { $pushBranch = "main" }
 RunLogged "push soak report" {
     git add -A docs\soak-reports
     git add -A pokemon_agent\PROMOTE_TARGET.txt 2>&1 | Out-Null
     git commit -m "report(soak): $ts inventory/rescue (auto from resume_marathon.ps1)"
-    git push origin main
+    # Push the branch we are ON (never hardcode main — that rewrote soaks onto main while
+    # the endgame fix lived on a feature branch, then the next resume stayed on stale main).
+    git push -u origin $pushBranch
 } | Out-Null
-Say "push soak report finished (see log if git complained)."
+Say "push soak report finished (branch=$pushBranch; see log if git complained)."
 
 # 5) launch
 if (-not $launchApproved) { Say "done (no launch this run)."; exit 0 }
