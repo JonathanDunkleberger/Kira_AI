@@ -9,10 +9,11 @@ tiered best-ball-first, Master Ball allowed on Mewtwo only). This module is only
   ZAPDOS   — Power Plant (1,95) at (5,11). Route 10's water strip guards the door (7,40):
              sea_walk crosses it (giovanni_gym machinery verbatim). Pre-E4 the moment Surf
              is taught.
-  ARTICUNO — Seafoam B4F (1,87) at (9,2). Gated on the boulders being TRULY down (hide flags
-             0x046/0x047 cleared — the stamped 0x2D2 from the R21 reroute is NOT enough: the
-             B4F water still rips without the fallen boulders, see seafoam_strike). Descends
-             the ladder chain from either F1 door; candidates per floor, live BFS picks.
+  ARTICUNO — Seafoam B4F (1,87) at (9,2). Gated on FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3)
+             — BOTH B4F boulders PRESENT (hide 0x04C/0x04D cleared). B3F calm (0x2D2) and
+             B3F boulder flags are NOT enough: R21 can stamp 0x2D2 while B4F still rips
+             (soak 20260806_222735: no path (8,15)->bird). Descends the pinned west hole
+             chain; east is a whole-table fallback.
   MOLTRES  — Mt. Ember summit (1,101) at (9,6), on ONE ISLAND (Sevii). The only hunt with a
              FERRY in it: Bill's post-Blaine offer is the ride out (declining parks him in
              the Cinnabar Center where he re-offers forever — pret CinnabarIsland scripts),
@@ -91,9 +92,12 @@ THREE_MART_DOOR = (18, 12)           # ThreeIsland overworld warp -> Mart
 BOND_BRIDGE, BERRY_FOREST = (3, 48), (1, 109)
 
 FLAG_SYS_GAME_CLEAR = 0x82C          # champion — the Cerulean Cave guard steps aside
-FLAG_B3F_CALM = 0x2D2                # crossing signal (may be STAMPED by the R21 reroute!)
-FLAG_HIDE_B3F_BOULDER_1 = 0x046      # cleared = boulder truly fell -> B4F water is safe
+FLAG_B3F_CALM = 0x2D2                # B3F crossing signal (may be STAMPED by the R21 reroute!)
+FLAG_B4F_CALM = 0x2D3                # FLAG_STOPPED_SEAFOAM_B4F_CURRENT — Articuno water proof
+FLAG_HIDE_B3F_BOULDER_1 = 0x046      # CLEARED = boulder still on B3F (B3F calm path)
 FLAG_HIDE_B3F_BOULDER_2 = 0x047
+FLAG_HIDE_B4F_BOULDER_1 = 0x04C      # CLEARED = boulder PRESENT on B4F (stops B4F current)
+FLAG_HIDE_B4F_BOULDER_2 = 0x04D
 FLAG_HIDE_CINNABAR_PC_BILL = 0x0A2   # CLEAR = Bill waits in the Cinnabar Center (trip open)
 FLAG_RESCUED_LOSTELLE = 0x2A3        # Berry Forest rescue done (Hypno beaten)
 FLAG_STR_ACTIVE = 0x805              # FLAG_SYS_USE_STRENGTH — resets per map load
@@ -1056,17 +1060,31 @@ class ZapdosHunt(LegendaryHunt):
 class ArticunoHunt(LegendaryHunt):
     QUARRY = ARTICUNO
 
+    def b4f_water_safe(self):
+        """True only when B4F current is stopped (pret OnTransition: both B4F boulders
+        PRESENT → FLAG_STOPPED_SEAFOAM_B4F_CURRENT). B3F calm / B3F hide flags are NOT
+        proof — R21 stamps 0x2D2 without dropping the Articuno dam."""
+        b = self.b
+        if fm.read_flag(b, FLAG_B4F_CALM):
+            return True
+        # Live boulder presence (hide CLEARED) is the same predicate the scripts use.
+        return (not fm.read_flag(b, FLAG_HIDE_B4F_BOULDER_1)
+                and not fm.read_flag(b, FLAG_HIDE_B4F_BOULDER_2))
+
     def run(self):
         b = self.b
         here = tuple(tv.map_id(b))
         if self.spent_final() and here not in ARTICUNO_ANCHORS - {R20}:
             return self.outcome() or "battled"
         here = tuple(tv.map_id(b))          # a FREE-RETRY reload may have moved her — re-read
-        # HARD SAFETY: without BOTH fallen boulders the B4F water still rips (the R21-reroute
-        # stamp sets 0x2D2 without them — see seafoam_strike) — refuse rather than get swept.
-        if fm.read_flag(b, FLAG_HIDE_B3F_BOULDER_1) or fm.read_flag(b, FLAG_HIDE_B3F_BOULDER_2):
-            self.log("   [articuno] boulders NOT truly down (hide flags still set) — B4F is "
-                     "rip-current water; refusing the descent (the gate should have caught this)")
+        # HARD SAFETY: B4F rip current (0x2D3 unset / B4F boulders absent) dumps her onto a
+        # land pocket with NO surf path to Articuno (soak 20260806_222735). Refuse + climb
+        # out so the lap can honest-skip instead of softlocking on quarry-approach.
+        if not self.b4f_water_safe():
+            self.log("   [articuno] B4F current NOT stopped (0x2D3 clear / B4F boulders "
+                     "absent) — bird water is a rip; refusing (LOUD)")
+            if here in {F1, B1F, B2F, B3F, B4F}:
+                self.ride(ARTICUNO_ASCENT, R20, "ascent-unsafe")
             return "failed"
         if here == R20:
             # East door (60,8) lands F1 near the WEST down-chain (10,6). West door (72,14)
@@ -1085,7 +1103,12 @@ class ArticunoHunt(LegendaryHunt):
                         return "failed"
             if tuple(tv.map_id(b)) != B4F:
                 return "failed"
+        # East-pocket landing with calm water: Articuno is west — sea_walk across.
+        # If approach fails, climb out (do NOT park on B4F for proximity-unskip forever).
         if not self.spent_final() and not self.press_quarry():
+            self.log("   [articuno] press failed — ascending to R20 so the lap can move on "
+                     "(no B4F softlock) (LOUD)")
+            self.ride(ARTICUNO_ASCENT, R20, "ascent-bail")
             return "failed"
         out = self.outcome() or "failed"
         # walk out on the pinned west ascent (same doctrine — no east fan-out yo-yo)

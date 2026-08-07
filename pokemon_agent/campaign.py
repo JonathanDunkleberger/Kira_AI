@@ -432,9 +432,10 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 #   2. moltres   — Bill still waits in the Cinnabar PC and the R21 sea road south is the road she
 #      just surfed: the Sevii round-trip FIRST (the strike + ride-home hook drive the whole loop);
 #   3. articuno  — Seafoam's Route-20 doors are one map east of Cinnabar (the ride-home dock);
-#   4. eevee     — the Celadon Condominiums roof ball on the walk back north-east (the promised
-#      quest since Celadon; the Jolteon rite picks it up from there);
-#   5. zapdos    — the Route 10 / Power Plant spur last; the League march re-derives from anywhere.
+#      HARD GATE = FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3), not B3F calm / B3F boulder flags;
+#   4. zapdos    — Power Plant (electric for Lorelei/Lance). Eevee/Jolteon is NOT on the lap —
+#      luxury only (POKEMON_EEVEE_FETCH proactive gate); Zapdos is the electric answer and a
+#      Celadon L25 gift would poison the E4 floor grind (Jonny 2026-08-07: credits first).
 # 'Honestly skipped' = the hunts' own self-suppression truths (caught/battled-away, Bill gone,
 # Seafoam boulders never dropped) plus a bounded failed-dispatch counter -> a loud '[lap] SKIP' —
 # never an infinite park. While an item is owed the 'victory_lap' action replaces head_to_league
@@ -453,9 +454,13 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 # Kill switch: POKEMON_BOX_FLOW=0 removes both items from the checklist entirely (the lap
 # collapses to the original five; passengers ride in the trunk, the E4 sort keeps them last).
 VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
-VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "eevee", "zapdos",
-                     "repack")
+# CREDITS-FIRST order (2026-08-07): no Eevee — Jolteon is optional fluff once Zapdos/Moltres
+# exist; the Celadon detour blocked League after Articuno and under-leveled the E4 floor.
+VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "zapdos", "repack")
 VICTORY_LAP_MAX_FAILS = int(os.getenv("POKEMON_VICTORY_LAP_FAILS", "6"))
+# Sticky exhausted-hunt set: proximity may unskip a thin-ball skip, but NEVER a hunt that
+# already burned VICTORY_LAP_MAX_FAILS (Seafoam B4F softlock — skip/unskip every tick).
+VICTORY_LAP_EXHAUST_STICKY = True
 BOX_FLOW_ENABLED = os.getenv("POKEMON_BOX_FLOW", "1") != "0"
 BOX_BENCH_MAX_LEVEL = int(os.getenv("POKEMON_BOX_BENCH_LEVEL", "22"))  # a 'passenger' rides under this
 BOX_BENCH_MIN_PARTY = 2            # never deposit below ace + one body (whiteout/sacrifice safety)
@@ -13148,9 +13153,10 @@ class Campaign:
                        detail={"flag": "FLAG_FOUGHT_ZAPDOS"})
 
     def _articuno_gate(self, state):
-        """SEAFOAM B4F ARTICUNO — only after the interior boulders are TRULY down (hide flags
-        0x046/0x047 cleared: the calm-water proof; the R21-reroute's stamped 0x2D2 does NOT
-        calm B4F). Ice/Flying L50 — Lance's dragons hate it. Returns a Gate or None."""
+        """SEAFOAM B4F ARTICUNO — only when FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3) is set
+        (both B4F boulders PRESENT). B3F calm (0x2D2) and B3F hide 0x046/0x047 are NOT the
+        Articuno proof — R21 stamps 0x2D2 while B4F still rips (soak 20260806_222735).
+        Ice/Flying L50 — Lance's dragons hate it. Returns a Gate or None."""
         if not LEGENDARY_HUNTS_ENABLED:
             return None
         try:
@@ -13158,8 +13164,12 @@ class Campaign:
             if (st.party_knows_move(self.b, 57, cnt) is None
                     or st.party_knows_move(self.b, 70, cnt) is None):
                 return None                       # needs Surf + Strength inside
-            if fm.read_flag(self.b, 0x046) or fm.read_flag(self.b, 0x047):
-                return None                       # boulders not truly down -> B4F rips
+            # 0x2D3 set OR both B4F boulder-hide flags CLEARED (boulders present on B4F).
+            b4f_calm = fm.read_flag(self.b, 0x2D3)
+            b4f_boulders = (not fm.read_flag(self.b, 0x04C)
+                            and not fm.read_flag(self.b, 0x04D))
+            if not (b4f_calm or b4f_boulders):
+                return None                       # B4F still ripping -> bird unreachable
             if self._hunt_ready(144, 0x082, 0x2BE, key="articuno") is not None:
                 return None
         except Exception:
@@ -13452,10 +13462,15 @@ class Campaign:
                 self._lap_skip(key, "Bill is gone from the Cinnabar PC — the Sevii ferry is "
                                     "closed pre-champion")
                 return False
-            if key == "articuno" and (fm.read_flag(b, 0x046) or fm.read_flag(b, 0x047)):
-                self._lap_skip(key, "a Seafoam B3F boulder never dropped — B4F's rip current "
-                                    "makes the bird unreachable")
-                return False
+            if key == "articuno":
+                # Articuno water proof = B4F current stopped (0x2D3) or both B4F boulders
+                # PRESENT (hide 0x04C/0x04D cleared). B3F flags / stamped 0x2D2 are NOT enough.
+                b4f_calm = fm.read_flag(b, 0x2D3)
+                b4f_boulders = (not fm.read_flag(b, 0x04C) and not fm.read_flag(b, 0x04D))
+                if not (b4f_calm or b4f_boulders):
+                    self._lap_skip(key, "Seafoam B4F current still live (0x2D3 clear) — "
+                                        "Articuno's water is a rip; skipping for the League")
+                    return False
             return True
         except Exception as e:
             log(f"   [lap] pending-check for '{key}' unreadable ({e}) — counting it done (LOUD)")
@@ -13521,18 +13536,30 @@ class Campaign:
                     continue
                 if ram.pokedex_owns(self.b, self._LAP_HUNT_SPEC[k][0]) is True:
                     continue
-                # Skip marks: always discard while on the hunt's own maps. An honest skip
-                # from a thin Ultra pocket must not park the lap on articuno while she's
-                # still standing in One Island Harbor (2026-08-06 live strand). Fail-ledger
-                # clears stay once-per-key so the bounded-fail law still stands.
+                # Skip marks: discard while on the hunt's own maps — EXCEPT exhausted skips
+                # (VICTORY_LAP_MAX_FAILS burned). Seafoam B4F softlock (soak 20260806_222735):
+                # honest-skip → PROXIMITY UNSKIP every tick → FORCE VICTORY LAP forever.
+                # Thin-Ultra skips still unskip once so she can retry a reachable bird.
                 skipped = getattr(self, "_lap_skipped", None)
+                fails = getattr(self, "_lap_fails", None) or {}
+                exhausted = (VICTORY_LAP_EXHAUST_STICKY
+                             and fails.get(k, 0) >= VICTORY_LAP_MAX_FAILS)
+                # Sevii-stranded Moltres still unskips — ride-home / RE-ARM owns those
+                # maps. Articuno (and every other hunt) keeps the exhausted latch so a
+                # Seafoam B4F wedge cannot resurrect forever.
+                sevii_moltres = (k == "moltres" and self._lap_sevii_stranded())
                 if skipped and k in skipped:
+                    if exhausted and not sevii_moltres:
+                        log(f"   [lap] 🦅 PROXIMITY sees '{k}' but EXHAUSTED skip holds "
+                            f"({fails.get(k)}/{VICTORY_LAP_MAX_FAILS}) — leave the dungeon; "
+                            f"League path outranks a wedged bird (LOUD)")
+                        # Do NOT set prox — lap moves to the next owed item.
+                        break
                     skipped.discard(k)
                     log(f"   [lap] 🦅 PROXIMITY UNSKIP '{k}': standing on the hunt's own maps — "
                         f"honest-skip latch dropped (every visit; nothing outranks a "
                         f"legendary she is standing next to)")
-                fails = getattr(self, "_lap_fails", None) or {}
-                if fails.get(k):
+                if fails.get(k) and not (exhausted and not sevii_moltres):
                     cleared = getattr(self, "_lap_prox_fail_clears", None)
                     if cleared is None:
                         cleared = self._lap_prox_fail_clears = set()
@@ -13715,8 +13742,8 @@ class Campaign:
     # screen-state driven, never blind timing); everything here is selection + sequencing.
     # Kill switch POKEMON_BOX_FLOW=0; failures are bounded (-> honest skip: passengers ride
     # in the trunk and _lap_order_party_for_e4 keeps them last, the pre-flow worst case). ──
-    _LAP_JOIN_SPECIES = (146, 144, 145, 133)   # Moltres, Articuno, Zapdos, Eevee (join items)
-    _LAP_JOIN_KEYS = ("moltres", "articuno", "eevee", "zapdos")
+    _LAP_JOIN_SPECIES = (146, 144, 145)        # Moltres, Articuno, Zapdos (lap join items)
+    _LAP_JOIN_KEYS = ("moltres", "articuno", "zapdos")
 
     def _lap_bench_plan(self):
         """Which party SLOTS ride the box (lowest level first): passengers (non-ace, level <=
@@ -15631,7 +15658,7 @@ class Campaign:
         elif int(state.get("badge_count", 0)) >= 8 and not state.get("post_game"):
             _emp = tuple(state.get("map") or ())
             # THE VICTORY LAP HOLDS THE LEAGUE DOOR (2026-08-04): while a pre-E4 checklist item
-            # is owed (Earthquake → Moltres → Articuno → Eevee → Zapdos, each done-or-honestly-
+            # is owed (Earthquake → Moltres → Articuno → Zapdos, each done-or-honestly-
             # skipped), head_to_league/enter_league are OFF the menu and 'victory_lap' is the
             # endgame action — the lap's order lives in code, not in the oracle's mood.
             _lap_key = self._victory_lap_next(state)
@@ -15640,7 +15667,7 @@ class Campaign:
                     f"the VICTORY LAP — all 8 badges are banked and the League can wait one "
                     f"beat: '{_lap_key}' is next on the pre-E4 checklist (Earthquake on the ace, "
                     f"bench the low-level passengers at the PC so the birds get party seats, "
-                    f"then Moltres, Articuno, the promised Eevee, Zapdos, repack the party — "
+                    f"then Moltres, Articuno, Zapdos, repack the party — "
                     f"in that order). Finish the lap, THEN storm the Elite Four with the team "
                     f"of a lifetime.")
                 log(f"   [lap] checklist owes '{_lap_key}' — victory_lap is the endgame action "

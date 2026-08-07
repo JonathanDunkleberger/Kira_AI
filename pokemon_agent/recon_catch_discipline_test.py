@@ -595,37 +595,48 @@ def main():
         camp25 = C.Campaign.__new__(C.Campaign)
         camp25.b = object()
         camp25._lap_skipped, camp25._lap_fails = set(), {}
-        pend25 = {"earthquake", "box_bench", "moltres", "articuno", "eevee", "zapdos"}
+        pend25 = {"earthquake", "box_bench", "moltres", "articuno", "zapdos"}
         camp25._lap_pending = lambda k: k in pend25
-        check("summit -> MOLTRES (proximity trump beats earthquake/eevee/everything)",
+        check("summit -> MOLTRES (proximity trump beats earthquake/everything)",
               camp25._victory_lap_next() == "moltres")
-        # Skip: always discard while on the hunt's maps. Fail ledger: once-per-key.
-        camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 6}
+        # Thin skip (fails < MAX): still unskips on the hunt's maps + fail-clears once.
+        camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 2}
         camp25._lap_prox_fail_clears = set()
         camp25._lap_verdict_logged = None
-        check("skipped+failed moltres AT ITS MAP -> unskipped + fail-cleared once",
+        check("thin-skip moltres AT ITS MAP -> unskipped + fail-cleared once",
               camp25._victory_lap_next() == "moltres"
               and "moltres" not in camp25._lap_skipped
               and "moltres" not in camp25._lap_fails
               and "moltres" in camp25._lap_prox_fail_clears)
-        # Fail ledger stays burned after the once-clear; skip still drops every visit.
-        camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 6}
-        check("second proximity visit: skip drops again; fail ledger NOT re-cleared",
-              camp25._victory_lap_next() == "moltres"
-              and "moltres" not in camp25._lap_skipped
-              and camp25._lap_fails.get("moltres") == 6)
-        # cost table sanity: the exact matchup Jonny named
-        check("summit prices: moltres=0, eevee(Celadon)=2 cross-region",
+        # EXHAUSTED skip (fails >= MAX): sticky on Articuno/Seafoam — not Sevii Moltres
+        # (Sevii still unskips so ride-home/RE-ARM can finish). Softlock soak 20260806_222735.
+        pos25["here"] = (1, 87)  # Seafoam B4F
+        camp25e = C.Campaign.__new__(C.Campaign)
+        camp25e.b = object()
+        camp25e._lap_skipped, camp25e._lap_fails = {"articuno"}, {"articuno": 6}
+        camp25e._lap_prox_fail_clears = set()
+        camp25e._lap_verdict_logged = None
+        camp25e._lap_sevii_stranded = lambda: False
+        # pending must honor the skip latch (real _lap_pending does)
+        camp25e._lap_pending = (
+            lambda k: k in {"articuno", "zapdos"} and k not in camp25e._lap_skipped)
+        nxt25 = camp25e._victory_lap_next()
+        check("EXHAUSTED articuno skip at Seafoam STICKS (no proximity unskip)",
+              nxt25 == "zapdos"
+              and "articuno" in camp25e._lap_skipped
+              and camp25e._lap_fails.get("articuno") == 6)
+        # cost table sanity
+        check("summit prices: moltres=0, articuno(R20)=2 cross-region",
               camp25._lap_item_cost("moltres", (1, 101)) == 0
-              and camp25._lap_item_cost("eevee", (1, 101)) == 2)
-        pos25["here"] = tuple(C.CELADON)          # standing in Celadon instead
+              and camp25._lap_item_cost("articuno", (1, 101)) == 2)
+        pos25["here"] = (3, 38)                   # Route 20 — Articuno doorstep
         camp25b = C.Campaign.__new__(C.Campaign)
         camp25b.b = object()
         camp25b._lap_skipped, camp25b._lap_fails = set(), {}
-        pend25b = {"moltres", "articuno", "eevee", "zapdos"}
+        pend25b = {"moltres", "articuno", "zapdos"}
         camp25b._lap_pending = lambda k: k in pend25b
-        check("Celadon -> EEVEE (cost 0 beats the Kanto birds at 1, moltres ferry at 2)",
-              camp25b._victory_lap_next() == "eevee")
+        check("R20 -> ARTICUNO (proximity trump / cost 0 beats moltres ferry)",
+              camp25b._victory_lap_next() == "articuno")
         camp25c = C.Campaign.__new__(C.Campaign)
         camp25c.b = object()
         camp25c._lap_skipped, camp25c._lap_fails = set(), {}
@@ -639,10 +650,10 @@ def main():
         camp25d = C.Campaign.__new__(C.Campaign)
         camp25d.b = object()
         camp25d._lap_skipped, camp25d._lap_fails = set(), {}
-        pend25d = {"eevee", "zapdos"}
+        pend25d = {"articuno", "zapdos"}
         camp25d._lap_pending = lambda k: k in pend25d
         check("moltres CAUGHT -> no trump, lap moves on by cost/order",
-              camp25d._victory_lap_next() in ("eevee", "zapdos"))
+              camp25d._victory_lap_next() in ("articuno", "zapdos"))
     finally:
         C.tv.map_id, C.ram.pokedex_owns = _orig_map25, _orig_owns25
 
