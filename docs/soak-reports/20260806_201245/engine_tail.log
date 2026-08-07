@@ -1,0 +1,583 @@
+===== playlive_2026-08-06_20-01-27.log =====
+   [travel] start map=(3, 14) coords=(12, 39) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] step 0: (12, 39)->(12, 38) map=(3, 14) (path 35 to exit)
+   [travel] step 10: (11, 30)->(11, 29) map=(3, 14) (path 25 to exit)
+   [travel] path blocked at (11, 24) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 14) coords=(11, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (11, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (11, 24); NPC-allowing path EXISTS (len 19), blocker NPC tile=(11, 23), npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)] -> approaching to interact/trigger
+   [travel] chokepoint blocker (11, 23) on (3, 14) is a PLAIN NPC (dialogue, no battle) -> added to shared block memory (1 total) + routing around (LAYER A)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 14) coords=(11, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (11, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (11, 24); NPC-allowing path EXISTS (len 21), blocker NPC tile=(10, 24), npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)] -> approaching to interact/trigger
+   [travel] chokepoint blocker (10, 24) on (3, 14) is a PLAIN NPC (dialogue, no battle) -> added to shared block memory (2 total) + routing around (LAYER A)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 14) coords=(11, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (11, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (11, 24); NPC-allowing path EXISTS (len 25), blocker NPC tile=(9, 24), npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)] -> approaching to interact/trigger
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 14) coords=(9, 25) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (9, 25) (NPC on the gap?) - waiting
+   [travel] no clean path from (9, 25); NPC-allowing path EXISTS (len 22), blocker NPC tile=(9, 24), npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31)] -> approaching to interact/trigger
+   [travel] chokepoint blocker (9, 24) on (3, 14) is a PLAIN NPC (dialogue, no battle) -> added to shared block memory (3 total) + routing around (LAYER A)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 14) coords=(9, 25) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (9, 25) (NPC on the gap?) - waiting
+   [travel] no clean path from (9, 25); NPC-allowing path EXISTS (len 24), blocker NPC tile=(8, 23), npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31)] -> approaching to interact/trigger
+   [travel] chokepoint blocker (8, 23) on (3, 14) is a PLAIN NPC (dialogue, no battle) -> added to shared block memory (4 total) + routing around (LAYER A)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24); NPC-allowing path EXISTS (len 24), blocker NPC tile=(7, 24), npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)] -> approaching to interact/trigger
+   [travel] chokepoint blocker (7, 24) on (3, 14) is a PLAIN NPC (dialogue, no battle) -> added to shared block memory (5 total) + routing around (LAYER A)
+   [travel] !! NO ROUTE around plain-NPC blocker (7, 24) on (3, 14) -> no_route_npc_blocked (oracle should pick differently)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (14, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (15, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 24) AND no NPC-allowing path (npcs nearby=[(7, 24), (8, 23), (9, 23), (9, 24), (10, 22), (10, 24), (11, 23), (16, 31), (18, 17)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 24) map=(3, 14) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 14) coords=(8, 24) -> coord (18, 13) (budget 300s, surf-capable)
+   [travel] path blocked at (8, 24) (NPC on the gap?) - waiting
+===== playlive_2026-08-06_19-23-53.log =====
+   [travel] start map=(3, 45) coords=(11, 6) -> map (3, 12) (budget 180s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] step 0: (11, 6)->(11, 7) map=(3, 45) (path 142 to exit)
+   [travel] step 10: (11, 16)->(11, 17) map=(3, 45) (path 132 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (11, 19) -> (11, 20) (map (3, 45))
+   [travel] step 20: (11, 26)->(11, 27) map=(3, 45) (path 122 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 45) coords=(12, 63) -> map (3, 12) (budget 180s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] path blocked at (12, 63) (NPC on the gap?) - waiting
+   [travel] step 10: (11, 68)->(11, 69) map=(3, 45) (path 76 to exit)
+   [travel] step 20: (9, 76)->(9, 77) map=(3, 45) (path 66 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [play-live]    [engine] JUST FIGHT: L65 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs fearow 103/103 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=2,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs rapidash 99/99 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=1,ref=0,sc=570) [3]Earthquake(p100,pp=10,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 81/81 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=35.625) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x4) vs rapidash 102/102 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=9,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(3, 45) coords=(0, 127) -> map (3, 12) (budget 180s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] step 0: (0, 127)->(0, 128) map=(3, 45) (path 6 to exit)
+   [travel] MAP TRANSITION (3, 45) -> (3, 12)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 12) coords=(23, 12)
+   [travel] start map=(32, 4) coords=(8, 3) -> coord (8, 2) (budget 60s, surf-capable)
+   [travel] step 0: (8, 3)->(8, 2) map=(32, 4) (path 2 to exit)
+   [travel] reached target coord (8, 2)
+   [travel] start map=(32, 4) coords=(8, 3) -> coord (8, 2) (budget 60s, surf-capable)
+   [travel] step 0: (8, 3)->(8, 2) map=(32, 4) (path 2 to exit)
+   [travel] reached target coord (8, 2)

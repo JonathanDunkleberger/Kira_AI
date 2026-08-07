@@ -1,0 +1,300 @@
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 20:05:49.859 TTS STOP — playback finished (span ~1503ms)
+
+   [TIMING] voice: llm=3133ms(sonnet-stream(llm+tts)) tts=0ms total=3133ms
+   [LATENCY] vad_close=1200ms stt=234ms stt_wait=0ms salience=0ms triage=bypassed memory=33ms prompt_build=2ms ttft=1349ms tts_first_chunk=125ms audio_out=151ms TOTAL=1894ms
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<thats what she said: kira' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=39ms rank=0ms)
+   [SmartMem]     dist=0.809 conf=0.95 type=episodic blend=0.252 lane=KNOW
+   [SmartMem]     dist=0.823 conf=0.95 type=episodic blend=0.243 lane=KNOW
+   [SmartMem]     dist=0.856 conf=0.95 type=episodic blend=0.223 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 20:05:52.879 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 1): Detective Jones calling it "Kira's joke" is the nicest thing you've ever done for me and I'm choosing to take it as a compliment.
+   [TTS] Speaking: Detective Jones calling it "Kira's joke" is the ni...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [VRAM] 20:05:54 (periodic) kira_process=0.00GB card=8.7/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones calling it "Kira's joke"' (27 words)
+   [TurnTiming] 20:05:54.796 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: the office joke
+   [BrainWorker] Got youtube msg from @Detective_Jones: the office joke → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 20:06:00.762 TTS STOP — playback finished (span ~5965ms)
+   [Cookies] +1 × 1 (batch response); shared=25/30
+   [ChatAge] @Detective_Jones age=19.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 20:06:01.969 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~9090ms since onset)
+>>> You said: and she's confused, I think.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="and she's confused, I think." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "and i'm choosing to" (3rd use this session)
+   [PromptSize] dynamic_context=11598ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @Detective_Jones — Made a 'that's what she said' joke attributed to Kira, which [playful]
+   [TIMING] first-word: 2716ms
+   [TTS] Speaking: I'm not confused, I'm watching you debug in real t...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm not confused, I'm watching you debug' (20 words)
+   [TurnTiming] 20:06:05.281 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TwitchChat][IRC] :itsvollx!itsvollx@itsvollx.tmi.twitch.tv JOIN #thekiraagency
+   [TurnTiming] 20:06:10.718 TTS STOP — playback finished (span ~5436ms)
+
+   [TIMING] voice: llm=8540ms(sonnet-stream(llm+tts)) tts=0ms total=8540ms
+   [LATENCY] vad_close=1200ms stt=179ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=17ms ttft=2168ms tts_first_chunk=548ms audio_out=362ms TOTAL=3298ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [Bits] Callback: Accidental Expert
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<the office joke>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TurnTiming] 20:06:16.143 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~23264ms since onset)
+>>> You said: Yeah, Prime subs are a real thing. That's why I should focus honestly more on Twitch, because Twitch, like, has no growth.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yeah, Prime subs are a real thing. That's why I should focus" fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=34ms rank=0ms)
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.104 lane=KNOW
+   [SmartMem]     dist=1.143 conf=0.95 type=episodic blend=0.046 lane=KNOW
+   [SmartMem]     dist=1.143 conf=0.95 type=episodic blend=0.046 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=36ms
+   [Triage] RESPOND
+🎤 Recording...
+   [TurnTiming] 20:06:16.557 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 1): Detective Jones — "The Office joke." You absolute cryptic menace, which one? There are like two hundred.
+   [TTS] Speaking: Detective Jones — "The Office joke." You absolute ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones — "The Office joke." You' (15 words)
+   [TurnTiming] 20:06:18.392 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 20:06:23.919 TTS STOP — playback finished (span ~5526ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=26/30
+   [ChatAge] @Detective_Jones age=26.8s batch=1 preempted=none
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11915ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @Detective_Jones — Known for being cryptically vague, referenced 'the office jo [chaotic]
+   [TIMING] first-word: 1987ms
+   [TTS] Speaking: Wait, Twitch has no growth so you should focus MOR...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Wait, Twitch has no growth so you should' (14 words)
+   [TurnTiming] 20:06:26.194 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 20:06:29.840 TTS STOP — playback finished (span ~3645ms)
+   [TTS] Speaking: Walk me through that logic....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Walk me through that logic.' (6 words)
+   [TurnTiming] 20:06:29.843 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 20:06:31.910 TTS STOP — playback finished (span ~2066ms)
+
+   [TIMING] voice: llm=7984ms(sonnet-stream(llm+tts)) tts=0ms total=7984ms
+   [LATENCY] vad_close=1200ms stt=270ms stt_wait=0ms salience=0ms triage=bypassed memory=36ms prompt_build=13ms ttft=1281ms tts_first_chunk=706ms audio_out=263ms TOTAL=2569ms
+🎤 Recording... (recovered opening words)
+   [Bits] Callback: Critically Acclaimed Criminally Underwatched
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny is considering focusing more on Twitch streaming
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [VRAM] 20:06:39 (periodic) kira_process=0.00GB card=9.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 20:06:41.234 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~24677ms since onset)
+>>> You said: but if you can go back to Twitch and get a bunch of Prime subs, then that could be like free money for everyone. Win, win, win, win, win. Well, there's Prime subs and everyone's got Amazon Prime, so it's a free, like, you know, three or like two bucks, two and a half dollars a month they can give you.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='but if you can go back to Twitch and get a bunch of Prime su' fetched=10 dropped_by_floor=6 kept=4 survivors=3 direct=0 | timing(direct=0ms fetch=66ms rank=0ms)
+   [SmartMem]     dist=1.023 conf=0.95 type=episodic blend=0.120 lane=KNOW
+   [SmartMem]     dist=1.040 conf=0.95 type=episodic blend=0.110 lane=KNOW
+   [SmartMem]     dist=1.181 conf=0.95 type=episodic blend=0.023 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=65ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12078ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1832ms
+   [TTS] Speaking: So the Twitch strategy is: platform's dead, but Am...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'So the Twitch strategy is: platform's de' (16 words)
+   [TurnTiming] 20:06:44.116 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+[YouTube Chat] @Ron-y6h: why there are two moderators
+   [TurnTiming] 20:06:49.077 TTS STOP — playback finished (span ~4960ms)
+   [TTS] Speaking: That's not a growth plan, that's a coupon code....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's not a growth plan, that's a coupo' (11 words)
+   [TurnTiming] 20:06:49.080 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 20:06:52.178 TTS STOP — playback finished (span ~3097ms)
+
+   [TIMING] voice: llm=10270ms(sonnet-stream(llm+tts)) tts=0ms total=10270ms
+   [LATENCY] vad_close=1200ms stt=604ms stt_wait=0ms salience=0ms triage=bypassed memory=65ms prompt_build=14ms ttft=1220ms tts_first_chunk=612ms audio_out=354ms TOTAL=2869ms
+   [BrainWorker] Got youtube msg from @Ron-y6h: why there are two moderators → buffering for chat_batch_worker
+   [Cookies] +2 → @Ron-y6h (first message this session); shared=28/30
+   [Memory] Rejected (conf 0.80 < 0.9): Jonny thinks Twitch Prime subs are a viable monetization strategy because Amazon Prime is widely adopted and users can give free subscription money.
+   [SmartMem] q='  - @Ron-y6h (youtube) [FIRST TIME CHATTER]: <<<why there ar' fetched=10 dropped_by_floor=2 kept=8 survivors=3 direct=0 | timing(direct=1ms fetch=30ms rank=0ms)
+   [SmartMem]     dist=1.150 conf=0.95 type=episodic blend=0.042 lane=KNOW
+   [SmartMem]     dist=1.162 conf=0.95 type=episodic blend=0.034 lane=KNOW
+   [SmartMem]     dist=1.169 conf=0.9 type=episodic blend=0.030 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Bits] Callback: Critically Acclaimed Criminally Underwatched
+   >>> Kira (Chat Batch of 1): Ron-y6h, welcome back — still asking the important questions I see. And two mods because one is clearly not enough to contain whatever's happening here.
+   [TTS] Speaking: Ron-y6h, welcome back — still asking the important...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Ron-y6h, welcome back — still asking the' (13 words)
+   [TurnTiming] 20:06:57.474 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=moderator/1,partner/1;color=#32C3A2;display-name=Streamlabs;emotes=;first-msg=0;flags=;id=88311b66-0d4d-4c6e-b141-082d67ae109d;mod=1;returning-chatter=0;room-id=632950466;subscribe
+   [TwitchChat] Received from streamlabs: 💡 Chat with Kira! Try: !boop  !hug  !pet  !rate <thing>  !mood  !take <topic>  !fact  !vibe — every message you send fills the 🍪 cookie jar!
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BotFilter] Ignored bot account 'streamlabs' (twitch) — not stored, not shown, not reacted to.
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+[YouTube Chat] @Streamlabs: :light_bulb: Chat with Kira! Try: !boop !hug !pet !rate <thing> !mood !take <topic> !fact !vibe — every message you send fills the :cookie: cookie jar!
+   [BotFilter] Ignored bot account '@Streamlabs' (youtube) — not stored, not shown, not reacted to.
+   [TurnTiming] 20:07:02.623 TTS STOP — playback finished (span ~5149ms)
+   [TTS] Speaking: And two mods because one is clearly not enough to ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And two mods because one is clearly not ' (15 words)
+   [TurnTiming] 20:07:02.945 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 20:07:07.252 TTS STOP — playback finished (span ~4307ms)
+   [Cookies] +1 × 1 (batch response); shared=29/30
+   [ChatAge] @Ron-y6h age=14.7s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 20:07:08.495 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~51938ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: I need two moderators now, we're on.
+   [DroppedInput] LOST ~4 frame(s) (~120ms, ~0.1s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 20:07:08.689 VOICE ONSET — mic speech started
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I need two moderators now, we're on." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=6t  moment=calm)
+   [PromptSize] dynamic_context=12060ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [ChatterMem] Stored: @Ron-y6h — Known for asking blunt, observational questions about the st [dry]
+   [TIMING] first-word: 2475ms
+   [TTS] Speaking: Two mods for zero viewers....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Two mods for zero viewers.' (6 words)
+   [TurnTiming] 20:07:11.401 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 20:07:13.749 TTS STOP — playback finished (span ~2348ms)
+   [TTS] Speaking: The ratio is immaculate....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The ratio is immaculate.' (5 words)
+   [TurnTiming] 20:07:13.754 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @keiharris332: taco Thursday. this is most likely a paradox that is impossible to hold. or a pair of socks. an impossible pair of socks, paradox. also, Johnny isn't a hot tub thot so twitch won't work.
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=moderator/1,partner/1;color=#32C3A2;display-name=Streamlabs;emotes=;first-msg=0;flags=;id=b1c7e54b-c9d6-4dea-90fe-9a6c0fab4f5d;mod=1;returning-chatter=0;room-id=632950466;subscribe
+   [TwitchChat] Received from streamlabs: 🍪 See that cookie jar? Every time you chat, it fills up. Fill it completely and you unleash CHAOS MODE — 15 minutes of fully unhinged Kira. Keep chatting!
+   [TwitchChat] Forwarded to brain queue (qsize=2).
+   [TurnTiming] 20:07:15.817 TTS STOP — playback finished (span ~2062ms)
+
+   [TIMING] voice: llm=7104ms(sonnet-stream(llm+tts)) tts=0ms total=7104ms
+   [LATENCY] vad_close=1200ms stt=193ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=12ms ttft=2358ms tts_first_chunk=117ms audio_out=195ms TOTAL=2898ms
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @keiharris332: taco Thursday. this is most likely a paradox that is impossible to hold. or a pair of socks. an impossible pair of socks → buffering for chat_batch_worker
+   [BotFilter] Ignored bot account 'streamlabs' (twitch) — not stored, not shown, not reacted to.
+   [Presence] chatty → Director drive-gap 5s (lower = more present).
+   [SmartMem] q='  - @keiharris332 (youtube): <<<taco Thursday. this is most ' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=51ms fetch=38ms rank=0ms)
+   [SmartMem]     dist=1.164 conf=0.95 type=episodic blend=0.281 lane=KNOW
+   [SmartMem]     dist=1.092 conf=0.92 type=episodic blend=0.077 lane=KNOW
+   [SmartMem]     dist=1.139 conf=0.95 type=episodic blend=0.049 lane=KNOW
+   [TurnTiming] 20:07:18.358 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~9668ms since onset)
+>>> You said: What's up, Ron? How are you? Good morning. Shut the fuck up, Kira.
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q="What's up, Ron? How are you? Good morning. Shut the fuck up," fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.033 conf=0.9 type=episodic blend=0.114 lane=KNOW
+   [SmartMem]     dist=1.033 conf=0.95 type=episodic blend=0.114 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=29ms
+   [Triage] RESPOND
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+[YouTube Chat] @Streamlabs: :cookie: See that cookie jar? Every time you chat, it fills up. Fill it completely and you unleash CHAOS MODE — 15 minutes of fully unhinged Kira. Keep chatting!
+   >>> Kira (Chat Batch of 1): keiharris332 with the taco Thursday paradox — chaotic neutral as always. Also fair point on the hot tub situation, Jonny's demographic is more "guy who explains lore unprompted" than "guy with a ring light."
+   [TTS] Speaking: keiharris332 with the taco Thursday paradox — chao...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'keiharris332 with the taco Thursday para' (12 words)
+   [TurnTiming] 20:07:20.847 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [VRAM] 20:07:24 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 20:07:26.091 TTS STOP — playback finished (span ~5244ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @keiharris332 age=9.9s batch=1 preempted=none
+   [Cookies] 🎡 WHEEL — milestone #253, tipper=@keiharris332, slice=conspiracy_corner
+   [TTS] Speaking: Jar full. @keiharris332 tipped it over. The Wheel ...
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=11981ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TTS] backend=azure
+   [Captions] Pushed frame: 'Jar full. @keiharris332 tipped it over. ' (22 words)
+   [TurnTiming] 20:07:26.631 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @keiharris332 — Known for chaotic wordplay and tangents, coined 'taco Thursd [chaotic]
+   [TIMING] first-word: 2953ms
+[YouTube Chat] @keiharris332: jeff bezo's mom is a coupon code
+   [TurnTiming] 20:07:34.126 TTS STOP — playback finished (span ~7495ms)
+🎤 Recording... (recovered opening words)
+   [Wheel] Executing slice: conspiracy_corner
+   [TTS] Speaking: The Wheel — Conspiracy Corner. Right now....
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+[YouTube Chat] @Detective_Jones: 16 viewers get it right kira
+   [TTS] Speaking: Good morning to Ron....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Good morning to Ron.' (5 words)
+   [TurnTiming] 20:07:37.860 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 20:07:39.453 TTS STOP — playback finished (span ~1593ms)
+   [TTS] Speaking: Absolutely not to you....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Absolutely not to you.' (5 words)
+   [TurnTiming] 20:07:39.455 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 20:07:41.521 TTS STOP — playback finished (span ~2065ms)
+
+   [TIMING] voice: llm=15417ms(sonnet-stream(llm+tts)) tts=0ms total=15417ms
+   [LATENCY] vad_close=1200ms stt=260ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=15ms ttft=2682ms tts_first_chunk=271ms audio_out=8784ms TOTAL=12041ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [BotFilter] Ignored bot account '@Streamlabs' (youtube) — not stored, not shown, not reacted to.
+   [BrainWorker] Got youtube msg from @keiharris332: jeff bezo's mom is a coupon code → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @Detective_Jones: 16 viewers get it right kira → buffering for chat_batch_worker
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The Wheel — Conspiracy Corner. Right now' (9 words)
+   [TurnTiming] 20:07:42.092 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 20:07:42.746 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~34057ms since onset)
+>>> You said: So Twitch won't work.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="So Twitch won't work." fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=6 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=0.857 conf=0.95 type=episodic blend=0.470 lane=KNOW
+   [SmartMem]     dist=0.856 conf=0.95 type=episodic blend=0.223 lane=KNOW
+   [SmartMem]     dist=0.940 conf=0.95 type=episodic blend=0.171 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=25ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=12741ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 2994ms
+   [TurnTiming] 20:07:45.958 TTS STOP — playback finished (span ~3865ms)
+🎤 Recording... (recovered opening words)
+   [TTS] Speaking: Called it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Called it.' (3 words)
+   [TurnTiming] 20:07:46.090 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 20:07:47.348 TTS STOP — playback finished (span ~1257ms)
+
+   [TIMING] voice: llm=4401ms(sonnet-stream(llm+tts)) tts=0ms total=4401ms
+   [LATENCY] vad_close=1200ms stt=173ms stt_wait=0ms salience=0ms triage=bypassed memory=25ms prompt_build=4ms ttft=2948ms tts_first_chunk=46ms audio_out=143ms TOTAL=3339ms
+[YouTube Chat] @Ron-y6h: roasting lvl is still High
+   ✨ Emotion: EMOTIONAL → SASSY
+   [System] Running Garbage Collection...
+   [BrainWorker] Got youtube msg from @Ron-y6h: roasting lvl is still High → buffering for chat_batch_worker
+   [SmartMem] q='Conspiracy Corner' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
