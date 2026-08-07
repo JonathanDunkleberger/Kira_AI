@@ -34,11 +34,17 @@ Decision table under test:
   Moltres):
   fought-flag set, UNCAUGHT, 'pre-<key>' bank exists         -> lap item STAYS PENDING
   standing in a hunt's anchor set, quarry uncaught           -> that hunt trumps EVERYTHING
-  loop-burned skip/fail marks while standing there           -> refunded once per run
+  loop-burned SKIP while standing on an uncaught hunt anchor -> refunded EVERY visit (never
+                                                                re-skip the bird underfoot)
+  loop-burned FAIL ledger while standing there               -> cleared ONCE per key/run
   lap ordering                                               -> cheapest by live cost, declared
                                                                 order only as the tiebreak
   spent-but-retryable inside a hunt leg (spent_final)        -> reload, encounter live again
   boot with a battled-away uncaught legendary + bank         -> LEGENDARY REWIND to the bird
+  Sevii-stranded after HONEST SKIP of uncaught Moltres       -> RE-ARM moltres (ride-home
+                                                                must not no-op forever)
+  One Island Harbor sailor approach from north of (8,6)      -> stand (8,5) face DOWN
+                                                                (south stand has no BFS path)
 + THE VERIFIED RATCHET (2026-08-05 URGENT, the poisoned 'pre-moltres' bank):
   loaded bank has the fought-flag set, quarry uncaught       -> POISONED: ratchet to the
                                                                 next older same-region bank
@@ -588,13 +594,21 @@ def main():
         camp25._lap_pending = lambda k: k in pend25
         check("summit -> MOLTRES (proximity trump beats earthquake/eevee/everything)",
               camp25._victory_lap_next() == "moltres")
-        # loop-burned marks refund ONCE while she stands there
+        # Skip: always discard while on the hunt's maps. Fail ledger: once-per-key.
         camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 6}
+        camp25._lap_prox_fail_clears = set()
         camp25._lap_verdict_logged = None
-        check("skipped+failed moltres AT ITS MAP -> refunded and picked anyway",
+        check("skipped+failed moltres AT ITS MAP -> unskipped + fail-cleared once",
               camp25._victory_lap_next() == "moltres"
               and "moltres" not in camp25._lap_skipped
-              and "moltres" not in camp25._lap_fails)
+              and "moltres" not in camp25._lap_fails
+              and "moltres" in camp25._lap_prox_fail_clears)
+        # Fail ledger stays burned after the once-clear; skip still drops every visit.
+        camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 6}
+        check("second proximity visit: skip drops again; fail ledger NOT re-cleared",
+              camp25._victory_lap_next() == "moltres"
+              and "moltres" not in camp25._lap_skipped
+              and camp25._lap_fails.get("moltres") == 6)
         # cost table sanity: the exact matchup Jonny named
         check("summit prices: moltres=0, eevee(Celadon)=2 cross-region",
               camp25._lap_item_cost("moltres", (1, 101)) == 0
@@ -1433,6 +1447,97 @@ def main():
               h36f.camp._ql_strike_tries_map[("flag", "FLAG_FOUGHT_MOLTRES")] == 0)
     finally:
         BA.BALL_RESTOCK_MODE = _ba_restock0
+
+    # 37. SAILOR NORTH STAND + HARBOR UNSKIP + SEVII RE-ARM (2026-08-06 live):
+    #     At One Harbor (8,3) north of the sailor, BFS to (8,7) has no path — stand
+    #     at (8,5)+DOWN instead. Honest skip + articuno next while Sevii-stranded
+    #     with bird unspent must RE-ARM moltres (not ride-home no-op forever).
+    print("== 37. SAILOR NORTH STAND + HARBOR UNSKIP + SEVII RE-ARM ==")
+    h37 = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h37.b = object()
+    _orig_tv37 = LS.tv.map_id
+    _orig_co37 = LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: LS.ONE_HARBOR
+        LS.tv.coords = lambda _b: (8, 3)
+        stand, face = h37._sailor_stand_and_face()
+        check("north of sailor -> stand (8,5) face DOWN",
+              stand == LS.SAILOR_STAND_NORTH and face == "DOWN")
+        LS.tv.coords = lambda _b: (8, 8)
+        stand2, face2 = h37._sailor_stand_and_face()
+        check("south of sailor -> stand (8,7) face UP",
+              stand2 == LS.SAILOR_STAND_SOUTH and face2 == "UP")
+        LS.tv.coords = lambda _b: (8, 6)
+        stand3, face3 = h37._sailor_stand_and_face()
+        check("on sailor tile y=6 -> south stand + UP (default)",
+              stand3 == LS.SAILOR_STAND_SOUTH and face3 == "UP")
+    finally:
+        LS.tv.map_id = _orig_tv37
+        LS.tv.coords = _orig_co37
+
+    camp37 = C.Campaign.__new__(C.Campaign)
+    camp37.b = object()
+    camp37._lap_fails = {"moltres": 6}
+    camp37._lap_skipped = {"moltres"}
+    camp37._lap_prox_fail_clears = set()
+    camp37._moltres_fought = False
+    camp37._moltres_hide = False
+    _orig_tv_h = C.tv.map_id
+    _orig_owns_h = C.ram.pokedex_owns
+    try:
+        C.tv.map_id = lambda _b: LS.ONE_HARBOR   # (32, 4) — harbor, not just town
+        C.ram.pokedex_owns = lambda _b, n: False if n == 146 else True
+        camp37._lap_pending = lambda k: k == "moltres"
+        camp37._dex_owned = lambda n: False
+        nxt_h = camp37._victory_lap_next()
+        check("proximity unskip on ONE_HARBOR (32,4)",
+              nxt_h == "moltres" and "moltres" not in camp37._lap_skipped)
+        check("ONE_HARBOR is a MOLTRES_ANCHOR",
+              LS.ONE_HARBOR in LS.MOLTRES_ANCHORS)
+
+        # Sevii RE-ARM seam (same predicate as campaign._run_victory_lap).
+        camp37._lap_skipped = {"moltres"}
+        camp37._lap_fails = {"moltres": 6}
+        camp37._lap_sevii_stranded = lambda: True
+        key = "articuno"  # what _victory_lap_next would return after honest skip
+        if camp37._lap_sevii_stranded():
+            bird_spent = (
+                bool(camp37._dex_owned(146))
+                or getattr(camp37, "_moltres_fought", False)
+                or getattr(camp37, "_moltres_hide", False)
+            )
+            if not bird_spent:
+                skipped = getattr(camp37, "_lap_skipped", None)
+                if skipped and "moltres" in skipped:
+                    skipped.discard("moltres")
+                    fails = getattr(camp37, "_lap_fails", None) or {}
+                    fails.pop("moltres", None)
+                if key != "moltres":
+                    key = "moltres"
+        check("Sevii RE-ARM forces moltres when articuno next + bird unspent",
+              key == "moltres"
+              and "moltres" not in camp37._lap_skipped
+              and camp37._lap_fails.get("moltres") is None)
+
+        # Ride-home only after bird spent.
+        camp37._moltres_fought = True
+        key2 = "articuno"
+        if camp37._lap_sevii_stranded():
+            bird_spent2 = (
+                bool(camp37._dex_owned(146))
+                or getattr(camp37, "_moltres_fought", False)
+                or getattr(camp37, "_moltres_hide", False)
+            )
+            if not bird_spent2:
+                key2 = "moltres"
+            elif key2 != "moltres":
+                key2 = "ride_home_ok"
+        check("Sevii ride-home owns turn only after bird spent",
+              key2 == "ride_home_ok")
+    finally:
+        C.tv.map_id = _orig_tv_h
+        C.ram.pokedex_owns = _orig_owns_h
+        print()
 
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")

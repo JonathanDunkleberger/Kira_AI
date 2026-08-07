@@ -13438,9 +13438,11 @@ class Campaign:
         PROXIMITY OUTRANKS EVERYTHING — standing inside a legendary hunt's anchor set with
         that legendary UNCAUGHT, the hunt IS the next item. No lap cursor, no luxury gate,
         no force-pick preempts a legendary she is physically at (the Eevee divert, two tiles
-        from Moltres). Loop-burned skip/fail marks refund ONCE per key per session while she
-        stands there (today's boulder laps burned attempts that were never the hunt's fault);
-        after the refund the bounded-fail law stands even here — never an infinite park."""
+        from Moltres). Skip marks are always cleared while she stands on the hunt's own
+        maps (an honest skip from a thin Ultra pocket must not park the lap on articuno
+        while she's still in One Island Harbor — 2026-08-06). Fail-ledger clears stay
+        once-per-key per session so the bounded-fail law still stands — never an infinite
+        park on a wedged strike."""
         if not VICTORY_LAP_ENABLED:
             return None
         here, prox = None, None
@@ -13451,17 +13453,26 @@ class Campaign:
                     continue
                 if ram.pokedex_owns(self.b, self._LAP_HUNT_SPEC[k][0]) is True:
                     continue
-                refunded = getattr(self, "_lap_prox_refunds", None)
-                if refunded is None:
-                    refunded = self._lap_prox_refunds = set()
-                if k not in refunded and (k in getattr(self, "_lap_skipped", set())
-                                          or (getattr(self, "_lap_fails", None) or {}).get(k)):
-                    refunded.add(k)
-                    getattr(self, "_lap_skipped", set()).discard(k)
-                    (getattr(self, "_lap_fails", None) or {}).pop(k, None)
-                    log(f"   [lap] 🦅 PROXIMITY REFUND '{k}': standing on the hunt's own maps — "
-                        f"loop-burned skip/fail marks dropped (once per run; nothing outranks "
-                        f"a legendary she is standing next to)")
+                # Skip marks: always discard while on the hunt's own maps. An honest skip
+                # from a thin Ultra pocket must not park the lap on articuno while she's
+                # still standing in One Island Harbor (2026-08-06 live strand). Fail-ledger
+                # clears stay once-per-key so the bounded-fail law still stands.
+                skipped = getattr(self, "_lap_skipped", None)
+                if skipped and k in skipped:
+                    skipped.discard(k)
+                    log(f"   [lap] 🦅 PROXIMITY UNSKIP '{k}': standing on the hunt's own maps — "
+                        f"honest-skip latch dropped (every visit; nothing outranks a "
+                        f"legendary she is standing next to)")
+                fails = getattr(self, "_lap_fails", None) or {}
+                if fails.get(k):
+                    cleared = getattr(self, "_lap_prox_fail_clears", None)
+                    if cleared is None:
+                        cleared = self._lap_prox_fail_clears = set()
+                    if k not in cleared:
+                        cleared.add(k)
+                        fails.pop(k, None)
+                        log(f"   [lap] 🦅 PROXIMITY FAIL-CLEAR '{k}': standing on the hunt's "
+                            f"own maps — loop-burned fail ledger dropped (once per run)")
                 if self._lap_pending(k):
                     prox = k
                 break
@@ -13800,10 +13811,36 @@ class Campaign:
         key = self._victory_lap_next(state)
         if key is None:
             return "lap_done"
-        if key != "moltres" and self._lap_sevii_stranded():
-            log(f"   [lap] '{key}' is next but she's still on the archipelago — the MOLTRES "
-                f"RIDE-HOME hook owns this turn")
-            return "ok"
+        # Sevii ownership: ride-home only owns the turn AFTER the bird is spent. An honest
+        # skip from a thin Ultra pocket must NOT park the lap on articuno while she's still
+        # on One Island with no boat home armed (2026-08-06 live strand — 200+ RED ticks).
+        if self._lap_sevii_stranded():
+            bird_spent = False
+            try:
+                bird_spent = (
+                    bool(self._dex_owned(146))
+                    or getattr(self, "_moltres_fought", False)
+                    or getattr(self, "_moltres_hide", False)
+                )
+            except Exception:
+                bird_spent = False
+            if not bird_spent:
+                skipped = getattr(self, "_lap_skipped", None)
+                if skipped and "moltres" in skipped:
+                    skipped.discard("moltres")
+                    fails = getattr(self, "_lap_fails", None) or {}
+                    fails.pop("moltres", None)
+                    log("   [lap] ♻️ RE-ARM 'moltres': Sevii-stranded after honest skip, "
+                        "bird unspent — war-chest / summit still owns the archipelago "
+                        "(ride-home is post-catch only)")
+                if key != "moltres":
+                    log(f"   [lap] '{key}' deferred — still on Sevii with Moltres unspent; "
+                        f"forcing moltres questline")
+                    key = "moltres"
+            elif key != "moltres":
+                log(f"   [lap] '{key}' is next but she's still on the archipelago — the "
+                    f"MOLTRES RIDE-HOME hook owns this turn")
+                return "ok"
         if key == "earthquake":
             r = self._lap_teach_earthquake()
             if r == "taught":

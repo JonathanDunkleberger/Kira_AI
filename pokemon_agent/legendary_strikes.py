@@ -128,7 +128,14 @@ SAIL_ROWS = {ONE_HARBOR: [TWO_HARBOR, THREE_HARBOR],
 # Post-return menus insert Vermilion at row 0 (MULTICHOICE_SEAGALLOP_V23 etc.) — the
 # destination index shifts +1. sail() tries both layouts and trusts the landing map.
 SAILOR_TILE = (8, 6)
-SAILOR_STAND = (8, 7)
+# Pier geometry (One/Two/Three harbors share the layout): sailor sits at (8,6).
+# South of him → stand (8,7) face UP; north of him (warp mouth (8,2)/(8,3)) →
+# stand (8,5) face DOWN. A single south-only stand makes sea_walk BFS fail with
+# "no path from (8,3)" because the sailor's body blocks the tile between player
+# and (8,7) — LIVE 2026-08-06 war-chest wedge after Kindle→harbor exit.
+SAILOR_STAND_SOUTH = (8, 7)
+SAILOR_STAND_NORTH = (8, 5)
+SAILOR_STAND = SAILOR_STAND_SOUTH  # backward-compat alias (south approach)
 
 # (floor, [candidate down-warp tiles in preference order], dest floor) — the eevee_fetch _ride
 # doctrine: the leg for WHEREVER she stands, live BFS decides which candidate is reachable.
@@ -1161,15 +1168,27 @@ class MoltresHunt(LegendaryHunt):
             self.settle(30)
         self.settle(20)
 
+    def _sailor_stand_and_face(self):
+        """Pick the talk tile + face button from which side of the sailor we're on.
+        North of (8,6) → stand (8,5) face DOWN; else → (8,7) face UP. Never asks
+        sea_walk to path THROUGH the sailor's occupied tile."""
+        y = (tv.coords(self.b) or (0, 0))[1]
+        if y < SAILOR_TILE[1]:
+            return SAILOR_STAND_NORTH, "DOWN"
+        return SAILOR_STAND_SOUTH, "UP"
+
     def sail(self, want, _depth=0):
-        """Seagallop hop: talk to the pier sailor (8,6) from (8,7), pick the destination
-        row, ride the ferry (map flip).
+        """Seagallop hop: talk to the pier sailor (8,6) from the open side, pick the
+        destination row, ride the ferry (map flip).
 
         LIVE 2026-08-06 harbor wedge: D-pad before the multichoice is input-ready is EATEN
         (same class as elevator_nav) — A then confirms the DEFAULT row (Two Island from One),
         war-chest 'drifts' off-rails, strike tries burn, she free-roams at the pier chatting
         about balls. Settle long, space DOWNs, try pre- AND post-Vermilion row indices, and
-        from a wrong pier immediately re-sail toward `want`."""
+        from a wrong pier immediately re-sail toward `want`.
+
+        LIVE 2026-08-06 north-of-sailor wedge: exit warp lands at (8,3); south-only stand
+        (8,7) has no BFS path through the sailor at (8,6). Side-aware stand + face."""
         b, camp = self.b, self.camp
         if _depth > 4:
             self.log(f"!! [sail] re-route depth exceeded wanting {want} "
@@ -1195,12 +1214,13 @@ class MoltresHunt(LegendaryHunt):
                     return self.sail(want, _depth=_depth + 1)
                 return False
             self._sail_clear_menu()
-            if tuple(tv.coords(b) or ()) != SAILOR_STAND:
-                if not self.sea_walk(lambda c: c == SAILOR_STAND, "sailor-approach"):
-                    self.log(f"!! [sail] sailor-approach failed at "
+            stand, face = self._sailor_stand_and_face()
+            if tuple(tv.coords(b) or ()) != stand:
+                if not self.sea_walk(lambda c, s=stand: c == s, "sailor-approach"):
+                    self.log(f"!! [sail] sailor-approach failed (want stand {stand}) at "
                              f"{tv.map_id(b)}@{tv.coords(b)} (attempt {attempt + 1})")
                     continue
-            b.press("UP", 8, 10, camp.render, owner="agent")
+            b.press(face, 8, 10, camp.render, owner="agent")
             b.press("A", 8, 12, camp.render, owner="agent")
             # MENU SETTLE (elevator_nav law): D-pad before input-ready is eaten → default row.
             self.settle(120)
