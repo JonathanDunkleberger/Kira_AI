@@ -579,7 +579,7 @@
         "prereq": "surf",
         "sets_flag": "FLAG_FOUGHT_ARTICUNO",
         "gives_cap": null,
-        "_note": "2026-08-04 legendary_strikes.ArticunoHunt. HARD GATE: both B3F boulders truly fallen (hide flags 0x046/0x047 CLEARED) — the R21-reroute stamps 0x2D2 without them and the B4F rip current would sweep her. The gate self-suppresses otherwise; a rerouted run simply skips Articuno."
+        "_note": "2026-08-07 legendary_strikes.ArticunoHunt. HARD GATE: FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3) or both B4F boulders PRESENT (hide 0x04C/0x04D CLEARED). B3F calm (0x2D2) alone is NOT enough — R21 stamps it while B4F still rips. Gate self-suppresses / lap honest-skips otherwise."
       },
       "human": "Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality"
     },
