@@ -1,0 +1,1500 @@
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Moltres on Mt. Ember summit'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick190] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260806_193324_an-unfamiliar-area_8b_33h58m_periodic  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 191/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 179 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 174 ticks but she's on a never-visited map (27s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 179 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 179 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 192/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 180 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 175 ticks but she's on a never-visited map (27s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 180 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 180 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick192] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 193/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 181 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 176 ticks but she's on a never-visited map (27s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 181 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 181 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember summit and catch Moltres'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 194/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 182 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 177 ticks but she's on a never-visited map (24s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 182 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 182 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick194] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 195/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 183 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 178 ticks but she's on a never-visited map (24s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 183 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 183 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 196/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 184 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 179 ticks but she's on a never-visited map (24s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='catch Moltres on Mt. Ember'
+
+   [campaign]    [soul] ORACLE pick -> 'catch Moltres on Mt. Ember'
+
+   [campaign]    [roam] !! MACRO RED: no progress 184 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 184 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (want) 'catch Moltres on Mt. Ember'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick196] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 197/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 185 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 180 ticks but she's on a never-visited map (21s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 185 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 185 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 198/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 186 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 181 ticks but she's on a never-visited map (21s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 186 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 186 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick198] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 199/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 187 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 182 ticks but she's on a never-visited map (21s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 187 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 187 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember summit and catch Moltres'  fired=True  [age 0.0s + post 28ms]
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 200/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 188 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 183 ticks but she's on a never-visited map (17s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 188 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 188 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick200] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 201/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 189 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 184 ticks but she's on a never-visited map (17s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 189 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 189 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 202/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 190 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 185 ticks but she's on a never-visited map (17s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find Bill and get to One Island for Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'find Bill and get to One Island for Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 190 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 190 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'find Bill and get to One Island for Moltres'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick202] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 203/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 191 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 186 ticks but she's on a never-visited map (12s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 191 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 191 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 204/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 192 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 187 ticks but she's on a never-visited map (12s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 192 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 192 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick204] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 205/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 193 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 188 ticks but she's on a never-visited map (12s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 193 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 193 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember summit and catch Moltres'  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 206/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 194 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 189 ticks but she's on a never-visited map (7s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 194 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 194 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick206] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 207/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 195 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 190 ticks but she's on a never-visited map (7s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 195 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 195 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 208/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 196 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 191 ticks but she's on a never-visited map (7s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember summit, catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember summit, catch Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 196 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 196 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember summit, catch Moltres'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick208] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 209/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 197 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 192 ticks but she's on a never-visited map (3s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 197 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 197 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 210/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 198 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 193 ticks but she's on a never-visited map (3s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 198 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 198 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick210] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 211/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 199 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH deferred: RED 194 ticks but she's on a never-visited map (3s new-area grace left) — exploration is not a wedge; the reload rung re-arms when the grace expires
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 199 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 199 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember summit and catch Moltres'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 212/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 200 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 195 ticks, hard-recovery already tried, reload 1/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260806_193351.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (8, 3, 16, 128)); current backed up to pre_reload_20260806_193351.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    [roam] strike memory reset (escape-hatch reload): 1 errand try-counter(s) cleared — the reloaded world gets fresh strike attempts
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick212] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 213/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 201 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 201 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 201 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 214/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 202 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find Mt. Ember summit and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'find Mt. Ember summit and catch Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 202 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 202 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'find Mt. Ember summit and catch Moltres'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick214] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 215/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 203 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 203 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 203 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 216/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 204 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 204 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 204 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick216] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 217/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 205 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 5 ticks, hard-recovery already tried, reload 2/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260806_193355.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (8, 3, 16, 128)); current backed up to pre_reload_20260806_193355.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 218/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 206 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 206 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 206 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick218] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 219/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 207 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 207 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 207 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 220/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 208 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="find Bill's ferry to One Island, catch Moltres"
+
+   [campaign]    [soul] ORACLE pick -> "find Bill's ferry to One Island, catch Moltres"
+
+   [campaign]    [roam] !! MACRO RED: no progress 208 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 208 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) "find Bill's ferry to One Island, catch Moltres"  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick220] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 221/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 209 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 209 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 209 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 222/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 210 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 210 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 210 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick222] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 223/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 211 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='find Bill and get to One Island for Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'find Bill and get to One Island for Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 211 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 211 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'find Bill and get to One Island for Moltres'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 224/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 212 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 212 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 212 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick224] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 225/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 213 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] !!!! DEEP-WEDGE REVERT #1: escape-hatch spent + still frozen -> reverted to safe checkpoint gain(8, 3, 16, 128)@an unfamiliar area (gain (8, 3, 16, 128))
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh — something properly glitched out on me there. let me just back up to where things were working and pick it up again.'
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_deepwedge_revert] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 226/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 214 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 214 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 214 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember summit and catch Moltres'  fired=True  [age 0.0s + post 6ms]
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick226] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 227/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 215 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 215 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 215 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 228/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 216 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 216 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 216 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick228] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 229/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 217 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Moltres — get to Mt. Ember summit'
+
+   [campaign]    [soul] ORACLE pick -> 'Moltres — get to Mt. Ember summit'
+
+   [campaign]    [roam] !! MACRO RED: no progress 217 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 217 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [kira-voice] -> T2·savor· (want) 'Moltres — get to Mt. Ember summit'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 230/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 218 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 218 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 218 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick230] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 231/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 219 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 219 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 219 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 232/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 220 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Mt. Ember summit and catch Moltres'
+
+   [campaign]    [roam] !! MACRO RED: no progress 220 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 220 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'reach Mt. Ember summit and catch Moltres'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick232] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 233/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 221 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] deep-wedge ring EXHAUSTED (1 reverts, 1 same-region of 1 banked) — no clean checkpoint left to fall back to; trying the same-region disk banks
+
+   [campaign]    [roam] !!!! REGION-LOCAL RELOAD: same-region (sevii) auto-checkpoint '20260806_193324_an-unfamiliar-area_8b_33h58m_periodic' loaded (map (3, 12), skip depth 0) — recovery stays on this side of the sea (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something glitched me out — backing up a little, but I'm staying right here on this island and pushing on."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_region_reload] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 234/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 222 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [roam] !! MACRO RED: no progress 222 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 222 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'articuno' is next but she's still on the archipelago — the MOLTRES RIDE-HOME hook owns this turn
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 12)(12, 18) -> (3, 12)(12, 18) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick234] -> campaign/kira_campaign.state  (map=(3, 12) coords=(12, 18) badges=8 party=3)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 12): (14, 5)->(32, 0), (19, 9)->(32, 2), (8, 11)->(32, 3), (12, 18)->(32, 4)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 45) toward an unfamiliar area (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 235/100000000 --
+
+   [campaign]    [roam] STATE IN: an unfamiliar area (12, 18) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L65, lapras L25, fearow L38] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 223 ticks) | fp[(3, 12) (12,18) f2 -- badge8 $30570 party:3659 bag:ccf5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'talk_npc', 'travel:3,45', 'travel:1,97', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> an unfamiliar area
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're outdoors under open sky, somewhere you DON'T recognize — you have no name for this place yet. Only claim what you can actually see; everything else stays a guess or a wondering-out-loud, never a stated fact.. ALREADY BESIDE YOU — your current team: blastoise (L65), lapras (L25), fearow (L38). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 12), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 16 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L65), lapras (L25), fearow (L38)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Moltres — the fire legendary on Mt. Ember's summit, out on One Island. Bill's ferry is the only way there before the champion fight: sail with him after Blaine, climb the volcano, catch the third bird, then rescue Lostelle to earn the boat home — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+

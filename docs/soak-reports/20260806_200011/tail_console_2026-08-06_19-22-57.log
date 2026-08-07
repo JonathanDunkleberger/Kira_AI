@@ -1,0 +1,300 @@
+   [TTS] Speaking: In front of everyone?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'B tier is a lie you tell yourself, and t' (16 words)
+   [TurnTiming] 19:32:55.719 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:32:59.652 TTS STOP — playback finished (span ~3933ms)
+   [Cookies] +1 × 1 (batch response); shared=8/30
+   [ChatAge] @NaitHaunter age=33.1s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'In front of everyone?' (5 words)
+   [TurnTiming] 19:32:59.796 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:33:00.868 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~75350ms since onset)
+>>> You said: It's whole cursor, B Mark Zuckerberg and fix it.
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="It's whole cursor, B Mark Zuckerberg and fix it." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=23ms
+   [Triage] RESPOND
+   [TurnTiming] 19:33:01.404 TTS STOP — playback finished (span ~1607ms)
+   [Interjection] voice turn ready — yielding at sentence boundary (finished current sentence, dropping the rest).
+   [TIMING] interjection: vision=0ms llm=3557ms(sonnet) tts=19652ms total=23238ms
+   [LAG] sense→speak: total=29.0s (content_age=7.4s, prep=0.0s, llm=3.6s, tts_wait+synth=18.0s)
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "in front of" (3rd use this session)
+   [PromptSize] dynamic_context=14336ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @NaitHaunter — Self-deprecates as 'B tier chatter' despite being a long-tim [earnest]
+   [Pokemon] SELF WANT: 'catch Moltres at Mt. Ember summit'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TIMING] first-word: 2300ms
+   [TTS] Speaking: Jonny that sentence had three proper nouns and zer...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny that sentence had three proper nou' (11 words)
+   [TurnTiming] 19:33:03.956 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [Pokemon] SELF WANT: 'reach Bill, sail to One Island, catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:33:07.607 TTS STOP — playback finished (span ~3651ms)
+   [TTS] Speaking: The Hand has gone rogue....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The Hand has gone rogue.' (6 words)
+   [TurnTiming] 19:33:07.610 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:33:09.577 TTS STOP — playback finished (span ~1966ms)
+
+   [TIMING] voice: llm=8168ms(sonnet-stream(llm+tts)) tts=0ms total=8168ms
+   [LATENCY] vad_close=1200ms stt=209ms stt_wait=0ms salience=0ms triage=bypassed memory=23ms prompt_build=2ms ttft=2094ms tts_first_chunk=206ms audio_out=240ms TOTAL=2774ms
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 6 skip(s) — resuming transcription.
+   [Pokemon] SELF WANT: 'Find Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Bits] New running bit: The Hand Goes Rogue
+   [TurnTiming] 19:33:14.377 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~88859ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: Court is now in session, yes. Detective Jones, I did give you a job if you want to call at that. I need you. I trust you.
+   [DroppedInput] LOST ~5 frame(s) (~150ms, ~0.1s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 19:33:14.682 VOICE ONSET — mic speech started
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Court is now in session, yes. Detective Jones, I did give yo' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=6 | timing(direct=47ms fetch=24ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=72ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=7t  moment=calm)
+   [PromptSize] dynamic_context=15393ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1896ms
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] Speaking: Detective Jones — you have been summoned by the Ha...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Detective Jones — you have been summoned' (12 words)
+   [TurnTiming] 19:33:16.930 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:33:20.488 TTS STOP — playback finished (span ~3557ms)
+   [TTS] Speaking: Report to the throne room immediately....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Report to the throne room immediately.' (7 words)
+   [TurnTiming] 19:33:20.494 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @neirc4628: fair we need to have respects with who can hand signal and who can't:ok_hand:
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:33:22.919 TTS STOP — playback finished (span ~2425ms)
+   [TTS] Speaking: We have a Moltres situation and apparently you're ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We have a Moltres situation and apparent' (14 words)
+   [TurnTiming] 19:33:22.924 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Moltres on Mt. Ember summit'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+[YouTube Chat] @keiharris332: a Moltres in the hand is worth more than 2 in the volcano. hence we must venture forth! KIRA! PRESS THE UP BUTTON SEVERAL TIMES ... PLZ :'(
+   [TurnTiming] 19:33:26.955 TTS STOP — playback finished (span ~4030ms)
+   [TTS] Speaking: That's either a great honor or a very bad sign....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's either a great honor or a very ba' (11 words)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 19:33:26.961 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:33:29.951 TTS STOP — playback finished (span ~2989ms)
+
+   [TIMING] voice: llm=15195ms(sonnet-stream(llm+tts)) tts=0ms total=15195ms
+   [LATENCY] vad_close=1200ms stt=304ms stt_wait=0ms salience=1ms triage=bypassed memory=72ms prompt_build=3ms ttft=1277ms tts_first_chunk=619ms audio_out=268ms TOTAL=2544ms
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @neirc4628: fair we need to have respects with who can hand signal and who can't:ok_hand: → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @keiharris332: a Moltres in the hand is worth more than 2 in the volcano. hence we must venture forth! KIRA! PRESS THE UP BUTTON SEVERA → buffering for chat_batch_worker
+   [Pokemon] SELF WANT: 'catch Moltres on Mt. Ember'
+   [Pokemon] event react (bypass=False, tier=2, kind=want): catch Moltres on Mt. Ember
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.135 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [Phrases] Throttling: "detective jones you" (3rd use this session)
+   [Phrases] Throttling: "you have been" (3rd use this session)
+   [Phrases] Throttling: "report to the" (3rd use this session)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:33:31.166 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~16484ms since onset)
+>>> You said: Nate's the hand of the king, but Detective Jones can be some other important...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Nate's the hand of the king, but Detective Jones can be some" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=24ms
+   [Triage] RESPOND
+   [Bits] Callback: First Lesson
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+🎤 Recording...
+   [TurnTiming] 19:33:34.429 VOICE ONSET — mic speech started
+   >>> Kira (Bored): Moltres is secured. The crown has claimed its dragon.
+   [TTS] Speaking: Moltres is secured....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Moltres is secured.' (4 words)
+   [TurnTiming] 19:33:35.265 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 19:33:36 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:33:37.146 TTS STOP — playback finished (span ~1880ms)
+   [Interjection] voice turn ready — yielding at sentence boundary (finished current sentence, dropping the rest).
+   [TIMING] interjection: vision=0ms llm=4522ms(sonnet) tts=2051ms total=6597ms
+   [LAG] sense→speak: total=4.7s (content_age=0.0s, prep=0.0s, llm=4.5s, tts_wait+synth=0.2s)
+   [Arbiter] pausing pending-interjection drain — user spoke recently (yielding the floor; backlog resumes after the hold window)
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=14318ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] ⏳ Dialogue summary AGED OUT after 181s with no narrative update — stale-marked (music/quiet). Was holding a frozen scene.
+   [TIMING] first-word: 2148ms
+   [Pokemon] SELF WANT: 'find Bill and get to One Island for Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] Speaking: Nate is the Hand of the King and Detective Jones i...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Nate is the Hand of the King and Detecti' (12 words)
+   [TurnTiming] 19:33:39.543 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:33:42.825 TTS STOP — playback finished (span ~3281ms)
+   [TTS] Speaking: the other important thing....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'the other important thing.' (5 words)
+   [TurnTiming] 19:33:42.829 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:33:44.701 TTS STOP — playback finished (span ~1872ms)
+   [TTS] Speaking: Jonny, finish the appointment....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny, finish the appointment.' (6 words)
+   [TurnTiming] 19:33:44.705 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @NaitHaunter: You called me a B toer chatter Kira.
+[YouTube Chat] @Detective_Jones: i won't break the trust <3
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 19:33:47.049 TTS STOP — playback finished (span ~2344ms)
+   [TTS] Speaking: We cannot issue a title on a trailing ellipsis....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We cannot issue a title on a trailing el' (10 words)
+   [TurnTiming] 19:33:47.054 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit, catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:33:50.049 TTS STOP — playback finished (span ~2994ms)
+   [TTS] Speaking: This is constitutionally unsound....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'This is constitutionally unsound.' (5 words)
+   [TurnTiming] 19:33:50.053 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:33:52.574 TTS STOP — playback finished (span ~2521ms)
+
+   [TIMING] voice: llm=15423ms(sonnet-stream(llm+tts)) tts=0ms total=15423ms
+   [LATENCY] vad_close=1200ms stt=232ms stt_wait=0ms salience=0ms triage=bypassed memory=24ms prompt_build=2ms ttft=1473ms tts_first_chunk=675ms audio_out=238ms TOTAL=2644ms
+🎤 Recording... (recovered opening words)
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+   [BrainWorker] Got youtube msg from @NaitHaunter: You called me a B toer chatter Kira. → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @Detective_Jones: i won't break the trust <3 → buffering for chat_batch_worker
+   [TurnTiming] 19:33:53.792 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~19362ms since onset)
+>>> You said: Kai, she's not gonna do it right now because she's looped probably stuck but I'm making it clear to her head engineer that this needs to happen.
+   [Vision] Current-frame requested — async refresh triggered, responding with cached...
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Kai, she's not gonna do it right now because she's looped pr" fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=111ms rank=0ms)
+   [SmartMem]     dist=1.198 conf=0.95 type=episodic blend=0.012 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=112ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "and detective jones" (3rd use this session)
+   [PromptSize] dynamic_context=14343ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [Bits] Callback: The Hand Goes Rogue
+   [Pokemon] SELF WANT: 'find Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TIMING] first-word: 2035ms
+   [TTS] Speaking: The Head Engineer has been notified....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The Head Engineer has been notified.' (7 words)
+   [TurnTiming] 19:33:56.479 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Vision] heartbeat capture skipped — on-demand capture in flight (dedup).
+   [TurnTiming] 19:33:58.918 TTS STOP — playback finished (span ~2438ms)
+   [TTS] Speaking: We are not stuck....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We are not stuck.' (5 words)
+   [TurnTiming] 19:33:58.920 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: "find Bill's ferry to One Island, catch Moltres"
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:34:00.608 TTS STOP — playback finished (span ~1688ms)
+   [TTS] Speaking: We are deliberating....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We are deliberating.' (4 words)
+   [TurnTiming] 19:34:00.611 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 19:34:02.393 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: Royally....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Royally.' (2 words)
+   [TurnTiming] 19:34:02.394 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:34:03.606 TTS STOP — playback finished (span ~1211ms)
+   [TTS] Speaking: There is a difference....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'There is a difference.' (5 words)
+   [TurnTiming] 19:34:03.609 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'find Bill and get to One Island for Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:34:05.292 TTS STOP — playback finished (span ~1682ms)
+
+   [TIMING] voice: llm=11072ms(sonnet-stream(llm+tts)) tts=0ms total=11072ms
+   [LATENCY] vad_close=1200ms stt=312ms stt_wait=0ms salience=0ms triage=bypassed memory=112ms prompt_build=5ms ttft=1460ms tts_first_chunk=575ms audio_out=217ms TOTAL=2681ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [TurnTiming] 19:34:06.521 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~32091ms since onset)
+   [LoopbackSTT] self-TTS gate released after 6 skip(s) — resuming transcription.
+   [Bits] Callback: Jonny That's Just Parenting
+   [ChatBatch] Evicted 1 stale message(s) (>60s old)
+   [ChatAge] ACK injected for @neirc4628 (waited 39.6s, preempted=none)
+   [SmartMem] q='  - @neirc4628 (youtube): <<<fair we need to have respects w' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=43ms rank=0ms)
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit and catch Moltres'   [SmartMem]     dist=0.967 conf=0.9 type=episodic blend=0.154 lane=KNOW
+
+   [SmartMem]     dist=0.972 conf=0.9 type=episodic blend=0.152 lane=KNOW
+   [SmartMem]     dist=1.004 conf=0.95 type=episodic blend=0.132 lane=KNOW
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF WANT: 'Moltres — get to Mt. Ember summit'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Chat Batch of 4): Hold that thought, neirc4628 — hand credentials are under royal review.
+
+Keiharris332, "a Moltres in the hand" — we see what you did there, and the throne is pleased. The decree stands: we venture forth. Nait, you called yourself B-tier and then knelt before the dragon queen — that IS the correct order of operations, so we'll let it slide. And Detective Jones — your loyalty is noted and entered into the royal record. The dragon remembers.
+   [TTS] Speaking: Hold that thought, neirc4628 — hand credentials ar...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Hold that thought, neirc4628 — hand cred' (13 words)
+   [TurnTiming] 19:34:15.003 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF WANT: 'reach Mt. Ember summit and catch Moltres'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 19:34:19.964 TTS STOP — playback finished (span ~4961ms)
+   [TTS] Speaking: Keiharris332, "a Moltres in the hand" — we see wha...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Keiharris332, "a Moltres in the hand" — ' (21 words)
+   [TurnTiming] 19:34:20.349 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 19:34:21 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB

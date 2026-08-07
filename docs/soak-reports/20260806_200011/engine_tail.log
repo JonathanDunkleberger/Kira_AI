@@ -1,0 +1,302 @@
+===== playlive_2026-08-06_19-23-53.log =====
+   [travel] start map=(3, 45) coords=(11, 6) -> map (3, 12) (budget 180s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] step 0: (11, 6)->(11, 7) map=(3, 45) (path 142 to exit)
+   [travel] step 10: (11, 16)->(11, 17) map=(3, 45) (path 132 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (11, 19) -> (11, 20) (map (3, 45))
+   [travel] step 20: (11, 26)->(11, 27) map=(3, 45) (path 122 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 45) coords=(12, 63) -> map (3, 12) (budget 180s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] path blocked at (12, 63) (NPC on the gap?) - waiting
+   [travel] step 10: (11, 68)->(11, 69) map=(3, 45) (path 76 to exit)
+   [travel] step 20: (9, 76)->(9, 77) map=(3, 45) (path 66 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [play-live]    [engine] JUST FIGHT: L65 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs fearow 103/103 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=2,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs rapidash 99/99 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=1,ref=0,sc=570) [3]Earthquake(p100,pp=10,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 81/81 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=35.625) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L37 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x4) vs rapidash 102/102 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=9,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(3, 45) coords=(0, 127) -> map (3, 12) (budget 180s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] step 0: (0, 127)->(0, 128) map=(3, 45) (path 6 to exit)
+   [travel] MAP TRANSITION (3, 45) -> (3, 12)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 12) coords=(23, 12)
+   [travel] start map=(32, 4) coords=(8, 3) -> coord (8, 2) (budget 60s, surf-capable)
+   [travel] step 0: (8, 3)->(8, 2) map=(32, 4) (path 2 to exit)
+   [travel] reached target coord (8, 2)
+   [travel] start map=(32, 4) coords=(8, 3) -> coord (8, 2) (budget 60s, surf-capable)
+   [travel] step 0: (8, 3)->(8, 2) map=(32, 4) (path 2 to exit)
+   [travel] reached target coord (8, 2)
+===== playlive_2026-08-06_18-37-04.log =====
+   [play-live]    [engine] JUST FIGHT: L64 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a not-very-effective hit -> slot 0 (eff x0.25) vs machop 99/99 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=0,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a not-very-effective hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L64 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a not-very-effective hit -> slot 0 (eff x0.25) vs machop 51/99 | [0]Bite(p60,pp=22,ref=0,sc=15) [1]Skull Bash(p100,pp=0,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a not-very-effective hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L64 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 68/68 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=0,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L64 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 73/73 | [0]Bite(p60,pp=20,ref=0,sc=60) [1]Skull Bash(p100,pp=0,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L64 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a not-very-effective hit -> slot 0 (eff x0.25) vs machop 100/100 | [0]Bite(p60,pp=19,ref=0,sc=15) [1]Skull Bash(p100,pp=0,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a not-very-effective hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L64 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a not-very-effective hit -> slot 0 (eff x0.25) vs machop 29/100 | [0]Bite(p60,pp=18,ref=0,sc=15) [1]Skull Bash(p100,pp=0,ref=0,sc=50) [2]Surf(p95*STAB,pp=0,ref=0,sc=142.5) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a not-very-effective hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(1, 99) coords=(39, 7) -> coord (8, 38) (budget 60s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L64 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 80/80 | [0]Bite(p60,pp=17,ref=0,sc=60) [1]Skull Bash(p100,pp=0,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(1, 99) coords=(39, 7) -> coord (8, 40) (budget 45s, surf-capable)
+   [travel] path blocked at (39, 7) (NPC on the gap?) - waiting
+   [travel] no clean path from (39, 7) AND no NPC-allowing path (npcs nearby=[(33, 5), (40, 7)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (39, 7) map=(1, 99) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(1, 99) coords=(39, 7) -> coord (8, 38) (budget 45s, surf-capable)
+   [travel] step 0: (39, 7)->(38, 7) map=(1, 99) (path 65 to exit)
+   [travel] step 10: (30, 6)->(29, 6) map=(1, 99) (path 55 to exit)
+   [travel] step 20: (25, 11)->(24, 11) map=(1, 99) (path 45 to exit)
+   [travel] step 30: (20, 16)->(19, 16) map=(1, 99) (path 35 to exit)
+   [travel] path blocked at (16, 19) (NPC on the gap?) - waiting
+   [travel] HEARTBEAT step=40 map=(1, 99) coords=(16, 19) elapsed=7s
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L65 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 68/68 | [0]Bite(p60,pp=16,ref=0,sc=60) [1]Skull Bash(p100,pp=0,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(1, 99) coords=(16, 19) -> coord (7, 39) (budget 45s, surf-capable)
+   [travel] step 0: (16, 19)->(16, 20) map=(1, 99) (path 30 to exit)
+   [travel] step 10: (14, 27)->(13, 27) map=(1, 99) (path 20 to exit)
+   [travel] step 20: (10, 33)->(9, 33) map=(1, 99) (path 10 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(1, 99) coords=(8, 34) -> coord (9, 39) (budget 45s, surf-capable)
+   [travel] step 0: (8, 34)->(8, 35) map=(1, 99) (path 7 to exit)
+   [travel] path blocked at (8, 37) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L65 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs geodude 67/67 | [0]Bite(p60,pp=15,ref=0,sc=60) [1]Skull Bash(p100,pp=0,ref=0,sc=25) [2]Surf(p95*STAB,pp=0,ref=0,sc=570) [3]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] post-battle PAUSE (heal-when-low) - yielding to caller
+   [travel] start map=(1, 99) coords=(8, 37) -> coord (8, 39) (budget 60s, surf-capable)
+   [travel] step 0: (8, 37)->(8, 38) map=(1, 99) (path 3 to exit)
+   [travel] reached target coord (8, 39)
+   [travel] start map=(1, 99) coords=(8, 39) -> coord (8, 38) (budget 60s, surf-capable)
+   [travel] step 0: (8, 39)->(8, 38) map=(1, 99) (path 2 to exit)
+   [travel] reached target coord (8, 38)
+   [travel] start map=(1, 98) coords=(11, 2) -> coord (2, 14) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(1, 98) (path 22 to exit)
+   [travel] step 10: (5, 6)->(4, 6) map=(1, 98) (path 12 to exit)
+   [travel] step 20: (2, 13)->(2, 14) map=(1, 98) (path 2 to exit)
+   [travel] reached target coord (2, 14)
+   [travel] start map=(1, 97) coords=(14, 25) -> coord (28, 47) (budget 60s, surf-capable)
+   [travel] step 0: (14, 25)->(14, 26) map=(1, 97) (path 49 to exit)
+   [travel] step 10: (15, 34)->(15, 35) map=(1, 97) (path 39 to exit)
+   [travel] step 20: (20, 33)->(21, 33) map=(1, 97) (path 29 to exit)
+   [travel] step 30: (25, 38)->(26, 38) map=(1, 97) (path 19 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 41) elapsed=6s
+   [travel] step 40: (32, 41)->(32, 42) map=(1, 97) (path 10 to exit)
+   [travel] reached target coord (28, 47)
+   [travel] start map=(3, 45) coords=(11, 6) -> map (3, 12) (budget 120s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] step 0: (11, 6)->(11, 7) map=(3, 45) (path 142 to exit)
+   [travel] step 10: (11, 16)->(11, 17) map=(3, 45) (path 132 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.54s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.66s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (11, 19) -> (11, 20) (map (3, 45))
+   [travel] step 20: (11, 26)->(11, 27) map=(3, 45) (path 122 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 45) coords=(10, 31) -> map (3, 12) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] step 0: (10, 31)->(10, 32) map=(3, 45) (path 116 to exit)
+   [travel] step 10: (10, 41)->(10, 42) map=(3, 45) (path 106 to exit)
+   [travel] step 20: (10, 51)->(10, 52) map=(3, 45) (path 96 to exit)
+   [travel] step 30: (11, 60)->(11, 61) map=(3, 45) (path 86 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 45) coords=(13, 67) elapsed=6s
+   [travel] step 40: (13, 67)->(12, 67) map=(3, 45) (path 79 to exit)
+   [travel] step 50: (9, 73)->(9, 74) map=(3, 45) (path 69 to exit)
+   [travel] step 60: (9, 83)->(8, 83) map=(3, 45) (path 61 to exit)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 45) coords=(8, 83) -> map (3, 12) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 132, 133]
+   [travel] step 0: (8, 83)->(8, 84) map=(3, 45) (path 60 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] step 20: (8, 95)->(8, 96) map=(3, 45) (path 48 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] step 30: (8, 101)->(8, 102) map=(3, 45) (path 44 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 45) coords=(10, 109) elapsed=48s
+   [travel] step 40: (10, 109)->(10, 110) map=(3, 45) (path 34 to exit)
+   [travel] step 50: (10, 119)->(10, 120) map=(3, 45) (path 24 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.52s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.64s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (10, 123) -> (10, 124) (map (3, 45))
+   [travel] step 60: (10, 129)->(10, 130) map=(3, 45) (path 14 to exit)
+   [travel] step 70: (3, 132)->(2, 132) map=(3, 45) (path 4 to exit)
+   [travel] MAP TRANSITION (3, 45) -> (3, 12)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] ARRIVED at target map (3, 12) coords=(23, 12)
+   [travel] start map=(3, 12) coords=(23, 12) -> coord (14, 6) (budget 120s, surf-capable)
+   [travel] step 0: (23, 12)->(22, 12) map=(3, 12) (path 16 to exit)
+   [travel] step 10: (17, 8)->(16, 8) map=(3, 12) (path 6 to exit)
+   [travel] reached target coord (14, 6)
+   [travel] start map=(32, 0) coords=(5, 4) -> coord (9, 8) (budget 60s, surf-capable)
+   [travel] path blocked at (5, 4) (NPC on the gap?) - waiting
+   [travel] no clean path from (5, 4); NPC-allowing path EXISTS (len 9), blocker NPC tile=(7, 8), npcs nearby=[(3, 7), (5, 2), (7, 4), (7, 8), (14, 6), (15, 6)] -> approaching to interact/trigger
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(32, 0) coords=(5, 8) -> coord (9, 10) (budget 45s, surf-capable)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(32, 0) coords=(5, 8) -> coord (9, 8) (budget 45s, surf-capable)
+   [travel] step 0: (5, 8)->(5, 9) map=(32, 0) (path 7 to exit)
+   [travel] reached target coord (9, 8)
+   [travel] start map=(3, 12) coords=(14, 6) -> coord (23, 12) (budget 120s, surf-capable)
+   [travel] step 0: (14, 6)->(14, 7) map=(3, 12) (path 16 to exit)
+   [travel] step 10: (18, 12)->(19, 12) map=(3, 12) (path 6 to exit)
+   [travel] reached target coord (23, 12)
+   [play-live]    [engine] JUST FIGHT: L65 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs spearow 71/71 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs ponyta 87/87 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=570) [3]Earthquake(p100,pp=10,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs geodude 67/67 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=25) [2]Surf(p95*STAB,pp=13,ref=0,sc=570) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs spearow 72/72 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=12,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L18 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 3 (eff x2) vs tentacool 47/47 | [0]Bite(p60,pp=25,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=71.25) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L65 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machop 105/105 | [0]Bite(p60,pp=24,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=11,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L36 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machop 102/102 | [0]Bite(p60,pp=24,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=10,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L38 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machoke 111/111 | [0]Bite(p60,pp=24,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=9,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs geodude 81/81 | [0]Bite(p60,pp=24,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=25) [2]Surf(p95*STAB,pp=8,ref=0,sc=570) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(1, 100) coords=(11, 7) -> coord (11, 7) (budget 60s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L65 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machop 95/95 | [0]Bite(p60,pp=24,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=7,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L65 vs L35 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machop 28/95 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=7,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] reached target coord (11, 7)
+   [travel] start map=(1, 97) coords=(39, 20) -> coord (29, 47) (budget 60s, surf-capable)
+   [travel] step 0: (39, 20)->(39, 21) map=(1, 97) (path 47 to exit)
+   [travel] step 10: (30, 21)->(30, 22) map=(1, 97) (path 37 to exit)
+   [travel] step 20: (30, 31)->(30, 32) map=(1, 97) (path 28 to exit)
+   [travel] step 30: (26, 37)->(26, 38) map=(1, 97) (path 18 to exit)
+   [travel] HEARTBEAT step=40 map=(1, 97) coords=(32, 41) elapsed=6s
+   [travel] step 40: (32, 41)->(32, 42) map=(1, 97) (path 9 to exit)
+   [travel] reached target coord (29, 47)
+   [play-live]    [engine] JUST FIGHT: L65 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs spearow 64/64 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=6,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs machop 94/94 | [0]Bite(p60,pp=23,ref=0,sc=15) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=5,ref=0,sc=142.5) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs geodude 80/80 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=25) [2]Surf(p95*STAB,pp=4,ref=0,sc=570) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L65 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 2 (eff x4) vs geodude 76/76 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=25) [2]Surf(p95*STAB,pp=3,ref=0,sc=570) [3]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
