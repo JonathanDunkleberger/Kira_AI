@@ -280,8 +280,21 @@ if (Test-Path $targetFile) {
             Say "SNAPSHOT promoted: $snapName -> kira_campaign.state (old save backed up as replaced_$ts.state)"
             $promoteOk = $true; $launchApproved = $true
         } else {
-            Say "!! SNAPSHOT '$snapName' not found in states/campaign - nothing changed, NOT launching."
-            Say "   (check the snapshot inventory in this report and re-pin the exact filename)"
+            # Fallback (2026-08-06): post-catch restore pin may race; prefer newest gain-catch.
+            $ckptRoot = Join-Path $campaign "checkpoints"
+            $gainCatch = Get-ChildItem $ckptRoot -Directory -ErrorAction SilentlyContinue |
+                         Where-Object { $_.Name -notlike "*.partial" -and $_.Name -match 'gain-catch' } |
+                         Sort-Object Name -Descending | Select-Object -First 1
+            $gcState = if ($gainCatch) { Join-Path $gainCatch.FullName "kira_campaign.state" } else { $null }
+            if ($gcState -and (Test-Path $gcState)) {
+                Copy-Item $liveSave (Join-Path $campaign "replaced_$ts.state") -ErrorAction SilentlyContinue
+                Copy-Item $gcState $liveSave -Force
+                Say ("!! SNAPSHOT '$snapName' missing — FALLBACK to gain-catch " + $gainCatch.Name)
+                $promoteOk = $true; $launchApproved = $true
+            } else {
+                Say "!! SNAPSHOT '$snapName' not found in states/campaign - nothing changed, NOT launching."
+                Say "   (check the snapshot inventory in this report and re-pin the exact filename)"
+            }
         }
     } elseif ($target -like "CKPT *") {
         # CKPT <name-substring> (2026-07-31, "tp her to somewhere else in cerulean"): promote the
@@ -297,6 +310,19 @@ if (Test-Path $targetFile) {
         $ckptDir = Get-ChildItem $ckptRoot -Directory -ErrorAction SilentlyContinue |
                    Where-Object { $_.Name -notlike "*.partial" -and $_.Name.ToLower() -like "*$ckptPat*" } |
                    Sort-Object Name -Descending | Select-Object -First 1
+        # Anti-catch-rewind (2026-08-06 LIVE): a leftover pre-moltres PROMOTE pin overwrote
+        # the post-catch canonical (Moltres L50 in party) on resume. If the pin names a
+        # pre-<legendary> bank and a NEWER gain-catch exists, promote THAT instead.
+        if ($ckptDir -and ($ckptDir.Name -match 'pre-(moltres|articuno|zapdos|mewtwo)')) {
+            $gainCatch = Get-ChildItem $ckptRoot -Directory -ErrorAction SilentlyContinue |
+                         Where-Object { $_.Name -notlike "*.partial" -and $_.Name -match 'gain-catch' -and $_.Name -gt $ckptDir.Name } |
+                         Sort-Object Name -Descending | Select-Object -First 1
+            if ($gainCatch) {
+                Say ("!! CKPT override: refusing stale pre-hunt pin '" + $ckptDir.Name +
+                     "' — newer gain-catch exists: " + $gainCatch.Name)
+                $ckptDir = $gainCatch
+            }
+        }
         # Anti-Diglett-rewind (2026-08-02): Mac pins to Diglett/Route2/Pewter/Mt.Moon kept
         # forcing a 20-min re-walk. If a Rock Tunnel CKPT exists, prefer THAT instead.
         $westPoison = $ckptPat -match 'diglett|route-2|pewter|mt-moon|route-3|viridian|pallet|route-1'

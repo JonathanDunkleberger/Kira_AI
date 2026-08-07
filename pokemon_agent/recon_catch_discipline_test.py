@@ -1616,6 +1616,24 @@ def main():
         camp37._lap_sevii_stranded = lambda: True
         eg = C.Campaign._eevee_gate(camp37, {"badge_count": 8})
         check("eevee gate suppressed while Sevii-stranded", eg is None)
+        # _lap_bird_spent must see party Moltres (the missing `_dex_owned` bug).
+        camp37b = C.Campaign.__new__(C.Campaign)
+        camp37b.b = types.SimpleNamespace(rd8=lambda _a: 1)
+        camp37b._moltres_fought = False
+        camp37b._moltres_hide = False
+        _owns37 = C.ram.pokedex_owns
+        _rps37 = C.st.read_party_species
+        _rf37 = C.fm.read_flag
+        try:
+            C.ram.pokedex_owns = lambda _b, n: False
+            C.st.read_party_species = lambda _b, s: 146
+            C.fm.read_flag = lambda _b, f: False
+            check("bird_spent True when party has species 146 (dex clear)",
+                  camp37b._lap_bird_spent() is True)
+        finally:
+            C.ram.pokedex_owns = _owns37
+            C.st.read_party_species = _rps37
+            C.fm.read_flag = _rf37
     finally:
         C.tv.map_id = _orig_tv_h
         C.ram.pokedex_owns = _orig_owns_h

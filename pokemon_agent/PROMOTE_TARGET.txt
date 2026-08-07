@@ -1,0 +1,5 @@
+SNAPSHOT replaced_20260806_212026.state
+# URGENT 2026-08-06: resume ate a leftover pre-moltres PROMOTE pin and OVERWROTE the
+# live post-catch save. replaced_20260806_212026.state IS the canonical that had
+# Moltres L50 in party (inventory proved it before the bad promote). Restore that.
+# If missing: CKPT 20260806_211217 (gain-catch) or CKPT 20260806_211713 (periodic).

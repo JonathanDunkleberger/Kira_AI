@@ -248,6 +248,22 @@ class LegendaryHunt(GiovanniGym):
             pass
         return None
 
+    def seal_caught(self):
+        """Catch is REAL — clear any pre-<quarry> PROMOTE_TARGET landmine and bank a
+        caught-<quarry> milestone. LIVE 2026-08-06: a leftover pre-moltres pin made
+        resume_marathon overwrite the post-catch canonical. Never raises."""
+        if self.outcome() != "caught":
+            return
+        key = ((self.QUARRY or {}).get("name") or "hunt").lower()
+        try:
+            self.camp._clear_pre_hunt_promote(key, why="caught")
+        except Exception as e:
+            self.log(f"   [hunt] !! clear pre-{key} pin after catch skipped: {e}")
+        try:
+            self.strike_checkpoint(f"caught-{key}")
+        except Exception as e:
+            self.log(f"   [hunt] !! caught-{key} milestone skipped: {e}")
+
     # ── milestone durability (2026-08-05 #3, 'respawn right where she is') ──────────────
     def strike_checkpoint(self, reason=None):
         """Bank a checkpoint + refresh the recent-good at a climb milestone, so ANY recovery
@@ -942,6 +958,7 @@ class LegendaryHunt(GiovanniGym):
                 # flew-away loop ended here with return True after a futile flee).
                 try:
                     if ram.pokedex_owns(self.b, q["species"]) is True:
+                        self.seal_caught()
                         return True
                 except Exception:
                     pass
@@ -1933,6 +1950,7 @@ class MoltresHunt(LegendaryHunt):
             # (bounded) instead of flipping the stage machine homebound — the 2026-08-05
             # emergency law: she finishes or honestly fails the encounter before any leg home.
             if self.spent_final():
+                self.seal_caught()   # clear pre-moltres PROMOTE pin BEFORE any resume can fire
                 if here in (CINNABAR, CINNABAR_PC):
                     self.log("   [moltres] SPENT + home at Cinnabar — the hunt is complete")
                     return self.outcome() or "battled"

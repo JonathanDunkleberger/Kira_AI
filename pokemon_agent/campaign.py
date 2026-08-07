@@ -13323,13 +13323,26 @@ class Campaign:
             return False
 
     def _lap_bird_spent(self):
-        """Moltres is spent (caught / fought / hide) — ride-home owns Sevii turns after this."""
+        """Moltres is spent (caught / fought / hide) — ride-home owns Sevii turns after this.
+
+        LIVE 2026-08-06: used a non-existent `_dex_owned` helper, every call excepted to
+        False, so caught+party-Moltres still took the RE-ARM 'unspent' path. Dex bit,
+        party species 146, and fought/hide flags are the real truths."""
         try:
-            return (
-                bool(self._dex_owned(146))
-                or getattr(self, "_moltres_fought", False)
-                or getattr(self, "_moltres_hide", False)
-            )
+            if ram.pokedex_owns(self.b, 146) is True:
+                return True
+            if getattr(self, "_moltres_fought", False) or getattr(self, "_moltres_hide", False):
+                return True
+            try:
+                n = int(self.b.rd8(ram.GPLAYER_PARTY_CNT) or 0)
+            except Exception:
+                n = 6
+            for s in range(min(max(n, 0), 6)):
+                if st.read_party_species(self.b, s) == 146:
+                    return True
+            if fm.read_flag(self.b, 0x2BD) or fm.read_flag(self.b, 0x052):
+                return True
+            return False
         except Exception:
             return False
 
@@ -18533,6 +18546,14 @@ class Campaign:
             self._legend_rewind_at_boot()
         except Exception as _lr:
             log(f"   [hunt] legendary rewind check skipped: {_lr}")
+        # CATCH PIN SWEEP (2026-08-06): if a legendary is already owned, delete any leftover
+        # pre-<key> PROMOTE_TARGET so the next resume cannot rewind the catch.
+        try:
+            for _hk, (_hsp, _hh, _hf) in (getattr(self, "_LAP_HUNT_SPEC", {}) or {}).items():
+                if ram.pokedex_owns(self.b, _hsp) is True:
+                    self._clear_pre_hunt_promote(_hk, why="boot: already owned")
+        except Exception as _cps:
+            log(f"   [hunt] catch-pin sweep skipped: {_cps}")
         # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
         # real progress (a badge, a new area, a catch), so the next GO resumes the CLIMB from where she
         # actually is. _camp_sig is the cheap progress fingerprint we diff each tick.
@@ -21583,12 +21604,38 @@ class Campaign:
             pass
         return True
 
+    def _clear_pre_hunt_promote(self, key, why=""):
+        """Delete a leftover pre-<key> PROMOTE_TARGET pin so the next resume cannot
+        rewind a CATCH. LIVE 2026-08-06: a pre-moltres pin from 21:02 overwrote the
+        21:17 post-catch canonical on resume — Moltres was in the party and still got
+        erased from the live save (backed up as replaced_20260806_212026.state)."""
+        try:
+            pin = os.path.join(os.path.dirname(os.path.abspath(__file__)), "PROMOTE_TARGET.txt")
+            if not os.path.isfile(pin):
+                return
+            body = open(pin, encoding="utf-8").read()
+            if f"pre-{key}" not in body.lower():
+                return
+            os.remove(pin)
+            log(f"   [hunt] CLEARED pre-{key} PROMOTE_TARGET pin"
+                + (f" ({why})" if why else "")
+                + " — resume must not rewind a catch (LOUD)")
+        except Exception as e:
+            log(f"   [hunt] !! clear pre-{key} PROMOTE pin skipped: {e}")
+
     def _pin_pre_hunt_promote(self, key, name=None):
         """Write PROMOTE_TARGET.txt -> CKPT <verified bank> so the next resume_marathon
         hard-teleports onto that bird (one-shot; consumed on launch). Prefer the explicit
         `name` (the bank we just verified) over a newest-on-disk scan — scanning re-pinned
-        the poison 182452 after a clean load."""
+        the poison 182452 after a clean load.
+
+        REFUSES once the quarry is already owned — a post-catch pin of pre-<key> is a
+        resume landmine that undoes the catch."""
         try:
+            sp = (self._HUNT_SPEC_ALL.get(key) or (None,))[0]
+            if sp is not None and ram.pokedex_owns(self.b, sp) is True:
+                self._clear_pre_hunt_promote(key, why="quarry already caught — refusing pre-pin")
+                return
             root = os.path.join(STATES_CAMPAIGN, "checkpoints")
             if not name:
                 name = getattr(self, "_last_labeled_reload", None)
