@@ -1824,7 +1824,46 @@ def main():
         LS.fm.read_flag = _rf39
     print()
 
-    print("== 40. ARTICUNO SEAFOAM: pinned west chain + ride() map-flip abort ==")
+    print("== 40. ARTICUNO SEAFOAM: pinned west chain + ride() map-flip abort + step-off ==")
+    # step_off_landing: standing ON a warp must press LEFT/DOWN onto a free tile, never
+    # re-enter the ladder (Jonny 2026-08-07 Seafoam yo-yo pics).
+    logs40b = []
+    coords40 = [(8, 14)]  # landed ON B3F west up-ladder
+    pressed40 = []
+    h40b = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40b.b = types.SimpleNamespace(
+        run_frame=lambda: None,
+        press=lambda key, *a, **k: pressed40.append(key),
+        rd8=lambda *_: 0)
+    h40b.deadline = 1e18
+    h40b.log = lambda m: logs40b.append(m)
+    h40b.camp = types.SimpleNamespace(render=None)
+    h40b.drain = lambda *a, **k: None
+    h40b.water_save = lambda g: set()
+    h40b.sea_ok = lambda g, w: (lambda sx, sy: (sx, sy) != (8, 14))
+    h40b.nav_blockers = lambda: set()
+    h40b.step_to = lambda tile, wset=None: (
+        coords40.__setitem__(0, tile), True)[1]
+    _rw40 = LS.tv.read_warps
+    _co40 = LS.tv.coords
+    _mi40 = LS.tv.map_id
+    _gr40 = LS.tv.Grid
+    try:
+        LS.tv.read_warps = lambda _b: [((8, 14), LS.B2F, 0), ((6, 18), LS.B4F, 2)]
+        LS.tv.coords = lambda _b: coords40[0]
+        LS.tv.map_id = lambda _b: LS.B3F
+        # Minimal Grid stub — sea_ok already decides walkability
+        class _G40:
+            pass
+        LS.tv.Grid = lambda _b: _G40()
+        ok_off = h40b.step_off_landing("test")
+        check("step_off_landing leaves the warp via LEFT (not back UP the ladder)",
+              ok_off is True
+              and coords40[0] == (7, 14)
+              and any("stepped OFF landing warp" in l for l in logs40b))
+    finally:
+        LS.tv.read_warps, LS.tv.coords, LS.tv.map_id = _rw40, _co40, _mi40
+        LS.tv.Grid = _gr40
     # West column only on the primary table — east is a whole alternate, never mixed.
     west_tiles = {t for _fl, cands, _d in LS.ARTICUNO_DESCENT for t in cands}
     east_only = {(28, 19), (31, 4), (17, 9), (32, 14), (25, 19),

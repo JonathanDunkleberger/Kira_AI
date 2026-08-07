@@ -828,12 +828,72 @@ class LegendaryHunt(GiovanniGym):
             self.log(f"   [fieldheal] strike seam skipped: {e}")
 
     # ── movement ─────────────────────────────────────────────────────────────────────────
+    def step_off_landing(self, label="landing"):
+        """FRLG leaves you ON the destination warp tile after a ladder/hole. Seafoam's
+        west chain pairs every down-ladder with an up-ladder on the same tile — the next
+        sea_walk often presses toward the open room THROUGH that tile and she falls straight
+        back down (Jonny 2026-08-07: 'must move backward or left, other directions lead
+        nowhere'). Step onto any walkable NON-warp neighbor before planning the next leg.
+        Prefer LEFT/DOWN (the safe egress on the west-chain landings) over UP/RIGHT."""
+        b = self.b
+        try:
+            cur = tuple(tv.coords(b) or ())
+        except Exception:
+            return False
+        if not cur:
+            return False
+        try:
+            wts = {tuple(w[0]) for w in tv.read_warps(b)}
+        except Exception:
+            return False
+        if cur not in wts:
+            return True
+        g = tv.Grid(b)
+        wset = self.water_save(g)
+        ok0 = self.sea_ok(g, wset)
+        npcs = self.nav_blockers()
+        # Direction preference matches the live Seafoam pocket: left/back first.
+        order = (("LEFT", (-1, 0)), ("DOWN", (0, 1)), ("RIGHT", (1, 0)), ("UP", (0, -1)))
+        cands = []
+        for key, (dx, dy) in order:
+            n = (cur[0] + dx, cur[1] + dy)
+            if n in wts or n in npcs:
+                continue
+            if not ok0(*n):
+                continue
+            cands.append((key, n))
+        if not cands:
+            self.log(f"   [{label}] !! on warp {cur} with no safe step-off neighbor (LOUD)")
+            return False
+        # Prefer land over water so we don't force a Surf mount just to leave the ladder.
+        cands.sort(key=lambda kn: (kn[1] in wset,))
+        m0 = tuple(tv.map_id(b))
+        for key, n in cands:
+            if time.time() > self.deadline:
+                break
+            self.step_to(n, wset)
+            for _ in range(40):
+                b.run_frame()
+            self.drain()
+            # A mis-step that re-fires a warp is a hard fail — caller re-legs.
+            if tuple(tv.map_id(b)) != m0:
+                self.log(f"   [{label}] !! step-off re-fired a warp {m0} -> {tv.map_id(b)} (LOUD)")
+                return False
+            now = tuple(tv.coords(b) or ())
+            if now and now not in wts:
+                self.log(f"   [{label}] stepped OFF landing warp {cur} -> {now} via {key}")
+                return True
+        now = tuple(tv.coords(b) or ())
+        return bool(now) and now not in wts
+
     def enter_step(self, tile, dest, label):
         """Walk BESIDE a warp tile (sea_walk excludes warp tiles from its own paths), then STEP
         onto it — doors, ladders, cave mouths and holes all fire on the step; a door that wants
-        its arrow press gets one more directional hold. Verified by the map-id flip."""
+        its arrow press gets one more directional hold. Verified by the map-id flip.
+        On success, ALWAYS step off the landing warp before returning (Seafoam ladder yo-yo)."""
         b = self.b
         if tuple(tv.map_id(b)) == dest:
+            self.step_off_landing(f"{label}-egress")
             return True
         nbs = [(tile[0] + dx, tile[1] + dy) for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1))]
         # ARROW-MAT LAW (2026-08-05, the One-Island PC exit / the teleport-back incident):
@@ -851,9 +911,23 @@ class LegendaryHunt(GiovanniGym):
         for _att in range(3):
             if time.time() > self.deadline:
                 return False
+            # Standing ON a warp (prior landing) — leave it before approaching the next one,
+            # or the first press toward the open room drops us back through.
+            pre_map = tuple(tv.map_id(b))
+            self.step_off_landing(f"{label}-pre")
+            if tuple(tv.map_id(b)) == dest:
+                return True
+            if tuple(tv.map_id(b)) != pre_map:
+                return False  # surprise warp mid-egress — ride() re-legs
             if tuple(tv.coords(b) or ()) not in nbs:
                 if not self.sea_walk(lambda c, s=set(nbs): c in s, f"{label}-approach"):
                     return False
+            # If sea_walk itself fell through a warp, stop — ride() will re-leg.
+            if tuple(tv.map_id(b)) != pre_map:
+                ok = tuple(tv.map_id(b)) == dest
+                if ok:
+                    self.step_off_landing(f"{label}-egress")
+                return ok
             cur = tuple(tv.coords(b) or (0, 0))
             key = KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1]))
             m0 = tuple(tv.map_id(b))
@@ -873,8 +947,12 @@ class LegendaryHunt(GiovanniGym):
                 for _ in range(60):
                     b.run_frame()
                 self.log(f"   [{label}] {m0} -> {dest} @ {tv.coords(b)}")
-                return True
-        return tuple(tv.map_id(b)) == dest
+                self.step_off_landing(f"{label}-egress")
+                return tuple(tv.map_id(b)) == dest
+        ok = tuple(tv.map_id(b)) == dest
+        if ok:
+            self.step_off_landing(f"{label}-egress")
+        return ok and tuple(tv.map_id(b)) == dest
 
     def ride(self, table, goal_map, label):
         """Leg-by-leg floor descent (eevee_fetch._ride doctrine, candidates per floor).
@@ -889,6 +967,9 @@ class LegendaryHunt(GiovanniGym):
             while self.handle_interrupts():
                 pass
             self.field_heal_seam()          # between-legs drink (battles just drained above)
+            # Resume mid-dungeon often loads ON a ladder tile — leave it before the next leg
+            # or the approach BFS's first press is UP into the hole she just climbed.
+            self.step_off_landing(f"{label}-hop-egress")
             here = tuple(tv.map_id(self.b))
             if here == goal_map:
                 return True
