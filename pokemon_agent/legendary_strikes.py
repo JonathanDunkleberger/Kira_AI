@@ -33,9 +33,12 @@ GROUND TRUTH (pret/pokefirered map JSONs + flags.h, fetched 2026-08-04):
   Zapdos   : OBJ (5,11) PowerPlant | FLAG_HIDE_ZAPDOS 0x05D | FLAG_FOUGHT_ZAPDOS 0x2BF
              doors: R10 (7,40)->PLANT dw1 | exits (4,39)/(5,38)/(6,39)->R10
   Articuno : OBJ (9,2) B4F | FLAG_HIDE_ARTICUNO 0x082 | FLAG_FOUGHT_ARTICUNO 0x2BE
-             descent candidates (down-ladders per floor, west chain first):
-             F1 (10,6)/(28,19)/(31,4) -> B1F | B1F (7,3)/(17,9)/(32,14)/(25,19) -> B2F |
-             B2F (7,17)/(31,17)/(32,4) -> B3F | B3F (6,18)/(9,18)/(29,5)/(12,9) -> B4F
+             PINNED west down-chain (east is a whole-table fallback — never mix columns):
+             F1 (10,6) -> B1F (7,3) -> B2F (7,17) -> B3F (6,18)/(9,18) -> B4F bird side.
+             Mixing west+east candidates per floor (live 2026-08-06) yo-yos ladders:
+             a failed enter_step that still flips the map left any() iterating the OLD
+             floor's tiles — B2F (32,14) is an UP ladder, so she climbs the hole she just
+             fell through.
   Moltres  : OBJ (9,6) MtEmber_Summit | FLAG_HIDE_MOLTRES 0x052 | FLAG_FOUGHT_MOLTRES 0x2BD
              maps: OneIsland (3,12) | KindleRoad (3,45) | Ember exterior (1,97) |
              SummitPath 1F/2F/3F (1,98)/(1,99)/(1,100) | Summit (1,101) | One-Island PC
@@ -148,13 +151,29 @@ SAILOR_STAND_SOUTH = (8, 7)
 SAILOR_STAND_NORTH = (8, 5)
 SAILOR_STAND = SAILOR_STAND_SOUTH  # backward-compat alias (south approach)
 
-# (floor, [candidate down-warp tiles in preference order], dest floor) — the eevee_fetch _ride
-# doctrine: the leg for WHEREVER she stands, live BFS decides which candidate is reachable.
+# (floor, [candidate down-warp tiles in preference order], dest floor).
+# WEST chain only — Seafoam's ladder columns are disconnected pockets. Fan-out across
+# east+west on the same leg thrash-walks unreachable tiles, then a mid-fan map flip makes
+# the next candidate an UP ladder on the new floor (classic Mt. Moon / Seafoam yo-yo).
+# East column is ARTICUNO_DESCENT_EAST — tried as a whole alternate if west fails.
 ARTICUNO_DESCENT = [
-    (F1, [(10, 6), (28, 19), (31, 4)], B1F),
-    (B1F, [(7, 3), (17, 9), (32, 14), (25, 19)], B2F),
-    (B2F, [(7, 17), (31, 17), (32, 4)], B3F),
-    (B3F, [(6, 18), (9, 18), (29, 5), (12, 9)], B4F),
+    (F1, [(10, 6)], B1F),
+    (B1F, [(7, 3)], B2F),
+    (B2F, [(7, 17)], B3F),
+    (B3F, [(6, 18), (9, 18)], B4F),   # both land west B4F by Articuno
+]
+ARTICUNO_DESCENT_EAST = [
+    (F1, [(31, 4), (28, 19)], B1F),
+    (B1F, [(32, 14), (25, 19)], B2F),
+    (B2F, [(31, 17), (32, 4)], B3F),
+    (B3F, [(29, 5), (12, 9)], B4F),
+]
+ARTICUNO_ASCENT = [
+    (B4F, [(8, 17), (9, 17)], B3F),   # west landings only (pair with B3F (6,18)/(9,18))
+    (B3F, [(8, 14)], B2F),
+    (B2F, [(7, 4)], B1F),
+    (B1F, [(10, 6)], F1),
+    (F1, [(6, 21), (32, 21)], R20),
 ]
 
 
@@ -854,7 +873,14 @@ class LegendaryHunt(GiovanniGym):
         return tuple(tv.map_id(b)) == dest
 
     def ride(self, table, goal_map, label):
-        """Leg-by-leg floor descent (eevee_fetch._ride doctrine, candidates per floor)."""
+        """Leg-by-leg floor descent (eevee_fetch._ride doctrine, candidates per floor).
+
+        CRITICAL: never `any(enter_step(...))` across the candidate list. enter_step has
+        side effects — a failed dest check can still leave her on a NEW floor (wrong warp /
+        hole). Continuing the fan then steps on tiles meant for the OLD floor; on Seafoam
+        those are often the paired UP ladders → infinite ladder yo-yo. On map flip (success
+        OR surprise), stop the fan and re-pick the leg for WHERE she actually stands.
+        """
         for _hop in range(len(table) + 2):
             while self.handle_interrupts():
                 pass
@@ -870,9 +896,26 @@ class LegendaryHunt(GiovanniGym):
                 self.log(f"!! [{label}] no leg from {here} — off the mission rails")
                 return False
             _, cands, dest = leg
-            if not any(self.enter_step(t, dest, f"{label}{t}") for t in cands):
-                self.log(f"!! [{label}] every candidate warp failed on {here}")
-                return False
+            hopped = False
+            for t in cands:
+                now = tuple(tv.map_id(self.b))
+                if now != here:
+                    # Surprise warp mid-fan (or prior candidate flipped us) — re-leg.
+                    self.log(f"   [{label}] map flipped mid-fan {here} -> {now} — re-leg")
+                    hopped = True
+                    break
+                if self.enter_step(t, dest, f"{label}{t}"):
+                    hopped = True
+                    break
+                if tuple(tv.map_id(self.b)) != here:
+                    self.log(f"   [{label}] candidate {t} warped off-rail "
+                             f"{here} -> {tv.map_id(self.b)} (not {dest}) — re-leg")
+                    hopped = True
+                    break
+            if hopped:
+                continue
+            self.log(f"!! [{label}] every candidate warp failed on {here}")
+            return False
         return tuple(tv.map_id(self.b)) == goal_map
 
     # ── the press ────────────────────────────────────────────────────────────────────────
@@ -1026,25 +1069,27 @@ class ArticunoHunt(LegendaryHunt):
                      "rip-current water; refusing the descent (the gate should have caught this)")
             return "failed"
         if here == R20:
-            # either F1 door works; try east (60,8) then west (72,14) side by proximity — the
-            # doors warp on step, sea_walk crosses whichever sea band she's on
+            # East door (60,8) lands F1 near the WEST down-chain (10,6). West door (72,14)
+            # lands the east column — only use it if the east door is unreachable.
             for door in ((60, 8), (72, 14)):
                 if self.enter_step(door, F1, "seafoam-door"):
                     break
         if tuple(tv.map_id(b)) not in {F1, B1F, B2F, B3F, B4F}:
             return "not_here"
-        if tuple(tv.map_id(b)) != B4F and not self.ride(ARTICUNO_DESCENT, B4F, "descent"):
-            return "failed"
+        if tuple(tv.map_id(b)) != B4F:
+            # Whole-chain west first; east only as a complete alternate (never mix columns).
+            if not self.ride(ARTICUNO_DESCENT, B4F, "descent-west"):
+                if tuple(tv.map_id(b)) != B4F:
+                    self.log("   [articuno] west chain failed — trying east column (LOUD)")
+                    if not self.ride(ARTICUNO_DESCENT_EAST, B4F, "descent-east"):
+                        return "failed"
+            if tuple(tv.map_id(b)) != B4F:
+                return "failed"
         if not self.spent_final() and not self.press_quarry():
             return "failed"
         out = self.outcome() or "failed"
-        # walk out: back up the same ladder pairs (B4F tiles pair with B3F warps 3/4/7/8)
-        ascent = [(B4F, [(8, 17), (9, 17), (15, 9), (32, 5)], B3F),
-                  (B3F, [(8, 14), (31, 16), (31, 4)], B2F),
-                  (B2F, [(7, 4), (17, 9), (32, 14), (25, 19)], B1F),
-                  (B1F, [(10, 6), (28, 19), (31, 4)], F1),
-                  (F1, [(6, 21), (32, 21)], R20)]
-        self.ride(ascent, R20, "ascent")
+        # walk out on the pinned west ascent (same doctrine — no east fan-out yo-yo)
+        self.ride(ARTICUNO_ASCENT, R20, "ascent")
         return out
 
 

@@ -1813,6 +1813,60 @@ def main():
         LS.fm.read_flag = _rf39
     print()
 
+    print("== 40. ARTICUNO SEAFOAM: pinned west chain + ride() map-flip abort ==")
+    # West column only on the primary table — east is a whole alternate, never mixed.
+    west_tiles = {t for _fl, cands, _d in LS.ARTICUNO_DESCENT for t in cands}
+    east_only = {(28, 19), (31, 4), (17, 9), (32, 14), (25, 19),
+                 (31, 17), (32, 4), (29, 5), (12, 9)}
+    check("primary descent is the west Articuno column",
+          west_tiles == {(10, 6), (7, 3), (7, 17), (6, 18), (9, 18)}
+          and not (west_tiles & east_only))
+    check("east column lives in ARTICUNO_DESCENT_EAST (whole-table fallback)",
+          (31, 4) in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands}
+          and (10, 6) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands})
+    # ride() must NOT keep fanning candidates after a surprise map flip (the yo-yo).
+    # Simulate: on B1F, first cand "fails" but warps to B2F; second cand must NOT run
+    # (old bug: any() kept going and stepped B1F's next tile — often an UP ladder).
+    calls40 = []
+    logs40 = []
+    maps40 = [LS.B1F]
+
+    h40 = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40.b = object()
+    h40.deadline = 1e18  # far future — not under test
+    h40.log = lambda m: logs40.append(m)
+    h40.handle_interrupts = lambda: False
+    h40.field_heal_seam = lambda *a, **k: None
+
+    def _enter40(tile, dest, label):
+        calls40.append(tile)
+        if tile == (7, 3):
+            maps40[0] = LS.B2F
+            return False  # dest check failed, but map already flipped
+        if tile == (7, 17) and maps40[0] == LS.B2F:
+            maps40[0] = LS.B3F
+            return True
+        return False
+
+    _mid40 = LS.tv.map_id
+    try:
+        LS.tv.map_id = lambda _b: maps40[0]
+        h40.enter_step = _enter40
+        table = [(LS.B1F, [(7, 3), (32, 14)], LS.B2F),
+                 (LS.B2F, [(7, 17)], LS.B3F)]
+        ok40 = h40.ride(table, LS.B3F, "descent-test")
+        check("ride aborts B1F fan after surprise warp (never tries (32,14))",
+              (32, 14) not in calls40
+              and (7, 3) in calls40
+              and (7, 17) in calls40
+              and ok40 is True
+              and maps40[0] == LS.B3F)
+        check("ride logs the mid-fan re-leg",
+              any("map flipped" in l or "warped off-rail" in l for l in logs40))
+    finally:
+        LS.tv.map_id = _mid40
+    print()
+
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")
         sys.exit(1)
