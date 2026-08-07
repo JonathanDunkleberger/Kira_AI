@@ -1894,6 +1894,16 @@ def main():
                               for t in cands}
           and (29, 5) not in {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
                               for t in cands})
+    # pret B3F Articuno dam: both hole-chains vanish into (6,18)/(9,18).
+    calm_starts = {ch["start"] for ch in LS.ARTICUNO_B3F_CALM["chains"]}
+    calm_vanish = {ch["start"] for ch in LS.ARTICUNO_B3F_CALM["chains"] if ch["vanish_ok"]}
+    check("B3F Articuno calm board drops (6,17) and (12,16) into the B4F holes",
+          (6, 17) in calm_vanish and (12, 16) in calm_vanish
+          and (9, 16) in calm_starts and (13, 16) in calm_starts)
+    check("Articuno approach waypoints are pret CurrentStopped path (15,11)->(9,3)",
+          LS.ARTICUNO_APPROACH_WAYPOINTS[0] == (15, 10)
+          and LS.ARTICUNO_APPROACH_WAYPOINTS[-1] == (9, 3)
+          and (10, 2) in LS.ARTICUNO_APPROACH_WAYPOINTS)
     # climb_out prefers east table when standing in the sealed elev-4 pocket.
     rides40c = []
     h40c = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
