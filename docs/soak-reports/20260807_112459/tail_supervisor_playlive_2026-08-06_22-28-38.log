@@ -1,0 +1,1500 @@
+   [travel] start map=(1, 86) coords=(12, 9) -> coord (12, 10) (budget 60s, surf-capable)
+
+   [travel] step 0: (12, 9)->(12, 10) map=(1, 86) (path 2 to exit)
+
+   [travel] reached target coord (12, 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (1, 86) -> (1, 87) via door (12, 9)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    EXIT-BUILDING: (1, 86) -> (1, 87)@(15, 9)
+
+   [campaign]    EXIT: door (9, 17) walk-unreachable from (15, 9) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (8, 17) walk-unreachable from (15, 9) — skipped (sealed pocket)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 87) coords=(15, 9) -> coord (32, 5) (budget 60s, surf-capable)
+
+   [travel] step 0: (15, 9)->(16, 9) map=(1, 87) (path 22 to exit)
+
+   [travel] step 10: (21, 5)->(22, 5) map=(1, 87) (path 12 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 9ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against seel — your blastoise is up front'  fired=True  [age 0.0s + post 16ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out seel'
+
+   [play-live]    [engine] JUST FIGHT: L67 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs seel 86/86 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=7,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's seel went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 21ms]
+
+   [travel] reached target coord (32, 5)
+
+   [campaign]    EXIT-BUILDING: (1, 87) -> (1, 86)@(29, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 86) coords=(29, 5) -> coord (29, 5) (budget 60s, surf-capable)
+
+   [travel] reached target coord (29, 5)
+
+   [campaign]    7 door(s); candidates (chosen order): [(29, 5)]
+
+   [campaign]    door (29, 5): at (29, 5) (approach=(29, 6)) — stepping UP in
+
+   [campaign]    reachable door (29, 5): walking to approach (29, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 86) coords=(29, 3) -> coord (29, 6) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 3)->(29, 4) map=(1, 86) (path 4 to exit)
+
+   [travel] MAP TRANSITION (1, 86) -> (1, 87)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [travel] coord leg ended by the transition -> (1, 87) (target (29, 6) was the old map's frame)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT-BUILDING: (1, 86) -> (1, 87)@(32, 5)
+
+   [campaign]    EXIT: door (9, 17) walk-unreachable from (32, 5) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (8, 17) walk-unreachable from (32, 5) — skipped (sealed pocket)
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 87)@(32, 5) - LOUD
+
+   [campaign]    !! HEAL: no graph route to any known Center from (1, 87) — FALLBACK to a cross-region Viridian heal (FIX: add (1, 87)'s PC door to CITY_PC_DOORS)
+
+   [campaign]    HEAL-RETURN: lead at (200, 205) - routing south to Viridian to heal
+
+   [campaign]    HEAL-RETURN leg 0: no south edge on map (1, 87) - warping south
+
+   [campaign]    2 door(s); candidates (chosen order): [(15, 9), (32, 5)]
+
+   [campaign]    door (32, 5): at (32, 5) (approach=(32, 4)) — stepping DOWN in
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    !! HEAL-RETURN stuck on map (1, 87) (no south edge, no south warp)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick18] -> campaign/kira_campaign.state  (map=(1, 87) coords=(32, 5) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 87)@(32, 5) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:golduck was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:golduck from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 87) coords=(32, 5) -> coord (32, 5) (budget 60s, surf-capable)
+
+   [travel] reached target coord (32, 5)
+
+   [campaign]    2 door(s); candidates (chosen order): [(32, 5)]
+
+   [campaign]    door (32, 5): at (32, 5) (approach=(32, 6)) — stepping UP in
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 87) coords=(32, 5) -> coord (15, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (32, 5)->(31, 5) map=(1, 87) (path 22 to exit)
+
+   [travel] step 10: (22, 5)->(22, 6) map=(1, 87) (path 12 to exit)
+
+   [travel] step 20: (16, 9)->(15, 9) map=(1, 87) (path 2 to exit)
+
+   [travel] reached target coord (15, 9)
+
+   [campaign]    EXIT-BUILDING: (1, 87) -> (1, 86)@(12, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 86) coords=(12, 9) -> coord (12, 9) (budget 60s, surf-capable)
+
+   [travel] reached target coord (12, 9)
+
+   [campaign]    7 door(s); candidates (chosen order): [(12, 9)]
+
+   [campaign]    door (12, 9): at (12, 9) (approach=(12, 10)) — stepping UP in
+
+   [campaign]    reachable door (12, 9): walking to approach (12, 10)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 86) coords=(12, 9) -> coord (12, 10) (budget 60s, surf-capable)
+
+   [travel] step 0: (12, 9)->(12, 10) map=(1, 86) (path 2 to exit)
+
+   [travel] reached target coord (12, 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (1, 86) -> (1, 87) via door (12, 9)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    EXIT-BUILDING: (1, 86) -> (1, 87)@(15, 9)
+
+   [campaign]    EXIT: door (9, 17) walk-unreachable from (15, 9) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (8, 17) walk-unreachable from (15, 9) — skipped (sealed pocket)
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 87)@(15, 11) - LOUD
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 19/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 9 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='articuno'
+
+   [campaign]    [soul] ORACLE pick -> 'articuno'
+
+   [campaign]    [roam] !! MACRO RED: no progress 9 ticks — feeding awareness back to the oracle: "You keep trying to hard recovery but the world hasn't changed in 9 turns - it went 'forced_center', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline: no graph route (1, 87) -> anchor (3, 38) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality' — heading SOUTH toward Seafoam Islands, bottom floor — descend the ladder chain from either Route 20 door; the bird waits across the (becalmed) B4F water (success=('flag', 'FLAG_FOUGHT_ARTICUNO'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 87) is off-anchor ((3, 38) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'articuno' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [kira-voice] -> T2·savor· (want) 'articuno'  fired=True  [age 0.0s + post 16ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260806_223056_seafoam-islands_8b_35h45m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 20/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 10 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 5 ticks, hard-recovery already tried, reload 1/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: no known-good snapshot captured yet — cannot reload safely (declining)
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 10 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 10 turns - it went 'questline_no_route', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline: no graph route (1, 87) -> anchor (3, 38) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality' — heading SOUTH toward Seafoam Islands, bottom floor — descend the ladder chain from either Route 20 door; the bird waits across the (becalmed) B4F water (success=('flag', 'FLAG_FOUGHT_ARTICUNO'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 87) is off-anchor ((3, 38) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'articuno' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick20] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 21/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 11 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 6 ticks, hard-recovery already tried, reload 1/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: no known-good snapshot captured yet — cannot reload safely (declining)
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 11 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 11 turns - it went 'questline_no_route', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline: no graph route (1, 87) -> anchor (3, 38) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality' — heading SOUTH toward Seafoam Islands, bottom floor — descend the ladder chain from either Route 20 door; the bird waits across the (becalmed) B4F water (success=('flag', 'FLAG_FOUGHT_ARTICUNO'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 87) is off-anchor ((3, 38) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'articuno' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 22/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 12 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 7 ticks, hard-recovery already tried, reload 1/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: no known-good snapshot captured yet — cannot reload safely (declining)
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno'
+
+   [campaign]    [roam] !! MACRO RED: no progress 12 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 12 turns - it went 'questline_no_route', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Articuno'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (articuno) — abandoning the errand; re-recognizing fresh
+
+   [kira-voice] ·floor· (<1s since last) T1 "hm — this plan's going nowhere from here. let me rethink."
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'articuno' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_abandoned) — bounded attempt 5/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick22] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/articuno → steps=['surf', 'articuno'] actionable=articuno (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality."
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'articuno' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 23/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 13 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 8 ticks, hard-recovery already tried, reload 1/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: no known-good snapshot captured yet — cannot reload safely (declining)
+
+   [campaign]    [roam] deep-wedge ring EXHAUSTED (0 reverts, 0 same-region of 0 banked) — no clean checkpoint left to fall back to; trying the same-region disk banks
+
+   [campaign]    [roam] !!!! REGION-LOCAL RELOAD: same-region (kanto) auto-checkpoint '20260806_223056_seafoam-islands_8b_35h45m_periodic' loaded (map (1, 87), skip depth 0) — recovery stays on this side of the sea (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something glitched me out — backing up a little, but I'm staying right here on this island and pushing on."
+
+   [campaign]    [roam] strike memory reset (region-local reload): 1 errand try-counter(s) cleared — the reloaded world gets fresh strike attempts
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_region_reload] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 24/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 14 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 14 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 14 turns - it went 'questline_abandoned', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Articuno. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 6/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 6 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 6 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick24] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 25/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 15 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno'
+
+   [campaign]    [roam] !! MACRO RED: no progress 15 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 15 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 2/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [kira-voice] -> T2·savor· (want) 'Articuno'  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Articuno. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 7/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 7 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 7 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 26/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 16 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 16 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 16 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 3/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 8/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 8 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 8 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick26] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 27/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 17 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 17 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 17 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline: no graph route (1, 87) -> anchor (3, 38) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality' — heading SOUTH toward Seafoam Islands, bottom floor — descend the ladder chain from either Route 20 door; the bird waits across the (becalmed) B4F water (success=('flag', 'FLAG_FOUGHT_ARTICUNO'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 87) is off-anchor ((3, 38) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'articuno' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 28/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 18 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 5 ticks, hard-recovery already tried, reload 1/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260806_223104.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (8, 5, 18, 214)); current backed up to pre_reload_20260806_223104.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    [roam] strike memory reset (escape-hatch reload): 1 errand try-counter(s) cleared — the reloaded world gets fresh strike attempts
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick28] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 29/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 19 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 19 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 19 turns - it went 'questline_no_route', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 9/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 9 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 9 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 30/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 20 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 20 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 20 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (articuno) — abandoning the errand; re-recognizing fresh
+
+   [kira-voice] ·floor· (<1s since last) T1 "hm — this plan's going nowhere from here. let me rethink."
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'articuno' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_abandoned) — bounded attempt 10/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 10 bounded dispatch attempts spent (last: questline_abandoned) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 10 bounded dispatch attempts spent (last: questline_abandoned). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick30] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/articuno → steps=['surf', 'articuno'] actionable=articuno (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality."
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'articuno' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 31/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 21 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno — bottom floor of Seafoam Islands'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno — bottom floor of Seafoam Islands'
+
+   [campaign]    [roam] !! MACRO RED: no progress 21 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 21 turns - it went 'questline_abandoned', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 2/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [kira-voice] -> T2·savor· (want) 'Articuno — bottom floor of Seafoam Islands'  fired=True  [age 0.0s + post 18ms]
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Articuno. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 11/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 11 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 11 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 32/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 22 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 22 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 22 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 3/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 12/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 12 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 12 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick32] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 33/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 23 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 5 ticks, hard-recovery already tried, reload 2/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260806_223107.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (8, 5, 18, 214)); current backed up to pre_reload_20260806_223107.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    [roam] strike memory reset (escape-hatch reload): 1 errand try-counter(s) cleared — the reloaded world gets fresh strike attempts
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 34/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 24 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno, bottom floor, now'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno, bottom floor, now'
+
+   [campaign]    [roam] !! MACRO RED: no progress 24 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 24 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Articuno, bottom floor, now'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Articuno. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 13/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 13 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 13 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick34] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 35/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 25 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 25 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 25 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 2/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 14/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 14 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 14 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 36/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 26 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 26 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 26 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 3/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 58 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:6); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [campaign]    [quarry-approach] replan at (15, 11) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (15, 11)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(15, 11))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 15/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 15 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 15 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick36] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 37/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 27 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno'
+
+   [campaign]    [roam] !! MACRO RED: no progress 27 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 27 turns - it went 'questline_strike_failed', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Articuno'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (articuno) — abandoning the errand; re-recognizing fresh
+
+   [kira-voice] ·floor· (<1s since last) T1 "hm — this plan's going nowhere from here. let me rethink."
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'articuno' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_abandoned) — bounded attempt 16/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 16 bounded dispatch attempts spent (last: questline_abandoned) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 16 bounded dispatch attempts spent (last: questline_abandoned). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/articuno → steps=['surf', 'articuno'] actionable=articuno (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality."
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'articuno' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → eevee → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 38/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 28 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 28 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 28 turns - it went 'questline_abandoned', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline: no graph route (1, 87) -> anchor (3, 38) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality' — heading SOUTH toward Seafoam Islands, bottom floor — descend the ladder chain from either Route 20 door; the bird waits across the (becalmed) B4F water (success=('flag', 'FLAG_FOUGHT_ARTICUNO'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 87) is off-anchor ((3, 38) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'articuno' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick38] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 39/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 29 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [roam] !! MACRO RED: no progress 29 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 29 turns - it went 'questline_no_route', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline: no graph route (1, 87) -> anchor (3, 38) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality' — heading SOUTH toward Seafoam Islands, bottom floor — descend the ladder chain from either Route 20 door; the bird waits across the (becalmed) B4F water (success=('flag', 'FLAG_FOUGHT_ARTICUNO'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 87) is off-anchor ((3, 38) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'articuno' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 40/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 30 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='catch Articuno'
+
+   [campaign]    [soul] ORACLE pick -> 'catch Articuno'
+
+   [campaign]    [roam] !! MACRO RED: no progress 30 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 30 turns - it went 'questline_no_route', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline: no graph route (1, 87) -> anchor (3, 38) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality' — heading SOUTH toward Seafoam Islands, bottom floor — descend the ladder chain from either Route 20 door; the bird waits across the (becalmed) B4F water (success=('flag', 'FLAG_FOUGHT_ARTICUNO'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 87) is off-anchor ((3, 38) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'articuno' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 87)(15, 11) -> (1, 87)(15, 11) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick40] -> campaign/kira_campaign.state  (map=(1, 87) coords=(15, 11) badges=8 party=5)
+
+   [kira-voice] -> T2·savor· (want) 'catch Articuno'  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(15, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign] -- ROAM TICK 41/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (15, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 31 ticks) | fp[(1, 87) (15,11) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] deep-wedge ring EXHAUSTED (0 reverts, 0 same-region of 0 banked) — no clean checkpoint left to fall back to; trying the same-region disk banks
+
+   [campaign]    [roam] !!!! REGION-LOCAL RELOAD: same-region (kanto) auto-checkpoint '20260806_222840_seafoam-islands_8b_35h42m_roam-start' loaded (map (1, 87), skip depth 1) — recovery stays on this side of the sea (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something glitched me out — backing up a little, but I'm staying right here on this island and pushing on."
+
+   [campaign]    [roam] strike memory reset (region-local reload): 1 errand try-counter(s) cleared — the reloaded world gets fresh strike attempts
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_region_reload] -> campaign/kira_campaign.state  (map=(1, 87) coords=(32, 5) badges=8 party=5)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(32, 5) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 42/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (32, 5) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 87) (32,5) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (1, 87)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 59 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:7); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 125; mins 5/8) and no Center leg is wired for articuno — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 29 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L67 hp 200/205 dmgPP 59 safePP 0 (Bite:23, Skull Bash:15, Surf:14, Earthquake:7); slot1 L25 hp 106/106 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Confuse Ray:10, Perish Song:5); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15); slot4 L34 hp 101/101 dmgPP 40 safePP 40 (69:20, 193:40, 279:10, 233:10) | ace slot0 safe 0, party safe 125 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Articuno. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [quarry-approach] replan at (32, 5) (len 0, budget 9)
+
+   [campaign]    [quarry-approach] no path from (32, 5)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 87)@(32, 5))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 17/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'articuno': 17 bounded dispatch attempts spent (last: questline_strike_failed) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the articuno side quest — 17 bounded dispatch attempts spent (last: questline_strike_failed). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 87)(32, 5) -> (1, 87)(32, 5) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick42] -> campaign/kira_campaign.state  (map=(1, 87) coords=(32, 5) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(32, 5) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] 🦅 PROXIMITY UNSKIP 'articuno': standing on the hunt's own maps — honest-skip latch dropped (every visit; nothing outranks a legendary she is standing next to)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 43/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (32, 5) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L25, fearow L38, moltres L50, machop L34] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(1, 87) (32,5) f1 -- badge8 $2198 party:4497 bag:1af5]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L25), fearow (L38), moltres (L50), machop (L34)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
