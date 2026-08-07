@@ -934,24 +934,55 @@ def main():
               refuse31 is True and switched31 == []
               and any("ACE-ONLY" in l for l in logs31)
               and any("HARD FLOOR" in l or "REFUSING" in l for l in logs31))
-        # refuse path must NEVER flee (MonFlewAway / fake respawn) — deepen + soft-reload
-        fled31 = []
+        # refuse path must NEVER flee — deepen + KEEP FIGHTING while balls remain
+        # (LIVE 2026-08-06: soft-reload mid-fight while she still had a catch chance).
+        fled31, reloads31 = [], []
         ag31.flee = lambda **k: fled31.append("fled") or "fled"
         ag31._weaken_hp = lambda **k: "guard"
         ag31._legend_ether_for_chip = lambda: False
-        ag31._try_legend_soft_reload = lambda sp=None: True
+        ag31._spendable_for_pref = lambda pref: 6
+        ag31._try_legend_soft_reload = lambda sp=None: (reloads31.append(1), False)[1]
         world31["foe_frac"] = 0.75
         out31 = ag31._legend_refuse_throw(0.75, "HARD FLOOR test")
-        check("hard-floor refuse deepens/soft-reloads — NEVER calls flee()",
-              out31 == "chip_exhausted" and fled31 == []
-              and any("NEVER fleeing" in l for l in logs31))
+        check("hard-floor refuse deepens + keep_chipping — NEVER flee / mid-fight reload",
+              out31 == "keep_chipping" and fled31 == []
+              and any("NEVER fleeing" in l for l in logs31)
+              and any("KEEP FIGHTING" in l or "keep_chipping" in l for l in logs31))
+        # Soft-reload gate: balls + live foe → REFUSED
+        logs31.clear(); reloads31.clear()
+        ag31r = make_agent([(2, 6)], hunt_pending=True, logs=logs31)
+        ag31r._spendable_for_pref = lambda pref: 5
+        BA.st.in_battle = lambda b: True
+        BA.st.read_battle = lambda b: {"enemy": {"hp": 80, "maxhp": 100, "species": 146},
+                                      "ours": {"hp": 100, "maxhp": 100}}
+        check("soft-reload REFUSED while Ultras remain + bird alive",
+              ag31r._try_legend_soft_reload(146) is False
+              and any("SOFT-RELOAD REFUSED" in l for l in logs31))
+        logs31.clear()
+        ag31r._spendable_for_pref = lambda pref: 0
+        hooked = []
+        BA.LEGEND_SOFT_RELOAD = lambda key: (hooked.append(key), True)[1]
+        try:
+            check("soft-reload ALLOWED at 0 Ultras (catch lost)",
+                  ag31r._try_legend_soft_reload(146) is True
+                  and hooked == ["moltres"]
+                  and any("LEGEND SOFT-RELOAD" in l and "REFUSED" not in l for l in logs31))
+        finally:
+            BA.LEGEND_SOFT_RELOAD = None
+        # Restore the section-31 battle stub (gate tests overwrote read_battle).
+        BA.st.read_battle = lambda b: {"ours": {"moves": [], "species": 9, "level": 63,
+                                                "hp": 100, "maxhp": 100},
+                                       "enemy": {"hp": int(world31["foe_frac"] * 100),
+                                                 "maxhp": 100, "level": 50,
+                                                 "types": ["fire", "flying"]}}
+        BA.st.in_battle = lambda b: True
         # Ether rail: refuse tries Ether BEFORE deepen when Bite is dry
         logs31.clear()
         ether31 = []
         ag31._legend_ether_tried = False
         ag31._legend_ether_for_chip = lambda: (ether31.append(1), False)[1]
         ag31._legend_refuse_throw(0.80, "OVERKILL / empty Bite")
-        check("hard-floor refuse hits Ether rail before deepen/soft-reload",
+        check("hard-floor refuse hits Ether rail before deepen/keep-fighting",
               ether31 == [1])
         # between red band and hard floor -> sanctioned throw, still no switch
         logs31.clear(); switched31.clear()
