@@ -9056,6 +9056,26 @@ class Campaign:
         except Exception as e:
             log(f"   [order] catch-order fulfill skipped: {e}")
 
+    def _release_catch_order_for_restock(self):
+        """Quiet-release catch_now when the Ultra war-chest arms (2026-08-06 LIVE).
+
+        Jonny's 'catch that bird' latches catch_now; mid-ferry that diverts wilds to
+        flee/reserve Ultras and wedges the Kindle sea cross. Drop the order LOUD without
+        the 'caught what you told me' celebration — the bird is still owed after the Mart."""
+        import json as _j
+        try:
+            if not os.path.exists(CREATOR_ORDER_JSON):
+                return
+            with open(CREATOR_ORDER_JSON, encoding="utf-8") as f:
+                data = _j.load(f) or {}
+            if data.get("order") != "catch_now":
+                return
+            os.remove(CREATOR_ORDER_JSON)
+            log("   [order] !! creator catch_now RELEASED for Ultra war-chest ferry "
+                "(catch the bird AFTER the Mart) (LOUD)")
+        except Exception as e:
+            log(f"   [order] catch-order restock release skipped: {e}")
+
     def grind_weak_members(self, target, min_level=None, ace_cap=False, budget_s=None):
         """Field the WEAK members (not the ace) and level the team FLOOR to `target`, then restore the
         ace. Each loop: pick the weakest under-target member, reorder it to lead, grind() it toward

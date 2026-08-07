@@ -147,6 +147,9 @@ _LEGEND_SOFT_KEYS = {144: "articuno", 145: "zapdos", 146: "moltres", 150: "mewtw
 # Optional campaign hook: callable(key) -> bool. Set by Campaign.__init__; None in pure
 # unit tests. Soft-reloads 'pre-<key>' WITHOUT pressing RUN (no MonFlewAway).
 LEGEND_SOFT_RELOAD = None
+# Ultra war-chest ferry in progress (set by LegendaryHunt._set_ball_restock_mode). While
+# True, creator catch_now must NOT divert wilds — flee/reserve wedges the Kindle sea cross.
+BALL_RESTOCK_MODE = False
 
 
 def catch_ready(hp_frac, status1, legend):
@@ -5120,10 +5123,16 @@ class BattleAgent:
                     self.emit(f"balls out. weaken it carefully — we are NOT knocking out a legendary.",
                               beat=True, tier=3)
                     return self._divert_wild_catch("legendary", foe, max_seconds)
-            elif _wild and self._peek_creator_catch_order() and not getattr(self, "_skip_catch_divert", False):
+            elif (_wild and self._peek_creator_catch_order()
+                    and not getattr(self, "_skip_catch_divert", False)
+                    and not BALL_RESTOCK_MODE
+                    and not getattr(getattr(self, "camp", None), "_ball_restock_mode", False)):
                 # Creator LAW (2026-08-02 Diglett chalk): "catch that!" must divert THIS battle — the
                 # conversational OK without a harness latch was the kill-loop. One battle only
                 # (_divert clears the latch); never re-ball every Diglett on the walk out.
+                # WAR-CHEST TRUCE (2026-08-06 LIVE): mid-ferry catch_now flees/reserves Ultras
+                # and wedges Kindle→One — fight/flee trash normally until the Mart returns
+                # (BALL_RESTOCK_MODE / camp._ball_restock_mode).
                 self.emit(f"catch order — switching to balls on this {foe}. weaken, don't KO.",
                           beat=True, tier=2)
                 return self._divert_wild_catch("creator_catch_now", foe, max_seconds)

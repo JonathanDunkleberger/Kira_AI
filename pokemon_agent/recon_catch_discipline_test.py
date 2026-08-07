@@ -1280,6 +1280,127 @@ def main():
           and any("STAYING on the ferry" in l for l in logs35)
           and not any("engaging with 5" in l for l in logs35))
 
+    print("== 36. WAR-CHEST FERRY: Kindle Traveler west + catch_now truce + early arm ==")
+    import time as _time
+    _ba_restock0 = BA.BALL_RESTOCK_MODE
+    try:
+        logs36 = []
+        released = []
+        h36 = LS.MoltresHunt.__new__(LS.MoltresHunt)
+        h36.b = object()
+        h36.log = logs36.append
+        h36.QUARRY = {"name": "Moltres"}
+        h36.camp = types.SimpleNamespace(
+            on_event=lambda *a, **k: None,
+            _balls_pocket_count=lambda i: 5 if i == 2 else 0,
+            _ball_restock_fails={},
+            _release_catch_order_for_restock=lambda: released.append(True))
+        h36.BALL_RESTOCK_WIRED = True
+        h36._ultra_target = lambda: 50
+        h36._ultra_min_engage = lambda: 20
+        check("arming war-chest mirrors BALL_RESTOCK_MODE + releases catch_now",
+              h36._maybe_arm_ball_restock() is True
+              and h36._ball_restock_mode is True
+              and getattr(h36.camp, "_ball_restock_mode", False) is True
+              and BA.BALL_RESTOCK_MODE is True
+              and released == [True])
+        h36._set_ball_restock_mode(False)
+        check("clearing restock mode clears BALL_RESTOCK_MODE",
+              BA.BALL_RESTOCK_MODE is False
+              and h36._ball_restock_mode is False)
+
+        # Kindle west prefers Traveler (live wedge: strike cross_edge @ (0,127)).
+        maps = {"here": LS.KINDLE}
+        crossed = []
+
+        class _FakeTrav:
+            def travel(self, **kw):
+                crossed.append(kw)
+                maps["here"] = LS.ONE_ISLAND
+                return "arrived"
+
+        h36k = LS.MoltresHunt.__new__(LS.MoltresHunt)
+        h36k.b = types.SimpleNamespace(run_frame=lambda: None)
+        h36k.log = logs36.append
+        h36k.camp = types.SimpleNamespace(trav=_FakeTrav())
+        h36k.cross_edge = lambda *a, **k: (_ for _ in ()).throw(
+            AssertionError("cross_edge must not be sole path when Traveler arrives"))
+        _orig_map = LS.tv.map_id
+        _orig_coords = LS.tv.coords
+        try:
+            LS.tv.map_id = lambda _b: maps["here"]
+            LS.tv.coords = lambda _b: (23, 12)
+            ok = h36k._kindle_west_to_one()
+            check("Kindle west uses Traveler edge=west -> One Island",
+                  ok is True
+                  and maps["here"] == LS.ONE_ISLAND
+                  and crossed
+                  and crossed[0].get("edge") == "west"
+                  and crossed[0].get("target_map") == LS.ONE_ISLAND)
+            # leg_home KINDLE: Traveler success short-circuits (no cross_edge).
+            maps["here"] = LS.KINDLE
+            crossed.clear()
+            h36k.meteorite_in_bag = lambda: False
+            _orig_rf = LS.fm.read_flag
+            LS.fm.read_flag = lambda *a, **k: False
+            try:
+                check("leg_home(KINDLE) prefers Traveler over cross_edge",
+                      h36k.leg_home(LS.KINDLE) is True
+                      and maps["here"] == LS.ONE_ISLAND)
+            finally:
+                LS.fm.read_flag = _orig_rf
+        finally:
+            LS.tv.map_id = _orig_map
+            LS.tv.coords = _orig_coords
+
+        # Quiet catch_now release for restock (no 'caught what you told me' voice).
+        _td = tempfile.mkdtemp(prefix="kira_restock_order_")
+        _opath = os.path.join(_td, "creator_order.json")
+        with open(_opath, "w", encoding="utf-8") as f:
+            json.dump({"order": "catch_now", "ts": _time.time()}, f)
+        _orig_co = C.CREATOR_ORDER_JSON
+        voiced = []
+        try:
+            C.CREATOR_ORDER_JSON = _opath
+            camp36 = C.Campaign.__new__(C.Campaign)
+            camp36.on_event = lambda *a, **k: voiced.append(a[0] if a else "")
+            camp36._release_catch_order_for_restock()
+            check("restock release drops catch_now without catch-fulfill voice",
+                  not os.path.exists(_opath)
+                  and not any("caught what you told me" in (v or "") for v in voiced))
+        finally:
+            C.CREATOR_ORDER_JSON = _orig_co
+            try:
+                import shutil
+                shutil.rmtree(_td, ignore_errors=True)
+            except Exception:
+                pass
+
+        # Early-arm gate: thin pocket at hunt entry arms (same predicate as press_quarry).
+        logs36.clear()
+        h36e = LS.MoltresHunt.__new__(LS.MoltresHunt)
+        h36e.b = object()
+        h36e.log = logs36.append
+        h36e.QUARRY = {"name": "Moltres"}
+        h36e.camp = types.SimpleNamespace(
+            on_event=lambda *a, **k: None,
+            _balls_pocket_count=lambda i: 5 if i == 2 else 0,
+            _ball_restock_fails={},
+            _release_catch_order_for_restock=lambda: None)
+        h36e.BALL_RESTOCK_WIRED = True
+        h36e._ultra_target = lambda: 50
+        h36e._ultra_min_engage = lambda: 20
+        h36e._ball_restock_mode = False
+        # Mirror run()'s entry seam: arm before climb when thin.
+        if not getattr(h36e, "_ball_restock_mode", False):
+            _early = h36e._maybe_arm_ball_restock()
+        else:
+            _early = False
+        check("hunt-entry early arm when Ultras < floor",
+              _early is True and h36e._ball_restock_mode is True)
+    finally:
+        BA.BALL_RESTOCK_MODE = _ba_restock0
+
     if FAILS:
         print(f"\n{len(FAILS)} FAILED: {FAILS}")
         sys.exit(1)

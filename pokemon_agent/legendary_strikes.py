@@ -305,6 +305,21 @@ class LegendaryHunt(GiovanniGym):
         except Exception:
             return 20
 
+    def _set_ball_restock_mode(self, on):
+        """Mirror restock mode onto camp + battle_agent.BALL_RESTOCK_MODE so the battle
+        runner (no camp handle) suppresses catch_now mid-ferry."""
+        on = bool(on)
+        self._ball_restock_mode = on
+        try:
+            self.camp._ball_restock_mode = on
+        except Exception:
+            pass
+        try:
+            import battle_agent as _ba
+            _ba.BALL_RESTOCK_MODE = on
+        except Exception:
+            pass
+
     def _maybe_arm_ball_restock(self):
         """ULTRA WAR-CHEST GATE (2026-08-06 LIVE, Jonny: 'only 6 ultra balls… chat said
         maybe 50'): before pressing A on a static legendary, if Ultras are under the hunt
@@ -360,8 +375,14 @@ class LegendaryHunt(GiovanniGym):
                 fails[key] = 0
             except Exception:
                 pass
-        self._ball_restock_mode = True
+        self._set_ball_restock_mode(True)
         self._ball_restock_returning = False
+        # Creator catch_now ("catch that bird") flees wilds / holds Ultras mid-ferry and
+        # wedges the Kindle sea cross — release it LOUD when the war-chest arms.
+        try:
+            self.camp._release_catch_order_for_restock()
+        except Exception:
+            pass
         self.log(f"   [hunt] !!!! ULTRA WAR-CHEST ARMED — bag has {have}/{want} Ultra Balls "
                  f"(engage floor {floor}); descending to Three Island Mart, then re-climbing "
                  f"(LOUD)")
@@ -386,7 +407,7 @@ class LegendaryHunt(GiovanniGym):
             fails = self.camp._ball_restock_fails = {}
         fails[key] = fails.get(key, 0) + 1
         if have < floor:
-            self._ball_restock_mode = True
+            self._set_ball_restock_mode(True)
             self._ball_restock_returning = False
             if fails[key] >= self.BALL_RESTOCK_FAILS_MAX:
                 fails[key] = 0
@@ -394,7 +415,7 @@ class LegendaryHunt(GiovanniGym):
                      f"{self.BALL_RESTOCK_FAILS_MAX}; pocket {have}<{floor} — STAYING on "
                      f"the ferry (never engage this thin) (LOUD)")
             return
-        self._ball_restock_mode = False
+        self._set_ball_restock_mode(False)
         self._ball_restock_returning = False
         self.log(f"!! [hunt] ULTRA WAR-CHEST FAILED ({why}) — fail {fails[key]}/"
                  f"{self.BALL_RESTOCK_FAILS_MAX}; engaging with {have} Ultras (LOUD)")
@@ -1305,11 +1326,42 @@ class MoltresHunt(LegendaryHunt):
         if here == ONE_HARBOR:
             return self.enter_step((8, 2), ONE_ISLAND, "harbor-out-home")
         if here == ONE_ISLAND:
-            self._ball_restock_mode = False
+            self._set_ball_restock_mode(False)
             self._ball_restock_returning = False
             self.log("   [hunt] !!!! ULTRA WAR-CHEST: back on One Island with "
                      f"{self._ultra_count()} Ultras — re-climbing to the bird (LOUD)")
             return True
+        return False
+
+    def _kindle_west_to_one(self):
+        """Kindle Road → One Island is a partial SEA connection (map offset 120). Strike
+        cross_edge hardcodes west extreme=0 and lacks Traveler's surf edge-mount + edge-row
+        discard — live stream wedged at (0,127) with 'west crossing never fired'. Heal
+        excursions already proved camp.trav.travel(edge=west) flips (3,45)->(3,12)."""
+        b = self.b
+        if tuple(tv.map_id(b)) == ONE_ISLAND:
+            return True
+        if tuple(tv.map_id(b)) != KINDLE:
+            return False
+        try:
+            trav = getattr(self.camp, "trav", None)
+            if trav is None:
+                self.log("   [hunt] Kindle west: no camp.trav — falling back to cross_edge")
+                return False
+            self.log("   [hunt] Kindle west: Traveler edge=west -> One Island "
+                     "(offset-120 sea; cross_edge wedges) (LOUD)")
+            r = trav.travel(target_map=ONE_ISLAND, edge="west",
+                            max_steps=800, max_seconds=180)
+            if tuple(tv.map_id(b)) == ONE_ISLAND or r == "arrived":
+                for _ in range(80):
+                    b.run_frame()
+                self.log(f"   [hunt] Kindle west: Traveler OK -> One Island "
+                         f"@ {tv.coords(b)} (r={r})")
+                return True
+            self.log(f"   [hunt] !! Kindle west Traveler returned {r} at "
+                     f"{tv.map_id(b)}@{tv.coords(b)} — cross_edge fallback")
+        except Exception as e:
+            self.log(f"   [hunt] !! Kindle west Traveler raised ({e}) — cross_edge fallback")
         return False
 
     # ── homebound stages ─────────────────────────────────────────────────────────────────
@@ -1336,6 +1388,9 @@ class MoltresHunt(LegendaryHunt):
         if here == EMBER_1F:
             return self.enter_step((2, 15), EMBER_EXT, "1f-down")
         if here == KINDLE:
+            # Prefer Traveler (surf edge-mount + offset band); strike cross_edge is fallback.
+            if self._kindle_west_to_one():
+                return True
             return self.cross_edge("west", "to-one-island")
         if here == ONE_ISLAND:
             if met:
@@ -1438,6 +1493,13 @@ class MoltresHunt(LegendaryHunt):
                      EMBER_SUMMIT), "moltres strike start")
             except Exception as e:
                 self.log(f"   [moltres] wedge hygiene skipped: {e}")
+        # EARLY WAR-CHEST (2026-08-06 LIVE): thin Ultras arm the ferry at hunt ENTRY —
+        # don't climb the volcano just to turn around at the bird (press_quarry still
+        # re-checks as the belt).
+        if not getattr(self, "_ball_restock_mode", False):
+            if self._maybe_arm_ball_restock():
+                self.log("   [hunt] Ultra war-chest armed at hunt entry — ferry before climb "
+                         "(LOUD)")
         last_ckpt_map = None
         # 96 stages: climb + optional Ultra war-chest ferry to Three Island and back.
         for _stage in range(96):
