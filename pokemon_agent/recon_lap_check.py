@@ -3,8 +3,9 @@
 Stubs the bridge + state readers and drives the pure sequencing logic:
   1. _victory_lap_next walks the EXPLICIT order (earthquake -> box_bench -> moltres ->
      articuno -> zapdos -> repack) as items complete, and reads CLEAR at the end;
-  2. honest skips latch (Bill-gone kills moltres; B4F-current-live kills articuno; TM26
-     missing kills earthquake) and the bounded-fail counter skips a wedged item;
+  2. honest skips latch (Bill-gone kills moltres; TM26 missing kills earthquake) and the
+     bounded-fail counter skips a wedged item; B4F-current-live does NOT skip articuno
+     (ensure_b4f_calm owns the dam — soak 20260807_120648);
   3. _lap_eq_forget_idx never sacrifices a protected move (Surf/Ice Beam/HMs) and prefers
      charge/status junk over real attacks; all-protected refuses with 'no_room';
   4. (box flow, 2026-08-05) _lap_bench_plan sizes the deposit to exactly the owed
@@ -136,13 +137,41 @@ def main():
           "eevee" not in C.VICTORY_LAP_ORDER)
 
     print("== 2. honest skips ==")
-    # Bill gone + B4F current live (0x2D3 unset, B4F boulder hides SET = absent)
+    # Bill gone + B4F current live (0x2D3 unset, B4F boulder hides SET = absent).
+    # Bill-gone still skips moltres; B4F rip must NOT skip articuno (hunt can calm it).
     set_world(moves=[SURF, EQ, WITHDRAW, SKULL_BASH],
               flags={0x0A2, 0x04C, 0x04D})
     camp2 = make_camp()
     nxt = camp2._victory_lap_next()
-    check("Bill-gone skips moltres, B4F-rip skips articuno -> zapdos next",
-          nxt == "zapdos" and {"moltres", "articuno"} <= camp2._lap_skipped)
+    check("Bill-gone skips moltres; B4F-rip keeps articuno pending (not zapdos)",
+          nxt == "articuno"
+          and "moltres" in camp2._lap_skipped
+          and "articuno" not in camp2._lap_skipped
+          and camp2._lap_pending("articuno") is True)
+    # Standing on Seafoam B4F with the rip live: proximity trump stays on articuno —
+    # never the soak 20260807_120648 skip↔unskip → Zapdos divert.
+    _orig_map2 = C.tv.map_id
+    C.tv.map_id = lambda b: (1, 87)
+    camp2b = make_camp()
+    camp2b._lap_skipped, camp2b._lap_fails = set(), {}
+    camp2b._lap_verdict_logged = None
+    nxt_b4f = camp2b._victory_lap_next()
+    C.tv.map_id = _orig_map2
+    check("on Seafoam B4F with 0x2D3 clear -> articuno NEXT (proximity + no B4F skip)",
+          nxt_b4f == "articuno"
+          and "articuno" not in camp2b._lap_skipped
+          and camp2b._lap_pending("articuno") is True)
+    # Gate must ARM while the rip is live so FIRE-FIRST can run ensure_b4f_calm
+    # (old gate returned None → victory_lap fail-counted Articuno into a skip).
+    _orig_knows = st.party_knows_move
+    st.party_knows_move = lambda b, move, cnt=6: 0 if move in (SURF, STRENGTH) else None
+    camp2g = make_camp()
+    camp2g._hunt_ready = lambda *a, **k: None
+    camp2g.b.rd8 = lambda a: 2
+    gate2 = camp2g._articuno_gate(None)
+    st.party_knows_move = _orig_knows
+    check("articuno gate ARMS with Surf+Strength even when 0x2D3 clear",
+          gate2 is not None and getattr(gate2, "missing", None) == "articuno")
     for _ in range(C.VICTORY_LAP_MAX_FAILS):
         camp2._lap_note_fail("zapdos", "unit-test wedge")
     check("bounded fails latch the skip",

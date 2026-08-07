@@ -432,14 +432,16 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 #   2. moltres   — Bill still waits in the Cinnabar PC and the R21 sea road south is the road she
 #      just surfed: the Sevii round-trip FIRST (the strike + ride-home hook drive the whole loop);
 #   3. articuno  — Seafoam's Route-20 doors are one map east of Cinnabar (the ride-home dock);
-#      HARD GATE = FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3), not B3F calm / B3F boulder flags;
+#      hunt HARD GATE = ensure_b4f_calm() (drop B3F Articuno boulders → 0x2D3). A live B4F
+#      rip (0x2D3 clear) is NOT an honest skip — she can still solve the dam (soak
+#      20260807_120648: skip↔proximity-unskip every tick, then Zapdos/Fuchsia shuttle).
 #   4. zapdos    — Power Plant (electric for Lorelei/Lance). Eevee/Jolteon is NOT on the lap —
 #      luxury only (POKEMON_EEVEE_FETCH proactive gate); Zapdos is the electric answer and a
 #      Celadon L25 gift would poison the E4 floor grind (Jonny 2026-08-07: credits first).
-# 'Honestly skipped' = the hunts' own self-suppression truths (caught/battled-away, Bill gone,
-# Seafoam boulders never dropped) plus a bounded failed-dispatch counter -> a loud '[lap] SKIP' —
-# never an infinite park. While an item is owed the 'victory_lap' action replaces head_to_league
-# on the menu AND force-picks (the order lives in code+logs, not in the oracle's mood).
+# 'Honestly skipped' = the hunts' own self-suppression truths (caught/battled-away, Bill gone)
+# plus a bounded failed-dispatch counter -> a loud '[lap] SKIP' — never an infinite park.
+# While an item is owed the 'victory_lap' action replaces head_to_league on the menu AND
+# force-picks (the order lives in code+logs, not in the oracle's mood).
 # Mewtwo is deliberately NOT on the lap: its gate only arms post-champion (FLAG_SYS_GAME_CLEAR).
 # Disable with POKEMON_VICTORY_LAP=0 (reverts to the straight-at-the-League NS#15 dispatch).
 # ── 2026-08-05 (the 16:19 restart's Cinnabar↔Route-20 loop postmortem): TWO new items ──
@@ -13170,10 +13172,12 @@ class Campaign:
                        detail={"flag": "FLAG_FOUGHT_ZAPDOS"})
 
     def _articuno_gate(self, state):
-        """SEAFOAM B4F ARTICUNO — only when FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3) is set
-        (both B4F boulders PRESENT). B3F calm (0x2D2) and B3F hide 0x046/0x047 are NOT the
-        Articuno proof — R21 stamps 0x2D2 while B4F still rips (soak 20260806_222735).
-        Ice/Flying L50 — Lance's dragons hate it. Returns a Gate or None."""
+        """SEAFOAM B4F ARTICUNO — Surf + Strength open the hunt; B4F calm is NOT a gate
+        precondition. ArticunoHunt.ensure_b4f_calm() drops the B3F Articuno boulders to arm
+        FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3) before the quarry approach. Suppressing the
+        gate while 0x2D3 is clear made victory_lap fail-count Articuno into an honest skip
+        (soak 20260807_120648), then divert to Zapdos from inside Seafoam. B3F calm (0x2D2)
+        alone is still NOT proof — R21 stamps it while B4F rips. Returns a Gate or None."""
         if not LEGENDARY_HUNTS_ENABLED:
             return None
         try:
@@ -13181,20 +13185,14 @@ class Campaign:
             if (st.party_knows_move(self.b, 57, cnt) is None
                     or st.party_knows_move(self.b, 70, cnt) is None):
                 return None                       # needs Surf + Strength inside
-            # 0x2D3 set OR both B4F boulder-hide flags CLEARED (boulders present on B4F).
-            b4f_calm = fm.read_flag(self.b, 0x2D3)
-            b4f_boulders = (not fm.read_flag(self.b, 0x04C)
-                            and not fm.read_flag(self.b, 0x04D))
-            if not (b4f_calm or b4f_boulders):
-                return None                       # B4F still ripping -> bird unreachable
             if self._hunt_ready(144, 0x082, 0x2BE, key="articuno") is not None:
                 return None
         except Exception:
             return None
         return ql.Gate(ql.STORY_NPC, missing="articuno", where=(3, 38),
-                       human="ARTICUNO — the Seafoam Islands' bottom floor, past the boulder "
-                             "cascade she already dropped. An ice legendary that makes "
-                             "Lance's dragons a formality.",
+                       human="ARTICUNO — the Seafoam Islands' bottom floor. Drop the B3F "
+                             "Articuno boulders to calm B4F, then catch the ice legendary "
+                             "that makes Lance's dragons a formality.",
                        detail={"flag": "FLAG_FOUGHT_ARTICUNO"})
 
     def _moltres_gate(self, state):
@@ -13289,8 +13287,9 @@ class Campaign:
     # pret-verified facts the lap leans on: ITEM_TM26=314 / MOVE_EARTHQUAKE=89 (Giovanni's
     # reward, giovanni_gym.py banks it); FLAG_GOT_EEVEE=0x263 (Celadon Condominiums roof room);
     # FLAG_FOUGHT_{MOLTRES,ARTICUNO,ZAPDOS}=0x2BD/0x2BE/0x2BF with hide-flags 0x052/0x082/0x05D;
-    # FLAG_HIDE_CINNABAR_POKEMON_CENTER_BILL=0x0A2 (Bill gone = Sevii closed pre-champion);
-    # FLAG_HIDE_SEAFOAM_ISLANDS_B3F_BOULDER_{1,2}=0x046/0x047 (still set = B4F current live).
+    # FLAG_HIDE_CINNABAR_POKEMON_CENTER_BILL=0x0A2 (Bill gone = Sevii closed pre-champion).
+    # Articuno B4F calm (0x2D3 / B4F boulder hides 0x04C/0x04D) is hunt execution work via
+    # ensure_b4f_calm — not a lap checklist honest-skip.
     _LAP_HUNT_SPEC = {"moltres": (146, 0x052, 0x2BD), "articuno": (144, 0x082, 0x2BE),
                       "zapdos": (145, 0x05D, 0x2BF)}          # species, hide-flag, fought-flag
     _LAP_EQ_ITEM, _LAP_EQ_TM, _LAP_EQ_MOVE = 314, 26, 89
@@ -13479,15 +13478,11 @@ class Campaign:
                 self._lap_skip(key, "Bill is gone from the Cinnabar PC — the Sevii ferry is "
                                     "closed pre-champion")
                 return False
-            if key == "articuno":
-                # Articuno water proof = B4F current stopped (0x2D3) or both B4F boulders
-                # PRESENT (hide 0x04C/0x04D cleared). B3F flags / stamped 0x2D2 are NOT enough.
-                b4f_calm = fm.read_flag(b, 0x2D3)
-                b4f_boulders = (not fm.read_flag(b, 0x04C) and not fm.read_flag(b, 0x04D))
-                if not (b4f_calm or b4f_boulders):
-                    self._lap_skip(key, "Seafoam B4F current still live (0x2D3 clear) — "
-                                        "Articuno's water is a rip; skipping for the League")
-                    return False
+            # articuno: a live B4F rip (0x2D3 clear / B4F boulders absent) is SOLVABLE —
+            # ArticunoHunt.ensure_b4f_calm() pushes the B3F hole-boulders. Never honest-skip
+            # here (soak 20260807_120648: proximity unskip ↔ B4F-current skip every tick,
+            # then Zapdos questline_no_route + Fuchsia ball shuttle). Bounded _lap_fails
+            # still honest-skip after VICTORY_LAP_MAX_FAILS if the dam stays wedged.
             return True
         except Exception as e:
             log(f"   [lap] pending-check for '{key}' unreadable ({e}) — counting it done (LOUD)")
