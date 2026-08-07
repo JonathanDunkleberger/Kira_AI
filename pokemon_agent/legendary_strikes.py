@@ -1394,16 +1394,25 @@ class MoltresHunt(LegendaryHunt):
             pass
         return False
 
+    def _press_yes(self):
+        """Pin YESNO cursor to YES (top row) then A. B / cursor-on-NO = decline."""
+        b, camp = self.b, self.camp
+        b.press("UP", 4, 6, camp.render, owner="agent")
+        b.press("A", 8, 12, camp.render, owner="agent")
+        self.settle(16)
+
     def handle_interrupts_confirm(self):
-        """Like handle_interrupts but advances overworld dialogue with A.
+        """Like handle_interrupts but advances overworld dialogue with YES/A.
         The Three Island biker YESNO declines on B (LeaveBikersAlone walks her south) —
-        B-drain here would softlock the war-chest on the pack forever (LIVE 2026-08-06)."""
+        sea_walk's default handle_interrupts B-drains mid-trigger and softlocks the
+        clear in a yes-voice / walk-south loop (LIVE 2026-08-06)."""
         if self.fight_open():
             self.fight()
             self.drain(key="A")
             return True
         if dd_box(self.b):
-            self.drain(key="A")
+            # UP pins YES on MSGBOX_YESNO; harmless on plain msgboxes.
+            self._press_yes()
             return True
         try:
             if ((not ram.battle_cb2_dead(self.b)) or ram.start_menu_open(self.b)) \
@@ -1460,7 +1469,12 @@ class MoltresHunt(LegendaryHunt):
 
     def clear_three_island_bikers(self):
         """Walk the y=27 boss-intro + y=26 battle triggers, A-confirm the YESNO, fight
-        the four scripted trainers. Mart door (18,12) is unreachable until scene>=4."""
+        the four scripted trainers. Mart door (18,12) is unreachable until scene>=4.
+
+        LIVE 2026-08-06 YESNO loop: sea_walk calls handle_interrupts() which B-drains.
+        On 'Wanna make something of it?' B/NO = LeaveBikersAlone (walk south) — she
+        voice-says yes, game declines, repeats. Swap interrupts to A/YES for the
+        whole clear (including every sea_walk onto the trigger tiles)."""
         b, camp = self.b, self.camp
         if self._three_bikers_cleared():
             return True
@@ -1475,6 +1489,17 @@ class MoltresHunt(LegendaryHunt):
             self.field_heal_seam(top_up=True)
         except Exception:
             pass
+        # CRITICAL: sea_walk/step paths call self.handle_interrupts — must be YES/A
+        # for the whole clear or the trigger YESNO declines mid-walk.
+        _prev_intr = self.handle_interrupts
+        self.handle_interrupts = self.handle_interrupts_confirm
+        try:
+            return self._clear_three_island_bikers_body()
+        finally:
+            self.handle_interrupts = _prev_intr
+
+    def _clear_three_island_bikers_body(self):
+        b, camp = self.b, self.camp
         # Triggers sit SOUTH of the NPC bodies (y=22-24). Approach from the Port side.
         for attempt in range(8):
             if self._three_bikers_cleared():
@@ -1501,15 +1526,14 @@ class MoltresHunt(LegendaryHunt):
                         break
                 if tgt is None:
                     continue
-                # Drain intro / YESNO / battles with A (never B — decline softlocks).
+                # Drain intro / YESNO / battles with UP+A (never B — decline softlocks).
                 for _ in range(400):
                     if self._three_bikers_cleared():
                         break
                     if self.handle_interrupts_confirm():
                         continue
                     if dd_box(b):
-                        b.press("A", 8, 12, camp.render, owner="agent")
-                        self.settle(16)
+                        self._press_yes()
                     else:
                         self.settle(20)
                         # Nudge north once more if the next trigger hasn't fired.

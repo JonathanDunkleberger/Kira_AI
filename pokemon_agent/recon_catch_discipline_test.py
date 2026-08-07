@@ -1632,6 +1632,35 @@ def main():
               h38p._three_gauntlet_armed() is True)
         check("GAME_CORNER_DOOR is Two Island (39,9)",
               LS.GAME_CORNER_DOOR == (39, 9))
+        # YESNO loop fix: clear must swap handle_interrupts → confirm for sea_walk
+        # (default B-drain = LeaveBikersAlone / walk south).
+        swapped = []
+        h38s = LS.MoltresHunt.__new__(LS.MoltresHunt)
+        h38s.b = object()
+        h38s.log = logs38.append
+        h38s.deadline = 1e18
+        h38s.camp = types.SimpleNamespace(render=lambda: None)
+        h38s._three_bikers_cleared = lambda: False
+        h38s._three_gauntlet_armed = lambda: True
+        h38s.field_heal_seam = lambda **k: None
+        _orig_tv38 = LS.tv.map_id
+        LS.tv.map_id = lambda _b: LS.THREE_ISLAND
+        h38s.handle_interrupts = lambda: False  # baseline (B-drain stand-in)
+        h38s.handle_interrupts_confirm = lambda: False
+
+        def _body():
+            # During the body, handle_interrupts must be the confirm path.
+            swapped.append(h38s.handle_interrupts is h38s.handle_interrupts_confirm)
+            return False
+
+        h38s._clear_three_island_bikers_body = _body
+        try:
+            h38s.clear_three_island_bikers()
+            check("clear swaps handle_interrupts to confirm during sea_walk body",
+                  swapped == [True]
+                  and h38s.handle_interrupts is not h38s.handle_interrupts_confirm)
+        finally:
+            LS.tv.map_id = _orig_tv38
     finally:
         LS.fm.read_flag = _orig_rf
         LS.fm.read_var = _orig_rv
