@@ -12750,6 +12750,30 @@ class Campaign:
             if tries_map is None:
                 tries_map = self._ql_strike_tries_map = {}
             tries = tries_map.get(succ, 0)
+            # WAR-CHEST TRUCE (2026-08-06 LIVE, pier chat-lock): mid Ultra restock on a Sevii
+            # harbor, a flaked Seagallop pick must NOT exhaust the 3-try budget into free-roam
+            # narration. Reset and keep driving the ferry until the Mart fills the pocket.
+            if tries >= 3 and succ in self._QL_FERRY_ONLY:
+                _thin = False
+                try:
+                    _thin = (int(self._balls_pocket_count(2) or 0) < HUNT_ULTRA_MIN_ENGAGE)
+                except Exception:
+                    _thin = False
+                _restock = bool(getattr(self, "_ball_restock_mode", False))
+                try:
+                    from legendary_strikes import (ONE_HARBOR, TWO_HARBOR, THREE_HARBOR,
+                                                   ONE_ISLAND, TWO_ISLAND, THREE_ISLAND,
+                                                   THREE_PORT, THREE_MART)
+                    _ferry_maps = {ONE_HARBOR, TWO_HARBOR, THREE_HARBOR, ONE_ISLAND,
+                                   TWO_ISLAND, THREE_ISLAND, THREE_PORT, THREE_MART}
+                except Exception:
+                    _ferry_maps = {(32, 4), (33, 4), (38, 0), (3, 12), (3, 13), (3, 14)}
+                if _restock or (_thin and here in _ferry_maps):
+                    log(f"   [roam] !! questline STRIKE tries exhausted BUT Ultra war-chest/"
+                        f"Sevii ferry mid-flight at {here} — RESETTING tries so she sails "
+                        f"to the Mart (LOUD)")
+                    tries_map[succ] = 0
+                    tries = 0
             if tries >= 3:
                 # FERRY-ONLY errands (2026-08-05, the Cinnabar->Route-21 surf circles): Moltres
                 # sits across BILL'S FERRY — there is NO overworld road to One Island, so the

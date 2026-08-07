@@ -1398,6 +1398,39 @@ def main():
             _early = False
         check("hunt-entry early arm when Ultras < floor",
               _early is True and h36e._ball_restock_mode is True)
+
+        check("sail row candidates: Three from One = pre=1 and post-Vermilion=2",
+              LS.MoltresHunt._sail_row_candidates(LS.ONE_HARBOR, LS.THREE_HARBOR)
+              == [1, 2])
+        check("sail row candidates: Three from Two = pre=1 and post-Vermilion=2",
+              LS.MoltresHunt._sail_row_candidates(LS.TWO_HARBOR, LS.THREE_HARBOR)
+              == [1, 2])
+        # TWO Harbor is on the war-chest rails (flaked menu lands here).
+        sailed = []
+        h36t = LS.MoltresHunt.__new__(LS.MoltresHunt)
+        h36t.b = object()
+        h36t.log = logs36.append
+        h36t.sail = lambda want: (sailed.append(want), True)[1]
+        check("leg_to_ball_mart(TWO_HARBOR) sails to Three",
+              h36t.leg_to_ball_mart(LS.TWO_HARBOR) is True
+              and sailed == [LS.THREE_HARBOR])
+        # Arming restock clears the moltres questline try budget.
+        h36f = LS.MoltresHunt.__new__(LS.MoltresHunt)
+        h36f.b = object()
+        h36f.log = logs36.append
+        h36f.QUARRY = {"name": "Moltres"}
+        h36f.camp = types.SimpleNamespace(
+            on_event=lambda *a, **k: None,
+            _balls_pocket_count=lambda i: 5 if i == 2 else 0,
+            _ball_restock_fails={},
+            _release_catch_order_for_restock=lambda: None,
+            _ql_strike_tries_map={("flag", "FLAG_FOUGHT_MOLTRES"): 3})
+        h36f.BALL_RESTOCK_WIRED = True
+        h36f._ultra_target = lambda: 50
+        h36f._ultra_min_engage = lambda: 20
+        h36f._maybe_arm_ball_restock()
+        check("arming war-chest resets moltres questline strike tries",
+              h36f.camp._ql_strike_tries_map[("flag", "FLAG_FOUGHT_MOLTRES")] == 0)
     finally:
         BA.BALL_RESTOCK_MODE = _ba_restock0
 

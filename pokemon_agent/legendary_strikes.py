@@ -125,6 +125,10 @@ MEWTWO_ANCHORS = {CERULEAN, CAVE1F, CAVE2F, CAVEB1F}
 SAIL_ROWS = {ONE_HARBOR: [TWO_HARBOR, THREE_HARBOR],
              TWO_HARBOR: [ONE_HARBOR, THREE_HARBOR],
              THREE_HARBOR: [ONE_HARBOR, TWO_HARBOR]}
+# Post-return menus insert Vermilion at row 0 (MULTICHOICE_SEAGALLOP_V23 etc.) — the
+# destination index shifts +1. sail() tries both layouts and trusts the landing map.
+SAILOR_TILE = (8, 6)
+SAILOR_STAND = (8, 7)
 
 # (floor, [candidate down-warp tiles in preference order], dest floor) — the eevee_fetch _ride
 # doctrine: the leg for WHEREVER she stands, live BFS decides which candidate is reachable.
@@ -312,6 +316,13 @@ class LegendaryHunt(GiovanniGym):
         self._ball_restock_mode = on
         try:
             self.camp._ball_restock_mode = on
+            if on:
+                self.camp._ball_restock_returning = bool(
+                    getattr(self, "_ball_restock_returning", False))
+                self.camp._ball_restock_done = bool(
+                    getattr(self, "_ball_restock_done", False))
+            else:
+                self.camp._ball_restock_returning = False
         except Exception:
             pass
         try:
@@ -319,6 +330,15 @@ class LegendaryHunt(GiovanniGym):
             _ba.BALL_RESTOCK_MODE = on
         except Exception:
             pass
+        # Mid-ferry must not burn the questline's 3-try budget — reset while armed so she
+        # can't free-roam at the pier chatting after 3 flaked Seagallop picks (LIVE 19:33).
+        if on:
+            try:
+                tm = getattr(self.camp, "_ql_strike_tries_map", None)
+                if isinstance(tm, dict):
+                    tm[("flag", "FLAG_FOUGHT_MOLTRES")] = 0
+            except Exception:
+                pass
 
     def _maybe_arm_ball_restock(self):
         """ULTRA WAR-CHEST GATE (2026-08-06 LIVE, Jonny: 'only 6 ultra balls… chat said
@@ -967,6 +987,14 @@ class MoltresHunt(LegendaryHunt):
         super().__init__(camp, log, dbg_dir)
         self.deadline = time.time() + 3600   # the longest hunt: two ferries + the detour
         #                                      (+800s 2026-08-05: the PP-restore round trip)
+        # Resume a mid-ferry war-chest across hunt re-dispatches (strike tries can recycle
+        # the instance while she's still in the harbor with a thin Ultra pocket).
+        if getattr(camp, "_ball_restock_mode", False):
+            self._ball_restock_mode = True
+            self._ball_restock_returning = bool(
+                getattr(camp, "_ball_restock_returning", False))
+            self._ball_restock_done = bool(getattr(camp, "_ball_restock_done", False))
+            self.log("   [hunt] !! resuming ULTRA WAR-CHEST from camp latch (LOUD)")
 
     # ── boulder machinery (seafoam_strike verbatim-adapted) ────────────────────────────────
     def live_boulders(self):
@@ -1108,37 +1136,97 @@ class MoltresHunt(LegendaryHunt):
         self.log(f"!! [{label}] scene never settled (at {tv.map_id(b)}@{tv.coords(b)})")
         return done()
 
-    def sail(self, want):
-        """Seagallop hop: talk to the pier sailor (8,6) from (8,7), pick the row (DOWN x row
-        + A; the menu is [row0/row1/Exit] per SAIL_ROWS while the detour is live), ride the
-        ferry (map flip). A missed row self-corrects: run() re-dispatches from wherever the
-        boat actually landed, and every wrong island's menu still contains the right one."""
+    @staticmethod
+    def _sail_row_candidates(here, want):
+        """Menu row indices that might select `want`. Pre-Vermilion menus are SAIL_ROWS;
+        post-return menus insert Vermilion at 0 so the same destination is index+1
+        (pret seagallop.inc MULTICHOICE_SEAGALLOP_V*)."""
+        rows = SAIL_ROWS.get(here) or []
+        if want not in rows:
+            return []
+        pre = rows.index(want)
+        return [pre, pre + 1]
+
+    def _sail_clear_menu(self):
+        """B out of a stuck Seagallop multichoice / stray overworld menu before re-talk."""
         b, camp = self.b, self.camp
+        try:
+            camp._sweep_stray_menus(reason="pre-sail")
+        except Exception:
+            pass
+        for _ in range(4):
+            if not dd_box(b):
+                break
+            b.press("B", 8, 12, camp.render, owner="agent")
+            self.settle(30)
+        self.settle(20)
+
+    def sail(self, want, _depth=0):
+        """Seagallop hop: talk to the pier sailor (8,6) from (8,7), pick the destination
+        row, ride the ferry (map flip).
+
+        LIVE 2026-08-06 harbor wedge: D-pad before the multichoice is input-ready is EATEN
+        (same class as elevator_nav) — A then confirms the DEFAULT row (Two Island from One),
+        war-chest 'drifts' off-rails, strike tries burn, she free-roams at the pier chatting
+        about balls. Settle long, space DOWNs, try pre- AND post-Vermilion row indices, and
+        from a wrong pier immediately re-sail toward `want`."""
+        b, camp = self.b, self.camp
+        if _depth > 4:
+            self.log(f"!! [sail] re-route depth exceeded wanting {want} "
+                     f"(at {tv.map_id(b)}@{tv.coords(b)})")
+            return False
         here = tuple(tv.map_id(b))
+        if here == want:
+            return True
         rows = SAIL_ROWS.get(here)
         if not rows or want not in rows:
+            self.log(f"!! [sail] no row for {want} from {here}")
             return False
-        row = rows.index(want)
-        if not self.sea_walk(lambda c: c == (8, 7), "sailor-approach"):
-            return False
-        b.press("UP", 8, 10, camp.render, owner="agent")
-        b.press("A", 8, 12, camp.render, owner="agent")
-        self.settle(80)                          # "Where do you want to sail?" + multichoice
-        for _ in range(row):
-            b.press("DOWN", 8, 10, camp.render, owner="agent")
-            self.settle(20)
-        b.press("A", 8, 12, camp.render, owner="agent")
-        ok = self.wait_scene(lambda: tuple(tv.map_id(b)) != here, "ferry", timeout=60)
-        self.settle(60)
-        got = tuple(tv.map_id(b))
-        if got != want:
-            self.log(f"   [sail] {here} -> {got} (wanted {want}) — "
-                     f"{'re-routing from the wrong pier' if ok else 'ferry never left'}")
-        else:
-            self.log(f"   [sail] {here} -> {got}")
-        # a wrong pier is PROGRESS, not a wedge: every island's menu contains the right
-        # destination, so the stage router self-corrects on the next leg_home dispatch
-        return ok
+        candidates = self._sail_row_candidates(here, want)
+        self.log(f"   [sail] {here} -> {want}; trying menu rows {candidates} (LOUD)")
+        for attempt, row in enumerate(candidates * 2):   # each layout twice
+            if time.time() > self.deadline:
+                return False
+            if tuple(tv.map_id(b)) != here:
+                here = tuple(tv.map_id(b))
+                if here == want:
+                    return True
+                if want in (SAIL_ROWS.get(here) or []):
+                    return self.sail(want, _depth=_depth + 1)
+                return False
+            self._sail_clear_menu()
+            if tuple(tv.coords(b) or ()) != SAILOR_STAND:
+                if not self.sea_walk(lambda c: c == SAILOR_STAND, "sailor-approach"):
+                    self.log(f"!! [sail] sailor-approach failed at "
+                             f"{tv.map_id(b)}@{tv.coords(b)} (attempt {attempt + 1})")
+                    continue
+            b.press("UP", 8, 10, camp.render, owner="agent")
+            b.press("A", 8, 12, camp.render, owner="agent")
+            # MENU SETTLE (elevator_nav law): D-pad before input-ready is eaten → default row.
+            self.settle(120)
+            # Top-of-menu belt: UP a few times so a leftover cursor can't sit on Cancel.
+            for _ in range(4):
+                b.press("UP", 8, 14, camp.render, owner="agent")
+                self.settle(18)
+            for _ in range(row):
+                b.press("DOWN", 8, 16, camp.render, owner="agent")
+                self.settle(28)
+            b.press("A", 8, 12, camp.render, owner="agent")
+            ok = self.wait_scene(lambda: tuple(tv.map_id(b)) != here, "ferry", timeout=90)
+            self.settle(80)
+            got = tuple(tv.map_id(b))
+            if got == want:
+                self.log(f"   [sail] {here} -> {got} (row={row})")
+                return True
+            if got != here:
+                self.log(f"   [sail] {here} -> {got} (wanted {want}, row={row}) — "
+                         f"re-sailing from the wrong pier (LOUD)")
+                return self.sail(want, _depth=_depth + 1)
+            self.log(f"   [sail] !! ferry never left {here} (row={row}, attempt "
+                     f"{attempt + 1}); clearing menu and retrying (LOUD)")
+            self._sail_clear_menu()
+        self.log(f"!! [sail] gave up {here} -> {want} at {tv.coords(b)}")
+        return False
 
     def heal_here(self, nurse_tile):
         """Best-effort Center heal (the nurse YES/NO answers YES on A-drain).
@@ -1256,7 +1344,10 @@ class MoltresHunt(LegendaryHunt):
         """ULTRA WAR-CHEST DESCENT (2026-08-06): volcano descent like the Center leg, then
         One Island Harbor -> Seagallop to Three -> Port -> town -> Mart. Buys Ultras at the
         Three Island shelf (the only Sevii Ultra mart before Lostelle expands Two Island).
-        True = stage advanced; buy itself is owned by run() when standing on THREE_ISLAND."""
+        True = stage advanced; buy itself is owned by run() when standing on THREE_ISLAND.
+
+        TWO Island is on the rails too (live 2026-08-06): a flaked Seagallop menu lands on
+        Two Harbor — sail Three from there instead of '_ball_restock_fail drifted'."""
         if here in (EMBER_SUMMIT, EMBER_EXT, EMBER_3F, EMBER_2F, EMBER_1F, KINDLE):
             return self.leg_home(here)
         if here == ONE_PC:
@@ -1264,6 +1355,10 @@ class MoltresHunt(LegendaryHunt):
         if here == ONE_ISLAND:
             return self.enter_step((12, 18), ONE_HARBOR, "one-harbor-balls")
         if here == ONE_HARBOR:
+            return self.sail(THREE_HARBOR)
+        if here == TWO_ISLAND:
+            return self.enter_step((10, 8), TWO_HARBOR, "two-harbor-balls")
+        if here == TWO_HARBOR:
             return self.sail(THREE_HARBOR)
         if here == THREE_HARBOR:
             return self.enter_step((8, 2), THREE_PORT, "three-port-balls")
@@ -1297,6 +1392,10 @@ class MoltresHunt(LegendaryHunt):
         self.log(f"   [hunt] war-chest buy done — +{got} Ultra(s), pocket now {have1}/{want}")
         if got > 0 or have1 > have0:
             self._ball_restock_done = True
+            try:
+                self.camp._ball_restock_done = True
+            except Exception:
+                pass
             # Drop the old 6-ball preferred pin so the next free-retry keeps THIS stack.
             try:
                 pref = getattr(self.camp, "_HUNT_PREFERRED_PRE", None)
@@ -1554,11 +1653,16 @@ class MoltresHunt(LegendaryHunt):
                     if here == THREE_ISLAND:
                         if self.buy_ultra_war_chest():
                             self._ball_restock_returning = True
+                            try:
+                                self.camp._ball_restock_returning = True
+                            except Exception:
+                                pass
                         else:
                             self._ball_restock_fail("Three Island Mart bought nothing")
                         continue
                     if here in (EMBER_SUMMIT, EMBER_EXT, EMBER_3F, EMBER_2F, EMBER_1F,
-                                KINDLE, ONE_PC, ONE_ISLAND, ONE_HARBOR, THREE_HARBOR,
+                                KINDLE, ONE_PC, ONE_ISLAND, ONE_HARBOR,
+                                TWO_ISLAND, TWO_HARBOR, THREE_HARBOR,
                                 THREE_PORT, THREE_MART):
                         if not self.leg_to_ball_mart(here):
                             self._ball_restock_fail(
