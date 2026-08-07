@@ -1,4 +1,0 @@
-CANONICAL
-# Meteorite Key-Item fix: she already has Moltres; keep live save. Next resume must NOT
-# rewind. Ride-home will see Meteorite in Key Items and sail Three for Lostelle (not
-# thrash Celio's Network Machine on a fake 'delivered' leave-trigger).
