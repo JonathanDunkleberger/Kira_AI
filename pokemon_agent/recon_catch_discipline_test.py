@@ -1595,21 +1595,27 @@ def main():
               and "moltres" not in camp37._lap_skipped
               and camp37._lap_fails.get("moltres") is None)
 
-        # Ride-home only after bird spent.
+        # Ride-home only after bird spent — and it must DRIVE, not no-op.
         camp37._moltres_fought = True
+        camp37._active_questline = types.SimpleNamespace(
+            gate=types.SimpleNamespace(missing="eevee"))
+        driven = []
+        camp37._lap_drive_moltres_ride_home = lambda: (
+            driven.append("drive"), camp37._clear_questline("test"), "ok")[2]
+        camp37._clear_questline = lambda why: driven.append(("clear", why))
         key2 = "articuno"
         if camp37._lap_sevii_stranded():
-            bird_spent2 = (
-                bool(camp37._dex_owned(146))
-                or getattr(camp37, "_moltres_fought", False)
-                or getattr(camp37, "_moltres_hide", False)
-            )
+            bird_spent2 = camp37._lap_bird_spent()
             if not bird_spent2:
                 key2 = "moltres"
             elif key2 != "moltres":
-                key2 = "ride_home_ok"
-        check("Sevii ride-home owns turn only after bird spent",
-              key2 == "ride_home_ok")
+                key2 = camp37._lap_drive_moltres_ride_home()
+        check("Sevii ride-home DRIVES after bird spent (not no-op)",
+              key2 == "ok" and "drive" in driven)
+        # eevee gate must not arm while Sevii-stranded.
+        camp37._lap_sevii_stranded = lambda: True
+        eg = C.Campaign._eevee_gate(camp37, {"badge_count": 8})
+        check("eevee gate suppressed while Sevii-stranded", eg is None)
     finally:
         C.tv.map_id = _orig_tv_h
         C.ram.pokedex_owns = _orig_owns_h

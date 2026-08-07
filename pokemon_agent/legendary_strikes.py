@@ -1902,8 +1902,9 @@ class MoltresHunt(LegendaryHunt):
                 self.log(f"   [moltres] wedge hygiene skipped: {e}")
         # EARLY WAR-CHEST (2026-08-06 LIVE): thin Ultras arm the ferry at hunt ENTRY —
         # don't climb the volcano just to turn around at the bird (press_quarry still
-        # re-checks as the belt).
-        if not getattr(self, "_ball_restock_mode", False):
+        # re-checks as the belt). NEVER re-arm once the bird is spent — ride-home owns
+        # those turns (post-catch thin-pocket used to ferry her to Mart instead of home).
+        if not self.spent() and not getattr(self, "_ball_restock_mode", False):
             if self._maybe_arm_ball_restock():
                 self.log("   [hunt] Ultra war-chest armed at hunt entry — ferry before climb "
                          "(LOUD)")

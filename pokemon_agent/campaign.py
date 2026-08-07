@@ -13020,10 +13020,16 @@ class Campaign:
         Thunder Stone) with zero RNG. Nothing story-blocks on it, so no recognizer would ever demand
         it; this proactive gate opens the errand once Celadon is hers. Party-full is a NON-issue:
         the FRLG script auto-transfers the gift to the PC (swap_keeper fields it later). Returns a
-        Gate while badges>=4 and FLAG_GOT_EEVEE (0x263) is unset, else None."""
+        Gate while badges>=4 and FLAG_GOT_EEVEE (0x263) is unset, else None.
+
+        LIVE 2026-08-06: NEVER arm while Sevii-stranded — Celadon is a ferry + half of Kanto
+        away; opening this here made her narrate 'roof room / Eevee' while standing still on
+        One Island (ride-home must own those turns)."""
         if not EEVEE_FETCH_ENABLED:
             return None
         try:
+            if self._lap_sevii_stranded():
+                return None
             if (state.get("badge_count") or 0) < 4:
                 return None
             if fm.read_flag(self.b, 0x263):          # FLAG_GOT_EEVEE — already claimed
@@ -13315,6 +13321,55 @@ class Campaign:
             return here in MOLTRES_ANCHORS and here not in ((3, 8), (12, 5))
         except Exception:
             return False
+
+    def _lap_bird_spent(self):
+        """Moltres is spent (caught / fought / hide) — ride-home owns Sevii turns after this."""
+        try:
+            return (
+                bool(self._dex_owned(146))
+                or getattr(self, "_moltres_fought", False)
+                or getattr(self, "_moltres_hide", False)
+            )
+        except Exception:
+            return False
+
+    def _lap_drive_moltres_ride_home(self):
+        """Drive Lostelle + Meteorite + sail home while bird spent and Sevii-stranded.
+
+        Shared by victory_lap and the proactive hook. LIVE 2026-08-06: returning a no-op
+        'ok' while eevee/Celadon was parked left her narrating the roof room and not moving;
+        a 4-try hard exhaust then free-roamed forever on the archipelago. Map progress resets
+        the try counter; exhaustion never permanently softlocks — we keep driving LOUD."""
+        try:
+            from legendary_strikes import run_moltres
+            here = tuple(tv.map_id(self.b))
+            cq = self._active_questline
+            miss = getattr(getattr(cq, "gate", None), "missing", None)
+            if cq is not None and miss not in (None, "moltres"):
+                self._clear_questline(
+                    f"Sevii ride-home outranks parked '{miss}' "
+                    f"(cannot Celadon from the archipelago)")
+            last = getattr(self, "_moltres_home_last_map", None)
+            if last != here:
+                self._moltres_home_last_map = here
+                self._moltres_home_tries = 0
+            tries = int(getattr(self, "_moltres_home_tries", 0) or 0)
+            self._moltres_home_tries = tries + 1
+            if tries > 0 and tries % 8 == 0:
+                log(f"   [lap] !! MOLTRES RIDE-HOME still stranded after {tries} tries "
+                    f"on {here} — keeping the drive (never free-roam softlock)")
+            log(f"   [lap] 🔥 MOLTRES RIDE-HOME: bird spent, still on Sevii ({here}) — "
+                f"driving Lostelle detour + sail home (attempt {tries + 1})")
+            dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "moltres_probe")
+            mh = run_moltres(self, log, dbg_dir=dbg)
+            log(f"   [lap] 🔥 MOLTRES RIDE-HOME -> {mh} "
+                f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
+            if mh in ("caught", "battled"):
+                self._moltres_home_tries = 0
+            return mh if mh not in (None, "") else "ok"
+        except Exception as e:
+            log(f"   [lap] moltres ride-home drive failed: {e}")
+            return "ok"
 
     def _lap_pending(self, key):
         """Is this checklist item still OWED? Reads the RAW truth (dex/flags/bag) — deliberately
@@ -13815,15 +13870,7 @@ class Campaign:
         # skip from a thin Ultra pocket must NOT park the lap on articuno while she's still
         # on One Island with no boat home armed (2026-08-06 live strand — 200+ RED ticks).
         if self._lap_sevii_stranded():
-            bird_spent = False
-            try:
-                bird_spent = (
-                    bool(self._dex_owned(146))
-                    or getattr(self, "_moltres_fought", False)
-                    or getattr(self, "_moltres_hide", False)
-                )
-            except Exception:
-                bird_spent = False
+            bird_spent = self._lap_bird_spent()
             if not bird_spent:
                 skipped = getattr(self, "_lap_skipped", None)
                 if skipped and "moltres" in skipped:
@@ -13838,9 +13885,12 @@ class Campaign:
                         f"forcing moltres questline")
                     key = "moltres"
             elif key != "moltres":
-                log(f"   [lap] '{key}' is next but she's still on the archipelago — the "
-                    f"MOLTRES RIDE-HOME hook owns this turn")
-                return "ok"
+                # DRIVE the ride-home HERE — do NOT return a no-op 'ok' and hope the
+                # proactive hook fires. LIVE 2026-08-06: eevee proactive armed first,
+                # victory_lap returned 'ok', she narrated Celadon roof while frozen on Sevii.
+                log(f"   [lap] '{key}' deferred — still on Sevii after Moltres; "
+                    f"DRIVING the Lostelle ride-home (not Celadon from here)")
+                return self._lap_drive_moltres_ride_home()
         if key == "earthquake":
             r = self._lap_teach_earthquake()
             if r == "taught":
@@ -14415,6 +14465,18 @@ class Campaign:
             if (VICTORY_LAP_ENABLED and int(state.get("badge_count") or 0) >= 8
                     and not state.get("post_game")):
                 _lk = self._victory_lap_next(state)
+                # SEVII RIDE-HOME OWNS THE SLOT (2026-08-06 LIVE): bird spent + stranded —
+                # evict Celadon luxuries (eevee/fly/tea…) that stole the ONE questline slot
+                # and early-return so those gates cannot re-arm below. victory_lap drives
+                # _lap_drive_moltres_ride_home (Lostelle + sail); do NOT arm articuno/eevee.
+                if self._lap_sevii_stranded() and self._lap_bird_spent():
+                    _cq = self._active_questline
+                    _miss = getattr(getattr(_cq, "gate", None), "missing", None)
+                    if _cq is not None and _miss not in (None, "moltres"):
+                        self._clear_questline(
+                            f"Sevii ride-home outranks parked '{_miss}' "
+                            f"(cannot Celadon from the archipelago)")
+                    return
                 # earthquake/box_bench/repack need no errand gate — they run in place via the
                 # victory_lap pick (TeachFlow / the Center-PC box flow).
                 if (_lk is not None and _lk not in ("earthquake", "box_bench", "repack")
@@ -14582,39 +14644,14 @@ class Campaign:
                 log("   [roam] ❄️ PROACTIVE ICE BEAM: the coin budget is banked — Celadon Game "
                     "Corner for TM13, then the ace learns the endgame's best fourth attack")
                 return
-            # MOLTRES RIDE-HOME (2026-08-04, the Sevii stranding hole): once the bird is
-            # SPENT, FLAG_FOUGHT_MOLTRES satisfies the questline step INSTANTLY — no errand
-            # would ever walk her off the archipelago (the return boat is story-gated on the
-            # Lostelle detour). Dispatch the strike's journey-home stages directly while she
-            # still stands on a Sevii map; bounded tries, LOUD either way.
-            if LEGENDARY_HUNTS_ENABLED:
-                try:
-                    from legendary_strikes import MOLTRES_ANCHORS, run_moltres
-                    _here = tuple(tv.map_id(self.b))
-                    if (_here in MOLTRES_ANCHORS and _here not in ((3, 8), (12, 5))
-                            and (ram.pokedex_owns(self.b, 146) is True
-                                 or fm.read_flag(self.b, 0x2BD)
-                                 or fm.read_flag(self.b, 0x052))):
-                        _mh_tries = getattr(self, "_moltres_home_tries", 0)
-                        if _mh_tries < 4:
-                            self._moltres_home_tries = _mh_tries + 1
-                            log(f"   [roam] 🔥 MOLTRES RIDE-HOME: bird spent, still on Sevii "
-                                f"({_here}) — driving the Lostelle detour + the sail home "
-                                f"(attempt {_mh_tries + 1}/4)")
-                            _dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun",
-                                                "moltres_probe")
-                            _mh = run_moltres(self, log, dbg_dir=_dbg)
-                            log(f"   [roam] 🔥 MOLTRES RIDE-HOME -> {_mh} "
-                                f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
-                            if _mh in ("caught", "battled"):
-                                self._moltres_home_tries = 0
-                            return
-                        if _mh_tries == 4:
-                            self._moltres_home_tries = 5   # log the exhaustion ONCE
-                            log("   [roam] !! MOLTRES RIDE-HOME exhausted (4 tries) — "
-                                "surfacing to recovery/free-roam (still on Sevii, LOUD)")
-                except Exception as _mh_e:
-                    log(f"   [roam] moltres ride-home check skipped: {_mh_e}")
+            # MOLTRES RIDE-HOME (2026-08-04 / 2026-08-06): belt for non-lap paths — bird
+            # spent + Sevii-stranded. Victory-lap owns this at 8 badges (early-return above
+            # + _run_victory_lap -> _lap_drive_moltres_ride_home); this catches any other
+            # tick that still reaches here. Never hard-exhaust into free-roam softlock.
+            if (LEGENDARY_HUNTS_ENABLED and self._lap_sevii_stranded()
+                    and self._lap_bird_spent()):
+                self._lap_drive_moltres_ride_home()
+                return
             # PROACTIVE LEGENDARY HUNTS (2026-08-04, Jonny's order — 'catching mew or mewtwo
             # as a final endgame project ... all cool legendaries so she mops the floor').
             # Each gate self-suppresses until its road is open and the balls are stocked;
