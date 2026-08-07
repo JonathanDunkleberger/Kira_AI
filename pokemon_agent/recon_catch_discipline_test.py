@@ -45,6 +45,9 @@ Decision table under test:
                                                                 must not no-op forever)
   One Island Harbor sailor approach from north of (8,6)      -> stand (8,5) face DOWN
                                                                 (south stand has no BFS path)
+  Three Island Mart behind unarmed biker pack                -> Game Corner prime first,
+                                                                then clear gauntlet (A=YES),
+                                                                THEN buy (never talk-loop)
 + THE VERIFIED RATCHET (2026-08-05 URGENT, the poisoned 'pre-moltres' bank):
   loaded bank has the fought-flag set, quarry uncaught       -> POISONED: ratchet to the
                                                                 next older same-region bank
@@ -1420,14 +1423,26 @@ def main():
               LS.MoltresHunt._sail_row_candidates(LS.TWO_HARBOR, LS.THREE_HARBOR)
               == [1, 2])
         # TWO Harbor is on the war-chest rails (flaked menu lands here).
+        # Armed/cleared → sail Three; unarmed → enter Two Island to prime Game Corner.
         sailed = []
+        entered = []
         h36t = LS.MoltresHunt.__new__(LS.MoltresHunt)
         h36t.b = object()
         h36t.log = logs36.append
         h36t.sail = lambda want: (sailed.append(want), True)[1]
-        check("leg_to_ball_mart(TWO_HARBOR) sails to Three",
+        h36t.enter_step = lambda tile, dest, label: (entered.append((tile, dest, label)), True)[1]
+        h36t._three_gauntlet_armed = lambda: True
+        h36t._three_bikers_cleared = lambda: True
+        check("leg_to_ball_mart(TWO_HARBOR) armed -> sails to Three",
               h36t.leg_to_ball_mart(LS.TWO_HARBOR) is True
               and sailed == [LS.THREE_HARBOR])
+        sailed.clear(); entered.clear()
+        h36t._three_gauntlet_armed = lambda: False
+        h36t._three_bikers_cleared = lambda: False
+        check("leg_to_ball_mart(TWO_HARBOR) unarmed -> enter Two Island to prime",
+              h36t.leg_to_ball_mart(LS.TWO_HARBOR) is True
+              and entered and entered[0][1] == LS.TWO_ISLAND
+              and sailed == [])
         # Arming restock clears the moltres questline try budget.
         h36f = LS.MoltresHunt.__new__(LS.MoltresHunt)
         h36f.b = object()
@@ -1537,6 +1552,89 @@ def main():
     finally:
         C.tv.map_id = _orig_tv_h
         C.ram.pokedex_owns = _orig_owns_h
+        print()
+
+    # 38. THREE ISLAND BIKER ROADBLOCK (2026-08-06 LIVE): Mart is north of the
+    #     talk-only biker pack until Game Corner arms the gauntlet and she fights
+    #     through. Unarmed war-chest must bounce to Two Island, never buy_at_mart.
+    print("== 38. THREE ISLAND BIKER ROADBLOCK (war-chest Game Corner prime) ==")
+    logs38 = []
+    sailed38, entered38, cleared38, primed38 = [], [], [], []
+
+    def _mk38(armed, cleared):
+        h = LS.MoltresHunt.__new__(LS.MoltresHunt)
+        h.b = object()
+        h.log = logs38.append
+        h.deadline = 1e18
+        h._three_gauntlet_armed = lambda: armed
+        h._three_bikers_cleared = lambda: cleared
+        h.sail = lambda want: (sailed38.append(want), True)[1]
+        h.enter_step = lambda tile, dest, label: (
+            entered38.append((tile, dest, label)), True)[1]
+        h.cross_edge = lambda d, label: (entered38.append(("edge", d, label)), True)[1]
+        h.clear_three_island_bikers = lambda: (cleared38.append(True), True)[1]
+        h.prime_lostelle_quest = lambda: (primed38.append(True), True)[1]
+        return h
+
+    sailed38.clear(); entered38.clear()
+    h38a = _mk38(armed=False, cleared=False)
+    check("ONE_HARBOR unarmed -> sail Two (Game Corner prime, not Three)",
+          h38a.leg_to_ball_mart(LS.ONE_HARBOR) is True
+          and sailed38 == [LS.TWO_HARBOR])
+    sailed38.clear(); entered38.clear()
+    h38b = _mk38(armed=True, cleared=False)
+    check("ONE_HARBOR armed -> sail Three for the gauntlet/Mart",
+          h38b.leg_to_ball_mart(LS.ONE_HARBOR) is True
+          and sailed38 == [LS.THREE_HARBOR])
+    sailed38.clear(); entered38.clear(); primed38.clear()
+    h38c = _mk38(armed=False, cleared=False)
+    check("TWO_ISLAND unarmed -> prime_lostelle_quest",
+          h38c.leg_to_ball_mart(LS.TWO_ISLAND) is True and primed38 == [True])
+    entered38.clear(); cleared38.clear()
+    h38d = _mk38(armed=True, cleared=False)
+    check("THREE_ISLAND armed+uncleared -> clear_three_island_bikers",
+          h38d.leg_to_ball_mart(LS.THREE_ISLAND) is True and cleared38 == [True])
+    entered38.clear()
+    h38e = _mk38(armed=False, cleared=False)
+    check("THREE_ISLAND unarmed (stuck on pack) -> south to Port for prime bounce",
+          h38e.leg_to_ball_mart(LS.THREE_ISLAND) is True
+          and entered38 and entered38[0][1] == "south")
+    sailed38.clear()
+    h38f = _mk38(armed=False, cleared=False)
+    check("THREE_HARBOR unarmed -> sail Two (not enter Port into the pack)",
+          h38f.leg_to_ball_mart(LS.THREE_HARBOR) is True
+          and sailed38 == [LS.TWO_HARBOR])
+    # Predicate helpers: hide-flag / scene var.
+    class _B38:
+        def __init__(self, flags=None, vars_=None):
+            self.flags = flags or {}
+            self.vars = vars_ or {}
+    _orig_rf, _orig_rv = LS.fm.read_flag, LS.fm.read_var
+    try:
+        LS.fm.read_flag = lambda b, f: bool((getattr(b, "flags", {}) or {}).get(f))
+        LS.fm.read_var = lambda b, v: int((getattr(b, "vars", {}) or {}).get(v, 0))
+        h38p = LS.MoltresHunt.__new__(LS.MoltresHunt)
+        h38p.b = _B38(flags={LS.FLAG_HIDE_THREE_ISLAND_BIKERS: True})
+        check("hide-bikers flag SET -> cleared", h38p._three_bikers_cleared() is True)
+        h38p.b = _B38(vars_={LS.VAR_MAP_SCENE_THREE_ISLAND: 4})
+        check("scene var >= 4 -> cleared", h38p._three_bikers_cleared() is True)
+        h38p.b = _B38(vars_={LS.VAR_MAP_SCENE_THREE_ISLAND: 2})
+        check("scene var 2 -> armed, not cleared",
+              h38p._three_bikers_cleared() is False
+              and h38p._three_gauntlet_armed() is True)
+        h38p.b = _B38(flags={LS.FLAG_HIDE_THREE_ISLAND_LONE_BIKER: True},
+                      vars_={LS.VAR_MAP_SCENE_THREE_ISLAND: 0,
+                             LS.VAR_MAP_SCENE_TWO_ISLAND_JOYFUL_GAME_CORNER: 0})
+        check("fresh Sevii (Paxton hidden, scene 0) -> unarmed",
+              h38p._three_gauntlet_armed() is False)
+        h38p.b = _B38(flags={LS.FLAG_HIDE_THREE_ISLAND_LONE_BIKER: False})
+        check("Paxton visible (lone-biker hide CLEAR) -> armed",
+              h38p._three_gauntlet_armed() is True)
+        check("GAME_CORNER_DOOR is Two Island (39,9)",
+              LS.GAME_CORNER_DOOR == (39, 9))
+    finally:
+        LS.fm.read_flag = _orig_rf
+        LS.fm.read_var = _orig_rv
         print()
 
     if FAILS:

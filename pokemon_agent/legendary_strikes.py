@@ -94,6 +94,14 @@ FLAG_HIDE_B3F_BOULDER_2 = 0x047
 FLAG_HIDE_CINNABAR_PC_BILL = 0x0A2   # CLEAR = Bill waits in the Cinnabar Center (trip open)
 FLAG_RESCUED_LOSTELLE = 0x2A3        # Berry Forest rescue done (Hypno beaten)
 FLAG_STR_ACTIVE = 0x805              # FLAG_SYS_USE_STRENGTH — resets per map load
+# Three Island biker roadblock (war-chest Mart is NORTH of this pack — LIVE 2026-08-06):
+# FLAG set = objects hidden (gauntlet beaten / removeobject). Until Game Corner arms the
+# quest, talking only plays the argument scene — no fight, no path to the Mart.
+FLAG_HIDE_THREE_ISLAND_BIKERS = 0x079
+FLAG_HIDE_THREE_ISLAND_LONE_BIKER = 0x091   # CLEAR = Paxton present (gauntlet armed)
+VAR_MAP_SCENE_THREE_ISLAND = 0x407B         # 2=armed, 3=boss intro done, 4=cleared
+VAR_MAP_SCENE_TWO_ISLAND_JOYFUL_GAME_CORNER = 0x4079  # >=1 after HelpFindLostelle scene
+GAME_CORNER_DOOR = (39, 9)                  # TwoIsland overworld warp
 ITEM_METEORITE = 280                 # Celio's parcel; REMOVED from the bag on delivery
 
 ZAPDOS = dict(name="Zapdos", species=145, tile=(5, 11), map=PLANT, hide=0x05D, fought=0x2BF,
@@ -1360,40 +1368,220 @@ class MoltresHunt(LegendaryHunt):
             return self.leg_home(here)
         return False
 
+    def _three_bikers_cleared(self):
+        """Mart road open: biker pack removed (hide flag) or scene var >= 4."""
+        try:
+            if fm.read_flag(self.b, FLAG_HIDE_THREE_ISLAND_BIKERS):
+                return True
+            return fm.read_var(self.b, VAR_MAP_SCENE_THREE_ISLAND) >= 4
+        except Exception:
+            return False
+
+    def _three_gauntlet_armed(self):
+        """Fightable: Game Corner HelpFindLostelle has run (scene>=2 / Paxton visible)
+        or the road is already clear. Unarmed = argument-only NPCs; talking forever."""
+        if self._three_bikers_cleared():
+            return True
+        try:
+            if fm.read_var(self.b, VAR_MAP_SCENE_THREE_ISLAND) >= 2:
+                return True
+            if fm.read_var(self.b, VAR_MAP_SCENE_TWO_ISLAND_JOYFUL_GAME_CORNER) >= 1:
+                return True
+            # Lone-biker hide CLEAR => Paxton is on the map (armed).
+            if not fm.read_flag(self.b, FLAG_HIDE_THREE_ISLAND_LONE_BIKER):
+                return True
+        except Exception:
+            pass
+        return False
+
+    def handle_interrupts_confirm(self):
+        """Like handle_interrupts but advances overworld dialogue with A.
+        The Three Island biker YESNO declines on B (LeaveBikersAlone walks her south) —
+        B-drain here would softlock the war-chest on the pack forever (LIVE 2026-08-06)."""
+        if self.fight_open():
+            self.fight()
+            self.drain(key="A")
+            return True
+        if dd_box(self.b):
+            self.drain(key="A")
+            return True
+        try:
+            if ((not ram.battle_cb2_dead(self.b)) or ram.start_menu_open(self.b)) \
+                    and self.camp._sweep_stray_menus(reason="strike confirm") == "closed":
+                return True
+        except Exception:
+            pass
+        return False
+
+    def prime_lostelle_quest(self):
+        """Joyful Game Corner OnFrame scene arms VAR_MAP_SCENE_THREE_ISLAND=2 + Paxton.
+        Without this, Three Island's biker pack is talk-only and blocks the Mart."""
+        b, camp = self.b, self.camp
+        here = tuple(tv.map_id(b))
+        if self._three_gauntlet_armed():
+            if here == GAME_CORNER:
+                return self.enter_step((5, 8), TWO_ISLAND, "corner-out-primed")
+            return True
+        if here == TWO_ISLAND:
+            self.log("   [hunt] !!!! WAR-CHEST: entering Joyful Game Corner to arm the "
+                     "Three Island biker gauntlet (Mart is behind them) (LOUD)")
+            return self.enter_step(GAME_CORNER_DOOR, GAME_CORNER, "corner-in-prime")
+        if here != GAME_CORNER:
+            return False
+        self.log("   [hunt] !!!! WAR-CHEST: draining Lostelle-help scene at Game Corner "
+                 "(A-confirm; arms Three Island) (LOUD)")
+        t_end = time.time() + 120
+        while time.time() < t_end and not self._three_gauntlet_armed():
+            if self.handle_interrupts_confirm():
+                continue
+            if dd_box(b):
+                b.press("A", 8, 12, camp.render, owner="agent")
+                self.settle(20)
+            else:
+                self.settle(30)
+        if not self._three_gauntlet_armed():
+            # Scene may need a poke at Daddy if OnFrame already advanced past var 0.
+            try:
+                self.poke((5, 5), "daddy-prime", avoid=((6, 5),))
+            except Exception:
+                pass
+            self.drain(key="A")
+            self.settle(40)
+        if not self._three_gauntlet_armed():
+            self.log("!! [hunt] Game Corner never armed Three Island gauntlet (LOUD)")
+            return False
+        try:
+            camp.on_event("ok — Lostelle's dad sent us to Three Island. clearing those "
+                          "bikers, THEN we buy the Ultra stack.",
+                          kind="legendary", tier=2)
+        except Exception:
+            pass
+        return self.enter_step((5, 8), TWO_ISLAND, "corner-out-prime")
+
+    def clear_three_island_bikers(self):
+        """Walk the y=27 boss-intro + y=26 battle triggers, A-confirm the YESNO, fight
+        the four scripted trainers. Mart door (18,12) is unreachable until scene>=4."""
+        b, camp = self.b, self.camp
+        if self._three_bikers_cleared():
+            return True
+        if not self._three_gauntlet_armed():
+            self.log("!! [hunt] biker gauntlet not armed — Game Corner first (LOUD)")
+            return False
+        if tuple(tv.map_id(b)) != THREE_ISLAND:
+            return False
+        self.log("   [hunt] !!!! WAR-CHEST: clearing Three Island biker gauntlet "
+                 "(YES to the fight — Mart is north of the pack) (LOUD)")
+        try:
+            self.field_heal_seam(top_up=True)
+        except Exception:
+            pass
+        # Triggers sit SOUTH of the NPC bodies (y=22-24). Approach from the Port side.
+        for attempt in range(8):
+            if self._three_bikers_cleared():
+                self.log("   [hunt] !!!! Three Island bikers CLEARED — Mart road open (LOUD)")
+                return True
+            if time.time() > self.deadline:
+                break
+            # Stand just south of the trigger row, then step onto y=27 then y=26.
+            if not self.sea_walk(
+                    lambda c: c[0] in (7, 8, 9, 10) and c[1] >= 28,
+                    f"biker-south-{attempt}"):
+                # Already on/near the trigger strip — don't bail the whole clear.
+                cur = tuple(tv.coords(b) or (0, 0))
+                if not (7 <= cur[0] <= 10 and 26 <= cur[1] <= 30):
+                    self.log(f"!! [hunt] can't reach biker trigger strip @ {cur}")
+                    return False
+            for y in (27, 26):
+                if self._three_bikers_cleared():
+                    break
+                tgt = None
+                for x in (9, 8, 10, 7):
+                    if self.sea_walk(lambda c, t=(x, y): c == t, f"biker-trig-{x}-{y}"):
+                        tgt = (x, y)
+                        break
+                if tgt is None:
+                    continue
+                # Drain intro / YESNO / battles with A (never B — decline softlocks).
+                for _ in range(400):
+                    if self._three_bikers_cleared():
+                        break
+                    if self.handle_interrupts_confirm():
+                        continue
+                    if dd_box(b):
+                        b.press("A", 8, 12, camp.render, owner="agent")
+                        self.settle(16)
+                    else:
+                        self.settle(20)
+                        # Nudge north once more if the next trigger hasn't fired.
+                        if not self._three_bikers_cleared() and y == 27:
+                            b.press("UP", 8, 10, camp.render, owner="agent")
+                            self.settle(30)
+                        break
+            # If she declined (script walked her south), loop and re-enter.
+            while self.handle_interrupts_confirm():
+                pass
+        ok = self._three_bikers_cleared()
+        if not ok:
+            self.log(f"!! [hunt] biker gauntlet still up @ {tv.coords(b)} "
+                     f"scene={fm.read_var(b, VAR_MAP_SCENE_THREE_ISLAND)} (LOUD)")
+        return ok
+
     def leg_to_ball_mart(self, here):
         """ULTRA WAR-CHEST DESCENT (2026-08-06): volcano descent like the Center leg, then
-        One Island Harbor -> Seagallop to Three -> Port -> town -> Mart. Buys Ultras at the
-        Three Island shelf (the only Sevii Ultra mart before Lostelle expands Two Island).
-        True = stage advanced; buy itself is owned by run() when standing on THREE_ISLAND.
+        Seagallop to Three Island Mart. LIVE 2026-08-06: the Mart is NORTH of the biker
+        pack — unarmed visits softlock on argument-NPC dialogue. Route through Two Island's
+        Joyful Game Corner first (arms the gauntlet), clear the pack, THEN buy.
 
-        TWO Island is on the rails too (live 2026-08-06): a flaked Seagallop menu lands on
-        Two Harbor — sail Three from there instead of '_ball_restock_fail drifted'."""
+        TWO Harbor is also on the rails (flaked Seagallop menu) — sail Three once armed."""
         if here in (EMBER_SUMMIT, EMBER_EXT, EMBER_3F, EMBER_2F, EMBER_1F, KINDLE):
             return self.leg_home(here)
         if here == ONE_PC:
             return self.enter_step((9, 9), ONE_ISLAND, "pc-out-balls")
         if here == ONE_ISLAND:
             return self.enter_step((12, 18), ONE_HARBOR, "one-harbor-balls")
+        armed = self._three_gauntlet_armed()
+        cleared = self._three_bikers_cleared()
         if here == ONE_HARBOR:
+            # Unarmed: Two Island Game Corner first. Armed/cleared: straight to Three.
+            return self.sail(TWO_HARBOR if not armed else THREE_HARBOR)
+        if here == TWO_HARBOR:
+            if not armed:
+                return self.enter_step((8, 2), TWO_ISLAND, "two-town-prime")
             return self.sail(THREE_HARBOR)
         if here == TWO_ISLAND:
+            if not armed:
+                return self.prime_lostelle_quest()
             return self.enter_step((10, 8), TWO_HARBOR, "two-harbor-balls")
-        if here == TWO_HARBOR:
-            return self.sail(THREE_HARBOR)
+        if here == GAME_CORNER:
+            return self.prime_lostelle_quest()
         if here == THREE_HARBOR:
+            if not armed and not cleared:
+                return self.sail(TWO_HARBOR)          # bounce for Game Corner arm
             return self.enter_step((8, 2), THREE_PORT, "three-port-balls")
         if here == THREE_PORT:
+            if not armed and not cleared:
+                return self.enter_step((12, 13), THREE_HARBOR, "port-harbor-for-prime")
             return self.cross_edge("north", "to-three-town-balls")
         if here == THREE_MART:
             # buy_at_mart owns enter/exit from the overworld — if we're inside, walk out.
             return self.enter_step((4, 7), THREE_ISLAND, "mart-out") or True
         if here == THREE_ISLAND:
+            if not cleared:
+                if not armed:
+                    # Stuck on the talk-only pack (LIVE screenshot) — Port → Two → arm.
+                    return self.cross_edge("south", "to-port-for-prime")
+                return self.clear_three_island_bikers()
             return True                       # run() buys here
         return False
 
     def buy_ultra_war_chest(self):
         """Standing on Three Island: buy Ultras up to HUNT_ULTRA_TARGET. Marks the trip done
         on any successful purchase (wallet may stop short of the full target)."""
+        if not self._three_bikers_cleared():
+            if not self.clear_three_island_bikers():
+                self.log("!! [hunt] war-chest buy blocked — biker pack still on the Mart "
+                         "road (LOUD)")
+                return False
         have0 = self._ultra_count()
         want = self._ultra_target()
         need = max(0, want - have0)
@@ -1671,6 +1859,13 @@ class MoltresHunt(LegendaryHunt):
                         self._ball_restock_fail(f"drifted to {here} mid-return")
                         continue
                     if here == THREE_ISLAND:
+                        # Mart is north of the biker pack — clear (or bounce to Game
+                        # Corner to arm) before buy_at_mart thrash-talks the crowd.
+                        if not self._three_bikers_cleared():
+                            if not self.leg_to_ball_mart(here):
+                                self._ball_restock_fail(
+                                    f"biker roadblock @ {tv.coords(b)}")
+                            continue
                         if self.buy_ultra_war_chest():
                             self._ball_restock_returning = True
                             try:
@@ -1682,8 +1877,8 @@ class MoltresHunt(LegendaryHunt):
                         continue
                     if here in (EMBER_SUMMIT, EMBER_EXT, EMBER_3F, EMBER_2F, EMBER_1F,
                                 KINDLE, ONE_PC, ONE_ISLAND, ONE_HARBOR,
-                                TWO_ISLAND, TWO_HARBOR, THREE_HARBOR,
-                                THREE_PORT, THREE_MART):
+                                TWO_ISLAND, TWO_HARBOR, GAME_CORNER,
+                                THREE_HARBOR, THREE_PORT, THREE_MART):
                         if not self.leg_to_ball_mart(here):
                             self._ball_restock_fail(
                                 f"descent wedged on {here} @ {tv.coords(b)}")

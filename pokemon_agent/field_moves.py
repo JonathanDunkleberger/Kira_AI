@@ -87,14 +87,35 @@ _DELTA_KEY = {(0, 1): "DOWN", (0, -1): "UP", (-1, 0): "LEFT", (1, 0): "RIGHT"}
 
 
 # ── Flag / RAM reads ─────────────────────────────────────────────────────────
+# SaveBlock1 layout (pret/pokefirered include/global.h): flags @ 0x0EE0, vars @ 0x1000.
+_SB1_FLAGS_OFF = 0x0EE0
+_SB1_VARS_OFF = 0x1000
+_VARS_START = 0x4000
+
+
 def read_flag(bridge, flag):
     """Read any game FLAG from the SaveBlock1 flag array (base + 0x0EE0). Same read
     as campaign.has_badge, generalized to any flag id."""
     sb1 = bridge.rd32(ram.GSAVEBLOCK1_PTR)
     if not ram.valid_ewram_ptr(sb1):
         return False
-    fa = sb1 + 0x0EE0 + (flag >> 3)
+    fa = sb1 + _SB1_FLAGS_OFF + (flag >> 3)
     return bool(bridge.rd8(fa) & (1 << (flag & 7)))
+
+
+def read_var(bridge, var_id):
+    """Read a SaveBlock1 vars[] u16. `var_id` is the constants/vars.h id (VARS_START=0x4000).
+    Used for map-scene gates (Three Island bikers, Joyful Game Corner Lostelle arm)."""
+    sb1 = bridge.rd32(ram.GSAVEBLOCK1_PTR)
+    if not ram.valid_ewram_ptr(sb1):
+        return 0
+    idx = int(var_id) - _VARS_START
+    if idx < 0 or idx >= 0x100:          # VARS_COUNT = 0x100
+        return 0
+    try:
+        return int(bridge.rd16(sb1 + _SB1_VARS_OFF + idx * 2))
+    except Exception:
+        return 0
 
 
 def set_flag(bridge, flag):
@@ -106,7 +127,7 @@ def set_flag(bridge, flag):
     sb1 = bridge.rd32(ram.GSAVEBLOCK1_PTR)
     if not ram.valid_ewram_ptr(sb1):
         return False
-    fa = sb1 + 0x0EE0 + (flag >> 3)
+    fa = sb1 + _SB1_FLAGS_OFF + (flag >> 3)
     bridge.core.memory.u8[fa] = bridge.rd8(fa) | (1 << (flag & 7))
     return read_flag(bridge, flag)
 
