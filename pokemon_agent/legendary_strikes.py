@@ -179,6 +179,16 @@ ARTICUNO_ASCENT = [
     (B1F, [(10, 6)], F1),
     (F1, [(6, 21), (32, 21)], R20),
 ]
+# East pocket (elev-4 landings at B4F (15,9)/(32,5)): west holes (8,17)/(9,17) are
+# walk-unreachable ("sealed pocket" — soak 20260807_112459). Climb the matching
+# east UP ladders from pret map.json (never re-step B3F (12,9)/(29,5) downs).
+ARTICUNO_ASCENT_EAST = [
+    (B4F, [(32, 5), (15, 9)], B3F),
+    (B3F, [(31, 4), (31, 16)], B2F),
+    (B2F, [(32, 14), (25, 19)], B1F),
+    (B1F, [(31, 4), (28, 19)], F1),
+    (F1, [(32, 21), (6, 21)], R20),
+]
 
 
 class LegendaryHunt(GiovanniGym):
@@ -1152,6 +1162,33 @@ class ArticunoHunt(LegendaryHunt):
         return (not fm.read_flag(b, FLAG_HIDE_B4F_BOULDER_1)
                 and not fm.read_flag(b, FLAG_HIDE_B4F_BOULDER_2))
 
+    def _east_b4f_pocket(self):
+        """True when standing in the elev-4 east landings — west holes are sealed from here."""
+        if tuple(tv.map_id(self.b)) != B4F:
+            return False
+        try:
+            cur = tuple(tv.coords(self.b) or ())
+        except Exception:
+            return False
+        # pret B4F: west holes at x=8/9; east landings at (15,9)/(32,5).
+        return bool(cur) and cur[0] >= 12
+
+    def climb_out(self, label):
+        """Leave Seafoam for R20. Prefer the column she can actually reach — west-first
+        from the Articuno dam, east-first from the elev-4 sealed pocket (soak 20260807)."""
+        primary, fallback, tag = (
+            (ARTICUNO_ASCENT_EAST, ARTICUNO_ASCENT, "east")
+            if self._east_b4f_pocket()
+            else (ARTICUNO_ASCENT, ARTICUNO_ASCENT_EAST, "west")
+        )
+        if self.ride(primary, R20, label):
+            return True
+        if tuple(tv.map_id(self.b)) == R20:
+            return True
+        self.log(f"   [articuno] {tag} ascent stalled — trying alternate column "
+                 f"({label}) (LOUD)")
+        return self.ride(fallback, R20, f"{label}-alt")
+
     def run(self):
         b = self.b
         here = tuple(tv.map_id(b))
@@ -1165,7 +1202,7 @@ class ArticunoHunt(LegendaryHunt):
             self.log("   [articuno] B4F current NOT stopped (0x2D3 clear / B4F boulders "
                      "absent) — bird water is a rip; refusing (LOUD)")
             if here in {F1, B1F, B2F, B3F, B4F}:
-                self.ride(ARTICUNO_ASCENT, R20, "ascent-unsafe")
+                self.climb_out("ascent-unsafe")
             return "failed"
         if here == R20:
             # East door (60,8) lands F1 near the WEST down-chain (10,6). West door (72,14)
@@ -1189,11 +1226,11 @@ class ArticunoHunt(LegendaryHunt):
         if not self.spent_final() and not self.press_quarry():
             self.log("   [articuno] press failed — ascending to R20 so the lap can move on "
                      "(no B4F softlock) (LOUD)")
-            self.ride(ARTICUNO_ASCENT, R20, "ascent-bail")
+            self.climb_out("ascent-bail")
             return "failed"
         out = self.outcome() or "failed"
-        # walk out on the pinned west ascent (same doctrine — no east fan-out yo-yo)
-        self.ride(ARTICUNO_ASCENT, R20, "ascent")
+        # Prefer the column that matches where the catch resolved (east pocket common).
+        self.climb_out("ascent")
         return out
 
 

@@ -1874,6 +1874,42 @@ def main():
     check("east column lives in ARTICUNO_DESCENT_EAST (whole-table fallback)",
           (31, 4) in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands}
           and (10, 6) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands})
+    # East ascent (pret map.json): elev-4 B4F pocket climbs (32,5)/(15,9) — NOT west
+    # holes (8,17)/(9,17) which are sealed from that pocket (soak 20260807_112459).
+    east_up_b4f = {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+                   if _fl == LS.B4F for t in cands}
+    west_up_b4f = {t for _fl, cands, _d in LS.ARTICUNO_ASCENT
+                   if _fl == LS.B4F for t in cands}
+    check("east ascent leaves B4F via (32,5)/(15,9) only",
+          east_up_b4f == {(32, 5), (15, 9)}
+          and not (east_up_b4f & west_up_b4f))
+    check("east ascent B3F uses UP ladders (31,4)/(31,16), not down holes",
+          {(31, 4), (31, 16)}
+          == {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+              if _fl == LS.B3F for t in cands}
+          and (12, 9) not in {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+                              for t in cands}
+          and (29, 5) not in {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+                              for t in cands})
+    # climb_out prefers east table when standing in the sealed elev-4 pocket.
+    rides40c = []
+    h40c = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40c.b = object()
+    h40c.log = lambda m: None
+    h40c.ride = lambda table, goal, label: (
+        rides40c.append((table, label)), (table is LS.ARTICUNO_ASCENT_EAST))[1]
+    _mi40c, _co40c = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: LS.B4F
+        LS.tv.coords = lambda _b: (32, 5)
+        ok40c = h40c.climb_out("ascent-bail")
+        check("climb_out from B4F (32,5) rides EAST ascent first",
+              ok40c is True
+              and rides40c
+              and rides40c[0][0] is LS.ARTICUNO_ASCENT_EAST
+              and rides40c[0][1] == "ascent-bail")
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40c, _co40c
     # ride() must NOT keep fanning candidates after a surprise map flip (the yo-yo).
     # Simulate: on B1F, first cand "fails" but warps to B2F; second cand must NOT run
     # (old bug: any() kept going and stepped B1F's next tile — often an UP ladder).
