@@ -48,6 +48,8 @@ Decision table under test:
   Three Island Mart behind unarmed biker pack                -> Game Corner prime first,
                                                                 then clear gauntlet (A=YES),
                                                                 THEN buy (never talk-loop)
+  war-chest buy got 0 + wallet < Ultra price                 -> DONE/broke latch, sail home
+                                                                (never Mart re-enter loop)
 + THE VERIFIED RATCHET (2026-08-05 URGENT, the poisoned 'pre-moltres' bank):
   loaded bank has the fought-flag set, quarry uncaught       -> POISONED: ratchet to the
                                                                 next older same-region bank
@@ -1296,6 +1298,34 @@ def main():
           h35e._ball_restock_mode is True
           and any("STAYING on the ferry" in l for l in logs35)
           and not any("engaging with 5" in l for l in logs35))
+
+    # Broke-wallet terminal: buy got 0 + can't afford Ultra → DONE, not fail-stay loop.
+    logs35.clear()
+    h35broke = LS.MoltresHunt.__new__(LS.MoltresHunt)
+    h35broke.b = object()
+    h35broke.log = logs35.append
+    h35broke.QUARRY = {"name": "Moltres"}
+    h35broke.camp = types.SimpleNamespace(
+        on_event=lambda *a, **k: None,
+        money=lambda: 200,
+        buy_at_mart=lambda door, want: {},
+        _balls_pocket_count=lambda i: 8 if i == 2 else 0,
+        _ball_restock_fails={})
+    h35broke.BALL_RESTOCK_WIRED = True
+    h35broke._ultra_target = lambda: 50
+    h35broke._ultra_min_engage = lambda: 20
+    h35broke._three_bikers_cleared = lambda: True
+    ok_broke = h35broke.buy_ultra_war_chest()
+    check("broke wallet + bought 0 -> True (leave Mart), not False fail-stay",
+          ok_broke is True
+          and h35broke._ball_restock_done is True
+          and h35broke._ball_restock_broke is True
+          and any("WALLET EMPTY" in l for l in logs35))
+    logs35.clear()
+    # Broke latch must block re-arm even when pocket is under the engage floor.
+    check("broke latch blocks thin-pocket ferry re-arm",
+          h35broke._maybe_arm_ball_restock() is False
+          and any("wallet emptied" in l for l in logs35))
 
     print("== 36. WAR-CHEST FERRY: Kindle Traveler west + catch_now truce + early arm ==")
     import time as _time

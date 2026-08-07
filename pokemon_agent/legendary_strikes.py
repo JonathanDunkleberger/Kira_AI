@@ -324,6 +324,49 @@ class LegendaryHunt(GiovanniGym):
         except Exception:
             return 20
 
+    # Ultra Ball shelf price (FRLG Poké Mart) — war-chest affordability gate.
+    ULTRA_BALL_PRICE = 1200
+
+    def _money(self):
+        try:
+            return int(self.camp.money() or 0)
+        except Exception:
+            return 0
+
+    def _shop_money_floor(self):
+        try:
+            import campaign as _C
+            return int(getattr(_C, "SHOP_MONEY_FLOOR", 500) or 500)
+        except Exception:
+            return 500
+
+    def _wallet_can_buy_ultra(self):
+        """True if the wallet can afford ≥1 Ultra after the shop money floor."""
+        return self._money() >= self._shop_money_floor() + self.ULTRA_BALL_PRICE
+
+    def _mark_war_chest_broke(self, have, want):
+        """Wallet can't buy another Ultra — end the ferry trip (never Mart-loop).
+        LIVE 2026-08-06: buy returned 0 → _ball_restock_fail stayed on ferry below
+        the engage floor → infinite re-enter/buy at Three Island Mart."""
+        self._ball_restock_done = True
+        self._ball_restock_broke = True
+        try:
+            self.camp._ball_restock_done = True
+            self.camp._ball_restock_broke = True
+        except Exception:
+            pass
+        money = self._money()
+        self.log(f"   [hunt] !!!! WAR-CHEST WALLET EMPTY — ¥{money} can't buy Ultra "
+                 f"(need ≥¥{self._shop_money_floor() + self.ULTRA_BALL_PRICE}); "
+                 f"pocket {have}/{want}. accepting the stack, leaving the Mart "
+                 f"(no buy loop) (LOUD)")
+        try:
+            self.camp.on_event(
+                f"broke. {have} Ultras is what the wallet bought — climbing with that.",
+                kind="legendary", tier=2)
+        except Exception:
+            pass
+
     def _set_ball_restock_mode(self, on):
         """Mirror restock mode onto camp + battle_agent.BALL_RESTOCK_MODE so the battle
         runner (no camp handle) suppresses catch_now mid-ferry."""
@@ -382,12 +425,22 @@ class LegendaryHunt(GiovanniGym):
         if have >= want:
             self.log(f"   [hunt] Ultra pocket at target ({have}>={want}) — no restock")
             return False
+        # Broke latch outranks the thin-pocket re-arm — empty wallet at the Mart must
+        # NOT bounce her back into the buy loop (LIVE 2026-08-06).
+        broke = bool(getattr(self, "_ball_restock_broke", False)
+                     or getattr(self.camp, "_ball_restock_broke", False))
+        if broke:
+            self.log(f"   [hunt] Ultra war-chest wallet emptied this run "
+                     f"({have}/{want} Ultras, ¥{self._money()}) — ENGAGING with the "
+                     f"pocket we have (no Mart loop) (LOUD)")
+            return False
         if have >= floor and done:
             self.log(f"   [hunt] Ultra war-chest already filled this run ({have}/{want}, "
                      f"floor {floor}) — ENGAGING with the pocket we bought (LOUD)")
             return False
         if have < floor and done:
             # Soft-reload / preferred-bank pin undid the stack — burn the latch, buy again.
+            # (Skipped when broke — see latch above.)
             self._ball_restock_done = False
             self.log(f"   [hunt] !!!! Ultra pocket COLLAPSED to {have} (floor {floor}) — "
                      f"clearing war-chest done-latch, RE-ARMING the ferry (LOUD)")
@@ -1600,7 +1653,11 @@ class MoltresHunt(LegendaryHunt):
 
     def buy_ultra_war_chest(self):
         """Standing on Three Island: buy Ultras up to HUNT_ULTRA_TARGET. Marks the trip done
-        on any successful purchase (wallet may stop short of the full target)."""
+        on any successful purchase (wallet may stop short of the full target).
+
+        Empty wallet after the shop pass is SUCCESS for routing purposes (return home with
+        whatever she has) — never False, or run() → _ball_restock_fail stays on the ferry
+        below the engage floor and re-enters the Mart forever (LIVE 2026-08-06)."""
         if not self._three_bikers_cleared():
             if not self.clear_three_island_bikers():
                 self.log("!! [hunt] war-chest buy blocked — biker pack still on the Mart "
@@ -1612,8 +1669,13 @@ class MoltresHunt(LegendaryHunt):
         if need <= 0:
             self._ball_restock_done = True
             return True
+        # Already broke before the counter — still enter once so sell-loot can fund a buy;
+        # if the pocket is already past the floor, skip the door entirely.
+        if not self._wallet_can_buy_ultra() and have0 >= self._ultra_min_engage():
+            self._mark_war_chest_broke(have0, want)
+            return True
         self.log(f"   [hunt] !!!! ULTRA WAR-CHEST BUY — {have0}/{want} Ultras, buying up to "
-                 f"{need} at Three Island Mart (LOUD)")
+                 f"{need} at Three Island Mart (¥{self._money()}) (LOUD)")
         try:
             bought = self.camp.buy_at_mart(THREE_MART_DOOR, [(2, need)]) or {}
         except Exception as e:
@@ -1621,7 +1683,8 @@ class MoltresHunt(LegendaryHunt):
             bought = {}
         got = int(bought.get(2, 0) or 0)
         have1 = self._ultra_count()
-        self.log(f"   [hunt] war-chest buy done — +{got} Ultra(s), pocket now {have1}/{want}")
+        self.log(f"   [hunt] war-chest buy done — +{got} Ultra(s), pocket now {have1}/{want} "
+                 f"(¥{self._money()})")
         if got > 0 or have1 > have0:
             self._ball_restock_done = True
             try:
@@ -1635,6 +1698,14 @@ class MoltresHunt(LegendaryHunt):
                     pref["moltres"] = ()
             except Exception:
                 pass
+            # Bought what the wallet allowed — even if under TARGET, the trip is done.
+            # If still broke and under floor, latch broke so we don't re-arm forever.
+            if not self._wallet_can_buy_ultra() and have1 < want:
+                self._ball_restock_broke = True
+                try:
+                    self.camp._ball_restock_broke = True
+                except Exception:
+                    pass
             try:
                 self.camp.on_event(
                     f"war-chest loaded — {have1} Ultra Balls. back up the mountain.",
@@ -1642,6 +1713,11 @@ class MoltresHunt(LegendaryHunt):
             except Exception:
                 pass
             return True
+        # Bought nothing. Wallet empty for Ultras → accept + leave (no fail-stay loop).
+        if not self._wallet_can_buy_ultra() or self._money() < self.ULTRA_BALL_PRICE:
+            self._mark_war_chest_broke(have1, want)
+            return True
+        # Real wedge (couldn't enter / cursor stuck) with money still on the table.
         return False
 
     def leg_from_ball_mart(self, here):
