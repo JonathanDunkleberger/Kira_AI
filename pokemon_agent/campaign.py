@@ -2305,6 +2305,21 @@ class Campaign:
                             log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door} (short-step)")
                             self._learn_transit()
                             return "warped"
+                # Standing ON a Seafoam ladder we just climbed — LEFT/FORWARD off it, do NOT
+                # press UP back into the hole (EXIT-BUILDING yo-yo). Ordinary PC/house mats
+                # still need the on-tile step_key press below.
+                if (before, tuple(door)) in getattr(self, "_banned_arrival_warps", set()):
+                    log(f"   door {door}: banned landing — stepping OFF, not re-entering")
+                    self._step_off_arrival_warp()
+                    continue
+                if (before in self._SEAFOAM_DUNGEON
+                        and tuple(tv.coords(self.b)) == tuple(door)):
+                    self._step_off_arrival_warp()
+                    if tuple(tv.map_id(self.b)) != before:
+                        self._learn_transit()
+                        return "warped"
+                    if tuple(tv.coords(self.b)) != tuple(door):
+                        continue  # left the hole — try the next (surface-ward) candidate
                 log(f"   door {door}: at {tv.coords(self.b)} (approach={approach}) — stepping {step_key} in")
                 for _ in range(10):
                     self.b.press(step_key, 8, 8, self.render, owner="agent")
@@ -2312,6 +2327,8 @@ class Campaign:
                     if tv.map_id(self.b) != before:
                         log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door} (on-tile)")
                         self._learn_transit()
+                        if tuple(tv.map_id(self.b)) in self._SEAFOAM_DUNGEON:
+                            self._step_off_arrival_warp()
                         return "warped"
             if tv.bfs(grid, tv.coords(self.b), lambda t: t == approach,
                       walkable=_wk):
@@ -21851,6 +21868,89 @@ class Campaign:
             log(f"   !! EXIT: guard engagement failed ({_ge}) — walking on")
         return False
 
+    # Seafoam interiors (pret map_groups): deeper floors have HIGHER map nums.
+    # Exit must climb toward F1 (1,83) / R20 — never re-drop toward B4F (1,87).
+    _SEAFOAM_DUNGEON = {(1, 83), (1, 84), (1, 85), (1, 86), (1, 87)}
+
+    def _step_off_arrival_warp(self):
+        """Ladder landing law (Jonny 2026-08-07): FRLG leaves you ON the warp tile.
+        FORWARD is blocked → she reverses → walks back into the hole. LEFT off the
+        ladder immediately, then one more step into the open room. Returns True if
+        she is (or is now) off every warp tile on this map."""
+        b = self.b
+        try:
+            cur = tuple(tv.coords(b) or ())
+        except Exception:
+            return False
+        if not cur:
+            return False
+        try:
+            wts = {tuple(w[0]) for w in tv.read_warps(b)}
+        except Exception:
+            return False
+        if cur not in wts:
+            return True
+        m0 = tuple(tv.map_id(b))
+        hole = cur
+        grid = tv.Grid(b)
+        surf = self._surf_usable()
+        wk = grid.walkable_or_surf if surf else grid.walkable
+        # LEFT first (hard), then DOWN/back — never UP first (re-fall face on Seafoam).
+        for key, (dx, dy) in (("LEFT", (-1, 0)), ("DOWN", (0, 1)),
+                              ("RIGHT", (1, 0)), ("UP", (0, -1))):
+            n = (hole[0] + dx, hole[1] + dy)
+            if n in wts:
+                continue
+            try:
+                if not wk(*n):
+                    continue
+            except Exception:
+                continue
+            b.press(key, 8, 8, self.render, owner="agent")
+            for _ in range(40):
+                b.run_frame()
+            if tuple(tv.map_id(b)) != m0:
+                log(f"   [ladder] !! step-off re-fired warp {m0} -> {tv.map_id(b)} (LOUD)")
+                return False
+            now = tuple(tv.coords(b) or ())
+            if not now or now in wts:
+                continue
+            log(f"   [ladder] stepped OFF landing {hole} -> {now} via {key}")
+            # Second beat: FORWARD into the room (continue LEFT, else any step away from hole).
+            d0 = abs(now[0] - hole[0]) + abs(now[1] - hole[1])
+            for key2, (dx2, dy2) in ((key, (dx, dy)), ("LEFT", (-1, 0)),
+                                     ("UP", (0, -1)), ("DOWN", (0, 1)),
+                                     ("RIGHT", (1, 0))):
+                n2 = (now[0] + dx2, now[1] + dy2)
+                if n2 == hole or n2 in wts:
+                    continue
+                if abs(n2[0] - hole[0]) + abs(n2[1] - hole[1]) < d0:
+                    continue
+                try:
+                    if not wk(*n2):
+                        continue
+                except Exception:
+                    continue
+                b.press(key2, 8, 8, self.render, owner="agent")
+                for _ in range(40):
+                    b.run_frame()
+                if tuple(tv.map_id(b)) != m0:
+                    return False
+                now2 = tuple(tv.coords(b) or ())
+                if now2 and now2 not in wts and now2 != hole:
+                    log(f"   [ladder] FORWARD into room {now} -> {now2} via {key2}")
+                    # Remember so exit candidates skip this hole this call.
+                    if not hasattr(self, "_banned_arrival_warps"):
+                        self._banned_arrival_warps = set()
+                    self._banned_arrival_warps.add((m0, hole))
+                    return True
+            if not hasattr(self, "_banned_arrival_warps"):
+                self._banned_arrival_warps = set()
+            self._banned_arrival_warps.add((m0, hole))
+            return True
+        log(f"   [ladder] !! on warp {hole} with no LEFT/FORWARD egress (LOUD)")
+        return False
+
     def _exit_to_overworld(self, max_tries=5):
         """From INSIDE any building (PC / house / Mart / lab — map group != 3, the Kanto overworld),
         return to the walkable overworld. The general recovery primitive every blackout respawn needs.
@@ -21864,6 +21964,7 @@ class Campaign:
         self.b.set_input_owner("agent")
         taken = set()
         _elev_seen = set()
+        self._banned_arrival_warps = set()
         # PERSISTENT ROW CURSOR (shift 6, the scope-regrade ride waste): the row schedule used
         # to reset to 0 every call, so every leave_building tick re-burned the default/current-
         # floor rows before reaching one that rides (the bag TRUE-row cursor law, applied here).
@@ -21874,6 +21975,13 @@ class Campaign:
             if tv.map_id(self.b)[0] == 3:
                 return True
             before = tuple(tv.map_id(self.b))
+            # SEAFOAM ladders only — leave the arrival warp BEFORE picking the next door,
+            # or enter_warp stands on (12,9) and steps UP straight back down the hole
+            # (soak 20260807_112459 EXIT-BUILDING yo-yo). Do NOT run this in Centers/
+            # houses: those exit mats need an on-tile press.
+            if before in self._SEAFOAM_DUNGEON:
+                self._step_off_arrival_warp()
+                before = tuple(tv.map_id(self.b))
             cur = tuple(tv.coords(self.b))
             # ELEVATOR CAR (2026-07-08 shift 5, the banked_SCOPE 412-wedge class): a room whose
             # EVERY warp is dynamic ((127,127)) is an elevator — its door just steps back onto
@@ -21914,12 +22022,26 @@ class Campaign:
             def _gd(t):
                 d = _dest.get(t)
                 return grad.get(f"{d[0]},{d[1]}", 999) if d else 999
-            fresh = [w for w in cands if (before, w) not in taken]
+            banned = getattr(self, "_banned_arrival_warps", set())
+            fresh = [w for w in cands
+                     if (before, w) not in taken and (before, w) not in banned]
+            # SEAFOAM EXIT GRADIENT: deeper floors have higher map nums (B4F=87 … F1=83).
+            # Prefer warps whose dest map_num is SMALLER (toward the surface / R20). A
+            # dest deeper than `before` is a re-drop — deprioritize hard (soak yo-yo).
+            def _seafoam_depth(t):
+                d = _dest.get(t)
+                if not d:
+                    return 0
+                if before in self._SEAFOAM_DUNGEON and d in self._SEAFOAM_DUNGEON:
+                    # lower map num = closer to surface = better (sort ascending)
+                    return d[1] - before[1]   # negative = climbing out; positive = dropping
+                return 0
             # within a tier, an ACTUATABLE warp (a behavior the directional table can fire) beats a
             # dead arrival-mat: the Center's exit row is (6,8)/(7,8)/(8,8) but only (7,8) is the 0x65
             # arrow that actually fires — trying the dead mats first burned a travel leg each.
             cands = sorted(fresh or cands,
                            key=lambda t: (t not in street,
+                                          _seafoam_depth(t),
                                           _gd(t),
                                           self._tile_behavior(*t) not in self._WARP_ENTRY,
                                           abs(t[0] - cur[0]) + abs(t[1] - cur[1])))
@@ -21935,6 +22057,17 @@ class Campaign:
                 if tuple(tv.map_id(self.b)) != before:
                     moved = True
                     break
+                # Never re-enter the hole we just climbed out of this call.
+                if (before, tuple(wt)) in banned:
+                    log(f"   EXIT: door {wt} banned (just stepped off this landing) — skip")
+                    continue
+                # SEAFOAM: refuse a warp that drops deeper (B3F→B4F) while exiting.
+                _dwt = _dest.get(tuple(wt))
+                if (before in self._SEAFOAM_DUNGEON and _dwt in self._SEAFOAM_DUNGEON
+                        and _dwt[1] > before[1]):
+                    log(f"   EXIT: door {wt} -> {_dwt} drops deeper in Seafoam — skip (LOUD)")
+                    taken.add((before, wt))
+                    continue
                 # SEALED-DOOR SKIP (shift 6, the B1F barrier lobby): don't burn a travel budget
                 # + the enter_warp approach fan (≈6 travel wedges) on a door her feet provably
                 # can't reach right now. NOT added to `taken` — the flood check is per-tick truth,

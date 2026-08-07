@@ -209,6 +209,9 @@ class LegendaryHunt(GiovanniGym):
         super().__init__(camp, log, dbg_dir)
         self.deadline = time.time() + 1500
         self._catch_retries = 0
+        # Landing warps she just stepped off — sea_walk must not path back onto them
+        # (Seafoam paired up/down ladder yo-yo, Jonny 2026-08-07).
+        self._banned_landings = set()  # {(map_id, tile)}
 
     def _retry_failed_catch(self):
         """After a quarry battle resolves: True = the pre-quarry checkpoint was RELOADED (the
@@ -838,13 +841,59 @@ class LegendaryHunt(GiovanniGym):
             self.log(f"   [fieldheal] strike seam skipped: {e}")
 
     # ── movement ─────────────────────────────────────────────────────────────────────────
+    def _landing_avoid(self, map_id=None):
+        """Warp tiles banned after a ladder step-off on this map (re-entry = instant yo-yo)."""
+        here = map_id if map_id is not None else tuple(tv.map_id(self.b))
+        return {t for (m, t) in getattr(self, "_banned_landings", set()) if m == here}
+
+    def _ladder_forward(self, hole, here, label):
+        """Second beat of the ladder law: after LEFT off the warp, take ONE more step into
+        the open room. Never step back onto `hole`."""
+        b = self.b
+        m0 = tuple(tv.map_id(b))
+        try:
+            wts = {tuple(w[0]) for w in tv.read_warps(b)}
+        except Exception:
+            wts = {hole}
+        g = tv.Grid(b)
+        wset = self.water_save(g)
+        ok0 = self.sea_ok(g, wset)
+        npcs = self.nav_blockers()
+        d0 = abs(here[0] - hole[0]) + abs(here[1] - hole[1])
+        # Continue LEFT first (Jonny: "left and then forward"), then any step that does
+        # not close distance to the hole.
+        order = (("LEFT", (-1, 0)), ("UP", (0, -1)), ("DOWN", (0, 1)), ("RIGHT", (1, 0)))
+        for key, (dx, dy) in order:
+            if time.time() > self.deadline:
+                break
+            n = (here[0] + dx, here[1] + dy)
+            if n == hole or n in wts or n in npcs or n in self._landing_avoid(m0):
+                continue
+            if not ok0(*n):
+                continue
+            if abs(n[0] - hole[0]) + abs(n[1] - hole[1]) < d0:
+                continue
+            self.step_to(n, wset)
+            for _ in range(40):
+                b.run_frame()
+            self.drain()
+            if tuple(tv.map_id(b)) != m0:
+                self.log(f"   [{label}] !! FORWARD re-fired a warp (LOUD)")
+                return False
+            now = tuple(tv.coords(b) or ())
+            if now and now not in wts and now != hole:
+                self.log(f"   [{label}] FORWARD into room {here} -> {now} via {key}")
+                return True
+        return False
+
     def step_off_landing(self, label="landing"):
-        """FRLG leaves you ON the destination warp tile after a ladder/hole. Seafoam's
-        west chain pairs every down-ladder with an up-ladder on the same tile — the next
-        sea_walk often presses toward the open room THROUGH that tile and she falls straight
-        back down (Jonny 2026-08-07: 'must move backward or left, other directions lead
-        nowhere'). Step onto any walkable NON-warp neighbor before planning the next leg.
-        Prefer LEFT/DOWN (the safe egress on the west-chain landings) over UP/RIGHT."""
+        """FRLG leaves you ON the destination warp after a ladder/hole. Seafoam pairs
+        every climb with a drop on the same tile — pressing FORWARD first is blocked, so
+        she reverses then walks straight back into the hole (Jonny 2026-08-07 live).
+
+        Law: LEFT off the warp IMMEDIATELY, then one FORWARD step into the room, and
+        blacklist the hole so the next sea_walk cannot re-enter it. DOWN is the fallback
+        'back' press; UP/RIGHT last (UP is usually the re-fall face)."""
         b = self.b
         try:
             cur = tuple(tv.coords(b) or ())
@@ -862,7 +911,7 @@ class LegendaryHunt(GiovanniGym):
         wset = self.water_save(g)
         ok0 = self.sea_ok(g, wset)
         npcs = self.nav_blockers()
-        # Direction preference matches the live Seafoam pocket: left/back first.
+        # LEFT first — hard doctrine, not a soft sort preference.
         order = (("LEFT", (-1, 0)), ("DOWN", (0, 1)), ("RIGHT", (1, 0)), ("UP", (0, -1)))
         cands = []
         for key, (dx, dy) in order:
@@ -875,8 +924,9 @@ class LegendaryHunt(GiovanniGym):
         if not cands:
             self.log(f"   [{label}] !! on warp {cur} with no safe step-off neighbor (LOUD)")
             return False
-        # Prefer land over water so we don't force a Surf mount just to leave the ladder.
-        cands.sort(key=lambda kn: (kn[1] in wset,))
+        # Within the LEFT-first order, prefer land over water (no Surf mount just to leave).
+        land = [kn for kn in cands if kn[1] not in wset]
+        cands = land + [kn for kn in cands if kn[1] in wset]
         m0 = tuple(tv.map_id(b))
         for key, n in cands:
             if time.time() > self.deadline:
@@ -885,13 +935,16 @@ class LegendaryHunt(GiovanniGym):
             for _ in range(40):
                 b.run_frame()
             self.drain()
-            # A mis-step that re-fires a warp is a hard fail — caller re-legs.
             if tuple(tv.map_id(b)) != m0:
                 self.log(f"   [{label}] !! step-off re-fired a warp {m0} -> {tv.map_id(b)} (LOUD)")
                 return False
             now = tuple(tv.coords(b) or ())
             if now and now not in wts:
                 self.log(f"   [{label}] stepped OFF landing warp {cur} -> {now} via {key}")
+                if not hasattr(self, "_banned_landings") or self._banned_landings is None:
+                    self._banned_landings = set()
+                self._banned_landings.add((m0, cur))
+                self._ladder_forward(cur, now, label)
                 return True
         now = tuple(tv.coords(b) or ())
         return bool(now) and now not in wts
@@ -930,7 +983,10 @@ class LegendaryHunt(GiovanniGym):
             if tuple(tv.map_id(b)) != pre_map:
                 return False  # surprise warp mid-egress — ride() re-legs
             if tuple(tv.coords(b) or ()) not in nbs:
-                if not self.sea_walk(lambda c, s=set(nbs): c in s, f"{label}-approach"):
+                # Never path back onto a ladder we just stepped off (Seafoam yo-yo).
+                ban = self._landing_avoid(pre_map)
+                if not self.sea_walk(lambda c, s=set(nbs): c in s,
+                                     f"{label}-approach", avoid=ban):
                     return False
             # If sea_walk itself fell through a warp, stop — ride() will re-leg.
             if tuple(tv.map_id(b)) != pre_map:
@@ -939,8 +995,16 @@ class LegendaryHunt(GiovanniGym):
                     self.step_off_landing(f"{label}-egress")
                 return ok
             cur = tuple(tv.coords(b) or (0, 0))
+            # Standing on a banned landing — leave again before committing the enter press.
+            if cur in self._landing_avoid(pre_map):
+                self.step_off_landing(f"{label}-reban")
+                cur = tuple(tv.coords(b) or (0, 0))
             key = KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1]))
             m0 = tuple(tv.map_id(b))
+            # Refuse to "enter" the hole we just climbed out of.
+            if tuple(tile) in self._landing_avoid(m0):
+                self.log(f"   [{label}] refusing banned landing warp {tile} (LOUD)")
+                return False
             self.step_to(tile)
             for _ in range(160):
                 b.run_frame()
@@ -1074,7 +1138,9 @@ class LegendaryHunt(GiovanniGym):
             if time.time() > self.deadline:
                 return False
             if tuple(tv.coords(b) or ()) not in nbs:
-                if not self.sea_walk(lambda c, s=set(nbs): c in s, "quarry-approach"):
+                ban = self._landing_avoid()
+                if not self.sea_walk(lambda c, s=set(nbs): c in s, "quarry-approach",
+                                     avoid=ban):
                     return False
             cur = tuple(tv.coords(b) or (0, 0))
             key = KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1]))

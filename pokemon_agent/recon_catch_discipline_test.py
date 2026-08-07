@@ -1825,8 +1825,8 @@ def main():
     print()
 
     print("== 40. ARTICUNO SEAFOAM: pinned west chain + ride() map-flip abort + step-off ==")
-    # step_off_landing: standing ON a warp must press LEFT/DOWN onto a free tile, never
-    # re-enter the ladder (Jonny 2026-08-07 Seafoam yo-yo pics).
+    # step_off_landing: LEFT off the warp IMMEDIATELY, then FORWARD into the room —
+    # never forward-first (blocked → reverse → back down the hole). Jonny 2026-08-07.
     logs40b = []
     coords40 = [(8, 14)]  # landed ON B3F west up-ladder
     pressed40 = []
@@ -1839,6 +1839,7 @@ def main():
     h40b.log = lambda m: logs40b.append(m)
     h40b.camp = types.SimpleNamespace(render=None)
     h40b.drain = lambda *a, **k: None
+    h40b._banned_landings = set()
     h40b.water_save = lambda g: set()
     h40b.sea_ok = lambda g, w: (lambda sx, sy: (sx, sy) != (8, 14))
     h40b.nav_blockers = lambda: set()
@@ -1857,10 +1858,12 @@ def main():
             pass
         LS.tv.Grid = lambda _b: _G40()
         ok_off = h40b.step_off_landing("test")
-        check("step_off_landing leaves the warp via LEFT (not back UP the ladder)",
+        check("step_off_landing LEFT then FORWARD into the room (not back UP the hole)",
               ok_off is True
-              and coords40[0] == (7, 14)
-              and any("stepped OFF landing warp" in l for l in logs40b))
+              and coords40[0] == (6, 14)  # LEFT to (7,14), FORWARD LEFT to (6,14)
+              and any("stepped OFF landing warp" in l for l in logs40b)
+              and any("FORWARD into room" in l for l in logs40b)
+              and (LS.B3F, (8, 14)) in h40b._banned_landings)
     finally:
         LS.tv.read_warps, LS.tv.coords, LS.tv.map_id = _rw40, _co40, _mi40
         LS.tv.Grid = _gr40
