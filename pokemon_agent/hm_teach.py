@@ -448,6 +448,102 @@ class TeachFlow:
                  f"world_back={world_back}) — failed LOUD")
         return "failed"
 
+    def field_escape_rope(self, max_seconds=60):
+        """OVERWORLD Escape Rope (item 85) — dungeon exit with NO party chooser.
+        START -> BAG -> Items -> Escape Rope -> USE -> Yes. Verify by map group
+        flipping to overworld (group 3) OR item qty drop + map change. Seafoam /
+        caves only; outdoors the game refuses and we report 'failed'.
+        Returns 'used' | 'no_item' | 'failed'."""
+        import travel as tv
+        ITEM_ESCAPE_ROPE = 85
+        t0 = time.time()
+        rows = [i for i, _q in items_pocket_rows(self.b)]
+        if ITEM_ESCAPE_ROPE not in rows:
+            return "no_item"
+        row = rows.index(ITEM_ESCAPE_ROPE)
+        if row > 12:
+            self.log(f"   [rope] Escape Rope at bag row {row} — too deep for blind walk (LOUD)")
+            return "failed"
+        qty0 = items_pocket_qty(self.b, ITEM_ESCAPE_ROPE)
+        try:
+            m0 = tuple(tv.map_id(self.b))
+        except Exception:
+            return "failed"
+        if m0[0] == 3:
+            self.log("   [rope] already outdoors — Escape Rope useless here")
+            return "failed"
+        self.b.set_input_owner("agent")
+        self.log(f"   [rope] Escape Rope (bag row {row}) from {m0}")
+        opened = False
+        self._press("START", settle=60)
+        for _ in range(4):
+            c0 = self.b.rd8(START_CURSOR)
+            self._press("DOWN", settle=24)
+            if self.b.rd8(START_CURSOR) != c0:
+                opened = True
+                break
+            self._press("START", settle=60)
+        if not opened or not self._nav_byte(START_CURSOR, 2):
+            self.log("   [rope] !! START menu never opened — aborting")
+            self._b_cascade()
+            return "failed"
+        self._press("A", settle=80)
+        _p0 = self.b.rd8(BAG_POCKET)
+        self._press("RIGHT", settle=20)
+        _live = self.b.rd8(BAG_POCKET) != _p0
+        if not _live:
+            self._press("LEFT", settle=20)
+            _live = self.b.rd8(BAG_POCKET) != _p0
+        if _live:
+            for _ in range(4):
+                if self.b.rd8(BAG_POCKET) == 0:
+                    break
+                self._press("LEFT", settle=20)
+            if self.b.rd8(BAG_POCKET) != 0:
+                self.log("   [rope] !! couldn't reach Items pocket")
+                self._b_cascade()
+                return "failed"
+        else:
+            for _ in range(4):
+                self._press("LEFT", settle=20)
+        for _ in range(row + 8):
+            self._press("UP", settle=12)
+        for _ in range(row):
+            self._press("DOWN", settle=16)
+        self._press("A", settle=50)          # select -> USE/GIVE/TOSS
+        self._press("A", settle=60)          # USE
+        # Confirm "Use the Escape Rope?" — Yes is the default (left / top).
+        self._press("A", settle=40)
+        for _ in range(600):
+            if time.time() - t0 > max_seconds:
+                break
+            self.b.run_frame()
+            try:
+                if getattr(self.c, "render", None):
+                    self.c.render()
+            except Exception:
+                pass
+            try:
+                m1 = tuple(tv.map_id(self.b))
+            except Exception:
+                continue
+            if m1 != m0 and (m1[0] == 3 or items_pocket_qty(self.b, ITEM_ESCAPE_ROPE) < qty0):
+                self._b_cascade()
+                self.log(f"   [rope] VERIFIED Escape Rope {m0} -> {m1}")
+                return "used"
+        self._b_cascade()
+        try:
+            m1 = tuple(tv.map_id(self.b))
+        except Exception:
+            m1 = m0
+        consumed = items_pocket_qty(self.b, ITEM_ESCAPE_ROPE) < qty0
+        if m1 != m0 and (m1[0] == 3 or consumed):
+            self.log(f"   [rope] VERIFIED late Escape Rope {m0} -> {m1}")
+            return "used"
+        self.log(f"   [rope] !! Escape Rope did not warp (still {m1}, "
+                 f"consumed={consumed}) (LOUD)")
+        return "failed"
+
     def field_heal(self, item_id, mon_slot, max_seconds=75):
         """OVERWORLD HP heal (2026-08-05, the Mt. Ember climb: 'she is not healing outside of
         battle when she probably should' — grinding up Kindle Road/Summit Path with the bag
@@ -555,6 +651,103 @@ class TeachFlow:
                      f"item {item_id} consumed (world callback restored)")
             return "healed"
         self.log(f"   [fieldheal] !! NOT healed (hp {hp0}->{hp1} consumed={consumed} "
+                 f"world_back={world_back}) — failed LOUD")
+        return "failed"
+
+    def field_revive(self, item_id, mon_slot, max_seconds=75):
+        """OVERWORLD REVIVE (2026-08-08, Jonny: 'lapras is dead so she needs to revive
+        her'). START -> BAG -> Items -> Revive(24)/Max Revive(25) -> USE -> party
+        `mon_slot` -> A, verify by GROUND TRUTH: item count DROPPED and the slot's HP
+        rose FROM ZERO. Same blind-row-walk / pocket-liveness rails as field_heal.
+        Returns 'revived' | 'no_item' | 'not_fainted' | 'failed' | 'menu_stuck'."""
+        t0 = time.time()
+        rows = [i for i, _q in items_pocket_rows(self.b)]
+        if item_id not in rows:
+            return "no_item"
+        row = rows.index(item_id)
+        if row > 12:
+            self.log(f"   [revive] item {item_id} at bag row {row} — too deep for the "
+                     f"blind walk, skipping (LOUD)")
+            return "failed"
+        qty0 = items_pocket_qty(self.b, item_id)
+        base = ram.GPLAYER_PARTY + mon_slot * PARTY_MON_SIZE
+        hp0, mx = self.b.rd16(base + P_HP), self.b.rd16(base + P_MAXHP)
+        if mx <= 0 or hp0 > 0:
+            return "not_fainted"                     # the game refuses a Revive on the living
+        self.b.set_input_owner("agent")
+        self.log(f"   [revive] field revive: item {item_id} (bag row {row}) -> party slot "
+                 f"{mon_slot} (0/{mx} HP)")
+        opened = False
+        self._press("START", settle=60)
+        for _ in range(4):
+            c0 = self.b.rd8(START_CURSOR)
+            self._press("DOWN", settle=24)
+            if self.b.rd8(START_CURSOR) != c0:
+                opened = True
+                break
+            self._press("START", settle=60)
+        if not opened or not self._nav_byte(START_CURSOR, 2):
+            self.log("   [revive] !! START menu never opened — aborting (B out)")
+            self._b_cascade()
+            return "failed"
+        self._press("A", settle=80)
+        _p0 = self.b.rd8(BAG_POCKET)
+        self._press("RIGHT", settle=20)
+        _live = self.b.rd8(BAG_POCKET) != _p0
+        if not _live:
+            self._press("LEFT", settle=20)
+            _live = self.b.rd8(BAG_POCKET) != _p0
+        if _live:
+            for _ in range(4):
+                if self.b.rd8(BAG_POCKET) == 0:
+                    break
+                self._press("LEFT", settle=20)
+            if self.b.rd8(BAG_POCKET) != 0:
+                self.log("   [revive] !! couldn't reach the Items pocket — aborting")
+                self._b_cascade()
+                return "failed"
+        else:
+            for _ in range(4):
+                self._press("LEFT", settle=20)
+        for _ in range(row + 8):
+            self._press("UP", settle=12)
+        for _ in range(row):
+            self._press("DOWN", settle=16)
+        self._press("A", settle=50)                  # select -> USE/GIVE/TOSS
+        self._press("A", settle=90)                  # USE -> party chooser
+        party_navved = False
+        for _ in range(40):
+            if self.b.rd16(base + P_HP) > 0 and items_pocket_qty(self.b, item_id) < qty0:
+                break
+            if time.time() - t0 > max_seconds:
+                break
+            scr = self._classify()
+            if scr == "party":
+                if not party_navved:
+                    if not self._party_goto(mon_slot):
+                        self.log("   [revive] !! party cursor never reached the slot — B out")
+                        break
+                    party_navved = True
+                    self._press("A", settle=90)
+                else:
+                    self._press("A", settle=60)      # 'X was revived!' text
+            elif scr == "bag" and not party_navved:
+                self._press("A", settle=70)
+            else:
+                self._press("A", settle=50)
+        self._b_cascade()
+        world_back = self._confirm_world_back("revive")
+        hp1 = self.b.rd16(base + P_HP)
+        consumed = items_pocket_qty(self.b, item_id) < qty0
+        if hp1 > 0 and consumed:
+            if not world_back:
+                self.log(f"   [revive] !! revive LANDED (HP 0->{hp1}) but the MENU STACK "
+                         f"never closed — 'menu_stuck' (LOUD)")
+                return "menu_stuck"
+            self.log(f"   [revive] VERIFIED: slot {mon_slot} HP 0 -> {hp1}/{mx}, "
+                     f"item {item_id} consumed")
+            return "revived"
+        self.log(f"   [revive] !! NOT revived (hp 0->{hp1} consumed={consumed} "
                  f"world_back={world_back}) — failed LOUD")
         return "failed"
 

@@ -1,0 +1,914 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 87) coords=(32, 5) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 8 blocked tile(s), 13 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=5252).
+
+   [soul] continuity loaded: 18 roster bond(s), 1074 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 154 place(s) known, 255 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot1 FAINTED (0/110) — likely to blackout soon
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 87)@(32, 5) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 87) coords=(32, 5) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260807_181524_seafoam-islands_8b_37h03m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 87)@(32, 5) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'done', 'zapdos': 'pending', 'repack': 'done'} -> next: zapdos (cost-ordered from (1, 87))
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/zapdos → steps=['surf', 'zapdos'] actionable=zapdos (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'zapdos' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (32, 5) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 87) (32,5) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 87), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 5
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [lap] !! still inside Seafoam (1, 87)@(32, 5) with 'zapdos' owed — climbing to Route 20 BEFORE the questline (LOUD)
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "BLASTOISE used SURF!"'
+
+   [campaign]    [lap-zapdos-hop-egress] stepped OFF landing warp (32, 5) -> (31, 5) via LEFT
+
+   [campaign]    [lap-zapdos-hop-egress] FORWARD into room (31, 5) -> (30, 5) via LEFT
+
+   [campaign]    [lap-zapdos(32, 5)-approach] replan at (30, 5) (len 2, budget 9)
+
+   [campaign]    [lap-zapdos(32, 5)] (1, 87) -> (1, 86) @ (29, 5)
+
+   [campaign]    [lap-zapdos(32, 5)-egress] stepped OFF landing warp (29, 5) -> (28, 5) via LEFT
+
+   [campaign]    [lap-zapdos(32, 5)-egress] FORWARD into room (28, 5) -> (27, 5) via LEFT
+
+   [campaign]    [lap-zapdos(31, 16)-approach] replan at (27, 5) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(31, 16)-approach] no path from (27, 5)
+
+   [campaign]    [lap-zapdos(31, 4)-approach] replan at (27, 5) (len 5, budget 9)
+
+   [campaign]    [lap-zapdos(31, 4)] (1, 86) -> (1, 85) @ (32, 4)
+
+   [campaign]    [lap-zapdos(31, 4)-egress] stepped OFF landing warp (32, 4) -> (31, 4) via LEFT
+
+   [campaign]    [lap-zapdos(31, 4)-egress] FORWARD into room (31, 4) -> (30, 4) via LEFT
+
+   [campaign]    [lap-zapdos(32, 14)-approach] replan at (30, 4) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(32, 14)-approach] no path from (30, 4)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] replan at (30, 4) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] no path from (30, 4)
+
+   [campaign] !! [lap-zapdos] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] east ascent stalled — trying alternate column (lap-zapdos) (LOUD)
+
+   [campaign]    [lap-zapdos-alt(17, 9)-approach] replan at (30, 4) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(17, 9)-approach] no path from (30, 4)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] replan at (30, 4) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] no path from (30, 4)
+
+   [campaign] !! [lap-zapdos-alt] every candidate warp failed on (1, 85)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(30, 4) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (30, 4)->(30, 5) map=(1, 85) (path 8 to exit)
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] stepped OFF landing (29, 8) -> (28, 8) via LEFT
+
+   [campaign]    [ladder] FORWARD into room (28, 8) -> (28, 8) via DOWN
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(28, 11) - LOUD
+
+   [campaign]    [lap] !! Seafoam egress stalled at (1, 85)@(28, 11) — retry next tick (not Zapdos-from-B2F)
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 87)(32, 5) -> (1, 85)(28, 11) (MOVED)
+
+   [campaign]    !! CAMPAIGN SAVE REFUSED [new_area]: mid-battle — not banking a fight rewind target (LOUD)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] AUTO-CHECKPOINT deferred — mid-battle (refuse fight-rewind pin)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 11) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 85) (28,11) f1 -B badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] !! still inside Seafoam (1, 85)@(28, 11) with 'zapdos' owed — climbing to Route 20 BEFORE the questline (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against psyduck — your blastoise is up front'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs psyduck 73/73 | [0]Bite(p60,pp=10,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's psyduck went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [lap-zapdos(17, 9)-approach] replan at (28, 11) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(17, 9)-approach] no path from (28, 11)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] replan at (28, 11) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] no path from (28, 11)
+
+   [campaign] !! [lap-zapdos] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (lap-zapdos) (LOUD)
+
+   [campaign]    [lap-zapdos-alt(32, 14)-approach] replan at (28, 11) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(32, 14)-approach] no path from (28, 11)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] replan at (28, 11) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] no path from (28, 11)
+
+   [campaign] !! [lap-zapdos-alt] every candidate warp failed on (1, 85)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(28, 11) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (28, 11)->(28, 10) map=(1, 85) (path 5 to exit)
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] !! on warp (29, 8) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (29, 8): at (29, 8) (approach=(29, 9)) — stepping UP in
+
+   [campaign]    reachable door (29, 8): walking to approach (29, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (29, 9)
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(29, 12) - LOUD
+
+   [campaign]    [lap] !! Seafoam egress stalled at (1, 85)@(29, 12) — retry next tick (not Zapdos-from-B2F)
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(28, 11) -> (1, 85)(29, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(1, 85) coords=(29, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 85)@(29, 12) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:psyduck was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:psyduck from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 12) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 12)->(29, 11) map=(1, 85) (path 5 to exit)
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] !! on warp (29, 8) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (29, 8): at (29, 8) (approach=(29, 9)) — stepping UP in
+
+   [campaign]    reachable door (29, 8): walking to approach (29, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (29, 9)
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(29, 11) - LOUD
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (29, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 85) (29,11) f1 -B badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] !! still inside Seafoam (1, 85)@(29, 11) with 'zapdos' owed — climbing to Route 20 BEFORE the questline (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs psyduck 77/77 | [0]Bite(p60,pp=9,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's psyduck went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [lap-zapdos(17, 9)-approach] replan at (29, 11) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(17, 9)-approach] no path from (29, 11)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] replan at (29, 11) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] no path from (29, 11)
+
+   [campaign] !! [lap-zapdos] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (lap-zapdos) (LOUD)
+
+   [campaign]    [lap-zapdos-alt(32, 14)-approach] replan at (29, 11) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(32, 14)-approach] no path from (29, 11)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] replan at (29, 11) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] no path from (29, 11)
+
+   [campaign] !! [lap-zapdos-alt] every candidate warp failed on (1, 85)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 11) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 11)->(29, 10) map=(1, 85) (path 4 to exit)
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] !! on warp (29, 8) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (29, 8): at (29, 8) (approach=(29, 9)) — stepping UP in
+
+   [campaign]    reachable door (29, 8): walking to approach (29, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (29, 9)
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(29, 12) - LOUD
+
+   [campaign]    [lap] !! Seafoam egress stalled at (1, 85)@(29, 12) — retry next tick (not Zapdos-from-B2F)
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(29, 11) -> (1, 85)(29, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [ckpt] -> campaign/kira_campaign.state  (map=(1, 85) coords=(29, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260807_181759_seafoam-islands_8b_37h06m_periodic  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 85)@(29, 12) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:psyduck was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:psyduck from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 12) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 12)->(29, 11) map=(1, 85) (path 5 to exit)
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] !! on warp (29, 8) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (29, 8): at (29, 8) (approach=(29, 9)) — stepping UP in
+
+   [campaign]    reachable door (29, 8): walking to approach (29, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (29, 9)
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(29, 10) - LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (29, 10) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 85) (29,10) f1 -B badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 85), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos — get out of here and hit the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos — get out of here and hit the Power Plant'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos — get out of here and hit the Power Plant'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [lap] !! still inside Seafoam (1, 85)@(29, 10) with 'zapdos' owed — climbing to Route 20 BEFORE the questline (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against seel — your blastoise is up front'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 80/80 | [0]Bite(p60,pp=8,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's seel went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 15ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [lap-zapdos(17, 9)-approach] replan at (29, 10) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(17, 9)-approach] no path from (29, 10)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] replan at (29, 10) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] no path from (29, 10)
+
+   [campaign] !! [lap-zapdos] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (lap-zapdos) (LOUD)
+
+   [campaign]    [lap-zapdos-alt(32, 14)-approach] replan at (29, 10) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(32, 14)-approach] no path from (29, 10)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] replan at (29, 10) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] no path from (29, 10)
+
+   [campaign] !! [lap-zapdos-alt] every candidate warp failed on (1, 85)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 10) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 10)->(29, 9) map=(1, 85) (path 3 to exit)
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] !! on warp (29, 8) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (29, 8): at (29, 8) (approach=(29, 9)) — stepping UP in
+
+   [campaign]    reachable door (29, 8): walking to approach (29, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (29, 9)
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(29, 12) - LOUD
+
+   [campaign]    [lap] !! Seafoam egress stalled at (1, 85)@(29, 12) — retry next tick (not Zapdos-from-B2F)
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(29, 10) -> (1, 85)(29, 12) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick4] -> campaign/kira_campaign.state  (map=(1, 85) coords=(29, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 85)@(29, 12) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:seel was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:seel from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 12) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 12)->(29, 11) map=(1, 85) (path 5 to exit)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 6ms]
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] !! on warp (29, 8) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (29, 8): at (29, 8) (approach=(29, 9)) — stepping UP in
+
+   [campaign]    reachable door (29, 8): walking to approach (29, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (29, 9)
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(29, 12) - LOUD
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (29, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 85) (29,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] !! still inside Seafoam (1, 85)@(29, 12) with 'zapdos' owed — climbing to Route 20 BEFORE the questline (LOUD)
+
+   [campaign]    [lap-zapdos(17, 9)-approach] replan at (29, 12) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(17, 9)-approach] no path from (29, 12)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] replan at (29, 12) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos(25, 19)-approach] no path from (29, 12)
+
+   [campaign] !! [lap-zapdos] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (lap-zapdos) (LOUD)
+
+   [campaign]    [lap-zapdos-alt(32, 14)-approach] replan at (29, 12) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(32, 14)-approach] no path from (29, 12)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] replan at (29, 12) (len 0, budget 9)
+
+   [campaign]    [lap-zapdos-alt(25, 19)-approach] no path from (29, 12)
+
+   [campaign] !! [lap-zapdos-alt] every candidate warp failed on (1, 85)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 12) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 12)->(29, 11) map=(1, 85) (path 5 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against seel — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out seel'  fired=True  [age 0.0s + post 10ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 91/91 | [0]Bite(p60,pp=7,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 3/91 | [0]Bite(p60,pp=6,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's seel went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] !! on warp (29, 8) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (29, 8): at (29, 8) (approach=(29, 9)) — stepping UP in
+
+   [campaign]    reachable door (29, 8): walking to approach (29, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (29, 9)
+

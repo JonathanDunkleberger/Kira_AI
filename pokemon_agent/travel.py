@@ -620,9 +620,16 @@ class Traveler:
 
     def __init__(self, bridge, battle_runner, render=None, on_event=None,
                  log=print, owner="agent", beat=None, pause_check=None, stuck_check=None,
-                 blocked_npcs=None, field_clear=None, on_transition=None, spin_assist=None):
+                 blocked_npcs=None, field_clear=None, on_transition=None, spin_assist=None,
+                 watch_hold=None):
         self.b = bridge
         self.battle_runner = battle_runner
+        # DELIBERATE-STILLNESS HOLD (2026-08-08, the Route-12 gate wedge): the NPC
+        # blocker wait stands still up to 12s but the frozen-screen watchdog trips at
+        # 8s — every long gate approach died mid-wait. `watch_hold(reason)` returns a
+        # context manager (campaign.watchdog_hold) marking the wait as thinking-class
+        # stillness. None headless.
+        self.watch_hold = watch_hold
         # SPIN-FLOOR ASSIST (2026-07-08 shift 5, the field_clear pattern): campaign-provided
         # callback `spin_assist(tile) -> bool` — on a spinner floor the walk BFS either reads
         # no_route (pockets crossed only by forced slides) or diverges the instant a plan
@@ -780,6 +787,7 @@ class Traveler:
         promptly (gauntlet trainers must not eat the full wait per fight).
         Returns True when `tile` reads clear (caller resumes the SAME plan/step); False on
         timeout / watchdog / battle / stationary (caller falls through to the old re-path)."""
+        import contextlib
         import pokemon_state as st
         t0 = time.time()
         last = self._npc_tiles()
@@ -787,27 +795,32 @@ class Traveler:
                  f"{NPC_WAIT_TIMEOUT_S:.0f}s for it to wander off (live bodies={sorted(last)})")
         moved = False
         polls = 0
-        while time.time() - t0 < NPC_WAIT_TIMEOUT_S:
-            if self.stuck_check():
-                self.log("   [egress] watchdog disengage during the wait — abandoning patience")
-                return False
-            for _ in range(NPC_WAIT_POLL_FRAMES):
-                self.b.run_frame(); self.render()
-            polls += 1
-            if st.in_battle(self.b):
-                self.log("   [egress] a battle started during the wait — yielding to the handler")
-                return False
-            now = self._npc_tiles()
-            moved = moved or (now != last)
-            last = now
-            if tile not in now:
-                self.log(f"   [egress] blocker cleared off {tile} after {polls} poll(s) "
-                         f"(~{time.time() - t0:.1f}s) — resuming the committed step")
-                return True
-            if require_motion and not moved and (time.time() - t0) > NPC_WAIT_PROBE_S:
-                self.log(f"   [egress] blocker on {tile} hasn't moved in {NPC_WAIT_PROBE_S:.1f}s "
-                         f"— stationary (trainer/squatter); falling back to interact/re-path")
-                return False
+        # The wait is DELIBERATE stillness — hold the frozen-screen watchdog (it trips
+        # at 8s; this wait legally lasts 12s — LIVE 19:31 Route-12 gate leg deaths).
+        _hold = (self.watch_hold("npc-wait") if self.watch_hold is not None
+                 else contextlib.nullcontext())
+        with _hold:
+            while time.time() - t0 < NPC_WAIT_TIMEOUT_S:
+                if self.stuck_check():
+                    self.log("   [egress] watchdog disengage during the wait — abandoning patience")
+                    return False
+                for _ in range(NPC_WAIT_POLL_FRAMES):
+                    self.b.run_frame(); self.render()
+                polls += 1
+                if st.in_battle(self.b):
+                    self.log("   [egress] a battle started during the wait — yielding to the handler")
+                    return False
+                now = self._npc_tiles()
+                moved = moved or (now != last)
+                last = now
+                if tile not in now:
+                    self.log(f"   [egress] blocker cleared off {tile} after {polls} poll(s) "
+                             f"(~{time.time() - t0:.1f}s) — resuming the committed step")
+                    return True
+                if require_motion and not moved and (time.time() - t0) > NPC_WAIT_PROBE_S:
+                    self.log(f"   [egress] blocker on {tile} hasn't moved in {NPC_WAIT_PROBE_S:.1f}s "
+                             f"— stationary (trainer/squatter); falling back to interact/re-path")
+                    return False
         self.log(f"   [egress] wait on {tile} TIMED OUT ({NPC_WAIT_TIMEOUT_S:.0f}s) — "
                  f"re-pathing around it")
         return False
@@ -1164,8 +1177,13 @@ class Traveler:
             # wedges in one graded window). If a marked tile is NEAR (inside the object-cull
             # radius, where the live read is trustworthy) and no body stands on it, the NPC
             # moved on -> un-mark. A squatter that returns re-marks in one failed step.
+            # PINNED BLOCKS (2026-08-08, the Seafoam mouth): terrain lockouts (cave
+            # doors) are NOT wanderer-NPC marks — an empty tile is exactly what a
+            # door looks like. Never stale-release a pinned tile.
+            _pinned = getattr(self, "pinned_blocks", set())
             _stale_marks = {t for t in blocked_here
                             if t not in _fresh_marks and t not in npc
+                            and (cur_map, t) not in _pinned
                             and abs(t[0] - cur[0]) + abs(t[1] - cur[1]) <= 7}
             if _stale_marks:
                 self.log(f"   [travel] releasing {len(_stale_marks)} stale NPC block(s) "

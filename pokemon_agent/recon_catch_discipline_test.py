@@ -595,37 +595,48 @@ def main():
         camp25 = C.Campaign.__new__(C.Campaign)
         camp25.b = object()
         camp25._lap_skipped, camp25._lap_fails = set(), {}
-        pend25 = {"earthquake", "box_bench", "moltres", "articuno", "eevee", "zapdos"}
+        pend25 = {"earthquake", "box_bench", "moltres", "articuno", "zapdos"}
         camp25._lap_pending = lambda k: k in pend25
-        check("summit -> MOLTRES (proximity trump beats earthquake/eevee/everything)",
+        check("summit -> MOLTRES (proximity trump beats earthquake/everything)",
               camp25._victory_lap_next() == "moltres")
-        # Skip: always discard while on the hunt's maps. Fail ledger: once-per-key.
-        camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 6}
+        # Thin skip (fails < MAX): still unskips on the hunt's maps + fail-clears once.
+        camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 2}
         camp25._lap_prox_fail_clears = set()
         camp25._lap_verdict_logged = None
-        check("skipped+failed moltres AT ITS MAP -> unskipped + fail-cleared once",
+        check("thin-skip moltres AT ITS MAP -> unskipped + fail-cleared once",
               camp25._victory_lap_next() == "moltres"
               and "moltres" not in camp25._lap_skipped
               and "moltres" not in camp25._lap_fails
               and "moltres" in camp25._lap_prox_fail_clears)
-        # Fail ledger stays burned after the once-clear; skip still drops every visit.
-        camp25._lap_skipped, camp25._lap_fails = {"moltres"}, {"moltres": 6}
-        check("second proximity visit: skip drops again; fail ledger NOT re-cleared",
-              camp25._victory_lap_next() == "moltres"
-              and "moltres" not in camp25._lap_skipped
-              and camp25._lap_fails.get("moltres") == 6)
-        # cost table sanity: the exact matchup Jonny named
-        check("summit prices: moltres=0, eevee(Celadon)=2 cross-region",
+        # EXHAUSTED skip (fails >= MAX): sticky on Articuno/Seafoam — not Sevii Moltres
+        # (Sevii still unskips so ride-home/RE-ARM can finish). Softlock soak 20260806_222735.
+        pos25["here"] = (1, 87)  # Seafoam B4F
+        camp25e = C.Campaign.__new__(C.Campaign)
+        camp25e.b = object()
+        camp25e._lap_skipped, camp25e._lap_fails = {"articuno"}, {"articuno": 6}
+        camp25e._lap_prox_fail_clears = set()
+        camp25e._lap_verdict_logged = None
+        camp25e._lap_sevii_stranded = lambda: False
+        # pending must honor the skip latch (real _lap_pending does)
+        camp25e._lap_pending = (
+            lambda k: k in {"articuno", "zapdos"} and k not in camp25e._lap_skipped)
+        nxt25 = camp25e._victory_lap_next()
+        check("EXHAUSTED articuno skip at Seafoam STICKS (no proximity unskip)",
+              nxt25 == "zapdos"
+              and "articuno" in camp25e._lap_skipped
+              and camp25e._lap_fails.get("articuno") == 6)
+        # cost table sanity
+        check("summit prices: moltres=0, articuno(R20)=2 cross-region",
               camp25._lap_item_cost("moltres", (1, 101)) == 0
-              and camp25._lap_item_cost("eevee", (1, 101)) == 2)
-        pos25["here"] = tuple(C.CELADON)          # standing in Celadon instead
+              and camp25._lap_item_cost("articuno", (1, 101)) == 2)
+        pos25["here"] = (3, 38)                   # Route 20 — Articuno doorstep
         camp25b = C.Campaign.__new__(C.Campaign)
         camp25b.b = object()
         camp25b._lap_skipped, camp25b._lap_fails = set(), {}
-        pend25b = {"moltres", "articuno", "eevee", "zapdos"}
+        pend25b = {"moltres", "articuno", "zapdos"}
         camp25b._lap_pending = lambda k: k in pend25b
-        check("Celadon -> EEVEE (cost 0 beats the Kanto birds at 1, moltres ferry at 2)",
-              camp25b._victory_lap_next() == "eevee")
+        check("R20 -> ARTICUNO (proximity trump / cost 0 beats moltres ferry)",
+              camp25b._victory_lap_next() == "articuno")
         camp25c = C.Campaign.__new__(C.Campaign)
         camp25c.b = object()
         camp25c._lap_skipped, camp25c._lap_fails = set(), {}
@@ -639,10 +650,10 @@ def main():
         camp25d = C.Campaign.__new__(C.Campaign)
         camp25d.b = object()
         camp25d._lap_skipped, camp25d._lap_fails = set(), {}
-        pend25d = {"eevee", "zapdos"}
+        pend25d = {"articuno", "zapdos"}
         camp25d._lap_pending = lambda k: k in pend25d
         check("moltres CAUGHT -> no trump, lap moves on by cost/order",
-              camp25d._victory_lap_next() in ("eevee", "zapdos"))
+              camp25d._victory_lap_next() in ("articuno", "zapdos"))
     finally:
         C.tv.map_id, C.ram.pokedex_owns = _orig_map25, _orig_owns25
 
@@ -1051,16 +1062,17 @@ def main():
     LS.pst.move_info_full = lambda b, m: _MOVES32.get(m, ("normal", 0, 100))
     try:
         a32 = hunt32._chip_pp_audit()
-        check("audit scores SAFE swings vs Moltres: ace 1 (the lone Bite), party 26",
-              a32 == (True, 1, 26), f"got {a32}")
+        # ace dmgPP = Surf15 + IceBeam10 + Bite1 = 26 (unsafe chips still count as dmg)
+        check("audit scores SAFE swings vs Moltres: ace 1 (the lone Bite), party 26, ace_dmg 26",
+              a32 == (True, 1, 26, 26), f"got {a32}")
         check("the audit line is LOUD and names the quarry",
               any("CHIP-PP AUDIT" in l and "Moltres" in l for l in logs32), f"logs={logs32[:1]}")
         check("fainted slot 2 never audited (only the healthy bench counts)",
               not any("slot2" in l for l in logs32))
         logs32.clear()
         LS.pst.read_party_pp = lambda b, s: [0, 0, 0, 0]
-        check("ZERO damaging PP party-wide -> (False, 0, 0) and SCREAMS (sleep+throw only)",
-              hunt32._chip_pp_audit() == (False, 0, 0)
+        check("ZERO damaging PP party-wide -> (False, 0, 0, 0) and SCREAMS (sleep+throw only)",
+              hunt32._chip_pp_audit() == (False, 0, 0, 0)
               and any("ZERO damaging PP" in l for l in logs32))
     finally:
         LS.pst.read_party_moves = _orig_rpm32
@@ -1182,20 +1194,55 @@ def main():
         check("doorstep AFTER free-retry -> still ENGAGE (no mountain retreat)",
               h34b2._doorstep_or_restore() is False
               and any("ENGAGING NOW" in l and "absolute" in l for l in logs33))
-        # (b3) empty ace at doorstep, no Ether -> soft-reload in place, NEVER Center-retreat
+        # (b3) DRY ace at doorstep (safe=0 AND dmgPP=0), no Ether -> soft-reload in place
         logs33.clear()
         reloads34 = []
         h34b3 = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))
         h34b3._catch_retries = 0
-        h34b3._chip_pp_audit = lambda: (True, 0, 29)
+        h34b3._chip_pp_audit = lambda: (True, 0, 29, 0)   # dry ace, bench has chips
         h34b3._field_ether_ace = lambda: False
         h34b3.camp = types.SimpleNamespace(
-            _reload_hunt_checkpoint=lambda key: (reloads34.append(key), True)[1])
-        check("doorstep + empty ace (no Ether) -> soft-reload in place, ENGAGE (no retreat)",
+            _reload_hunt_checkpoint=lambda key, require_map=None: (
+                reloads34.append((key, require_map)), True)[1])
+        check("doorstep + DRY ace (no Ether) -> soft-reload in place, ENGAGE (no retreat)",
               h34b3._doorstep_or_restore() is False
-              and reloads34 == ["moltres"]
+              and reloads34 == [("moltres", LS.EMBER_SUMMIT)]
               and any("NO mountain retreat" in l for l in logs33)
               and any("ENGAGING NOW" in l for l in logs33))
+        # (b3b) LIVE 2026-08-07: overlevel ace (safe=0, Bite/Surf PP left) at Articuno —
+        # must ENGAGE in ladder mode, NEVER soft-reload (B3F calm teleport).
+        logs33.clear()
+        reloads34b3b = []
+        _orig_map34 = LS.tv.map_id
+        try:
+            LS.tv.coords = lambda b: (9, 3)          # 1 tile from Articuno (9, 2)
+            LS.tv.map_id = lambda b: LS.B4F
+            h34b3b = _mk_hunt33(LS.ArticunoHunt, (True, 0, 55, 48))
+            h34b3b._catch_retries = 0
+            h34b3b._chip_pp_audit = lambda: (True, 0, 55, 48)  # Bite:19+Surf:14 unsafe
+            h34b3b._field_ether_ace = lambda: (_ for _ in ()).throw(AssertionError(
+                "Ether must NOT fire — ace still has damaging PP"))
+            h34b3b.camp = types.SimpleNamespace(
+                _reload_hunt_checkpoint=lambda key, require_map=None: (
+                    reloads34b3b.append((key, require_map)), True)[1])
+            check("doorstep Articuno + overlevel ace (dmgPP>0, safe=0) -> ENGAGE, NO soft-reload",
+                  h34b3b._doorstep_or_restore() is False
+                  and reloads34b3b == []
+                  and any("overlevel" in l and "LADDER MODE" in l for l in logs33)
+                  and any("NO rewind off the bird" in l for l in logs33)
+                  and any("ENGAGING NOW" in l for l in logs33))
+            # (b3c) same coords on B3F must NOT count as Articuno doorstep
+            logs33.clear()
+            LS.tv.map_id = lambda b: LS.B3F
+            h34b3c = _mk_hunt33(LS.ArticunoHunt, (True, 0, 55, 48))
+            h34b3c._chip_pp_audit = lambda: (True, 0, 55, 48)
+            h34b3c._maybe_arm_pp_restore = lambda: True
+            check("B3F coords near Articuno tile -> NOT doorstep (map gate)",
+                  h34b3c._doorstep_or_restore() is True
+                  and not any("AT THE DOORSTEP" in l for l in logs33))
+        finally:
+            LS.tv.map_id = _orig_map34
+            LS.tv.coords = lambda b: (9, 7)          # restore Moltres doorstep for b4
         # (b4) empty ace + Ether restores Bite -> engage WITHOUT soft-reload
         logs33.clear()
         reloads34b4 = []
@@ -1205,12 +1252,13 @@ def main():
         _audit_n = {"n": 0}
         def _audit_b4():
             _audit_n["n"] += 1
-            # first audit empty; after Ether, safe=5
-            return (True, 0, 29) if _audit_n["n"] == 1 else (True, 5, 34)
+            # first audit dry; after Ether, safe=5
+            return (True, 0, 29, 0) if _audit_n["n"] == 1 else (True, 5, 34, 5)
         h34b4._chip_pp_audit = _audit_b4
         h34b4._field_ether_ace = lambda: (_ether_calls.append(1), True)[1]
         h34b4.camp = types.SimpleNamespace(
-            _reload_hunt_checkpoint=lambda key: (reloads34b4.append(key), True)[1])
+            _reload_hunt_checkpoint=lambda key, require_map=None: (
+                reloads34b4.append(key), True)[1])
         check("doorstep + empty ace + Ether restores Bite -> ENGAGE, no soft-reload",
               h34b4._doorstep_or_restore() is False
               and _ether_calls == [1]
@@ -1813,17 +1861,334 @@ def main():
         LS.fm.read_flag = _rf39
     print()
 
-    print("== 40. ARTICUNO SEAFOAM: pinned west chain + ride() map-flip abort ==")
-    # West column only on the primary table — east is a whole alternate, never mixed.
+    print("== 40. ARTICUNO SEAFOAM: pinned west chain + ride() map-flip abort + step-off ==")
+    # step_off_landing: LEFT off the warp IMMEDIATELY, then FORWARD into the room —
+    # never forward-first (blocked → reverse → back down the hole). Jonny 2026-08-07.
+    logs40b = []
+    coords40 = [(8, 14)]  # landed ON B3F west up-ladder
+    pressed40 = []
+    h40b = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40b.b = types.SimpleNamespace(
+        run_frame=lambda: None,
+        press=lambda key, *a, **k: pressed40.append(key),
+        rd8=lambda *_: 0)
+    h40b.deadline = 1e18
+    h40b.log = lambda m: logs40b.append(m)
+    h40b.camp = types.SimpleNamespace(render=None)
+    h40b.drain = lambda *a, **k: None
+    h40b._banned_landings = set()
+    h40b.water_save = lambda g: set()
+    h40b.sea_ok = lambda g, w: (lambda sx, sy: (sx, sy) != (8, 14))
+    h40b.nav_blockers = lambda: set()
+    h40b.step_to = lambda tile, wset=None: (
+        coords40.__setitem__(0, tile), True)[1]
+    _rw40 = LS.tv.read_warps
+    _co40 = LS.tv.coords
+    _mi40 = LS.tv.map_id
+    _gr40 = LS.tv.Grid
+    try:
+        LS.tv.read_warps = lambda _b: [((8, 14), LS.B2F, 0), ((6, 18), LS.B4F, 2)]
+        LS.tv.coords = lambda _b: coords40[0]
+        LS.tv.map_id = lambda _b: LS.B3F
+        # Minimal Grid stub — sea_ok already decides walkability
+        class _G40:
+            pass
+        LS.tv.Grid = lambda _b: _G40()
+        ok_off = h40b.step_off_landing("test")
+        check("step_off_landing LEFT then FORWARD into the room (not back UP the hole)",
+              ok_off is True
+              and coords40[0] == (6, 14)  # LEFT to (7,14), FORWARD LEFT to (6,14)
+              and any("stepped OFF landing warp" in l for l in logs40b)
+              and any("FORWARD into room" in l for l in logs40b)
+              and (LS.B3F, (8, 14)) in h40b._banned_landings)
+    finally:
+        LS.tv.read_warps, LS.tv.coords, LS.tv.map_id = _rw40, _co40, _mi40
+        LS.tv.Grid = _gr40
+    # Corridor column on the primary table — east is a whole alternate, never mixed.
+    # B1F (17,9) NOT (7,3): (7,3)↔B2F(7,4) is sealed from Articuno ladder (7,17).
     west_tiles = {t for _fl, cands, _d in LS.ARTICUNO_DESCENT for t in cands}
-    east_only = {(28, 19), (31, 4), (17, 9), (32, 14), (25, 19),
+    east_only = {(28, 19), (31, 4), (32, 14), (25, 19),
                  (31, 17), (32, 4), (29, 5), (12, 9)}
-    check("primary descent is the west Articuno column",
-          west_tiles == {(10, 6), (7, 3), (7, 17), (6, 18), (9, 18)}
+    check("primary descent is the Articuno corridor (not sealed B2F (7,4) pocket)",
+          west_tiles == {(10, 6), (17, 9), (7, 17), (6, 18), (9, 18)}
+          and (7, 3) not in west_tiles
           and not (west_tiles & east_only))
     check("east column lives in ARTICUNO_DESCENT_EAST (whole-table fallback)",
           (31, 4) in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands}
-          and (10, 6) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands})
+          and (10, 6) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands}
+          and (17, 9) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands})
+    # Ascent from Articuno B3F must leave B2F via corridor UP — not sealed (7,4).
+    west_up_b2f = {t for _fl, cands, _d in LS.ARTICUNO_ASCENT
+                   if _fl == LS.B2F for t in cands}
+    check("west ascent leaves B2F via corridor (17,9)/(25,19), not sealed (7,4)",
+          west_up_b2f == {(17, 9), (25, 19)} and (7, 4) not in west_up_b2f)
+    # East ascent (pret map.json): elev-4 B4F pocket climbs (32,5)/(15,9) — NOT west
+    # holes (8,17)/(9,17) which are sealed from that pocket (soak 20260807_112459).
+    east_up_b4f = {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+                   if _fl == LS.B4F for t in cands}
+    west_up_b4f = {t for _fl, cands, _d in LS.ARTICUNO_ASCENT
+                   if _fl == LS.B4F for t in cands}
+    check("east ascent leaves B4F via (32,5)/(15,9) only",
+          east_up_b4f == {(32, 5), (15, 9)}
+          and not (east_up_b4f & west_up_b4f))
+    check("east ascent B3F uses UP ladders (31,4)/(31,16), not down holes",
+          {(31, 4), (31, 16)}
+          == {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+              if _fl == LS.B3F for t in cands}
+          and (12, 9) not in {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+                              for t in cands}
+          and (29, 5) not in {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+                              for t in cands})
+    # Corridor (31,16) BEFORE sealed (31,4) — soak 20260807 post-Articuno B2F strand.
+    east_b3f_order = next(cands for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+                          if _fl == LS.B3F)
+    check("east ascent B3F prefers (31,16) corridor over sealed (31,4) pocket",
+          east_b3f_order[0] == (31, 16) and (31, 4) in east_b3f_order)
+    # pret B3F Articuno dam: both hole-chains vanish into (6,18)/(9,18).
+    calm_starts = {ch["start"] for ch in LS.ARTICUNO_B3F_CALM["chains"]}
+    calm_vanish = {ch["start"] for ch in LS.ARTICUNO_B3F_CALM["chains"] if ch["vanish_ok"]}
+    check("B3F Articuno calm board drops (6,17) and (12,16) into the B4F holes",
+          (6, 17) in calm_vanish and (12, 16) in calm_vanish
+          and (9, 16) in calm_starts and (13, 16) in calm_starts)
+    check("Articuno approach waypoints are pret CurrentStopped path (15,11)->(9,3)",
+          LS.ARTICUNO_APPROACH_WAYPOINTS[0] == (15, 10)
+          and LS.ARTICUNO_APPROACH_WAYPOINTS[-1] == (9, 3)
+          and (10, 2) in LS.ARTICUNO_APPROACH_WAYPOINTS)
+    # climb_out prefers east table when standing in the sealed elev-4 pocket.
+    rides40c = []
+    h40c = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40c.b = object()
+    h40c.log = lambda m: None
+    h40c.ride = lambda table, goal, label: (
+        rides40c.append((table, label)), (table is LS.ARTICUNO_ASCENT_EAST))[1]
+    _mi40c, _co40c = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: LS.B4F
+        LS.tv.coords = lambda _b: (32, 5)
+        ok40c = h40c.climb_out("ascent-bail")
+        check("climb_out from B4F (32,5) rides EAST ascent first",
+              ok40c is True
+              and rides40c
+              and rides40c[0][0] is LS.ARTICUNO_ASCENT_EAST
+              and rides40c[0][1] == "ascent-bail")
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40c, _co40c
+    # ensure_b4f_calm from east elev-4: egress to R20 then WEST descent to dam —
+    # never hop one floor to east B3F (board starts are west-only; that yo-yos).
+    logs40d, calls40d = [], []
+    maps40d = [LS.B4F]
+    calm40d = [False]
+
+    h40d = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40d.b = object()
+    h40d.log = lambda m: logs40d.append(m)
+    h40d.b4f_water_safe = lambda: calm40d[0]
+    h40d._east_b4f_pocket = lambda: True
+
+    def _climb40d(label):
+        calls40d.append(("climb_out", label))
+        maps40d[0] = LS.R20
+        return True
+
+    def _enter40d(tile, dest, label):
+        calls40d.append(("enter", tile, label))
+        maps40d[0] = LS.F1
+        return True
+
+    def _ride40d(table, goal, label):
+        calls40d.append(("ride", label, list(table)))
+        # West descent to B3F (ARTICUNO_DESCENT without the final B4F drop).
+        if label == "calm-to-b3f" and list(table) == LS.ARTICUNO_DESCENT[:-1]:
+            maps40d[0] = LS.B3F
+            return True
+        return False
+
+    def _board40d(room):
+        calls40d.append(("board", room.get("name")))
+        calm40d[0] = True
+        return True
+
+    h40d.climb_out = _climb40d
+    h40d.enter_step = _enter40d
+    h40d.ride = _ride40d
+    h40d.board_mission = _board40d
+    _mi40d, _co40d = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: maps40d[0]
+        LS.tv.coords = lambda _b: (15, 11)
+        ok40d = h40d.ensure_b4f_calm()
+        check("ensure_b4f_calm from east B4F (15,11) climbs OUT then west dam",
+              ok40d is True
+              and ("climb_out", "calm-egress-east") in calls40d
+              and any(c[0] == "ride" and c[1] == "calm-to-b3f"
+                      and c[2] == LS.ARTICUNO_DESCENT[:-1] for c in calls40d)
+              and ("board", "articuno-b4f-calm") in calls40d
+              and not any(c[0] == "ride" and "east" in str(c[1]) for c in calls40d)
+              and any("east elev-4 + rip" in l for l in logs40d))
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40d, _co40d
+    # B2F west-upper pocket (5,4): sealed from (7,17) — must UP via (7,4) then corridor.
+    # Live soak 20260807: calm-to-b3f no-path from (5,4) → climb_out → re-enter Mt-Moon loop.
+    logs40e, calls40e = [], []
+    maps40e = [LS.B2F]
+    coords40e = [(5, 4)]
+    calm40e = [False]
+
+    h40e = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40e.b = object()
+    h40e.log = lambda m: logs40e.append(m)
+    h40e.b4f_water_safe = lambda: calm40e[0]
+    h40e._east_b4f_pocket = lambda: False
+
+    def _enter40e(tile, dest, label):
+        calls40e.append(("enter", tile, label))
+        if tile == (7, 4) and dest == LS.B1F:
+            maps40e[0] = LS.B1F
+            coords40e[0] = (7, 3)
+            return True
+        return False
+
+    def _ride40e(table, goal, label):
+        calls40e.append(("ride", label, list(table)))
+        if label == "calm-to-b3f" and list(table) == LS.ARTICUNO_DESCENT[:-1]:
+            # Must be invoked FROM B1F after pocket egress — never thrash (7,17) on B2F.
+            if maps40e[0] != LS.B1F:
+                return False
+            maps40e[0] = LS.B3F
+            return True
+        return False
+
+    def _board40e(room):
+        calls40e.append(("board", room.get("name")))
+        calm40e[0] = True
+        return True
+
+    h40e.enter_step = _enter40e
+    h40e.ride = _ride40e
+    h40e.board_mission = _board40e
+    h40e.climb_out = lambda label: (_ for _ in ()).throw(
+        AssertionError(f"climb_out should not run from B2F pocket calm ({label})"))
+    _mi40e, _co40e = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: maps40e[0]
+        LS.tv.coords = lambda _b: coords40e[0]
+        ok40e = h40e.ensure_b4f_calm()
+        check("ensure_b4f_calm from B2F (5,4) pocket climbs UP then corridor dam",
+              ok40e is True
+              and ("enter", (7, 4), "calm-pocket-up") in calls40e
+              and any(c[0] == "ride" and c[1] == "calm-to-b3f"
+                      and c[2] == LS.ARTICUNO_DESCENT[:-1] for c in calls40e)
+              and ("board", "articuno-b4f-calm") in calls40e
+              and any("west-upper pocket" in l for l in logs40e)
+              and (7, 3) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT
+                                 for t in cands})
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40e, _co40e
+    # enter_step must NOT refuse the intentional target after step_off bans it
+    # (soak 20260807: ascent(8,17) banned itself → west climb dead).
+    logs40f, pressed40f = [], []
+    coords40f = [(8, 16)]
+    maps40f = [LS.B4F]
+    h40f = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40f.b = types.SimpleNamespace(
+        run_frame=lambda: None,
+        press=lambda key, *a, **k: (
+            pressed40f.append(key),
+            maps40f.__setitem__(0, LS.B3F) if key in ("UP", "DOWN", "LEFT", "RIGHT")
+            else None),
+        rd8=lambda *_: 0)
+    h40f.deadline = 1e18
+    h40f.log = lambda m: logs40f.append(m)
+    h40f.camp = types.SimpleNamespace(render=None)
+    h40f.drain = lambda *a, **k: None
+    h40f._banned_landings = {(LS.B4F, (8, 17))}  # already banned from a prior -pre
+    h40f.water_save = lambda g: set()
+    h40f.sea_ok = lambda g, w: (lambda sx, sy: True)
+    h40f.nav_blockers = lambda: set()
+    h40f.step_to = lambda tile, wset=None: (
+        coords40f.__setitem__(0, tile), True)[1]
+    h40f.step_off_landing = lambda label: True
+    h40f.sea_walk = lambda pred, tag, avoid=None: (
+        coords40f.__setitem__(0, (8, 16)), True)[1]
+    h40f.handle_interrupts = lambda: False
+    _rw40f, _co40f, _mi40f = LS.tv.read_warps, LS.tv.coords, LS.tv.map_id
+    _beh40f = getattr(LS.tv, "behavior_at", None)
+    _aw40f = getattr(LS.tv, "ARROW_WARP_STEP", None)
+    try:
+        LS.tv.coords = lambda _b: coords40f[0]
+        LS.tv.map_id = lambda _b: maps40f[0]
+        LS.tv.behavior_at = lambda _b, x, y: None
+        LS.tv.ARROW_WARP_STEP = {}
+        ok40f = h40f.enter_step((8, 17), LS.B3F, "ascent")
+        check("enter_step fires intentional target even when landing was banned",
+              ok40f is True
+              and maps40f[0] == LS.B3F
+              and not any("refusing banned landing" in l for l in logs40f)
+              and (LS.B4F, (8, 17)) not in h40f._banned_landings)
+    finally:
+        LS.tv.read_warps, LS.tv.coords, LS.tv.map_id = _rw40f, _co40f, _mi40f
+        if _beh40f is not None:
+            LS.tv.behavior_at = _beh40f
+        if _aw40f is not None:
+            LS.tv.ARROW_WARP_STEP = _aw40f
+    # climb_out from B2F east-upper (30,4): re-drop to B3F then east corridor table.
+    rides40g, enters40g = [], []
+    maps40g = [LS.B2F]
+    h40g = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40g.b = object()
+    h40g.log = lambda m: None
+    h40g._east_b4f_pocket = lambda: False
+    h40g._b2f_west_upper_pocket = lambda: False
+
+    def _enter40g(tile, dest, label):
+        enters40g.append((tile, dest, label))
+        if tile == (32, 4) and dest == LS.B3F:
+            maps40g[0] = LS.B3F
+            return True
+        return False
+
+    def _ride40g(table, goal, label):
+        rides40g.append((table, label))
+        if table is LS.ARTICUNO_ASCENT_EAST:
+            maps40g[0] = LS.R20
+            return True
+        return False
+
+    h40g.enter_step = _enter40g
+    h40g.ride = _ride40g
+    _mi40g, _co40g = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: maps40g[0]
+        LS.tv.coords = lambda _b: (30, 4)
+        ok40g = h40g.climb_out("ascent-alt")
+        check("climb_out from B2F (30,4) east pocket re-drops then rides EAST ascent",
+              ok40g is True
+              and any(t == (32, 4) and d == LS.B3F for t, d, _l in enters40g)
+              and rides40g
+              and rides40g[0][0] is LS.ARTICUNO_ASCENT_EAST
+              and maps40g[0] == LS.R20)
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40g, _co40g
+    # ArticunoHunt.run: caught but still inside → in_seafoam (not silent "caught" on B2F).
+    h40h = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40h.b = object()
+    h40h.log = lambda m: None
+    h40h.spent_final = lambda: True
+    h40h.outcome = lambda: "caught"
+    h40h.ensure_b4f_calm = lambda: True
+    h40h.approach_bird = lambda: True
+    h40h.press_quarry = lambda: True
+    climbed40h = []
+    h40h.climb_out = lambda label: (climbed40h.append(label), False)[1]
+    _mi40h, _co40h = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: LS.B2F
+        LS.tv.coords = lambda _b: (30, 4)
+        out40h = h40h.run()
+        check("ArticunoHunt.run returns in_seafoam when caught but still inside",
+              out40h == "in_seafoam" and climbed40h == ["ascent"])
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40h, _co40h
     # ride() must NOT keep fanning candidates after a surprise map flip (the yo-yo).
     # Simulate: on B1F, first cand "fails" but warps to B2F; second cand must NOT run
     # (old bug: any() kept going and stepped B1F's next tile — often an UP ladder).

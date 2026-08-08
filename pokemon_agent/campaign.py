@@ -383,6 +383,13 @@ ICEBEAM_FETCH_ENABLED = os.getenv("POKEMON_ICEBEAM_FETCH", "1") != "0"
 # Mewtwo. (Mew is event-only distribution hardware — not obtainable by play; Mewtwo IS this
 # cartridge's Mew-class prize.) Disable with POKEMON_LEGENDARY_HUNTS=0.
 LEGENDARY_HUNTS_ENABLED = os.getenv("POKEMON_LEGENDARY_HUNTS", "1") != "0"
+# 2026-08-08 (Zapdos push): the ROUTE 16 HM02 FLY fetch. Fly is a luxury (fast travel) — it is
+# NOT required for Zapdos or the E4. The fetch's final step (enter the hidden house behind the
+# Cut tree and talk to the girl) has no door-hint into the house interior, so the questline
+# reaches Route 16 but can't finish — she paces outside talking to nobody. Default OFF so the
+# lap skips Fly and walks the (repaired) Saffron gate route to Zapdos; re-enable with
+# POKEMON_FLY_FETCH=1 once the house-entry is wired.
+FLY_FETCH_ENABLED = os.getenv("POKEMON_FLY_FETCH", "0") != "0"
 # NS#13: the CINNABAR GYM strike (Blaine, badge 7). Cinnabar is FRLG's SIX quiz-door gym — the general
 # beat_gym clears juniors but never opens the quiz doors, so the leader battle never fires (the bounce the
 # mansion look-ahead surfaced). blaine_gym.run_gym does the FULL tour (quiz chain -> Blaine -> badge ->
@@ -432,13 +439,16 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 #   2. moltres   — Bill still waits in the Cinnabar PC and the R21 sea road south is the road she
 #      just surfed: the Sevii round-trip FIRST (the strike + ride-home hook drive the whole loop);
 #   3. articuno  — Seafoam's Route-20 doors are one map east of Cinnabar (the ride-home dock);
-#   4. eevee     — the Celadon Condominiums roof ball on the walk back north-east (the promised
-#      quest since Celadon; the Jolteon rite picks it up from there);
-#   5. zapdos    — the Route 10 / Power Plant spur last; the League march re-derives from anywhere.
-# 'Honestly skipped' = the hunts' own self-suppression truths (caught/battled-away, Bill gone,
-# Seafoam boulders never dropped) plus a bounded failed-dispatch counter -> a loud '[lap] SKIP' —
-# never an infinite park. While an item is owed the 'victory_lap' action replaces head_to_league
-# on the menu AND force-picks (the order lives in code+logs, not in the oracle's mood).
+#      hunt HARD GATE = ensure_b4f_calm() (drop B3F Articuno boulders → 0x2D3). A live B4F
+#      rip (0x2D3 clear) is NOT an honest skip — she can still solve the dam (soak
+#      20260807_120648: skip↔proximity-unskip every tick, then Zapdos/Fuchsia shuttle).
+#   4. zapdos    — Power Plant (electric for Lorelei/Lance). Eevee/Jolteon is NOT on the lap —
+#      luxury only (POKEMON_EEVEE_FETCH proactive gate); Zapdos is the electric answer and a
+#      Celadon L25 gift would poison the E4 floor grind (Jonny 2026-08-07: credits first).
+# 'Honestly skipped' = the hunts' own self-suppression truths (caught/battled-away, Bill gone)
+# plus a bounded failed-dispatch counter -> a loud '[lap] SKIP' — never an infinite park.
+# While an item is owed the 'victory_lap' action replaces head_to_league on the menu AND
+# force-picks (the order lives in code+logs, not in the oracle's mood).
 # Mewtwo is deliberately NOT on the lap: its gate only arms post-champion (FLAG_SYS_GAME_CLEAR).
 # Disable with POKEMON_VICTORY_LAP=0 (reverts to the straight-at-the-League NS#15 dispatch).
 # ── 2026-08-05 (the 16:19 restart's Cinnabar↔Route-20 loop postmortem): TWO new items ──
@@ -453,9 +463,22 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 # Kill switch: POKEMON_BOX_FLOW=0 removes both items from the checklist entirely (the lap
 # collapses to the original five; passengers ride in the trunk, the E4 sort keeps them last).
 VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
-VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "eevee", "zapdos",
-                     "repack")
+# CREDITS-FIRST order (2026-08-07): no Eevee — Jolteon is optional fluff once Zapdos/Moltres
+# exist; the Celadon detour blocked League after Articuno and under-leveled the E4 floor.
+# Fly BEFORE box_bench (2026-08-08): the ONLY Cut-learner left is Diglett — box_bench wants
+# to bench it for the Zapdos seat, but Fly needs it FIRST to cut the Route 16 tree and fetch
+# HM02. So fly runs, teaches Cut->Diglett, fetches HM02, teaches Fly to a bird, and ONLY THEN
+# does box_bench bench Diglett. (Blastoise/Lapras/birds CANNOT learn Cut in this ROM — the
+# earlier "Blastoise re-learns Cut" assumption was wrong; verified against gTMHMLearnsets.)
+# ice_beam AFTER zapdos: TM13 teach overwrites Blastoise's re-learned Cut, so the
+# Route 16 Fly fetch (Cut-gated) must be done first; the gate self-suppresses until
+# the coin budget is affordable (chat 2026-08-08: 'ice beam for blastoise for E4').
+VICTORY_LAP_ORDER = ("earthquake", "fly", "box_bench", "moltres", "articuno", "zapdos",
+                     "ice_beam", "repack")
 VICTORY_LAP_MAX_FAILS = int(os.getenv("POKEMON_VICTORY_LAP_FAILS", "6"))
+# Sticky exhausted-hunt set: proximity may unskip a thin-ball skip, but NEVER a hunt that
+# already burned VICTORY_LAP_MAX_FAILS (Seafoam B4F softlock — skip/unskip every tick).
+VICTORY_LAP_EXHAUST_STICKY = True
 BOX_FLOW_ENABLED = os.getenv("POKEMON_BOX_FLOW", "1") != "0"
 BOX_BENCH_MAX_LEVEL = int(os.getenv("POKEMON_BOX_BENCH_LEVEL", "22"))  # a 'passenger' rides under this
 BOX_BENCH_MIN_PARTY = 2            # never deposit below ace + one body (whiteout/sacrifice safety)
@@ -981,7 +1004,22 @@ CELADON_DEPT_STONE_FRONT = (5, 13)    # customer side; stones clerk at (3,13)
 ITEM_THUNDER_STONE = 96
 DEPT4F_ROW_THUNDER_STONE = 3
 SPECIES_EEVEE_N, SPECIES_JOLTEON_N = 133, 135
+# Endgame E4 roster (badge-8 victory lap): KEEP these seats; DROP Diglett/Fearow so
+# Zapdos can join and Kadabra/Lapras get the grind (Jonny 2026-08-08: Kadabra over Diglett).
+SPECIES_E4_KEEP = frozenset({
+    7, 8, 9,          # Squirtle → Blastoise (ace)
+    63, 64, 65,       # Abra → Kadabra (psychic sweeper — Bruno/Agatha)
+    131,              # Lapras (bulk / Ice Beam)
+    144, 145, 146,    # Articuno / Zapdos / Moltres
+})
+SPECIES_E4_DROP = frozenset({
+    50, 51,           # Diglett / Dugtrio — Surge job is done at badge 8
+    21, 22,           # Spearow / Fearow — Fly taxi, not an E4 body
+})
 LAVENDER = (3, 4)                 # the graph gateway to Route 7/8/Celadon, reached only across Rock Tunnel (Flash-gated)
+ROUTE5, ROUTE8, ROUTE9 = (3, 23), (3, 26), (3, 27)
+ROUTE10, ROUTE12, ROUTE13 = (3, 28), (3, 30), (3, 31)
+ROUTE14, ROUTE15 = (3, 32), (3, 33)
 # Fuchsia (badge 5, Koga) — door/NPC coords from the disasm (FuchsiaCity/FuchsiaCity_Gym
 # map.json, 2026-07-07); the CITY MAP ID is the city-block extrapolation (Pallet 3,0 ..
 # Celadon 3,6 confirmed live) — EXPECTED until she walks it (a wrong id = beat_gym just
@@ -1716,7 +1754,11 @@ class Campaign:
                                 on_transition=lambda: self._learn_transit(),
                                 # spinner-floor hand-off (shift 5): travel's wedge guard calls
                                 # this ONCE per leg on maps with spin tiles (hideout B2F/B3F)
-                                spin_assist=self._spin_assist)
+                                spin_assist=self._spin_assist,
+                                # NPC blocker waits are deliberate stillness — the 8s
+                                # frozen-screen watchdog must not kill a legal 12s wait
+                                # (LIVE 2026-08-08, the Route-12 gate approach deaths).
+                                watch_hold=self.watchdog_hold)
         # PHASE 2 — HM field-move actuator (Cut/Strength/Surf via the in-game prompt path).
         # Pure-additive; detection is always safe, actuation is gated by FIELD_MOVES_ENABLED.
         try:
@@ -2120,7 +2162,12 @@ class Campaign:
         if tuple(m)[0] != 3:
             log(f"   HEAL: inside a building complex {m} — exiting to the overworld before routing")
             try:
-                self._exit_to_overworld()
+                # Seafoam: Articuno column climb — generic south-prefer exit digs deeper
+                # (soak 20260807 HEAL-RETURN B2F→B3F→B4F yo-yo).
+                if tuple(m) in self._SEAFOAM_DUNGEON:
+                    self._seafoam_surface_egress("heal")
+                else:
+                    self._exit_to_overworld()
             except Exception as _xe:
                 log(f"   HEAL: exit-to-overworld crashed: {_xe!r} (LOUD)")
             m2 = tuple(tv.map_id(self.b))
@@ -2129,6 +2176,10 @@ class Campaign:
                     return ("ok" if self.heal_at_center(CITY_PC_DOORS[m2])
                             in ("healed", "healed_stuck_inside") else "stuck")
                 m = m2                      # continue the ladder from the street
+            elif tuple(m2) in self._SEAFOAM_DUNGEON:
+                log(f"   !! HEAL: still inside Seafoam {m2} after surface egress — "
+                    f"NOT falling through to Viridian south-warp dig (LOUD)")
+                return "stuck"
         # UNMAPPED map, ADJACENT-CITY FIRST (2026-07-06, the Route-6/S.S.-Anne lesson): the LIVE map
         # header knows neighbours she hasn't VISITED yet — the world graph below only routes VISITED
         # nodes, so a first approach to a new town (Route 6 hurt from the gauntlet, Vermilion one edge
@@ -2203,6 +2254,19 @@ class Campaign:
             finally:
                 self._suppress_heal, self.trav.battle_runner = saved, saved_runner
         # LAST resort: the old Viridian return, LOUD (constraint #3 — never silent-degrade)
+        # Seafoam interiors are not Viridian-south-warpable — that digs toward B4F.
+        if tuple(m) in self._SEAFOAM_DUNGEON or tuple(tv.map_id(self.b)) in self._SEAFOAM_DUNGEON:
+            log(f"   !! HEAL: no Center route from Seafoam {tv.map_id(self.b)} — "
+                f"refusing Viridian south-warp fallback (would dig deeper) (LOUD)")
+            if self._seafoam_surface_egress("heal-fallback"):
+                m3 = tuple(tv.map_id(self.b))
+                if m3 in CITY_PC_DOORS:
+                    return ("ok" if self.heal_at_center(CITY_PC_DOORS[m3])
+                            in ("healed", "healed_stuck_inside") else "stuck")
+                # On R20 — continue heal ladder from the street next call / below
+                if m3[0] == 3:
+                    return self.return_to_center() if m3 not in CITY_PC_DOORS else "ok"
+            return "stuck"
         log(f"   !! HEAL: no graph route to any known Center from {m} — FALLBACK to a cross-region "
             f"Viridian heal (FIX: add {m}'s PC door to CITY_PC_DOORS)")
         return "ok" if self.return_to_center() not in ("stuck", "battle_loss") else "stuck"
@@ -2265,6 +2329,19 @@ class Campaign:
                 log(f"   [warp] REFUSING door {door} -> {_dest} (Mt. Moon already cleared; "
                     f"badge_count={_bc_now}) — not re-entering finished dungeon")
                 continue
+            # SEAFOAM RE-ENTRY REFUSE (2026-08-08 LIVE, the rope↔door loop round 2):
+            # HEAL-RETURN "warping south" on Route 20 picked the CAVE MOUTH (60,8) —
+            # in she went, roped out, repeat. With Articuno owned the cave is finished
+            # ground; no automatic warp may re-enter it from outdoors.
+            if (_dest in self._SEAFOAM_DUNGEON and tuple(before)[0] == 3):
+                try:
+                    _art_spent = ram.pokedex_owns(self.b, 144) is True
+                except Exception:
+                    _art_spent = False
+                if _art_spent and not getattr(self, "_allow_seafoam_entry", False):
+                    log(f"   [warp] REFUSING door {door} -> {_dest} (Seafoam finished — "
+                        f"Articuno owned; never auto-re-enter) (LOUD)")
+                    continue
             approach = (door[0], door[1] + approach_dy)  # stand just beside the door
             # FAST reachability pre-check (BFS only) so unreachable doors are skipped
             # instantly instead of a slow walk-then-fail. Uses grass-ALLOWED collision
@@ -2300,6 +2377,21 @@ class Campaign:
                             log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door} (short-step)")
                             self._learn_transit()
                             return "warped"
+                # Standing ON a Seafoam ladder we just climbed — LEFT/FORWARD off it, do NOT
+                # press UP back into the hole (EXIT-BUILDING yo-yo). Ordinary PC/house mats
+                # still need the on-tile step_key press below.
+                if (before, tuple(door)) in getattr(self, "_banned_arrival_warps", set()):
+                    log(f"   door {door}: banned landing — stepping OFF, not re-entering")
+                    self._step_off_arrival_warp()
+                    continue
+                if (before in self._SEAFOAM_DUNGEON
+                        and tuple(tv.coords(self.b)) == tuple(door)):
+                    self._step_off_arrival_warp()
+                    if tuple(tv.map_id(self.b)) != before:
+                        self._learn_transit()
+                        return "warped"
+                    if tuple(tv.coords(self.b)) != tuple(door):
+                        continue  # left the hole — try the next (surface-ward) candidate
                 log(f"   door {door}: at {tv.coords(self.b)} (approach={approach}) — stepping {step_key} in")
                 for _ in range(10):
                     self.b.press(step_key, 8, 8, self.render, owner="agent")
@@ -2307,6 +2399,8 @@ class Campaign:
                     if tv.map_id(self.b) != before:
                         log(f"   WARPED {before} -> {tv.map_id(self.b)} via door {door} (on-tile)")
                         self._learn_transit()
+                        if tuple(tv.map_id(self.b)) in self._SEAFOAM_DUNGEON:
+                            self._step_off_arrival_warp()
                         return "warped"
             if tv.bfs(grid, tv.coords(self.b), lambda t: t == approach,
                       walkable=_wk):
@@ -3127,6 +3221,14 @@ class Campaign:
                     continue                       # crossed an edge toward Viridian
                 if out == "battle_loss":
                     return "battle_loss"           # blacked out en route -> auto-heals at Viridian
+                # Seafoam has no Viridian edge — south-prefer digs B2F→B4F (soak 20260807).
+                if m in self._SEAFOAM_DUNGEON:
+                    log(f"   HEAL-RETURN leg {leg}: inside Seafoam {m} — surface egress "
+                        f"(NOT warp-{edge_leg})")
+                    if not self._seafoam_surface_egress(f"heal-return-{leg}"):
+                        log(f"   !! HEAL-RETURN stuck in Seafoam {tv.map_id(self.b)} (LOUD)")
+                        return "stuck"
+                    continue
                 log(f"   HEAL-RETURN leg {leg}: no {edge_leg} edge on map {m} - warping {edge_leg}")
                 if self.enter_warp(prefer=edge_leg) != "warped":
                     log(f"   !! HEAL-RETURN stuck on map {m} (no {edge_leg} edge, no {edge_leg} warp)")
@@ -3555,13 +3657,16 @@ class Campaign:
         return "not_owned"
 
     def fly_to(self, city):
-        """STUB: Fly / fast-travel. Needs HM02 (Celadon), a teammate that can learn it, and the badge to
-        use it — none yet. BANKED NAV DESIGN (so it's not lost): open the menu -> Pokémon that knows Fly
-        -> Fly -> the Town Map opens; navigate the DESTINATION list with UP/DOWN + a SINGLE A to pick
-        (NEVER an a_until_end_of_dialog mash — that overshoots the list). Only flyable to visited cities."""
-        log(f"   [traversal] !! fly_to({city!r}) called but FLY is not owned yet (no HM02 / flyer / badge) "
-            f"and there's no HM-flag reader to confirm — DEFERRED, returning not_owned (LOUD).")
-        return "not_owned"
+        """HM02 Fly → region-map fast travel (pret REGIONMAP_TYPE_FLY). Needs a taught Fly
+        user + Thunder Badge, and an OUTDOOR standing tile (Seafoam/indoors refuse). Single A
+        to confirm — never mash. Returns 'arrived' | 'not_owned' | 'not_outdoors' |
+        'unknown_city' | 'failed'."""
+        try:
+            import fly_nav
+            return fly_nav.fly_to(self, city, log=log)
+        except Exception as e:
+            log(f"   [traversal] !! fly_to({city!r}) faulted ({e}) — LOUD")
+            return "failed"
 
     def has_badge(self, flag):
         """Read any FLAG_BADGE0x_GET from the SaveBlock1 flag array (base + 0x0EE0)."""
@@ -6060,6 +6165,16 @@ class Campaign:
         (mirrors BattleAgent._ball_count). 0 -> nothing to throw (the catch gate before this quest)."""
         return self._balls_pocket_count(4)
 
+    def _throwable_ball_count(self):
+        """All catchable ball tiers in the balls pocket (Ultra/Great/Poké — ids 2/3/4).
+
+        Fuchsia Mart sells Ultra/Great but NOT plain Poké Balls. stock_up already buys the
+        shelf tier and counts all three, but _ball_note / mart-first travel / catch offers used
+        id-4-only _ball_count — so after an Ultra restock the oracle still heard 'ZERO Poké
+        Balls' and shuttled Fuchsia↔Route 15 forever (live 20260807 stream). Master Ball (1)
+        is excluded — reserved legendary shot, not a restock signal."""
+        return sum(self._balls_pocket_count(i) for i in (2, 3, 4))
+
     def _balls_pocket_count(self, item_id):
         """Count of a BALLS-pocket item (Gen-3 ids 1-12) in the bag's balls pocket (SaveBlock1+0x430,
         16 slots; qty XOR the low-16 key). The Items-pocket bag_count() can't see balls, so the buy
@@ -6083,11 +6198,11 @@ class Campaign:
         return self.bag_count(item_id)
 
     def _ball_note(self, state=None):
-        """Batch-WORLD Phase 5 — BALL PRE-CHECK awareness: if she has ZERO Poké Balls, catching is
-        impossible no matter how much grass she reaches, so the oracle should KNOW a Mart run comes
-        first. Empty unless she's out of balls. Live RAM read (verified on Jonny's watch)."""
+        """Batch-WORLD Phase 5 — BALL PRE-CHECK awareness: if she has ZERO throwable balls,
+        catching is impossible no matter how much grass she reaches, so the oracle should KNOW
+        a Mart run comes first. Counts Ultra/Great/Poké (Fuchsia shelf). Empty unless out."""
         try:
-            if self._ball_count() == 0:
+            if self._throwable_ball_count() == 0:
                 return ("Heads up: you have ZERO Poké Balls — you literally can't catch a teammate until "
                         "you buy some at a Mart, so a Mart run has to come before any catching.")
         except Exception as e:
@@ -7589,6 +7704,15 @@ class Campaign:
         no story-liberation (road-blocker) errand is in flight — Silph/Tea/Flute-class errands ARE
         the road and outrank roster surgery. The creator-order LAW check lives at the call site."""
         try:
+            # ENDGAME LAP OWNS THE SEATS (2026-08-07 19:43 LIVE, the Lavender PC
+            # shuttle): at badge 8 pre-credits the victory lap's box_bench frees a
+            # party seat for the Zapdos catch — and the breather's swap_keeper kept
+            # WITHDRAWING Diglett right back into it (deposit → withdraw → deposit,
+            # three PC trips in five ticks). The lap sequences the roster now;
+            # roster surgery breathers are for the badge climb only.
+            if (int(state.get("badge_count") or 0) >= 8
+                    and not state.get("post_game") and VICTORY_LAP_ENABLED):
+                return False
             party = state.get("party") or []
             lvls = [int(m.get("level") or 0) for m in party if isinstance(m, dict)]
             if len(lvls) < 2:
@@ -8636,16 +8760,36 @@ class Campaign:
             log(f"   [roam] prep-for-e4 target skipped: {e}")
             return None
 
+    def _e4_fighter_levels(self, party):
+        """Levels of the E4 six — ignores Diglett/Fearow DROP seats so a stranded passenger
+        can't set the readiness floor to L18 and NON-CONVERGE the gate (Jonny 2026-08-08)."""
+        out = []
+        for m in (party or []):
+            try:
+                sp = m.get("species_id")
+                if sp is None:
+                    nm = (m.get("species") or "").lower()
+                    sp = next((k for k, v in st.SPECIES_NAME.items()
+                               if v == nm), None)
+                if sp in SPECIES_E4_DROP:
+                    continue
+                out.append(int(m.get("level", 0)))
+            except Exception:
+                continue
+        return out
+
     def _e4_entry_ready(self, party):
         """RUN-4 E4-READINESS GATE predicate. Qualifying team-shape for the League gauntlet: a FULL six,
-        EVERY member >= E4_ENTRY_MIN_LEVEL, AND ace-to-floor gap <= E4_ENTRY_GAP_MAX (which also caps the
-        ceiling near L100 — floor>=42 & gap<=15 => ceil<=57). Returns (ready, floor, ceil, gap). Fail-safe:
-        a thin/empty party (< 6) is NEVER ready — she must never enter the League under-shape."""
-        levels = [int(m.get("level", 0)) for m in (party or [])]
+        EVERY fighter >= E4_ENTRY_MIN_LEVEL, AND ace-to-floor gap <= E4_ENTRY_GAP_MAX (which also caps the
+        ceiling near L100 — floor>=42 & gap<=15 => ceil<=57). DROP species (Diglett/Fearow) do not set
+        the floor. Returns (ready, floor, ceil, gap). Fail-safe: a thin/empty party (< 6) is NEVER ready
+        — she must never enter the League under-shape."""
+        all_levels = [int(m.get("level", 0)) for m in (party or [])]
+        levels = self._e4_fighter_levels(party) or all_levels
         floor = min(levels) if levels else 0
         ceil = max(levels) if levels else 0
         gap = ceil - floor
-        if len(levels) < 6:
+        if len(all_levels) < 6:
             return (False, floor, ceil, gap)
         ready = (floor >= E4_ENTRY_MIN_LEVEL) and (gap <= E4_ENTRY_GAP_MAX)
         return (ready, floor, ceil, gap)
@@ -8654,8 +8798,10 @@ class Campaign:
         """The bench-FLOOR the readiness grind must reach to turn the gate GREEN: high enough that BOTH
         (a) floor >= E4_ENTRY_MIN_LEVEL AND (b) the ace-floor gap <= E4_ENTRY_GAP_MAX (i.e. floor >= ace-15).
         Reads the CAPPED ace level (the ace earns no XP while the gate is RED), so the target can't chase a
-        runaway ace — it's a fixed bar the bench climbs to."""
-        ceil = max((int(m.get("level", 0)) for m in (party or [])), default=0)
+        runaway ace — it's a fixed bar the bench climbs to. DROP species ignored for the ace ceiling."""
+        fighters = self._e4_fighter_levels(party)
+        ceil = max(fighters, default=0) if fighters else max(
+            (int(m.get("level", 0)) for m in (party or [])), default=0)
         return max(E4_ENTRY_MIN_LEVEL, ceil - E4_ENTRY_GAP_MAX)
 
     def _prep_team_target(self, state):
@@ -9916,6 +10062,38 @@ class Campaign:
                 return 0                    # mid-battle items are battle_agent's flow, never ours
             if dd_box_open(self.b):
                 return 0                    # scripted scene / open box — never fight the script
+            # FIELD REVIVE FIRST (2026-08-08, Jonny: 'lapras is dead — revive her'):
+            # a fainted teammate keeps SURVIVAL HURT firing hard recoveries (the
+            # heal-return that walked into Seafoam), and a corpse refuses potions.
+            # Revive(24)/Max Revive(25) from the bag, bounded, before any potion pass.
+            try:
+                import hm_teach as _htr
+                for s, hp, mx, _frac in (self.party_health() or []):
+                    if hp > 0:
+                        continue
+                    _rid = next((i for i in (24, 25)
+                                 if _htr.items_pocket_qty(self.b, i) > 0), None)
+                    if _rid is None:
+                        if time.time() >= getattr(self, "_revive_empty_logged", 0):
+                            self._revive_empty_logged = time.time() + 600
+                            log("   [revive] fainted teammate but NO Revive in the bag — "
+                                "honest skip (Center owns it)")
+                        break
+                    _nm = st.SPECIES_NAME.get(st.read_party_species(self.b, s),
+                                              f"slot{s}").title()
+                    log(f"   [revive] {reason}: {_nm} is DOWN — using "
+                        f"{'Max Revive' if _rid == 25 else 'Revive'} from the bag NOW")
+                    self.on_event(f"{_nm} is down and I'm carrying a Revive — okay, "
+                                  f"up you get. no Center detours.", kind="heal", tier=1)
+                    _rr = _htr.TeachFlow(self, log=log,
+                                         on_event=self.on_event).field_revive(_rid, s)
+                    if _rr != "revived":
+                        self._field_heal_backoff = time.time() + 600
+                        log(f"   [revive] !! bag-drive -> {_rr} — backing off 10 min (LOUD)")
+                        break
+                    healed_n += 1
+            except Exception as _rvx:
+                log(f"   [revive] pass skipped: {_rvx}")
             voiced = False
             for _pass in range(FIELDHEAL_MAX_PER_SEAM):
                 tgt = self._field_heal_pick(top_up=top_up)
@@ -12998,6 +13176,8 @@ class Campaign:
         (Cut prereq), 'fly' is in OVERWORLD_SAFE_QUESTLINES, gives_cap flows to the world
         model, and travel prefers fly-to between visited towns the moment she owns it.
         Returns a Gate once badges>=5 with HM02 unowned and Cut in hand, else None."""
+        if not FLY_FETCH_ENABLED:
+            return None                            # fetch disabled (house-entry unwired) -> walk instead
         try:
             if (state.get("badge_count") or 0) < 5:
                 return None
@@ -13148,9 +13328,12 @@ class Campaign:
                        detail={"flag": "FLAG_FOUGHT_ZAPDOS"})
 
     def _articuno_gate(self, state):
-        """SEAFOAM B4F ARTICUNO — only after the interior boulders are TRULY down (hide flags
-        0x046/0x047 cleared: the calm-water proof; the R21-reroute's stamped 0x2D2 does NOT
-        calm B4F). Ice/Flying L50 — Lance's dragons hate it. Returns a Gate or None."""
+        """SEAFOAM B4F ARTICUNO — Surf + Strength open the hunt; B4F calm is NOT a gate
+        precondition. ArticunoHunt.ensure_b4f_calm() drops the B3F Articuno boulders to arm
+        FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3) before the quarry approach. Suppressing the
+        gate while 0x2D3 is clear made victory_lap fail-count Articuno into an honest skip
+        (soak 20260807_120648), then divert to Zapdos from inside Seafoam. B3F calm (0x2D2)
+        alone is still NOT proof — R21 stamps it while B4F rips. Returns a Gate or None."""
         if not LEGENDARY_HUNTS_ENABLED:
             return None
         try:
@@ -13158,16 +13341,14 @@ class Campaign:
             if (st.party_knows_move(self.b, 57, cnt) is None
                     or st.party_knows_move(self.b, 70, cnt) is None):
                 return None                       # needs Surf + Strength inside
-            if fm.read_flag(self.b, 0x046) or fm.read_flag(self.b, 0x047):
-                return None                       # boulders not truly down -> B4F rips
             if self._hunt_ready(144, 0x082, 0x2BE, key="articuno") is not None:
                 return None
         except Exception:
             return None
         return ql.Gate(ql.STORY_NPC, missing="articuno", where=(3, 38),
-                       human="ARTICUNO — the Seafoam Islands' bottom floor, past the boulder "
-                             "cascade she already dropped. An ice legendary that makes "
-                             "Lance's dragons a formality.",
+                       human="ARTICUNO — the Seafoam Islands' bottom floor. Drop the B3F "
+                             "Articuno boulders to calm B4F, then catch the ice legendary "
+                             "that makes Lance's dragons a formality.",
                        detail={"flag": "FLAG_FOUGHT_ARTICUNO"})
 
     def _moltres_gate(self, state):
@@ -13262,8 +13443,9 @@ class Campaign:
     # pret-verified facts the lap leans on: ITEM_TM26=314 / MOVE_EARTHQUAKE=89 (Giovanni's
     # reward, giovanni_gym.py banks it); FLAG_GOT_EEVEE=0x263 (Celadon Condominiums roof room);
     # FLAG_FOUGHT_{MOLTRES,ARTICUNO,ZAPDOS}=0x2BD/0x2BE/0x2BF with hide-flags 0x052/0x082/0x05D;
-    # FLAG_HIDE_CINNABAR_POKEMON_CENTER_BILL=0x0A2 (Bill gone = Sevii closed pre-champion);
-    # FLAG_HIDE_SEAFOAM_ISLANDS_B3F_BOULDER_{1,2}=0x046/0x047 (still set = B4F current live).
+    # FLAG_HIDE_CINNABAR_POKEMON_CENTER_BILL=0x0A2 (Bill gone = Sevii closed pre-champion).
+    # Articuno B4F calm (0x2D3 / B4F boulder hides 0x04C/0x04D) is hunt execution work via
+    # ensure_b4f_calm — not a lap checklist honest-skip.
     _LAP_HUNT_SPEC = {"moltres": (146, 0x052, 0x2BD), "articuno": (144, 0x082, 0x2BE),
                       "zapdos": (145, 0x05D, 0x2BF)}          # species, hide-flag, fought-flag
     _LAP_EQ_ITEM, _LAP_EQ_TM, _LAP_EQ_MOVE = 314, 26, 89
@@ -13389,10 +13571,35 @@ class Campaign:
         NOT the gates' armed/suppressed view, so a ball-thin hunt still reads pending (the lap
         fixes the balls itself). Structural dead-ends latch an honest skip here. Fails toward
         NOT-pending on read errors — a RAM flake must never park the League march. Never raises."""
-        if key in getattr(self, "_lap_skipped", set()):
-            return False
         try:
             b = self.b
+            # Fly skip refund MUST run before the skip latch — but ONLY while the fail
+            # budget is unspent. LIVE 19:07: an unconditional refund un-latched the
+            # skip EVERY tick against a hard-failing Cut teach → 50+ retry loop, RED
+            # forever. Exhausted budget ⇒ the skip STANDS and zapdos proceeds on foot.
+            if key == "fly":
+                cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                if fm.can_use(b, "fly", cnt):
+                    (getattr(self, "_lap_skipped", None) or set()).discard("fly")
+                    return False
+                if not FLY_FETCH_ENABLED:
+                    return False                 # fetch disabled -> walk to Zapdos; fly not pending
+                _fly_fails = (getattr(self, "_lap_fails", None) or {}).get("fly", 0)
+                if _fly_fails < VICTORY_LAP_MAX_FAILS:
+                    try:
+                        import hm_teach as _ht
+                        if (_ht.tm_case_row(b, 340) is not None or fm.read_flag(b, 568)):
+                            (getattr(self, "_lap_skipped", None) or set()).discard("fly")
+                            return True
+                        # Cut re-teachable from the case → fetch viable → refund latch.
+                        if (_ht.tm_case_row(b, 339) is not None
+                                or self.world.has_cap("cut")
+                                or st.party_knows_move(b, 15, cnt) is not None):
+                            (getattr(self, "_lap_skipped", None) or set()).discard("fly")
+                    except Exception:
+                        pass
+            if key in getattr(self, "_lap_skipped", set()):
+                return False
             if key == "earthquake":
                 import hm_teach as ht
                 slot = self._lap_ace_slot()
@@ -13412,19 +13619,31 @@ class Campaign:
                 # POKEMON_BOX_FLOW=0 (or the PCBOX master flag) removes it cleanly.
                 if not (BOX_FLOW_ENABLED and PCBOX_ENABLED):
                     return False
+                plan = self._lap_bench_plan()
                 # ONE-TRIP LATCH (2026-08-05, the Cinnabar deposit<->catch SHUTTLE): the executor
                 # completing its plan latches box_bench DONE for the session. Without it, ANY
                 # mid-lap pickup (a Route-21 tentacool off a misheard catch_now) regrew the plan,
                 # flipped this back to 'pending', and the lap marched her back into the Center —
                 # the logged door loop was the PC<->Route-21 shuttle, not the door itself. A
                 # pickup now rides in the trunk until 'repack'; the seat math still ran once.
+                #
+                # RE-ARM EXCEPTION (2026-08-08): Diglett/Fearow hogging a seat while Zapdos is
+                # still owed — the latch must NOT leave Diglett on the E4 six forever. Freeing
+                # that seat is the bird-join math, not a Tentacool shuttle.
                 if getattr(self, "_lap_bench_done", False):
-                    if self._lap_bench_plan() and not getattr(self, "_lap_bench_relatch_logged", False):
+                    seat_need = (self._lap_join_seat_shortfall() > 0
+                                 or self._lap_boxed_bird_present())
+                    if plan and seat_need:
+                        self._lap_bench_done = False
+                        log("   [box] ♻️ RE-ARM box_bench — bird seat blocked by a drop "
+                            f"(Diglett/Fearow); depositing {len(plan)} (LOUD)")
+                        return True
+                    if plan and not getattr(self, "_lap_bench_relatch_logged", False):
                         self._lap_bench_relatch_logged = True
                         log("   [box] bench already DONE this session — a mid-lap pickup regrew the "
                             "plan but the LATCH holds (no march back to the Center; trunk until repack)")
                     return False
-                return bool(self._lap_bench_plan())
+                return bool(plan)
             if key == "repack":
                 # Owed only when THIS run actually benched someone and the party ended short
                 # of six (a skipped hunt) — the E4 gate's FULL-SIX law needs the bodies back.
@@ -13435,6 +13654,40 @@ class Campaign:
                 return self.b.rd8(ram.GPLAYER_PARTY_CNT) < 6
             if key == "eevee":
                 return EEVEE_FETCH_ENABLED and not fm.read_flag(b, 0x263)
+            if key == "ice_beam":
+                # TM13 for the ace (E4 coverage: Lance's dragons, Gary's Venusaur).
+                # Pending ONLY when teachable NOW (TM in case) or the full coin
+                # budget is affordable — a broke lap passes by WITHOUT latching a
+                # skip, so post-Zapdos money re-arms it automatically.
+                if not ICEBEAM_FETCH_ENABLED:
+                    return False
+                try:
+                    import game_corner as gc
+                    slot, why = gc.IceBeamErrand(self, log=log).pick_recipient()
+                    if slot is None or why == "already":
+                        return False
+                    if gc.tm_case_qty(b, gc.ITEM_TM13) > 0:
+                        return True
+                    return gc.ice_beam_cash_shortfall(self) <= 0
+                except Exception:
+                    return False
+            if key == "fly":
+                # Fetch path only (usable/HM-ready handled above before the skip latch).
+                # Cut is re-teachable from the case (HM01=339) — only a party with no
+                # Cut AND no HM01 in the case is a genuine dead end.
+                cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                if (st.party_knows_move(b, 15, cnt) is None
+                        and not self.world.has_cap("cut")):
+                    try:
+                        import hm_teach as _ht2
+                        if _ht2.tm_case_row(b, 339) is not None:
+                            return True          # Cut teach-in-place unblocks the fetch
+                    except Exception:
+                        pass
+                    self._lap_skip(key, "no Cut and no HM01 in the case — Route 16 "
+                                        "Fly house unreachable")
+                    return False
+                return True
             spec = self._LAP_HUNT_SPEC.get(key)
             if spec is None or not LEGENDARY_HUNTS_ENABLED:
                 return False
@@ -13452,25 +13705,35 @@ class Campaign:
                 self._lap_skip(key, "Bill is gone from the Cinnabar PC — the Sevii ferry is "
                                     "closed pre-champion")
                 return False
-            if key == "articuno" and (fm.read_flag(b, 0x046) or fm.read_flag(b, 0x047)):
-                self._lap_skip(key, "a Seafoam B3F boulder never dropped — B4F's rip current "
-                                    "makes the bird unreachable")
-                return False
+            # articuno: a live B4F rip (0x2D3 clear / B4F boulders absent) is SOLVABLE —
+            # ArticunoHunt.ensure_b4f_calm() pushes the B3F hole-boulders. Never honest-skip
+            # here (soak 20260807_120648: proximity unskip ↔ B4F-current skip every tick,
+            # then Zapdos questline_no_route + Fuchsia ball shuttle). Bounded _lap_fails
+            # still honest-skip after VICTORY_LAP_MAX_FAILS if the dam stays wedged.
             return True
         except Exception as e:
             log(f"   [lap] pending-check for '{key}' unreadable ({e}) — counting it done (LOUD)")
             return False
 
-    _LAP_HUNT_SITE = {"moltres": (3, 12), "articuno": (3, 38), "zapdos": (3, 28)}
+    _LAP_HUNT_SITE = {"moltres": (3, 12), "articuno": (3, 38), "zapdos": (3, 28),
+                     "fly": (3, 6), "ice_beam": (3, 6)}  # Celadon errands
 
     def _lap_anchor_sets(self):
         """key -> anchor map-set for the hunt items (lazy import; empty dict on any fault)."""
+        def _ib_anchors():
+            try:
+                import game_corner as _gc
+                return set(_gc.ICEBEAM_ANCHORS)
+            except Exception:
+                return {tuple(CELADON)}
         try:
             import legendary_strikes as _ls
             return {"moltres": _ls.MOLTRES_ANCHORS, "articuno": _ls.ARTICUNO_ANCHORS,
-                    "zapdos": _ls.ZAPDOS_ANCHORS}
+                    "zapdos": _ls.ZAPDOS_ANCHORS,
+                    "fly": {tuple(CELADON), (3, 34)},  # Celadon + Route 16 (NOT Route 4)
+                    "ice_beam": _ib_anchors()}
         except Exception:
-            return {}
+            return {"fly": {tuple(CELADON), (3, 34)}, "ice_beam": _ib_anchors()}
 
     def _lap_item_cost(self, key, here):
         """FLUID-PLAN COST (2026-08-05 EMERGENCY, Jonny: \"the plan needs to be fluid — it
@@ -13486,10 +13749,26 @@ class Campaign:
         try:
             if key in ("earthquake", "box_bench", "repack"):
                 return 0 if key == "earthquake" else 1   # teach is in-place; PC work = a Center walk
+            # Fly teach-only (HM already in case) is in-place wherever she stands outdoors.
+            if key == "fly":
+                try:
+                    import hm_teach as _ht
+                    if _ht.tm_case_row(self.b, 340) is not None:
+                        return 0
+                except Exception:
+                    pass
+            # Ice Beam teach-only (TM13 already in case) is likewise in-place.
+            if key == "ice_beam":
+                try:
+                    import game_corner as _gc
+                    if _gc.tm_case_qty(self.b, _gc.ITEM_TM13) > 0:
+                        return 0
+                except Exception:
+                    pass
             anch = self._lap_anchor_sets().get(key)
             if anch and here in anch:
                 return 0
-            site = CELADON if key == "eevee" else self._LAP_HUNT_SITE.get(key)
+            site = (CELADON if key in ("eevee", "fly") else self._LAP_HUNT_SITE.get(key))
             if site is None:
                 return 1
             if key == "eevee" and here == tuple(CELADON):
@@ -13521,18 +13800,30 @@ class Campaign:
                     continue
                 if ram.pokedex_owns(self.b, self._LAP_HUNT_SPEC[k][0]) is True:
                     continue
-                # Skip marks: always discard while on the hunt's own maps. An honest skip
-                # from a thin Ultra pocket must not park the lap on articuno while she's
-                # still standing in One Island Harbor (2026-08-06 live strand). Fail-ledger
-                # clears stay once-per-key so the bounded-fail law still stands.
+                # Skip marks: discard while on the hunt's own maps — EXCEPT exhausted skips
+                # (VICTORY_LAP_MAX_FAILS burned). Seafoam B4F softlock (soak 20260806_222735):
+                # honest-skip → PROXIMITY UNSKIP every tick → FORCE VICTORY LAP forever.
+                # Thin-Ultra skips still unskip once so she can retry a reachable bird.
                 skipped = getattr(self, "_lap_skipped", None)
+                fails = getattr(self, "_lap_fails", None) or {}
+                exhausted = (VICTORY_LAP_EXHAUST_STICKY
+                             and fails.get(k, 0) >= VICTORY_LAP_MAX_FAILS)
+                # Sevii-stranded Moltres still unskips — ride-home / RE-ARM owns those
+                # maps. Articuno (and every other hunt) keeps the exhausted latch so a
+                # Seafoam B4F wedge cannot resurrect forever.
+                sevii_moltres = (k == "moltres" and self._lap_sevii_stranded())
                 if skipped and k in skipped:
+                    if exhausted and not sevii_moltres:
+                        log(f"   [lap] 🦅 PROXIMITY sees '{k}' but EXHAUSTED skip holds "
+                            f"({fails.get(k)}/{VICTORY_LAP_MAX_FAILS}) — leave the dungeon; "
+                            f"League path outranks a wedged bird (LOUD)")
+                        # Do NOT set prox — lap moves to the next owed item.
+                        break
                     skipped.discard(k)
                     log(f"   [lap] 🦅 PROXIMITY UNSKIP '{k}': standing on the hunt's own maps — "
                         f"honest-skip latch dropped (every visit; nothing outranks a "
                         f"legendary she is standing next to)")
-                fails = getattr(self, "_lap_fails", None) or {}
-                if fails.get(k):
+                if fails.get(k) and not (exhausted and not sevii_moltres):
                     cleared = getattr(self, "_lap_prox_fail_clears", None)
                     if cleared is None:
                         cleared = self._lap_prox_fail_clears = set()
@@ -13572,8 +13863,130 @@ class Campaign:
         """The proactive gate object for a lap item (the SAME gates the forward-questline chain
         uses — anchors, questline payloads, self-suppression all included). None = suppressed."""
         fn = {"moltres": self._moltres_gate, "articuno": self._articuno_gate,
-              "zapdos": self._zapdos_gate, "eevee": self._eevee_gate}.get(key)
+              "zapdos": self._zapdos_gate, "eevee": self._eevee_gate,
+              "fly": self._fly_gate, "ice_beam": self._icebeam_gate}.get(key)
         return fn(state) if fn else None
+
+    def _lap_ensure_fly(self, state):
+        """Victory-lap Fly: teach HM02 if already in the TM case, else open the Route 16
+        fetch questline. Returns a roam result string."""
+        import hm_teach as ht
+        import fly_nav
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        if fm.can_use(self.b, "fly", cnt):
+            log("   [lap] Fly already usable — checklist item clear")
+            return "ok"
+        # Teach path: HM in case (flag may already be set — _fly_gate would self-suppress).
+        if ht.tm_case_row(self.b, 340) is not None:
+            plan = fly_nav.teach_plan(self.b)
+            if plan is None:
+                self._lap_note_fail("fly", "no compatible party mon for HM02")
+                return "ok"
+            slot, forget, reason = plan
+            sp = st.read_party_species(self.b, slot)
+            mon = st.SPECIES_NAME.get(sp, f"slot{slot}")
+            log(f"   [lap] 🕊️ teaching HM02 Fly -> {mon} ({reason})")
+            self.on_event(f"okay — {mon} learns Fly. endgame just got a lot shorter.",
+                          kind="route", tier=2)
+            r = ht.TeachFlow(self, log=log, on_event=self.on_event).teach(
+                "fly", slot, forget_idx=forget)
+            if r == "taught":
+                (getattr(self, "_lap_fails", None) or {}).pop("fly", None)
+                self._refresh_world_caps()
+                return "ok"
+            self._lap_note_fail("fly", f"TeachFlow -> {r}")
+            return "ok"
+        # CUT PREREQ (2026-08-08, the endgame party swap): the Route 16 house is behind
+        # a Cut tree and the CURRENT party (Blastoise/Lapras/birds) lost Cut when the
+        # old ace was benched. HM01 lives in the TM case forever — re-teach it NOW so
+        # the fetch gate arms (else _fly_gate returns None and the lap parks).
+        if not self.world.has_cap("cut") and ht.tm_case_row(self.b, 339) is not None:
+            cut_plan = ht.default_plan(self.b, "cut", cnt)
+            if cut_plan is None:
+                # LIVE 19:07 (the 50-attempt loop): the endgame party's ONLY Cut
+                # learner is the LEAD (Blastoise) and default_plan's scoring skips a
+                # lead with 4 full moves. Teach the lead — forget the least precious
+                # move (never Surf/Strength/EQ/Bite; Skull Bash is the sacrifice).
+                for s in range(cnt):
+                    sp0 = st.read_party_species(self.b, s)
+                    if not ht.hm_compatible(self.b, "cut", sp0):
+                        continue
+                    moves0 = st.read_party_moves(self.b, s) or []
+                    if 0 in moves0 or len([m for m in moves0 if m]) < 4:
+                        cut_plan = (s, None, "free slot (lead fallback)")
+                        break
+                    _protect = {57, 70, 89, 15, 19, 44}  # Surf Strength EQ Cut Fly Bite
+                    scored0 = []
+                    for i, m in enumerate(moves0):
+                        if not m or m in _protect or m in ht._PRECIOUS:
+                            continue
+                        try:
+                            _ty0, pw0 = st.move_info(self.b, m)
+                        except Exception:
+                            pw0 = 0
+                        # Charge moves (Skull Bash 130) are dead weight — forget first.
+                        scored0.append((0 if m == 130 else 1, pw0 or 0, i))
+                    if scored0:
+                        scored0.sort()
+                        cut_plan = (s, scored0[0][2],
+                                    f"lead fallback — forget move idx {scored0[0][2]}")
+                        break
+            if cut_plan is None:
+                # STRUCTURAL (2026-08-07 19:40 LIVE, every boot re-burned 6 ticks):
+                # if not even the lead fallback found a Cut learner, retrying next
+                # tick cannot change the answer — latch the honest skip NOW and
+                # dump the live learnset reads so the ROM-read bug is diagnosable.
+                try:
+                    for _ds in range(cnt):
+                        _dsp = st.read_party_species(self.b, _ds)
+                        log(f"   [lap] cut-compat diag: slot {_ds} species {_dsp} "
+                            f"hm_compatible(cut)={ht.hm_compatible(self.b, 'cut', _dsp)} "
+                            f"moves={st.read_party_moves(self.b, _ds)}")
+                except Exception as _cde:
+                    log(f"   [lap] cut-compat diag failed: {_cde}")
+                if getattr(self, "_lap_fails", None) is None:
+                    self._lap_fails = {}
+                self._lap_fails["fly"] = VICTORY_LAP_MAX_FAILS
+                self._lap_skip("fly", "no Cut learner even via lead fallback — "
+                                      "structural, skipping in ONE attempt")
+                return "ok"
+            c_slot, c_forget, c_reason = cut_plan
+            c_mon = st.SPECIES_NAME.get(st.read_party_species(self.b, c_slot),
+                                        f"slot{c_slot}")
+            log(f"   [lap] ✂️ re-teaching HM01 Cut -> {c_mon} ({c_reason}) — "
+                f"the Route 16 Fly house is behind a tree (LOUD)")
+            self.on_event(f"one tree between me and Fly — {c_mon}, you're learning "
+                          f"Cut again.", kind="route", tier=2)
+            rc = ht.TeachFlow(self, log=log, on_event=self.on_event).teach(
+                "cut", c_slot, forget_idx=c_forget)
+            if rc == "taught":
+                self._refresh_world_caps()
+                log("   [lap] Cut re-taught — the 'fly' fetch gate arms next step")
+            else:
+                self._lap_note_fail("fly", f"Cut re-teach -> {rc}")
+                return "ok"
+        # Fetch path: Route 16 house behind Cut tree.
+        gate = self._fly_gate(state)
+        if gate is None:
+            # Flag set but HM not in case / unreadable — bounded fail.
+            self._lap_note_fail("fly", "gate self-suppressed (HM not in case)")
+            return "ok"
+        cur = self._active_questline
+        if cur is not None and getattr(cur.gate, "missing", None) != "fly":
+            self._clear_questline(f"the victory lap's 'fly' outranks the parked "
+                                  f"'{getattr(cur.gate, 'missing', '?')}' errand")
+        if self._active_questline is None and not self._open_questline(gate, state):
+            self._lap_note_fail("fly", "questline would not open")
+            return "ok"
+        r = self._run_questline_step(state)
+        log(f"   [lap] 'fly' questline step -> {r}")
+        if not self._lap_pending("fly"):
+            (getattr(self, "_lap_fails", None) or {}).pop("fly", None)
+            log("   [lap] ✅ 'fly' DONE — the checklist re-derives next tick")
+        elif r in ("questline_unresolved", "questline_abandoned", "no_questline",
+                   "questline_strike_failed", "stuck", "failed"):
+            self._lap_note_fail("fly", r)
+        return r
 
     def _lap_eq_forget_idx(self, slot):
         """Pick the move Earthquake replaces: Teleport-class utility first, then charge moves
@@ -13715,30 +14128,72 @@ class Campaign:
     # screen-state driven, never blind timing); everything here is selection + sequencing.
     # Kill switch POKEMON_BOX_FLOW=0; failures are bounded (-> honest skip: passengers ride
     # in the trunk and _lap_order_party_for_e4 keeps them last, the pre-flow worst case). ──
-    _LAP_JOIN_SPECIES = (146, 144, 145, 133)   # Moltres, Articuno, Zapdos, Eevee (join items)
-    _LAP_JOIN_KEYS = ("moltres", "articuno", "eevee", "zapdos")
+    _LAP_JOIN_SPECIES = (146, 144, 145)        # Moltres, Articuno, Zapdos (lap join items)
+    _LAP_JOIN_KEYS = ("moltres", "articuno", "zapdos")
+
+    def _lap_join_seat_shortfall(self):
+        """How many free party seats the still-owed lap birds still need (0 = enough room)."""
+        try:
+            cnt = min(self.b.rd8(ram.GPLAYER_PARTY_CNT) or 0, 6)
+        except Exception:
+            return 0
+        joins = sum(1 for k in self._LAP_JOIN_KEYS if self._lap_pending(k))
+        return max(0, joins - (6 - cnt))
+
+    def _lap_boxed_bird_present(self):
+        """True when a lap bird (Moltres/Articuno/Zapdos) is sitting in the open PC box."""
+        try:
+            _cb, occ = self._box_scan()
+        except Exception:
+            return False
+        return any(sp in self._LAP_JOIN_SPECIES for sp in (occ or {}).values())
 
     def _lap_bench_plan(self):
-        """Which party SLOTS ride the box (lowest level first): passengers (non-ace, level <=
-        BOX_BENCH_MAX_LEVEL) up to exactly the seat shortfall for the still-owed join-items,
-        never below BOX_BENCH_MIN_PARTY bodies. Empty list = nothing owed. Sized per-tick from
-        LIVE RAM so a skipped hunt shrinks the deposit and a done deposit reads complete."""
+        """Which party SLOTS ride the box (lowest level first).
+
+        Seat math for still-owed join-items (birds), PLUS the badge-8 E4 roster rule:
+        Diglett/Fearow are DROP species (never keepers) so Zapdos can take the seat and
+        Kadabra/Lapras stay on the grind six. SPECIES_E4_KEEP is never deposited.
+        Empty list = nothing owed. Sized per-tick from LIVE RAM."""
         b = self.b
         cnt = min(b.rd8(ram.GPLAYER_PARTY_CNT) or 0, 6)
         if cnt <= BOX_BENCH_MIN_PARTY:
             return []
-        joins = sum(1 for k in self._LAP_JOIN_KEYS if self._lap_pending(k))
-        need = joins - (6 - cnt)
-        if need <= 0:
-            return []
+        shortfall = self._lap_join_seat_shortfall()
+        bird_boxed = self._lap_boxed_bird_present()
 
         def _lv(s):
             return b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54)
 
+        def _sp(s):
+            return st.read_party_species(b, s)
+
         ace = self._lap_ace_slot()
-        passengers = sorted((s for s in range(cnt)
-                             if s != ace and _lv(s) <= BOX_BENCH_MAX_LEVEL), key=_lv)
-        return passengers[:min(need, cnt - BOX_BENCH_MIN_PARTY)]
+        drops, passengers = [], []
+        for s in range(cnt):
+            if s == ace:
+                continue
+            sp = _sp(s)
+            if sp in SPECIES_E4_KEEP:
+                continue                          # Kadabra / Lapras / birds / Blastoise stay
+            if sp in SPECIES_E4_DROP:
+                drops.append(s)
+            elif _lv(s) <= BOX_BENCH_MAX_LEVEL:
+                passengers.append(s)
+        drops = sorted(drops, key=_lv)
+        passengers = sorted(passengers, key=_lv)
+        # Prefer Diglett/Fearow out first (E4 roster), then low-level junk passengers.
+        ordered = drops + [s for s in passengers if s not in drops]
+        if not ordered:
+            return []
+        # Deposit at least the bird-seat shortfall; also park every DROP while a bird is
+        # still owed OR already auto-boxed (party-6 Diglett would keep Zapdos in storage).
+        need = shortfall
+        if shortfall > 0 or bird_boxed:
+            need = max(need, len(drops) if drops else shortfall)
+        if need <= 0:
+            return []
+        return ordered[:min(need, cnt - BOX_BENCH_MIN_PARTY, len(ordered))]
 
     def _lap_pc_march(self, key, state):
         """March toward the nearest RIDEABLE Center city for a [box] leg — CINNABAR first (the
@@ -13868,6 +14323,94 @@ class Campaign:
             self._lap_note_fail(key, "withdraw pulled nothing")
         return "ok"
 
+    def _zapdos_north_staging(self, state):
+        """Walk the overworld loop into Route 10's NORTH half for the Power Plant.
+
+        Route 10 is SPLIT by Rock Tunnel: Lavender's north edge lands the SOUTH segment
+        (y≈79) where ZapdosHunt can't reach plant door (7,40) — 'no path' forever, then
+        the KB step walks her back south (the all-night Kanto orbit). Enter from Route 9
+        (Cerulean east) to land the NORTH segment (Center / water strip).
+
+        One leg per tick. Returns a stage:* sentinel while staging, or None when already
+        on R10 NORTH (or indoors on the plant) so the questline/strike can fire.
+        Live crash (soak 20260807_202018): this method was called but never defined —
+        every victory_lap tick AttributeError'd while she stood in Fuchsia.
+        """
+        try:
+            here = tuple(tv.map_id(self.b))
+            y = (tv.coords(self.b) or (0, 0))[1]
+        except Exception as e:
+            log(f"   [lap] Zapdos north staging: map read failed ({e})")
+            return None
+
+        # Already on the good half / inside the plant — strike owns the turn.
+        if here == (1, 95):                         # Power Plant interior
+            return None
+        if here == ROUTE10 and y <= 50:
+            return None
+
+        def _go(label, pick, ban_r10=False):
+            log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: {label} "
+                f"(from {here}@{tv.coords(self.b)}"
+                f"{', R10 BANNED' if ban_r10 else ''}) (LOUD)")
+            prev = getattr(self, "_extra_travel_avoid", set())
+            if ban_r10:
+                self._extra_travel_avoid = set(prev) | {ROUTE10}
+            try:
+                r = self._travel_to_known(pick, state, hunt_on_arrival=False)
+            finally:
+                self._extra_travel_avoid = prev
+            if r == "no_route":
+                self._lap_note_fail("zapdos", f"north staging no_route ({label})")
+            return f"stage:{r}"
+
+        # SOUTH segment trap — drop to Lavender, then ride the loop.
+        if here == ROUTE10 and y > 50:
+            log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: on R10 SOUTH (y={y}) — "
+                f"dropping to Lavender for the Saffron–Cerulean loop (LOUD)")
+            try:
+                r = self.trav.travel(target_map=LAVENDER, edge="south",
+                                     max_seconds=180)
+            except Exception as e:
+                log(f"   [lap] R10-south drop failed ({e})")
+                r = "no_route"
+                self._lap_note_fail("zapdos", f"r10-south drop ({e})")
+            return f"stage:{r}"
+
+        # North approach corridor — do NOT ban R10; R9's east edge is the entry.
+        if here == ROUTE9:
+            return _go("Route 9 → Route 10 NORTH", "travel:3,28", ban_r10=False)
+        if here == CERULEAN:
+            return _go("Cerulean → Route 9", "travel:3,27", ban_r10=False)
+        if here == ROUTE5:
+            return _go("Route 5 → Cerulean", "travel:3,3", ban_r10=False)
+        if here == SAFFRON:
+            return _go("Saffron → Route 5", "travel:3,23", ban_r10=False)
+        if here == ROUTE8:
+            return _go("Route 8 → Saffron", "travel:3,10", ban_r10=True)
+
+        # Southern cluster (Fuchsia / R12–R15 / Lavender / …) and any other group-3
+        # overworld that isn't already on the north pad: ban R10 so the graph never
+        # re-enters the south segment. Prefer R8 → Saffron → Cerulean → R9.
+        north_pad = {ROUTE10, ROUTE9, CERULEAN, ROUTE5, SAFFRON, ROUTE8}
+        if (isinstance(here, tuple) and here[0] == 3 and here not in north_pad):
+            for pick, label in (
+                ("travel:3,26", "→ Route 8 (then Saffron–Cerulean–R9)"),
+                ("travel:3,10", "→ Saffron"),
+                ("travel:3,3",  "→ Cerulean"),
+                ("travel:3,27", "→ Route 9"),
+            ):
+                try:
+                    dst = tuple(int(x) for x in pick.split(":")[1].split(","))
+                    if self._next_step_rideable(here, dst, {ROUTE10}) is None:
+                        continue
+                except Exception:
+                    pass                              # probe failed — still try the travel
+                return _go(label, pick, ban_r10=True)
+            return _go("→ Route 8 (forced)", "travel:3,26", ban_r10=True)
+
+        return None
+
     def _run_victory_lap(self, state):
         """EXECUTOR for the 'victory_lap' pick: run the FIRST owed checklist item. Earthquake
         teaches in place; box_bench/repack drive the Center-PC box flow ([box]); the hunts/
@@ -13879,6 +14422,24 @@ class Campaign:
         key = self._victory_lap_next(state)
         if key is None:
             return "lap_done"
+        # SEAFOAM SURFACE GATE (soak 20260807): post-Articuno climb_out can leave her on
+        # B2F with the bird already owned. Zapdos / repack / League have no graph route from
+        # inside Seafoam → questline_no_route forever. Climb to R20 BEFORE arming the next
+        # errand (articuno itself still owns the dungeon while it's the owed key).
+        try:
+            _here_lap = tuple(tv.map_id(self.b))
+        except Exception:
+            _here_lap = None
+        if (key != "articuno" and _here_lap in getattr(self, "_SEAFOAM_DUNGEON", ())):
+            log(f"   [lap] !! still inside Seafoam {_here_lap}@{tv.coords(self.b)} with "
+                f"'{key}' owed — climbing to Route 20 BEFORE the questline (LOUD)")
+            if self._seafoam_surface_egress(f"lap-{key}"):
+                log(f"   [lap] Seafoam egress OK → {tv.map_id(self.b)}@"
+                    f"{tv.coords(self.b)}; continuing '{key}'")
+            else:
+                log(f"   [lap] !! Seafoam egress stalled at {tv.map_id(self.b)}@"
+                    f"{tv.coords(self.b)} — retry next tick (not Zapdos-from-B2F)")
+                return "questline_no_route"
         # Sevii ownership: ride-home only owns the turn AFTER the bird is spent. An honest
         # skip from a thin Ultra pocket must NOT park the lap on articuno while she's still
         # on One Island with no boat home armed (2026-08-06 live strand — 200+ RED ticks).
@@ -13918,6 +14479,42 @@ class Campaign:
             return self._lap_box_bench(state)
         if key == "repack":
             return self._lap_repack(state)
+        if key == "fly":
+            return self._lap_ensure_fly(state)
+        # Zapdos with Fly: warp to the Route 10 Center (Power Plant door is across the
+        # water strip). Chatter was right — Cerulean/R10 is the pad; walking from Seafoam
+        # is the long way. (Fly refuses underground — seafoam gate above already ran.)
+        if key == "zapdos":
+            try:
+                import fly_nav as _fn
+                _zh = tuple(tv.map_id(self.b))
+                _slot = _fn.fly_slot(self.b)
+                if (_slot is not None and _zh not in ((3, 28), (1, 95))
+                        and _zh[0] == 3):
+                    log(f"   [lap] ⚡ Fly → Route 10 Center for Zapdos "
+                        f"(from {_zh}, flyer slot {_slot}) (LOUD)")
+                    _zr = self.fly_to("route10")
+                    if _zr != "arrived":
+                        # From east R20 the cursor guess can miss — hop to Cinnabar
+                        # (known xy) then Fly (also heals Lapras via Center later).
+                        if _zh == (3, 38):
+                            log("   [lap] Fly miss from R20 — trying Cinnabar pad then "
+                                "re-Fly (LOUD)")
+                            _zr = self.fly_to("cinnabar")
+                            if _zr == "arrived":
+                                _zr = self.fly_to("route10")
+                        if _zr != "arrived":
+                            _zr = self.fly_to("cerulean")
+                    log(f"   [lap] Zapdos fly staging -> {_zr} "
+                        f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
+            except Exception as _zfe:
+                log(f"   [lap] Zapdos fly staging skipped ({_zfe})")
+            # NORTH STAGING — Route 10 is SPLIT; Power Plant only from the north half.
+            # Method owns Fuchsia/southern cluster → Cerulean → R9 → R10 NORTH.
+            # (soak 20260807_202018: AttributeError when this helper was missing.)
+            _sr = self._zapdos_north_staging(state)
+            if _sr is not None:
+                return _sr
         gate = self._lap_gate_for(key, state)
         if gate is None:
             # Owed by raw truth but the gate self-suppresses. Ball-thin is OURS to fix; any
@@ -14634,11 +15231,17 @@ class Campaign:
             # Thunder Stone) in a city she already owns. No story gate ever demands it, so it must
             # be opened proactively, same as Fly. Fires AFTER the scope/fly blocks: war errands and
             # endgame mobility outrank a (spectacular) luxury detour.
-            eg = self._eevee_gate(state)
-            if eg is not None and self._open_questline(eg, state):
-                log("   [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is "
-                    "unclaimed — climbing the back stairwell for the roof-room ball")
-                return
+            # CREDITS-FIRST MUTE (2026-08-07 19:40 LIVE): at badge 8 pre-credits Eevee is
+            # NOT on the lap (Zapdos IS the electric slot) — yet this opened every boot,
+            # rewrote her 'medium' goal to "FIRST the gift Eevee", and her narration spent
+            # the whole Zapdos march talking about Jolteon. The lap owns the endgame.
+            if (int(state.get("badge_count") or 0) < 8 or state.get("post_game")
+                    or not VICTORY_LAP_ENABLED):
+                eg = self._eevee_gate(state)
+                if eg is not None and self._open_questline(eg, state):
+                    log("   [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is "
+                        "unclaimed — climbing the back stairwell for the roof-room ball")
+                    return
             # PROACTIVE EXP-SHARE (2026-08-03): the dex just crossed 50 caught and the Route 15
             # aide's Exp. Share is unclaimed — the single biggest bench-development item in the
             # game, a two-floor gatehouse detour from Fuchsia. Gate self-suppresses below the
@@ -14755,7 +15358,7 @@ class Campaign:
         # ALL throwable tiers (2/3/4 — Master Ball 1 excluded, it's the reserved legendary shot),
         # same reasoning as the all-tier potion count above; otherwise a Great-Ball restock is
         # invisible to the id-4-only _ball_count and every future trip re-buys the full target.
-        _balls_have = sum(self._balls_pocket_count(i) for i in (2, 3, 4))
+        _balls_have = self._throwable_ball_count()
         if (self._thin_team() or _balls_have < 2 or keeper_due or _dex_push) \
                 and _balls_have < ball_target:
             _shelf = MART_STOCK.get(tv.map_id(self.b), [])
@@ -14859,7 +15462,7 @@ class Campaign:
         # NS#42: narrate the keeper pre-stock ('grabbing balls for the diglett I'm about to go hunt') so
         # the buy reads as purposeful, not incidental — the constitution's grind/shop-with-narrated-reason.
         keeper_due = bool(state) and self._keeper_due(state)
-        if (self._thin_team() or keeper_due) and self._ball_count() < (
+        if (self._thin_team() or keeper_due) and self._throwable_ball_count() < (
                 SHOP_BALL_KEEPER_TARGET if keeper_due else SHOP_BALL_TARGET):
             bits.append("you're light on Poké Balls — grab a good stock so you can actually catch the "
                         "teammate your plan wants" if keeper_due else
@@ -15461,20 +16064,29 @@ class Campaign:
         cur = tuple(state["map"])
         if cur == dst:
             return "arrived"
-        # FLY (capability-gated, Phase 3): fast-travel to a visited town when she actually owns Fly.
-        if self.world.has_cap("fly") and self.world.is_town(dst):
+        # FLY (capability-gated): towns + Route 10 / Route 4 / Indigo pads via fly_nav.
+        # Underground/indoor refuses inside fly_to (Seafoam must climb out first).
+        if self.world.has_cap("fly"):
             try:
-                fr = self.fly_to(self.world.name(dst))
-                if fr not in ("not_owned", "stuck", None, False):
-                    log(f"   [roam] ✈️  FLEW to {self.world.name(dst)} -> {fr}")
-                    return "flew"
-                log(f"   [roam] fly to {self.world.name(dst)} unavailable ({fr}) — walking instead")
+                import fly_nav as _fn
+                if _fn.resolve_dest(dst) is not None:
+                    fr = self.fly_to(dst)
+                    if fr == "arrived":
+                        log(f"   [roam] ✈️  FLEW to {self.world.name(dst)} -> {fr}")
+                        return "flew"
+                    if fr not in ("not_owned", "not_outdoors", "unknown_city", None, False):
+                        log(f"   [roam] fly to {self.world.name(dst)} -> {fr} — walking instead")
+                    else:
+                        log(f"   [roam] fly to {self.world.name(dst)} unavailable ({fr}) — walking instead")
             except Exception as _fe:
                 log(f"   [roam] fly attempt errored ({_fe}) — walking instead")
         # NS#42: story-gate avoid here too — the general travel actuator (keeper errand + oracle travel:X
         # picks) must not route through Flute-gated Route 12/16 pre-Flute (else a travel: pick or the keeper
         # errand hops onto Route 12 and wedges on the Snorlax; _story_gate_avoid is empty once she has the Flute).
-        avoid = self._wall_avoid(state) | self._story_gate_avoid(state)
+        # _extra_travel_avoid: caller-scoped map bans (the Zapdos NORTH staging must not route
+        # through Route 10's south segment — the graph can't see the split).
+        avoid = (self._wall_avoid(state) | self._story_gate_avoid(state)
+                 | getattr(self, "_extra_travel_avoid", set()))
         # WARP-AWARE (night shift 9, the banked_E4 Saffron seal): next_hop is EDGE-ONLY, but a
         # gate-locked city's every exit is a WARP (Saffron's four gatehouses) — the graph knew the
         # way and next_hop couldn't express hop #1, so every plain travel pick read no_route
@@ -15631,7 +16243,7 @@ class Campaign:
         elif int(state.get("badge_count", 0)) >= 8 and not state.get("post_game"):
             _emp = tuple(state.get("map") or ())
             # THE VICTORY LAP HOLDS THE LEAGUE DOOR (2026-08-04): while a pre-E4 checklist item
-            # is owed (Earthquake → Moltres → Articuno → Eevee → Zapdos, each done-or-honestly-
+            # is owed (Earthquake → Moltres → Articuno → Zapdos, each done-or-honestly-
             # skipped), head_to_league/enter_league are OFF the menu and 'victory_lap' is the
             # endgame action — the lap's order lives in code, not in the oracle's mood.
             _lap_key = self._victory_lap_next(state)
@@ -15640,7 +16252,7 @@ class Campaign:
                     f"the VICTORY LAP — all 8 badges are banked and the League can wait one "
                     f"beat: '{_lap_key}' is next on the pre-E4 checklist (Earthquake on the ace, "
                     f"bench the low-level passengers at the PC so the birds get party seats, "
-                    f"then Moltres, Articuno, the promised Eevee, Zapdos, repack the party — "
+                    f"then Moltres, Articuno, Zapdos, repack the party — "
                     f"in that order). Finish the lap, THEN storm the Elite Four with the team "
                     f"of a lifetime.")
                 log(f"   [lap] checklist owes '{_lap_key}' — victory_lap is the endgame action "
@@ -15698,7 +16310,7 @@ class Campaign:
             # grass with zero balls can't catch anything (honest action set). With no balls, the
             # ball-note + a 'travel to a Mart' option steer her to buy some first.
             try:
-                has_balls = self._ball_count() > 0
+                has_balls = self._throwable_ball_count() > 0
             except Exception:
                 has_balls = True
             if has_balls:
@@ -15810,7 +16422,8 @@ class Campaign:
             # 2026-07-07 BALL-LESS TEETH: with ZERO balls the nearest Mart is the destination that
             # matters — grass targets otherwise fill all 4 slots and the Mart never surfaces (how the
             # voltorb hunt would have wandered ball-less forever). Mart-first when the pocket is empty.
-            _traits = (("has_mart", "has_grass") if self._ball_count() == 0
+            # Use throwable tiers (Ultra/Great/Poké) — Fuchsia Ultras must clear mart-first.
+            _traits = (("has_mart", "has_grass") if self._throwable_ball_count() == 0
                        else ("has_grass", "has_mart"))
             # XP-AWARE GRASS OFFERS (2026-07-29, the Route-3 baby-grass farm): never OFFER travel to
             # grass already proven grind-dead/inadequate (she'd ride there, stand down, and bounce),
@@ -15824,7 +16437,14 @@ class Campaign:
             for mid, nm, why in self.world.travel_targets(cur, avoid=tavoid, want_traits=_traits)[:4]:
                 if tuple(mid) in _skip_grass:
                     continue
-                verb = "fly to" if (can_fly and self.world.is_town(mid)) else "head back to"
+                _fly_pad = False
+                if can_fly:
+                    try:
+                        import fly_nav as _fn
+                        _fly_pad = _fn.resolve_dest(mid) is not None
+                    except Exception:
+                        _fly_pad = self.world.is_town(mid)
+                verb = "fly to" if _fly_pad else "head back to"
                 a[f"travel:{mid[0]},{mid[1]}"] = f"{verb} {nm} — {why}"
             if GRIND_SPOT_LEVELAWARE:
                 try:
@@ -16303,7 +16923,7 @@ class Campaign:
         # Skip when GO-HARD latched — fetch_keeper was just pruned; re-offering it would put a
         # detour back on the menu opposite a forced Misty march.
         if (KEEPER_ROUTER_ENABLED and not getattr(self, "_force_gym_pick", False)
-                and self._ball_count() > 0):
+                and self._throwable_ball_count() > 0):
             _kr = self._keeper_route_target(state)
             if _kr:
                 # HEAL-GATE (NS#39: don't start a detour on a dinged team) with an NS#41 SAFE-HOP relaxation:
@@ -18540,6 +19160,19 @@ class Campaign:
         except Exception as _ws:
             log(f"   [world] seed/caps skipped: {_ws}")
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
+        # BOOT MENU-CLOSE (2026-08-08 LIVE, the Summary stare): a save banked mid-menu
+        # (party SUMMARY / bag) leaves CB2 off-overworld and every travel/lap actuator
+        # mashes a dead screen. B-cascade to the overworld before anything else runs.
+        try:
+            if not ram.battle_cb2_dead(self.b) and not st.in_battle(self.b):
+                log("   [roam] !! BOOT MENU-CLOSE: screen is off-overworld (menu save) — "
+                    "B-cascading out before the first action (LOUD)")
+                import hm_teach as _htbc
+                _f = _htbc.TeachFlow(self, log=log, on_event=self.on_event)
+                _f._b_cascade(12)
+                _f._confirm_world_back("boot-menu-close")
+        except Exception as _bmc:
+            log(f"   [roam] boot menu-close skipped: {_bmc}")
         # LEGENDARY REWIND (2026-08-05 EMERGENCY): a battled-away-but-uncaught quarry with a
         # 'pre-<key>' bank resumes INTO the encounter — before the anchor below banks, before
         # any lap/questline machinery can read the fought flag as 'done' and wander off.
@@ -18555,6 +19188,31 @@ class Campaign:
                     self._clear_pre_hunt_promote(_hk, why="boot: already owned")
         except Exception as _cps:
             log(f"   [hunt] catch-pin sweep skipped: {_cps}")
+        # SEAFOAM BOOT EGRESS (2026-08-08): Articuno caught but still inside the cave —
+        # Fly is illegal underground and Zapdos has no graph route from B2F. Climb to
+        # Route 20 BEFORE the first roam tick (Jonny: "spawn her outside the seafoam cave").
+        try:
+            _boot_here = tuple(tv.map_id(self.b))
+            _art_done = (ram.pokedex_owns(self.b, 144) is True
+                         or not self._lap_pending("articuno"))
+            if _boot_here in self._SEAFOAM_DUNGEON:
+                if _art_done:
+                    log(f"   [roam] !! SEAFOAM BOOT EGRESS — Articuno spent, still inside "
+                        f"{_boot_here}@{tv.coords(self.b)}; climbing to Route 20 NOW (LOUD)")
+                    self.on_event("okay I'm done with this cave — climbing out to the beach, "
+                                  "THEN Cerulean for Zapdos.", kind="route", tier=2)
+                    if self._seafoam_surface_egress("boot"):
+                        log(f"   [roam] Seafoam boot egress OK → {tv.map_id(self.b)}@"
+                            f"{tv.coords(self.b)}")
+                    else:
+                        log(f"   [roam] !! Seafoam boot egress stalled at "
+                            f"{tv.map_id(self.b)}@{tv.coords(self.b)} — lap will retry (LOUD)")
+            elif _boot_here == (3, 38) and _art_done:
+                # Booted OUTSIDE beside the mouth (the rope loop's landing) — lock the
+                # doors NOW, before the first travel leg BFS's back over the warp tile.
+                self._seafoam_mouth_lockout("boot-outside")
+        except Exception as _sbe:
+            log(f"   [roam] Seafoam boot egress skipped: {_sbe}")
         # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
         # real progress (a badge, a new area, a catch), so the next GO resumes the CLIMB from where she
         # actually is. _camp_sig is the cheap progress fingerprint we diff each tick.
@@ -19462,7 +20120,7 @@ class Campaign:
                     "(dominant / creator order; grass is OFF the menu)")
             # FORCE VICTORY LAP (2026-08-04): the pre-E4 checklist is not a taste question —
             # when the lap action is on the menu it IS the endgame road (explicit order:
-            # Earthquake → Moltres → Articuno → Eevee → Zapdos). Heal still outranks a lap
+            # Earthquake → box_bench → birds → Fly → Zapdos → Ice Beam → repack). Heal still outranks a lap
             # leg (the hunts are combat dungeons; nobody starts one hurt) — the lap re-forces
             # next tick at full HP.
             if _forced_pick is None and "victory_lap" in avail:
@@ -21403,7 +22061,8 @@ class Campaign:
         except Exception:
             return False
 
-    def _reload_labeled_checkpoint(self, tag, verify=None, ratchet_region=None, max_loads=10):
+    def _reload_labeled_checkpoint(self, tag, verify=None, ratchet_region=None, max_loads=10,
+                                   require_map=None):
         """LABELED RELOAD (2026-08-05, THE FREE RETRY at Moltres): load the NEWEST on-disk
         auto-checkpoint whose dir name carries `tag` (labels are the _ckpt_label reason
         suffix — 'pre-moltres', 'moltres-leg', ...). Savestates restore FULL RAM, so a
@@ -21427,7 +22086,11 @@ class Campaign:
         removeobject/msgbox can still be PENDING inside a savestate whose fought/hide flags
         read clear. Instant flag-verify alone accepted that bank (182452); advancing frames
         then played "The MOLTRES flew away!". After a flag-clear load we `_wait_overworld`
-        and verify AGAIN — a settle that flips fought|hide|sprite-gone rejects and ratchets."""
+        and verify AGAIN — a settle that flips fought|hide|sprite-gone rejects and ratchets.
+
+        require_map (2026-08-07 LIVE, Articuno teleport): when set, skip any candidate whose
+        checkpoint.json map != require_map BEFORE load — seafoam B3F calm must never yank
+        her off B4F at the bird during a doorstep soft-reload."""
         import json as _json
         root = os.path.join(STATES_CAMPAIGN, "checkpoints")
         try:
@@ -21438,6 +22101,7 @@ class Campaign:
             log(f"   [ckpt] labeled reload '{tag}': checkpoint root unreadable ({_le}) — declining")
             return False
         tagged = [n for n in all_names if tag in n]
+        _req_map = tuple(require_map) if require_map is not None else None
         # Drop blacklisted poison banks (182452-class mid-flee) before any load attempt.
         _bl = tuple(getattr(self, "_HUNT_BANK_BLACKLIST", ()) or ())
         if _bl:
@@ -21488,6 +22152,21 @@ class Campaign:
                 log(f"   [ckpt] !! LABELED RELOAD '{tag}': ratchet budget spent "
                     f"({max_loads} loads) — stopping the walk-back")
                 break
+            # IN-PLACE MAP GUARD (doorstep soft-reload): refuse off-floor banks before load
+            # so we never pin/re-bank a B3F calm as 'pre-articuno' while she's on B4F.
+            if _req_map is not None:
+                try:
+                    with open(os.path.join(root, name, "checkpoint.json"), "r",
+                              encoding="utf-8") as f:
+                        _cm = tuple(_json.load(f).get("map") or ())
+                    if _cm != _req_map:
+                        log(f"   [ckpt] !! LABELED RELOAD '{tag}': skipping '{name}' — "
+                            f"map {_cm} != required {_req_map} (doorstep in-place law) (LOUD)")
+                        continue
+                except Exception:
+                    log(f"   [ckpt] !! LABELED RELOAD '{tag}': skipping '{name}' — "
+                        f"map unreadable under require_map={_req_map} (LOUD)")
+                    continue
             state_p = os.path.join(root, name, CAMPAIGN_SAVE)
             try:
                 if not os.path.exists(state_p):
@@ -21612,8 +22291,7 @@ class Campaign:
         # ZERO-BALL summit bank can't catch — reject (soak 080642 oracle: "ZERO Poké Balls"
         # after a "verified" pre-moltres load; free-retry then looped flee/respawn).
         try:
-            n_balls = sum(self._balls_pocket_count(i) for i in (2, 3, 4))  # Ultra/Great/Poké
-            if n_balls <= 0:
+            if self._throwable_ball_count() <= 0:
                 return False
         except Exception:
             pass
@@ -21671,19 +22349,22 @@ class Campaign:
         except Exception as e:
             log(f"   [hunt] !! PROMOTE_TARGET pin skipped: {e}")
 
-    def _reload_hunt_checkpoint(self, key):
+    def _reload_hunt_checkpoint(self, key, require_map=None):
         """The hunts' ONLY reload door (boot rewind + THE FREE RETRY): 'pre-<key>' first,
         post-load flag+sprite verification (settle re-check), poisoned banks ratchet back
         through older same-region banks (climb / roam-start / fight-won / moltres-leg…)
         until one still contains the bird. On a verified landing, immediately re-banks a
         fresh 'pre-<key>' and pins PROMOTE_TARGET. Never silently accepts a spent summit.
-        Returns True on a verified landing."""
+        Returns True on a verified landing.
+
+        require_map: doorstep soft-reload passes the quarry map so B3F calm / climb banks
+        cannot teleport her off the bird (LIVE 2026-08-07 Articuno)."""
         key = str(key).lower()
         site = self._HUNT_SITE_ALL.get(key)
         ok = self._reload_labeled_checkpoint(
             f"pre-{key}", verify=lambda: self._hunt_bank_live(key),
             ratchet_region=map_region(site) if site else None,
-            max_loads=40)
+            max_loads=40, require_map=require_map)
         if ok:
             try:
                 if self._hunt_bank_live(key):
@@ -21824,6 +22505,292 @@ class Campaign:
             log(f"   !! EXIT: guard engagement failed ({_ge}) — walking on")
         return False
 
+    # Seafoam interiors (pret map_groups): deeper floors have HIGHER map nums.
+    # Exit must climb toward F1 (1,83) / R20 — never re-drop toward B4F (1,87).
+    _SEAFOAM_DUNGEON = {(1, 83), (1, 84), (1, 85), (1, 86), (1, 87)}
+
+    def _ensure_bag_item(self, item_id, qty=1):
+        """Write `qty` of `item_id` into the Items pocket (bump or first empty).
+        Emergency strand tool (Escape Rope) — never for progression items."""
+        try:
+            sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+            key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
+            mem = self.b.core.memory
+            used, empty = None, None
+            for s in range(42):
+                slot = sb1 + 0x0310 + s * 4
+                iid = self.b.rd16(slot)
+                if iid == item_id:
+                    used = s
+                    break
+                if iid == 0 and empty is None:
+                    empty = s
+            if used is not None:
+                slot = sb1 + 0x0310 + used * 4
+                cur = self.b.rd16(slot + 2) ^ key
+                newq = min(max(cur, int(qty)), 99)
+                mem.u16.raw_write(slot + 2, (newq ^ key) & 0xFFFF)
+                return newq
+            if empty is None:
+                return 0
+            slot = sb1 + 0x0310 + empty * 4
+            mem.u16.raw_write(slot, int(item_id) & 0xFFFF)
+            mem.u16.raw_write(slot + 2, (int(qty) ^ key) & 0xFFFF)
+            return int(qty)
+        except Exception as e:
+            log(f"   [bag] !! ensure item {item_id} failed ({e})")
+            return 0
+
+    def _seafoam_mouth_lockout(self, label="mouth-lockout"):
+        """POST-EGRESS DOOR LAW (2026-08-08 LIVE, the rope↔door loop): the Escape Rope
+        drops her ONE TILE from the cave mouth; the next travel leg BFS'd straight
+        over the warp tile → back inside → rope again, forever. Block every Seafoam
+        mouth on this outdoor map in the unified wedge memory (travel routes around
+        blocked tiles) and physically step AWAY from the nearest door."""
+        try:
+            here = tuple(tv.map_id(self.b))
+            if here[0] != 3:
+                return
+            mouths = []
+            for w in (tv.read_warps(self.b) or []):
+                try:
+                    wt, wd = tuple(w[0]), tuple(w[1]) if len(w) > 1 else None
+                except Exception:
+                    continue
+                if wd in self._SEAFOAM_DUNGEON:
+                    mouths.append(wt)
+            if not mouths:
+                return
+            if not hasattr(self, "_blocked_npcs"):
+                self._blocked_npcs = set()
+            newly = [m for m in mouths if (here, m) not in self._blocked_npcs]
+            for m in mouths:
+                self._blocked_npcs.add((here, m))
+                # PIN the mark — travel's stale-NPC release reads an empty door tile
+                # as "wanderer moved on" and un-blocks it (LIVE 19:07 re-entry).
+                try:
+                    if not hasattr(self.trav, "pinned_blocks"):
+                        self.trav.pinned_blocks = set()
+                    self.trav.pinned_blocks.add((here, m))
+                except Exception:
+                    pass
+            if newly:
+                log(f"   [seafoam] 🚪 MOUTH LOCKOUT ({label}): blocked {newly} on "
+                    f"{here} — travel routes AROUND the cave now (LOUD)")
+                try:
+                    self._save_wedge_memory()
+                except Exception:
+                    pass
+            # Step away from the nearest mouth (the rope lands her adjacent to it).
+            cur = tuple(tv.coords(self.b) or ())
+            if not cur:
+                return
+            near = min(mouths, key=lambda m: abs(m[0] - cur[0]) + abs(m[1] - cur[1]))
+            if abs(near[0] - cur[0]) + abs(near[1] - cur[1]) > 3:
+                return
+            grid = tv.Grid(self.b)
+            best = None
+            for key, (dx, dy) in (("DOWN", (0, 1)), ("RIGHT", (1, 0)),
+                                  ("LEFT", (-1, 0)), ("UP", (0, -1))):
+                n = (cur[0] + dx, cur[1] + dy)
+                if n in mouths:
+                    continue
+                try:
+                    if not grid.walkable(*n):
+                        continue
+                except Exception:
+                    continue
+                d = abs(n[0] - near[0]) + abs(n[1] - near[1])
+                if best is None or d > best[0]:
+                    best = (d, key)
+            if best:
+                for _ in range(4):
+                    self.b.press(best[1], 8, 8, self.render, owner="agent")
+                    for _f in range(30):
+                        self.b.run_frame()
+                    if tuple(tv.map_id(self.b)) != here:
+                        break   # stepped through something — stop pressing
+                log(f"   [seafoam] stepped away from mouth {near} -> "
+                    f"{tv.coords(self.b)} via {best[1]}")
+        except Exception as e:
+            log(f"   [seafoam] mouth lockout skipped ({e})")
+
+    def _seafoam_surface_egress(self, label="seafoam-egress"):
+        """Get OUT of Seafoam to Route 20 (Jonny: 'spawn her outside the seafoam cave').
+
+        LIVE 20260807 18:29: sealed B2F water (29,12) — climb had no path, Teleport
+        is ILLEGAL in caves. Order: Escape Rope (inject if empty) → Dig if known →
+        ArticunoHunt.climb_out (east re-drop) → _exit_to_overworld with redrop
+        allowed. Fly only works AFTER she's outdoors. Every success path runs the
+        MOUTH LOCKOUT so travel can never walk her straight back in (the rope loop)."""
+        try:
+            here = tuple(tv.map_id(self.b))
+        except Exception:
+            return False
+        if here[0] == 3:
+            self._seafoam_mouth_lockout(f"{label}-already-out")
+            return True
+        if here not in self._SEAFOAM_DUNGEON:
+            return self._exit_to_overworld()
+        # 1) Escape Rope — dungeon eject (Teleport CANNOT fire underground).
+        try:
+            import hm_teach as ht
+            n = ht.items_pocket_qty(self.b, 85)
+            if n <= 0:
+                got = self._ensure_bag_item(85, 1)
+                log(f"   [seafoam] !! ESCAPE ROPE INJECT x{got} for {label} "
+                    f"(sealed pocket strand — LOUD)")
+                n = ht.items_pocket_qty(self.b, 85)
+            if n > 0:
+                log(f"   [seafoam] Escape Rope x{n} — ejecting for {label} (LOUD)")
+                self.on_event("okay — Escape Rope, get me OUT of this cave. now.",
+                              kind="route", tier=2)
+                r = ht.TeachFlow(self, log=log, on_event=self.on_event).field_escape_rope(
+                    max_seconds=75)
+                if r == "used" and tuple(tv.map_id(self.b))[0] == 3:
+                    log(f"   [seafoam] Escape Rope → {tv.map_id(self.b)}@"
+                        f"{tv.coords(self.b)}")
+                    self._seafoam_mouth_lockout(f"{label}-rope")
+                    return True
+                log(f"   [seafoam] Escape Rope -> {r} (still "
+                    f"{tv.map_id(self.b)}) — trying Dig / climb")
+        except Exception as e:
+            log(f"   [seafoam] Escape Rope path skipped ({e})")
+        # 2) Dig (move 91) — same dungeon-exit effect if anyone knows it.
+        try:
+            import hm_teach as ht
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            dig_slot = st.party_knows_move(self.b, 91, cnt)
+            if dig_slot is not None:
+                m0 = tuple(tv.map_id(self.b))
+
+                def _dug():
+                    try:
+                        m1 = tuple(tv.map_id(self.b))
+                        return m1 != m0 and m1[0] == 3
+                    except Exception:
+                        return False
+
+                mon = st.SPECIES_NAME.get(st.read_party_species(self.b, dig_slot),
+                                         f"slot{dig_slot}")
+                log(f"   [seafoam] Dig via {mon} for {label} (LOUD)")
+                self.on_event(f"{mon} — Dig. get us to the beach.",
+                              kind="route", tier=2)
+                r = ht.TeachFlow(self, log=log, on_event=self.on_event).use_field_move(
+                    dig_slot, _dug, label="seafoam-dig", max_seconds=90,
+                    drain_frames=600, fixed_row=0)
+                if r == "used" and _dug():
+                    log(f"   [seafoam] Dig → {tv.map_id(self.b)}@{tv.coords(self.b)}")
+                    self._seafoam_mouth_lockout(f"{label}-dig")
+                    return True
+        except Exception as e:
+            log(f"   [seafoam] Dig path skipped ({e})")
+        # 3) Column climb (east re-drop from sealed B2F water).
+        try:
+            from legendary_strikes import ArticunoHunt, R20
+            hunt = ArticunoHunt(self, log, None)
+            hunt.deadline = time.time() + 600
+            if hunt.climb_out(label) and tuple(tv.map_id(self.b)) == tuple(R20):
+                log(f"   [seafoam] climb_out({label}) → Route 20")
+                self._seafoam_mouth_lockout(f"{label}-climb")
+                return True
+        except Exception as e:
+            log(f"   [seafoam] climb_out({label}) faulted ({e}) — exit-building fallback")
+        # 4) Generic exit — allow Seafoam re-drops when UP is sealed.
+        self._seafoam_allow_redrop = True
+        try:
+            if self._exit_to_overworld(max_tries=8):
+                self._seafoam_mouth_lockout(f"{label}-exitbuild")
+                return True
+        finally:
+            self._seafoam_allow_redrop = False
+        try:
+            if tuple(tv.map_id(self.b))[0] == 3:
+                self._seafoam_mouth_lockout(f"{label}-late")
+                return True
+            return False
+        except Exception:
+            return False
+
+    def _step_off_arrival_warp(self):
+        """Ladder landing law (Jonny 2026-08-07): FRLG leaves you ON the warp tile.
+        FORWARD is blocked → she reverses → walks back into the hole. LEFT off the
+        ladder immediately, then one more step into the open room. Returns True if
+        she is (or is now) off every warp tile on this map."""
+        b = self.b
+        try:
+            cur = tuple(tv.coords(b) or ())
+        except Exception:
+            return False
+        if not cur:
+            return False
+        try:
+            wts = {tuple(w[0]) for w in tv.read_warps(b)}
+        except Exception:
+            return False
+        if cur not in wts:
+            return True
+        m0 = tuple(tv.map_id(b))
+        hole = cur
+        grid = tv.Grid(b)
+        surf = self._surf_usable()
+        wk = grid.walkable_or_surf if surf else grid.walkable
+        # LEFT first (hard), then DOWN/back — never UP first (re-fall face on Seafoam).
+        for key, (dx, dy) in (("LEFT", (-1, 0)), ("DOWN", (0, 1)),
+                              ("RIGHT", (1, 0)), ("UP", (0, -1))):
+            n = (hole[0] + dx, hole[1] + dy)
+            if n in wts:
+                continue
+            try:
+                if not wk(*n):
+                    continue
+            except Exception:
+                continue
+            b.press(key, 8, 8, self.render, owner="agent")
+            for _ in range(40):
+                b.run_frame()
+            if tuple(tv.map_id(b)) != m0:
+                log(f"   [ladder] !! step-off re-fired warp {m0} -> {tv.map_id(b)} (LOUD)")
+                return False
+            now = tuple(tv.coords(b) or ())
+            if not now or now in wts:
+                continue
+            log(f"   [ladder] stepped OFF landing {hole} -> {now} via {key}")
+            # Second beat: FORWARD into the room (continue LEFT, else any step away from hole).
+            d0 = abs(now[0] - hole[0]) + abs(now[1] - hole[1])
+            for key2, (dx2, dy2) in ((key, (dx, dy)), ("LEFT", (-1, 0)),
+                                     ("UP", (0, -1)), ("DOWN", (0, 1)),
+                                     ("RIGHT", (1, 0))):
+                n2 = (now[0] + dx2, now[1] + dy2)
+                if n2 == hole or n2 in wts:
+                    continue
+                if abs(n2[0] - hole[0]) + abs(n2[1] - hole[1]) < d0:
+                    continue
+                try:
+                    if not wk(*n2):
+                        continue
+                except Exception:
+                    continue
+                b.press(key2, 8, 8, self.render, owner="agent")
+                for _ in range(40):
+                    b.run_frame()
+                if tuple(tv.map_id(b)) != m0:
+                    return False
+                now2 = tuple(tv.coords(b) or ())
+                if now2 and now2 not in wts and now2 != hole:
+                    log(f"   [ladder] FORWARD into room {now} -> {now2} via {key2}")
+                    # Remember so exit candidates skip this hole this call.
+                    if not hasattr(self, "_banned_arrival_warps"):
+                        self._banned_arrival_warps = set()
+                    self._banned_arrival_warps.add((m0, hole))
+                    return True
+            if not hasattr(self, "_banned_arrival_warps"):
+                self._banned_arrival_warps = set()
+            self._banned_arrival_warps.add((m0, hole))
+            return True
+        log(f"   [ladder] !! on warp {hole} with no LEFT/FORWARD egress (LOUD)")
+        return False
+
     def _exit_to_overworld(self, max_tries=5):
         """From INSIDE any building (PC / house / Mart / lab — map group != 3, the Kanto overworld),
         return to the walkable overworld. The general recovery primitive every blackout respawn needs.
@@ -21837,6 +22804,7 @@ class Campaign:
         self.b.set_input_owner("agent")
         taken = set()
         _elev_seen = set()
+        self._banned_arrival_warps = set()
         # PERSISTENT ROW CURSOR (shift 6, the scope-regrade ride waste): the row schedule used
         # to reset to 0 every call, so every leave_building tick re-burned the default/current-
         # floor rows before reaching one that rides (the bag TRUE-row cursor law, applied here).
@@ -21847,6 +22815,13 @@ class Campaign:
             if tv.map_id(self.b)[0] == 3:
                 return True
             before = tuple(tv.map_id(self.b))
+            # SEAFOAM ladders only — leave the arrival warp BEFORE picking the next door,
+            # or enter_warp stands on (12,9) and steps UP straight back down the hole
+            # (soak 20260807_112459 EXIT-BUILDING yo-yo). Do NOT run this in Centers/
+            # houses: those exit mats need an on-tile press.
+            if before in self._SEAFOAM_DUNGEON:
+                self._step_off_arrival_warp()
+                before = tuple(tv.map_id(self.b))
             cur = tuple(tv.coords(self.b))
             # ELEVATOR CAR (2026-07-08 shift 5, the banked_SCOPE 412-wedge class): a room whose
             # EVERY warp is dynamic ((127,127)) is an elevator — its door just steps back onto
@@ -21887,12 +22862,26 @@ class Campaign:
             def _gd(t):
                 d = _dest.get(t)
                 return grad.get(f"{d[0]},{d[1]}", 999) if d else 999
-            fresh = [w for w in cands if (before, w) not in taken]
+            banned = getattr(self, "_banned_arrival_warps", set())
+            fresh = [w for w in cands
+                     if (before, w) not in taken and (before, w) not in banned]
+            # SEAFOAM EXIT GRADIENT: deeper floors have higher map nums (B4F=87 … F1=83).
+            # Prefer warps whose dest map_num is SMALLER (toward the surface / R20). A
+            # dest deeper than `before` is a re-drop — deprioritize hard (soak yo-yo).
+            def _seafoam_depth(t):
+                d = _dest.get(t)
+                if not d:
+                    return 0
+                if before in self._SEAFOAM_DUNGEON and d in self._SEAFOAM_DUNGEON:
+                    # lower map num = closer to surface = better (sort ascending)
+                    return d[1] - before[1]   # negative = climbing out; positive = dropping
+                return 0
             # within a tier, an ACTUATABLE warp (a behavior the directional table can fire) beats a
             # dead arrival-mat: the Center's exit row is (6,8)/(7,8)/(8,8) but only (7,8) is the 0x65
             # arrow that actually fires — trying the dead mats first burned a travel leg each.
             cands = sorted(fresh or cands,
                            key=lambda t: (t not in street,
+                                          _seafoam_depth(t),
                                           _gd(t),
                                           self._tile_behavior(*t) not in self._WARP_ENTRY,
                                           abs(t[0] - cur[0]) + abs(t[1] - cur[1])))
@@ -21908,6 +22897,25 @@ class Campaign:
                 if tuple(tv.map_id(self.b)) != before:
                     moved = True
                     break
+                # Never re-enter the hole we just climbed out of this call.
+                if (before, tuple(wt)) in banned:
+                    log(f"   EXIT: door {wt} banned (just stepped off this landing) — skip")
+                    continue
+                # SEAFOAM: refuse a warp that drops deeper (B3F→B4F) while exiting —
+                # UNLESS `_seafoam_allow_redrop` (sealed B2F east water: UP unreachable,
+                # must fall to B3F then climb the east corridor — LIVE 20260807 18:29).
+                _dwt = _dest.get(tuple(wt))
+                if (before in self._SEAFOAM_DUNGEON and _dwt in self._SEAFOAM_DUNGEON
+                        and _dwt[1] > before[1]
+                        and not getattr(self, "_seafoam_allow_redrop", False)):
+                    log(f"   EXIT: door {wt} -> {_dwt} drops deeper in Seafoam — skip (LOUD)")
+                    taken.add((before, wt))
+                    continue
+                if (getattr(self, "_seafoam_allow_redrop", False)
+                        and before in self._SEAFOAM_DUNGEON and _dwt in self._SEAFOAM_DUNGEON
+                        and _dwt[1] > before[1]):
+                    log(f"   EXIT: door {wt} -> {_dwt} DEEPER allowed "
+                        f"(seafoam sealed-pocket redrop) (LOUD)")
                 # SEALED-DOOR SKIP (shift 6, the B1F barrier lobby): don't burn a travel budget
                 # + the enter_warp approach fan (≈6 travel wedges) on a door her feet provably
                 # can't reach right now. NOT added to `taken` — the flood check is per-tick truth,

@@ -155,7 +155,7 @@
     "FLAG_FOUGHT_ARTICUNO": {
       "id": 702,
       "hex": "0x2BE",
-      "note": "2026-08-04 LEGENDARY HUNTS: set when the Seafoam B4F Articuno battle concludes. Object at (9,2) in SEAFOAM_ISLANDS_B4F; HIDE flag 0x082. The B4F approach is SAFE water only when both B3F boulders truly fell (hide flags 0x046/0x047 CLEARED) — the R21-reroute's stamped 0x2D2 alone leaves the rip current live."
+      "note": "2026-08-04 LEGENDARY HUNTS: set when the Seafoam B4F Articuno battle concludes. Object at (9,2) in SEAFOAM_ISLANDS_B4F; HIDE flag 0x082. The B4F approach is SAFE water only when FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3) is set — both B4F boulders PRESENT (hide 0x04C/0x04D CLEARED). B3F calm (0x2D2) / B3F boulder flags are NOT enough; R21 can stamp 0x2D2 while B4F still rips."
     },
     "FLAG_FOUGHT_MEWTWO": {
       "id": 700,
@@ -279,7 +279,7 @@
       "obtain": {
         "via": "talk_npc",
         "npc": "the girl in the hidden house",
-        "from": "3,7",
+        "from": "3,6",
         "dir": "west",
         "place_name": "the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)",
         "prereq": "cut",
@@ -579,7 +579,7 @@
         "prereq": "surf",
         "sets_flag": "FLAG_FOUGHT_ARTICUNO",
         "gives_cap": null,
-        "_note": "2026-08-04 legendary_strikes.ArticunoHunt. HARD GATE: both B3F boulders truly fallen (hide flags 0x046/0x047 CLEARED) — the R21-reroute stamps 0x2D2 without them and the B4F rip current would sweep her. The gate self-suppresses otherwise; a rerouted run simply skips Articuno."
+        "_note": "2026-08-07 legendary_strikes.ArticunoHunt. HARD GATE: FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3) or both B4F boulders PRESENT (hide 0x04C/0x04D CLEARED). B3F calm (0x2D2) alone is NOT enough — R21 stamps it while B4F still rips. Gate self-suppresses / lap honest-skips otherwise."
       },
       "human": "Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality"
     },

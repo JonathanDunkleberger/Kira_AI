@@ -1,0 +1,286 @@
+resume_marathon 20260807_182822  (repo: G:\JonnyD\NeuroAI_Bot)
+== stopping any running Kira python processes ==
+git branch at start: cursor/endgame-credits-path-bdbc
+== git fetch origin ==
+
+== git pull ==
+Already up to date.
+
+running commit: 1c44d78 feat(fly): wire HM02 Fly + Seafoam egress so Zapdos can stage at Route 10
+running branch: cursor/endgame-credits-path-bdbc
+== crash forensics ==
+== logs\debug listing (newest 25) ==
+
+Name                            LastWriteTime        Length
+----                            -------------        ------
+console_2026-08-07_18-14-32.log 8/7/2026 6:20:34 PM   58428
+latest.log                      8/7/2026 6:20:34 PM   58428
+playlive_faulthandler.log       8/7/2026 6:15:22 PM   17600
+console_2026-08-07_17-53-47.log 8/7/2026 6:04:09 PM  101951
+console_2026-08-07_17-39-08.log 8/7/2026 5:49:15 PM  109106
+console_2026-08-07_17-09-57.log 8/7/2026 5:31:35 PM  187276
+console_2026-08-07_12-06-56.log 8/7/2026 12:39:07 PM 302971
+console_2026-08-07_11-50-49.log 8/7/2026 11:54:33 AM  39008
+console_2026-08-07_11-40-31.log 8/7/2026 11:43:19 AM  24388
+console_2026-08-07_11-25-07.log 8/7/2026 11:31:47 AM  52925
+console_2026-08-07_11-19-28.log 8/7/2026 11:19:31 AM    568
+console_2026-08-06_22-27-42.log 8/6/2026 10:31:19 PM  36614
+console_2026-08-06_21-43-41.log 8/6/2026 10:21:26 PM 358051
+console_2026-08-06_21-34-29.log 8/6/2026 9:43:27 PM   80711
+console_2026-08-06_21-27-12.log 8/6/2026 9:32:59 PM   63761
+console_2026-08-06_21-20-35.log 8/6/2026 9:26:54 PM   53643
+console_2026-08-06_20-47-53.log 8/6/2026 9:20:20 PM  322518
+console_2026-08-06_20-29-12.log 8/6/2026 8:44:34 PM  150445
+console_2026-08-06_20-22-25.log 8/6/2026 8:28:54 PM   59927
+console_2026-08-06_20-12-52.log 8/6/2026 8:19:04 PM   54949
+console_2026-08-06_20-00-19.log 8/6/2026 8:07:49 PM   79656
+console_2026-08-06_19-22-57.log 8/6/2026 7:34:21 PM  133665
+console_2026-08-06_18-35-02.log 8/6/2026 7:12:52 PM  302336
+console_2026-08-06_09-17-44.log 8/6/2026 9:22:13 AM   41414
+console_2026-08-06_09-07-00.log 8/6/2026 9:16:21 AM   94923
+
+
+
+tailed newest debug log: console_2026-08-07_18-14-32.log
+tailed supervisor log: playlive_2026-08-07_18-15-22.log
+tailed supervisor log: playlive_2026-08-07_17-54-41.log
+extracted engine forensics -> engine_tail.log
+== sandbox inventory (G:\temp\kira_watch) ==
+[1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
+    last activity: 07/28/2026 13:14:38
+    badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 2 played=15min timeline=sherpa
+[2] G:\temp\kira_watch\sandbox_canonical_20260728_125602
+    last activity: 07/28/2026 12:57:41
+    badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
+== canonical campaign ==
+    last activity: 08/07/2026 18:20:30
+    badges=8 party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] place=Seafoam Islands played=2229min timeline=sherpa
+== campaign snapshot inventory (*.state, newest first) ==
+
+Name                             LastWriteTime         Length
+----                             -------------         ------
+kira_campaign.state              8/7/2026 6:19:12 PM   397312
+replaced_20260807_175339.state   8/7/2026 5:49:00 PM   397312
+pre_reload_20260807_115410.state 8/7/2026 11:54:10 AM  397312
+pre_reload_20260807_115406.state 8/7/2026 11:54:06 AM  397312
+pre_reload_20260807_112925.state 8/7/2026 11:29:25 AM  397312
+pre_reload_20260807_112921.state 8/7/2026 11:29:21 AM  397312
+pre_reload_20260806_223107.state 8/6/2026 10:31:07 PM  397312
+pre_reload_20260806_223104.state 8/6/2026 10:31:04 PM  397312
+pre_reload_20260806_221454.state 8/6/2026 10:14:54 PM  397312
+pre_reload_20260806_220819.state 8/6/2026 10:08:19 PM  397312
+replaced_20260806_213422.state   8/6/2026 9:28:29 PM   397312
+replaced_20260806_212704.state   8/6/2026 9:25:36 PM   397312
+replaced_20260806_212026.state   8/6/2026 9:17:38 PM   397312
+pre_reload_20260806_211220.state 8/6/2026 9:12:20 PM   397312
+pre_deepwedge_1786070045.state   8/6/2026 7:34:05 PM   397312
+pre_reload_20260806_193355.state 8/6/2026 7:33:55 PM   397312
+pre_reload_20260806_193351.state 8/6/2026 7:33:51 PM   397312
+replaced_20260806_090652.state   8/6/2026 9:04:53 AM   397312
+replaced_20260806_085349.state   8/6/2026 8:48:19 AM   397312
+replaced_20260806_083445.state   8/6/2026 8:30:20 AM   397312
+replaced_20260806_082756.state   8/6/2026 8:16:35 AM   397312
+replaced_20260806_082259.state   8/6/2026 8:16:35 AM   397312
+replaced_20260806_081352.state   8/6/2026 8:11:17 AM   397312
+replaced_20260806_080642.state   8/6/2026 7:56:29 AM   397312
+replaced_20260805_134812.state   8/5/2026 8:50:35 AM   397312
+pre_reload_20260805_085035.state 8/5/2026 8:50:35 AM   397312
+replaced_20260805_084238.state   8/5/2026 8:13:33 AM   397312
+pre_reload_20260805_081112.state 8/5/2026 8:11:12 AM   397312
+pre_reload_20260805_074212.state 8/5/2026 7:42:12 AM   397312
+pre_reload_20260804_162616.state 8/4/2026 4:26:16 PM   397312
+pre_reload_20260804_140403.state 8/4/2026 2:04:03 PM   397312
+pre_reload_20260804_140101.state 8/4/2026 2:01:01 PM   397312
+pre_reload_20260804_132021.state 8/4/2026 1:20:21 PM   397312
+pre_reload_20260804_131930.state 8/4/2026 1:19:30 PM   397312
+pre_reload_20260804_131837.state 8/4/2026 1:18:37 PM   397312
+pre_reload_20260804_131745.state 8/4/2026 1:17:45 PM   397312
+pre_reload_20260804_131643.state 8/4/2026 1:16:43 PM   397312
+pre_reload_20260804_131541.state 8/4/2026 1:15:41 PM   397312
+replaced_20260803_072753.state   8/3/2026 7:14:40 AM   397312
+replaced_20260802_215912.state   8/2/2026 9:52:47 PM   397312
+replaced_20260802_213836.state   8/2/2026 9:32:48 PM   397312
+replaced_20260802_213131.state   8/2/2026 9:29:05 PM   397312
+pre_reload_20260802_173711.state 8/2/2026 5:37:11 PM   397312
+pre_reload_20260802_173631.state 8/2/2026 5:36:31 PM   397312
+replaced_20260802_173159.state   8/2/2026 5:23:12 PM   397312
+pre_deepwedge_1785713328.state   8/2/2026 4:28:48 PM   397312
+pre_reload_20260802_162848.state 8/2/2026 4:28:48 PM   397312
+pre_reload_20260802_162556.state 8/2/2026 4:25:56 PM   397312
+pre_deepwedge_1785712958.state   8/2/2026 4:22:38 PM   397312
+pre_reload_20260802_162238.state 8/2/2026 4:22:38 PM   397312
+pre_deepwedge_1785712770.state   8/2/2026 4:19:30 PM   397312
+pre_reload_20260802_161930.state 8/2/2026 4:19:30 PM   397312
+pre_deepwedge_1785712576.state   8/2/2026 4:16:16 PM   397312
+pre_reload_20260802_161616.state 8/2/2026 4:16:16 PM   397312
+replaced_20260802_153012.state   8/2/2026 3:29:02 PM   397312
+replaced_20260802_152319.state   8/2/2026 3:21:55 PM   397312
+replaced_20260802_145517.state   8/2/2026 2:51:12 PM   397312
+replaced_20260802_144820.state   8/2/2026 2:40:19 PM   397312
+replaced_20260802_142627.state   8/2/2026 2:20:36 PM   397312
+pre_reload_20260802_141953.state 8/2/2026 2:19:53 PM   397312
+pre_reload_20260802_141927.state 8/2/2026 2:19:27 PM   397312
+pre_deepwedge_1785705308.state   8/2/2026 2:15:08 PM   397312
+pre_reload_20260802_141425.state 8/2/2026 2:14:25 PM   397312
+pre_reload_20260802_141403.state 8/2/2026 2:14:03 PM   397312
+replaced_20260802_134813.state   8/2/2026 1:45:22 PM   397312
+pre_reload_20260801_054735.state 8/1/2026 5:47:35 AM   397312
+pre_reload_20260731_152047.state 7/31/2026 3:20:47 PM  397312
+pre_reload_20260731_151952.state 7/31/2026 3:19:52 PM  397312
+pre_reload_20260730_131347.state 7/30/2026 1:13:47 PM  397312
+pre_reload_20260730_115901.state 7/30/2026 11:59:01 AM 397312
+pre_reload_20260730_102123.state 7/30/2026 10:21:23 AM 397312
+pre_reload_20260730_102031.state 7/30/2026 10:20:31 AM 397312
+pre_reload_20260730_101940.state 7/30/2026 10:19:40 AM 397312
+pre_reload_20260730_101849.state 7/30/2026 10:18:49 AM 397312
+pre_reload_20260730_100344.state 7/30/2026 10:03:44 AM 397312
+pre_reload_20260730_100252.state 7/30/2026 10:02:52 AM 397312
+pre_reload_20260730_100201.state 7/30/2026 10:02:01 AM 397312
+pre_reload_20260730_100110.state 7/30/2026 10:01:10 AM 397312
+pre_reload_20260730_100018.state 7/30/2026 10:00:18 AM 397312
+replaced_20260730_094739.state   7/30/2026 9:40:24 AM  397312
+pre_reload_20260730_091004.state 7/30/2026 9:10:04 AM  397312
+pre_reload_20260729_141617.state 7/29/2026 2:16:17 PM  397312
+pre_reload_20260729_101235.state 7/29/2026 10:12:35 AM 397312
+
+
+
+== showtime segment checkpoints (states\kira\*.state, newest first) ==
+
+Name                             LastWriteTime        Length
+----                             -------------        ------
+seg_cascade_badge.progress.state 7/28/2026 3:25:01 PM 397312
+seg_cerulean.state               7/28/2026 3:25:00 PM 397312
+seg_route3_caught.state          7/28/2026 3:02:47 PM 397312
+seg_route3_entered.state         7/28/2026 2:56:29 PM 397312
+seg_boulder_badge.state          7/28/2026 2:55:43 PM 397312
+seg_opening.state                7/28/2026 2:02:29 PM 397312
+
+
+
+== auto-checkpoint inventory (newest 20) ==
+
+Name                                                           LastWriteTime      
+----                                                           -------------      
+20260807_181759_seafoam-islands_8b_37h06m_periodic             8/7/2026 6:17:59 PM
+20260807_181524_seafoam-islands_8b_37h03m_roam-start           8/7/2026 6:15:24 PM
+20260807_180343_seafoam-islands_8b_37h03m_gain-new-area        8/7/2026 6:03:43 PM
+20260807_180205_seafoam-islands_8b_37h01m_gain-new-area        8/7/2026 6:02:05 PM
+20260807_175924_seafoam-islands_8b_36h58m_caught-articuno      8/7/2026 5:59:24 PM
+20260807_175443_seafoam-islands_8b_36h54m_roam-start           8/7/2026 5:54:43 PM
+20260807_174900_route-20_8b_36h54m_gain-new-area               8/7/2026 5:49:00 PM
+20260807_174850_seafoam-islands_8b_36h53m_gain-new-area        8/7/2026 5:48:50 PM
+20260807_174837_route-20_8b_36h53m_gain-new-area               8/7/2026 5:48:37 PM
+20260807_174518_seafoam-islands_8b_36h50m_pre-articuno         8/7/2026 5:45:18 PM
+20260807_174309_seafoam-islands_8b_36h48m_articuno-b4f-calm-ch 8/7/2026 5:43:09 PM
+20260807_174307_seafoam-islands_8b_36h48m_articuno-b4f-calm-pu 8/7/2026 5:43:07 PM
+20260807_174303_seafoam-islands_8b_36h48m_articuno-b4f-calm-pu 8/7/2026 5:43:03 PM
+20260807_174301_seafoam-islands_8b_36h48m_articuno-b4f-calm-pu 8/7/2026 5:43:01 PM
+20260807_174258_seafoam-islands_8b_36h47m_articuno-b4f-calm-pu 8/7/2026 5:42:58 PM
+20260807_174254_seafoam-islands_8b_36h47m_articuno-b4f-calm-pu 8/7/2026 5:42:54 PM
+20260807_174251_seafoam-islands_8b_36h47m_articuno-b4f-calm-ch 8/7/2026 5:42:51 PM
+20260807_174250_seafoam-islands_8b_36h47m_articuno-b4f-calm-pu 8/7/2026 5:42:51 PM
+20260807_174248_seafoam-islands_8b_36h47m_articuno-b4f-calm-pu 8/7/2026 5:42:48 PM
+20260807_174227_seafoam-islands_8b_36h47m_articuno-b4f-calm-pu 8/7/2026 5:42:27 PM
+
+
+
+== campaign dir + backups ==
+
+FullName                                                                                                                             LastWriteTime        
+--------                                                                                                                             -------------        
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                                                   6/26/2026 4:11:48 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/7/2026 6:20:30 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423                                                         7/29/2026 9:04:20 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      8/7/2026 5:29:58 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427                                                          7/29/2026 9:54:27 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                                                  7/15/2026 12:12:19 PM
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/7/2026 6:17:59 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427                       7/29/2026 9:54:27 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\checkpoints                                             7/29/2026 8:59:40 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\hm01_bank_20260706_203730                               7/6/2026 8:32:47 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_badge3_backup_20260706_212610                       7/6/2026 9:26:10 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_blaine_badge7_backup_20260707_130328                7/7/2026 1:03:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_celadon_reach_backup_20260707_005144                7/7/2026 12:51:44 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_cinnabar_reach_backup_20260707_121633               7/7/2026 12:16:33 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_dex10_backup_20260706_231721                        7/6/2026 11:17:21 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_dex11_mankey_backup_20260706_235322                 7/6/2026 11:53:22 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_erika_badge4_backup_20260707_014247                 7/7/2026 1:42:47 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_fuchsia_reach_backup_20260707_045518                7/7/2026 4:55:18 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_fuchsia_south_backup_20260707_084122                7/7/2026 8:41:22 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_giovanni_badge8_backup_20260707_131428              7/7/2026 1:14:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_hall_of_fame_backup_20260707_200544                 7/7/2026 8:05:44 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_hm01_backup_20260706_203744                         7/6/2026 8:37:44 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_hm05_flash_backup_20260707_001448                   7/7/2026 12:14:48 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_indigo_reach_backup_20260707_154528                 7/7/2026 3:45:28 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_koga_badge5_backup_20260707_050954                  7/7/2026 5:09:54 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_lapras_party_backup_20260707_083659                 7/7/2026 8:36:59 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_pcbox_spearow_backup_20260706_232812                7/6/2026 11:28:12 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_poke_flute_backup_20260707_042213                   7/7/2026 4:22:13 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_postgame_backup_20260708_003254                     7/8/2026 12:32:54 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_rocktunnel_lavender_backup_20260707_002712          7/7/2026 12:27:12 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_route10_reach_backup_20260706_230609                7/6/2026 11:06:09 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_route12_snorlax_backup_20260707_042553              7/7/2026 4:25:53 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_route5_backup_20260706_072125                       7/6/2026 7:21:25 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_sabrina_badge6_backup_20260707_082745               7/7/2026 8:27:45 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_safari_hms_backup_20260707_101928                   7/7/2026 10:19:28 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_saffron_reach_backup_20260707_060438                7/7/2026 6:04:38 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_secret_key_backup_20260707_123848                   7/7/2026 12:38:48 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_silph_cleared_backup_20260707_075833                7/7/2026 7:58:33 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_silph_scope_backup_20260707_034948                  7/7/2026 3:49:48 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_silph_scope_out_backup_20260707_035722              7/7/2026 3:57:22 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_snorlax_woken_backup_20260707_043049                7/7/2026 4:30:49 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_squad31_backup_20260706_180600                      7/6/2026 6:06:00 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_squad_backup_20260706_162755                        7/6/2026 4:27:55 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_surf_taught_backup_20260707_102403                  7/7/2026 10:24:03 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_tea_banked_backup_20260707_055824                   7/7/2026 5:58:24 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_ticket_backup_20260705_233354                       7/5/2026 11:33:54 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_tm43_secret_power_backup_20260707_025255            7/7/2026 2:52:55 AM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_vermilion_backup_20260706_152434                    7/6/2026 3:24:34 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\pre_watch_rescue_20260729_085809_backup_20260729_085810 7/29/2026 8:58:11 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_191540                                                              7/8/2026 7:15:40 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_201300                                                              7/8/2026 8:13:00 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_204856                                                              7/8/2026 8:48:56 PM  
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260708_223401                                                              7/8/2026 10:34:01 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260709_114958                                                              7/9/2026 11:49:58 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539                                                              7/28/2026 1:55:39 PM 
+
+
+
+PROMOTE_TARGET = CANONICAL -> canonical save is already correct; launching as-is.
+== push soak report (this can take ~30s; console stays quiet on purpose) ==
+== push soak report ==
+[cursor/endgame-credits-path-bdbc 479c823] report(soak): 20260807_182822 inventory/rescue (auto from resume_marathon.ps1)
+ 11 files changed, 3120 insertions(+), 4 deletions(-)
+ create mode 100644 docs/soak-reports/20260807_182822/canonical_health.json
+ create mode 100644 docs/soak-reports/20260807_182822/engine_tail.log
+ create mode 100644 docs/soak-reports/20260807_182822/playlive_faulthandler.log
+ create mode 100644 docs/soak-reports/20260807_182822/resume_marathon.log
+ create mode 100644 docs/soak-reports/20260807_182822/sandbox1_sandbox_canonical_20260728_125926_health.json
+ create mode 100644 docs/soak-reports/20260807_182822/sandbox2_sandbox_canonical_20260728_125602_health.json
+ create mode 100644 docs/soak-reports/20260807_182822/tail_console_2026-08-07_18-14-32.log
+ create mode 100644 docs/soak-reports/20260807_182822/tail_supervisor_playlive_2026-08-07_17-54-41.log
+ create mode 100644 docs/soak-reports/20260807_182822/tail_supervisor_playlive_2026-08-07_18-15-22.log
+ delete mode 100644 pokemon_agent/PROMOTE_TARGET.txt
+branch 'cursor/endgame-credits-path-bdbc' set up to track 'origin/cursor/endgame-credits-path-bdbc'.
+git : To https://github.com/JonathanDunkleberger/Kira_AI.git
+At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:534 char:5
++     git push -u origin $pushBranch
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   1c44d78..479c823  cursor/endgame-credits-path-bdbc -> cursor/endgame-credits-path-bdbc
+
+push soak report finished (branch=cursor/endgame-credits-path-bdbc; see log if git complained).
+== launching bot (window 1) ==
+    expect: a PowerShell titled roughly 'python run.py' + browser dashboard at :8766
+waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
+    still waiting for bot... (15s)
+    still waiting for bot... (30s)
+bot is up. == launching supervised marathon (window 2) ==
+    expect: a PowerShell for supervisor.py, THEN the FireRed / mGBA game window
+She is live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking.
+If the GAME window never appears: look at window 2 for a Traceback (ROM path / SDL / mgba).
+To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T

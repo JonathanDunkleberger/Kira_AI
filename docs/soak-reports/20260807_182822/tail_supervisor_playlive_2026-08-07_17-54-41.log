@@ -1,0 +1,1170 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 86) coords=(9, 16) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 8 blocked tile(s), 13 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=35568).
+
+   [soul] continuity loaded: 17 roster bond(s), 1071 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 153 place(s) known, 255 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot1 FAINTED (0/110) — likely to blackout soon
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 86)@(9, 16) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(1, 86) coords=(9, 16) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260807_175443_seafoam-islands_8b_36h54m_roam-start  (4 bundle file(s))
+
+   [campaign]    [roam] tick opened inside interior (1, 86)@(9, 16) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 9 warp(s) on (1, 86): (8, 14)->(1, 85), (31, 4)->(1, 85), (31, 16)->(1, 85), (12, 9)->(1, 87), (29, 5)->(1, 87), (23, 9)->(1, 85)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: articuno (PROXIMITY TRUMP: standing at the articuno hunt)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/articuno → steps=['surf', 'articuno'] actionable=articuno (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'articuno' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality."  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [world] learned 9 warp(s) on (1, 86): (8, 14)->(1, 85), (31, 4)->(1, 85), (31, 16)->(1, 85), (12, 9)->(1, 87), (29, 5)->(1, 87), (23, 9)->(1, 85)
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (9, 16) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 86) (9,16) f2 -- badge8 $1098 party:a7ea bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'talk_npc', 'use_strength']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 86), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno — bottom floor of Seafoam Islands'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno — bottom floor of Seafoam Islands'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 4
+
+   [kira-voice] -> T2·savor· (want) 'Articuno — bottom floor of Seafoam Islands'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (1, 86)
+
+   [campaign]    [descent-west(6, 18)-approach] replan at (9, 16) (len 0, budget 9)
+
+   [campaign]    [egress] blocker on (8, 16) (descent-west(6, 18)-approach only-gap) — strike holding position, waiting up to 12s for it to wander off (live bodies=[(8, 16), (13, 14)])
+
+   [campaign]    [egress] blocker on (8, 16) hasn't moved in 3.5s — stationary (trainer/squatter); strike falls back to the old machinery
+
+   [campaign]    [descent-west(6, 18)-approach] no path from (9, 16) (npc-severed at (8, 16); wait did not clear it)
+
+   [campaign]    [descent-west(9, 18)-approach] replan at (9, 16) (len 2, budget 9)
+
+   [dialogue] +++ "LAPRAS used STRENGTH! LAPRAS's STRENGTH made it possible to move boulders around!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "LAPRAS used STRENGTH! LAPRAS\'s STRENGTH made it possible to move boulders around!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign] !! [descent-west] every candidate warp failed on (1, 86)
+
+   [campaign]    [articuno] west chain failed — trying east column (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against psyduck — your blastoise is up front'  fired=True  [age 0.0s + post 33ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this psyduck. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this psyduck. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 15ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [descent-east(29, 5)-approach] replan at (9, 17) (len 0, budget 9)
+
+   [campaign]    [descent-east(29, 5)-approach] no path from (9, 17)
+
+   [campaign]    [descent-east(12, 9)-approach] replan at (9, 17) (len 43, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against seel — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this seel. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this seel. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [descent-east(12, 9)-approach] replan at (17, 14) (len 22, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against golduck — your blastoise is up front'  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this golduck. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this golduck. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [descent-east(12, 9)-approach] replan at (8, 11) (len 10, budget 11)
+
+   [campaign]    [descent-east(12, 9)] (1, 86) -> (1, 87) @ (15, 9)
+
+   [campaign]    [descent-east(12, 9)-egress] stepped OFF landing warp (15, 9) -> (14, 9) via LEFT
+
+   [campaign]    [descent-east(12, 9)-egress] FORWARD into room (14, 9) -> (13, 9) via LEFT
+
+   [campaign]    [quarry-approach] replan at (13, 9) (len 21, budget 9)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [surf] MOUNTED at (13, 13) (attempt 1)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) "catch order — switching to balls on this psyduck. weaken, don't KO."  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this psyduck. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 6ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (9, 11) (len 11, budget 10)
+
+   [campaign]    [hunt] Ultra pocket check — 32 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L68 hp 208/208 dmgPP 48 safePP 0 (Bite:19, Skull Bash:15, Surf:14, Earthquake:0); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15) | ace slot0 safe 0, party safe 55 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP with EMPTY ace SAFE tank (safe=0) but ace still has 48 damaging PP — soft-reload cannot mint safer chips (overlevel); ENGAGING in LADDER MODE (NO rewind off the bird) (LOUD)
+
+   [campaign]    [hunt] doorstep empty-tank settle — ace safe now 0; ENGAGING (LOUD)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (1 tile(s) from Articuno) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 32 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L68 hp 208/208 dmgPP 48 safePP 0 (Bite:19, Skull Bash:15, Surf:14, Earthquake:0); slot2 L38 hp 104/104 dmgPP 40 safePP 40 (Leer:30, Fury Attack:20, 228:20, Mirror Move:20); slot3 L50 hp 150/150 dmgPP 30 safePP 15 (83:15, Agility:30, 203:10, 53:15) | ace slot0 safe 0, party safe 55 (vs Articuno ice/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-articuno bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Articuno. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against articuno — your blastoise is up front'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a articuno. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 10ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — articuno: weaken+balls, never KO
+
+   [play-live]    [catch] target=articuno L50 hp=100% status=none balls=32 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Bite est=78% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [catch] !! EARLY THROW BLOCKED by HARD FLOOR — foe at 100% (floor 50%); deepening ACE chip, NEVER fleeing (MonFlewAway spends the bird) (LOUD)
+
+   [play-live]    [catch] chip LADDER — Bite est 78% vs foe at 100% HP: cannot faint from this HP — swinging (legendary depth, ace-only)
+
+   [play-live]    [catch] chip DESPERATE — Bite est 78% vs foe at 78% HP: cannot faint from this HP — swinging (legendary depth, ace-only)
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 78% vs foe at 57% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] !! deepen pass 1/5 — foe still 57% (balls=32); KEEP FIGHTING — no soft-reload of a live chance (LOUD)
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 78% vs foe at 57% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] !! deepen pass 2/5 — foe still 57% (balls=32); KEEP FIGHTING — no soft-reload of a live chance (LOUD)
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 78% vs foe at 57% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] !! deepen pass 3/5 — foe still 57% (balls=32); KEEP FIGHTING — no soft-reload of a live chance (LOUD)
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 78% vs foe at 57% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] !! deepen pass 4/5 — foe still 57% (balls=32); KEEP FIGHTING — no soft-reload of a live chance (LOUD)
+
+   [play-live]    [catch] chip STOPPING — gentlest move Bite est 78% vs foe at 57% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] !! deepen pass 5/5 — foe still 57% (balls=32); KEEP FIGHTING — no soft-reload of a live chance (LOUD)
+
+   [play-live]    [catch] !! deepen budget spent but fight still winnable — keep_chipping (NO soft-reload) (LOUD)
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used an attack'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] EARLY THROW — overkill risk on every move, no sleep/chipper; throwing at 35% HP rather than KO the target
+
+   [kira-voice] -> T1·brisk· (event) 'no safe way to weaken this one — full-health throw it is. wish me luck.'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x32 left, pref=best) at articuno hp=35% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x31 left, pref=best) at articuno hp=35% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x30 left, pref=best) at articuno hp=35% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [play-live]    [catch] THROW Ultra Ball (x29 left, pref=best) at articuno hp=35% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] -> T1·brisk· (event) "gotcha — it's caught!"  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [caught-articuno] -> campaign/kira_campaign.state  (map=(1, 87) coords=(10, 2) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [caught-articuno] -> checkpoints/20260807_175924_seafoam-islands_8b_36h58m_caught-articuno  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'caught-articuno' banked — any recovery now resumes right here
+
+   [campaign]    [fieldheal] strike: Articuno at 54/155 HP — drinking Hyper Potion from the bag NOW (cheapest-adequate; no Center on this road)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "Articuno's pretty beat up and I'm literally carrying potions. quick drink, THEN we keep moving."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [fieldheal] field heal: item 21 (bag row 4) -> party slot 4 (54/155 HP)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 87)@(10, 2) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'HYPER POTION is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "HYPER POTION is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ "ARTICUNO's HP was restored by 101 point.s.. ."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ARTICUNO\'s HP was restored by 101 point.s.. ."'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [fieldheal] VERIFIED: slot 4 HP 54 -> 155/155, item 21 consumed (world callback restored)
+
+   [campaign]    [ascent(8, 17)-approach] replan at (10, 2) (len 17, budget 9)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 7ms]
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [surf] MOUNTED at (10, 5) (attempt 1)
+
+   [campaign]    [ascent(8, 17)-pre] stepped OFF landing warp (8, 17) -> (8, 16) via UP
+
+   [campaign]    [ascent(8, 17)-pre] FORWARD into room (8, 16) -> (7, 16) via LEFT
+
+   [campaign]    [ascent(8, 17)-approach] replan at (7, 16) (len 2, budget 9)
+
+   [campaign]    [ascent(8, 17)] refusing banned landing warp (8, 17) (LOUD)
+
+   [campaign]    [ascent(9, 17)-approach] replan at (8, 16) (len 2, budget 9)
+
+   [campaign]    [ascent(9, 17)-pre] stepped OFF landing warp (9, 17) -> (9, 16) via UP
+
+   [campaign]    [ascent(9, 17)-pre] FORWARD into room (9, 16) -> (8, 16) via LEFT
+
+   [campaign]    [ascent(9, 17)-approach] replan at (8, 16) (len 2, budget 9)
+
+   [campaign]    [ascent(9, 17)] refusing banned landing warp (9, 17) (LOUD)
+
+   [campaign] !! [ascent] every candidate warp failed on (1, 87)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (ascent) (LOUD)
+
+   [campaign]    [ascent-alt(32, 5)-approach] replan at (9, 16) (len 34, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against seel — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L26 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 71/71 | [0]Bite(p60,pp=13,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's seel went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ascent-alt(32, 5)-approach] replan at (9, 14) (len 32, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against dewgong — your blastoise is up front'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 2 (eff x0.5) vs dewgong 109/109 | [0]Bite(p60,pp=12,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=71.25) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's dewgong went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ascent-alt(32, 5)-approach] replan at (17, 7) (len 17, budget 11)
+
+   [campaign]    [ascent-alt(32, 5)] (1, 87) -> (1, 86) @ (29, 5)
+
+   [campaign]    [ascent-alt(32, 5)-egress] stepped OFF landing warp (29, 5) -> (28, 5) via LEFT
+
+   [campaign]    [ascent-alt(32, 5)-egress] FORWARD into room (28, 5) -> (27, 5) via LEFT
+
+   [campaign]    [ascent-alt(31, 4)-approach] replan at (27, 5) (len 5, budget 9)
+
+   [campaign]    [ascent-alt(31, 4)] (1, 86) -> (1, 85) @ (32, 4)
+
+   [campaign]    [ascent-alt(31, 4)-egress] stepped OFF landing warp (32, 4) -> (31, 4) via LEFT
+
+   [campaign]    [ascent-alt(31, 4)-egress] FORWARD into room (31, 4) -> (30, 4) via LEFT
+
+   [campaign]    [ascent-alt(32, 14)-approach] replan at (30, 4) (len 0, budget 9)
+
+   [campaign]    [ascent-alt(32, 14)-approach] no path from (30, 4)
+
+   [campaign]    [ascent-alt(25, 19)-approach] replan at (30, 4) (len 0, budget 9)
+
+   [campaign]    [ascent-alt(25, 19)-approach] no path from (30, 4)
+
+   [campaign] !! [ascent-alt] every candidate warp failed on (1, 85)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> caught (now (1, 85)@(30, 4))
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_done
+
+   [campaign]    [lap] ✅ 'articuno' DONE — the checklist re-derives next tick
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_done | pos (1, 86)(9, 16) -> (1, 85)(30, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 85) coords=(30, 4) badges=8 party=5)
+
+   [kira-voice] -> T2·savor· (milestone) "ARTICUNO is ours — the frozen heart of the Seafoam Islands. Lance's dragons are officially a formality."  fired=True  [age 0.0s + post 10ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260807_180205_seafoam-islands_8b_37h01m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 85)@(30, 4) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:dewgong was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:dewgong from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [kira-voice] ·floor· (<1s since last) T2 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(30, 4) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (147s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] step 0: (30, 4)->(30, 5) map=(1, 85) (path 8 to exit)
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] stepped OFF landing (29, 8) -> (28, 8) via LEFT
+
+   [campaign]    [ladder] FORWARD into room (28, 8) -> (28, 8) via DOWN
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (28, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(28, 12) - LOUD
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [meet] INTRODUCTION: unmet teammate articuno (pid=d8b8846c) joined the party
+
+   [campaign]    [soul] ORACLE decision: kind=name ctx={'place': 'a articuno just joined your team — your first time actually meeting. give this articuno a name, just the name.'} options=[]
+
+   [kira-voice] -> T3·BIG· (roster) "a articuno just joined your team — you two haven't properly met until now. this is your first real moment together."  fired=True  [age 0.0s + post 25ms]
+
+   [kira-voice] ORACLE kind=name options=[] -> pick=None
+
+   [campaign]    [soul] ORACLE pick -> None
+
+   [kira-voice] -> T3·BIG· (roster) 'so articuno is officially one of us now — welcome aboard, articuno.'  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'done', 'zapdos': 'pending', 'repack': 'done'} -> next: zapdos (cost-ordered from (1, 85))
+
+   [campaign]    [roam] questline cleared (victory lap 'zapdos' outranks the parked 'articuno' errand)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/zapdos → steps=['surf', 'zapdos'] actionable=zapdos (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught."
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'zapdos' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [strat] roster size = 5
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline: no graph route (1, 85) -> anchor (3, 28) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 85) is off-anchor ((3, 28) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(28, 12) -> (1, 85)(28, 12) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(1, 85) coords=(28, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline: no graph route (1, 85) -> anchor (3, 28) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 85) is off-anchor ((3, 28) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(28, 12) -> (1, 85)(28, 12) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 85), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] questline: no graph route (1, 85) -> anchor (3, 28) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 85) is off-anchor ((3, 28) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(28, 12) -> (1, 85)(28, 12) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick4] -> campaign/kira_campaign.state  (map=(1, 85) coords=(28, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'questline_no_route', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline: no graph route (1, 85) -> anchor (3, 28) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 85) is off-anchor ((3, 28) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(28, 12) -> (1, 85)(28, 12) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'questline_no_route', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline: no graph route (1, 85) -> anchor (3, 28) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 85) is off-anchor ((3, 28) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(28, 12) -> (1, 85)(28, 12) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick6] -> campaign/kira_campaign.state  (map=(1, 85) coords=(28, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [soul] surface_want FIRE -> Seafoam Islands
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Seafoam Islands — underground in a real cave — rock, gloom, echoes.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (1, 85), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos — Power Plant via Route 10'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos — Power Plant via Route 10'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'questline_no_route', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos — Power Plant via Route 10'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (zapdos) — abandoning the errand; re-recognizing fresh
+
+   [kira-voice] ·floor· (<1s since last) T1 "hm — this plan's going nowhere from here. let me rethink."
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'zapdos' dispatch failed (questline_abandoned) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (1, 85)(28, 12) -> (1, 85)(28, 12) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/zapdos → steps=['surf', 'zapdos'] actionable=zapdos (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught."
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'zapdos' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'questline_abandoned', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline: no graph route (1, 85) -> anchor (3, 28) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 85) is off-anchor ((3, 28) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(28, 12) -> (1, 85)(28, 12) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick8] -> campaign/kira_campaign.state  (map=(1, 85) coords=(28, 12) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 7 turns - it went 'questline_no_route', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] questline: no graph route (1, 85) -> anchor (3, 28) yet — falling through to dir/bend discovery
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [campaign]    [roam] questline: NOT arrived — (1, 85) is off-anchor ((3, 28) unreachable in the learned graph) with no local frontier; surfacing no-route
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_no_route
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_no_route | pos (1, 85)(28, 12) -> (1, 85)(28, 12) (NO MOVEMENT)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(28, 12) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (28, 12) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(1, 85) (28,12) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."
+
+   [campaign]    HEAL: inside a building complex (1, 85) — exiting to the overworld before routing
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(28, 12) -> coord (29, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (28, 12)->(28, 11) map=(1, 85) (path 6 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against seel — your blastoise is up front'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out seel'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 83/83 | [0]Bite(p60,pp=12,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used Bite - a solid hit'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 9/83 | [0]Bite(p60,pp=11,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's seel went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 19ms]
+
+   [travel] reached target coord (29, 8)
+
+   [campaign]    9 door(s); candidates (chosen order): [(29, 8)]
+
+   [campaign]    [ladder] !! on warp (29, 8) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (29, 8): at (29, 8) (approach=(29, 9)) — stepping UP in
+
+   [campaign]    reachable door (29, 8): walking to approach (29, 9)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (29, 9)
+
+   [campaign]    pick (29, 8) failed — trying adjacent actuatable door (27, 8) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    EXIT: door (32, 14) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (25, 19) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (22, 7) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (17, 9) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (7, 4) walk-unreachable from (29, 8) — skipped (sealed pocket)
+
+   [campaign]    EXIT: door (27, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (31, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (24, 8) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (32, 4) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    EXIT: door (7, 17) -> (1, 86) drops deeper in Seafoam — skip (LOUD)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    !! EXIT-BUILDING: still inside (1, 85)@(29, 8) - LOUD
+
+   [campaign]    !! HEAL: no graph route to any known Center from (1, 85) — FALLBACK to a cross-region Viridian heal (FIX: add (1, 85)'s PC door to CITY_PC_DOORS)
+
+   [campaign]    HEAL-RETURN: lead at (190, 208) - routing south to Viridian to heal
+
+   [campaign]    HEAL-RETURN leg 0: no south edge on map (1, 85) - warping south
+
+   [campaign]    9 door(s); candidates (chosen order): [(25, 19), (31, 17), (7, 17), (32, 14), (17, 9), (27, 8), (24, 8), (32, 4), (7, 4)]
+
+   [campaign]    reachable door (32, 4): walking to approach (32, 3)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (32, 3) (budget 300s, surf-capable)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=fled; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] reached target coord (32, 3)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (1, 85) -> (1, 86) via door (32, 4)
+
+   [campaign]    [world] learned 9 warp(s) on (1, 86): (8, 14)->(1, 85), (31, 4)->(1, 85), (31, 16)->(1, 85), (12, 9)->(1, 87), (29, 5)->(1, 87), (23, 9)->(1, 85)
+
+   [campaign]    HEAL-RETURN leg 1: no south edge on map (1, 86) - warping south
+
+   [campaign]    7 door(s); candidates (chosen order): [(9, 18), (6, 18), (31, 16), (8, 14), (12, 9), (29, 5), (31, 4)]
+
+   [campaign]    door (29, 5): near approach ((31, 4)→(29, 4), d=2) — short step
+
+   [campaign]    door (29, 5): at (29, 4) (approach=(29, 4)) — stepping DOWN in
+
+   [campaign]    WARPED (1, 86) -> (1, 87) via door (29, 5) (on-tile)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 4 warp(s) on (1, 87): (15, 9)->(1, 86), (32, 5)->(1, 86), (8, 17)->(1, 86), (9, 17)->(1, 86)
+
+   [campaign]    [ladder] !! on warp (32, 5) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    HEAL-RETURN leg 2: no south edge on map (1, 87) - warping south
+
+   [campaign]    2 door(s); candidates (chosen order): [(15, 9), (32, 5)]
+
+   [campaign]    [ladder] !! on warp (32, 5) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (32, 5): at (32, 5) (approach=(32, 4)) — stepping DOWN in
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    !! HEAL-RETURN stuck on map (1, 87) (no south edge, no south warp)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 87) coords=(32, 5) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260807_180343_seafoam-islands_8b_37h03m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 87)@(32, 5) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:dewgong was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:dewgong from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [ladder] !! on warp (32, 5) with no LEFT/FORWARD egress (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 87) coords=(32, 5) -> coord (32, 5) (budget 60s, surf-capable)
+
+   [travel] reached target coord (32, 5)
+
+   [campaign]    2 door(s); candidates (chosen order): [(32, 5)]
+
+   [campaign]    [ladder] !! on warp (32, 5) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    door (32, 5): at (32, 5) (approach=(32, 6)) — stepping UP in
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 87) coords=(32, 5) -> coord (15, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (32, 5)->(31, 5) map=(1, 87) (path 22 to exit)
+
+   [travel] step 10: (22, 5)->(22, 6) map=(1, 87) (path 12 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against seel — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 84/84 | [0]Bite(p60,pp=10,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's seel went down to your blastoise — that's the battle, you won"
+

@@ -2,9 +2,10 @@
 
 Stubs the bridge + state readers and drives the pure sequencing logic:
   1. _victory_lap_next walks the EXPLICIT order (earthquake -> box_bench -> moltres ->
-     articuno -> eevee -> zapdos -> repack) as items complete, and reads CLEAR at the end;
-  2. honest skips latch (Bill-gone kills moltres; boulder-flag kills articuno; TM26 missing
-     kills earthquake) and the bounded-fail counter skips a wedged item;
+     articuno -> zapdos -> repack) as items complete, and reads CLEAR at the end;
+  2. honest skips latch (Bill-gone kills moltres; TM26 missing kills earthquake) and the
+     bounded-fail counter skips a wedged item; B4F-current-live does NOT skip articuno
+     (ensure_b4f_calm owns the dam — soak 20260807_120648);
   3. _lap_eq_forget_idx never sacrifices a protected move (Surf/Ice Beam/HMs) and prefers
      charge/status junk over real attacks; all-protected refuses with 'no_room';
   4. (box flow, 2026-08-05) _lap_bench_plan sizes the deposit to exactly the owed
@@ -115,16 +116,16 @@ def main():
     check("EQ first", camp._victory_lap_next() == "earthquake")
     WORLD["moves"] = [SURF, EQ, WITHDRAW, SKULL_BASH]          # taught
     set_party(camp, [61, 19, 19, 18, 25, 3])                   # the full 6/6 canonical party
-    check("then box_bench (full party, 4 owed joins)",
+    check("then box_bench (full party, 3 owed joins — birds only, no Eevee)",
           camp._victory_lap_next() == "box_bench")
     set_party(camp, [61, 25])                                  # passengers deposited
     check("then moltres", camp._victory_lap_next() == "moltres")
     WORLD["flags"].add(0x2BD)                                  # moltres fought
+    WORLD["flags"].add(0x2D3)                                  # B4F current stopped (Articuno ok)
     check("then articuno", camp._victory_lap_next() == "articuno")
     WORLD["owned"][144] = True                                 # articuno caught
-    check("then eevee", camp._victory_lap_next() == "eevee")
-    WORLD["flags"].add(0x263)                                  # FLAG_GOT_EEVEE
-    check("then zapdos", camp._victory_lap_next() == "zapdos")
+    check("then zapdos (Eevee is NOT on the credits-first lap)",
+          camp._victory_lap_next() == "zapdos")
     WORLD["flags"].add(0x05D)                                  # zapdos hidden (battled away)
     set_party(camp, [61, 25, 50, 50])                          # a hunt skipped -> party of 4
     camp._lap_deposited = 4
@@ -132,18 +133,49 @@ def main():
           camp._victory_lap_next() == "repack")
     set_party(camp, [61, 25, 50, 50, 50, 25])                  # party whole again
     check("checklist CLEAR", camp._victory_lap_next() is None)
+    check("eevee is not a lap checklist key",
+          "eevee" not in C.VICTORY_LAP_ORDER)
 
     print("== 2. honest skips ==")
+    # Bill gone + B4F current live (0x2D3 unset, B4F boulder hides SET = absent).
+    # Bill-gone still skips moltres; B4F rip must NOT skip articuno (hunt can calm it).
     set_world(moves=[SURF, EQ, WITHDRAW, SKULL_BASH],
-              flags={0x0A2, 0x046})                            # Bill gone + a Seafoam boulder up
+              flags={0x0A2, 0x04C, 0x04D})
     camp2 = make_camp()
     nxt = camp2._victory_lap_next()
-    check("Bill-gone skips moltres, boulder skips articuno -> eevee next",
-          nxt == "eevee" and {"moltres", "articuno"} <= camp2._lap_skipped)
+    check("Bill-gone skips moltres; B4F-rip keeps articuno pending (not zapdos)",
+          nxt == "articuno"
+          and "moltres" in camp2._lap_skipped
+          and "articuno" not in camp2._lap_skipped
+          and camp2._lap_pending("articuno") is True)
+    # Standing on Seafoam B4F with the rip live: proximity trump stays on articuno —
+    # never the soak 20260807_120648 skip↔unskip → Zapdos divert.
+    _orig_map2 = C.tv.map_id
+    C.tv.map_id = lambda b: (1, 87)
+    camp2b = make_camp()
+    camp2b._lap_skipped, camp2b._lap_fails = set(), {}
+    camp2b._lap_verdict_logged = None
+    nxt_b4f = camp2b._victory_lap_next()
+    C.tv.map_id = _orig_map2
+    check("on Seafoam B4F with 0x2D3 clear -> articuno NEXT (proximity + no B4F skip)",
+          nxt_b4f == "articuno"
+          and "articuno" not in camp2b._lap_skipped
+          and camp2b._lap_pending("articuno") is True)
+    # Gate must ARM while the rip is live so FIRE-FIRST can run ensure_b4f_calm
+    # (old gate returned None → victory_lap fail-counted Articuno into a skip).
+    _orig_knows = st.party_knows_move
+    st.party_knows_move = lambda b, move, cnt=6: 0 if move in (SURF, STRENGTH) else None
+    camp2g = make_camp()
+    camp2g._hunt_ready = lambda *a, **k: None
+    camp2g.b.rd8 = lambda a: 2
+    gate2 = camp2g._articuno_gate(None)
+    st.party_knows_move = _orig_knows
+    check("articuno gate ARMS with Surf+Strength even when 0x2D3 clear",
+          gate2 is not None and getattr(gate2, "missing", None) == "articuno")
     for _ in range(C.VICTORY_LAP_MAX_FAILS):
-        camp2._lap_note_fail("eevee", "unit-test wedge")
+        camp2._lap_note_fail("zapdos", "unit-test wedge")
     check("bounded fails latch the skip",
-          "eevee" in camp2._lap_skipped and not camp2._lap_pending("eevee"))
+          "zapdos" in camp2._lap_skipped and not camp2._lap_pending("zapdos"))
     WORLD["moves"] = [SURF, BITE, WITHDRAW, SKULL_BASH]        # EQ not known...
     WORLD["tm26_row"] = None                                   # ...and TM26 not in the case
     check("no TM26 in case -> earthquake honestly skipped",
@@ -170,13 +202,13 @@ def main():
     set_world(moves=[SURF, EQ, WITHDRAW, SKULL_BASH])          # EQ done -> joins drive the plan
     camp4 = make_camp()
     set_party(camp4, [61, 19, 19, 18, 25, 3])
-    check("full party + 4 owed joins -> 4 passengers, lowest level first, ace untouched",
-          camp4._lap_bench_plan() == [5, 3, 1, 2])
+    check("full party + 3 owed joins -> 3 passengers, lowest level first, ace untouched",
+          camp4._lap_bench_plan() == [5, 3, 1])
     camp4._lap_skipped.add("moltres")                          # a skip shrinks the deposit
-    check("moltres skipped -> only 3 seats needed", camp4._lap_bench_plan() == [5, 3, 1])
+    check("moltres skipped -> only 2 seats needed", camp4._lap_bench_plan() == [5, 3])
     camp4._lap_skipped.clear()
     set_party(camp4, [61, 10, 12])                             # 3 free seats already
-    check("3 free seats -> deposit just 1 (the weakest)", camp4._lap_bench_plan() == [1])
+    check("3 free seats + 3 joins -> deposit nothing", camp4._lap_bench_plan() == [])
     set_party(camp4, [61, 10])
     check("min-party floor: a 2-mon party never deposits", camp4._lap_bench_plan() == [])
     set_party(camp4, [61, 50, 48, 3])                          # high-level bench is NOT chaff
@@ -211,9 +243,9 @@ def main():
 
     camp6.deposit_mon = _fake_deposit
     r6 = camp6._lap_box_bench({"map": (3, 8)})
-    check("box_bench deposits down to ace+Lapras (4 deposits, live re-derived slots)",
-          r6 == "ok" and len(deposited) == 4 and levels6 == [61, 25]
-          and camp6._lap_deposited == 4)
+    check("box_bench deposits for 3 bird seats (live re-derived slots)",
+          r6 == "ok" and len(deposited) == 3 and levels6 == [61, 19, 25]
+          and camp6._lap_deposited == 3)
     check("box_bench reads DONE after the deposits", not camp6._lap_pending("box_bench"))
     check("every deposit aimed at the Cinnabar Center PC",
           all(d == C.CITY_PC_DOORS[(3, 8)] for _s, d in deposited))

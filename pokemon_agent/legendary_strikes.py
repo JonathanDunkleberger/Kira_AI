@@ -9,10 +9,11 @@ tiered best-ball-first, Master Ball allowed on Mewtwo only). This module is only
   ZAPDOS   — Power Plant (1,95) at (5,11). Route 10's water strip guards the door (7,40):
              sea_walk crosses it (giovanni_gym machinery verbatim). Pre-E4 the moment Surf
              is taught.
-  ARTICUNO — Seafoam B4F (1,87) at (9,2). Gated on the boulders being TRULY down (hide flags
-             0x046/0x047 cleared — the stamped 0x2D2 from the R21 reroute is NOT enough: the
-             B4F water still rips without the fallen boulders, see seafoam_strike). Descends
-             the ladder chain from either F1 door; candidates per floor, live BFS picks.
+  ARTICUNO — Seafoam B4F (1,87) at (9,2). Gated on FLAG_STOPPED_SEAFOAM_B4F_CURRENT (0x2D3)
+             — BOTH B4F boulders PRESENT (hide 0x04C/0x04D cleared). B3F calm (0x2D2) and
+             B3F boulder flags are NOT enough: R21 can stamp 0x2D2 while B4F still rips
+             (soak 20260806_222735: no path (8,15)->bird). Descends the pinned west hole
+             chain; east is a whole-table fallback.
   MOLTRES  — Mt. Ember summit (1,101) at (9,6), on ONE ISLAND (Sevii). The only hunt with a
              FERRY in it: Bill's post-Blaine offer is the ride out (declining parks him in
              the Cinnabar Center where he re-offers forever — pret CinnabarIsland scripts),
@@ -33,8 +34,10 @@ GROUND TRUTH (pret/pokefirered map JSONs + flags.h, fetched 2026-08-04):
   Zapdos   : OBJ (5,11) PowerPlant | FLAG_HIDE_ZAPDOS 0x05D | FLAG_FOUGHT_ZAPDOS 0x2BF
              doors: R10 (7,40)->PLANT dw1 | exits (4,39)/(5,38)/(6,39)->R10
   Articuno : OBJ (9,2) B4F | FLAG_HIDE_ARTICUNO 0x082 | FLAG_FOUGHT_ARTICUNO 0x2BE
-             PINNED west down-chain (east is a whole-table fallback — never mix columns):
-             F1 (10,6) -> B1F (7,3) -> B2F (7,17) -> B3F (6,18)/(9,18) -> B4F bird side.
+             PINNED west/corridor down-chain (east is a whole-table fallback — never mix):
+             F1 (10,6) -> B1F (17,9) -> B2F (7,17) -> B3F (6,18)/(9,18) -> B4F bird side.
+             NOT B1F (7,3)->B2F (7,4): that west-upper pocket is walk-sealed from the
+             Articuno ladder (7,17) (pret layout BFS + live soak 20260807 — Mt-Moon yo-yo).
              Mixing west+east candidates per floor (live 2026-08-06) yo-yos ladders:
              a failed enter_step that still flips the map left any() iterating the OLD
              floor's tiles — B2F (32,14) is an UP ladder, so she climbs the hole she just
@@ -91,9 +94,12 @@ THREE_MART_DOOR = (18, 12)           # ThreeIsland overworld warp -> Mart
 BOND_BRIDGE, BERRY_FOREST = (3, 48), (1, 109)
 
 FLAG_SYS_GAME_CLEAR = 0x82C          # champion — the Cerulean Cave guard steps aside
-FLAG_B3F_CALM = 0x2D2                # crossing signal (may be STAMPED by the R21 reroute!)
-FLAG_HIDE_B3F_BOULDER_1 = 0x046      # cleared = boulder truly fell -> B4F water is safe
+FLAG_B3F_CALM = 0x2D2                # B3F crossing signal (may be STAMPED by the R21 reroute!)
+FLAG_B4F_CALM = 0x2D3                # FLAG_STOPPED_SEAFOAM_B4F_CURRENT — Articuno water proof
+FLAG_HIDE_B3F_BOULDER_1 = 0x046      # CLEARED = boulder still on B3F (B3F calm path)
 FLAG_HIDE_B3F_BOULDER_2 = 0x047
+FLAG_HIDE_B4F_BOULDER_1 = 0x04C      # CLEARED = boulder PRESENT on B4F (stops B4F current)
+FLAG_HIDE_B4F_BOULDER_2 = 0x04D
 FLAG_HIDE_CINNABAR_PC_BILL = 0x0A2   # CLEAR = Bill waits in the Cinnabar Center (trip open)
 FLAG_RESCUED_LOSTELLE = 0x2A3        # Berry Forest rescue done (Hypno beaten)
 FLAG_STR_ACTIVE = 0x805              # FLAG_SYS_USE_STRENGTH — resets per map load
@@ -152,14 +158,19 @@ SAILOR_STAND_NORTH = (8, 5)
 SAILOR_STAND = SAILOR_STAND_SOUTH  # backward-compat alias (south approach)
 
 # (floor, [candidate down-warp tiles in preference order], dest floor).
-# WEST chain only — Seafoam's ladder columns are disconnected pockets. Fan-out across
+# CORRIDOR chain only — Seafoam's ladder columns are disconnected pockets. Fan-out across
 # east+west on the same leg thrash-walks unreachable tiles, then a mid-fan map flip makes
 # the next candidate an UP ladder on the new floor (classic Mt. Moon / Seafoam yo-yo).
 # East column is ARTICUNO_DESCENT_EAST — tried as a whole alternate if west fails.
+#
+# pret layout truth (SeafoamIslands_B2F map.bin + tileset collision, 2026-08-08):
+#   B1F (7,3) ↔ B2F (7,4) is a SEALED west-upper pocket — no land/surf path to Articuno
+#   ladder B2F (7,17). B1F (17,9) ↔ B2F (17,9) IS on the Articuno corridor (reaches 7,17).
+# Live soak 20260807_17xx: calm-to-b3f(7,17) no path from (5,4) → climb_out → re-enter loop.
 ARTICUNO_DESCENT = [
     (F1, [(10, 6)], B1F),
-    (B1F, [(7, 3)], B2F),
-    (B2F, [(7, 17)], B3F),
+    (B1F, [(17, 9)], B2F),            # corridor — NOT (7,3) sealed pocket
+    (B2F, [(7, 17)], B3F),            # Articuno dam door (pairs B3F (8,14))
     (B3F, [(6, 18), (9, 18)], B4F),   # both land west B4F by Articuno
 ]
 ARTICUNO_DESCENT_EAST = [
@@ -170,10 +181,49 @@ ARTICUNO_DESCENT_EAST = [
 ]
 ARTICUNO_ASCENT = [
     (B4F, [(8, 17), (9, 17)], B3F),   # west landings only (pair with B3F (6,18)/(9,18))
-    (B3F, [(8, 14)], B2F),
-    (B2F, [(7, 4)], B1F),
+    (B3F, [(8, 14)], B2F),            # lands B2F (7,17) Articuno corridor
+    (B2F, [(17, 9), (25, 19)], B1F),  # corridor UP — NOT (7,4) sealed pocket
     (B1F, [(10, 6)], F1),
     (F1, [(6, 21), (32, 21)], R20),
+]
+# East pocket (elev-4 landings at B4F (15,9)/(32,5)): west holes (8,17)/(9,17) are
+# walk-unreachable ("sealed pocket" — soak 20260807_112459). Climb the matching
+# east UP ladders from pret map.json (never re-step B3F (12,9)/(29,5) downs).
+# B3F (31,16) FIRST — seafoam_strike proven corridor to B2F (32,14)→B1F.
+# B3F (31,4) lands the sealed east-upper B2F pocket at (32,4) with no path to
+# (32,14) (soak 20260807 post-Articuno climb_out strand).
+ARTICUNO_ASCENT_EAST = [
+    (B4F, [(32, 5), (15, 9)], B3F),
+    (B3F, [(31, 16), (31, 4)], B2F),
+    (B2F, [(32, 14), (25, 19)], B1F),
+    (B1F, [(31, 4), (28, 19)], F1),
+    (F1, [(32, 21), (6, 21)], R20),
+]
+
+# B3F Articuno boulder puzzle (pret map.json + StrategyWiki / Gamerant): drop ONE boulder
+# into each B4F hole so FLAG_STOPPED_SEAFOAM_B4F_CURRENT arms. Without this, B4F water is
+# all MB_EASTWARD_CURRENT (0x50) — travel's elev law seals the east elev-4 pocket and
+# quarry-approach reports "no path from (15,11)" forever (soak 20260807_115041).
+ARTICUNO_B3F_CALM = bp.room(
+    B3F, "articuno-b4f-calm",
+    [
+        {"start": (6, 17), "segs": [("DOWN", 1)], "vanish_ok": True},   # -> hole (6,18)
+        {"start": (9, 16), "segs": [("LEFT", 1)]},                      # StrategyWiki solo nudge
+        {"start": (13, 16), "segs": [("UP", 2)]},                       # clear the pair
+        {"start": (12, 16),
+         "segs": [("DOWN", 1), ("LEFT", 3), ("DOWN", 1)],
+         "vanish_ok": True},                                            # -> hole (9,18)
+    ],
+    strength_at=(6, 17),
+    reset=(((8, 14), B2F), ((7, 17), B3F)),
+    ckpt_every=1,
+)
+
+# pret LAYOUT_SEAFOAM_ISLANDS_B4F_CURRENT_STOPPED (attrs @ primary 0x280): warp-avoiding
+# elev+water path from the east elev-4 landing to Articuno's stand tile.
+ARTICUNO_APPROACH_WAYPOINTS = [
+    (15, 10), (14, 10), (14, 9), (13, 9), (12, 9), (12, 8), (12, 7),
+    (12, 6), (12, 5), (11, 5), (11, 4), (11, 3), (11, 2), (10, 2), (9, 3),
 ]
 
 
@@ -195,6 +245,9 @@ class LegendaryHunt(GiovanniGym):
         super().__init__(camp, log, dbg_dir)
         self.deadline = time.time() + 1500
         self._catch_retries = 0
+        # Landing warps she just stepped off — sea_walk must not path back onto them
+        # (Seafoam paired up/down ladder yo-yo, Jonny 2026-08-07).
+        self._banned_landings = set()  # {(map_id, tile)}
 
     def _retry_failed_catch(self):
         """After a quarry battle resolves: True = the pre-quarry checkpoint was RELOADED (the
@@ -554,14 +607,18 @@ class LegendaryHunt(GiovanniGym):
         substructure, fresh RAM) and score each PP as a SAFE CHIP SWING against THIS quarry
         (pol.chip_hit_frac within the KO-safety margin at full HP; STAB omitted — this is a
         threshold audit, the in-fight picker stays exact). Returns
-        (any_damaging_pp, ace_safe_swings, party_safe_swings); ace = the highest-level
-        healthy mon. Unreadable -> (True, 99, 99): a bad read must never send her on a
-        restore trip. Zero damaging PP party-wide SCREAMS (sleep+throw only)."""
+        (any_damaging_pp, ace_safe_swings, party_safe_swings, ace_damaging_pp); ace = the
+        highest-level healthy mon. Unreadable -> (True, 99, 99, 99): a bad read must never
+        send her on a restore trip. Zero damaging PP party-wide SCREAMS (sleep+throw only).
+
+        ace_damaging_pp is the ace's raw damaging PP (power>0), SAFE OR NOT — doorstep
+        soft-reload only helps a DRY ace (Bite:0). Overlevel "unsafe" Bite/Surf with PP
+        left cannot be fixed by rewind (LIVE 2026-08-07 Articuno teleport)."""
         q = self.QUARRY or {}
         q_types = list(q.get("types") or [])
         q_level = int(q.get("level") or 50)
         try:
-            any_pp, rows, per_slot, levels = False, [], {}, {}
+            any_pp, rows, per_slot, dmg_slot, levels = False, [], {}, {}, {}
             for s, hp, mx, frac in (self.camp.party_health() or []):
                 if hp <= 0:
                     continue
@@ -587,10 +644,12 @@ class LegendaryHunt(GiovanniGym):
                             safe += int(p)
                 any_pp = any_pp or dmg > 0
                 per_slot[s] = safe
+                dmg_slot[s] = dmg
                 rows.append(f"slot{s} L{lvl} hp {hp}/{mx} dmgPP {dmg} safePP {safe} "
                             f"({', '.join(names)})")
             ace = max(levels, key=levels.get) if levels else None
             ace_safe = per_slot.get(ace, 0) if ace is not None else 0
+            ace_dmg = dmg_slot.get(ace, 0) if ace is not None else 0
             party_safe = sum(per_slot.values())
             self.log("   [hunt] CHIP-PP AUDIT — " + ("; ".join(rows) or "party unreadable")
                      + f" | ace slot{ace} safe {ace_safe}, party safe {party_safe} "
@@ -598,10 +657,10 @@ class LegendaryHunt(GiovanniGym):
             if not any_pp:
                 self.log("   [hunt] !! CHIP-PP AUDIT: ZERO damaging PP on the whole party — "
                          "Ether rail / Center restore must fire before the press (LOUD)")
-            return any_pp, ace_safe, party_safe
+            return any_pp, ace_safe, party_safe, ace_dmg
         except Exception as e:
             self.log(f"   [hunt] chip-PP audit skipped: {e}")
-            return True, 99, 99
+            return True, 99, 99, 99
 
     def _field_ether_ace(self):
         """OVERWORLD ETHER RAIL (2026-08-06 LIVE, soak 083445: preferred pre-moltres bank
@@ -665,7 +724,7 @@ class LegendaryHunt(GiovanniGym):
         dispatches; exhausted or unwired hunts engage in LADDER MODE (the b235cb0 bench-
         chipper engine) with the decision logged LOUD. True = armed (press_quarry returns
         to the stage loop, which routes the descent)."""
-        any_pp, ace_safe, party_safe = self._chip_pp_audit()
+        any_pp, ace_safe, party_safe = self._chip_pp_audit()[:3]
         if ace_safe >= self.ACE_SAFE_PP_MIN and party_safe >= self.PARTY_SAFE_SWINGS_MIN:
             return False
         key = ((self.QUARRY or {}).get("name") or "hunt").lower()
@@ -744,51 +803,101 @@ class LegendaryHunt(GiovanniGym):
         at the quarry NEVER returns True. No Center retreat from the bird — not for empty
         Bite, not after free-retry. Empty tank soft-reloads the preferred pre-bank IN PLACE
         (full Bite from 182052) then engages. Farther out, the pre-approach PP restore may
-        still fire. True = restore leg armed (stage loop descends); False = engage now."""
+        still fire. True = restore leg armed (stage loop descends); False = engage now.
+
+        LIVE 2026-08-07 (Articuno): safe=0 with Bite:19/Surf:14 is OVERLEVEL, not dry —
+        soft-reload cannot mint safer chip fractions, and the seafoam ratchet landed on the
+        B3F calm bank ("teleported back" off the bird). Soft-reload only for a DRY ace
+        (ace damaging PP == 0), and only onto the quarry's own map."""
         q = self.QUARRY or {}
         tile = q.get("tile") or (0, 0)
+        qmap = q.get("map")
         cur = tuple(tv.coords(self.b) or (0, 0))
+        try:
+            here = tuple(tv.map_id(self.b) or ())
+        except Exception:
+            here = ()
         dist = abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
-        if dist <= self.DOORSTEP_TILES:
+        # Unreadable map fail-opens to doorstep (never Center-retreat on a bad read).
+        # A known off-quarry map (B3F vs B4F Articuno) must NOT count — Seafoam floors
+        # share x/y ranges and a soft-reload ratchet already abused that (LIVE 2026-08-07).
+        on_quarry_map = (qmap is None) or (not here) or (here == tuple(qmap))
+        if dist <= self.DOORSTEP_TILES and on_quarry_map:
             # EMPTY TANK AT THE BIRD (2026-08-06 soak 083445): preferred pre-bank can ALSO
             # be Bite:0 — soft-reload alone loops forever (OVERKILL → refuse → reload).
             # Order: (1) field Ether on the ace, (2) soft-reload once if still dry, (3)
             # Ether again after reload. NEVER Center-retreat from the bird.
+            # NEVER soft-reload an overlevel "unsafe" tank that still has damaging PP.
             try:
-                _ok, _ace_safe, _party_safe = self._chip_pp_audit()
+                _audit = self._chip_pp_audit()
+                _ok, _ace_safe, _party_safe = _audit[0], _audit[1], _audit[2]
+                # legacy 3-tuple mocks: empty safe => treat as dry (old soft-reload path)
+                _ace_dmg = (_audit[3] if len(_audit) > 3
+                            else (0 if (_ace_safe is not None and _ace_safe < 1) else 99))
             except Exception:
                 _ace_safe = None
+                _ace_dmg = 99
             if _ace_safe is not None and _ace_safe < 1:
                 key = (q.get("name") or "hunt").lower()
-                self.log(f"   [hunt] !!!! AT THE DOORSTEP with EMPTY ace tank "
-                         f"(safe={_ace_safe}) — Ether rail first, THEN soft-reload "
-                         f"(NO mountain retreat) (LOUD)")
-                if self._field_ether_ace():
-                    try:
-                        _, _ace_safe, _ = self._chip_pp_audit()
-                    except Exception:
-                        pass
-                if _ace_safe is not None and _ace_safe < 1:
-                    try:
-                        if self.camp._reload_hunt_checkpoint(key):
-                            try:
-                                _, _ace_safe, _ = self._chip_pp_audit()
-                            except Exception:
-                                _ace_safe = None
-                            self.log(f"   [hunt] doorstep soft-reload landed — ace safe now "
-                                     f"{_ace_safe!r} (LOUD)")
-                            if _ace_safe is not None and _ace_safe < 1:
-                                self._field_ether_ace()
+                if _ace_dmg and _ace_dmg > 0:
+                    # Overlevel / no-safe-chip with PP remaining — ladder mode owns the
+                    # fight. Soft-reload here was the Articuno teleport (B3F calm).
+                    self.log(f"   [hunt] !!!! AT THE DOORSTEP with EMPTY ace SAFE tank "
+                             f"(safe={_ace_safe}) but ace still has {_ace_dmg} damaging PP "
+                             f"— soft-reload cannot mint safer chips (overlevel); "
+                             f"ENGAGING in LADDER MODE (NO rewind off the bird) (LOUD)")
+                else:
+                    self.log(f"   [hunt] !!!! AT THE DOORSTEP with EMPTY ace tank "
+                             f"(safe={_ace_safe}, dmgPP={_ace_dmg}) — Ether rail first, "
+                             f"THEN soft-reload IN PLACE on {qmap!r} "
+                             f"(NO mountain retreat) (LOUD)")
+                    if self._field_ether_ace():
+                        try:
+                            _audit = self._chip_pp_audit()
+                            _ace_safe = _audit[1]
+                            _ace_dmg = (_audit[3] if len(_audit) > 3 else _ace_dmg)
+                        except Exception:
+                            pass
+                    if _ace_safe is not None and _ace_safe < 1 and not (_ace_dmg and _ace_dmg > 0):
+                        try:
+                            # require_map: refuse B3F-calm / climb banks when standing on B4F
+                            if self.camp._reload_hunt_checkpoint(key, require_map=qmap):
                                 try:
-                                    _, _ace_safe, _ = self._chip_pp_audit()
+                                    _audit = self._chip_pp_audit()
+                                    _ace_safe = _audit[1]
+                                    _ace_dmg = (_audit[3] if len(_audit) > 3 else _ace_dmg)
                                 except Exception:
-                                    pass
-                        else:
-                            self.log("   [hunt] !! doorstep soft-reload declined — "
-                                     "in-fight Ether owns thin PP (LOUD)")
-                    except Exception as e:
-                        self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — "
-                                 f"in-fight Ether owns thin PP (LOUD)")
+                                    _ace_safe = None
+                                self.log(f"   [hunt] doorstep soft-reload landed — ace safe now "
+                                         f"{_ace_safe!r} (LOUD)")
+                                if _ace_safe is not None and _ace_safe < 1:
+                                    self._field_ether_ace()
+                                    try:
+                                        _ace_safe = self._chip_pp_audit()[1]
+                                    except Exception:
+                                        pass
+                            else:
+                                self.log("   [hunt] !! doorstep soft-reload declined — "
+                                         "in-fight Ether owns thin PP (LOUD)")
+                        except TypeError:
+                            # older camp mocks without require_map=
+                            try:
+                                if self.camp._reload_hunt_checkpoint(key):
+                                    try:
+                                        _ace_safe = self._chip_pp_audit()[1]
+                                    except Exception:
+                                        _ace_safe = None
+                                    self.log(f"   [hunt] doorstep soft-reload landed — ace safe "
+                                             f"now {_ace_safe!r} (LOUD)")
+                                else:
+                                    self.log("   [hunt] !! doorstep soft-reload declined — "
+                                             "in-fight Ether owns thin PP (LOUD)")
+                            except Exception as e:
+                                self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — "
+                                         f"in-fight Ether owns thin PP (LOUD)")
+                        except Exception as e:
+                            self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — "
+                                     f"in-fight Ether owns thin PP (LOUD)")
                 self.log(f"   [hunt] doorstep empty-tank settle — ace safe now "
                          f"{_ace_safe!r}; ENGAGING (LOUD)")
             self.log(f"   [hunt] !!!! AT THE DOORSTEP ({dist} tile(s) from "
@@ -824,13 +933,131 @@ class LegendaryHunt(GiovanniGym):
             self.log(f"   [fieldheal] strike seam skipped: {e}")
 
     # ── movement ─────────────────────────────────────────────────────────────────────────
+    def _landing_avoid(self, map_id=None):
+        """Warp tiles banned after a ladder step-off on this map (re-entry = instant yo-yo)."""
+        here = map_id if map_id is not None else tuple(tv.map_id(self.b))
+        return {t for (m, t) in getattr(self, "_banned_landings", set()) if m == here}
+
+    def _ladder_forward(self, hole, here, label):
+        """Second beat of the ladder law: after LEFT off the warp, take ONE more step into
+        the open room. Never step back onto `hole`."""
+        b = self.b
+        m0 = tuple(tv.map_id(b))
+        try:
+            wts = {tuple(w[0]) for w in tv.read_warps(b)}
+        except Exception:
+            wts = {hole}
+        g = tv.Grid(b)
+        wset = self.water_save(g)
+        ok0 = self.sea_ok(g, wset)
+        npcs = self.nav_blockers()
+        d0 = abs(here[0] - hole[0]) + abs(here[1] - hole[1])
+        # Continue LEFT first (Jonny: "left and then forward"), then any step that does
+        # not close distance to the hole.
+        order = (("LEFT", (-1, 0)), ("UP", (0, -1)), ("DOWN", (0, 1)), ("RIGHT", (1, 0)))
+        for key, (dx, dy) in order:
+            if time.time() > self.deadline:
+                break
+            n = (here[0] + dx, here[1] + dy)
+            if n == hole or n in wts or n in npcs or n in self._landing_avoid(m0):
+                continue
+            if not ok0(*n):
+                continue
+            if abs(n[0] - hole[0]) + abs(n[1] - hole[1]) < d0:
+                continue
+            self.step_to(n, wset)
+            for _ in range(40):
+                b.run_frame()
+            self.drain()
+            if tuple(tv.map_id(b)) != m0:
+                self.log(f"   [{label}] !! FORWARD re-fired a warp (LOUD)")
+                return False
+            now = tuple(tv.coords(b) or ())
+            if now and now not in wts and now != hole:
+                self.log(f"   [{label}] FORWARD into room {here} -> {now} via {key}")
+                return True
+        return False
+
+    def step_off_landing(self, label="landing"):
+        """FRLG leaves you ON the destination warp after a ladder/hole. Seafoam pairs
+        every climb with a drop on the same tile — pressing FORWARD first is blocked, so
+        she reverses then walks straight back into the hole (Jonny 2026-08-07 live).
+
+        Law: LEFT off the warp IMMEDIATELY, then one FORWARD step into the room, and
+        blacklist the hole so the next sea_walk cannot re-enter it. DOWN is the fallback
+        'back' press; UP/RIGHT last (UP is usually the re-fall face)."""
+        b = self.b
+        try:
+            cur = tuple(tv.coords(b) or ())
+        except Exception:
+            return False
+        if not cur:
+            return False
+        try:
+            wts = {tuple(w[0]) for w in tv.read_warps(b)}
+        except Exception:
+            return False
+        if cur not in wts:
+            return True
+        g = tv.Grid(b)
+        wset = self.water_save(g)
+        ok0 = self.sea_ok(g, wset)
+        npcs = self.nav_blockers()
+        # LEFT first — hard doctrine, not a soft sort preference.
+        order = (("LEFT", (-1, 0)), ("DOWN", (0, 1)), ("RIGHT", (1, 0)), ("UP", (0, -1)))
+        cands = []
+        for key, (dx, dy) in order:
+            n = (cur[0] + dx, cur[1] + dy)
+            if n in wts or n in npcs:
+                continue
+            if not ok0(*n):
+                continue
+            cands.append((key, n))
+        if not cands:
+            self.log(f"   [{label}] !! on warp {cur} with no safe step-off neighbor (LOUD)")
+            return False
+        # Within the LEFT-first order, prefer land over water (no Surf mount just to leave).
+        land = [kn for kn in cands if kn[1] not in wset]
+        cands = land + [kn for kn in cands if kn[1] in wset]
+        m0 = tuple(tv.map_id(b))
+        for key, n in cands:
+            if time.time() > self.deadline:
+                break
+            self.step_to(n, wset)
+            for _ in range(40):
+                b.run_frame()
+            self.drain()
+            if tuple(tv.map_id(b)) != m0:
+                self.log(f"   [{label}] !! step-off re-fired a warp {m0} -> {tv.map_id(b)} (LOUD)")
+                return False
+            now = tuple(tv.coords(b) or ())
+            if now and now not in wts:
+                self.log(f"   [{label}] stepped OFF landing warp {cur} -> {now} via {key}")
+                if not hasattr(self, "_banned_landings") or self._banned_landings is None:
+                    self._banned_landings = set()
+                self._banned_landings.add((m0, cur))
+                self._ladder_forward(cur, now, label)
+                return True
+        now = tuple(tv.coords(b) or ())
+        return bool(now) and now not in wts
+
     def enter_step(self, tile, dest, label):
         """Walk BESIDE a warp tile (sea_walk excludes warp tiles from its own paths), then STEP
         onto it — doors, ladders, cave mouths and holes all fire on the step; a door that wants
-        its arrow press gets one more directional hold. Verified by the map-id flip."""
+        its arrow press gets one more directional hold. Verified by the map-id flip.
+        On success, ALWAYS step off the landing warp before returning (Seafoam ladder yo-yo)."""
         b = self.b
+        tile = tuple(tile)
         if tuple(tv.map_id(b)) == dest:
+            self.step_off_landing(f"{label}-egress")
             return True
+        # INTENTIONAL TARGET is never banned for THIS enter — step_off_landing bans landings
+        # so mid-path BFS won't yo-yo back through a hole we just left. That ban must not
+        # block the deliberate climb we asked for (soak 20260807: ascent(8,17) stepped OFF
+        # the hole, banned it, then refused to re-enter → west climb dead, east sealed pocket).
+        if hasattr(self, "_banned_landings") and self._banned_landings:
+            here0 = tuple(tv.map_id(b))
+            self._banned_landings.discard((here0, tile))
         nbs = [(tile[0] + dx, tile[1] + dy) for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1))]
         # ARROW-MAT LAW (2026-08-05, the One-Island PC exit / the teleport-back incident):
         # a directional MB_*_ARROW_WARP mat (every PC exit mat = SOUTH arrow) fires ONLY when
@@ -847,21 +1074,62 @@ class LegendaryHunt(GiovanniGym):
         for _att in range(3):
             if time.time() > self.deadline:
                 return False
-            if tuple(tv.coords(b) or ()) not in nbs:
-                if not self.sea_walk(lambda c, s=set(nbs): c in s, f"{label}-approach"):
+            # Standing ON a warp (prior landing) — leave it before approaching the next one,
+            # or the first press toward the open room drops us back through.
+            # EXCEPTION: already ON the intentional target — fire it (don't step off + ban).
+            pre_map = tuple(tv.map_id(b))
+            cur0 = tuple(tv.coords(b) or ())
+            if cur0 != tile:
+                self.step_off_landing(f"{label}-pre")
+                # Re-clear: -pre may have just banned our intentional target.
+                if hasattr(self, "_banned_landings") and self._banned_landings:
+                    self._banned_landings.discard((pre_map, tile))
+                    self._banned_landings.discard((tuple(tv.map_id(b)), tile))
+            if tuple(tv.map_id(b)) == dest:
+                return True
+            if tuple(tv.map_id(b)) != pre_map:
+                return False  # surprise warp mid-egress — ride() re-legs
+            cur = tuple(tv.coords(b) or ())
+            if cur != tile and cur not in nbs:
+                # Never path back onto a ladder we just stepped off (Seafoam yo-yo) —
+                # except the intentional target itself (may be in avoid from a prior leg).
+                ban = self._landing_avoid(pre_map) - {tile}
+                if not self.sea_walk(lambda c, s=set(nbs) | {tile}: c in s,
+                                     f"{label}-approach", avoid=ban):
                     return False
+            # If sea_walk itself fell through a warp, stop — ride() will re-leg.
+            if tuple(tv.map_id(b)) != pre_map:
+                ok = tuple(tv.map_id(b)) == dest
+                if ok:
+                    self.step_off_landing(f"{label}-egress")
+                return ok
             cur = tuple(tv.coords(b) or (0, 0))
+            # Standing on a banned landing that is NOT our target — leave before the press.
+            if cur != tile and cur in self._landing_avoid(pre_map):
+                self.step_off_landing(f"{label}-reban")
+                cur = tuple(tv.coords(b) or (0, 0))
             key = KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1]))
             m0 = tuple(tv.map_id(b))
-            self.step_to(tile)
+            # Refuse OTHER banned holes — never the warp this call is entering.
+            if cur != tile and tuple(tile) in self._landing_avoid(m0):
+                self.log(f"   [{label}] refusing banned landing warp {tile} (LOUD)")
+                return False
+            if cur != tile:
+                self.step_to(tile)
             for _ in range(160):
                 b.run_frame()
                 if tuple(tv.map_id(b)) != m0:
                     break
-            if tuple(tv.map_id(b)) == m0 and key:
-                b.press(key, 26, 10, self.camp.render, owner="agent")
-                for _ in range(120):
-                    b.run_frame()
+            # On-tile (no neighbor key) or step didn't fire: press every cardinal once.
+            if tuple(tv.map_id(b)) == m0:
+                press_keys = (key,) if key else ()
+                press_keys = tuple(k for k in press_keys if k) or ("UP", "DOWN", "LEFT", "RIGHT")
+                for pk in press_keys:
+                    b.press(pk, 26, 10, self.camp.render, owner="agent")
+                    for _ in range(120):
+                        b.run_frame()
+                        if tuple(tv.map_id(b)) != m0:
+                            break
                     if tuple(tv.map_id(b)) != m0:
                         break
             self.drain()
@@ -869,8 +1137,12 @@ class LegendaryHunt(GiovanniGym):
                 for _ in range(60):
                     b.run_frame()
                 self.log(f"   [{label}] {m0} -> {dest} @ {tv.coords(b)}")
-                return True
-        return tuple(tv.map_id(b)) == dest
+                self.step_off_landing(f"{label}-egress")
+                return tuple(tv.map_id(b)) == dest
+        ok = tuple(tv.map_id(b)) == dest
+        if ok:
+            self.step_off_landing(f"{label}-egress")
+        return ok and tuple(tv.map_id(b)) == dest
 
     def ride(self, table, goal_map, label):
         """Leg-by-leg floor descent (eevee_fetch._ride doctrine, candidates per floor).
@@ -885,6 +1157,9 @@ class LegendaryHunt(GiovanniGym):
             while self.handle_interrupts():
                 pass
             self.field_heal_seam()          # between-legs drink (battles just drained above)
+            # Resume mid-dungeon often loads ON a ladder tile — leave it before the next leg
+            # or the approach BFS's first press is UP into the hole she just climbed.
+            self.step_off_landing(f"{label}-hop-egress")
             here = tuple(tv.map_id(self.b))
             if here == goal_map:
                 return True
@@ -918,6 +1193,86 @@ class LegendaryHunt(GiovanniGym):
             return False
         return tuple(tv.map_id(self.b)) == goal_map
 
+    # ── boulder machinery (shared — Articuno B4F calm + Moltres Ember boards) ────────────
+    def live_boulders(self):
+        return [ob["coord"] for ob in fm.scan_field_objects(self.b, {fm.GFX_BOULDER})]
+
+    def nearest_boulder(self, approx, radius=8):
+        for _attempt in range(3):
+            bs = [t for t in self.live_boulders()
+                  if abs(t[0] - approx[0]) + abs(t[1] - approx[1]) <= radius]
+            if bs:
+                return min(bs, key=lambda t: abs(t[0] - approx[0]) + abs(t[1] - approx[1]))
+            cur = tuple(tv.coords(self.b) or (0, 0))
+            if abs(cur[0] - approx[0]) + abs(cur[1] - approx[1]) <= 3:
+                return None
+            if not self.sea_walk(lambda c, a=approx: abs(c[0] - a[0]) + abs(c[1] - a[1]) <= 3,
+                                 "boulder-approach"):
+                return None
+        return None
+
+    def ensure_strength(self, approx):
+        b, camp = self.b, self.camp
+        if fm.read_flag(b, FLAG_STR_ACTIVE):
+            return True
+        bl = self.nearest_boulder(approx)
+        if bl is None:
+            self.log(f"!! [strength] no live boulder near {approx} on {tv.map_id(b)}")
+            return False
+        for attempt in range(3):
+            nbs = [(bl[0] + dx, bl[1] + dy) for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0))]
+            if not self.sea_walk(lambda c, s=set(nbs): c in s, "str-approach"):
+                return False
+            cur = tuple(tv.coords(b) or (0, 0))
+            face = KEY_OF.get((bl[0] - cur[0], bl[1] - cur[1]))
+            if face is None:
+                continue
+            b.press(face, 8, 10, camp.render, owner="agent")
+            b.press("A", 8, 12, camp.render, owner="agent")
+            self.settle(30)
+            self.drain(key="A")
+            self.settle(30)
+            if fm.read_flag(b, FLAG_STR_ACTIVE):
+                return True
+        self.log(f"!! [strength] flag 0x805 never set (boulder {bl})")
+        return False
+
+    def push(self, approx, key, n, allow=()):
+        b, camp = self.b, self.camp
+        d = DELTA[key]
+        for i in range(n):
+            bl = self.nearest_boulder(approx)
+            if bl is None:
+                self.log(f"!! [push] boulder near {approx} absent (i={i}) — NOT assuming; "
+                         f"failing LOUD (the solver re-derives from live truth)")
+                return False
+            stand = (bl[0] - d[0], bl[1] - d[1])
+            if not self.sea_walk(lambda c, s=stand: c == s, f"push-approach{i}",
+                                 avoid={tuple(bl)}):
+                self.log(f"!! [push] can't reach {stand} to push {bl} {key}")
+                return False
+            moved = False
+            for _try in range(4):
+                if self.handle_interrupts():
+                    continue
+                b.press(key, 40, 10, camp.render, owner="agent")
+                self.settle(70)
+                b2l = self.nearest_boulder((bl[0] + d[0], bl[1] + d[1]))
+                if b2l != bl:
+                    moved = True
+                    break
+            if not moved:
+                self.log(f"!! [push] {bl} would not move {key} (player {tv.coords(b)})")
+                return False
+            approx = (bl[0] + d[0], bl[1] + d[1])
+            self.log(f"   [push] {bl} -> {approx} ({key}, {i + 1}/{n})")
+            self.settle(30)
+        return True
+
+    def board_mission(self, room):
+        """One boulder room via boulder_puzzle.solve_room (live readback, idempotent)."""
+        return bp.solve_room(self, room, checkpoint=self.strike_checkpoint, log=self.log)
+
     # ── the press ────────────────────────────────────────────────────────────────────────
     def press_quarry(self):
         """Stand beside the static, face it, A — cry — the battle. The campaign battle runner
@@ -949,7 +1304,7 @@ class LegendaryHunt(GiovanniGym):
         # and every soft-reload re-armed the OVERKILL loop). NEVER bank a thin Ultra pocket
         # either (Jonny 09:13: soft-reload of a 6-ball pre undid the war-chest).
         try:
-            _, _bank_safe, _ = self._chip_pp_audit()
+            _bank_safe = self._chip_pp_audit()[1]
         except Exception:
             _bank_safe = 99
         _bank_ultras = self._ultra_count()
@@ -979,7 +1334,9 @@ class LegendaryHunt(GiovanniGym):
             if time.time() > self.deadline:
                 return False
             if tuple(tv.coords(b) or ()) not in nbs:
-                if not self.sea_walk(lambda c, s=set(nbs): c in s, "quarry-approach"):
+                ban = self._landing_avoid()
+                if not self.sea_walk(lambda c, s=set(nbs): c in s, "quarry-approach",
+                                     avoid=ban):
                     return False
             cur = tuple(tv.coords(b) or (0, 0))
             key = KEY_OF.get((tile[0] - cur[0], tile[1] - cur[1]))
@@ -1056,28 +1413,276 @@ class ZapdosHunt(LegendaryHunt):
 class ArticunoHunt(LegendaryHunt):
     QUARRY = ARTICUNO
 
+    def b4f_water_safe(self):
+        """True only when B4F current is stopped (pret OnTransition: both B4F boulders
+        PRESENT → FLAG_STOPPED_SEAFOAM_B4F_CURRENT). B3F calm / B3F hide flags are NOT
+        proof — R21 stamps 0x2D2 without dropping the Articuno dam."""
+        b = self.b
+        if fm.read_flag(b, FLAG_B4F_CALM):
+            return True
+        # Live boulder presence (hide CLEARED) is the same predicate the scripts use.
+        return (not fm.read_flag(b, FLAG_HIDE_B4F_BOULDER_1)
+                and not fm.read_flag(b, FLAG_HIDE_B4F_BOULDER_2))
+
+    def _east_b4f_pocket(self):
+        """True when standing in the elev-4 east landings — west holes are sealed from here."""
+        if tuple(tv.map_id(self.b)) != B4F:
+            return False
+        try:
+            cur = tuple(tv.coords(self.b) or ())
+        except Exception:
+            return False
+        # pret B4F: west holes at x=8/9; east landings at (15,9)/(32,5).
+        return bool(cur) and cur[0] >= 12
+
+    def _b2f_west_upper_pocket(self):
+        """True on B2F's sealed west-upper landing (B1F (7,3) ↔ B2F (7,4)).
+
+        pret layout BFS: no land/surf path from that pocket to Articuno ladder (7,17).
+        Live soak 20260807: calm-to-b3f no-path from (5,4) → climb_out → re-enter loop.
+        Escape is UP via (7,4) to B1F, then corridor ladder (17,9) back down."""
+        if tuple(tv.map_id(self.b)) != B2F:
+            return False
+        try:
+            cur = tuple(tv.coords(self.b) or ())
+        except Exception:
+            return False
+        return bool(cur) and cur[0] <= 12 and cur[1] <= 8
+
+    def _b2f_east_sealed_pocket(self):
+        """True on B2F's sealed east landings — no path to corridor UP ladders.
+
+        pret/soak 20260807: (30,4)/(32,4) sealed after B3F (31,4).
+        LIVE 20260807 18:29: (29,12) water corridor — old `y<=8` missed her;
+        climb_out thrashed west UP tiles with `no path from (29,12)` forever.
+
+        NEVER true on the east UP corridor tiles themselves ((32,14)/(25,19))."""
+        if tuple(tv.map_id(self.b)) != B2F:
+            return False
+        try:
+            cur = tuple(tv.coords(self.b) or ())
+        except Exception:
+            return False
+        if not cur:
+            return False
+        # Standing on (or one step from) a corridor UP ladder — climb, don't re-drop.
+        if cur in ((32, 14), (25, 19), (32, 13), (31, 14), (25, 18), (26, 19)):
+            return False
+        # Upper sealed pocket (y<=8) or deep east water (x>=28, the 18:29 strand).
+        return cur[0] >= 28 or (cur[0] >= 24 and cur[1] <= 8)
+
+    # B2F → B3F holes (east-first). Corridor UP is unreachable from the east
+    # water pocket — MUST re-drop, then climb ARTICUNO_ASCENT_EAST via (31,16).
+    _B2F_EAST_REDROP = ((27, 8), (24, 8), (32, 4), (31, 17), (7, 17))
+
+    def _b2f_redrop_east(self, label):
+        """From sealed B2F east water, fall ANY reachable hole to B3F."""
+        if tuple(tv.map_id(self.b)) != B2F:
+            return tuple(tv.map_id(self.b)) == B3F
+        try:
+            cur = tuple(tv.coords(self.b) or (0, 0))
+        except Exception:
+            cur = (0, 0)
+        holes = sorted(self._B2F_EAST_REDROP,
+                       key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]))
+        for hole in holes:
+            self.log(f"   [articuno] B2F east re-drop try {hole}→B3F ({label}) (LOUD)")
+            if self.enter_step(hole, B3F, f"{label}-east-redrop-{hole[0]}-{hole[1]}"):
+                return True
+            if tuple(tv.map_id(self.b)) == B3F:
+                return True
+        return tuple(tv.map_id(self.b)) == B3F
+
+    def climb_out(self, label):
+        """Leave Seafoam for R20. Prefer the column she can actually reach — west-first
+        from the Articuno dam, east-first from the elev-4 sealed pocket (soak 20260807)."""
+        # Stuck in B2F (7,4) pocket: corridor UP tiles are unreachable — climb the
+        # pocket's own UP ladder to B1F before the table ride.
+        if self._b2f_west_upper_pocket():
+            self.log(f"   [articuno] B2F west-upper pocket — UP via (7,4) before "
+                     f"{label} (sealed from corridor) (LOUD)")
+            self.enter_step((7, 4), B1F, f"{label}-pocket-up")
+        # Stuck in B2F east water/upper: re-drop to B3F so ARTICUNO_ASCENT_EAST
+        # can take (31,16)→corridor (32,14). Try every reachable B3F hole.
+        if self._b2f_east_sealed_pocket():
+            self.log(f"   [articuno] B2F east sealed — re-drop to B3F before "
+                     f"{label} (UP corridor unreachable) (LOUD)")
+            self._b2f_redrop_east(label)
+        primary, fallback, tag = (
+            (ARTICUNO_ASCENT_EAST, ARTICUNO_ASCENT, "east")
+            if (self._east_b4f_pocket()
+                or self._b2f_east_sealed_pocket()
+                or (tuple(tv.map_id(self.b)) == B3F and self._near_east_b3f()))
+            else (ARTICUNO_ASCENT, ARTICUNO_ASCENT_EAST, "west")
+        )
+        if self.ride(primary, R20, label):
+            return True
+        if tuple(tv.map_id(self.b)) == R20:
+            return True
+        # Still on B2F after west thrash — force east re-drop then east ascent.
+        if tuple(tv.map_id(self.b)) == B2F:
+            self.log(f"   [articuno] still B2F after {tag} thrash — FORCE east "
+                     f"re-drop ({label}) (LOUD)")
+            if self._b2f_redrop_east(f"{label}-force"):
+                if self.ride(ARTICUNO_ASCENT_EAST, R20, f"{label}-east-after-redrop"):
+                    return True
+        self.log(f"   [articuno] {tag} ascent stalled — trying alternate column "
+                 f"({label}) (LOUD)")
+        return self.ride(fallback, R20, f"{label}-alt")
+
+    def _near_east_b3f(self):
+        """Standing on B3F's east column (near (31,16)/(31,4)) — prefer east ascent table."""
+        if tuple(tv.map_id(self.b)) != B3F:
+            return False
+        try:
+            cur = tuple(tv.coords(self.b) or ())
+        except Exception:
+            return False
+        return bool(cur) and cur[0] >= 28
+
+    def ensure_b4f_calm(self):
+        """Drop the B3F Articuno boulders into the B4F holes so the rip becomes surfable.
+
+        pret ground truth: rip layout turns the approach water into MB_*_CURRENT (0x50-53).
+        Those tiles are NOT in travel.SURFABLE_WATER, so elev-4 land cannot step to elev-1
+        'fake land' → sea_walk 'no path from (15,11)'. Pushing both B3F hole-boulders
+        arms FLAG_STOPPED_SEAFOAM_B4F_CURRENT and swaps in CurrentStopped.
+
+        EAST elev-4 pocket (live spawn (15,11)): a one-floor hop to east B3F cannot reach
+        the Articuno dam (west boulder starts (6,17)/(12,16)). Climbing east then failing
+        the board → climb_out → re-enter is the ladder yo-yo Jonny watched. From the east
+        pocket, egress ALL the way to R20 and re-descend the WEST column to the dam.
+
+        B2F west-upper pocket (7,4): sealed from Articuno ladder (7,17). Climb to B1F and
+        take corridor (17,9) — never thrash (7,17) from (5,4) (soak 20260807 Mt-Moon loop)."""
+        if self.b4f_water_safe():
+            return True
+        self.log("   [articuno] B4F current STILL RIPPING — solving B3F boulder holes "
+                 "to arm 0x2D3 (pret Articuno dam) (LOUD)")
+        here = tuple(tv.map_id(self.b))
+        # East B4F sealed pocket: don't hop to east B3F and thrash — leave for west column.
+        if here == B4F and self._east_b4f_pocket():
+            self.log("   [articuno] east elev-4 + rip — climbing OUT to R20 for "
+                     "west-column B3F dam (cannot reach Articuno boulders from east) (LOUD)")
+            if not self.climb_out("calm-egress-east"):
+                return False
+            here = tuple(tv.map_id(self.b))
+        if here == B4F:
+            # West B4F Articuno side — climb the matching west UP holes to the dam floor.
+            if not self.ride(ARTICUNO_ASCENT[:1], B3F, "calm-up-west"):
+                if tuple(tv.map_id(self.b)) != B3F:
+                    return False
+        # B2F (7,4) sealed pocket: UP to B1F so ARTICUNO_DESCENT can use corridor (17,9).
+        if tuple(tv.map_id(self.b)) == B2F and self._b2f_west_upper_pocket():
+            self.log("   [articuno] B2F west-upper pocket — UP via (7,4) then B1F "
+                     "corridor (17,9) to Articuno ladder (LOUD)")
+            if not self.enter_step((7, 4), B1F, "calm-pocket-up"):
+                if tuple(tv.map_id(self.b)) != B1F:
+                    return False
+        if tuple(tv.map_id(self.b)) != B3F:
+            # From upper floors / R20: corridor descent only (dam is west). Never mix east
+            # candidates here — that is the ladder yo-yo.
+            here = tuple(tv.map_id(self.b))
+            if here in {F1, B1F, B2F}:
+                if not self.ride(ARTICUNO_DESCENT[:-1], B3F, "calm-to-b3f"):
+                    if tuple(tv.map_id(self.b)) != B3F:
+                        return False
+            elif here == R20:
+                if not self.enter_step((60, 8), F1, "calm-door"):
+                    self.enter_step((72, 14), F1, "calm-door-w")
+                if tuple(tv.map_id(self.b)) != B3F:
+                    if not self.ride(ARTICUNO_DESCENT[:-1], B3F, "calm-to-b3f"):
+                        return False
+            else:
+                return False
+        if not self.board_mission(ARTICUNO_B3F_CALM):
+            self.log("   [articuno] !! B3F Articuno boulder board FAILED (LOUD)")
+            return False
+        if self.b4f_water_safe():
+            self.log("   [articuno] B4F current STOPPED (0x2D3 / boulders present) — "
+                     "water is a road again")
+            return True
+        # Flags lag a map reload sometimes — step onto B4F to force OnTransition.
+        for hole in ((6, 18), (9, 18)):
+            if tuple(tv.map_id(self.b)) != B3F:
+                break
+            if self.enter_step(hole, B4F, f"calm-verify{hole}"):
+                break
+        ok = self.b4f_water_safe()
+        self.log(f"   [articuno] post-fall calm check -> {ok}")
+        return ok
+
+    def approach_bird(self):
+        """Reach a neighbor of Articuno (9,2). sea_walk first; pret waypoints if BFS is blind."""
+        b = self.b
+        tile = self.QUARRY["tile"]
+        nbs = [(tile[0] + dx, tile[1] + dy) for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1))]
+        if tuple(tv.coords(b) or ()) in nbs:
+            return True
+        ban = self._landing_avoid()
+        if self.sea_walk(lambda c, s=set(nbs): c in s, "quarry-approach", avoid=ban):
+            return True
+        self.log("   [articuno] sea_walk blind — driving pret CurrentStopped waypoints "
+                 f"from {tv.coords(b)} (LOUD)")
+        g = tv.Grid(b)
+        wset = self.water_save(g)
+        m0 = tuple(tv.map_id(b))
+        for wp in ARTICUNO_APPROACH_WAYPOINTS:
+            if time.time() > self.deadline:
+                return False
+            while self.handle_interrupts():
+                pass
+            if tuple(tv.map_id(b)) != m0:
+                return False
+            cur = tuple(tv.coords(b) or ())
+            if cur in nbs:
+                return True
+            if cur == wp:
+                continue
+            # Skip waypoints already behind her (manhattan decreasing toward bird).
+            if cur and (abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
+                        < abs(wp[0] - tile[0]) + abs(wp[1] - tile[1])):
+                continue
+            if wp in ban:
+                continue
+            if not self.step_to(wp, wset):
+                # Micro-BFS toward this waypoint only.
+                if not self.sea_walk(lambda c, t=wp: c == t, f"wp-{wp}", avoid=ban):
+                    continue
+            for _ in range(20):
+                b.run_frame()
+        return tuple(tv.coords(b) or ()) in nbs
+
     def run(self):
         b = self.b
         here = tuple(tv.map_id(b))
         if self.spent_final() and here not in ARTICUNO_ANCHORS - {R20}:
             return self.outcome() or "battled"
         here = tuple(tv.map_id(b))          # a FREE-RETRY reload may have moved her — re-read
-        # HARD SAFETY: without BOTH fallen boulders the B4F water still rips (the R21-reroute
-        # stamp sets 0x2D2 without them — see seafoam_strike) — refuse rather than get swept.
-        if fm.read_flag(b, FLAG_HIDE_B3F_BOULDER_1) or fm.read_flag(b, FLAG_HIDE_B3F_BOULDER_2):
-            self.log("   [articuno] boulders NOT truly down (hide flags still set) — B4F is "
-                     "rip-current water; refusing the descent (the gate should have caught this)")
-            return "failed"
         if here == R20:
-            # East door (60,8) lands F1 near the WEST down-chain (10,6). West door (72,14)
-            # lands the east column — only use it if the east door is unreachable.
             for door in ((60, 8), (72, 14)):
                 if self.enter_step(door, F1, "seafoam-door"):
                     break
         if tuple(tv.map_id(b)) not in {F1, B1F, B2F, B3F, B4F}:
             return "not_here"
+        # Bird already spent (caught/battled) — ONLY climb out. Never re-descend to B4F
+        # on an exit_wip retry (soak 20260807: in_seafoam → strike re-entry dug deeper).
+        if self.spent_final():
+            out = self.outcome() or "battled"
+            self.climb_out("ascent")
+            here = tuple(tv.map_id(b))
+            if here in {F1, B1F, B2F, B3F, B4F}:
+                self.log(f"   [articuno] {out} but still inside Seafoam {here}@"
+                         f"{tv.coords(b)} — surfacing in_seafoam for exit retry (LOUD)")
+                return "in_seafoam"
+            return out
+        # HARD GATE: calm the B4F water BEFORE any quarry-approach (rip = sealed pocket).
+        if not self.ensure_b4f_calm():
+            self.log("   [articuno] could not arm B4F calm — climbing out (no softlock) (LOUD)")
+            if tuple(tv.map_id(b)) in {F1, B1F, B2F, B3F, B4F}:
+                self.climb_out("ascent-unsafe")
+            return "failed"
         if tuple(tv.map_id(b)) != B4F:
-            # Whole-chain west first; east only as a complete alternate (never mix columns).
             if not self.ride(ARTICUNO_DESCENT, B4F, "descent-west"):
                 if tuple(tv.map_id(b)) != B4F:
                     self.log("   [articuno] west chain failed — trying east column (LOUD)")
@@ -1085,11 +1690,25 @@ class ArticunoHunt(LegendaryHunt):
                         return "failed"
             if tuple(tv.map_id(b)) != B4F:
                 return "failed"
-        if not self.spent_final() and not self.press_quarry():
+        if not self.approach_bird():
+            self.log("   [articuno] approach failed after calm — ascending (LOUD)")
+            self.climb_out("ascent-bail")
+            return "failed"
+        if not self.press_quarry():
+            self.log("   [articuno] press failed — ascending to R20 so the lap can move on "
+                     "(no B4F softlock) (LOUD)")
+            self.climb_out("ascent-bail")
             return "failed"
         out = self.outcome() or "failed"
-        # walk out on the pinned west ascent (same doctrine — no east fan-out yo-yo)
-        self.ride(ARTICUNO_ASCENT, R20, "ascent")
+        self.climb_out("ascent")
+        # Bird spent but still inside — do NOT pretend the strike finished on R20.
+        # Campaign maps in_seafoam → exit_wip; lap also forces surface before Zapdos.
+        # (soak 20260807: returned "caught" on B2F → Zapdos questline_no_route forever)
+        here = tuple(tv.map_id(b))
+        if out in ("caught", "battled") and here in {F1, B1F, B2F, B3F, B4F}:
+            self.log(f"   [articuno] {out} but still inside Seafoam {here}@"
+                     f"{tv.coords(b)} — surfacing in_seafoam for exit retry (LOUD)")
+            return "in_seafoam"
         return out
 
 
@@ -1129,92 +1748,7 @@ class MoltresHunt(LegendaryHunt):
             self._ball_restock_done = bool(getattr(camp, "_ball_restock_done", False))
             self.log("   [hunt] !! resuming ULTRA WAR-CHEST from camp latch (LOUD)")
 
-    # ── boulder machinery (seafoam_strike verbatim-adapted) ────────────────────────────────
-    def live_boulders(self):
-        return [ob["coord"] for ob in fm.scan_field_objects(self.b, {fm.GFX_BOULDER})]
-
-    def nearest_boulder(self, approx, radius=8):
-        for _attempt in range(3):
-            bs = [t for t in self.live_boulders()
-                  if abs(t[0] - approx[0]) + abs(t[1] - approx[1]) <= radius]
-            if bs:
-                return min(bs, key=lambda t: abs(t[0] - approx[0]) + abs(t[1] - approx[1]))
-            cur = tuple(tv.coords(self.b) or (0, 0))
-            if abs(cur[0] - approx[0]) + abs(cur[1] - approx[1]) <= 3:
-                return None
-            if not self.sea_walk(lambda c, a=approx: abs(c[0] - a[0]) + abs(c[1] - a[1]) <= 3,
-                                 "boulder-approach"):
-                return None
-        return None
-
-    def ensure_strength(self, approx):
-        b, camp = self.b, self.camp
-        if fm.read_flag(b, FLAG_STR_ACTIVE):
-            return True
-        bl = self.nearest_boulder(approx)
-        if bl is None:
-            self.log(f"!! [strength] no live boulder near {approx} on {tv.map_id(b)}")
-            return False
-        for attempt in range(3):
-            nbs = [(bl[0] + dx, bl[1] + dy) for dx, dy in ((0, 1), (0, -1), (1, 0), (-1, 0))]
-            if not self.sea_walk(lambda c, s=set(nbs): c in s, "str-approach"):
-                return False
-            cur = tuple(tv.coords(b) or (0, 0))
-            face = KEY_OF.get((bl[0] - cur[0], bl[1] - cur[1]))
-            if face is None:
-                continue
-            b.press(face, 8, 10, camp.render, owner="agent")
-            b.press("A", 8, 12, camp.render, owner="agent")
-            self.settle(30)
-            self.drain(key="A")                 # info text + YES/NO (YES default)
-            self.settle(30)
-            if fm.read_flag(b, FLAG_STR_ACTIVE):
-                return True
-        self.log(f"!! [strength] flag 0x805 never set (boulder {bl})")
-        return False
-
-    def push(self, approx, key, n, allow=()):
-        b, camp = self.b, self.camp
-        d = DELTA[key]
-        for i in range(n):
-            bl = self.nearest_boulder(approx)
-            if bl is None:
-                # 2026-08-05 #3: 'absent -> assuming pushed' was a LIE — the GBA unloads
-                # off-camera object events AND a failed approach also reads absent, so the
-                # old assumption green-lit unsolved boards. The chain engine owns absence
-                # (walk-near + verified look); an absent boulder HERE is an honest failure.
-                self.log(f"!! [push] boulder near {approx} absent (i={i}) — NOT assuming; "
-                         f"failing LOUD (the solver re-derives from live truth)")
-                return False
-            stand = (bl[0] - d[0], bl[1] - d[1])
-            if not self.sea_walk(lambda c, s=stand: c == s, f"push-approach{i}",
-                                 avoid={tuple(bl)}):
-                self.log(f"!! [push] can't reach {stand} to push {bl} {key}")
-                return False
-            moved = False
-            for _try in range(4):
-                if self.handle_interrupts():
-                    continue
-                b.press(key, 40, 10, camp.render, owner="agent")
-                self.settle(70)
-                b2l = self.nearest_boulder((bl[0] + d[0], bl[1] + d[1]))
-                if b2l != bl:
-                    moved = True
-                    break
-            if not moved:
-                self.log(f"!! [push] {bl} would not move {key} (player {tv.coords(b)})")
-                return False
-            approx = (bl[0] + d[0], bl[1] + d[1])
-            self.log(f"   [push] {bl} -> {approx} ({key}, {i + 1}/{n})")
-            self.settle(30)
-        return True
-
-    def board_mission(self, room):
-        """One boulder room via the SHARED chain engine (boulder_puzzle.solve_room): live
-        readback per push, idempotent mid-chain resume (never over-push a solved board),
-        fail-IN-PLACE retries, the door-reset LAST resort, and a milestone checkpoint after
-        every verified push (savestates keep pushed boulders — recoveries resume mid-board)."""
-        return bp.solve_room(self, room, checkpoint=self.strike_checkpoint, log=self.log)
+    # boulder actuators live on LegendaryHunt (Articuno B4F calm shares them)
 
     # ── talk / scene primitives ──────────────────────────────────────────────────────────
     def poke(self, tile, label, avoid=()):

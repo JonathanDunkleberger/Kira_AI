@@ -1,0 +1,1500 @@
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality' anchors on Route 20 and we're at Fuchsia City — edge -> (3, 37) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(25, 32) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] step 0: (25, 32)->(25, 33) map=(3, 7) (path 7 to exit)
+
+   [travel] MAP TRANSITION (3, 7) -> (3, 37)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 37) coords=(13, 0)
+
+   [campaign]    [lap] 'articuno' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 7)(25, 32) -> (3, 37)(13, 0) (MOVED)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 37) coords=(13, 0) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260807_171459_route-19_8b_36h28m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 7) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 19 (13, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 37) (13,0) f1 -- badge8 $622 party:34f5 bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Route 19
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 19 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L67), lapras (L26), fearow (L38), moltres (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 37), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L67), lapras (L26), fearow (L38), moltres (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno, then straight to the Elite Four'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno, then straight to the Elite Four'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Articuno, then straight to the Elite Four'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Route 20 is the live west connection of Route 19 — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 37) coords=(13, 0) -> map (3, 38) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] step 0: (13, 0)->(13, 1) map=(3, 37) (path 53 to exit)
+
+   [travel] step 10: (13, 10)->(13, 11) map=(3, 37) (path 46 to exit)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] 🌊 SURF MOUNT at (12, 13) -> (12, 14) (map (3, 37))
+
+   [kira-voice] -> T1·brisk· (beat) "okay — onto the water. Surf's up."  fired=True  [age 0.0s + post 103ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [dialogue] +++ 'I look at the sea to forget all the bad things that happened.'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "I look at the sea to forget all the bad things that happened."'
+
+   [travel] path blocked at (11, 17) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (11, 17) AND no NPC-allowing path (npcs nearby=[(12, 17), (15, 10), (16, 22)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (11, 17) map=(3, 37) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 'articuno' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 37)(13, 0) -> (3, 37)(11, 17) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick4] -> campaign/kira_campaign.state  (map=(3, 37) coords=(11, 17) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 37)@(11, 17) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 7) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 19 (11, 17) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 37) (11,17) f1 D- badge8 $622 party:34f5 bag:37a2]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 37)@(11, 17) (reason=frozen_box, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (11, 18) on (3, 37) (route around it) + marking (11, 17) a resolved talk-spot — unified block memory now 9 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 7) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 19 (11, 17) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L67, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 37) (11,17) f1 -B badge8 $622 party:34f5 bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63', 'use_surf']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Route 20 is the live west connection of Route 19 — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 37) coords=(11, 17) -> map (3, 38) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [strat] gEnemyParty CONFIRMED (slot0=116 == active foe) — roster reads live
+
+   [play-live] battle context: trainer=True foe=horsea rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against horsea — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L67 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs horsea 58/58 | [0]Bite(p60,pp=23,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's horsea fainted — your blastoise took it down"  fired=True  [age 0.0s + post 35ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 68'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] LEVEL-UP MOVE PROMPT: wants to learn Hydro Pump over a full moveset -> DECLINING deliberately (B=keep the set, A=confirm)
+
+   [kira-voice] -> T1·brisk· (event) 'ooh — Hydro Pump on offer. tempting, but I know my four. we keep the set.'  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out horsea'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 58 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs horsea 58/58 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=10,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's horsea went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'Ooh! Traumatic!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Ooh! Traumatic!"'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 37) coords=(11, 17) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260807_171719_route-19_8b_36h31m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] releasing 1 stale NPC block(s) [(11, 18)] — tile(s) read empty now (wanderer moved on)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 8ms]
+
+   [egress] blocker on (12, 22) (failed E-step) — holding position, waiting up to 12s for it to wander off (live bodies=[(8, 27), (12, 17), (12, 22)])
+
+   [dialogue] +++ 'I tried diving for POK.MON, but it was a no-go.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "I tried diving for POK.MON, but it was a no-go."'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 37)@(11, 22) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [egress] watchdog disengage during the wait — abandoning patience
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    [lap] 'articuno' questline step -> stuck
+
+   [campaign]    [lap] 'articuno' dispatch failed (stuck) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> stuck | pos (3, 37)(11, 17) -> (3, 37)(11, 22) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick6] -> campaign/kira_campaign.state  (map=(3, 37) coords=(11, 22) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 7) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 19 (11, 22) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 37) (11,22) f1 -- badge8 $742 party:1dbc bag:37a2]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 37)@(11, 22) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (11, 23) on (3, 37) (route around it) + marking (11, 22) a resolved talk-spot — unified block memory now 9 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 22ms]
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 7) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 19 (11, 22) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 37) (11,22) f1 -B badge8 $742 party:1dbc bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63', 'use_surf']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Route 20 is the live west connection of Route 19 — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 37) coords=(11, 22) -> map (3, 38) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live] battle context: trainer=True foe=goldeen rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against goldeen — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs goldeen 65/65 | [0]Bite(p60,pp=22,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=9,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's goldeen fainted — your blastoise took it down"  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out shellder'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs shellder 56/56 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=9,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's shellder fainted — your blastoise took it down"  fired=True  [age 0.0s + post 314ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out seaking'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs seaking 85/85 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=8,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's seaking went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 37) coords=(11, 22) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260807_171927_route-19_8b_36h33m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] releasing 1 stale NPC block(s) [(11, 23)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] step 10: (11, 31)->(11, 32) map=(3, 37) (path 23 to exit)
+
+   [travel] step 20: (11, 41)->(11, 42) map=(3, 37) (path 13 to exit)
+
+   [dialogue] +++ 'LUC. My big sis taught me how to swim and train POK.MON.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "LUC. My big sis taught me how to swim and train POK.MON."'  fired=True  [age 0.0s + post 4ms]
+
+   [travel] path blocked at (9, 42) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (9, 42) AND no NPC-allowing path (npcs nearby=[(8, 41), (9, 41), (9, 48), (11, 47), (12, 49), (14, 48)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (9, 42) map=(3, 37) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 'articuno' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 37)(11, 22) -> (3, 37)(9, 42) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick8] -> campaign/kira_campaign.state  (map=(3, 37) coords=(9, 42) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 37)@(9, 42) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 7) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 19 (9, 42) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 37) (9,42) f3 D- badge8 $858 party:1dbc bag:37a2]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 37)@(9, 42) (reason=frozen_box, frozen 8.1s) — top-level recovery, sub-layer-agnostic
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "this NPC's just looping the same lines and going nowhere — I'm closing it and walking away."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] disengage: pressed B to DISMISS the looping box (never A) -> closed=True
+
+   [campaign]    [roam] wedge spot: blocking (8, 42) on (3, 37) (route around it) + marking (9, 42) a resolved talk-spot — unified block memory now 9 tile(s)
+
+   [campaign]    [roam] disengage: box closed but couldn't step away yet — oracle re-routes next tick (NPC is sticky-blocked so it won't path back in)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 7) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — mid-battle (refuse fight-rewind escape)
+
+   [campaign] -- ROAM TICK 10/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 19 (9, 42) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 37) (9,42) f3 -B badge8 $858 party:1dbc bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63', 'use_surf']
+
+   [campaign]    [soul] surface_want FIRE -> Route 19
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 19 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 37), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick="Articuno on Seafoam Islands' bottom floor"
+
+   [campaign]    [soul] ORACLE pick -> "Articuno on Seafoam Islands' bottom floor"
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Route 20 is the live west connection of Route 19 — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (want) "Articuno on Seafoam Islands' bottom floor"  fired=True  [age 0.0s + post 18ms]
+
+   [travel] start map=(3, 37) coords=(9, 42) -> map (3, 38) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·floor· (<1s since last) T1 'a wild Pokemon leaps out at you'
+
+   [play-live] battle context: trainer=True foe=goldeen rare=False -> Tier 2 savor
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against goldeen — your blastoise is up front'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [dbl] DOUBLE BATTLE detected (gBattleTypeFlags bit0 + battlers=4) — attack-only policy: both slots pick via move_score, target-select armed, items/voluntary switches PUNTED (forced faint send-ins still on)
+
+   [kira-voice] -> T2·savor· (event) 'hold on — this is a DOUBLE battle. two of mine are out there at once.'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [dbl] battler 0 is choosing — blastoise vs foe battler 1 goldeen
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs goldeen 67/67 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=35.625) [3]Earthquake(p100,pp=7,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=0 action=False moves=True)
+
+   [play-live]    [dbl] battler 0 action COMMITTED (comm state 4)
+
+   [kira-voice] -> T2·savor· (event) 'your lapras took a big hit'  fired=True  [age 0.0s + post 24ms]
+
+   [play-live]    [dbl] battler 2 is choosing — lapras vs foe battler 1 goldeen
+
+   [play-live]    [engine] action menu: Body Slam - a solid hit -> slot 1 (eff x1) vs goldeen 67/67 | [0]Strength(p80,pp=15,ref=0,sc=80) [1]Body Slam(p85,pp=15,ref=0,sc=85) [2]Perish Song(p0,pp=5,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Body Slam - a solid hit slot 1 (menu_up=0 action=True moves=False)
+
+   [play-live]    [dbl] target-select: confirming battler 1 (want 1) — A
+
+   [play-live]    [dbl] battler 2 action COMMITTED (comm state 4)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's goldeen went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'LUC. Oh, wow! Someone tougher than my big sis!'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "LUC. Oh, wow! Someone tougher than my big sis!"'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (faint) 'we won… but my lapras went down doing it. you did good — rest up.'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(3, 37) coords=(9, 42) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260807_172134_route-19_8b_36h35m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·floor· (<1s since last) T1 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] releasing 1 stale NPC block(s) [(8, 42)] — tile(s) read empty now (wanderer moved on)
+
+   [travel] edge row 42 won't cross (5+ W presses eaten) — dropped from the band, re-planning to another crossable row (1/6)
+
+   [travel] MAP TRANSITION (3, 37) -> (3, 38)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 38) coords=(119, 3)
+
+   [campaign]    [lap] 'articuno' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 37)(9, 42) -> (3, 38)(119, 3) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 38) coords=(119, 3) badges=8 party=4)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260807_172138_route-20_8b_36h35m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] 🦅 PROXIMITY FAIL-CLEAR 'articuno': standing on the hunt's own maps — loop-burned fail ledger dropped (once per run)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'pending', 'zapdos': 'pending', 'repack': 'pending'} -> next: articuno (PROXIMITY TRUMP: standing at the articuno hunt)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 11/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (119, 3) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 38) (119,3) f3 -- badge8 $1098 party:a7ea bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32', 'use_surf']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (3, 38)
+
+   [campaign]    [seafoam-door-approach] replan at (119, 3) (len 68, budget 9)
+
+   [campaign]    [seafoam-door] (3, 38) -> (1, 83) @ (6, 21)
+
+   [dialogue] +++ 'SEAFOAM ISLANDS'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "SEAFOAM ISLANDS"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [seafoam-door-egress] stepped OFF landing warp (6, 21) -> (5, 21) via LEFT
+
+   [campaign]    [seafoam-door-egress] FORWARD into room (5, 21) -> (5, 20) via UP
+
+   [campaign]    [articuno] B4F current STILL RIPPING — solving B3F boulder holes to arm 0x2D3 (pret Articuno dam) (LOUD)
+
+   [campaign]    [calm-to-b3f(10, 6)-approach] replan at (5, 20) (len 19, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against zubat — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L24 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs zubat 57/57 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [3]Earthquake(p100,pp=6,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's zubat went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [calm-to-b3f(10, 6)-approach] replan at (8, 15) (len 11, budget 10)
+
+   [campaign]    [calm-to-b3f(10, 6)] (1, 83) -> (1, 84) @ (10, 6)
+
+   [campaign]    [calm-to-b3f(10, 6)-egress] stepped OFF landing warp (10, 6) -> (9, 6) via LEFT
+
+   [campaign]    [calm-to-b3f(10, 6)-egress] FORWARD into room (9, 6) -> (8, 6) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 3)-approach] replan at (8, 6) (len 22, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign] !! [calm-to-b3f] every candidate warp failed on (1, 84)
+
+   [campaign]    [articuno] could not arm B4F calm — climbing out (no softlock) (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against psyduck — your blastoise is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 70/70 | [0]Bite(p60,pp=21,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=6,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's psyduck went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 3 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ascent-unsafe(10, 6)-approach] replan at (6, 3) (len 23, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 72/72 | [0]Bite(p60,pp=20,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=6,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ascent-unsafe(10, 6)-approach] replan at (7, 6) (len 3, budget 10)
+
+   [campaign]    [ascent-unsafe(10, 6)] refusing banned landing warp (10, 6) (LOUD)
+
+   [campaign] !! [ascent-unsafe] every candidate warp failed on (1, 84)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (ascent-unsafe) (LOUD)
+
+   [campaign]    [ascent-unsafe-alt(31, 4)-approach] replan at (9, 6) (len 0, budget 9)
+
+   [campaign]    [ascent-unsafe-alt(31, 4)-approach] no path from (9, 6)
+
+   [campaign]    [ascent-unsafe-alt(28, 19)-approach] replan at (9, 6) (len 0, budget 9)
+
+   [campaign]    [ascent-unsafe-alt(28, 19)-approach] no path from (9, 6)
+
+   [campaign] !! [ascent-unsafe-alt] every candidate warp failed on (1, 84)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 84)@(9, 6))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((3, 38) -> (1, 84)) despite 'failed' — try refunded (refund 1/6; tries now 0/3)
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (3, 38)(119, 3) -> (1, 84)(9, 6) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 84) coords=(9, 6) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260807_172419_seafoam-islands_8b_36h38m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 84)@(9, 6) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:psyduck was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:psyduck from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 6ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 84) coords=(9, 6) -> coord (10, 6) (budget 60s, surf-capable)
+
+   [travel] step 0: (9, 6)->(10, 6) map=(1, 84) (path 2 to exit)
+
+   [travel] reached target coord (10, 6)
+
+   [campaign]    EXIT-BUILDING: (1, 84) -> (1, 83)@(10, 6)
+
+   [campaign]    [ladder] !! on warp (10, 6) with no LEFT/FORWARD egress (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 83) coords=(10, 6) -> coord (6, 20) (budget 60s, surf-capable)
+
+   [travel] step 0: (10, 6)->(10, 7) map=(1, 83) (path 19 to exit)
+
+   [travel] step 10: (9, 15)->(9, 16) map=(1, 83) (path 9 to exit)
+
+   [travel] reached target coord (6, 20)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 21) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    EXIT-BUILDING: (1, 83) -> (3, 38)@(60, 9)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 12/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:a7ea bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (3, 38)
+
+   [campaign]    [seafoam-door] (3, 38) -> (1, 83) @ (6, 21)
+
+   [campaign]    [seafoam-door-egress] stepped OFF landing warp (6, 21) -> (5, 21) via LEFT
+
+   [campaign]    [seafoam-door-egress] FORWARD into room (5, 21) -> (5, 20) via UP
+
+   [campaign]    [articuno] B4F current STILL RIPPING — solving B3F boulder holes to arm 0x2D3 (pret Articuno dam) (LOUD)
+
+   [campaign]    [calm-to-b3f(10, 6)-approach] replan at (5, 20) (len 19, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 73/73 | [0]Bite(p60,pp=20,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=5,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's psyduck went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [calm-to-b3f(10, 6)-approach] replan at (8, 15) (len 11, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 76/76 | [0]Bite(p60,pp=20,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=4,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's psyduck went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [calm-to-b3f(10, 6)-approach] replan at (8, 7) (len 3, budget 11)
+
+   [campaign]    [calm-to-b3f(10, 6)] (1, 83) -> (1, 84) @ (10, 6)
+
+   [campaign]    [calm-to-b3f(10, 6)-egress] stepped OFF landing warp (10, 6) -> (9, 6) via LEFT
+
+   [campaign]    [calm-to-b3f(10, 6)-egress] FORWARD into room (9, 6) -> (8, 6) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 3)-approach] replan at (8, 6) (len 22, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 71/71 | [0]Bite(p60,pp=20,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=3,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's psyduck went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [calm-to-b3f(7, 3)-approach] replan at (5, 12) (len 13, budget 10)
+
+   [campaign]    [calm-to-b3f(7, 3)] (1, 84) -> (1, 85) @ (7, 4)
+
+   [campaign]    [calm-to-b3f(7, 3)-egress] stepped OFF landing warp (7, 4) -> (6, 4) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 3)-egress] FORWARD into room (6, 4) -> (5, 4) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 17)-approach] replan at (5, 4) (len 0, budget 9)
+
+   [campaign]    [calm-to-b3f(7, 17)-approach] no path from (5, 4)
+
+   [campaign] !! [calm-to-b3f] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] could not arm B4F calm — climbing out (no softlock) (LOUD)
+
+   [campaign]    [ascent-unsafe(7, 4)-approach] replan at (5, 4) (len 2, budget 9)
+
+   [campaign]    [ascent-unsafe(7, 4)] refusing banned landing warp (7, 4) (LOUD)
+
+   [campaign] !! [ascent-unsafe] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (ascent-unsafe) (LOUD)
+
+   [campaign]    [ascent-unsafe-alt(32, 14)-approach] replan at (6, 4) (len 0, budget 9)
+
+   [campaign]    [ascent-unsafe-alt(32, 14)-approach] no path from (6, 4)
+
+   [campaign]    [ascent-unsafe-alt(25, 19)-approach] replan at (6, 4) (len 0, budget 9)
+
+   [campaign]    [ascent-unsafe-alt(25, 19)-approach] no path from (6, 4)
+
+   [campaign] !! [ascent-unsafe-alt] every candidate warp failed on (1, 85)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 85)@(6, 4))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((3, 38) -> (1, 85)) despite 'failed' — try refunded (refund 2/6; tries now 0/3)
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 2/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (3, 38)(60, 9) -> (1, 85)(6, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 85) coords=(6, 4) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260807_172639_seafoam-islands_8b_36h40m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 85)@(6, 4) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:psyduck was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:psyduck from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(6, 4) -> coord (7, 4) (budget 60s, surf-capable)
+
+   [travel] step 0: (6, 4)->(7, 4) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [campaign]    EXIT-BUILDING: (1, 85) -> (1, 84)@(7, 3)
+
+   [campaign]    [ladder] !! on warp (7, 3) with no LEFT/FORWARD egress (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 84) coords=(7, 3) -> coord (10, 6) (budget 60s, surf-capable)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 84) (path 25 to exit)
+
+   [travel] step 10: (4, 10)->(4, 11) map=(1, 84) (path 15 to exit)
+
+   [travel] step 20: (7, 7)->(7, 6) map=(1, 84) (path 5 to exit)
+
+   [travel] reached target coord (10, 6)
+
+   [campaign]    EXIT-BUILDING: (1, 84) -> (1, 83)@(10, 6)
+
+   [campaign]    [ladder] !! on warp (10, 6) with no LEFT/FORWARD egress (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 83) coords=(10, 6) -> coord (6, 20) (budget 60s, surf-capable)
+
+   [travel] step 0: (10, 6)->(10, 7) map=(1, 83) (path 19 to exit)
+
+   [travel] step 10: (9, 15)->(9, 16) map=(1, 83) (path 9 to exit)
+
+   [travel] reached target coord (6, 20)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 21) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    EXIT-BUILDING: (1, 83) -> (3, 38)@(60, 9)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 13/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:a7ea bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno on Seafoam Islands bottom floor'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno on Seafoam Islands bottom floor'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Articuno on Seafoam Islands bottom floor'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (3, 38)
+
+   [campaign]    [seafoam-door] (3, 38) -> (1, 83) @ (6, 21)
+
+   [campaign]    [seafoam-door-egress] stepped OFF landing warp (6, 21) -> (5, 21) via LEFT
+
+   [campaign]    [seafoam-door-egress] FORWARD into room (5, 21) -> (5, 20) via UP
+
+   [campaign]    [articuno] B4F current STILL RIPPING — solving B3F boulder holes to arm 0x2D3 (pret Articuno dam) (LOUD)
+
+   [campaign]    [calm-to-b3f(10, 6)-approach] replan at (5, 20) (len 19, budget 9)
+
+   [campaign]    [calm-to-b3f(10, 6)] (1, 83) -> (1, 84) @ (10, 6)
+
+   [campaign]    [calm-to-b3f(10, 6)-egress] stepped OFF landing warp (10, 6) -> (9, 6) via LEFT
+
+   [campaign]    [calm-to-b3f(10, 6)-egress] FORWARD into room (9, 6) -> (8, 6) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 3)-approach] replan at (8, 6) (len 22, budget 9)
+
+   [campaign]    [calm-to-b3f(7, 3)] (1, 84) -> (1, 85) @ (7, 4)
+
+   [campaign]    [calm-to-b3f(7, 3)-egress] stepped OFF landing warp (7, 4) -> (6, 4) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 3)-egress] FORWARD into room (6, 4) -> (5, 4) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 17)-approach] replan at (5, 4) (len 0, budget 9)
+
+   [campaign]    [calm-to-b3f(7, 17)-approach] no path from (5, 4)
+
+   [campaign] !! [calm-to-b3f] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] could not arm B4F calm — climbing out (no softlock) (LOUD)
+
+   [campaign]    [ascent-unsafe(7, 4)-approach] replan at (5, 4) (len 2, budget 9)
+
+   [campaign]    [ascent-unsafe(7, 4)] refusing banned landing warp (7, 4) (LOUD)
+
+   [campaign] !! [ascent-unsafe] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (ascent-unsafe) (LOUD)
+
+   [campaign]    [ascent-unsafe-alt(32, 14)-approach] replan at (6, 4) (len 0, budget 9)
+
+   [campaign]    [ascent-unsafe-alt(32, 14)-approach] no path from (6, 4)
+
+   [campaign]    [ascent-unsafe-alt(25, 19)-approach] replan at (6, 4) (len 0, budget 9)
+
+   [campaign]    [ascent-unsafe-alt(25, 19)-approach] no path from (6, 4)
+
+   [campaign] !! [ascent-unsafe-alt] every candidate warp failed on (1, 85)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 85)@(6, 4))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((3, 38) -> (1, 85)) despite 'failed' — try refunded (refund 3/6; tries now 0/3)
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 3/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (3, 38)(60, 9) -> (1, 85)(6, 4) (MOVED)
+
+   [campaign]    [roam] tick opened inside interior (1, 85)@(6, 4) with no battle since last tick — NOT a blackout; continuing (mid-route interior)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [world] learned 11 warp(s) on (1, 85): (7, 17)->(1, 86), (32, 4)->(1, 86), (31, 17)->(1, 86), (7, 4)->(1, 84), (17, 9)->(1, 84), (25, 19)->(1, 84)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 14/100000000 --
+
+   [campaign]    [roam] STATE IN: Seafoam Islands (6, 4) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(1, 85) (6,4) f4 -- badge8 $1098 party:a7ea bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (1, 85)
+
+   [campaign]    [articuno] B4F current STILL RIPPING — solving B3F boulder holes to arm 0x2D3 (pret Articuno dam) (LOUD)
+
+   [campaign]    [calm-to-b3f(7, 17)-approach] replan at (6, 4) (len 0, budget 9)
+
+   [campaign]    [calm-to-b3f(7, 17)-approach] no path from (6, 4)
+
+   [campaign] !! [calm-to-b3f] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] could not arm B4F calm — climbing out (no softlock) (LOUD)
+
+   [campaign]    [ascent-unsafe(7, 4)] (1, 85) -> (1, 84) @ (7, 3)
+
+   [campaign]    [ascent-unsafe(7, 4)-egress] stepped OFF landing warp (7, 3) -> (6, 3) via LEFT
+
+   [campaign]    [ascent-unsafe(7, 4)-egress] FORWARD into room (6, 3) -> (5, 3) via LEFT
+
+   [campaign]    [ascent-unsafe(10, 6)-approach] replan at (5, 3) (len 22, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against zubat — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 2 (eff x1) vs zubat 54/54 | [0]Bite(p60,pp=20,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=142.5) [3]Earthquake(p100,pp=2,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's zubat went down to your blastoise — that's the battle, you won"
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ascent-unsafe(10, 6)-approach] replan at (4, 4) (len 20, budget 10)
+
+   [campaign]    [ascent-unsafe(10, 6)] (1, 84) -> (1, 83) @ (10, 6)
+
+   [campaign]    [ascent-unsafe(10, 6)-egress] stepped OFF landing warp (10, 6) -> (9, 6) via LEFT
+
+   [campaign]    [ascent-unsafe(10, 6)-egress] FORWARD into room (9, 6) -> (8, 6) via LEFT
+
+   [campaign]    [ascent-unsafe(6, 21)-approach] replan at (8, 6) (len 17, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 73/73 | [0]Bite(p60,pp=19,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=2,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's psyduck went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [ascent-unsafe(6, 21)-approach] replan at (8, 17) (len 6, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [ascent-unsafe(6, 21)] (1, 83) -> (3, 38) @ (60, 9)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (3, 38)@(60, 9))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((1, 85) -> (3, 38)) despite 'failed' — try refunded (refund 4/6; tries now 0/3)
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 4/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (1, 85)(6, 4) -> (3, 38)(60, 9) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 38) coords=(60, 9) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260807_172912_route-20_8b_36h43m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 15/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:a7ea bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (3, 38)
+
+   [campaign]    [seafoam-door] (3, 38) -> (1, 83) @ (6, 21)
+
+   [campaign]    [seafoam-door-egress] stepped OFF landing warp (6, 21) -> (5, 21) via LEFT
+
+   [campaign]    [seafoam-door-egress] FORWARD into room (5, 21) -> (5, 20) via UP
+
+   [campaign]    [articuno] B4F current STILL RIPPING — solving B3F boulder holes to arm 0x2D3 (pret Articuno dam) (LOUD)
+
+   [campaign]    [calm-to-b3f(10, 6)-approach] replan at (5, 20) (len 19, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L68 vs L33 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 3 (eff x1) vs psyduck 76/76 | [0]Bite(p60,pp=19,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=1,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 3 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's psyduck went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [calm-to-b3f(10, 6)-approach] replan at (8, 11) (len 7, budget 10)
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now 'I could turn gear on. I was like, I really thought I was like, I want to catch that damn legendary bird. After I got Maltruist last night, I was so inspired. But this is like one of the hardest puzzle'
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 14ms]
+
+   [campaign]    [calm-to-b3f(10, 6)] (1, 83) -> (1, 84) @ (10, 6)
+
+   [campaign]    [calm-to-b3f(10, 6)-egress] stepped OFF landing warp (10, 6) -> (9, 6) via LEFT
+
+   [campaign]    [calm-to-b3f(10, 6)-egress] FORWARD into room (9, 6) -> (8, 6) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 3)-approach] replan at (8, 6) (len 22, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against psyduck — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) "catch order — switching to balls on this psyduck. weaken, don't KO."  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this psyduck. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [calm-to-b3f(7, 3)-approach] replan at (5, 12) (len 13, budget 10)
+
+   [campaign]    [calm-to-b3f(7, 3)] (1, 84) -> (1, 85) @ (7, 4)
+
+   [campaign]    [calm-to-b3f(7, 3)-egress] stepped OFF landing warp (7, 4) -> (6, 4) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 3)-egress] FORWARD into room (6, 4) -> (5, 4) via LEFT
+
+   [campaign]    [calm-to-b3f(7, 17)-approach] replan at (5, 4) (len 0, budget 9)
+
+   [campaign]    [calm-to-b3f(7, 17)-approach] no path from (5, 4)
+
+   [campaign] !! [calm-to-b3f] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] could not arm B4F calm — climbing out (no softlock) (LOUD)
+
+   [campaign]    [ascent-unsafe(7, 4)-approach] replan at (5, 4) (len 2, budget 9)
+
+   [campaign]    [ascent-unsafe(7, 4)] refusing banned landing warp (7, 4) (LOUD)
+
+   [campaign] !! [ascent-unsafe] every candidate warp failed on (1, 85)
+
+   [campaign]    [articuno] west ascent stalled — trying alternate column (ascent-unsafe) (LOUD)
+
+   [campaign]    [ascent-unsafe-alt(32, 14)-approach] replan at (6, 4) (len 0, budget 9)
+
+   [campaign]    [ascent-unsafe-alt(32, 14)-approach] no path from (6, 4)
+
+   [campaign]    [ascent-unsafe-alt(25, 19)-approach] replan at (6, 4) (len 0, budget 9)
+
+   [campaign]    [ascent-unsafe-alt(25, 19)-approach] no path from (6, 4)
+
+   [campaign] !! [ascent-unsafe-alt] every candidate warp failed on (1, 85)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (1, 85)@(6, 4))
+
+   [campaign]    [roam] questline STRIKE made MAP PROGRESS ((3, 38) -> (1, 85)) despite 'failed' — try refunded (refund 5/6; tries now 0/3)
+
+   [campaign]    [lap] 'articuno' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'articuno' dispatch failed (questline_strike_failed) — bounded attempt 5/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (3, 38)(60, 9) -> (1, 85)(6, 4) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(1, 85) coords=(6, 4) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260807_173037_seafoam-islands_8b_36h44m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [roam] !! BLACKOUT/STRANDED: in a building interior (1, 85)@(6, 4) — exiting to the overworld to re-orient
+
+   [campaign]    [strat] loss vs wild:Seafoam Islands:psyduck was a WILD encounter — NOT a strategic wall (no gate, no retry goal; shake it off and move on)
+
+   [campaign]    [strat] WHITEOUT-BACKSTOP: recorded the loss vs wild:Seafoam Islands:psyduck from the whiteout (the battle-end read had swallowed it) — active_wall now set
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (blackout) 'ugh… I blacked out and came to back at the Pokémon Center. okay — regroup.'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 85) coords=(6, 4) -> coord (7, 4) (budget 60s, surf-capable)
+
+   [travel] step 0: (6, 4)->(7, 4) map=(1, 85) (path 2 to exit)
+
+   [travel] reached target coord (7, 4)
+
+   [campaign]    EXIT-BUILDING: (1, 85) -> (1, 84)@(7, 3)
+
+   [campaign]    [ladder] !! on warp (7, 3) with no LEFT/FORWARD egress (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 84) coords=(7, 3) -> coord (10, 6) (budget 60s, surf-capable)
+
+   [travel] step 0: (7, 3)->(7, 4) map=(1, 84) (path 25 to exit)
+
+   [travel] step 10: (4, 10)->(4, 11) map=(1, 84) (path 15 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 18ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against psyduck — your blastoise is up front'  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this psyduck. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this psyduck. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 17ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=no_balls; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 64ms]
+
+   [travel] step 20: (7, 11)->(7, 10) map=(1, 84) (path 9 to exit)
+
+   [travel] reached target coord (10, 6)
+
+   [campaign]    EXIT-BUILDING: (1, 84) -> (1, 83)@(10, 6)
+
+   [campaign]    [ladder] !! on warp (10, 6) with no LEFT/FORWARD egress (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 83) coords=(10, 6) -> coord (6, 20) (budget 60s, surf-capable)
+
+   [travel] step 0: (10, 6)->(10, 7) map=(1, 83) (path 19 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against golbat — your blastoise is up front'  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this golbat. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this golbat. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=no_balls; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the cave presses in close around you, every sound echoing off the rock'
+
+   [travel] step 20: (7, 19)->(7, 20) map=(1, 83) (path 3 to exit)
+
+   [travel] reached target coord (6, 20)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (6, 21) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    EXIT-BUILDING: (1, 83) -> (3, 38)@(60, 9)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'articuno' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 16/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:a7ea bag:37a2]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 18 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Articuno — the ice legendary on the Seafoam Islands' bottom floor, past the boulder cascade. Ice/Flying at L50: Lance's dragons become a formality — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Articuno'
+
+   [campaign]    [soul] ORACLE pick -> 'Articuno'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Seafoam Islands B4F (ARTICUNO — the legendary ice bird) — attempt 1/3 from (3, 38)
+
+   [kira-voice] -> T2·savor· (want) 'Articuno'  fired=True  [age 0.0s + post 7ms]
+
