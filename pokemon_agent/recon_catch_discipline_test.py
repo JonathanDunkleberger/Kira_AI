@@ -1867,16 +1867,24 @@ def main():
     finally:
         LS.tv.read_warps, LS.tv.coords, LS.tv.map_id = _rw40, _co40, _mi40
         LS.tv.Grid = _gr40
-    # West column only on the primary table — east is a whole alternate, never mixed.
+    # Corridor column on the primary table — east is a whole alternate, never mixed.
+    # B1F (17,9) NOT (7,3): (7,3)↔B2F(7,4) is sealed from Articuno ladder (7,17).
     west_tiles = {t for _fl, cands, _d in LS.ARTICUNO_DESCENT for t in cands}
-    east_only = {(28, 19), (31, 4), (17, 9), (32, 14), (25, 19),
+    east_only = {(28, 19), (31, 4), (32, 14), (25, 19),
                  (31, 17), (32, 4), (29, 5), (12, 9)}
-    check("primary descent is the west Articuno column",
-          west_tiles == {(10, 6), (7, 3), (7, 17), (6, 18), (9, 18)}
+    check("primary descent is the Articuno corridor (not sealed B2F (7,4) pocket)",
+          west_tiles == {(10, 6), (17, 9), (7, 17), (6, 18), (9, 18)}
+          and (7, 3) not in west_tiles
           and not (west_tiles & east_only))
     check("east column lives in ARTICUNO_DESCENT_EAST (whole-table fallback)",
           (31, 4) in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands}
-          and (10, 6) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands})
+          and (10, 6) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands}
+          and (17, 9) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT_EAST for t in cands})
+    # Ascent from Articuno B3F must leave B2F via corridor UP — not sealed (7,4).
+    west_up_b2f = {t for _fl, cands, _d in LS.ARTICUNO_ASCENT
+                   if _fl == LS.B2F for t in cands}
+    check("west ascent leaves B2F via corridor (17,9)/(25,19), not sealed (7,4)",
+          west_up_b2f == {(17, 9), (25, 19)} and (7, 4) not in west_up_b2f)
     # East ascent (pret map.json): elev-4 B4F pocket climbs (32,5)/(15,9) — NOT west
     # holes (8,17)/(9,17) which are sealed from that pocket (soak 20260807_112459).
     east_up_b4f = {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
@@ -1977,6 +1985,63 @@ def main():
               and any("east elev-4 + rip" in l for l in logs40d))
     finally:
         LS.tv.map_id, LS.tv.coords = _mi40d, _co40d
+    # B2F west-upper pocket (5,4): sealed from (7,17) — must UP via (7,4) then corridor.
+    # Live soak 20260807: calm-to-b3f no-path from (5,4) → climb_out → re-enter Mt-Moon loop.
+    logs40e, calls40e = [], []
+    maps40e = [LS.B2F]
+    coords40e = [(5, 4)]
+    calm40e = [False]
+
+    h40e = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40e.b = object()
+    h40e.log = lambda m: logs40e.append(m)
+    h40e.b4f_water_safe = lambda: calm40e[0]
+    h40e._east_b4f_pocket = lambda: False
+
+    def _enter40e(tile, dest, label):
+        calls40e.append(("enter", tile, label))
+        if tile == (7, 4) and dest == LS.B1F:
+            maps40e[0] = LS.B1F
+            coords40e[0] = (7, 3)
+            return True
+        return False
+
+    def _ride40e(table, goal, label):
+        calls40e.append(("ride", label, list(table)))
+        if label == "calm-to-b3f" and list(table) == LS.ARTICUNO_DESCENT[:-1]:
+            # Must be invoked FROM B1F after pocket egress — never thrash (7,17) on B2F.
+            if maps40e[0] != LS.B1F:
+                return False
+            maps40e[0] = LS.B3F
+            return True
+        return False
+
+    def _board40e(room):
+        calls40e.append(("board", room.get("name")))
+        calm40e[0] = True
+        return True
+
+    h40e.enter_step = _enter40e
+    h40e.ride = _ride40e
+    h40e.board_mission = _board40e
+    h40e.climb_out = lambda label: (_ for _ in ()).throw(
+        AssertionError(f"climb_out should not run from B2F pocket calm ({label})"))
+    _mi40e, _co40e = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: maps40e[0]
+        LS.tv.coords = lambda _b: coords40e[0]
+        ok40e = h40e.ensure_b4f_calm()
+        check("ensure_b4f_calm from B2F (5,4) pocket climbs UP then corridor dam",
+              ok40e is True
+              and ("enter", (7, 4), "calm-pocket-up") in calls40e
+              and any(c[0] == "ride" and c[1] == "calm-to-b3f"
+                      and c[2] == LS.ARTICUNO_DESCENT[:-1] for c in calls40e)
+              and ("board", "articuno-b4f-calm") in calls40e
+              and any("west-upper pocket" in l for l in logs40e)
+              and (7, 3) not in {t for _fl, cands, _d in LS.ARTICUNO_DESCENT
+                                 for t in cands})
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40e, _co40e
     # ride() must NOT keep fanning candidates after a surprise map flip (the yo-yo).
     # Simulate: on B1F, first cand "fails" but warps to B2F; second cand must NOT run
     # (old bug: any() kept going and stepped B1F's next tile — often an UP ladder).

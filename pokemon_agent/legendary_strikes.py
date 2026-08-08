@@ -34,8 +34,10 @@ GROUND TRUTH (pret/pokefirered map JSONs + flags.h, fetched 2026-08-04):
   Zapdos   : OBJ (5,11) PowerPlant | FLAG_HIDE_ZAPDOS 0x05D | FLAG_FOUGHT_ZAPDOS 0x2BF
              doors: R10 (7,40)->PLANT dw1 | exits (4,39)/(5,38)/(6,39)->R10
   Articuno : OBJ (9,2) B4F | FLAG_HIDE_ARTICUNO 0x082 | FLAG_FOUGHT_ARTICUNO 0x2BE
-             PINNED west down-chain (east is a whole-table fallback — never mix columns):
-             F1 (10,6) -> B1F (7,3) -> B2F (7,17) -> B3F (6,18)/(9,18) -> B4F bird side.
+             PINNED west/corridor down-chain (east is a whole-table fallback — never mix):
+             F1 (10,6) -> B1F (17,9) -> B2F (7,17) -> B3F (6,18)/(9,18) -> B4F bird side.
+             NOT B1F (7,3)->B2F (7,4): that west-upper pocket is walk-sealed from the
+             Articuno ladder (7,17) (pret layout BFS + live soak 20260807 — Mt-Moon yo-yo).
              Mixing west+east candidates per floor (live 2026-08-06) yo-yos ladders:
              a failed enter_step that still flips the map left any() iterating the OLD
              floor's tiles — B2F (32,14) is an UP ladder, so she climbs the hole she just
@@ -156,14 +158,19 @@ SAILOR_STAND_NORTH = (8, 5)
 SAILOR_STAND = SAILOR_STAND_SOUTH  # backward-compat alias (south approach)
 
 # (floor, [candidate down-warp tiles in preference order], dest floor).
-# WEST chain only — Seafoam's ladder columns are disconnected pockets. Fan-out across
+# CORRIDOR chain only — Seafoam's ladder columns are disconnected pockets. Fan-out across
 # east+west on the same leg thrash-walks unreachable tiles, then a mid-fan map flip makes
 # the next candidate an UP ladder on the new floor (classic Mt. Moon / Seafoam yo-yo).
 # East column is ARTICUNO_DESCENT_EAST — tried as a whole alternate if west fails.
+#
+# pret layout truth (SeafoamIslands_B2F map.bin + tileset collision, 2026-08-08):
+#   B1F (7,3) ↔ B2F (7,4) is a SEALED west-upper pocket — no land/surf path to Articuno
+#   ladder B2F (7,17). B1F (17,9) ↔ B2F (17,9) IS on the Articuno corridor (reaches 7,17).
+# Live soak 20260807_17xx: calm-to-b3f(7,17) no path from (5,4) → climb_out → re-enter loop.
 ARTICUNO_DESCENT = [
     (F1, [(10, 6)], B1F),
-    (B1F, [(7, 3)], B2F),
-    (B2F, [(7, 17)], B3F),
+    (B1F, [(17, 9)], B2F),            # corridor — NOT (7,3) sealed pocket
+    (B2F, [(7, 17)], B3F),            # Articuno dam door (pairs B3F (8,14))
     (B3F, [(6, 18), (9, 18)], B4F),   # both land west B4F by Articuno
 ]
 ARTICUNO_DESCENT_EAST = [
@@ -174,8 +181,8 @@ ARTICUNO_DESCENT_EAST = [
 ]
 ARTICUNO_ASCENT = [
     (B4F, [(8, 17), (9, 17)], B3F),   # west landings only (pair with B3F (6,18)/(9,18))
-    (B3F, [(8, 14)], B2F),
-    (B2F, [(7, 4)], B1F),
+    (B3F, [(8, 14)], B2F),            # lands B2F (7,17) Articuno corridor
+    (B2F, [(17, 9), (25, 19)], B1F),  # corridor UP — NOT (7,4) sealed pocket
     (B1F, [(10, 6)], F1),
     (F1, [(6, 21), (32, 21)], R20),
 ]
@@ -1345,9 +1352,29 @@ class ArticunoHunt(LegendaryHunt):
         # pret B4F: west holes at x=8/9; east landings at (15,9)/(32,5).
         return bool(cur) and cur[0] >= 12
 
+    def _b2f_west_upper_pocket(self):
+        """True on B2F's sealed west-upper landing (B1F (7,3) ↔ B2F (7,4)).
+
+        pret layout BFS: no land/surf path from that pocket to Articuno ladder (7,17).
+        Live soak 20260807: calm-to-b3f no-path from (5,4) → climb_out → re-enter loop.
+        Escape is UP via (7,4) to B1F, then corridor ladder (17,9) back down."""
+        if tuple(tv.map_id(self.b)) != B2F:
+            return False
+        try:
+            cur = tuple(tv.coords(self.b) or ())
+        except Exception:
+            return False
+        return bool(cur) and cur[0] <= 12 and cur[1] <= 8
+
     def climb_out(self, label):
         """Leave Seafoam for R20. Prefer the column she can actually reach — west-first
         from the Articuno dam, east-first from the elev-4 sealed pocket (soak 20260807)."""
+        # Stuck in B2F (7,4) pocket: corridor UP tiles are unreachable — climb the
+        # pocket's own UP ladder to B1F before the table ride.
+        if self._b2f_west_upper_pocket():
+            self.log(f"   [articuno] B2F west-upper pocket — UP via (7,4) before "
+                     f"{label} (sealed from corridor) (LOUD)")
+            self.enter_step((7, 4), B1F, f"{label}-pocket-up")
         primary, fallback, tag = (
             (ARTICUNO_ASCENT_EAST, ARTICUNO_ASCENT, "east")
             if self._east_b4f_pocket()
@@ -1372,7 +1399,10 @@ class ArticunoHunt(LegendaryHunt):
         EAST elev-4 pocket (live spawn (15,11)): a one-floor hop to east B3F cannot reach
         the Articuno dam (west boulder starts (6,17)/(12,16)). Climbing east then failing
         the board → climb_out → re-enter is the ladder yo-yo Jonny watched. From the east
-        pocket, egress ALL the way to R20 and re-descend the WEST column to the dam."""
+        pocket, egress ALL the way to R20 and re-descend the WEST column to the dam.
+
+        B2F west-upper pocket (7,4): sealed from Articuno ladder (7,17). Climb to B1F and
+        take corridor (17,9) — never thrash (7,17) from (5,4) (soak 20260807 Mt-Moon loop)."""
         if self.b4f_water_safe():
             return True
         self.log("   [articuno] B4F current STILL RIPPING — solving B3F boulder holes "
@@ -1390,9 +1420,17 @@ class ArticunoHunt(LegendaryHunt):
             if not self.ride(ARTICUNO_ASCENT[:1], B3F, "calm-up-west"):
                 if tuple(tv.map_id(self.b)) != B3F:
                     return False
+        # B2F (7,4) sealed pocket: UP to B1F so ARTICUNO_DESCENT can use corridor (17,9).
+        if tuple(tv.map_id(self.b)) == B2F and self._b2f_west_upper_pocket():
+            self.log("   [articuno] B2F west-upper pocket — UP via (7,4) then B1F "
+                     "corridor (17,9) to Articuno ladder (LOUD)")
+            if not self.enter_step((7, 4), B1F, "calm-pocket-up"):
+                if tuple(tv.map_id(self.b)) != B1F:
+                    return False
         if tuple(tv.map_id(self.b)) != B3F:
-            # From upper floors / R20: WEST descent only (dam is west). Never mix east
+            # From upper floors / R20: corridor descent only (dam is west). Never mix east
             # candidates here — that is the ladder yo-yo.
+            here = tuple(tv.map_id(self.b))
             if here in {F1, B1F, B2F}:
                 if not self.ride(ARTICUNO_DESCENT[:-1], B3F, "calm-to-b3f"):
                     if tuple(tv.map_id(self.b)) != B3F:
