@@ -14515,6 +14515,21 @@ class Campaign:
             _sr = self._zapdos_north_staging(state)
             if _sr is not None:
                 return _sr
+            # NORTH-PAD GUARD (2026-08-08, the Lavender<->Route 12 ping-pong): north staging
+            # returning None is ONLY valid on R10 NORTH (y<=50) or inside the plant. Anywhere
+            # else it means a transient map-read flake — opening the questline there lets its
+            # anchor-first steer drag her onto the R10 SOUTH dead-end again (the oscillation
+            # that tripped the seam-thrash breaker into a dead 'regroup' state). Hold and
+            # re-tick so staging gets another crack instead.
+            try:
+                _zh2 = tuple(tv.map_id(self.b))
+                _zy2 = (tv.coords(self.b) or (0, 0))[1]
+                if not (_zh2 == (1, 95) or (_zh2 == ROUTE10 and _zy2 <= 50)):
+                    log(f"   [lap] !! ZAPDOS staging said 'on the pad' but she's at "
+                        f"{_zh2}@{_zy2} — holding the questline, re-ticking (LOUD)")
+                    return "ok"
+            except Exception:
+                pass
         gate = self._lap_gate_for(key, state)
         if gate is None:
             # Owed by raw truth but the gate self-suppresses. Ball-thin is OURS to fix; any
