@@ -1,0 +1,14 @@
+===== playlive_2026-08-07_19-06-59.log =====
+   [travel] start map=(3, 38) coords=(60, 11) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] releasing 1 stale NPC block(s) [(60, 8)] — tile(s) read empty now (wanderer moved on)
+   [travel] path blocked at (60, 11) (NPC on the gap?) - waiting
+   [travel] no clean path from (60, 11) AND no NPC-allowing path (npcs nearby=[(54, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (60, 11) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 38) coords=(60, 11) -> map (3, 8) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] releasing 1 stale NPC block(s) [(60, 8)] — tile(s) read empty now (wanderer moved on)
+   [travel] path blocked at (60, 11) (NPC on the gap?) - waiting
+   [travel] no clean path from (60, 11) AND no NPC-allowing path (npcs nearby=[(54, 11)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (60, 11) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+===== playlive_2026-08-07_18-58-58.log =====

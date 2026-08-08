@@ -1,0 +1,634 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 38) coords=(60, 9) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 9 blocked tile(s), 14 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=2980).
+
+   [soul] continuity loaded: 18 roster bond(s), 1088 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 154 place(s) known, 255 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot1 FAINTED (0/110) — likely to blackout soon
+
+   [campaign]    [roam] !!     - from (3, 38)@(60, 9) there is NO south gym-route connection AND no reachable grass — head_to_gym would return no_gym_route (a dead-end spawn)
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    [roam] !! BOOT MENU-CLOSE: screen is off-overworld (menu save) — B-cascading out before the first action (LOUD)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now "Kira, catch this side-ug for your Pokedex. You're gonna need 151. You're gonna need to catch every single Pokemon in the entire all 10 generations. It's gonna take us like fucking a decade."
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 18ms]
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 38) coords=(60, 9) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260807_185910_route-20_8b_37h19m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'done', 'fly': 'pending', 'zapdos': 'pending', 'repack': 'done'} -> next: fly (cost-ordered from (3, 38))
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/eevee → steps=['eevee'] actionable=eevee (resolved=True)
+
+   [campaign]    [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is unclaimed — climbing the back stairwell for the roof-room ball
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need the gift Eevee — a guaranteed Poke Ball in the Celadon Condominiums roof room (back stairwell). One of a kind: a Thunder Stone from the Dept. Store turns it into Jolteon, the team's electric answer."  fired=True  [age 0.0s + post 27ms]
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST the gift Eevee — a guaranteed Poke Ball in the Celadon Condominiums roof room (back stairwell). One of a kind: a Thunder Stone from the Dept. Store turns it into Jolteon, the team's electric answer — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Grab Eevee in Celadon, evolve to Jolteon, then Elite Four'
+
+   [campaign]    [soul] ORACLE pick -> 'Grab Eevee in Celadon, evolve to Jolteon, then Elite Four'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 5
+
+   [kira-voice] -> T2·savor· (want) 'Grab Eevee in Celadon, evolve to Jolteon, then Elite Four'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'fly' dispatch failed (no party mon can re-learn HM01 Cut) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'fly' dispatch failed (no party mon can re-learn HM01 Cut) — bounded attempt 2/6
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(3, 38) coords=(60, 9) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'fly' dispatch failed (no party mon can re-learn HM01 Cut) — bounded attempt 3/6
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign] -- ROAM TICK 4/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST the gift Eevee — a guaranteed Poke Ball in the Celadon Condominiums roof room (back stairwell). One of a kind: a Thunder Stone from the Dept. Store turns it into Jolteon, the team's electric answer — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get the Eevee from Celadon and Thunder Stone it into Jolteon'
+
+   [campaign]    [soul] ORACLE pick -> 'get the Eevee from Celadon and Thunder Stone it into Jolteon'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'ok', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'get the Eevee from Celadon and Thunder Stone it into Jolteon'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [lap] 'fly' dispatch failed (no party mon can re-learn HM01 Cut) — bounded attempt 4/6
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick4] -> campaign/kira_campaign.state  (map=(3, 38) coords=(60, 9) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign] -- ROAM TICK 5/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'ok', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'fly' dispatch failed (no party mon can re-learn HM01 Cut) — bounded attempt 5/6
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign] -- ROAM TICK 6/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'ok', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'fly' dispatch failed (no party mon can re-learn HM01 Cut) — bounded attempt 6/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'fly': 6 bounded dispatch attempts spent (last: no party mon can re-learn HM01 Cut) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the fly side quest — 6 bounded dispatch attempts spent (last: no party mon can re-learn HM01 Cut). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick6] -> campaign/kira_campaign.state  (map=(3, 38) coords=(60, 9) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign] -- ROAM TICK 7/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [soul] surface_want FIRE -> Route 20
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 20 — outdoors under open sky.. ALREADY BESIDE YOU — your current team: blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 38), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L68), lapras (L26), fearow (L38), moltres (L50), articuno (L50)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST the gift Eevee — a guaranteed Poke Ball in the Celadon Condominiums roof room (back stairwell). One of a kind: a Thunder Stone from the Dept. Store turns it into Jolteon, the team's electric answer — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Victory Road and prep for the Elite Four'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Victory Road and prep for the Elite Four'
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'reach Victory Road and prep for the Elite Four'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 'fly' dispatch failed (no party mon can re-learn HM01 Cut) — bounded attempt 7/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'fly': 7 bounded dispatch attempts spent (last: no party mon can re-learn HM01 Cut) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the fly side quest — 7 bounded dispatch attempts spent (last: no party mon can re-learn HM01 Cut). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign] -- ROAM TICK 8/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 7 turns - it went 'ok', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 'fly' dispatch failed (no party mon can re-learn HM01 Cut) — bounded attempt 8/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'fly': 8 bounded dispatch attempts spent (last: no party mon can re-learn HM01 Cut) — the lap moves on (never an infinite park)
+
+   [kira-voice] ·floor· (<1s since last) T2 "calling it on the fly side quest — 8 bounded dispatch attempts spent (last: no party mon can re-learn HM01 Cut). the League won't wait forever."
+
+   [campaign]    [roam] RESULT: victory_lap -> ok | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick8] -> campaign/kira_campaign.state  (map=(3, 38) coords=(60, 9) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign] -- ROAM TICK 9/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."
+
+   [campaign]    HEAL: ADJACENT city Cinnabar Island (W) band UNREACHABLE from feet (split map, Route-23 class) — skipping the excursion
+
+   [campaign]    HEAL: no local Center mapped for (3, 38) — world-graph routing to Cinnabar Island's Center (multi-hop, fleeing wilds)
+
+   [campaign]    !! HEAL: graph hop (3, 38)->(3, 8) (west) band UNREACHABLE from feet (split map) — abandoning the graph route (LOUD)
+
+   [campaign]    !! HEAL: no graph route to any known Center from (3, 38) — FALLBACK to a cross-region Viridian heal (FIX: add (3, 38)'s PC door to CITY_PC_DOORS)
+
+   [campaign]    HEAL-RETURN: lead at (190, 208) - routing south to Viridian to heal
+
+   [campaign]    HEAL-RETURN leg 0: no south edge on map (3, 38) - warping south
+
+   [campaign]    4 door(s); candidates (chosen order): [(72, 14), (-5, 11), (60, 8), (-4, 4)]
+
+   [campaign]    door (60, 8): near approach ((60, 9)→(60, 7), d=2) — short step
+
+   [campaign]    door (60, 8): at (60, 8) (approach=(60, 7)) — stepping DOWN in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [dialogue] +++ 'SEAFOAM ISLANDS'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "SEAFOAM ISLANDS"'  fired=True  [age 0.0s + post 24ms]
+
+   [campaign]    WARPED (3, 38) -> (1, 83) via door (60, 8) (on-tile)
+
+   [campaign]    [world] learned 7 warp(s) on (1, 83): (10, 6)->(1, 84), (31, 4)->(1, 84), (28, 19)->(1, 84), (6, 21)->(3, 38), (32, 21)->(3, 38), (21, 8)->(1, 84)
+
+   [campaign]    [ladder] !! on warp (6, 21) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    HEAL-RETURN leg 1: inside Seafoam (1, 83) — surface egress (NOT warp-south)
+
+   [campaign]    [seafoam] !! ESCAPE ROPE INJECT x1 for heal-return-1 (sealed pocket strand — LOUD)
+
+   [campaign]    [seafoam] Escape Rope x1 — ejecting for heal-return-1 (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [rope] Escape Rope (bag row 6) from (1, 83)
+
+   [kira-voice] -> T2·savor· (route) 'okay — Escape Rope, get me OUT of this cave. now.'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 83)@(6, 21) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'ESCAPE ROPE is selected.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ESCAPE ROPE is selected."'  fired=True  [age 0.0s + post 19ms]
+
+   [dialogue] +++ 'KIRA used the ESCAPE ROPE. .'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "KIRA used the ESCAPE ROPE. ."'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rope] VERIFIED late Escape Rope (1, 83) -> (3, 38)
+
+   [campaign]    [seafoam] Escape Rope → (3, 38)@(60, 9)
+
+   [campaign]    HEAL-RETURN leg 2: no south edge on map (3, 38) - warping south
+
+   [campaign]    4 door(s); candidates (chosen order): [(72, 14), (-5, 11), (60, 8), (-4, 4)]
+
+   [campaign]    door (60, 8): near approach ((60, 9)→(60, 7), d=2) — short step
+
+   [campaign]    door (60, 8): at (60, 8) (approach=(60, 7)) — stepping DOWN in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [dialogue] +++ 'SEAFOAM ISLANDS'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "SEAFOAM ISLANDS"'
+
+   [campaign]    WARPED (3, 38) -> (1, 83) via door (60, 8) (on-tile)
+
+   [campaign]    [world] learned 7 warp(s) on (1, 83): (10, 6)->(1, 84), (31, 4)->(1, 84), (28, 19)->(1, 84), (6, 21)->(3, 38), (32, 21)->(3, 38), (21, 8)->(1, 84)
+
+   [campaign]    [ladder] !! on warp (6, 21) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    HEAL-RETURN leg 3: inside Seafoam (1, 83) — surface egress (NOT warp-south)
+
+   [campaign]    [seafoam] !! ESCAPE ROPE INJECT x1 for heal-return-3 (sealed pocket strand — LOUD)
+
+   [campaign]    [seafoam] Escape Rope x1 — ejecting for heal-return-3 (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [rope] Escape Rope (bag row 6) from (1, 83)
+
+   [kira-voice] -> T2·savor· (route) 'okay — Escape Rope, get me OUT of this cave. now.'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 83)@(6, 21) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'ESCAPE ROPE is selected.'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ESCAPE ROPE is selected."'
+
+   [dialogue] +++ 'KIRA used the ESCAPE ROPE. .'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "KIRA used the ESCAPE ROPE. ."'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rope] VERIFIED late Escape Rope (1, 83) -> (3, 38)
+
+   [campaign]    [seafoam] Escape Rope → (3, 38)@(60, 9)
+
+   [campaign]    HEAL-RETURN leg 4: no south edge on map (3, 38) - warping south
+
+   [campaign]    4 door(s); candidates (chosen order): [(72, 14), (-5, 11), (60, 8), (-4, 4)]
+
+   [campaign]    door (60, 8): near approach ((60, 9)→(60, 7), d=2) — short step
+
+   [campaign]    door (60, 8): at (60, 8) (approach=(60, 7)) — stepping DOWN in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [dialogue] +++ 'SEAFOAM ISLANDS'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "SEAFOAM ISLANDS"'
+
+   [campaign]    WARPED (3, 38) -> (1, 83) via door (60, 8) (on-tile)
+
+   [campaign]    [world] learned 7 warp(s) on (1, 83): (10, 6)->(1, 84), (31, 4)->(1, 84), (28, 19)->(1, 84), (6, 21)->(3, 38), (32, 21)->(3, 38), (21, 8)->(1, 84)
+
+   [campaign]    [ladder] !! on warp (6, 21) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    HEAL-RETURN leg 5: inside Seafoam (1, 83) — surface egress (NOT warp-south)
+
+   [campaign]    [seafoam] !! ESCAPE ROPE INJECT x1 for heal-return-5 (sealed pocket strand — LOUD)
+
+   [campaign]    [seafoam] Escape Rope x1 — ejecting for heal-return-5 (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [rope] Escape Rope (bag row 6) from (1, 83)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.1s at (1, 83)@(6, 21) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [order] creator order expired (30m TTL) — released
+
+   [dialogue] +++ 'ESCAPE ROPE is selected.'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ESCAPE ROPE is selected."'
+
+   [dialogue] +++ 'KIRA used the ESCAPE ROPE. .'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "KIRA used the ESCAPE ROPE. ."'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rope] VERIFIED late Escape Rope (1, 83) -> (3, 38)
+
+   [campaign]    [seafoam] Escape Rope → (3, 38)@(60, 9)
+
+   [campaign]    HEAL-RETURN leg 6: no south edge on map (3, 38) - warping south
+
+   [campaign]    4 door(s); candidates (chosen order): [(72, 14), (-5, 11), (60, 8), (-4, 4)]
+
+   [campaign]    door (60, 8): near approach ((60, 9)→(60, 7), d=2) — short step
+
+   [campaign]    door (60, 8): at (60, 8) (approach=(60, 7)) — stepping DOWN in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [dialogue] +++ 'SEAFOAM ISLANDS'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "SEAFOAM ISLANDS"'
+
+   [campaign]    WARPED (3, 38) -> (1, 83) via door (60, 8) (on-tile)
+
+   [campaign]    [world] learned 7 warp(s) on (1, 83): (10, 6)->(1, 84), (31, 4)->(1, 84), (28, 19)->(1, 84), (6, 21)->(3, 38), (32, 21)->(3, 38), (21, 8)->(1, 84)
+
+   [campaign]    [ladder] !! on warp (6, 21) with no LEFT/FORWARD egress (LOUD)
+
+   [campaign]    HEAL-RETURN leg 7: inside Seafoam (1, 83) — surface egress (NOT warp-south)
+
+   [campaign]    [seafoam] !! ESCAPE ROPE INJECT x1 for heal-return-7 (sealed pocket strand — LOUD)
+
+   [campaign]    [seafoam] Escape Rope x1 — ejecting for heal-return-7 (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [rope] Escape Rope (bag row 6) from (1, 83)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 9433 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(1, 83) coords=(6, 21)  badge=True
+
+   [kira-voice] === 10 fired, 11 gated (0 failed) | by tier: T3=1 T2=6 T1=3 (incl ambient trickle) ===
+
+================================================================
+
