@@ -1729,7 +1729,11 @@ class Campaign:
                                 on_transition=lambda: self._learn_transit(),
                                 # spinner-floor hand-off (shift 5): travel's wedge guard calls
                                 # this ONCE per leg on maps with spin tiles (hideout B2F/B3F)
-                                spin_assist=self._spin_assist)
+                                spin_assist=self._spin_assist,
+                                # NPC blocker waits are deliberate stillness — the 8s
+                                # frozen-screen watchdog must not kill a legal 12s wait
+                                # (LIVE 2026-08-08, the Route-12 gate approach deaths).
+                                watch_hold=self.watchdog_hold)
         # PHASE 2 — HM field-move actuator (Cut/Strength/Surf via the in-game prompt path).
         # Pure-additive; detection is always safe, actuation is gated by FIELD_MOVES_ENABLED.
         try:
