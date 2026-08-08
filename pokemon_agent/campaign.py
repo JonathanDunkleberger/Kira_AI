@@ -2296,6 +2296,19 @@ class Campaign:
                 log(f"   [warp] REFUSING door {door} -> {_dest} (Mt. Moon already cleared; "
                     f"badge_count={_bc_now}) — not re-entering finished dungeon")
                 continue
+            # SEAFOAM RE-ENTRY REFUSE (2026-08-08 LIVE, the rope↔door loop round 2):
+            # HEAL-RETURN "warping south" on Route 20 picked the CAVE MOUTH (60,8) —
+            # in she went, roped out, repeat. With Articuno owned the cave is finished
+            # ground; no automatic warp may re-enter it from outdoors.
+            if (_dest in self._SEAFOAM_DUNGEON and tuple(before)[0] == 3):
+                try:
+                    _art_spent = ram.pokedex_owns(self.b, 144) is True
+                except Exception:
+                    _art_spent = False
+                if _art_spent and not getattr(self, "_allow_seafoam_entry", False):
+                    log(f"   [warp] REFUSING door {door} -> {_dest} (Seafoam finished — "
+                        f"Articuno owned; never auto-re-enter) (LOUD)")
+                    continue
             approach = (door[0], door[1] + approach_dy)  # stand just beside the door
             # FAST reachability pre-check (BFS only) so unreachable doors are skipped
             # instantly instead of a slow walk-then-fail. Uses grass-ALLOWED collision
@@ -13462,25 +13475,29 @@ class Campaign:
         NOT-pending on read errors — a RAM flake must never park the League march. Never raises."""
         try:
             b = self.b
-            # Fly skip refund MUST run before the skip latch — LIVE 18:37 latched
-            # 'no Cut' while the chain was actually viable; pending stayed False forever.
+            # Fly skip refund MUST run before the skip latch — but ONLY while the fail
+            # budget is unspent. LIVE 19:07: an unconditional refund un-latched the
+            # skip EVERY tick against a hard-failing Cut teach → 50+ retry loop, RED
+            # forever. Exhausted budget ⇒ the skip STANDS and zapdos proceeds on foot.
             if key == "fly":
                 cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
                 if fm.can_use(b, "fly", cnt):
                     (getattr(self, "_lap_skipped", None) or set()).discard("fly")
                     return False
-                try:
-                    import hm_teach as _ht
-                    if (_ht.tm_case_row(b, 340) is not None or fm.read_flag(b, 568)):
-                        (getattr(self, "_lap_skipped", None) or set()).discard("fly")
-                        return True
-                    # Cut re-teachable from the case → fetch viable → refund the latch.
-                    if (_ht.tm_case_row(b, 339) is not None
-                            or self.world.has_cap("cut")
-                            or st.party_knows_move(b, 15, cnt) is not None):
-                        (getattr(self, "_lap_skipped", None) or set()).discard("fly")
-                except Exception:
-                    pass
+                _fly_fails = (getattr(self, "_lap_fails", None) or {}).get("fly", 0)
+                if _fly_fails < VICTORY_LAP_MAX_FAILS:
+                    try:
+                        import hm_teach as _ht
+                        if (_ht.tm_case_row(b, 340) is not None or fm.read_flag(b, 568)):
+                            (getattr(self, "_lap_skipped", None) or set()).discard("fly")
+                            return True
+                        # Cut re-teachable from the case → fetch viable → refund latch.
+                        if (_ht.tm_case_row(b, 339) is not None
+                                or self.world.has_cap("cut")
+                                or st.party_knows_move(b, 15, cnt) is not None):
+                            (getattr(self, "_lap_skipped", None) or set()).discard("fly")
+                    except Exception:
+                        pass
             if key in getattr(self, "_lap_skipped", set()):
                 return False
             if key == "earthquake":
@@ -13741,6 +13758,35 @@ class Campaign:
         # the fetch gate arms (else _fly_gate returns None and the lap parks).
         if not self.world.has_cap("cut") and ht.tm_case_row(self.b, 339) is not None:
             cut_plan = ht.default_plan(self.b, "cut", cnt)
+            if cut_plan is None:
+                # LIVE 19:07 (the 50-attempt loop): the endgame party's ONLY Cut
+                # learner is the LEAD (Blastoise) and default_plan's scoring skips a
+                # lead with 4 full moves. Teach the lead — forget the least precious
+                # move (never Surf/Strength/EQ/Bite; Skull Bash is the sacrifice).
+                for s in range(cnt):
+                    sp0 = st.read_party_species(self.b, s)
+                    if not ht.hm_compatible(self.b, "cut", sp0):
+                        continue
+                    moves0 = st.read_party_moves(self.b, s) or []
+                    if 0 in moves0 or len([m for m in moves0 if m]) < 4:
+                        cut_plan = (s, None, "free slot (lead fallback)")
+                        break
+                    _protect = {57, 70, 89, 15, 19, 44}  # Surf Strength EQ Cut Fly Bite
+                    scored0 = []
+                    for i, m in enumerate(moves0):
+                        if not m or m in _protect or m in ht._PRECIOUS:
+                            continue
+                        try:
+                            _ty0, pw0 = st.move_info(self.b, m)
+                        except Exception:
+                            pw0 = 0
+                        # Charge moves (Skull Bash 130) are dead weight — forget first.
+                        scored0.append((0 if m == 130 else 1, pw0 or 0, i))
+                    if scored0:
+                        scored0.sort()
+                        cut_plan = (s, scored0[0][2],
+                                    f"lead fallback — forget move idx {scored0[0][2]}")
+                        break
             if cut_plan is None:
                 self._lap_note_fail("fly", "no party mon can re-learn HM01 Cut")
                 return "ok"
@@ -22215,6 +22261,14 @@ class Campaign:
             newly = [m for m in mouths if (here, m) not in self._blocked_npcs]
             for m in mouths:
                 self._blocked_npcs.add((here, m))
+                # PIN the mark — travel's stale-NPC release reads an empty door tile
+                # as "wanderer moved on" and un-blocks it (LIVE 19:07 re-entry).
+                try:
+                    if not hasattr(self.trav, "pinned_blocks"):
+                        self.trav.pinned_blocks = set()
+                    self.trav.pinned_blocks.add((here, m))
+                except Exception:
+                    pass
             if newly:
                 log(f"   [seafoam] 🚪 MOUTH LOCKOUT ({label}): blocked {newly} on "
                     f"{here} — travel routes AROUND the cave now (LOUD)")

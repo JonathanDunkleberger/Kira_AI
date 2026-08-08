@@ -185,6 +185,13 @@ def main():
         pend2 = camp2._lap_pending("fly")
         check("no Cut + no HM01 -> honest skip", pend2 is False
               and "fly" in camp2._lap_skipped)
+        # Fail budget SPENT -> refund stops, skip STANDS (LIVE 19:07 50x loop).
+        camp2._lap_skipped = {"fly"}
+        camp2._lap_fails = {"fly": C.VICTORY_LAP_MAX_FAILS}
+        _ht.tm_case_row = lambda _b, item: (0 if item == 339 else None)
+        pend3 = camp2._lap_pending("fly")
+        check("fails >= MAX -> skip stands (no refund loop)", pend3 is False
+              and "fly" in camp2._lap_skipped)
     finally:
         _ht.tm_case_row, st.party_knows_move, C.fm.can_use = _otc, _opk, _ocu
         C.fm.read_flag = _orf

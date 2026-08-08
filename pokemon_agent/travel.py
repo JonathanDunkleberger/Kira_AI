@@ -1164,8 +1164,13 @@ class Traveler:
             # wedges in one graded window). If a marked tile is NEAR (inside the object-cull
             # radius, where the live read is trustworthy) and no body stands on it, the NPC
             # moved on -> un-mark. A squatter that returns re-marks in one failed step.
+            # PINNED BLOCKS (2026-08-08, the Seafoam mouth): terrain lockouts (cave
+            # doors) are NOT wanderer-NPC marks — an empty tile is exactly what a
+            # door looks like. Never stale-release a pinned tile.
+            _pinned = getattr(self, "pinned_blocks", set())
             _stale_marks = {t for t in blocked_here
                             if t not in _fresh_marks and t not in npc
+                            and (cur_map, t) not in _pinned
                             and abs(t[0] - cur[0]) + abs(t[1] - cur[1]) <= 7}
             if _stale_marks:
                 self.log(f"   [travel] releasing {len(_stale_marks)} stale NPC block(s) "
