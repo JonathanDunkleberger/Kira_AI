@@ -1367,20 +1367,32 @@ class ArticunoHunt(LegendaryHunt):
         pret ground truth: rip layout turns the approach water into MB_*_CURRENT (0x50-53).
         Those tiles are NOT in travel.SURFABLE_WATER, so elev-4 land cannot step to elev-1
         'fake land' → sea_walk 'no path from (15,11)'. Pushing both B3F hole-boulders
-        arms FLAG_STOPPED_SEAFOAM_B4F_CURRENT and swaps in CurrentStopped."""
+        arms FLAG_STOPPED_SEAFOAM_B4F_CURRENT and swaps in CurrentStopped.
+
+        EAST elev-4 pocket (live spawn (15,11)): a one-floor hop to east B3F cannot reach
+        the Articuno dam (west boulder starts (6,17)/(12,16)). Climbing east then failing
+        the board → climb_out → re-enter is the ladder yo-yo Jonny watched. From the east
+        pocket, egress ALL the way to R20 and re-descend the WEST column to the dam."""
         if self.b4f_water_safe():
             return True
         self.log("   [articuno] B4F current STILL RIPPING — solving B3F boulder holes "
                  "to arm 0x2D3 (pret Articuno dam) (LOUD)")
         here = tuple(tv.map_id(self.b))
+        # East B4F sealed pocket: don't hop to east B3F and thrash — leave for west column.
+        if here == B4F and self._east_b4f_pocket():
+            self.log("   [articuno] east elev-4 + rip — climbing OUT to R20 for "
+                     "west-column B3F dam (cannot reach Articuno boulders from east) (LOUD)")
+            if not self.climb_out("calm-egress-east"):
+                return False
+            here = tuple(tv.map_id(self.b))
         if here == B4F:
-            # East pocket can't reach west holes — climb the matching east UP ladders.
-            if not self.ride(ARTICUNO_ASCENT_EAST[:1], B3F, "calm-up-east"):
+            # West B4F Articuno side — climb the matching west UP holes to the dam floor.
+            if not self.ride(ARTICUNO_ASCENT[:1], B3F, "calm-up-west"):
                 if tuple(tv.map_id(self.b)) != B3F:
-                    if not self.ride([(B4F, [(15, 9), (32, 5)], B3F)], B3F, "calm-up"):
-                        return False
+                    return False
         if tuple(tv.map_id(self.b)) != B3F:
-            # From upper floors, prefer landing on B3F (west or east), not skipping to B4F.
+            # From upper floors / R20: WEST descent only (dam is west). Never mix east
+            # candidates here — that is the ladder yo-yo.
             if here in {F1, B1F, B2F}:
                 if not self.ride(ARTICUNO_DESCENT[:-1], B3F, "calm-to-b3f"):
                     if tuple(tv.map_id(self.b)) != B3F:

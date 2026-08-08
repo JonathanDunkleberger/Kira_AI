@@ -1923,6 +1923,60 @@ def main():
               and rides40c[0][1] == "ascent-bail")
     finally:
         LS.tv.map_id, LS.tv.coords = _mi40c, _co40c
+    # ensure_b4f_calm from east elev-4: egress to R20 then WEST descent to dam —
+    # never hop one floor to east B3F (board starts are west-only; that yo-yos).
+    logs40d, calls40d = [], []
+    maps40d = [LS.B4F]
+    calm40d = [False]
+
+    h40d = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40d.b = object()
+    h40d.log = lambda m: logs40d.append(m)
+    h40d.b4f_water_safe = lambda: calm40d[0]
+    h40d._east_b4f_pocket = lambda: True
+
+    def _climb40d(label):
+        calls40d.append(("climb_out", label))
+        maps40d[0] = LS.R20
+        return True
+
+    def _enter40d(tile, dest, label):
+        calls40d.append(("enter", tile, label))
+        maps40d[0] = LS.F1
+        return True
+
+    def _ride40d(table, goal, label):
+        calls40d.append(("ride", label, list(table)))
+        # West descent to B3F (ARTICUNO_DESCENT without the final B4F drop).
+        if label == "calm-to-b3f" and list(table) == LS.ARTICUNO_DESCENT[:-1]:
+            maps40d[0] = LS.B3F
+            return True
+        return False
+
+    def _board40d(room):
+        calls40d.append(("board", room.get("name")))
+        calm40d[0] = True
+        return True
+
+    h40d.climb_out = _climb40d
+    h40d.enter_step = _enter40d
+    h40d.ride = _ride40d
+    h40d.board_mission = _board40d
+    _mi40d, _co40d = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: maps40d[0]
+        LS.tv.coords = lambda _b: (15, 11)
+        ok40d = h40d.ensure_b4f_calm()
+        check("ensure_b4f_calm from east B4F (15,11) climbs OUT then west dam",
+              ok40d is True
+              and ("climb_out", "calm-egress-east") in calls40d
+              and any(c[0] == "ride" and c[1] == "calm-to-b3f"
+                      and c[2] == LS.ARTICUNO_DESCENT[:-1] for c in calls40d)
+              and ("board", "articuno-b4f-calm") in calls40d
+              and not any(c[0] == "ride" and "east" in str(c[1]) for c in calls40d)
+              and any("east elev-4 + rip" in l for l in logs40d))
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40d, _co40d
     # ride() must NOT keep fanning candidates after a surprise map flip (the yo-yo).
     # Simulate: on B1F, first cand "fails" but warps to B2F; second cand must NOT run
     # (old bug: any() kept going and stepped B1F's next tile — often an UP ladder).
