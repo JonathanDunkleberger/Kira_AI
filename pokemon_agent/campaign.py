@@ -7679,6 +7679,15 @@ class Campaign:
         no story-liberation (road-blocker) errand is in flight — Silph/Tea/Flute-class errands ARE
         the road and outrank roster surgery. The creator-order LAW check lives at the call site."""
         try:
+            # ENDGAME LAP OWNS THE SEATS (2026-08-07 19:43 LIVE, the Lavender PC
+            # shuttle): at badge 8 pre-credits the victory lap's box_bench frees a
+            # party seat for the Zapdos catch — and the breather's swap_keeper kept
+            # WITHDRAWING Diglett right back into it (deposit → withdraw → deposit,
+            # three PC trips in five ticks). The lap sequences the roster now;
+            # roster surgery breathers are for the badge climb only.
+            if (int(state.get("badge_count") or 0) >= 8
+                    and not state.get("post_game") and VICTORY_LAP_ENABLED):
+                return False
             party = state.get("party") or []
             lvls = [int(m.get("level") or 0) for m in party if isinstance(m, dict)]
             if len(lvls) < 2:
@@ -15068,11 +15077,17 @@ class Campaign:
             # Thunder Stone) in a city she already owns. No story gate ever demands it, so it must
             # be opened proactively, same as Fly. Fires AFTER the scope/fly blocks: war errands and
             # endgame mobility outrank a (spectacular) luxury detour.
-            eg = self._eevee_gate(state)
-            if eg is not None and self._open_questline(eg, state):
-                log("   [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is "
-                    "unclaimed — climbing the back stairwell for the roof-room ball")
-                return
+            # CREDITS-FIRST MUTE (2026-08-07 19:40 LIVE): at badge 8 pre-credits Eevee is
+            # NOT on the lap (Zapdos IS the electric slot) — yet this opened every boot,
+            # rewrote her 'medium' goal to "FIRST the gift Eevee", and her narration spent
+            # the whole Zapdos march talking about Jolteon. The lap owns the endgame.
+            if (int(state.get("badge_count") or 0) < 8 or state.get("post_game")
+                    or not VICTORY_LAP_ENABLED):
+                eg = self._eevee_gate(state)
+                if eg is not None and self._open_questline(eg, state):
+                    log("   [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is "
+                        "unclaimed — climbing the back stairwell for the roof-room ball")
+                    return
             # PROACTIVE EXP-SHARE (2026-08-03): the dex just crossed 50 caught and the Route 15
             # aide's Exp. Share is unclaimed — the single biggest bench-development item in the
             # game, a two-floor gatehouse detour from Fuchsia. Gate self-suppresses below the
