@@ -1,0 +1,1500 @@
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 81/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 82/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Elite Four, right now'
+
+   [campaign]    [soul] ORACLE pick -> 'Elite Four, right now'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+   [kira-voice] -> T2·savor· (want) 'Elite Four, right now'  fired=True  [age 0.0s + post 12ms]
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick82] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 83/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'action_error', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 84/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'action_error', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick84] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 85/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick=None
+
+   [campaign]    [soul] ORACLE pick -> None
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'action_error', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 86/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick86] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 87/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 7 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 88/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [kira-voice] -> T2·savor· (recover) "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    HEAL: whole party already full - skipping
+
+   [campaign]    [roam] !! HARD RECOVERY was a no-op (healed + returned to the same tile) — breaking the position ONE-WAY to an adjacent Center city
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick88] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 89/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 9 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 9 ticks — feeding awareness back to the oracle: "You keep trying to hard recovery but the world hasn't changed in 9 turns - it went 'forced_center', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 90/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 10 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 5 ticks, hard-recovery already tried, reload 1/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260807_201624.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (8, 6, 19, 232)); current backed up to pre_reload_20260807_201624.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick90] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 91/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 11 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Clear Victory Road and reach the Elite Four'
+
+   [campaign]    [soul] ORACLE pick -> 'Clear Victory Road and reach the Elite Four'
+
+   [campaign]    [roam] !! MACRO RED: no progress 11 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 11 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (want) 'Clear Victory Road and reach the Elite Four'  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 92/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 12 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 12 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 12 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick92] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 93/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 13 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 13 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 13 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 94/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 14 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos at the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos at the Power Plant'
+
+   [campaign]    [roam] !! MACRO RED: no progress 14 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 14 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos at the Power Plant'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick94] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 95/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 15 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] !! ESCAPE-HATCH considering reload: RED 5 ticks, hard-recovery already tried, reload 2/2
+
+   [campaign]    [roam] !! ESCAPE-HATCH: banked CURRENT state -> G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_reload_20260807_201632.state (nothing live is lost, even on a misfire)
+
+   [campaign]    [roam] !!!! ESCAPE-HATCH FIRED: genuine wedge — RELOADED last known-good state (gain (8, 6, 19, 232)); current backed up to pre_reload_20260807_201632.state. Continuing the climb. (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 "something got me properly stuck back there — I'm backing up to where I knew what I was doing and picking it up from there."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_escape_reload] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 96/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 16 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 16 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 16 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick96] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 97/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 17 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [roam] !! MACRO RED: no progress 17 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 17 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 98/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 18 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 18 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 18 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick98] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 99/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 19 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 19 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 19 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 100/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 20 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [roam] !! MACRO RED: no progress 20 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 20 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick100] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 101/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 21 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 21 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 21 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 102/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 22 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 22 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 22 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick102] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 103/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 23 ticks) | fp[(3, 7) (47,21) f4 -- badge8 $2910 party:4daa bag:212a]
+
+   [campaign]    [roam] !!!! DEEP-WEDGE REVERT #1: escape-hatch spent + still frozen -> reverted to safe checkpoint gain(8, 6, 19, 232)@Fuchsia City (gain (8, 6, 19, 232))
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_deepwedge_revert] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [kira-voice] -> T2·savor· (recover) 'ugh — something properly glitched out on me there. let me just back up to where things were working and pick it up again.'  fired=True  [age 0.0s + post 18ms]
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 104/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick104] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 105/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 106/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick106] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 107/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'action_error', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 108/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'action_error', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick108] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 109/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'action_error', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 110/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick110] -> campaign/kira_campaign.state  (map=(3, 7) coords=(47, 21) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 111/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 7 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [roam] !! MACRO RED: no progress 7 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 7 turns - it went 'action_error', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !!!! ACTION CRASHED: 'victory_lap' raised AttributeError("'Campaign' object has no attribute '_zapdos_north_staging'") — caught LOUD, continuing the run (not dying). Traceback:
+
+Traceback (most recent call last):
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 20065, in free_roam
+
+    out = self._route_action(pick, state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 18098, in _route_action
+
+    return self._run_victory_lap(state)
+
+  File "G:\JonnyD\NeuroAI_Bot\pokemon_agent\campaign.py", line 14352, in _run_victory_lap
+
+    _sr = self._zapdos_north_staging(state)
+
+AttributeError: 'Campaign' object has no attribute '_zapdos_north_staging'
+
+
+
+   [campaign]    [roam] RESULT: victory_lap -> action_error | pos (3, 7)(47, 21) -> (3, 7)(47, 21) (NO MOVEMENT)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 112/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (47, 21) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 8 ticks) | fp[(3, 7) (47,21) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] !! HARD RECOVERY: RED 3 ticks — FORCING a route to the nearest Pokémon Center to break the position (not re-asking the oracle this tick)
+
+   [campaign]    HEAL: lead at 193/211 -> routing to the Pokemon Center on (3, 7) via door (25, 31) (will return to (47, 21))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (recover) "okay, this isn't working — I'm heading to the Pokémon Center to reset and figure out my next move."  fired=True  [age 0.0s + post 23ms]
+
+   [travel] start map=(3, 7) coords=(47, 21) -> coord (25, 32) (budget 120s, surf-capable)
+
+   [dialogue] +++ 'Shot down in flames!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "Shot down in flames!"'
+
+   [travel] step 0: (47, 21)->(47, 22) map=(3, 7) (path 86 to exit)
+
+   [travel] step 10: (38, 22)->(37, 22) map=(3, 7) (path 76 to exit)
+
+   [travel] step 20: (30, 24)->(30, 25) map=(3, 7) (path 66 to exit)
+
+   [travel] step 30: (21, 25)->(20, 25) map=(3, 7) (path 56 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 7) coords=(11, 25) elapsed=5s
+
+   [travel] step 40: (11, 25)->(10, 25) map=(3, 7) (path 46 to exit)
+
+   [travel] step 50: (3, 27)->(3, 28) map=(3, 7) (path 36 to exit)
+
+   [travel] step 60: (4, 36)->(5, 36) map=(3, 7) (path 26 to exit)
+
+   [travel] step 70: (11, 33)->(11, 32) map=(3, 7) (path 16 to exit)
+
+   [travel] HEARTBEAT step=80 map=(3, 7) coords=(20, 32) elapsed=11s
+
+   [travel] step 80: (20, 32)->(21, 32) map=(3, 7) (path 6 to exit)
+
+   [travel] reached target coord (25, 32)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Welcome to our POK.MON CENTER! Would you like me to heal your POK.MON back to perfect health?"'  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ "Okay, I'll take your POK.MON for a few seconds."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Okay, I\'ll take your POK.MON for a few seconds."'  fired=True  [age 0.0s + post 4ms]
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 527s, restart 1/8) — GAME CONTINUES; respawning audio.
+
