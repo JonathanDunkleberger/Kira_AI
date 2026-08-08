@@ -1,0 +1,300 @@
+   >>> Kira (Bored): Power Plant. Let's see if Zapdos is as dramatic about this as Articuno was.
+   [TTS] Speaking: Power Plant....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Power Plant.' (3 words)
+   [TurnTiming] 18:48:45.471 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:48:47.246 TTS STOP — playback finished (span ~1775ms)
+   [TTS] Speaking: Let's see if Zapdos is as dramatic about this as A...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Let's see if Zapdos is as dramatic about' (13 words)
+   [TurnTiming] 18:48:47.544 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [YTAutoSearch] Already connected — stopping auto-search.
+   [TurnTiming] 18:48:51.385 TTS STOP — playback finished (span ~3841ms)
+   [TIMING] interjection: vision=0ms llm=1743ms(sonnet) tts=6249ms total=8021ms
+   [LAG] sense→speak: total=4.2s (content_age=0.0s, prep=0.0s, llm=1.7s, tts_wait+synth=2.4s)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 18:48:57.315 VOICE ONSET — mic speech started
+   [TurnTiming] 18:48:59.792 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2477ms since onset)
+   [Pokemon] SELF WANT: 'Zapdos from the Power Plant'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TwitchChat][IRC] :thatdudedaisy!thatdudedaisy@thatdudedaisy.tmi.twitch.tv PART #thekiraagency
+   [Pokemon] SELF WANT: 'Zapdos from the Power Plant'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+🎤 Recording...
+   [TurnTiming] 18:49:11.787 VOICE ONSET — mic speech started
+   [TurnTiming] 18:49:15.267 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3480ms since onset)
+>>> You said: Fuck me dude
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Fuck me dude' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=21ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12652ch  hist=7turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1450ms
+   [TTS] Speaking: What happened?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What happened?' (3 words)
+   [TurnTiming] 18:49:17.176 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:49:18.956 TTS STOP — playback finished (span ~1780ms)
+
+   [TIMING] voice: llm=3485ms(sonnet-stream(llm+tts)) tts=0ms total=3485ms
+   [LATENCY] vad_close=1200ms stt=179ms stt_wait=0ms salience=0ms triage=bypassed memory=21ms prompt_build=2ms ttft=1362ms tts_first_chunk=88ms audio_out=250ms TOTAL=1902ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [VRAM] 18:49:20 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+[YouTube Chat] @zekromite4572: the dramatic one was moltress tbh
+   [BrainWorker] Got youtube msg from @zekromite4572: the dramatic one was moltress tbh → buffering for chat_batch_worker
+   [Cookies] +2 → @zekromite4572 (first message this session); shared=12/30
+   [RoomRead] energy=0.44 [terse=0.14 gap=0.50 silence=0.99 intensity=0.60 chat=0.07] target=1.13 mult=1.02 -> min_gap=10s dead_air=20s
+   [Pokemon] SELF WANT: 'reach Power Plant and catch Zapdos'
+   [SmartMem] q='  - @zekromite4572 (youtube) [FIRST TIME CHATTER]: <<<the dr' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   >>> Kira (Chat Batch of 1): Zack. The coach is back, and immediately defending Moltres. Honestly, the man shows up at key moments — I'll give him that.
+   [TTS] Speaking: Zack....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack.' (2 words)
+   [TurnTiming] 18:49:28.595 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:49:30.370 TTS STOP — playback finished (span ~1774ms)
+   [TTS] Speaking: The coach is back, and immediately defending Moltr...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The coach is back, and immediately defen' (10 words)
+   [TurnTiming] 18:49:30.799 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:49:34.174 TTS STOP — playback finished (span ~3374ms)
+   [TTS] Speaking: Honestly, the man shows up at key moments — I'll g...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Honestly, the man shows up at key moment' (15 words)
+   [TurnTiming] 18:49:34.480 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @neirc4628: I still want to think that in this playthrough fearow is our third legendary bird:relieved_face:
+   [BrainWorker] Got youtube msg from @neirc4628: I still want to think that in this playthrough fearow is our third legendary bird:relieved_face: → buffering for chat_batch_worker
+   [Cookies] +2 → @neirc4628 (first message this session); shared=14/30
+   [Pokemon] SELF WANT: 'Zapdos — Power Plant'
+   [TurnTiming] 18:49:38.396 TTS STOP — playback finished (span ~3916ms)
+   [Cookies] +1 × 1 (batch response); shared=15/30
+   [ChatAge] @zekromite4572 age=15.1s batch=1 preempted=none
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 18:49:39.619 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~27832ms since onset)
+   [ChatterMem] Stored: @zekromite4572 — Known as 'the coach' and defends Moltres [playful]
+   [RoomRead] energy=0.44 [terse=0.14 gap=0.50 silence=0.98 intensity=0.60 chat=0.13] target=1.11 mult=1.04 -> min_gap=10s dead_air=21s
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [SmartMem] q='  - @neirc4628 (youtube) [FIRST TIME CHATTER]: <<<I still wa' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   >>> Kira (Chat Batch of 1): Unc! Welcome back.
+
+And honestly? Fearow has earned that title. Sixty-eight levels of blastoise glory and fearow is just quietly logging hours like a third legendary who never got the marketing budget.
+   [TTS] Speaking: Unc!...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Unc!' (2 words)
+   [TurnTiming] 18:49:47.458 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Zapdos from the Power Plant'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:49:49.232 TTS STOP — playback finished (span ~1774ms)
+   [TTS] Speaking: Welcome back....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Welcome back.' (3 words)
+   [TurnTiming] 18:49:49.566 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: Nait i'm dry board to kira
+   [BrainWorker] Got youtube msg from @Detective_Jones: Nait i'm dry board to kira → buffering for chat_batch_worker
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Cookies] +2 → @Detective_Jones (first message this session); shared=17/30
+   [TurnTiming] 18:49:51.340 TTS STOP — playback finished (span ~1773ms)
+   [TTS] Speaking: And honestly?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And honestly?' (3 words)
+   [TurnTiming] 18:49:51.503 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 18:49:52.909 TTS STOP — playback finished (span ~1405ms)
+   [TTS] Speaking: Fearow has earned that title....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Fearow has earned that title.' (6 words)
+   [TurnTiming] 18:49:53.249 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 18:49:55.505 TTS STOP — playback finished (span ~2256ms)
+   [TTS] Speaking: Sixty-eight levels of blastoise glory and fearow i...
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Sixty-eight levels of blastoise glory an' (23 words)
+   [TurnTiming] 18:49:56.066 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Zapdos — Power Plant'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:50:02.864 TTS STOP — playback finished (span ~6798ms)
+   [Cookies] +1 × 1 (batch response); shared=18/30
+   [ChatAge] @neirc4628 age=27.3s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+[YouTube Chat] @zekromite4572: fourth to zapdos though
+   [BrainWorker] Got youtube msg from @zekromite4572: fourth to zapdos though → buffering for chat_batch_worker
+   [TurnTiming] 18:50:04.121 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~52333ms since onset)
+   [ChatterMem] Stored: @neirc4628 — Calls Fearow the 'third legendary bird' in Kira's playthroug [earnest]
+   [VRAM] 18:50:05 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [SmartMem] q='  - @Detective_Jones (youtube) [FIRST TIME CHATTER]: <<<Nait' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.9 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.090 conf=0.9 type=episodic blend=0.078 lane=KNOW
+   [Pokemon] SELF WANT: 'catch Zapdos at the Power Plant'
+   [RoomRead] energy=0.45 [terse=0.14 gap=0.50 silence=0.92 intensity=0.60 chat=0.27] target=1.09 mult=1.06 -> min_gap=11s dead_air=21s
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0185 · gate=0.003 · 0 accepted
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Chat Batch of 2): Detective Jones! The dry board guy, in the flesh. Welcome back.
+
+And Zack — fourth to Zapdos is still on the board. Moltres being the dramatic one I'll accept, but Articuno had the whole frozen cave ambiance going for her. The aesthetics were doing a lot.
+   [TTS] Speaking: Detective Jones!...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones!' (3 words)
+   [TurnTiming] 18:50:14.304 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 18:50:16.173 TTS STOP — playback finished (span ~1868ms)
+   [TTS] Speaking: The dry board guy, in the flesh....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The dry board guy, in the flesh.' (9 words)
+   [TurnTiming] 18:50:16.586 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'catch Zapdos at the Power Plant'
+   [TurnTiming] 18:50:19.206 TTS STOP — playback finished (span ~2620ms)
+   [TTS] Speaking: Welcome back....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Welcome back.' (3 words)
+   [TurnTiming] 18:50:19.453 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 18:50:21.233 TTS STOP — playback finished (span ~1779ms)
+   [TTS] Speaking: And Zack — fourth to Zapdos is still on the board....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'And Zack — fourth to Zapdos is still on ' (12 words)
+   [TurnTiming] 18:50:21.514 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:50:24.892 TTS STOP — playback finished (span ~3377ms)
+   [TTS] Speaking: Moltres being the dramatic one I'll accept, but Ar...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Moltres being the dramatic one I'll acce' (20 words)
+   [TurnTiming] 18:50:25.347 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:50:30.682 TTS STOP — playback finished (span ~5335ms)
+   [TTS] Speaking: The aesthetics were doing a lot....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The aesthetics were doing a lot.' (7 words)
+   [TurnTiming] 18:50:31.064 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [TurnTiming] 18:50:33.127 TTS STOP — playback finished (span ~2063ms)
+   [Cookies] +1 × 2 (batch response); shared=20/30
+   [ChatAge] @Detective_Jones age=42.3s batch=2 preempted=none
+   [ChatAge] @zekromite4572 age=30.0s batch=2 preempted=none
+   [Arbiter] Dropping stale buffered interjection (>10s old)
+   [Cookies] Drip 20 — queued directive (rate) for @neirc4628
+   [ChatterMem] Stored: @Detective_Jones — Known as 'the dry board guy' to Kira [dry]
+   [Pokemon] SELF WANT: 'Eevee from Celadon Condominiums'
+   [Pokemon] event react (bypass=False, tier=2, kind=want): Eevee from Celadon Condominiums
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [Phrases] Throttling: "welcome back and" (3rd use this session)
+   [Phrases] Throttling: "zapdos is still" (3rd use this session)
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [ChatterMem] Stored: @zekromite4572 — Known as 'the dry board guy', associated with a running joke [dry]
+   >>> Kira (Bored): Oh, there you are. You're coming with me — I need a Jolteon before this run is done.
+   [TTS] Speaking: Oh, there you are....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oh, there you are.' (6 words)
+   [TurnTiming] 18:50:38.255 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 18:50:40.137 TTS STOP — playback finished (span ~1882ms)
+   [TTS] Speaking: You're coming with me — I need a Jolteon before th...
+   [Pokemon] SELF CHOSE (action): heal
+   [Pokemon] her reasoning: "Okay I need to stop bumbling around Route 20 and actually commit — Lapras needs a Center, I need Zapdos, and the Elite Four isn't going to wait forever.\n\nCinnabar's right there. Heal up, then I'm charting a course to the Power Plant."
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You're coming with me — I need a Jolteon' (15 words)
+   [TurnTiming] 18:50:40.603 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 18:50:44.356 TTS STOP — playback finished (span ~3752ms)
+   [TIMING] interjection: vision=0ms llm=2050ms(sonnet) tts=6465ms total=8547ms
+   [LAG] sense→speak: total=4.8s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=2.7s)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [RoomRead] energy=0.43 [terse=0.14 gap=0.50 silence=0.93 intensity=0.60 chat=0.13] target=1.13 mult=1.08 -> min_gap=11s dead_air=22s
+   [VRAM] 18:50:51 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 140ms — 0 accepted, 1 filtered (rms=0.018)
+   [Pokemon] SELF CHOSE (action): head_to_league
+   [Pokemon] her reasoning: "Okay, all eight badges and I'm still standing on Route 20 like I'm waiting for a bus. There's only one road left.\n\nVictory Road. Let's go."
+   [Pokemon] event react (bypass=False, tier=1, kind=grind): training time — lapras leads so it soaks up the XP, and if things get 
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   >>> Kira (Bored): Lapras is doing the work, and I'm letting it. Level 26 soaking up scraps while Blastoise watches from the bench like a retired champion who knows his moment is coming.
+   [TTS] Speaking: Lapras is doing the work, and I'm letting it....
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lapras is doing the work, and I'm lettin' (11 words)
+   [TurnTiming] 18:50:56.249 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @zekromite4572: go to rock tunnel pokecenter 
+   [BrainWorker] Got youtube msg from @zekromite4572: go to rock tunnel pokecenter  → buffering for chat_batch_worker
+   [TurnTiming] 18:50:58.994 TTS STOP — playback finished (span ~2745ms)
+   [TTS] Speaking: Level 26 soaking up scraps while Blastoise watches...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Level 26 soaking up scraps while Blastoi' (21 words)
+   [TurnTiming] 18:50:59.663 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 18:51:05.849 TTS STOP — playback finished (span ~6185ms)
+   [TIMING] interjection: vision=0ms llm=3226ms(sonnet) tts=10057ms total=13310ms
+   [LAG] sense→speak: total=7.1s (content_age=0.0s, prep=0.0s, llm=3.2s, tts_wait+synth=3.9s)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (3 skip(s))
+   [RoomRead] energy=0.43 [terse=0.14 gap=0.50 silence=0.97 intensity=0.60 chat=0.07] target=1.14 mult=1.11 -> min_gap=11s dead_air=22s
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<go to rock tunnel pokecente' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=1.097 conf=0.9 type=episodic blend=0.075 lane=KNOW
+   [SmartMem]     dist=1.158 conf=0.95 type=episodic blend=0.037 lane=KNOW
+   [SmartMem]     dist=1.204 conf=0.95 type=episodic blend=0.008 lane=KNOW
+   >>> Kira (Chat Batch of 1): Zack with the navigation advice. Bold move from the guy I fired last session.
+   [TTS] Speaking: Zack with the navigation advice....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Zack with the navigation advice.' (6 words)
+   [TurnTiming] 18:51:10.396 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @zekromite4572: then surf south 
+   [BrainWorker] Got youtube msg from @zekromite4572: then surf south  → buffering for chat_batch_worker
+   [TurnTiming] 18:51:12.795 TTS STOP — playback finished (span ~2399ms)
+   [TTS] Speaking: Bold move from the guy I fired last session....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Bold move from the guy I fired last sess' (10 words)
+   [TurnTiming] 18:51:13.220 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 18:51:16.129 TTS STOP — playback finished (span ~2909ms)
+   [Cookies] +1 × 1 (batch response); shared=21/30
+   [ChatAge] @zekromite4572 age=17.9s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 18:51:17.360 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~125573ms since onset)
+   [ChatterMem] Stored: @zekromite4572 — Was 'fired' by Kira as navigator last session, now gives uns [chaotic]
+🎤 Recording...
+   [TurnTiming] 18:51:20.354 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [SmartMem] q='  - @zekromite4572 (youtube): <<<then surf south >>>' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=37ms rank=0ms)
+   [SmartMem]     dist=1.217 conf=0.75 type=episodic blend=0.001 lane=VAGUE
