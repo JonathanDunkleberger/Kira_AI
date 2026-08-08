@@ -1,0 +1,72 @@
+===== playlive_2026-08-07_17-54-41.log =====
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — articuno: weaken+balls, never KO
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] JUST FIGHT: L68 vs L26 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 71/71 | [0]Bite(p60,pp=13,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L68 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 2 (eff x0.5) vs dewgong 109/109 | [0]Bite(p60,pp=12,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=14,ref=0,sc=71.25) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(1, 85) coords=(30, 4) -> coord (29, 8) (budget 60s, surf-capable)
+   [travel] step 0: (30, 4)->(30, 5) map=(1, 85) (path 8 to exit)
+   [travel] reached target coord (29, 8)
+   [travel] start map=(1, 85) coords=(28, 12) -> coord (29, 8) (budget 60s, surf-capable)
+   [travel] step 0: (28, 12)->(28, 11) map=(1, 85) (path 6 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 83/83 | [0]Bite(p60,pp=12,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 9/83 | [0]Bite(p60,pp=11,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] reached target coord (29, 8)
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+   [travel] reached target coord (29, 9)
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (32, 3) (budget 300s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [travel] battle outcome=fled; resuming pathfind
+   [travel] reached target coord (32, 3)
+   [travel] start map=(1, 87) coords=(32, 5) -> coord (32, 5) (budget 60s, surf-capable)
+   [travel] reached target coord (32, 5)
+   [travel] start map=(1, 87) coords=(32, 5) -> coord (15, 9) (budget 60s, surf-capable)
+   [travel] step 0: (32, 5)->(31, 5) map=(1, 87) (path 22 to exit)
+   [travel] step 10: (22, 5)->(22, 6) map=(1, 87) (path 12 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs seel 84/84 | [0]Bite(p60,pp=10,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+===== playlive_2026-08-07_17-40-02.log =====
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
