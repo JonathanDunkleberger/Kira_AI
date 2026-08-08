@@ -14409,6 +14409,16 @@ class Campaign:
                 return _go(label, pick, ban_r10=True)
             return _go("→ Route 8 (forced)", "travel:3,26", ban_r10=True)
 
+        # INDOOR LEGS (2026-08-08, the Route 8<->gatehouse bounce): the route north crosses two
+        # indoor maps — the Underground Path (Route 7<->Route 8) and the Saffron gatehouse
+        # (Route 8<->Saffron). They're group != 3, so every branch above misses them and this
+        # staging returned None, letting the questline bounce her back out. Own the leg: keep
+        # walking to the far-side waypoint until she's outdoors again.
+        if here == (1, 35):                       # Underground Path (Route 7 <-> Route 8)
+            return _go("Underground Path → Route 8", "travel:3,26", ban_r10=True)
+        if here == (20, 0):                       # Saffron gatehouse (Route 8 <-> Saffron)
+            return _go("Saffron gatehouse → Saffron", "travel:3,10", ban_r10=True)
+
         return None
 
     def _run_victory_lap(self, state):
