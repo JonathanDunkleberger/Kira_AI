@@ -13460,10 +13460,24 @@ class Campaign:
         NOT the gates' armed/suppressed view, so a ball-thin hunt still reads pending (the lap
         fixes the balls itself). Structural dead-ends latch an honest skip here. Fails toward
         NOT-pending on read errors — a RAM flake must never park the League march. Never raises."""
-        if key in getattr(self, "_lap_skipped", set()):
-            return False
         try:
             b = self.b
+            # Fly skip refund MUST run before the skip latch — LIVE 18:37 latched
+            # 'no Cut' while she already had a flyer; pending stayed False forever.
+            if key == "fly":
+                cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                if fm.can_use(b, "fly", cnt):
+                    (getattr(self, "_lap_skipped", None) or set()).discard("fly")
+                    return False
+                try:
+                    import hm_teach as _ht
+                    if (_ht.tm_case_row(b, 340) is not None or fm.read_flag(b, 568)):
+                        (getattr(self, "_lap_skipped", None) or set()).discard("fly")
+                        return True
+                except Exception:
+                    pass
+            if key in getattr(self, "_lap_skipped", set()):
+                return False
             if key == "earthquake":
                 import hm_teach as ht
                 slot = self._lap_ace_slot()
@@ -13507,22 +13521,8 @@ class Campaign:
             if key == "eevee":
                 return EEVEE_FETCH_ENABLED and not fm.read_flag(b, 0x263)
             if key == "fly":
-                # Owed until somebody can USE Fly (HM taught + Thunder Badge). Fetch is the
-                # Route 16 house; teach prefers Fearow. Cut is required ONLY for the fetch
-                # — if HM02 is already in the TM case / FLAG_GOT_HM02, teach in place.
+                # Fetch path only (usable/HM-ready handled above before the skip latch).
                 cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
-                if fm.can_use(b, "fly", cnt):
-                    return False
-                try:
-                    import hm_teach as _ht
-                    _hm_ready = (_ht.tm_case_row(b, 340) is not None
-                                 or fm.read_flag(b, 568))
-                except Exception:
-                    _hm_ready = False
-                if _hm_ready:
-                    # Refund a prior "no Cut" skip — HM is already owned.
-                    (getattr(self, "_lap_skipped", None) or set()).discard("fly")
-                    return True
                 if st.party_knows_move(b, 15, cnt) is None and not self.world.has_cap("cut"):
                     self._lap_skip(key, "no Cut — Route 16 Fly house is behind a tree")
                     return False
@@ -14113,14 +14113,23 @@ class Campaign:
             try:
                 import fly_nav as _fn
                 _zh = tuple(tv.map_id(self.b))
-                _can = (_fn.fly_slot(self.b) is not None
-                        or self.world.has_cap("fly"))
-                if (_can and _zh not in ((3, 28), (1, 95)) and _zh[0] == 3):
+                _slot = _fn.fly_slot(self.b)
+                if (_slot is not None and _zh not in ((3, 28), (1, 95))
+                        and _zh[0] == 3):
                     log(f"   [lap] ⚡ Fly → Route 10 Center for Zapdos "
-                        f"(from {_zh}) — chatter was right, Cerulean/R10 (LOUD)")
+                        f"(from {_zh}, flyer slot {_slot}) (LOUD)")
                     _zr = self.fly_to("route10")
                     if _zr != "arrived":
-                        _zr = self.fly_to("cerulean")
+                        # From east R20 the cursor guess can miss — hop to Cinnabar
+                        # (known xy) then Fly (also heals Lapras via Center later).
+                        if _zh == (3, 38):
+                            log("   [lap] Fly miss from R20 — trying Cinnabar pad then "
+                                "re-Fly (LOUD)")
+                            _zr = self.fly_to("cinnabar")
+                            if _zr == "arrived":
+                                _zr = self.fly_to("route10")
+                        if _zr != "arrived":
+                            _zr = self.fly_to("cerulean")
                     log(f"   [lap] Zapdos fly staging -> {_zr} "
                         f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
             except Exception as _zfe:

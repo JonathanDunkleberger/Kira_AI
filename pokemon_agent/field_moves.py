@@ -309,6 +309,15 @@ class FieldMoveActuator:
         except Exception:
             _box_open = lambda _b: False
         self.b.set_input_owner("agent")
+        # LIVE 18:37: a failed Fly left SUMMARY/abilities open — Surf A then
+        # mashed the party screen. Close menus before the shoreline ceremony.
+        try:
+            import hm_teach as _ht
+            import firered_ram as _ram
+            if not _ram.battle_cb2_dead(self.b):
+                _ht.TeachFlow(self.c, log=getattr(self.c, "log", print))._b_cascade(8)
+        except Exception:
+            pass
         # face the obstacle and press A to (hopefully) raise the use-HM prompt
         for _ in range(4):
             if _box_open(self.b):

@@ -99,6 +99,42 @@ def main():
     finally:
         tv.map_id, tv.coords = _om, _oc
 
+    print("== fly_slot returns INT slot (never bool True→Lapras) ==")
+    import field_moves as fm
+    import pokemon_state as st
+    class _B: pass
+    b = _B()
+    b.rd8 = lambda _a: 5
+    _ou = fm.usable_hms
+    _orm, _orp, _ors = st.read_party_moves, st.read_party_public, st.read_party_species
+    try:
+        fm.usable_hms = lambda _b, _c=6: {
+            "fly": {"slot": 2, "badge_ok": True, "name": "Fly"}}
+        st.read_party_moves = lambda _b, s: ([19] if s == 2 else [])
+        st.read_party_public = lambda _b, s: {
+            "hp": 0 if s == 1 else 80, "species": 22 if s == 2 else 131, "maxhp": 100}
+        st.read_party_species = lambda _b, s: 22 if s == 2 else 131
+        slot = fly_nav.fly_slot(b)
+        check("fly_slot is int 2 (Fearow), not bool True", slot == 2 and type(slot) is int)
+        check("fly_slot is never True (Lapras coerce bug)", slot is not True)
+    finally:
+        fm.usable_hms = _ou
+        st.read_party_moves = _orm
+        st.read_party_public = _orp
+        st.read_party_species = _ors
+
+    print("== Route 20 east here_xy (Seafoam mouth) ==")
+    pos20 = {"c": (60, 9)}
+    _om2, _oc2 = tv.map_id, tv.coords
+    tv.map_id = lambda _b: (3, 38)
+    tv.coords = lambda _b: pos20["c"]
+    try:
+        check("R20@(60,9) cursor ~ (11,14) east", fly_nav._here_xy(b) == (11, 14))
+        pos20["c"] = (10, 9)
+        check("R20@(10,9) cursor ~ (5,14) west", fly_nav._here_xy(b) == (5, 14))
+    finally:
+        tv.map_id, tv.coords = _om2, _oc2
+
     if check.fails:
         print(f"\n{check.fails} FAILED")
         sys.exit(1)
