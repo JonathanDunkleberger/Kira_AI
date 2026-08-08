@@ -279,7 +279,7 @@
       "obtain": {
         "via": "talk_npc",
         "npc": "the girl in the hidden house",
-        "from": "3,7",
+        "from": "3,6",
         "dir": "west",
         "place_name": "the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)",
         "prereq": "cut",
