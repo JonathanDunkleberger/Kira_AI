@@ -383,6 +383,13 @@ ICEBEAM_FETCH_ENABLED = os.getenv("POKEMON_ICEBEAM_FETCH", "1") != "0"
 # Mewtwo. (Mew is event-only distribution hardware — not obtainable by play; Mewtwo IS this
 # cartridge's Mew-class prize.) Disable with POKEMON_LEGENDARY_HUNTS=0.
 LEGENDARY_HUNTS_ENABLED = os.getenv("POKEMON_LEGENDARY_HUNTS", "1") != "0"
+# 2026-08-08 (Zapdos push): the ROUTE 16 HM02 FLY fetch. Fly is a luxury (fast travel) — it is
+# NOT required for Zapdos or the E4. The fetch's final step (enter the hidden house behind the
+# Cut tree and talk to the girl) has no door-hint into the house interior, so the questline
+# reaches Route 16 but can't finish — she paces outside talking to nobody. Default OFF so the
+# lap skips Fly and walks the (repaired) Saffron gate route to Zapdos; re-enable with
+# POKEMON_FLY_FETCH=1 once the house-entry is wired.
+FLY_FETCH_ENABLED = os.getenv("POKEMON_FLY_FETCH", "0") != "0"
 # NS#13: the CINNABAR GYM strike (Blaine, badge 7). Cinnabar is FRLG's SIX quiz-door gym — the general
 # beat_gym clears juniors but never opens the quiz doors, so the leader battle never fires (the bounce the
 # mansion look-ahead surfaced). blaine_gym.run_gym does the FULL tour (quiz chain -> Blaine -> badge ->
@@ -13169,6 +13176,8 @@ class Campaign:
         (Cut prereq), 'fly' is in OVERWORLD_SAFE_QUESTLINES, gives_cap flows to the world
         model, and travel prefers fly-to between visited towns the moment she owns it.
         Returns a Gate once badges>=5 with HM02 unowned and Cut in hand, else None."""
+        if not FLY_FETCH_ENABLED:
+            return None                            # fetch disabled (house-entry unwired) -> walk instead
         try:
             if (state.get("badge_count") or 0) < 5:
                 return None
@@ -13573,6 +13582,8 @@ class Campaign:
                 if fm.can_use(b, "fly", cnt):
                     (getattr(self, "_lap_skipped", None) or set()).discard("fly")
                     return False
+                if not FLY_FETCH_ENABLED:
+                    return False                 # fetch disabled -> walk to Zapdos; fly not pending
                 _fly_fails = (getattr(self, "_lap_fails", None) or {}).get("fly", 0)
                 if _fly_fails < VICTORY_LAP_MAX_FAILS:
                     try:

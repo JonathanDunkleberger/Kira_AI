@@ -295,6 +295,8 @@ def main():
     camp2._lap_skipped = {"fly"}          # previously latched 'no Cut'
     camp2.world = type("W", (), {"has_cap": staticmethod(lambda n: False)})()
     _otc, _opk, _ocu = _ht.tm_case_row, st.party_knows_move, C.fm.can_use
+    _oflyflag = C.FLY_FETCH_ENABLED
+    C.FLY_FETCH_ENABLED = True          # pending-logic under test assumes the fetch is on
     try:
         # HM02 NOT in case, flag clear, nobody knows Cut — but HM01 IS in the case.
         _ht.tm_case_row = lambda _b, item: (0 if item == 339 else None)
@@ -323,6 +325,29 @@ def main():
     finally:
         _ht.tm_case_row, st.party_knows_move, C.fm.can_use = _otc, _opk, _ocu
         C.fm.read_flag = _orf
+        C.FLY_FETCH_ENABLED = _oflyflag
+
+    print("== fly fetch kill-switch: POKEMON_FLY_FETCH=0 -> fly NOT pending ==")
+    camp3 = C.Campaign.__new__(C.Campaign)
+    camp3.b = b
+    camp3._lap_skipped = set()
+    camp3.world = type("W", (), {"has_cap": staticmethod(lambda n: True)})()
+    _otc3, _opk3, _ocu3, _orf3 = _ht.tm_case_row, st.party_knows_move, C.fm.can_use, C.fm.read_flag
+    _oflyflag3 = C.FLY_FETCH_ENABLED
+    try:
+        _ht.tm_case_row = lambda _b, item: (0 if item == 339 else None)
+        st.party_knows_move = lambda _b, m, c=6: None
+        C.fm.can_use = lambda _b, k, c=6: False          # Fly NOT yet usable
+        C.fm.read_flag = lambda _b, f: False
+        C.FLY_FETCH_ENABLED = False
+        check("fetch disabled + no Fly -> fly NOT pending (lap walks to Zapdos)",
+              camp3._lap_pending("fly") is False)
+        C.fm.can_use = lambda _b, k, c=6: True           # already owns Fly
+        check("fetch disabled but Fly already usable -> still not pending (done)",
+              camp3._lap_pending("fly") is False)
+    finally:
+        _ht.tm_case_row, st.party_knows_move, C.fm.can_use, C.fm.read_flag = _otc3, _opk3, _ocu3, _orf3
+        C.FLY_FETCH_ENABLED = _oflyflag3
 
     if check.fails:
         print(f"\n{check.fails} FAILED")
