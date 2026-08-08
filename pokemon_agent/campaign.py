@@ -13508,10 +13508,21 @@ class Campaign:
                 return EEVEE_FETCH_ENABLED and not fm.read_flag(b, 0x263)
             if key == "fly":
                 # Owed until somebody can USE Fly (HM taught + Thunder Badge). Fetch is the
-                # Route 16 house; teach prefers Fearow. Cut is required to reach the house.
+                # Route 16 house; teach prefers Fearow. Cut is required ONLY for the fetch
+                # — if HM02 is already in the TM case / FLAG_GOT_HM02, teach in place.
                 cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
                 if fm.can_use(b, "fly", cnt):
                     return False
+                try:
+                    import hm_teach as _ht
+                    _hm_ready = (_ht.tm_case_row(b, 340) is not None
+                                 or fm.read_flag(b, 568))
+                except Exception:
+                    _hm_ready = False
+                if _hm_ready:
+                    # Refund a prior "no Cut" skip — HM is already owned.
+                    (getattr(self, "_lap_skipped", None) or set()).discard("fly")
+                    return True
                 if st.party_knows_move(b, 15, cnt) is None and not self.world.has_cap("cut"):
                     self._lap_skip(key, "no Cut — Route 16 Fly house is behind a tree")
                     return False
@@ -22082,12 +22093,45 @@ class Campaign:
     # Exit must climb toward F1 (1,83) / R20 — never re-drop toward B4F (1,87).
     _SEAFOAM_DUNGEON = {(1, 83), (1, 84), (1, 85), (1, 86), (1, 87)}
 
+    def _ensure_bag_item(self, item_id, qty=1):
+        """Write `qty` of `item_id` into the Items pocket (bump or first empty).
+        Emergency strand tool (Escape Rope) — never for progression items."""
+        try:
+            sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+            key = self.b.rd32(self.b.rd32(ram.GSAVEBLOCK2_PTR) + 0xF20) & 0xFFFF
+            mem = self.b.core.memory
+            used, empty = None, None
+            for s in range(42):
+                slot = sb1 + 0x0310 + s * 4
+                iid = self.b.rd16(slot)
+                if iid == item_id:
+                    used = s
+                    break
+                if iid == 0 and empty is None:
+                    empty = s
+            if used is not None:
+                slot = sb1 + 0x0310 + used * 4
+                cur = self.b.rd16(slot + 2) ^ key
+                newq = min(max(cur, int(qty)), 99)
+                mem.u16.raw_write(slot + 2, (newq ^ key) & 0xFFFF)
+                return newq
+            if empty is None:
+                return 0
+            slot = sb1 + 0x0310 + empty * 4
+            mem.u16.raw_write(slot, int(item_id) & 0xFFFF)
+            mem.u16.raw_write(slot + 2, (int(qty) ^ key) & 0xFFFF)
+            return int(qty)
+        except Exception as e:
+            log(f"   [bag] !! ensure item {item_id} failed ({e})")
+            return 0
+
     def _seafoam_surface_egress(self, label="seafoam-egress"):
         """Get OUT of Seafoam to Route 20 (Jonny: 'spawn her outside the seafoam cave').
-        Order: Escape Rope (item 85) if bagged → ArticunoHunt.climb_out →
-        _exit_to_overworld. Fly is ILLEGAL underground — surface first, then Fly
-        to Cerulean/R10 for Zapdos. soak 20260807: heal-return prefer=south dug
-        deeper; Zapdos from B2F was questline_no_route forever."""
+
+        LIVE 20260807 18:29: sealed B2F water (29,12) — climb had no path, Teleport
+        is ILLEGAL in caves. Order: Escape Rope (inject if empty) → Dig if known →
+        ArticunoHunt.climb_out (east re-drop) → _exit_to_overworld with redrop
+        allowed. Fly only works AFTER she's outdoors."""
         try:
             here = tuple(tv.map_id(self.b))
         except Exception:
@@ -22096,23 +22140,58 @@ class Campaign:
             return True
         if here not in self._SEAFOAM_DUNGEON:
             return self._exit_to_overworld()
-        # Escape Rope — instant dungeon exit to the entrance (R20 for Seafoam).
+        # 1) Escape Rope — dungeon eject (Teleport CANNOT fire underground).
         try:
             import hm_teach as ht
-            if ht.items_pocket_qty(self.b, 85) > 0:
-                log(f"   [seafoam] Escape Rope in bag — using it for {label} (LOUD)")
-                self.on_event("okay, Escape Rope — get me OUT of this cave.",
+            n = ht.items_pocket_qty(self.b, 85)
+            if n <= 0:
+                got = self._ensure_bag_item(85, 1)
+                log(f"   [seafoam] !! ESCAPE ROPE INJECT x{got} for {label} "
+                    f"(sealed pocket strand — LOUD)")
+                n = ht.items_pocket_qty(self.b, 85)
+            if n > 0:
+                log(f"   [seafoam] Escape Rope x{n} — ejecting for {label} (LOUD)")
+                self.on_event("okay — Escape Rope, get me OUT of this cave. now.",
                               kind="route", tier=2)
                 r = ht.TeachFlow(self, log=log, on_event=self.on_event).field_escape_rope(
-                    max_seconds=60)
+                    max_seconds=75)
                 if r == "used" and tuple(tv.map_id(self.b))[0] == 3:
                     log(f"   [seafoam] Escape Rope → {tv.map_id(self.b)}@"
                         f"{tv.coords(self.b)}")
                     return True
                 log(f"   [seafoam] Escape Rope -> {r} (still "
-                    f"{tv.map_id(self.b)}) — climbing instead")
+                    f"{tv.map_id(self.b)}) — trying Dig / climb")
         except Exception as e:
             log(f"   [seafoam] Escape Rope path skipped ({e})")
+        # 2) Dig (move 91) — same dungeon-exit effect if anyone knows it.
+        try:
+            import hm_teach as ht
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            dig_slot = st.party_knows_move(self.b, 91, cnt)
+            if dig_slot is not None:
+                m0 = tuple(tv.map_id(self.b))
+
+                def _dug():
+                    try:
+                        m1 = tuple(tv.map_id(self.b))
+                        return m1 != m0 and m1[0] == 3
+                    except Exception:
+                        return False
+
+                mon = st.SPECIES_NAME.get(st.read_party_species(self.b, dig_slot),
+                                         f"slot{dig_slot}")
+                log(f"   [seafoam] Dig via {mon} for {label} (LOUD)")
+                self.on_event(f"{mon} — Dig. get us to the beach.",
+                              kind="route", tier=2)
+                r = ht.TeachFlow(self, log=log, on_event=self.on_event).use_field_move(
+                    dig_slot, _dug, label="seafoam-dig", max_seconds=90,
+                    drain_frames=600, fixed_row=0)
+                if r == "used" and _dug():
+                    log(f"   [seafoam] Dig → {tv.map_id(self.b)}@{tv.coords(self.b)}")
+                    return True
+        except Exception as e:
+            log(f"   [seafoam] Dig path skipped ({e})")
+        # 3) Column climb (east re-drop from sealed B2F water).
         try:
             from legendary_strikes import ArticunoHunt, R20
             hunt = ArticunoHunt(self, log, None)
@@ -22122,8 +22201,13 @@ class Campaign:
                 return True
         except Exception as e:
             log(f"   [seafoam] climb_out({label}) faulted ({e}) — exit-building fallback")
-        if self._exit_to_overworld(max_tries=8):
-            return True
+        # 4) Generic exit — allow Seafoam re-drops when UP is sealed.
+        self._seafoam_allow_redrop = True
+        try:
+            if self._exit_to_overworld(max_tries=8):
+                return True
+        finally:
+            self._seafoam_allow_redrop = False
         try:
             return tuple(tv.map_id(self.b))[0] == 3
         except Exception:
@@ -22318,13 +22402,21 @@ class Campaign:
                 if (before, tuple(wt)) in banned:
                     log(f"   EXIT: door {wt} banned (just stepped off this landing) — skip")
                     continue
-                # SEAFOAM: refuse a warp that drops deeper (B3F→B4F) while exiting.
+                # SEAFOAM: refuse a warp that drops deeper (B3F→B4F) while exiting —
+                # UNLESS `_seafoam_allow_redrop` (sealed B2F east water: UP unreachable,
+                # must fall to B3F then climb the east corridor — LIVE 20260807 18:29).
                 _dwt = _dest.get(tuple(wt))
                 if (before in self._SEAFOAM_DUNGEON and _dwt in self._SEAFOAM_DUNGEON
-                        and _dwt[1] > before[1]):
+                        and _dwt[1] > before[1]
+                        and not getattr(self, "_seafoam_allow_redrop", False)):
                     log(f"   EXIT: door {wt} -> {_dwt} drops deeper in Seafoam — skip (LOUD)")
                     taken.add((before, wt))
                     continue
+                if (getattr(self, "_seafoam_allow_redrop", False)
+                        and before in self._SEAFOAM_DUNGEON and _dwt in self._SEAFOAM_DUNGEON
+                        and _dwt[1] > before[1]):
+                    log(f"   EXIT: door {wt} -> {_dwt} DEEPER allowed "
+                        f"(seafoam sealed-pocket redrop) (LOUD)")
                 # SEALED-DOOR SKIP (shift 6, the B1F barrier lobby): don't burn a travel budget
                 # + the enter_warp approach fan (≈6 travel wedges) on a door her feet provably
                 # can't reach right now. NOT added to `taken` — the flood check is per-tick truth,

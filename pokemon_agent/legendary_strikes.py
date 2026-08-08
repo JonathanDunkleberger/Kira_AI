@@ -1450,17 +1450,48 @@ class ArticunoHunt(LegendaryHunt):
         return bool(cur) and cur[0] <= 12 and cur[1] <= 8
 
     def _b2f_east_sealed_pocket(self):
-        """True on B2F's sealed east-upper landing after B3F (31,4) → (32,4).
+        """True on B2F's sealed east landings — no path to corridor UP ladders.
 
-        pret/soak 20260807: no land/surf path from (30,4)/(32,4) to corridor UP
-        (32,14)/(25,19). Re-drop via (32,4)→B3F then take (31,16) corridor."""
+        pret/soak 20260807: (30,4)/(32,4) sealed after B3F (31,4).
+        LIVE 20260807 18:29: (29,12) water corridor — old `y<=8` missed her;
+        climb_out thrashed west UP tiles with `no path from (29,12)` forever.
+
+        NEVER true on the east UP corridor tiles themselves ((32,14)/(25,19))."""
         if tuple(tv.map_id(self.b)) != B2F:
             return False
         try:
             cur = tuple(tv.coords(self.b) or ())
         except Exception:
             return False
-        return bool(cur) and cur[0] >= 28 and cur[1] <= 8
+        if not cur:
+            return False
+        # Standing on (or one step from) a corridor UP ladder — climb, don't re-drop.
+        if cur in ((32, 14), (25, 19), (32, 13), (31, 14), (25, 18), (26, 19)):
+            return False
+        # Upper sealed pocket (y<=8) or deep east water (x>=28, the 18:29 strand).
+        return cur[0] >= 28 or (cur[0] >= 24 and cur[1] <= 8)
+
+    # B2F → B3F holes (east-first). Corridor UP is unreachable from the east
+    # water pocket — MUST re-drop, then climb ARTICUNO_ASCENT_EAST via (31,16).
+    _B2F_EAST_REDROP = ((27, 8), (24, 8), (32, 4), (31, 17), (7, 17))
+
+    def _b2f_redrop_east(self, label):
+        """From sealed B2F east water, fall ANY reachable hole to B3F."""
+        if tuple(tv.map_id(self.b)) != B2F:
+            return tuple(tv.map_id(self.b)) == B3F
+        try:
+            cur = tuple(tv.coords(self.b) or (0, 0))
+        except Exception:
+            cur = (0, 0)
+        holes = sorted(self._B2F_EAST_REDROP,
+                       key=lambda t: abs(t[0] - cur[0]) + abs(t[1] - cur[1]))
+        for hole in holes:
+            self.log(f"   [articuno] B2F east re-drop try {hole}→B3F ({label}) (LOUD)")
+            if self.enter_step(hole, B3F, f"{label}-east-redrop-{hole[0]}-{hole[1]}"):
+                return True
+            if tuple(tv.map_id(self.b)) == B3F:
+                return True
+        return tuple(tv.map_id(self.b)) == B3F
 
     def climb_out(self, label):
         """Leave Seafoam for R20. Prefer the column she can actually reach — west-first
@@ -1471,12 +1502,12 @@ class ArticunoHunt(LegendaryHunt):
             self.log(f"   [articuno] B2F west-upper pocket — UP via (7,4) before "
                      f"{label} (sealed from corridor) (LOUD)")
             self.enter_step((7, 4), B1F, f"{label}-pocket-up")
-        # Stuck in B2F east-upper after wrong B3F ladder (31,4): re-drop to B3F so
-        # ARTICUNO_ASCENT_EAST can take (31,16)→corridor (32,14).
+        # Stuck in B2F east water/upper: re-drop to B3F so ARTICUNO_ASCENT_EAST
+        # can take (31,16)→corridor (32,14). Try every reachable B3F hole.
         if self._b2f_east_sealed_pocket():
-            self.log(f"   [articuno] B2F east-upper pocket — re-drop (32,4)→B3F then "
-                     f"(31,16) corridor before {label} (LOUD)")
-            self.enter_step((32, 4), B3F, f"{label}-east-pocket-redrop")
+            self.log(f"   [articuno] B2F east sealed — re-drop to B3F before "
+                     f"{label} (UP corridor unreachable) (LOUD)")
+            self._b2f_redrop_east(label)
         primary, fallback, tag = (
             (ARTICUNO_ASCENT_EAST, ARTICUNO_ASCENT, "east")
             if (self._east_b4f_pocket()
@@ -1488,6 +1519,13 @@ class ArticunoHunt(LegendaryHunt):
             return True
         if tuple(tv.map_id(self.b)) == R20:
             return True
+        # Still on B2F after west thrash — force east re-drop then east ascent.
+        if tuple(tv.map_id(self.b)) == B2F:
+            self.log(f"   [articuno] still B2F after {tag} thrash — FORCE east "
+                     f"re-drop ({label}) (LOUD)")
+            if self._b2f_redrop_east(f"{label}-force"):
+                if self.ride(ARTICUNO_ASCENT_EAST, R20, f"{label}-east-after-redrop"):
+                    return True
         self.log(f"   [articuno] {tag} ascent stalled — trying alternate column "
                  f"({label}) (LOUD)")
         return self.ride(fallback, R20, f"{label}-alt")

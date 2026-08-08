@@ -81,6 +81,24 @@ def main():
     check("fly anchors include Route 16 (3,34)", (3, 34) in anch)
     check("fly anchors do NOT use Route 4 as Route 16", (3, 22) not in anch)
 
+    print("== Seafoam B2F (29,12) east sealed (LIVE 18:29 strand) ==")
+    import legendary_strikes as LS
+    import travel as tv
+    pos = {"m": (1, 85), "c": (29, 12)}
+    _om, _oc = tv.map_id, tv.coords
+    tv.map_id = lambda _b: pos["m"]
+    tv.coords = lambda _b: pos["c"]
+    try:
+        h = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+        h.b = object()
+        check("(29,12) is east sealed pocket", h._b2f_east_sealed_pocket() is True)
+        pos["c"] = (32, 14)
+        check("(32,14) UP ladder is NOT sealed", h._b2f_east_sealed_pocket() is False)
+        check("east re-drop table leads with (27,8)",
+              LS.ArticunoHunt._B2F_EAST_REDROP[0] == (27, 8))
+    finally:
+        tv.map_id, tv.coords = _om, _oc
+
     if check.fails:
         print(f"\n{check.fails} FAILED")
         sys.exit(1)
