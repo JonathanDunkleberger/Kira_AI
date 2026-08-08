@@ -21948,7 +21948,6 @@ class Campaign:
     # Seafoam interiors (pret map_groups): deeper floors have HIGHER map nums.
     # Exit must climb toward F1 (1,83) / R20 — never re-drop toward B4F (1,87).
     _SEAFOAM_DUNGEON = {(1, 83), (1, 84), (1, 85), (1, 86), (1, 87)}
-    _SEAFOAM_SURFACE = (3, 41)  # Route 20
 
     def _seafoam_surface_egress(self, label="seafoam-egress"):
         """Climb Seafoam interiors to Route 20. ArticunoHunt.climb_out is the proven
