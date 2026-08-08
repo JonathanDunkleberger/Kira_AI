@@ -13860,7 +13860,23 @@ class Campaign:
                                     f"lead fallback — forget move idx {scored0[0][2]}")
                         break
             if cut_plan is None:
-                self._lap_note_fail("fly", "no party mon can re-learn HM01 Cut")
+                # STRUCTURAL (2026-08-07 19:40 LIVE, every boot re-burned 6 ticks):
+                # if not even the lead fallback found a Cut learner, retrying next
+                # tick cannot change the answer — latch the honest skip NOW and
+                # dump the live learnset reads so the ROM-read bug is diagnosable.
+                try:
+                    for _ds in range(cnt):
+                        _dsp = st.read_party_species(self.b, _ds)
+                        log(f"   [lap] cut-compat diag: slot {_ds} species {_dsp} "
+                            f"hm_compatible(cut)={ht.hm_compatible(self.b, 'cut', _dsp)} "
+                            f"moves={st.read_party_moves(self.b, _ds)}")
+                except Exception as _cde:
+                    log(f"   [lap] cut-compat diag failed: {_cde}")
+                if getattr(self, "_lap_fails", None) is None:
+                    self._lap_fails = {}
+                self._lap_fails["fly"] = VICTORY_LAP_MAX_FAILS
+                self._lap_skip("fly", "no Cut learner even via lead fallback — "
+                                      "structural, skipping in ONE attempt")
                 return "ok"
             c_slot, c_forget, c_reason = cut_plan
             c_mon = st.SPECIES_NAME.get(st.read_party_species(self.b, c_slot),
@@ -14291,6 +14307,51 @@ class Campaign:
                         f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
             except Exception as _zfe:
                 log(f"   [lap] Zapdos fly staging skipped ({_zfe})")
+            # NORTH STAGING (2026-08-07 19:41 LIVE, the Kanto orbit): Route 10 is a
+            # SPLIT map — the Power Plant water strip is only enterable from the
+            # NORTH segment (Rock Tunnel Center side), but Lavender's north edge
+            # lands the SOUTH segment (y≈79) where the strike reads 'no path from
+            # (11,79)' forever. The graph can't see the split, so from the southern
+            # cluster ride the overworld loop R8 → Saffron → R5 → Cerulean → R9
+            # with Route 10 BANNED from routing; R9's east edge enters R10 NORTH.
+            try:
+                _nzh = tuple(tv.map_id(self.b))
+                _nzy = (tv.coords(self.b) or (0, 0))[1]
+                if _nzh == (3, 28) and _nzy > 50:
+                    log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: on R10 SOUTH segment "
+                        f"(y={_nzy}) — dropping to Lavender to ride the Saffron–"
+                        f"Cerulean loop (LOUD)")
+                    _r = self.trav.travel(target_map=(3, 4), edge="south",
+                                          max_seconds=180)
+                    return f"stage:{_r}"
+                if _nzh in ((3, 4), (3, 30), (3, 31)):
+                    log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: from {_nzh} riding the "
+                        f"graph to Route 9 (Route 10 BANNED — south segment trap)")
+                    self._extra_travel_avoid = {(3, 28)}
+                    try:
+                        _r = self._travel_to_known("travel:3,27", state,
+                                                   hunt_on_arrival=False)
+                        if _r == "no_route":
+                            _r = self._travel_to_known("travel:3,3", state,
+                                                       hunt_on_arrival=False)
+                    finally:
+                        self._extra_travel_avoid = set()
+                    if _r == "no_route":
+                        self._lap_note_fail("zapdos", "north staging no_route")
+                    return f"stage:{_r}"
+            except Exception as _zns:
+                log(f"   [lap] Zapdos north staging skipped ({_zns})")
+            # NORTH-HALF STAGING (2026-08-08 LIVE, the all-night Kanto lap): Route 10 is
+            # SPLIT by Rock Tunnel. Entering from Lavender lands the SOUTH half (y≈79);
+            # the Power Plant door (7,40) is reachable ONLY by surfing from the NORTH
+            # half (the pond by the Rock Tunnel Center). The strike's plant-door
+            # approach reads 'no path' from the south and the KB step then walks her
+            # BACK south — the loop that circled Kanto for an hour. Ride the graph the
+            # long way: Lavender → Route 8 → Saffron → Route 5 → Cerulean → Route 9 →
+            # Route 10 NORTH. One leg per tick; each leg is proven machinery.
+            _sr = self._zapdos_north_staging(state)
+            if _sr is not None:
+                return _sr
         gate = self._lap_gate_for(key, state)
         if gate is None:
             # Owed by raw truth but the gate self-suppresses. Ball-thin is OURS to fix; any
@@ -15853,7 +15914,10 @@ class Campaign:
         # NS#42: story-gate avoid here too — the general travel actuator (keeper errand + oracle travel:X
         # picks) must not route through Flute-gated Route 12/16 pre-Flute (else a travel: pick or the keeper
         # errand hops onto Route 12 and wedges on the Snorlax; _story_gate_avoid is empty once she has the Flute).
-        avoid = self._wall_avoid(state) | self._story_gate_avoid(state)
+        # _extra_travel_avoid: caller-scoped map bans (the Zapdos NORTH staging must not route
+        # through Route 10's south segment — the graph can't see the split).
+        avoid = (self._wall_avoid(state) | self._story_gate_avoid(state)
+                 | getattr(self, "_extra_travel_avoid", set()))
         # WARP-AWARE (night shift 9, the banked_E4 Saffron seal): next_hop is EDGE-ONLY, but a
         # gate-locked city's every exit is a WARP (Saffron's four gatehouses) — the graph knew the
         # way and next_hop couldn't express hop #1, so every plain travel pick read no_route
