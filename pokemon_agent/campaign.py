@@ -6084,6 +6084,16 @@ class Campaign:
         (mirrors BattleAgent._ball_count). 0 -> nothing to throw (the catch gate before this quest)."""
         return self._balls_pocket_count(4)
 
+    def _throwable_ball_count(self):
+        """All catchable ball tiers in the balls pocket (Ultra/Great/Poké — ids 2/3/4).
+
+        Fuchsia Mart sells Ultra/Great but NOT plain Poké Balls. stock_up already buys the
+        shelf tier and counts all three, but _ball_note / mart-first travel / catch offers used
+        id-4-only _ball_count — so after an Ultra restock the oracle still heard 'ZERO Poké
+        Balls' and shuttled Fuchsia↔Route 15 forever (live 20260807 stream). Master Ball (1)
+        is excluded — reserved legendary shot, not a restock signal."""
+        return sum(self._balls_pocket_count(i) for i in (2, 3, 4))
+
     def _balls_pocket_count(self, item_id):
         """Count of a BALLS-pocket item (Gen-3 ids 1-12) in the bag's balls pocket (SaveBlock1+0x430,
         16 slots; qty XOR the low-16 key). The Items-pocket bag_count() can't see balls, so the buy
@@ -6107,11 +6117,11 @@ class Campaign:
         return self.bag_count(item_id)
 
     def _ball_note(self, state=None):
-        """Batch-WORLD Phase 5 — BALL PRE-CHECK awareness: if she has ZERO Poké Balls, catching is
-        impossible no matter how much grass she reaches, so the oracle should KNOW a Mart run comes
-        first. Empty unless she's out of balls. Live RAM read (verified on Jonny's watch)."""
+        """Batch-WORLD Phase 5 — BALL PRE-CHECK awareness: if she has ZERO throwable balls,
+        catching is impossible no matter how much grass she reaches, so the oracle should KNOW
+        a Mart run comes first. Counts Ultra/Great/Poké (Fuchsia shelf). Empty unless out."""
         try:
-            if self._ball_count() == 0:
+            if self._throwable_ball_count() == 0:
                 return ("Heads up: you have ZERO Poké Balls — you literally can't catch a teammate until "
                         "you buy some at a Mart, so a Mart run has to come before any catching.")
         except Exception as e:
@@ -14794,7 +14804,7 @@ class Campaign:
         # ALL throwable tiers (2/3/4 — Master Ball 1 excluded, it's the reserved legendary shot),
         # same reasoning as the all-tier potion count above; otherwise a Great-Ball restock is
         # invisible to the id-4-only _ball_count and every future trip re-buys the full target.
-        _balls_have = sum(self._balls_pocket_count(i) for i in (2, 3, 4))
+        _balls_have = self._throwable_ball_count()
         if (self._thin_team() or _balls_have < 2 or keeper_due or _dex_push) \
                 and _balls_have < ball_target:
             _shelf = MART_STOCK.get(tv.map_id(self.b), [])
@@ -14898,7 +14908,7 @@ class Campaign:
         # NS#42: narrate the keeper pre-stock ('grabbing balls for the diglett I'm about to go hunt') so
         # the buy reads as purposeful, not incidental — the constitution's grind/shop-with-narrated-reason.
         keeper_due = bool(state) and self._keeper_due(state)
-        if (self._thin_team() or keeper_due) and self._ball_count() < (
+        if (self._thin_team() or keeper_due) and self._throwable_ball_count() < (
                 SHOP_BALL_KEEPER_TARGET if keeper_due else SHOP_BALL_TARGET):
             bits.append("you're light on Poké Balls — grab a good stock so you can actually catch the "
                         "teammate your plan wants" if keeper_due else
@@ -15737,7 +15747,7 @@ class Campaign:
             # grass with zero balls can't catch anything (honest action set). With no balls, the
             # ball-note + a 'travel to a Mart' option steer her to buy some first.
             try:
-                has_balls = self._ball_count() > 0
+                has_balls = self._throwable_ball_count() > 0
             except Exception:
                 has_balls = True
             if has_balls:
@@ -15849,7 +15859,8 @@ class Campaign:
             # 2026-07-07 BALL-LESS TEETH: with ZERO balls the nearest Mart is the destination that
             # matters — grass targets otherwise fill all 4 slots and the Mart never surfaces (how the
             # voltorb hunt would have wandered ball-less forever). Mart-first when the pocket is empty.
-            _traits = (("has_mart", "has_grass") if self._ball_count() == 0
+            # Use throwable tiers (Ultra/Great/Poké) — Fuchsia Ultras must clear mart-first.
+            _traits = (("has_mart", "has_grass") if self._throwable_ball_count() == 0
                        else ("has_grass", "has_mart"))
             # XP-AWARE GRASS OFFERS (2026-07-29, the Route-3 baby-grass farm): never OFFER travel to
             # grass already proven grind-dead/inadequate (she'd ride there, stand down, and bounce),
@@ -16342,7 +16353,7 @@ class Campaign:
         # Skip when GO-HARD latched — fetch_keeper was just pruned; re-offering it would put a
         # detour back on the menu opposite a forced Misty march.
         if (KEEPER_ROUTER_ENABLED and not getattr(self, "_force_gym_pick", False)
-                and self._ball_count() > 0):
+                and self._throwable_ball_count() > 0):
             _kr = self._keeper_route_target(state)
             if _kr:
                 # HEAL-GATE (NS#39: don't start a detour on a dinged team) with an NS#41 SAFE-HOP relaxation:
@@ -21651,8 +21662,7 @@ class Campaign:
         # ZERO-BALL summit bank can't catch — reject (soak 080642 oracle: "ZERO Poké Balls"
         # after a "verified" pre-moltres load; free-retry then looped flee/respawn).
         try:
-            n_balls = sum(self._balls_pocket_count(i) for i in (2, 3, 4))  # Ultra/Great/Poké
-            if n_balls <= 0:
+            if self._throwable_ball_count() <= 0:
                 return False
         except Exception:
             pass
