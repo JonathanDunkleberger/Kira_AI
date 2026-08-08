@@ -21453,7 +21453,8 @@ class Campaign:
         except Exception:
             return False
 
-    def _reload_labeled_checkpoint(self, tag, verify=None, ratchet_region=None, max_loads=10):
+    def _reload_labeled_checkpoint(self, tag, verify=None, ratchet_region=None, max_loads=10,
+                                   require_map=None):
         """LABELED RELOAD (2026-08-05, THE FREE RETRY at Moltres): load the NEWEST on-disk
         auto-checkpoint whose dir name carries `tag` (labels are the _ckpt_label reason
         suffix — 'pre-moltres', 'moltres-leg', ...). Savestates restore FULL RAM, so a
@@ -21477,7 +21478,11 @@ class Campaign:
         removeobject/msgbox can still be PENDING inside a savestate whose fought/hide flags
         read clear. Instant flag-verify alone accepted that bank (182452); advancing frames
         then played "The MOLTRES flew away!". After a flag-clear load we `_wait_overworld`
-        and verify AGAIN — a settle that flips fought|hide|sprite-gone rejects and ratchets."""
+        and verify AGAIN — a settle that flips fought|hide|sprite-gone rejects and ratchets.
+
+        require_map (2026-08-07 LIVE, Articuno teleport): when set, skip any candidate whose
+        checkpoint.json map != require_map BEFORE load — seafoam B3F calm must never yank
+        her off B4F at the bird during a doorstep soft-reload."""
         import json as _json
         root = os.path.join(STATES_CAMPAIGN, "checkpoints")
         try:
@@ -21488,6 +21493,7 @@ class Campaign:
             log(f"   [ckpt] labeled reload '{tag}': checkpoint root unreadable ({_le}) — declining")
             return False
         tagged = [n for n in all_names if tag in n]
+        _req_map = tuple(require_map) if require_map is not None else None
         # Drop blacklisted poison banks (182452-class mid-flee) before any load attempt.
         _bl = tuple(getattr(self, "_HUNT_BANK_BLACKLIST", ()) or ())
         if _bl:
@@ -21538,6 +21544,21 @@ class Campaign:
                 log(f"   [ckpt] !! LABELED RELOAD '{tag}': ratchet budget spent "
                     f"({max_loads} loads) — stopping the walk-back")
                 break
+            # IN-PLACE MAP GUARD (doorstep soft-reload): refuse off-floor banks before load
+            # so we never pin/re-bank a B3F calm as 'pre-articuno' while she's on B4F.
+            if _req_map is not None:
+                try:
+                    with open(os.path.join(root, name, "checkpoint.json"), "r",
+                              encoding="utf-8") as f:
+                        _cm = tuple(_json.load(f).get("map") or ())
+                    if _cm != _req_map:
+                        log(f"   [ckpt] !! LABELED RELOAD '{tag}': skipping '{name}' — "
+                            f"map {_cm} != required {_req_map} (doorstep in-place law) (LOUD)")
+                        continue
+                except Exception:
+                    log(f"   [ckpt] !! LABELED RELOAD '{tag}': skipping '{name}' — "
+                        f"map unreadable under require_map={_req_map} (LOUD)")
+                    continue
             state_p = os.path.join(root, name, CAMPAIGN_SAVE)
             try:
                 if not os.path.exists(state_p):
@@ -21720,19 +21741,22 @@ class Campaign:
         except Exception as e:
             log(f"   [hunt] !! PROMOTE_TARGET pin skipped: {e}")
 
-    def _reload_hunt_checkpoint(self, key):
+    def _reload_hunt_checkpoint(self, key, require_map=None):
         """The hunts' ONLY reload door (boot rewind + THE FREE RETRY): 'pre-<key>' first,
         post-load flag+sprite verification (settle re-check), poisoned banks ratchet back
         through older same-region banks (climb / roam-start / fight-won / moltres-leg…)
         until one still contains the bird. On a verified landing, immediately re-banks a
         fresh 'pre-<key>' and pins PROMOTE_TARGET. Never silently accepts a spent summit.
-        Returns True on a verified landing."""
+        Returns True on a verified landing.
+
+        require_map: doorstep soft-reload passes the quarry map so B3F calm / climb banks
+        cannot teleport her off the bird (LIVE 2026-08-07 Articuno)."""
         key = str(key).lower()
         site = self._HUNT_SITE_ALL.get(key)
         ok = self._reload_labeled_checkpoint(
             f"pre-{key}", verify=lambda: self._hunt_bank_live(key),
             ratchet_region=map_region(site) if site else None,
-            max_loads=40)
+            max_loads=40, require_map=require_map)
         if ok:
             try:
                 if self._hunt_bank_live(key):

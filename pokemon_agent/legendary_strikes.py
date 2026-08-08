@@ -604,14 +604,18 @@ class LegendaryHunt(GiovanniGym):
         substructure, fresh RAM) and score each PP as a SAFE CHIP SWING against THIS quarry
         (pol.chip_hit_frac within the KO-safety margin at full HP; STAB omitted — this is a
         threshold audit, the in-fight picker stays exact). Returns
-        (any_damaging_pp, ace_safe_swings, party_safe_swings); ace = the highest-level
-        healthy mon. Unreadable -> (True, 99, 99): a bad read must never send her on a
-        restore trip. Zero damaging PP party-wide SCREAMS (sleep+throw only)."""
+        (any_damaging_pp, ace_safe_swings, party_safe_swings, ace_damaging_pp); ace = the
+        highest-level healthy mon. Unreadable -> (True, 99, 99, 99): a bad read must never
+        send her on a restore trip. Zero damaging PP party-wide SCREAMS (sleep+throw only).
+
+        ace_damaging_pp is the ace's raw damaging PP (power>0), SAFE OR NOT — doorstep
+        soft-reload only helps a DRY ace (Bite:0). Overlevel "unsafe" Bite/Surf with PP
+        left cannot be fixed by rewind (LIVE 2026-08-07 Articuno teleport)."""
         q = self.QUARRY or {}
         q_types = list(q.get("types") or [])
         q_level = int(q.get("level") or 50)
         try:
-            any_pp, rows, per_slot, levels = False, [], {}, {}
+            any_pp, rows, per_slot, dmg_slot, levels = False, [], {}, {}, {}
             for s, hp, mx, frac in (self.camp.party_health() or []):
                 if hp <= 0:
                     continue
@@ -637,10 +641,12 @@ class LegendaryHunt(GiovanniGym):
                             safe += int(p)
                 any_pp = any_pp or dmg > 0
                 per_slot[s] = safe
+                dmg_slot[s] = dmg
                 rows.append(f"slot{s} L{lvl} hp {hp}/{mx} dmgPP {dmg} safePP {safe} "
                             f"({', '.join(names)})")
             ace = max(levels, key=levels.get) if levels else None
             ace_safe = per_slot.get(ace, 0) if ace is not None else 0
+            ace_dmg = dmg_slot.get(ace, 0) if ace is not None else 0
             party_safe = sum(per_slot.values())
             self.log("   [hunt] CHIP-PP AUDIT — " + ("; ".join(rows) or "party unreadable")
                      + f" | ace slot{ace} safe {ace_safe}, party safe {party_safe} "
@@ -648,10 +654,10 @@ class LegendaryHunt(GiovanniGym):
             if not any_pp:
                 self.log("   [hunt] !! CHIP-PP AUDIT: ZERO damaging PP on the whole party — "
                          "Ether rail / Center restore must fire before the press (LOUD)")
-            return any_pp, ace_safe, party_safe
+            return any_pp, ace_safe, party_safe, ace_dmg
         except Exception as e:
             self.log(f"   [hunt] chip-PP audit skipped: {e}")
-            return True, 99, 99
+            return True, 99, 99, 99
 
     def _field_ether_ace(self):
         """OVERWORLD ETHER RAIL (2026-08-06 LIVE, soak 083445: preferred pre-moltres bank
@@ -715,7 +721,7 @@ class LegendaryHunt(GiovanniGym):
         dispatches; exhausted or unwired hunts engage in LADDER MODE (the b235cb0 bench-
         chipper engine) with the decision logged LOUD. True = armed (press_quarry returns
         to the stage loop, which routes the descent)."""
-        any_pp, ace_safe, party_safe = self._chip_pp_audit()
+        any_pp, ace_safe, party_safe = self._chip_pp_audit()[:3]
         if ace_safe >= self.ACE_SAFE_PP_MIN and party_safe >= self.PARTY_SAFE_SWINGS_MIN:
             return False
         key = ((self.QUARRY or {}).get("name") or "hunt").lower()
@@ -794,51 +800,101 @@ class LegendaryHunt(GiovanniGym):
         at the quarry NEVER returns True. No Center retreat from the bird — not for empty
         Bite, not after free-retry. Empty tank soft-reloads the preferred pre-bank IN PLACE
         (full Bite from 182052) then engages. Farther out, the pre-approach PP restore may
-        still fire. True = restore leg armed (stage loop descends); False = engage now."""
+        still fire. True = restore leg armed (stage loop descends); False = engage now.
+
+        LIVE 2026-08-07 (Articuno): safe=0 with Bite:19/Surf:14 is OVERLEVEL, not dry —
+        soft-reload cannot mint safer chip fractions, and the seafoam ratchet landed on the
+        B3F calm bank ("teleported back" off the bird). Soft-reload only for a DRY ace
+        (ace damaging PP == 0), and only onto the quarry's own map."""
         q = self.QUARRY or {}
         tile = q.get("tile") or (0, 0)
+        qmap = q.get("map")
         cur = tuple(tv.coords(self.b) or (0, 0))
+        try:
+            here = tuple(tv.map_id(self.b) or ())
+        except Exception:
+            here = ()
         dist = abs(cur[0] - tile[0]) + abs(cur[1] - tile[1])
-        if dist <= self.DOORSTEP_TILES:
+        # Unreadable map fail-opens to doorstep (never Center-retreat on a bad read).
+        # A known off-quarry map (B3F vs B4F Articuno) must NOT count — Seafoam floors
+        # share x/y ranges and a soft-reload ratchet already abused that (LIVE 2026-08-07).
+        on_quarry_map = (qmap is None) or (not here) or (here == tuple(qmap))
+        if dist <= self.DOORSTEP_TILES and on_quarry_map:
             # EMPTY TANK AT THE BIRD (2026-08-06 soak 083445): preferred pre-bank can ALSO
             # be Bite:0 — soft-reload alone loops forever (OVERKILL → refuse → reload).
             # Order: (1) field Ether on the ace, (2) soft-reload once if still dry, (3)
             # Ether again after reload. NEVER Center-retreat from the bird.
+            # NEVER soft-reload an overlevel "unsafe" tank that still has damaging PP.
             try:
-                _ok, _ace_safe, _party_safe = self._chip_pp_audit()
+                _audit = self._chip_pp_audit()
+                _ok, _ace_safe, _party_safe = _audit[0], _audit[1], _audit[2]
+                # legacy 3-tuple mocks: empty safe => treat as dry (old soft-reload path)
+                _ace_dmg = (_audit[3] if len(_audit) > 3
+                            else (0 if (_ace_safe is not None and _ace_safe < 1) else 99))
             except Exception:
                 _ace_safe = None
+                _ace_dmg = 99
             if _ace_safe is not None and _ace_safe < 1:
                 key = (q.get("name") or "hunt").lower()
-                self.log(f"   [hunt] !!!! AT THE DOORSTEP with EMPTY ace tank "
-                         f"(safe={_ace_safe}) — Ether rail first, THEN soft-reload "
-                         f"(NO mountain retreat) (LOUD)")
-                if self._field_ether_ace():
-                    try:
-                        _, _ace_safe, _ = self._chip_pp_audit()
-                    except Exception:
-                        pass
-                if _ace_safe is not None and _ace_safe < 1:
-                    try:
-                        if self.camp._reload_hunt_checkpoint(key):
-                            try:
-                                _, _ace_safe, _ = self._chip_pp_audit()
-                            except Exception:
-                                _ace_safe = None
-                            self.log(f"   [hunt] doorstep soft-reload landed — ace safe now "
-                                     f"{_ace_safe!r} (LOUD)")
-                            if _ace_safe is not None and _ace_safe < 1:
-                                self._field_ether_ace()
+                if _ace_dmg and _ace_dmg > 0:
+                    # Overlevel / no-safe-chip with PP remaining — ladder mode owns the
+                    # fight. Soft-reload here was the Articuno teleport (B3F calm).
+                    self.log(f"   [hunt] !!!! AT THE DOORSTEP with EMPTY ace SAFE tank "
+                             f"(safe={_ace_safe}) but ace still has {_ace_dmg} damaging PP "
+                             f"— soft-reload cannot mint safer chips (overlevel); "
+                             f"ENGAGING in LADDER MODE (NO rewind off the bird) (LOUD)")
+                else:
+                    self.log(f"   [hunt] !!!! AT THE DOORSTEP with EMPTY ace tank "
+                             f"(safe={_ace_safe}, dmgPP={_ace_dmg}) — Ether rail first, "
+                             f"THEN soft-reload IN PLACE on {qmap!r} "
+                             f"(NO mountain retreat) (LOUD)")
+                    if self._field_ether_ace():
+                        try:
+                            _audit = self._chip_pp_audit()
+                            _ace_safe = _audit[1]
+                            _ace_dmg = (_audit[3] if len(_audit) > 3 else _ace_dmg)
+                        except Exception:
+                            pass
+                    if _ace_safe is not None and _ace_safe < 1 and not (_ace_dmg and _ace_dmg > 0):
+                        try:
+                            # require_map: refuse B3F-calm / climb banks when standing on B4F
+                            if self.camp._reload_hunt_checkpoint(key, require_map=qmap):
                                 try:
-                                    _, _ace_safe, _ = self._chip_pp_audit()
+                                    _audit = self._chip_pp_audit()
+                                    _ace_safe = _audit[1]
+                                    _ace_dmg = (_audit[3] if len(_audit) > 3 else _ace_dmg)
                                 except Exception:
-                                    pass
-                        else:
-                            self.log("   [hunt] !! doorstep soft-reload declined — "
-                                     "in-fight Ether owns thin PP (LOUD)")
-                    except Exception as e:
-                        self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — "
-                                 f"in-fight Ether owns thin PP (LOUD)")
+                                    _ace_safe = None
+                                self.log(f"   [hunt] doorstep soft-reload landed — ace safe now "
+                                         f"{_ace_safe!r} (LOUD)")
+                                if _ace_safe is not None and _ace_safe < 1:
+                                    self._field_ether_ace()
+                                    try:
+                                        _ace_safe = self._chip_pp_audit()[1]
+                                    except Exception:
+                                        pass
+                            else:
+                                self.log("   [hunt] !! doorstep soft-reload declined — "
+                                         "in-fight Ether owns thin PP (LOUD)")
+                        except TypeError:
+                            # older camp mocks without require_map=
+                            try:
+                                if self.camp._reload_hunt_checkpoint(key):
+                                    try:
+                                        _ace_safe = self._chip_pp_audit()[1]
+                                    except Exception:
+                                        _ace_safe = None
+                                    self.log(f"   [hunt] doorstep soft-reload landed — ace safe "
+                                             f"now {_ace_safe!r} (LOUD)")
+                                else:
+                                    self.log("   [hunt] !! doorstep soft-reload declined — "
+                                             "in-fight Ether owns thin PP (LOUD)")
+                            except Exception as e:
+                                self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — "
+                                         f"in-fight Ether owns thin PP (LOUD)")
+                        except Exception as e:
+                            self.log(f"   [hunt] !! doorstep soft-reload raised ({e}) — "
+                                     f"in-fight Ether owns thin PP (LOUD)")
                 self.log(f"   [hunt] doorstep empty-tank settle — ace safe now "
                          f"{_ace_safe!r}; ENGAGING (LOUD)")
             self.log(f"   [hunt] !!!! AT THE DOORSTEP ({dist} tile(s) from "
@@ -1221,7 +1277,7 @@ class LegendaryHunt(GiovanniGym):
         # and every soft-reload re-armed the OVERKILL loop). NEVER bank a thin Ultra pocket
         # either (Jonny 09:13: soft-reload of a 6-ball pre undid the war-chest).
         try:
-            _, _bank_safe, _ = self._chip_pp_audit()
+            _bank_safe = self._chip_pp_audit()[1]
         except Exception:
             _bank_safe = 99
         _bank_ultras = self._ultra_count()

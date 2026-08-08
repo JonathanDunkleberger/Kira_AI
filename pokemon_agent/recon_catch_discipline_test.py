@@ -1062,16 +1062,17 @@ def main():
     LS.pst.move_info_full = lambda b, m: _MOVES32.get(m, ("normal", 0, 100))
     try:
         a32 = hunt32._chip_pp_audit()
-        check("audit scores SAFE swings vs Moltres: ace 1 (the lone Bite), party 26",
-              a32 == (True, 1, 26), f"got {a32}")
+        # ace dmgPP = Surf15 + IceBeam10 + Bite1 = 26 (unsafe chips still count as dmg)
+        check("audit scores SAFE swings vs Moltres: ace 1 (the lone Bite), party 26, ace_dmg 26",
+              a32 == (True, 1, 26, 26), f"got {a32}")
         check("the audit line is LOUD and names the quarry",
               any("CHIP-PP AUDIT" in l and "Moltres" in l for l in logs32), f"logs={logs32[:1]}")
         check("fainted slot 2 never audited (only the healthy bench counts)",
               not any("slot2" in l for l in logs32))
         logs32.clear()
         LS.pst.read_party_pp = lambda b, s: [0, 0, 0, 0]
-        check("ZERO damaging PP party-wide -> (False, 0, 0) and SCREAMS (sleep+throw only)",
-              hunt32._chip_pp_audit() == (False, 0, 0)
+        check("ZERO damaging PP party-wide -> (False, 0, 0, 0) and SCREAMS (sleep+throw only)",
+              hunt32._chip_pp_audit() == (False, 0, 0, 0)
               and any("ZERO damaging PP" in l for l in logs32))
     finally:
         LS.pst.read_party_moves = _orig_rpm32
@@ -1193,20 +1194,55 @@ def main():
         check("doorstep AFTER free-retry -> still ENGAGE (no mountain retreat)",
               h34b2._doorstep_or_restore() is False
               and any("ENGAGING NOW" in l and "absolute" in l for l in logs33))
-        # (b3) empty ace at doorstep, no Ether -> soft-reload in place, NEVER Center-retreat
+        # (b3) DRY ace at doorstep (safe=0 AND dmgPP=0), no Ether -> soft-reload in place
         logs33.clear()
         reloads34 = []
         h34b3 = _mk_hunt33(LS.MoltresHunt, (True, 0, 0))
         h34b3._catch_retries = 0
-        h34b3._chip_pp_audit = lambda: (True, 0, 29)
+        h34b3._chip_pp_audit = lambda: (True, 0, 29, 0)   # dry ace, bench has chips
         h34b3._field_ether_ace = lambda: False
         h34b3.camp = types.SimpleNamespace(
-            _reload_hunt_checkpoint=lambda key: (reloads34.append(key), True)[1])
-        check("doorstep + empty ace (no Ether) -> soft-reload in place, ENGAGE (no retreat)",
+            _reload_hunt_checkpoint=lambda key, require_map=None: (
+                reloads34.append((key, require_map)), True)[1])
+        check("doorstep + DRY ace (no Ether) -> soft-reload in place, ENGAGE (no retreat)",
               h34b3._doorstep_or_restore() is False
-              and reloads34 == ["moltres"]
+              and reloads34 == [("moltres", LS.EMBER_SUMMIT)]
               and any("NO mountain retreat" in l for l in logs33)
               and any("ENGAGING NOW" in l for l in logs33))
+        # (b3b) LIVE 2026-08-07: overlevel ace (safe=0, Bite/Surf PP left) at Articuno —
+        # must ENGAGE in ladder mode, NEVER soft-reload (B3F calm teleport).
+        logs33.clear()
+        reloads34b3b = []
+        _orig_map34 = LS.tv.map_id
+        try:
+            LS.tv.coords = lambda b: (9, 3)          # 1 tile from Articuno (9, 2)
+            LS.tv.map_id = lambda b: LS.B4F
+            h34b3b = _mk_hunt33(LS.ArticunoHunt, (True, 0, 55, 48))
+            h34b3b._catch_retries = 0
+            h34b3b._chip_pp_audit = lambda: (True, 0, 55, 48)  # Bite:19+Surf:14 unsafe
+            h34b3b._field_ether_ace = lambda: (_ for _ in ()).throw(AssertionError(
+                "Ether must NOT fire — ace still has damaging PP"))
+            h34b3b.camp = types.SimpleNamespace(
+                _reload_hunt_checkpoint=lambda key, require_map=None: (
+                    reloads34b3b.append((key, require_map)), True)[1])
+            check("doorstep Articuno + overlevel ace (dmgPP>0, safe=0) -> ENGAGE, NO soft-reload",
+                  h34b3b._doorstep_or_restore() is False
+                  and reloads34b3b == []
+                  and any("overlevel" in l and "LADDER MODE" in l for l in logs33)
+                  and any("NO rewind off the bird" in l for l in logs33)
+                  and any("ENGAGING NOW" in l for l in logs33))
+            # (b3c) same coords on B3F must NOT count as Articuno doorstep
+            logs33.clear()
+            LS.tv.map_id = lambda b: LS.B3F
+            h34b3c = _mk_hunt33(LS.ArticunoHunt, (True, 0, 55, 48))
+            h34b3c._chip_pp_audit = lambda: (True, 0, 55, 48)
+            h34b3c._maybe_arm_pp_restore = lambda: True
+            check("B3F coords near Articuno tile -> NOT doorstep (map gate)",
+                  h34b3c._doorstep_or_restore() is True
+                  and not any("AT THE DOORSTEP" in l for l in logs33))
+        finally:
+            LS.tv.map_id = _orig_map34
+            LS.tv.coords = lambda b: (9, 7)          # restore Moltres doorstep for b4
         # (b4) empty ace + Ether restores Bite -> engage WITHOUT soft-reload
         logs33.clear()
         reloads34b4 = []
@@ -1216,12 +1252,13 @@ def main():
         _audit_n = {"n": 0}
         def _audit_b4():
             _audit_n["n"] += 1
-            # first audit empty; after Ether, safe=5
-            return (True, 0, 29) if _audit_n["n"] == 1 else (True, 5, 34)
+            # first audit dry; after Ether, safe=5
+            return (True, 0, 29, 0) if _audit_n["n"] == 1 else (True, 5, 34, 5)
         h34b4._chip_pp_audit = _audit_b4
         h34b4._field_ether_ace = lambda: (_ether_calls.append(1), True)[1]
         h34b4.camp = types.SimpleNamespace(
-            _reload_hunt_checkpoint=lambda key: (reloads34b4.append(key), True)[1])
+            _reload_hunt_checkpoint=lambda key, require_map=None: (
+                reloads34b4.append(key), True)[1])
         check("doorstep + empty ace + Ether restores Bite -> ENGAGE, no soft-reload",
               h34b4._doorstep_or_restore() is False
               and _ether_calls == [1]
