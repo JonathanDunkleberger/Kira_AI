@@ -368,6 +368,29 @@ if (Test-Path $targetFile) {
                 $ckptDir = $gainCatch
             }
         }
+        # Anti-Seafoam-rewind (2026-08-08): old route-20 / seafoam pins predate Articuno
+        # catch. Promoting them rewinds the bird. Prefer a newer articuno/zapdos gain-catch,
+        # else refuse the pin and launch CANONICAL (in-code boot egress climbs to R20).
+        $seafoamPoison = $ckptPat -match 'seafoam|route-20|route20|pre-articuno'
+        if ($seafoamPoison) {
+            $artCatch = Get-ChildItem $ckptRoot -Directory -ErrorAction SilentlyContinue |
+                        Where-Object {
+                            $_.Name -notlike "*.partial" -and
+                            ($_.Name -match 'gain-catch' -or $_.Name -match 'articuno|zapdos') -and
+                            (-not $ckptDir -or $_.Name -gt $ckptDir.Name)
+                        } |
+                        Sort-Object Name -Descending | Select-Object -First 1
+            if ($artCatch) {
+                Say ("!! CKPT override: refusing Seafoam/R20 rewind pin '" + $ckptPat +
+                     "' — newer post-bird bank: " + $artCatch.Name)
+                $ckptDir = $artCatch
+            } elseif ($ckptDir -and ($ckptDir.Name -match 'seafoam|route-20|route20|pre-articuno')) {
+                Say ("!! CKPT override: refusing Seafoam/R20 pin '" + $ckptDir.Name +
+                     "' with no newer catch bank — launching CANONICAL (boot egress to beach)")
+                $ckptDir = $null
+                $target = "CANONICAL"
+            }
+        }
         # Anti-Diglett-rewind (2026-08-02): Mac pins to Diglett/Route2/Pewter/Mt.Moon kept
         # forcing a 20-min re-walk. If a Rock Tunnel CKPT exists, prefer THAT instead.
         $westPoison = $ckptPat -match 'diglett|route-2|pewter|mt-moon|route-3|viridian|pallet|route-1'

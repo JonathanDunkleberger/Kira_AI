@@ -1,0 +1,4 @@
+CANONICAL
+# 2026-08-08: Articuno caught, stranded in Seafoam. Do NOT promote old route-20 /
+# pre-articuno banks (rewinds the catch). Boot egress climbs to R20 in-code, then
+# Fly → Route 10 / Cerulean for Zapdos.

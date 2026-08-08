@@ -458,7 +458,9 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
 # CREDITS-FIRST order (2026-08-07): no Eevee — Jolteon is optional fluff once Zapdos/Moltres
 # exist; the Celadon detour blocked League after Articuno and under-leveled the E4 floor.
-VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "zapdos", "repack")
+# Fly AFTER Articuno (must be outdoors — Seafoam blocks Fly) and BEFORE Zapdos so she
+# can warp to Cerulean / Route 10 instead of Surfing half of Kanto (Jonny 2026-08-08).
+VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "fly", "zapdos", "repack")
 VICTORY_LAP_MAX_FAILS = int(os.getenv("POKEMON_VICTORY_LAP_FAILS", "6"))
 # Sticky exhausted-hunt set: proximity may unskip a thin-ball skip, but NEVER a hunt that
 # already burned VICTORY_LAP_MAX_FAILS (Seafoam B4F softlock — skip/unskip every tick).
@@ -3609,13 +3611,16 @@ class Campaign:
         return "not_owned"
 
     def fly_to(self, city):
-        """STUB: Fly / fast-travel. Needs HM02 (Celadon), a teammate that can learn it, and the badge to
-        use it — none yet. BANKED NAV DESIGN (so it's not lost): open the menu -> Pokémon that knows Fly
-        -> Fly -> the Town Map opens; navigate the DESTINATION list with UP/DOWN + a SINGLE A to pick
-        (NEVER an a_until_end_of_dialog mash — that overshoots the list). Only flyable to visited cities."""
-        log(f"   [traversal] !! fly_to({city!r}) called but FLY is not owned yet (no HM02 / flyer / badge) "
-            f"and there's no HM-flag reader to confirm — DEFERRED, returning not_owned (LOUD).")
-        return "not_owned"
+        """HM02 Fly → region-map fast travel (pret REGIONMAP_TYPE_FLY). Needs a taught Fly
+        user + Thunder Badge, and an OUTDOOR standing tile (Seafoam/indoors refuse). Single A
+        to confirm — never mash. Returns 'arrived' | 'not_owned' | 'not_outdoors' |
+        'unknown_city' | 'failed'."""
+        try:
+            import fly_nav
+            return fly_nav.fly_to(self, city, log=log)
+        except Exception as e:
+            log(f"   [traversal] !! fly_to({city!r}) faulted ({e}) — LOUD")
+            return "failed"
 
     def has_badge(self, flag):
         """Read any FLAG_BADGE0x_GET from the SaveBlock1 flag array (base + 0x0EE0)."""
@@ -13501,6 +13506,16 @@ class Campaign:
                 return self.b.rd8(ram.GPLAYER_PARTY_CNT) < 6
             if key == "eevee":
                 return EEVEE_FETCH_ENABLED and not fm.read_flag(b, 0x263)
+            if key == "fly":
+                # Owed until somebody can USE Fly (HM taught + Thunder Badge). Fetch is the
+                # Route 16 house; teach prefers Fearow. Cut is required to reach the house.
+                cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                if fm.can_use(b, "fly", cnt):
+                    return False
+                if st.party_knows_move(b, 15, cnt) is None and not self.world.has_cap("cut"):
+                    self._lap_skip(key, "no Cut — Route 16 Fly house is behind a tree")
+                    return False
+                return True
             spec = self._LAP_HUNT_SPEC.get(key)
             if spec is None or not LEGENDARY_HUNTS_ENABLED:
                 return False
@@ -13528,16 +13543,18 @@ class Campaign:
             log(f"   [lap] pending-check for '{key}' unreadable ({e}) — counting it done (LOUD)")
             return False
 
-    _LAP_HUNT_SITE = {"moltres": (3, 12), "articuno": (3, 38), "zapdos": (3, 28)}
+    _LAP_HUNT_SITE = {"moltres": (3, 12), "articuno": (3, 38), "zapdos": (3, 28),
+                     "fly": (3, 6)}  # Celadon / Route 16 house
 
     def _lap_anchor_sets(self):
         """key -> anchor map-set for the hunt items (lazy import; empty dict on any fault)."""
         try:
             import legendary_strikes as _ls
             return {"moltres": _ls.MOLTRES_ANCHORS, "articuno": _ls.ARTICUNO_ANCHORS,
-                    "zapdos": _ls.ZAPDOS_ANCHORS}
+                    "zapdos": _ls.ZAPDOS_ANCHORS,
+                    "fly": {tuple(CELADON), (3, 34)}}  # Celadon + Route 16 (NOT Route 4)
         except Exception:
-            return {}
+            return {"fly": {tuple(CELADON), (3, 34)}}
 
     def _lap_item_cost(self, key, here):
         """FLUID-PLAN COST (2026-08-05 EMERGENCY, Jonny: \"the plan needs to be fluid — it
@@ -13553,10 +13570,18 @@ class Campaign:
         try:
             if key in ("earthquake", "box_bench", "repack"):
                 return 0 if key == "earthquake" else 1   # teach is in-place; PC work = a Center walk
+            # Fly teach-only (HM already in case) is in-place wherever she stands outdoors.
+            if key == "fly":
+                try:
+                    import hm_teach as _ht
+                    if _ht.tm_case_row(self.b, 340) is not None:
+                        return 0
+                except Exception:
+                    pass
             anch = self._lap_anchor_sets().get(key)
             if anch and here in anch:
                 return 0
-            site = CELADON if key == "eevee" else self._LAP_HUNT_SITE.get(key)
+            site = (CELADON if key in ("eevee", "fly") else self._LAP_HUNT_SITE.get(key))
             if site is None:
                 return 1
             if key == "eevee" and here == tuple(CELADON):
@@ -13651,8 +13676,61 @@ class Campaign:
         """The proactive gate object for a lap item (the SAME gates the forward-questline chain
         uses — anchors, questline payloads, self-suppression all included). None = suppressed."""
         fn = {"moltres": self._moltres_gate, "articuno": self._articuno_gate,
-              "zapdos": self._zapdos_gate, "eevee": self._eevee_gate}.get(key)
+              "zapdos": self._zapdos_gate, "eevee": self._eevee_gate,
+              "fly": self._fly_gate}.get(key)
         return fn(state) if fn else None
+
+    def _lap_ensure_fly(self, state):
+        """Victory-lap Fly: teach HM02 if already in the TM case, else open the Route 16
+        fetch questline. Returns a roam result string."""
+        import hm_teach as ht
+        import fly_nav
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        if fm.can_use(self.b, "fly", cnt):
+            log("   [lap] Fly already usable — checklist item clear")
+            return "ok"
+        # Teach path: HM in case (flag may already be set — _fly_gate would self-suppress).
+        if ht.tm_case_row(self.b, 340) is not None:
+            plan = fly_nav.teach_plan(self.b)
+            if plan is None:
+                self._lap_note_fail("fly", "no compatible party mon for HM02")
+                return "ok"
+            slot, forget, reason = plan
+            sp = st.read_party_species(self.b, slot)
+            mon = st.SPECIES_NAME.get(sp, f"slot{slot}")
+            log(f"   [lap] 🕊️ teaching HM02 Fly -> {mon} ({reason})")
+            self.on_event(f"okay — {mon} learns Fly. endgame just got a lot shorter.",
+                          kind="route", tier=2)
+            r = ht.TeachFlow(self, log=log, on_event=self.on_event).teach(
+                "fly", slot, forget_idx=forget)
+            if r == "taught":
+                (getattr(self, "_lap_fails", None) or {}).pop("fly", None)
+                self._refresh_world_caps()
+                return "ok"
+            self._lap_note_fail("fly", f"TeachFlow -> {r}")
+            return "ok"
+        # Fetch path: Route 16 house behind Cut tree.
+        gate = self._fly_gate(state)
+        if gate is None:
+            # Flag set but HM not in case / unreadable — bounded fail.
+            self._lap_note_fail("fly", "gate self-suppressed (HM not in case)")
+            return "ok"
+        cur = self._active_questline
+        if cur is not None and getattr(cur.gate, "missing", None) != "fly":
+            self._clear_questline(f"the victory lap's 'fly' outranks the parked "
+                                  f"'{getattr(cur.gate, 'missing', '?')}' errand")
+        if self._active_questline is None and not self._open_questline(gate, state):
+            self._lap_note_fail("fly", "questline would not open")
+            return "ok"
+        r = self._run_questline_step(state)
+        log(f"   [lap] 'fly' questline step -> {r}")
+        if not self._lap_pending("fly"):
+            (getattr(self, "_lap_fails", None) or {}).pop("fly", None)
+            log("   [lap] ✅ 'fly' DONE — the checklist re-derives next tick")
+        elif r in ("questline_unresolved", "questline_abandoned", "no_questline",
+                   "questline_strike_failed", "stuck", "failed"):
+            self._lap_note_fail("fly", r)
+        return r
 
     def _lap_eq_forget_idx(self, slot):
         """Pick the move Earthquake replaces: Teleport-class utility first, then charge moves
@@ -14015,6 +14093,27 @@ class Campaign:
             return self._lap_box_bench(state)
         if key == "repack":
             return self._lap_repack(state)
+        if key == "fly":
+            return self._lap_ensure_fly(state)
+        # Zapdos with Fly: warp to the Route 10 Center (Power Plant door is across the
+        # water strip). Chatter was right — Cerulean/R10 is the pad; walking from Seafoam
+        # is the long way. (Fly refuses underground — seafoam gate above already ran.)
+        if key == "zapdos":
+            try:
+                import fly_nav as _fn
+                _zh = tuple(tv.map_id(self.b))
+                _can = (_fn.fly_slot(self.b) is not None
+                        or self.world.has_cap("fly"))
+                if (_can and _zh not in ((3, 28), (1, 95)) and _zh[0] == 3):
+                    log(f"   [lap] ⚡ Fly → Route 10 Center for Zapdos "
+                        f"(from {_zh}) — chatter was right, Cerulean/R10 (LOUD)")
+                    _zr = self.fly_to("route10")
+                    if _zr != "arrived":
+                        _zr = self.fly_to("cerulean")
+                    log(f"   [lap] Zapdos fly staging -> {_zr} "
+                        f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
+            except Exception as _zfe:
+                log(f"   [lap] Zapdos fly staging skipped ({_zfe})")
         gate = self._lap_gate_for(key, state)
         if gate is None:
             # Owed by raw truth but the gate self-suppresses. Ball-thin is OURS to fix; any
@@ -15558,14 +15657,20 @@ class Campaign:
         cur = tuple(state["map"])
         if cur == dst:
             return "arrived"
-        # FLY (capability-gated, Phase 3): fast-travel to a visited town when she actually owns Fly.
-        if self.world.has_cap("fly") and self.world.is_town(dst):
+        # FLY (capability-gated): towns + Route 10 / Route 4 / Indigo pads via fly_nav.
+        # Underground/indoor refuses inside fly_to (Seafoam must climb out first).
+        if self.world.has_cap("fly"):
             try:
-                fr = self.fly_to(self.world.name(dst))
-                if fr not in ("not_owned", "stuck", None, False):
-                    log(f"   [roam] ✈️  FLEW to {self.world.name(dst)} -> {fr}")
-                    return "flew"
-                log(f"   [roam] fly to {self.world.name(dst)} unavailable ({fr}) — walking instead")
+                import fly_nav as _fn
+                if _fn.resolve_dest(dst) is not None:
+                    fr = self.fly_to(dst)
+                    if fr == "arrived":
+                        log(f"   [roam] ✈️  FLEW to {self.world.name(dst)} -> {fr}")
+                        return "flew"
+                    if fr not in ("not_owned", "not_outdoors", "unknown_city", None, False):
+                        log(f"   [roam] fly to {self.world.name(dst)} -> {fr} — walking instead")
+                    else:
+                        log(f"   [roam] fly to {self.world.name(dst)} unavailable ({fr}) — walking instead")
             except Exception as _fe:
                 log(f"   [roam] fly attempt errored ({_fe}) — walking instead")
         # NS#42: story-gate avoid here too — the general travel actuator (keeper errand + oracle travel:X
@@ -15922,7 +16027,14 @@ class Campaign:
             for mid, nm, why in self.world.travel_targets(cur, avoid=tavoid, want_traits=_traits)[:4]:
                 if tuple(mid) in _skip_grass:
                     continue
-                verb = "fly to" if (can_fly and self.world.is_town(mid)) else "head back to"
+                _fly_pad = False
+                if can_fly:
+                    try:
+                        import fly_nav as _fn
+                        _fly_pad = _fn.resolve_dest(mid) is not None
+                    except Exception:
+                        _fly_pad = self.world.is_town(mid)
+                verb = "fly to" if _fly_pad else "head back to"
                 a[f"travel:{mid[0]},{mid[1]}"] = f"{verb} {nm} — {why}"
             if GRIND_SPOT_LEVELAWARE:
                 try:
@@ -18653,6 +18765,27 @@ class Campaign:
                     self._clear_pre_hunt_promote(_hk, why="boot: already owned")
         except Exception as _cps:
             log(f"   [hunt] catch-pin sweep skipped: {_cps}")
+        # SEAFOAM BOOT EGRESS (2026-08-08): Articuno caught but still inside the cave —
+        # Fly is illegal underground and Zapdos has no graph route from B2F. Climb to
+        # Route 20 BEFORE the first roam tick (Jonny: "spawn her outside the seafoam cave").
+        try:
+            _boot_here = tuple(tv.map_id(self.b))
+            if _boot_here in self._SEAFOAM_DUNGEON:
+                _art_done = (ram.pokedex_owns(self.b, 144) is True
+                             or not self._lap_pending("articuno"))
+                if _art_done:
+                    log(f"   [roam] !! SEAFOAM BOOT EGRESS — Articuno spent, still inside "
+                        f"{_boot_here}@{tv.coords(self.b)}; climbing to Route 20 NOW (LOUD)")
+                    self.on_event("okay I'm done with this cave — climbing out to the beach, "
+                                  "THEN Cerulean for Zapdos.", kind="route", tier=2)
+                    if self._seafoam_surface_egress("boot"):
+                        log(f"   [roam] Seafoam boot egress OK → {tv.map_id(self.b)}@"
+                            f"{tv.coords(self.b)}")
+                    else:
+                        log(f"   [roam] !! Seafoam boot egress stalled at "
+                            f"{tv.map_id(self.b)}@{tv.coords(self.b)} — lap will retry (LOUD)")
+        except Exception as _sbe:
+            log(f"   [roam] Seafoam boot egress skipped: {_sbe}")
         # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
         # real progress (a badge, a new area, a catch), so the next GO resumes the CLIMB from where she
         # actually is. _camp_sig is the cheap progress fingerprint we diff each tick.
@@ -21950,10 +22083,11 @@ class Campaign:
     _SEAFOAM_DUNGEON = {(1, 83), (1, 84), (1, 85), (1, 86), (1, 87)}
 
     def _seafoam_surface_egress(self, label="seafoam-egress"):
-        """Climb Seafoam interiors to Route 20. ArticunoHunt.climb_out is the proven
-        column table; fall back to _exit_to_overworld. Returns True on R20 / overworld.
-        soak 20260807: heal-return prefer=south dug B2F→B3F→B4F; Zapdos questline from
-        B2F returned no_route forever."""
+        """Get OUT of Seafoam to Route 20 (Jonny: 'spawn her outside the seafoam cave').
+        Order: Escape Rope (item 85) if bagged → ArticunoHunt.climb_out →
+        _exit_to_overworld. Fly is ILLEGAL underground — surface first, then Fly
+        to Cerulean/R10 for Zapdos. soak 20260807: heal-return prefer=south dug
+        deeper; Zapdos from B2F was questline_no_route forever."""
         try:
             here = tuple(tv.map_id(self.b))
         except Exception:
@@ -21962,6 +22096,23 @@ class Campaign:
             return True
         if here not in self._SEAFOAM_DUNGEON:
             return self._exit_to_overworld()
+        # Escape Rope — instant dungeon exit to the entrance (R20 for Seafoam).
+        try:
+            import hm_teach as ht
+            if ht.items_pocket_qty(self.b, 85) > 0:
+                log(f"   [seafoam] Escape Rope in bag — using it for {label} (LOUD)")
+                self.on_event("okay, Escape Rope — get me OUT of this cave.",
+                              kind="route", tier=2)
+                r = ht.TeachFlow(self, log=log, on_event=self.on_event).field_escape_rope(
+                    max_seconds=60)
+                if r == "used" and tuple(tv.map_id(self.b))[0] == 3:
+                    log(f"   [seafoam] Escape Rope → {tv.map_id(self.b)}@"
+                        f"{tv.coords(self.b)}")
+                    return True
+                log(f"   [seafoam] Escape Rope -> {r} (still "
+                    f"{tv.map_id(self.b)}) — climbing instead")
+        except Exception as e:
+            log(f"   [seafoam] Escape Rope path skipped ({e})")
         try:
             from legendary_strikes import ArticunoHunt, R20
             hunt = ArticunoHunt(self, log, None)
