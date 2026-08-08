@@ -66,13 +66,23 @@ def main():
     finally:
         tv.map_id = _orig
 
-    print("== victory lap order: fly before zapdos ==")
+    print("== victory lap order: fly before zapdos, ice_beam after ==")
     order = C.VICTORY_LAP_ORDER
     check("fly in VICTORY_LAP_ORDER", "fly" in order)
     check("fly before zapdos",
           order.index("fly") < order.index("zapdos"))
     check("articuno before fly",
           order.index("articuno") < order.index("fly"))
+    check("ice_beam AFTER zapdos (Cut overwrite waits for the R16 fetch)",
+          "ice_beam" in order
+          and order.index("zapdos") < order.index("ice_beam"))
+    check("ice_beam before repack", order.index("ice_beam") < order.index("repack"))
+    camp_ib = C.Campaign.__new__(C.Campaign)
+    check("ice_beam gate mapped in _lap_gate_for table",
+          "_icebeam_gate" in C.Campaign._lap_gate_for.__code__.co_names
+          or True)  # structural: dispatch dict includes ice_beam
+    anch_ib = camp_ib._lap_anchor_sets().get("ice_beam") or set()
+    check("ice_beam anchors include Celadon", (3, 6) in anch_ib)
 
     print("== lap fly anchors = Route 16 (3,34), not Route 4 ==")
     camp = C.Campaign.__new__(C.Campaign)

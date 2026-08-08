@@ -460,7 +460,11 @@ VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
 # exist; the Celadon detour blocked League after Articuno and under-leveled the E4 floor.
 # Fly AFTER Articuno (must be outdoors — Seafoam blocks Fly) and BEFORE Zapdos so she
 # can warp to Cerulean / Route 10 instead of Surfing half of Kanto (Jonny 2026-08-08).
-VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "fly", "zapdos", "repack")
+# ice_beam AFTER zapdos: TM13 teach overwrites Blastoise's re-learned Cut, so the
+# Route 16 Fly fetch (Cut-gated) must be done first; the gate self-suppresses until
+# the coin budget is affordable (chat 2026-08-08: 'ice beam for blastoise for E4').
+VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "fly", "zapdos",
+                     "ice_beam", "repack")
 VICTORY_LAP_MAX_FAILS = int(os.getenv("POKEMON_VICTORY_LAP_FAILS", "6"))
 # Sticky exhausted-hunt set: proximity may unskip a thin-ball skip, but NEVER a hunt that
 # already burned VICTORY_LAP_MAX_FAILS (Seafoam B4F softlock — skip/unskip every tick).
@@ -13574,6 +13578,23 @@ class Campaign:
                 return self.b.rd8(ram.GPLAYER_PARTY_CNT) < 6
             if key == "eevee":
                 return EEVEE_FETCH_ENABLED and not fm.read_flag(b, 0x263)
+            if key == "ice_beam":
+                # TM13 for the ace (E4 coverage: Lance's dragons, Gary's Venusaur).
+                # Pending ONLY when teachable NOW (TM in case) or the full coin
+                # budget is affordable — a broke lap passes by WITHOUT latching a
+                # skip, so post-Zapdos money re-arms it automatically.
+                if not ICEBEAM_FETCH_ENABLED:
+                    return False
+                try:
+                    import game_corner as gc
+                    slot, why = gc.IceBeamErrand(self, log=log).pick_recipient()
+                    if slot is None or why == "already":
+                        return False
+                    if gc.tm_case_qty(b, gc.ITEM_TM13) > 0:
+                        return True
+                    return gc.ice_beam_cash_shortfall(self) <= 0
+                except Exception:
+                    return False
             if key == "fly":
                 # Fetch path only (usable/HM-ready handled above before the skip latch).
                 # Cut is re-teachable from the case (HM01=339) — only a party with no
@@ -13619,17 +13640,24 @@ class Campaign:
             return False
 
     _LAP_HUNT_SITE = {"moltres": (3, 12), "articuno": (3, 38), "zapdos": (3, 28),
-                     "fly": (3, 6)}  # Celadon / Route 16 house
+                     "fly": (3, 6), "ice_beam": (3, 6)}  # Celadon errands
 
     def _lap_anchor_sets(self):
         """key -> anchor map-set for the hunt items (lazy import; empty dict on any fault)."""
+        def _ib_anchors():
+            try:
+                import game_corner as _gc
+                return set(_gc.ICEBEAM_ANCHORS)
+            except Exception:
+                return {tuple(CELADON)}
         try:
             import legendary_strikes as _ls
             return {"moltres": _ls.MOLTRES_ANCHORS, "articuno": _ls.ARTICUNO_ANCHORS,
                     "zapdos": _ls.ZAPDOS_ANCHORS,
-                    "fly": {tuple(CELADON), (3, 34)}}  # Celadon + Route 16 (NOT Route 4)
+                    "fly": {tuple(CELADON), (3, 34)},  # Celadon + Route 16 (NOT Route 4)
+                    "ice_beam": _ib_anchors()}
         except Exception:
-            return {"fly": {tuple(CELADON), (3, 34)}}
+            return {"fly": {tuple(CELADON), (3, 34)}, "ice_beam": _ib_anchors()}
 
     def _lap_item_cost(self, key, here):
         """FLUID-PLAN COST (2026-08-05 EMERGENCY, Jonny: \"the plan needs to be fluid — it
@@ -13650,6 +13678,14 @@ class Campaign:
                 try:
                     import hm_teach as _ht
                     if _ht.tm_case_row(self.b, 340) is not None:
+                        return 0
+                except Exception:
+                    pass
+            # Ice Beam teach-only (TM13 already in case) is likewise in-place.
+            if key == "ice_beam":
+                try:
+                    import game_corner as _gc
+                    if _gc.tm_case_qty(self.b, _gc.ITEM_TM13) > 0:
                         return 0
                 except Exception:
                     pass
@@ -13752,7 +13788,7 @@ class Campaign:
         uses — anchors, questline payloads, self-suppression all included). None = suppressed."""
         fn = {"moltres": self._moltres_gate, "articuno": self._articuno_gate,
               "zapdos": self._zapdos_gate, "eevee": self._eevee_gate,
-              "fly": self._fly_gate}.get(key)
+              "fly": self._fly_gate, "ice_beam": self._icebeam_gate}.get(key)
         return fn(state) if fn else None
 
     def _lap_ensure_fly(self, state):
