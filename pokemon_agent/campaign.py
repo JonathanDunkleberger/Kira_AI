@@ -458,12 +458,15 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
 # CREDITS-FIRST order (2026-08-07): no Eevee — Jolteon is optional fluff once Zapdos/Moltres
 # exist; the Celadon detour blocked League after Articuno and under-leveled the E4 floor.
-# Fly AFTER Articuno (must be outdoors — Seafoam blocks Fly) and BEFORE Zapdos so she
-# can warp to Cerulean / Route 10 instead of Surfing half of Kanto (Jonny 2026-08-08).
+# Fly BEFORE box_bench (2026-08-08): the ONLY Cut-learner left is Diglett — box_bench wants
+# to bench it for the Zapdos seat, but Fly needs it FIRST to cut the Route 16 tree and fetch
+# HM02. So fly runs, teaches Cut->Diglett, fetches HM02, teaches Fly to a bird, and ONLY THEN
+# does box_bench bench Diglett. (Blastoise/Lapras/birds CANNOT learn Cut in this ROM — the
+# earlier "Blastoise re-learns Cut" assumption was wrong; verified against gTMHMLearnsets.)
 # ice_beam AFTER zapdos: TM13 teach overwrites Blastoise's re-learned Cut, so the
 # Route 16 Fly fetch (Cut-gated) must be done first; the gate self-suppresses until
 # the coin budget is affordable (chat 2026-08-08: 'ice beam for blastoise for E4').
-VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "fly", "zapdos",
+VICTORY_LAP_ORDER = ("earthquake", "fly", "box_bench", "moltres", "articuno", "zapdos",
                      "ice_beam", "repack")
 VICTORY_LAP_MAX_FAILS = int(os.getenv("POKEMON_VICTORY_LAP_FAILS", "6"))
 # Sticky exhausted-hunt set: proximity may unskip a thin-ball skip, but NEVER a hunt that

@@ -71,8 +71,8 @@ def main():
     check("fly in VICTORY_LAP_ORDER", "fly" in order)
     check("fly before zapdos",
           order.index("fly") < order.index("zapdos"))
-    check("articuno before fly",
-          order.index("articuno") < order.index("fly"))
+    check("fly before box_bench (Diglett must learn Cut before it's benched)",
+          order.index("fly") < order.index("box_bench"))
     check("ice_beam AFTER zapdos (Cut overwrite waits for the R16 fetch)",
           "ice_beam" in order
           and order.index("zapdos") < order.index("ice_beam"))
