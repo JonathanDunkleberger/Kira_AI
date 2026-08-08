@@ -135,6 +135,31 @@ def main():
     finally:
         tv.map_id, tv.coords = _om2, _oc2
 
+    print("== R20 mouth lockout: rope landing never walks back in ==")
+    camp3 = C.Campaign.__new__(C.Campaign)
+    camp3.b = b
+    camp3._blocked_npcs = set()
+    camp3._save_wedge_memory = lambda: None
+    camp3.render = None
+    pressed = []
+    b.press = lambda k, h, r, cb=None, owner=None: pressed.append(k)
+    b.run_frame = lambda: None
+    _om3, _oc3, _orw, _og = tv.map_id, tv.coords, tv.read_warps, tv.Grid
+    tv.map_id = lambda _b: (3, 38)
+    tv.coords = lambda _b: (60, 9)
+    tv.read_warps = lambda _b: [((60, 8), (1, 83), 0), ((72, 14), (1, 83), 1)]
+    tv.Grid = lambda _b: type("G", (), {"walkable": staticmethod(
+        lambda x, y: (x, y) != (60, 8))})()
+    try:
+        camp3._seafoam_mouth_lockout("test")
+        check("both R20 mouths blocked in wedge memory",
+              ((3, 38), (60, 8)) in camp3._blocked_npcs
+              and ((3, 38), (72, 14)) in camp3._blocked_npcs)
+        check("stepped away from the door (presses fired)", len(pressed) >= 1)
+        check("never pressed UP into the mouth", "UP" not in pressed)
+    finally:
+        tv.map_id, tv.coords, tv.read_warps, tv.Grid = _om3, _oc3, _orw, _og
+
     print("== fly pending: Cut re-teachable from case -> NOT skipped ==")
     import hm_teach as _ht
     camp2 = C.Campaign.__new__(C.Campaign)

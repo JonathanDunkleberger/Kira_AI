@@ -18842,9 +18842,9 @@ class Campaign:
         # Route 20 BEFORE the first roam tick (Jonny: "spawn her outside the seafoam cave").
         try:
             _boot_here = tuple(tv.map_id(self.b))
+            _art_done = (ram.pokedex_owns(self.b, 144) is True
+                         or not self._lap_pending("articuno"))
             if _boot_here in self._SEAFOAM_DUNGEON:
-                _art_done = (ram.pokedex_owns(self.b, 144) is True
-                             or not self._lap_pending("articuno"))
                 if _art_done:
                     log(f"   [roam] !! SEAFOAM BOOT EGRESS — Articuno spent, still inside "
                         f"{_boot_here}@{tv.coords(self.b)}; climbing to Route 20 NOW (LOUD)")
@@ -18856,6 +18856,10 @@ class Campaign:
                     else:
                         log(f"   [roam] !! Seafoam boot egress stalled at "
                             f"{tv.map_id(self.b)}@{tv.coords(self.b)} — lap will retry (LOUD)")
+            elif _boot_here == (3, 38) and _art_done:
+                # Booted OUTSIDE beside the mouth (the rope loop's landing) — lock the
+                # doors NOW, before the first travel leg BFS's back over the warp tile.
+                self._seafoam_mouth_lockout("boot-outside")
         except Exception as _sbe:
             log(f"   [roam] Seafoam boot egress skipped: {_sbe}")
         # BATCH 5 PHASE 1 — CAMPAIGN ANCHOR: bank her living save periodically + the moment she makes
@@ -22186,18 +22190,86 @@ class Campaign:
             log(f"   [bag] !! ensure item {item_id} failed ({e})")
             return 0
 
+    def _seafoam_mouth_lockout(self, label="mouth-lockout"):
+        """POST-EGRESS DOOR LAW (2026-08-08 LIVE, the rope↔door loop): the Escape Rope
+        drops her ONE TILE from the cave mouth; the next travel leg BFS'd straight
+        over the warp tile → back inside → rope again, forever. Block every Seafoam
+        mouth on this outdoor map in the unified wedge memory (travel routes around
+        blocked tiles) and physically step AWAY from the nearest door."""
+        try:
+            here = tuple(tv.map_id(self.b))
+            if here[0] != 3:
+                return
+            mouths = []
+            for w in (tv.read_warps(self.b) or []):
+                try:
+                    wt, wd = tuple(w[0]), tuple(w[1]) if len(w) > 1 else None
+                except Exception:
+                    continue
+                if wd in self._SEAFOAM_DUNGEON:
+                    mouths.append(wt)
+            if not mouths:
+                return
+            if not hasattr(self, "_blocked_npcs"):
+                self._blocked_npcs = set()
+            newly = [m for m in mouths if (here, m) not in self._blocked_npcs]
+            for m in mouths:
+                self._blocked_npcs.add((here, m))
+            if newly:
+                log(f"   [seafoam] 🚪 MOUTH LOCKOUT ({label}): blocked {newly} on "
+                    f"{here} — travel routes AROUND the cave now (LOUD)")
+                try:
+                    self._save_wedge_memory()
+                except Exception:
+                    pass
+            # Step away from the nearest mouth (the rope lands her adjacent to it).
+            cur = tuple(tv.coords(self.b) or ())
+            if not cur:
+                return
+            near = min(mouths, key=lambda m: abs(m[0] - cur[0]) + abs(m[1] - cur[1]))
+            if abs(near[0] - cur[0]) + abs(near[1] - cur[1]) > 3:
+                return
+            grid = tv.Grid(self.b)
+            best = None
+            for key, (dx, dy) in (("DOWN", (0, 1)), ("RIGHT", (1, 0)),
+                                  ("LEFT", (-1, 0)), ("UP", (0, -1))):
+                n = (cur[0] + dx, cur[1] + dy)
+                if n in mouths:
+                    continue
+                try:
+                    if not grid.walkable(*n):
+                        continue
+                except Exception:
+                    continue
+                d = abs(n[0] - near[0]) + abs(n[1] - near[1])
+                if best is None or d > best[0]:
+                    best = (d, key)
+            if best:
+                for _ in range(4):
+                    self.b.press(best[1], 8, 8, self.render, owner="agent")
+                    for _f in range(30):
+                        self.b.run_frame()
+                    if tuple(tv.map_id(self.b)) != here:
+                        break   # stepped through something — stop pressing
+                log(f"   [seafoam] stepped away from mouth {near} -> "
+                    f"{tv.coords(self.b)} via {best[1]}")
+        except Exception as e:
+            log(f"   [seafoam] mouth lockout skipped ({e})")
+
     def _seafoam_surface_egress(self, label="seafoam-egress"):
         """Get OUT of Seafoam to Route 20 (Jonny: 'spawn her outside the seafoam cave').
 
         LIVE 20260807 18:29: sealed B2F water (29,12) — climb had no path, Teleport
         is ILLEGAL in caves. Order: Escape Rope (inject if empty) → Dig if known →
         ArticunoHunt.climb_out (east re-drop) → _exit_to_overworld with redrop
-        allowed. Fly only works AFTER she's outdoors."""
+        allowed. Fly only works AFTER she's outdoors. Every success path runs the
+        MOUTH LOCKOUT so travel can never walk her straight back in (the rope loop)."""
         try:
             here = tuple(tv.map_id(self.b))
         except Exception:
             return False
         if here[0] == 3:
+            self._seafoam_mouth_lockout(f"{label}-already-out")
             return True
         if here not in self._SEAFOAM_DUNGEON:
             return self._exit_to_overworld()
@@ -22219,6 +22291,7 @@ class Campaign:
                 if r == "used" and tuple(tv.map_id(self.b))[0] == 3:
                     log(f"   [seafoam] Escape Rope → {tv.map_id(self.b)}@"
                         f"{tv.coords(self.b)}")
+                    self._seafoam_mouth_lockout(f"{label}-rope")
                     return True
                 log(f"   [seafoam] Escape Rope -> {r} (still "
                     f"{tv.map_id(self.b)}) — trying Dig / climb")
@@ -22249,6 +22322,7 @@ class Campaign:
                     drain_frames=600, fixed_row=0)
                 if r == "used" and _dug():
                     log(f"   [seafoam] Dig → {tv.map_id(self.b)}@{tv.coords(self.b)}")
+                    self._seafoam_mouth_lockout(f"{label}-dig")
                     return True
         except Exception as e:
             log(f"   [seafoam] Dig path skipped ({e})")
@@ -22259,6 +22333,7 @@ class Campaign:
             hunt.deadline = time.time() + 600
             if hunt.climb_out(label) and tuple(tv.map_id(self.b)) == tuple(R20):
                 log(f"   [seafoam] climb_out({label}) → Route 20")
+                self._seafoam_mouth_lockout(f"{label}-climb")
                 return True
         except Exception as e:
             log(f"   [seafoam] climb_out({label}) faulted ({e}) — exit-building fallback")
@@ -22266,11 +22341,15 @@ class Campaign:
         self._seafoam_allow_redrop = True
         try:
             if self._exit_to_overworld(max_tries=8):
+                self._seafoam_mouth_lockout(f"{label}-exitbuild")
                 return True
         finally:
             self._seafoam_allow_redrop = False
         try:
-            return tuple(tv.map_id(self.b))[0] == 3
+            if tuple(tv.map_id(self.b))[0] == 3:
+                self._seafoam_mouth_lockout(f"{label}-late")
+                return True
+            return False
         except Exception:
             return False
 
