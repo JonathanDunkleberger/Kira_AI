@@ -14388,6 +14388,8 @@ class Campaign:
             return _go("Saffron → Route 5", "travel:3,23", ban_r10=False)
         if here == ROUTE8:
             return _go("Route 8 → Saffron", "travel:3,10", ban_r10=True)
+        if here in ((3, 43), (3, 44)):            # Route 24/25 — dead-end maps NORTH of Cerulean
+            return _go("Route 24/25 → Cerulean", "travel:3,3", ban_r10=True)
 
         # Southern cluster (Fuchsia / R12–R15 / Lavender / …) and any other group-3
         # overworld that isn't already on the north pad: ban R10 so the graph never
