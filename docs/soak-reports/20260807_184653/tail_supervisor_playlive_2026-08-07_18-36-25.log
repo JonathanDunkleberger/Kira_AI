@@ -1,0 +1,268 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(1, 85) coords=(29, 12) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 8 blocked tile(s), 13 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=12752).
+
+   [soul] continuity loaded: 18 roster bond(s), 1076 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 154 place(s) known, 255 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] !! BOOT STATE SUSPECT — the loaded SAVE may be the problem, not the agent:
+
+   [campaign]    [roam] !!     - party critically low HP: slot1 FAINTED (0/110) — likely to blackout soon
+
+   [campaign]    [roam] !!     - spawn is INSIDE a building (1, 85)@(29, 12) (map group != 3) — no overworld route; head_to_gym would dead-end
+
+   [campaign]    [roam] !! (diagnostic only — proceeding; PART A/B recovery engages if it bites)
+
+   [campaign]    [roam] !! SEAFOAM BOOT EGRESS — Articuno spent, still inside (1, 85)@(29, 12); climbing to Route 20 NOW (LOUD)
+
+   [campaign]    [seafoam] !! ESCAPE ROPE INJECT x1 for boot (sealed pocket strand — LOUD)
+
+   [campaign]    [seafoam] Escape Rope x1 — ejecting for boot (LOUD)
+
+   [kira-voice] ·floor· (<1s since last) T2 'okay — Escape Rope, get me OUT of this cave. now.'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [rope] Escape Rope (bag row 6) from (1, 85)
+
+   [kira-voice] -> T2·savor· (route) "okay I'm done with this cave — climbing out to the beach, THEN Cerulean for Zapdos."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now "Kira, catch this side-ug for your Pokedex. You're gonna need 151. You're gonna need to catch every single Pokemon in the entire all 10 generations. It's gonna take us like fucking a decade."
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 10ms]
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (1, 85)@(29, 12) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [dialogue] +++ 'ESCAPE ROPE is selected.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ESCAPE ROPE is selected."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'KIRA used the ESCAPE ROPE. .'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "KIRA used the ESCAPE ROPE. ."'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [rope] VERIFIED late Escape Rope (1, 85) -> (3, 38)
+
+   [campaign]    [seafoam] Escape Rope → (3, 38)@(60, 9)
+
+   [campaign]    [roam] Seafoam boot egress OK → (3, 38)@(60, 9)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 38) coords=(60, 9) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260807_183705_route-20_8b_37h11m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'fly': no Cut — Route 16 Fly house is behind a tree — the lap moves on (never an infinite park)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'done', 'fly': 'SKIPPED', 'zapdos': 'pending', 'repack': 'done'} -> next: zapdos (cost-ordered from (3, 38))
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/zapdos → steps=['surf', 'zapdos'] actionable=zapdos (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught."
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'zapdos' — the pre-E4 checklist owns the errand slot (order: earthquake → box_bench → moltres → articuno → fly → zapdos → repack)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, abra, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (1, 85)@(29, 12) (reason=frozen_world, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [kira-voice] -> T2·savor· (route) "calling it on the fly side quest — no Cut — Route 16 Fly house is behind a tree. the League won't wait forever."  fired=True  [age 0.0s + post 1017ms]
+
+   [campaign]    [roam] wedge spot: blocking (29, 13) on (1, 85) (route around it) + marking (29, 12) a resolved talk-spot — unified block memory now 9 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "I've been stuck on the same spot going nowhere — backing off and trying something different."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 5
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] ⚡ Fly → Route 10 Center for Zapdos (from (3, 38)) — chatter was right, Cerulean/R10 (LOUD)
+
+   [campaign]    [fly] ✈ Route 10 Center from (3, 38)@(60, 9) (map Δ +10,-11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [fly] region map open (attempt 0)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [campaign]    [fly] !! timed out flying to Route 10 Center (LOUD)
+
+   [campaign]    [fly] ✈ Cerulean City from (3, 38)@(60, 9) (map Δ +6,-11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [fly] region map open (attempt 0)
+
+   [campaign]    [fly] !! timed out flying to Cerulean City (LOUD)
+
+   [campaign]    [lap] Zapdos fly staging -> failed (now (3, 38)@(60, 9))
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' anchors on Route 10 and we're at Route 20 — edge -> (3, 37) toward the anchor first
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 38) coords=(60, 9) -> map (3, 37) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] path blocked at (60, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (60, 9) AND no NPC-allowing path (npcs nearby=[(54, 11), (68, 3)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (60, 9) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [lap] 'zapdos' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 38)(60, 9) -> (3, 38)(60, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(3, 38) coords=(60, 9) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [periodic] -> checkpoints/20260807_184045_route-20_8b_37h14m_periodic  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 38): (60, 8)->(1, 83), (72, 14)->(1, 83)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 37) toward Route 15 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 20 (60, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L68, lapras L26, fearow L38, moltres L50, articuno L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 38) (60,9) f1 -- badge8 $1098 party:307c bag:1e6c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'heal', 'battle', 'wander_catch', 'talk_npc', 'travel:3,33', 'travel:3,36', 'travel:3,39', 'travel:3,32']
+
+   [campaign]    [roam] !! SURVIVAL HURT: 'Lapras is down (1 fainted) — patch up at the next Pokémon Center on the way, but the road comes first while the rest of the team is standing.' — surfacing 'heal' to the oracle
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] ⚡ Fly → Route 10 Center for Zapdos (from (3, 38)) — chatter was right, Cerulean/R10 (LOUD)
+
+   [campaign]    [fly] ✈ Route 10 Center from (3, 38)@(60, 9) (map Δ +10,-11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [fly] region map open (attempt 0)
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 342s, restart 1/8) — GAME CONTINUES; respawning audio.
+

@@ -1,0 +1,39 @@
+===== playlive_2026-08-07_18-36-25.log =====
+   [travel] start map=(3, 38) coords=(60, 9) -> map (3, 37) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+   [travel] path blocked at (60, 9) (NPC on the gap?) - waiting
+   [travel] no clean path from (60, 9) AND no NPC-allowing path (npcs nearby=[(54, 11), (68, 3)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (60, 9) map=(3, 38) (reason=no_route) -> returning to roam LOUD (no inner spin)
+===== playlive_2026-08-07_18-29-24.log =====
+   [travel] start map=(1, 85) coords=(29, 12) -> coord (29, 8) (budget 60s, surf-capable)
+   [travel] step 0: (29, 12)->(29, 11) map=(1, 85) (path 5 to exit)
+   [travel] reached target coord (29, 8)
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+   [travel] reached target coord (29, 9)
+   [play-live]    [engine] JUST FIGHT: L68 vs L30 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs psyduck 76/76 | [0]Bite(p60,pp=7,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] start map=(1, 85) coords=(29, 12) -> coord (29, 8) (budget 60s, surf-capable)
+   [travel] step 0: (29, 12)->(29, 11) map=(1, 85) (path 5 to exit)
+   [travel] reached target coord (29, 8)
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+   [travel] reached target coord (29, 9)
+   [travel] start map=(1, 85) coords=(29, 9) -> coord (29, 8) (budget 60s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] JUST FIGHT: L68 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Bite - a solid hit -> slot 0 (eff x1) vs psyduck 81/81 | [0]Bite(p60,pp=6,ref=0,sc=60) [1]Skull Bash(p100,pp=15,ref=0,sc=50) [2]Surf(p95*STAB,pp=13,ref=0,sc=35.625) [3]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Bite - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [travel] battle outcome=win; resuming pathfind
+   [travel] reached target coord (29, 8)
+   [travel] start map=(1, 85) coords=(29, 8) -> coord (29, 9) (budget 60s, surf-capable)
+   [travel] step 0: (29, 8)->(29, 9) map=(1, 85) (path 2 to exit)
+   [travel] reached target coord (29, 9)
+   [travel] start map=(1, 85) coords=(29, 12) -> coord (29, 8) (budget 60s, surf-capable)
+   [travel] step 0: (29, 12)->(29, 11) map=(1, 85) (path 5 to exit)
+   [travel] reached target coord (29, 8)
