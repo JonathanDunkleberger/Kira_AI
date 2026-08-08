@@ -1939,6 +1939,11 @@ def main():
                               for t in cands}
           and (29, 5) not in {t for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
                               for t in cands})
+    # Corridor (31,16) BEFORE sealed (31,4) — soak 20260807 post-Articuno B2F strand.
+    east_b3f_order = next(cands for _fl, cands, _d in LS.ARTICUNO_ASCENT_EAST
+                          if _fl == LS.B3F)
+    check("east ascent B3F prefers (31,16) corridor over sealed (31,4) pocket",
+          east_b3f_order[0] == (31, 16) and (31, 4) in east_b3f_order)
     # pret B3F Articuno dam: both hole-chains vanish into (6,18)/(9,18).
     calm_starts = {ch["start"] for ch in LS.ARTICUNO_B3F_CALM["chains"]}
     calm_vanish = {ch["start"] for ch in LS.ARTICUNO_B3F_CALM["chains"] if ch["vanish_ok"]}
@@ -2079,6 +2084,111 @@ def main():
                                  for t in cands})
     finally:
         LS.tv.map_id, LS.tv.coords = _mi40e, _co40e
+    # enter_step must NOT refuse the intentional target after step_off bans it
+    # (soak 20260807: ascent(8,17) banned itself → west climb dead).
+    logs40f, pressed40f = [], []
+    coords40f = [(8, 16)]
+    maps40f = [LS.B4F]
+    h40f = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40f.b = types.SimpleNamespace(
+        run_frame=lambda: None,
+        press=lambda key, *a, **k: (
+            pressed40f.append(key),
+            maps40f.__setitem__(0, LS.B3F) if key in ("UP", "DOWN", "LEFT", "RIGHT")
+            else None),
+        rd8=lambda *_: 0)
+    h40f.deadline = 1e18
+    h40f.log = lambda m: logs40f.append(m)
+    h40f.camp = types.SimpleNamespace(render=None)
+    h40f.drain = lambda *a, **k: None
+    h40f._banned_landings = {(LS.B4F, (8, 17))}  # already banned from a prior -pre
+    h40f.water_save = lambda g: set()
+    h40f.sea_ok = lambda g, w: (lambda sx, sy: True)
+    h40f.nav_blockers = lambda: set()
+    h40f.step_to = lambda tile, wset=None: (
+        coords40f.__setitem__(0, tile), True)[1]
+    h40f.step_off_landing = lambda label: True
+    h40f.sea_walk = lambda pred, tag, avoid=None: (
+        coords40f.__setitem__(0, (8, 16)), True)[1]
+    h40f.handle_interrupts = lambda: False
+    _rw40f, _co40f, _mi40f = LS.tv.read_warps, LS.tv.coords, LS.tv.map_id
+    _beh40f = getattr(LS.tv, "behavior_at", None)
+    _aw40f = getattr(LS.tv, "ARROW_WARP_STEP", None)
+    try:
+        LS.tv.coords = lambda _b: coords40f[0]
+        LS.tv.map_id = lambda _b: maps40f[0]
+        LS.tv.behavior_at = lambda _b, x, y: None
+        LS.tv.ARROW_WARP_STEP = {}
+        ok40f = h40f.enter_step((8, 17), LS.B3F, "ascent")
+        check("enter_step fires intentional target even when landing was banned",
+              ok40f is True
+              and maps40f[0] == LS.B3F
+              and not any("refusing banned landing" in l for l in logs40f)
+              and (LS.B4F, (8, 17)) not in h40f._banned_landings)
+    finally:
+        LS.tv.read_warps, LS.tv.coords, LS.tv.map_id = _rw40f, _co40f, _mi40f
+        if _beh40f is not None:
+            LS.tv.behavior_at = _beh40f
+        if _aw40f is not None:
+            LS.tv.ARROW_WARP_STEP = _aw40f
+    # climb_out from B2F east-upper (30,4): re-drop to B3F then east corridor table.
+    rides40g, enters40g = [], []
+    maps40g = [LS.B2F]
+    h40g = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40g.b = object()
+    h40g.log = lambda m: None
+    h40g._east_b4f_pocket = lambda: False
+    h40g._b2f_west_upper_pocket = lambda: False
+
+    def _enter40g(tile, dest, label):
+        enters40g.append((tile, dest, label))
+        if tile == (32, 4) and dest == LS.B3F:
+            maps40g[0] = LS.B3F
+            return True
+        return False
+
+    def _ride40g(table, goal, label):
+        rides40g.append((table, label))
+        if table is LS.ARTICUNO_ASCENT_EAST:
+            maps40g[0] = LS.R20
+            return True
+        return False
+
+    h40g.enter_step = _enter40g
+    h40g.ride = _ride40g
+    _mi40g, _co40g = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: maps40g[0]
+        LS.tv.coords = lambda _b: (30, 4)
+        ok40g = h40g.climb_out("ascent-alt")
+        check("climb_out from B2F (30,4) east pocket re-drops then rides EAST ascent",
+              ok40g is True
+              and any(t == (32, 4) and d == LS.B3F for t, d, _l in enters40g)
+              and rides40g
+              and rides40g[0][0] is LS.ARTICUNO_ASCENT_EAST
+              and maps40g[0] == LS.R20)
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40g, _co40g
+    # ArticunoHunt.run: caught but still inside → in_seafoam (not silent "caught" on B2F).
+    h40h = LS.ArticunoHunt.__new__(LS.ArticunoHunt)
+    h40h.b = object()
+    h40h.log = lambda m: None
+    h40h.spent_final = lambda: True
+    h40h.outcome = lambda: "caught"
+    h40h.ensure_b4f_calm = lambda: True
+    h40h.approach_bird = lambda: True
+    h40h.press_quarry = lambda: True
+    climbed40h = []
+    h40h.climb_out = lambda label: (climbed40h.append(label), False)[1]
+    _mi40h, _co40h = LS.tv.map_id, LS.tv.coords
+    try:
+        LS.tv.map_id = lambda _b: LS.B2F
+        LS.tv.coords = lambda _b: (30, 4)
+        out40h = h40h.run()
+        check("ArticunoHunt.run returns in_seafoam when caught but still inside",
+              out40h == "in_seafoam" and climbed40h == ["ascent"])
+    finally:
+        LS.tv.map_id, LS.tv.coords = _mi40h, _co40h
     # ride() must NOT keep fanning candidates after a surprise map flip (the yo-yo).
     # Simulate: on B1F, first cand "fails" but warps to B2F; second cand must NOT run
     # (old bug: any() kept going and stepped B1F's next tile — often an UP ladder).

@@ -2127,7 +2127,12 @@ class Campaign:
         if tuple(m)[0] != 3:
             log(f"   HEAL: inside a building complex {m} — exiting to the overworld before routing")
             try:
-                self._exit_to_overworld()
+                # Seafoam: Articuno column climb — generic south-prefer exit digs deeper
+                # (soak 20260807 HEAL-RETURN B2F→B3F→B4F yo-yo).
+                if tuple(m) in self._SEAFOAM_DUNGEON:
+                    self._seafoam_surface_egress("heal")
+                else:
+                    self._exit_to_overworld()
             except Exception as _xe:
                 log(f"   HEAL: exit-to-overworld crashed: {_xe!r} (LOUD)")
             m2 = tuple(tv.map_id(self.b))
@@ -2136,6 +2141,10 @@ class Campaign:
                     return ("ok" if self.heal_at_center(CITY_PC_DOORS[m2])
                             in ("healed", "healed_stuck_inside") else "stuck")
                 m = m2                      # continue the ladder from the street
+            elif tuple(m2) in self._SEAFOAM_DUNGEON:
+                log(f"   !! HEAL: still inside Seafoam {m2} after surface egress — "
+                    f"NOT falling through to Viridian south-warp dig (LOUD)")
+                return "stuck"
         # UNMAPPED map, ADJACENT-CITY FIRST (2026-07-06, the Route-6/S.S.-Anne lesson): the LIVE map
         # header knows neighbours she hasn't VISITED yet — the world graph below only routes VISITED
         # nodes, so a first approach to a new town (Route 6 hurt from the gauntlet, Vermilion one edge
@@ -2210,6 +2219,19 @@ class Campaign:
             finally:
                 self._suppress_heal, self.trav.battle_runner = saved, saved_runner
         # LAST resort: the old Viridian return, LOUD (constraint #3 — never silent-degrade)
+        # Seafoam interiors are not Viridian-south-warpable — that digs toward B4F.
+        if tuple(m) in self._SEAFOAM_DUNGEON or tuple(tv.map_id(self.b)) in self._SEAFOAM_DUNGEON:
+            log(f"   !! HEAL: no Center route from Seafoam {tv.map_id(self.b)} — "
+                f"refusing Viridian south-warp fallback (would dig deeper) (LOUD)")
+            if self._seafoam_surface_egress("heal-fallback"):
+                m3 = tuple(tv.map_id(self.b))
+                if m3 in CITY_PC_DOORS:
+                    return ("ok" if self.heal_at_center(CITY_PC_DOORS[m3])
+                            in ("healed", "healed_stuck_inside") else "stuck")
+                # On R20 — continue heal ladder from the street next call / below
+                if m3[0] == 3:
+                    return self.return_to_center() if m3 not in CITY_PC_DOORS else "ok"
+            return "stuck"
         log(f"   !! HEAL: no graph route to any known Center from {m} — FALLBACK to a cross-region "
             f"Viridian heal (FIX: add {m}'s PC door to CITY_PC_DOORS)")
         return "ok" if self.return_to_center() not in ("stuck", "battle_loss") else "stuck"
@@ -3151,6 +3173,14 @@ class Campaign:
                     continue                       # crossed an edge toward Viridian
                 if out == "battle_loss":
                     return "battle_loss"           # blacked out en route -> auto-heals at Viridian
+                # Seafoam has no Viridian edge — south-prefer digs B2F→B4F (soak 20260807).
+                if m in self._SEAFOAM_DUNGEON:
+                    log(f"   HEAL-RETURN leg {leg}: inside Seafoam {m} — surface egress "
+                        f"(NOT warp-{edge_leg})")
+                    if not self._seafoam_surface_egress(f"heal-return-{leg}"):
+                        log(f"   !! HEAL-RETURN stuck in Seafoam {tv.map_id(self.b)} (LOUD)")
+                        return "stuck"
+                    continue
                 log(f"   HEAL-RETURN leg {leg}: no {edge_leg} edge on map {m} - warping {edge_leg}")
                 if self.enter_warp(prefer=edge_leg) != "warped":
                     log(f"   !! HEAL-RETURN stuck on map {m} (no {edge_leg} edge, no {edge_leg} warp)")
@@ -13928,6 +13958,24 @@ class Campaign:
         key = self._victory_lap_next(state)
         if key is None:
             return "lap_done"
+        # SEAFOAM SURFACE GATE (soak 20260807): post-Articuno climb_out can leave her on
+        # B2F with the bird already owned. Zapdos / repack / League have no graph route from
+        # inside Seafoam → questline_no_route forever. Climb to R20 BEFORE arming the next
+        # errand (articuno itself still owns the dungeon while it's the owed key).
+        try:
+            _here_lap = tuple(tv.map_id(self.b))
+        except Exception:
+            _here_lap = None
+        if (key != "articuno" and _here_lap in getattr(self, "_SEAFOAM_DUNGEON", ())):
+            log(f"   [lap] !! still inside Seafoam {_here_lap}@{tv.coords(self.b)} with "
+                f"'{key}' owed — climbing to Route 20 BEFORE the questline (LOUD)")
+            if self._seafoam_surface_egress(f"lap-{key}"):
+                log(f"   [lap] Seafoam egress OK → {tv.map_id(self.b)}@"
+                    f"{tv.coords(self.b)}; continuing '{key}'")
+            else:
+                log(f"   [lap] !! Seafoam egress stalled at {tv.map_id(self.b)}@"
+                    f"{tv.coords(self.b)} — retry next tick (not Zapdos-from-B2F)")
+                return "questline_no_route"
         # Sevii ownership: ride-home only owns the turn AFTER the bird is spent. An honest
         # skip from a thin Ultra pocket must NOT park the lap on articuno while she's still
         # on One Island with no boat home armed (2026-08-06 live strand — 200+ RED ticks).
@@ -21900,6 +21948,36 @@ class Campaign:
     # Seafoam interiors (pret map_groups): deeper floors have HIGHER map nums.
     # Exit must climb toward F1 (1,83) / R20 — never re-drop toward B4F (1,87).
     _SEAFOAM_DUNGEON = {(1, 83), (1, 84), (1, 85), (1, 86), (1, 87)}
+    _SEAFOAM_SURFACE = (3, 41)  # Route 20
+
+    def _seafoam_surface_egress(self, label="seafoam-egress"):
+        """Climb Seafoam interiors to Route 20. ArticunoHunt.climb_out is the proven
+        column table; fall back to _exit_to_overworld. Returns True on R20 / overworld.
+        soak 20260807: heal-return prefer=south dug B2F→B3F→B4F; Zapdos questline from
+        B2F returned no_route forever."""
+        try:
+            here = tuple(tv.map_id(self.b))
+        except Exception:
+            return False
+        if here[0] == 3:
+            return True
+        if here not in self._SEAFOAM_DUNGEON:
+            return self._exit_to_overworld()
+        try:
+            from legendary_strikes import ArticunoHunt, R20
+            hunt = ArticunoHunt(self, log, None)
+            hunt.deadline = time.time() + 600
+            if hunt.climb_out(label) and tuple(tv.map_id(self.b)) == tuple(R20):
+                log(f"   [seafoam] climb_out({label}) → Route 20")
+                return True
+        except Exception as e:
+            log(f"   [seafoam] climb_out({label}) faulted ({e}) — exit-building fallback")
+        if self._exit_to_overworld(max_tries=8):
+            return True
+        try:
+            return tuple(tv.map_id(self.b))[0] == 3
+        except Exception:
+            return False
 
     def _step_off_arrival_warp(self):
         """Ladder landing law (Jonny 2026-08-07): FRLG leaves you ON the warp tile.
