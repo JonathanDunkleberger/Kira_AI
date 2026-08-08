@@ -1,4 +1,4 @@
-resume_marathon 20260808_112743  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260808_120015  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 git branch at start: cursor/endgame-credits-path-bdbc
 == git fetch origin ==
@@ -6,16 +6,17 @@ git branch at start: cursor/endgame-credits-path-bdbc
 == git pull ==
 Already up to date.
 
-running commit: d0f6d2d fix(gates): fly HM anchor was Fuchsia (3,7) - should be Celadon (3,6)
+running commit: ed0af00 fix(lap): kill-switch the Fly fetch (house-entry unwired) so she walks to Zapdos
 running branch: cursor/endgame-credits-path-bdbc
 == crash forensics ==
 == logs\debug listing (newest 25) ==
 
 Name                            LastWriteTime        Length
 ----                            -------------        ------
+console_2026-08-08_11-27-52.log 8/8/2026 11:43:18 AM 112861
+latest.log                      8/8/2026 11:43:18 AM 112861
+playlive_faulthandler.log       8/8/2026 11:28:50 AM  18920
 console_2026-08-08_11-17-39.log 8/8/2026 11:27:42 AM  72697
-latest.log                      8/8/2026 11:27:42 AM  72697
-playlive_faulthandler.log       8/8/2026 11:18:38 AM  18810
 console_2026-08-08_10-07-25.log 8/8/2026 10:19:36 AM 110384
 console_2026-08-07_20-20-26.log 8/7/2026 8:25:30 PM   51071
 console_2026-08-07_20-07-33.log 8/7/2026 8:17:24 PM   87564
@@ -37,13 +38,12 @@ console_2026-08-07_11-25-07.log 8/7/2026 11:31:47 AM  52925
 console_2026-08-07_11-19-28.log 8/7/2026 11:19:31 AM    568
 console_2026-08-06_22-27-42.log 8/6/2026 10:31:19 PM  36614
 console_2026-08-06_21-43-41.log 8/6/2026 10:21:26 PM 358051
-console_2026-08-06_21-34-29.log 8/6/2026 9:43:27 PM   80711
 
 
 
-tailed newest debug log: console_2026-08-08_11-17-39.log
+tailed newest debug log: console_2026-08-08_11-27-52.log
+tailed supervisor log: playlive_2026-08-08_11-28-50.log
 tailed supervisor log: playlive_2026-08-08_11-18-38.log
-tailed supervisor log: playlive_2026-08-08_10-09-15.log
 extracted engine forensics -> engine_tail.log
 == sandbox inventory (G:\temp\kira_watch) ==
 [1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
@@ -53,13 +53,13 @@ extracted engine forensics -> engine_tail.log
     last activity: 07/28/2026 12:57:41
     badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
 == canonical campaign ==
-    last activity: 08/08/2026 11:27:42
-    badges=8 party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] place=Route 18 played=2300min timeline=sherpa
+    last activity: 08/08/2026 11:43:17
+    badges=8 party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] place=a building off Route 16 played=2314min timeline=sherpa
 == campaign snapshot inventory (*.state, newest first) ==
 
 Name                             LastWriteTime         Length
 ----                             -------------         ------
-kira_campaign.state              8/8/2026 11:27:42 AM  397312
+kira_campaign.state              8/8/2026 11:42:48 AM  397312
 pre_deepwedge_1786159496.state   8/7/2026 8:24:56 PM   397312
 pre_reload_20260807_202449.state 8/7/2026 8:24:49 PM   397312
 pre_reload_20260807_202444.state 8/7/2026 8:24:44 PM   397312
@@ -180,28 +180,28 @@ seg_opening.state                7/28/2026 2:02:29 PM 397312
 
 == auto-checkpoint inventory (newest 20) ==
 
-Name                                                  LastWriteTime       
-----                                                  -------------       
-20260808_112742_route-18_8b_38h20m_gain-new-area      8/8/2026 11:27:42 AM
-20260808_112741_fuchsia-city_8b_38h19m_gain-new-area  8/8/2026 11:27:41 AM
-20260808_112721_route-18_8b_38h19m_gain-new-area      8/8/2026 11:27:21 AM
-20260808_112720_fuchsia-city_8b_38h19m_gain-new-area  8/8/2026 11:27:20 AM
-20260808_112703_route-18_8b_38h19m_gain-new-area      8/8/2026 11:27:03 AM
-20260808_112657_fuchsia-city_8b_38h19m_gain-new-area  8/8/2026 11:26:58 AM
-20260808_112642_route-18_8b_38h19m_gain-new-area      8/8/2026 11:26:42 AM
-20260808_112641_fuchsia-city_8b_38h18m_gain-new-area  8/8/2026 11:26:41 AM
-20260808_112619_route-18_8b_38h18m_periodic           8/8/2026 11:26:19 AM
-20260808_112353_route-18_8b_38h16m_gain-new-area      8/8/2026 11:23:53 AM
-20260808_112346_fuchsia-city_8b_38h16m_gain-new-area  8/8/2026 11:23:46 AM
-20260808_112205_route-15_8b_38h14m_gain-new-area      8/8/2026 11:22:05 AM
-20260808_112142_route-14_8b_38h14m_gain-new-area      8/8/2026 11:21:42 AM
-20260808_112054_route-13_8b_38h13m_gain-new-area      8/8/2026 11:20:54 AM
-20260808_111913_route-12_8b_38h11m_gain-new-area      8/8/2026 11:19:13 AM
-20260808_111840_lavender-town_8b_38h10m_roam-start    8/8/2026 11:18:40 AM
-20260808_101929_lavender-town_8b_38h11m_gain-new-area 8/8/2026 10:19:29 AM
-20260808_101921_route-12_8b_38h10m_gain-new-area      8/8/2026 10:19:21 AM
-20260808_101920_lavender-town_8b_38h10m_gain-new-area 8/8/2026 10:19:21 AM
-20260808_101913_route-12_8b_38h10m_gain-new-area      8/8/2026 10:19:13 AM
+Name                                                         LastWriteTime       
+----                                                         -------------       
+20260808_114220_route-16_8b_38h33m_periodic                  8/8/2026 11:42:20 AM
+20260808_113905_route-16_8b_38h30m_gain-new-area             8/8/2026 11:39:05 AM
+20260808_113904_celadon-city_8b_38h30m_gain-new-area         8/8/2026 11:39:04 AM
+20260808_113846_route-16_8b_38h29m_gain-new-area             8/8/2026 11:38:46 AM
+20260808_113845_celadon-city_8b_38h29m_gain-new-area         8/8/2026 11:38:45 AM
+20260808_113829_route-16_8b_38h29m_gain-new-area             8/8/2026 11:38:29 AM
+20260808_113823_celadon-city_8b_38h29m_gain-new-area         8/8/2026 11:38:23 AM
+20260808_113809_route-16_8b_38h29m_gain-new-area             8/8/2026 11:38:09 AM
+20260808_113808_celadon-city_8b_38h29m_gain-new-area         8/8/2026 11:38:08 AM
+20260808_113707_route-16_8b_38h28m_periodic                  8/8/2026 11:37:07 AM
+20260808_113422_route-16_8b_38h25m_gain-new-area             8/8/2026 11:34:22 AM
+20260808_113409_celadon-city_8b_38h25m_gain-new-area         8/8/2026 11:34:09 AM
+20260808_113401_route-7_8b_38h25m_gain-new-area              8/8/2026 11:34:01 AM
+20260808_113342_the-underground-path_8b_38h24m_gain-new-area 8/8/2026 11:33:42 AM
+20260808_113325_the-underground-path_8b_38h24m_gain-new-area 8/8/2026 11:33:25 AM
+20260808_113315_the-underground-path_8b_38h24m_gain-new-area 8/8/2026 11:33:15 AM
+20260808_113259_route-8_8b_38h24m_gain-new-area              8/8/2026 11:32:59 AM
+20260808_113256_lavender-town_8b_38h24m_gain-new-area        8/8/2026 11:32:56 AM
+20260808_113123_route-12_8b_38h22m_gain-new-area             8/8/2026 11:31:23 AM
+20260808_113038_route-13_8b_38h21m_gain-new-area             8/8/2026 11:30:38 AM
 
 
 
@@ -210,12 +210,12 @@ Name                                                  LastWriteTime
 FullName                                                                                                                             LastWriteTime        
 --------                                                                                                                             -------------        
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                                                   6/26/2026 4:11:48 PM 
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/8/2026 11:27:42 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/8/2026 11:43:17 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423                                                         7/29/2026 9:04:20 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      8/7/2026 6:31:10 PM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427                                                          7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                                                  7/15/2026 12:12:19 PM
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/8/2026 11:27:42 AM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/8/2026 11:42:20 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427                       7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\checkpoints                                             7/29/2026 8:59:40 AM 
@@ -271,35 +271,3 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 >> no PROMOTE_TARGET.txt -- defaulting to CANONICAL launch (canonical save as-is).
 == push soak report (this can take ~30s; console stays quiet on purpose) ==
 == push soak report ==
-[cursor/endgame-credits-path-bdbc 99f83f8] report(soak): 20260808_112743 inventory/rescue (auto from resume_marathon.ps1)
- 10 files changed, 4682 insertions(+)
- create mode 100644 docs/soak-reports/20260808_112743/canonical_health.json
- create mode 100644 docs/soak-reports/20260808_112743/engine_tail.log
- create mode 100644 docs/soak-reports/20260808_112743/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260808_112743/resume_marathon.log
- create mode 100644 docs/soak-reports/20260808_112743/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260808_112743/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260808_112743/tail_console_2026-08-08_11-17-39.log
- create mode 100644 docs/soak-reports/20260808_112743/tail_supervisor_playlive_2026-08-08_10-09-15.log
- create mode 100644 docs/soak-reports/20260808_112743/tail_supervisor_playlive_2026-08-08_11-18-38.log
-branch 'cursor/endgame-credits-path-bdbc' set up to track 'origin/cursor/endgame-credits-path-bdbc'.
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:534 char:5
-+     git push -u origin $pushBranch
-+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   40a5bb1..99f83f8  cursor/endgame-credits-path-bdbc -> cursor/endgame-credits-path-bdbc
-
-push soak report finished (branch=cursor/endgame-credits-path-bdbc; see log if git complained).
-== launching bot (window 1) ==
-    expect: a PowerShell titled roughly 'python run.py' + browser dashboard at :8766
-waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
-    still waiting for bot... (15s)
-    still waiting for bot... (30s)
-bot is up. == launching supervised marathon (window 2) ==
-    expect: a PowerShell for supervisor.py, THEN the FireRed / mGBA game window
-She is live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking.
-If the GAME window never appears: look at window 2 for a Traceback (ROM path / SDL / mgba).
-To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T

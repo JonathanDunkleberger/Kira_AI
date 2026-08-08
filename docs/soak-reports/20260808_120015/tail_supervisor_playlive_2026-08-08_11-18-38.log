@@ -1,0 +1,1500 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(48, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (48, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (48, 9) AND no NPC-allowing path (npcs nearby=[(39, 12), (41, 15), (46, 14)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (48, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(48, 9) -> (3, 36)(48, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick12] -> campaign/kira_campaign.state  (map=(3, 36) coords=(48, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 13/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (48, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 36) (48,9) f4 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Fly from the hidden house on Route 16'
+
+   [campaign]    [soul] ORACLE pick -> 'Fly from the hidden house on Route 16'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Fly from the hidden house on Route 16'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(48, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (48, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (48, 9) AND no NPC-allowing path (npcs nearby=[(39, 12), (41, 15), (46, 14)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (48, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(48, 9) -> (3, 36)(48, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 14/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (48, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 36) (48,9) f4 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(48, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (48, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (48, 9) AND no NPC-allowing path (npcs nearby=[(39, 12), (41, 15), (46, 14)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (48, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(48, 9) -> (3, 36)(48, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick14] -> campaign/kira_campaign.state  (map=(3, 36) coords=(48, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 15/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (48, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 36) (48,9) f4 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (fly) — abandoning the errand; re-recognizing fresh
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'fly' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'fly' dispatch failed (questline_abandoned) — bounded attempt 2/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (3, 36)(48, 9) -> (3, 36)(48, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/fly → steps=['FLAG_GOT_SS_TICKET', 'cut', 'fly'] actionable=fly (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 'Okay — to get past this I need HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns.'
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'fly' — the pre-E4 checklist owns the errand slot (order: earthquake → fly → box_bench → moltres → articuno → zapdos → ice_beam → repack)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T1·brisk· (route) "hm — this plan's going nowhere from here. let me rethink."  fired=True  [age 0.0s + post 87ms]
+
+   [campaign] -- ROAM TICK 16/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (48, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 36) (48,9) f4 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Fly HM from Route 16 hidden house'
+
+   [campaign]    [soul] ORACLE pick -> 'Fly HM from Route 16 hidden house'
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'questline_abandoned', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Fly HM from Route 16 hidden house'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Fuchsia City is the live east connection of Route 18 — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(48, 9) -> map (3, 7) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [8, 9, 10]
+
+   [travel] step 0: (48, 9)->(49, 9) map=(3, 36) (path 13 to exit)
+
+   [travel] step 10: (58, 9)->(59, 9) map=(3, 36) (path 3 to exit)
+
+   [travel] MAP TRANSITION (3, 36) -> (3, 7)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 7) coords=(0, 19)
+
+   [campaign]    [lap] 'fly' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 36)(48, 9) -> (3, 7)(0, 19) (MOVED)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 7) coords=(0, 19) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_112641_fuchsia-city_8b_38h18m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 17/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (0, 19) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (0,19) f4 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,36', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(0, 19) -> map (3, 36) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] MAP TRANSITION (3, 7) -> (3, 36)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 36) coords=(59, 9)
+
+   [campaign]    [lap] 'fly' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 7)(0, 19) -> (3, 36)(59, 9) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_112642_route-18_8b_38h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 18/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick18] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 19/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Fly HM from Route 16 hidden house'
+
+   [campaign]    [soul] ORACLE pick -> 'Fly HM from Route 16 hidden house'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (want) 'Fly HM from Route 16 hidden house'  fired=True  [age 0.0s + post 18ms]
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 20/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick20] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 21/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 22/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Fly from Route 16 hidden house'
+
+   [campaign]    [soul] ORACLE pick -> 'Fly from Route 16 hidden house'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Fly from Route 16 hidden house'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick22] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 23/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (fly) — abandoning the errand; re-recognizing fresh
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "hm — this plan's going nowhere from here. let me rethink."
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'fly' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'fly' dispatch failed (questline_abandoned) — bounded attempt 3/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/fly → steps=['FLAG_GOT_SS_TICKET', 'cut', 'fly'] actionable=fly (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'fly' — the pre-E4 checklist owns the errand slot (order: earthquake → fly → box_bench → moltres → articuno → zapdos → ice_beam → repack)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) 'Okay — to get past this I need HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns.'  fired=True  [age 0.0s + post 27ms]
+
+   [campaign] -- ROAM TICK 24/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'questline_abandoned', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Fuchsia City is the live east connection of Route 18 — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 7) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [8, 9, 10]
+
+   [travel] step 0: (59, 9)->(0, 19) map=(3, 36) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 36) -> (3, 7)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 7) coords=(0, 19)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [lap] 'fly' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 36)(59, 9) -> (3, 7)(0, 19) (MOVED)
+
+   [campaign]    [roam] !!!! SEAM-THRASH BREAKER: crossed the Fuchsia City↔Route 18 border 3x in 120s with no badge progress — Route 18 is NO-GO for the session; hard-committing the FORWARD objective for the next 8 builds
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay, I've been pacing the same border like a lost tourist — enough. Picking a direction and COMMITTING: forward, next objective, go."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 7) coords=(0, 19) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_112657_fuchsia-city_8b_38h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (7 builds left): forced head_to_gym, pruned ['battle', 'travel:1,63', 'travel:3,32', 'travel:3,33', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 25/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (0, 19) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (0,19) f4 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'stock_up', 'head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Fuchsia City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Fuchsia City — outdoors under open sky (a town with a Pokémon Center and a Mart).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 7), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Get HM Fly from Route 16 hidden house'
+
+   [campaign]    [soul] ORACLE pick -> 'Get HM Fly from Route 16 hidden house'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym   [kira-voice] -> T2·savor· (want) 'Get HM Fly from Route 16 hidden house'  fired=True  [age 0.0s + post 5ms]
+
+
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(0, 19) -> map (3, 36) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] MAP TRANSITION (3, 7) -> (3, 36)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 36) coords=(59, 9)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 7)(0, 19) -> (3, 36)(59, 9) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_112703_route-18_8b_38h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! SEAM-COMMIT (6 builds left): forced head_to_gym, pruned ['battle', 'travel:1,63', 'travel:3,31', 'travel:3,32', 'travel:3,33', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 26/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 36) right after riding in from (3, 7) — BOTH legs parked for the session (strikes persist across visits)
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay, this road just dead-ends into water and rock — no getting through here the straight way. I'll find another route and come back when I can cross."
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick26] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! SEAM-COMMIT (5 builds left): forced head_to_gym, pruned ['battle', 'travel:1,63', 'travel:3,31', 'travel:3,32', 'travel:3,33', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 27/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 36) right after riding in from (3, 7) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! SEAM-COMMIT (4 builds left): forced head_to_gym, pruned ['battle', 'travel:1,63', 'travel:3,31', 'travel:3,32', 'travel:3,33', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['victory_lap']
+
+   [campaign] -- ROAM TICK 28/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get to Route 16 hidden house and grab Fly'
+
+   [campaign]    [soul] ORACLE pick -> 'get to Route 16 hidden house and grab Fly'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'get to Route 16 hidden house and grab Fly'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick28] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! SEAM-COMMIT (3 builds left): forced head_to_gym, pruned ['battle', 'travel:1,63', 'travel:3,31', 'travel:3,32', 'travel:3,33', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['victory_lap']
+
+   [campaign] -- ROAM TICK 29/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! SEAM-COMMIT (2 builds left): forced head_to_gym, pruned ['battle', 'travel:1,63', 'travel:3,31', 'travel:3,32', 'travel:3,33', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['victory_lap']
+
+   [campaign] -- ROAM TICK 30/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick30] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! SEAM-COMMIT (1 builds left): forced head_to_gym, pruned ['battle', 'travel:1,63', 'travel:3,31', 'travel:3,32', 'travel:3,33', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['victory_lap']
+
+   [campaign] -- ROAM TICK 31/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Fly HM from the hidden house on Route 16'
+
+   [campaign]    [soul] ORACLE pick -> 'Fly HM from the hidden house on Route 16'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Fly HM from the hidden house on Route 16'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (fly) — abandoning the errand; re-recognizing fresh
+
+   [kira-voice] ·floor· (<1s since last) T1 "hm — this plan's going nowhere from here. let me rethink."
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'fly' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'fly' dispatch failed (questline_abandoned) — bounded attempt 4/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/fly → steps=['FLAG_GOT_SS_TICKET', 'cut', 'fly'] actionable=fly (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 'Okay — to get past this I need HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns.'
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'fly' — the pre-E4 checklist owns the errand slot (order: earthquake → fly → box_bench → moltres → articuno → zapdos → ice_beam → repack)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! SEAM-COMMIT (0 builds left): forced head_to_gym, pruned ['battle', 'travel:1,63', 'travel:3,31', 'travel:3,32', 'travel:3,33', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['victory_lap']
+
+   [campaign] -- ROAM TICK 32/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'questline_abandoned', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Fuchsia City is the live east connection of Route 18 — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 7) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [8, 9, 10]
+
+   [travel] step 0: (59, 9)->(0, 19) map=(3, 36) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 36) -> (3, 7)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 7) coords=(0, 19)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [lap] 'fly' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 36)(59, 9) -> (3, 7)(0, 19) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 36) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 7) coords=(0, 19) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_112720_fuchsia-city_8b_38h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 33/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (0, 19) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (0,19) f4 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(0, 19) -> map (3, 36) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] MAP TRANSITION (3, 7) -> (3, 36)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 36) coords=(59, 9)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [lap] 'fly' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 7)(0, 19) -> (3, 36)(59, 9) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 7) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_112721_route-18_8b_38h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 34/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Get HM Fly from the hidden house on Route 16'
+
+   [campaign]    [soul] ORACLE pick -> 'Get HM Fly from the hidden house on Route 16'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Get HM Fly from the hidden house on Route 16'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick34] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 35/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 36/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick36] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 37/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Get Fly from the hidden house on Route 16'
+
+   [campaign]    [soul] ORACLE pick -> 'Get Fly from the hidden house on Route 16'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Get Fly from the hidden house on Route 16'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 38/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [campaign]    [roam] 🧭 QUESTLINE EXPLORE: no west edge from (3, 36) — the route bends; crossing N into unexplored (3, 35) toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 35) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]
+
+   [travel] path blocked at (59, 9) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (59, 9) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (59, 9) map=(3, 36) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [lap] 'fly' questline step -> no_path
+
+   [campaign]    [roam] RESULT: victory_lap -> no_path | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick38] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 39/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] !! QUESTLINE NO-PROGRESS ×5 (fly) — abandoning the errand; re-recognizing fresh
+
+   [campaign]    [roam] questline cleared (no-progress abandon)
+
+   [campaign]    [lap] 'fly' questline step -> questline_abandoned
+
+   [campaign]    [lap] 'fly' dispatch failed (questline_abandoned) — bounded attempt 5/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_abandoned | pos (3, 36)(59, 9) -> (3, 36)(59, 9) (NO MOVEMENT)
+
+   [kira-voice] -> T1·brisk· (route) "hm — this plan's going nowhere from here. let me rethink."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/fly → steps=['FLAG_GOT_SS_TICKET', 'cut', 'fly'] actionable=fly (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 'Okay — to get past this I need HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns.'
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'fly' — the pre-E4 checklist owns the errand slot (order: earthquake → fly → box_bench → moltres → articuno → zapdos → ice_beam → repack)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign] -- ROAM TICK 40/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [soul] surface_want FIRE -> Route 18
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 36), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Get Fly from the hidden house on Route 16'
+
+   [campaign]    [soul] ORACLE pick -> 'Get Fly from the hidden house on Route 16'
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'questline_abandoned', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Get Fly from the hidden house on Route 16'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Fuchsia City is the live east connection of Route 18 — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 36) coords=(59, 9) -> map (3, 7) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [8, 9, 10]
+
+   [travel] step 0: (59, 9)->(0, 19) map=(3, 36) (path 2 to exit)
+
+   [travel] MAP TRANSITION (3, 36) -> (3, 7)
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] ARRIVED at target map (3, 7) coords=(0, 19)
+
+   [kira-voice] ·floor· (<1s since last) T1 'made it to a new area'
+
+   [campaign]    [lap] 'fly' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 36)(59, 9) -> (3, 7)(0, 19) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 36) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 7) coords=(0, 19) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_112741_fuchsia-city_8b_38h19m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 11 warp(s) on (3, 7): (24, 5)->(11, 0), (33, 31)->(11, 7), (11, 15)->(11, 1), (28, 16)->(11, 2), (9, 32)->(11, 3), (14, 31)->(11, 4)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing east -> (3, 33) toward Route 15 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 41/100000000 --
+
+   [campaign]    [roam] STATE IN: Fuchsia City (0, 19) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 7) (0,19) f4 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] !!!! BORDER PING-PONG BREAKER (strike 1): 12 border crossings among [(3, 7), (3, 31), (3, 32), (3, 33), (3, 36)] with ZERO world progress — clearing the errand, forgetting 'proven' connectors on these maps, holding head_to_gym off them for 120s LOUD
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay, stop — I've been pacing the same doors like a lost tourist. deep breath. new plan from the top."
+
+   [campaign]    [roam] questline cleared (border ping-pong breaker)
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'stock_up', 'travel:3,33', 'travel:3,32', 'travel:1,63']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/fly → steps=['FLAG_GOT_SS_TICKET', 'cut', 'fly'] actionable=fly (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 'Okay — to get past this I need HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns.'
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns' — heading WEST toward the lone house on Route 16, behind a small tree west of Celadon (Cut it to reach her) (success=('cap', 'fly'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 7) coords=(0, 19) -> map (3, 36) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 19, 20, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] MAP TRANSITION (3, 7) -> (3, 36)
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+   [travel] ARRIVED at target map (3, 36) coords=(59, 9)
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'made it to a new area'
+
+   [campaign]    [lap] 'fly' questline step -> arrived
+
+   [campaign]    [roam] RESULT: victory_lap -> arrived | pos (3, 7)(0, 19) -> (3, 36)(59, 9) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 7) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 36) coords=(59, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_112742_route-18_8b_38h20m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 36): (41, 9)->(26, 0), (48, 9)->(26, 0)
+
+   [campaign]    [lap] checklist owes 'fly' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! BORDER PING-PONG HOLD: ['victory_lap'] off the menu on this thrashed map (119s left) — the breaker owns the rhythm
+
+   [campaign] -- ROAM TICK 42/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 18 (59, 9) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 36) (59,9) f3 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 18 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: NORTH → an unexplored area (unexplored); EAST → Fuchsia City — a Mart, a Pokémon Center. Places you\'ve been with wild Pokémon you can walk back to: Route 15; Route 14; the Safari Zone. You can walk to anywhere you\'ve already been. You have SURF — you can cross water. Field moves ready: CUT, STRENGTH.. Okay — to get past this I need HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. All 8 badges are yours — the Elite Four is the final challenge before the credits. Word on the road about the Elite Four: the Elite Four open with an ice-and-water lady — folks say lightning and grass are how you slip past her; and then the dragon master himself — and everyone says the same thing: ice is the only thing a dragon truly fears. YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): All eight Gym Badges are yours. The Elite Four and the Champion are the summit.. Time to pick up my zapdos from Power Plant (static L50 — Surf up the Route 10 water from the east bank). This has been on the plan since the start.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and push forward to the next objective. Next: FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road. Bigger picture: Take on the Elite Four. Your team right now: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST HM Fly — a girl in the hidden house on Route 16, just west of Celadon behind a cuttable tree, teaches your team to fly you between towns — the gym comes right after; that errand is the road', 'long': 'Take on the Elite Four'}, 'strategy': "1) WAR PREP: the Elite Four is five fights with NO Center between them — full restores, revives, ethers, and a levelled WHOLE team, or don't walk in.\n2) TEAM BUILD: zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO.\n3) DEX PUSH: 19/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['battle', 'wander_catch', 'travel:3,33', 'travel:3,32', 'travel:1,63', 'travel:3,31']
+
