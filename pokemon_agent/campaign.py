@@ -14316,48 +14316,6 @@ class Campaign:
                         f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
             except Exception as _zfe:
                 log(f"   [lap] Zapdos fly staging skipped ({_zfe})")
-            # NORTH STAGING (2026-08-07 19:41 LIVE, the Kanto orbit): Route 10 is a
-            # SPLIT map — the Power Plant water strip is only enterable from the
-            # NORTH segment (Rock Tunnel Center side), but Lavender's north edge
-            # lands the SOUTH segment (y≈79) where the strike reads 'no path from
-            # (11,79)' forever. The graph can't see the split, so from the southern
-            # cluster ride the overworld loop R8 → Saffron → R5 → Cerulean → R9
-            # with Route 10 BANNED from routing; R9's east edge enters R10 NORTH.
-            try:
-                _nzh = tuple(tv.map_id(self.b))
-                _nzy = (tv.coords(self.b) or (0, 0))[1]
-                if _nzh == (3, 28) and _nzy > 50:
-                    log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: on R10 SOUTH segment "
-                        f"(y={_nzy}) — dropping to Lavender to ride the Saffron–"
-                        f"Cerulean loop (LOUD)")
-                    _r = self.trav.travel(target_map=(3, 4), edge="south",
-                                          max_seconds=180)
-                    return f"stage:{_r}"
-                if _nzh in ((3, 4), (3, 30), (3, 31)):
-                    log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: from {_nzh} riding the "
-                        f"graph to Route 9 (Route 10 BANNED — south segment trap)")
-                    self._extra_travel_avoid = {(3, 28)}
-                    try:
-                        _r = self._travel_to_known("travel:3,27", state,
-                                                   hunt_on_arrival=False)
-                        if _r == "no_route":
-                            _r = self._travel_to_known("travel:3,3", state,
-                                                       hunt_on_arrival=False)
-                    finally:
-                        self._extra_travel_avoid = set()
-                    if _r == "no_route":
-                        self._lap_note_fail("zapdos", "north staging no_route")
-                    return f"stage:{_r}"
-            except Exception as _zns:
-                log(f"   [lap] Zapdos north staging skipped ({_zns})")
-            # NORTH-HALF STAGING (2026-08-08 LIVE, the all-night Kanto lap): Route 10 is
-            # SPLIT by Rock Tunnel. Entering from Lavender lands the SOUTH half (y≈79);
-            # the Power Plant door (7,40) is reachable ONLY by surfing from the NORTH
-            # half (the pond by the Rock Tunnel Center). The strike's plant-door
-            # approach reads 'no path' from the south and the KB step then walks her
-            # BACK south — the loop that circled Kanto for an hour. Ride the graph the
-            # long way: Lavender → Route 8 → Saffron → Route 5 → Cerulean → Route 9 →
-            # Route 10 NORTH. One leg per tick; each leg is proven machinery.
             _sr = self._zapdos_north_staging(state)
             if _sr is not None:
                 return _sr
@@ -14394,6 +14352,59 @@ class Campaign:
                    "questline_strike_failed", "stuck", "failed"):
             self._lap_note_fail(key, r)
         return r
+
+    def _zapdos_north_staging(self, state):
+        """NORTH-HALF STAGING (2026-08-08 LIVE, the all-night Kanto lap): Route 10 is a
+        SPLIT map — Rock Tunnel separates the halves and the world graph can't see it.
+        Entering from Lavender's north edge lands the SOUTH half (y≈79); the Power Plant
+        door (7,40) is reachable ONLY by surfing from the NORTH half (the pond by the
+        Rock Tunnel Center). From the south the strike reads 'no path from (11,79)'
+        forever and the walk-back re-enters south — the loop that circled Kanto for an
+        hour. So: on the south half, drop to Lavender; anywhere else, ride the graph the
+        long way (Lavender → Route 8 → Saffron → Route 5 → Cerulean → Route 9) with
+        Route 10 BANNED from routing (_extra_travel_avoid); R9's east edge enters R10
+        NORTH, and from R9 itself the questline's anchor-first machinery owns the final
+        edge. One leg per tick; each leg is proven machinery. Returns a roam result
+        ('stage:*' / 'ok') while staging owns the tick, or None when the strike/questline
+        owns from here. Never raises — any fault falls through to the gate machinery."""
+        try:
+            here = tuple(tv.map_id(self.b))
+            y = (tv.coords(self.b) or (0, 0))[1]
+        except Exception as _nze:
+            log(f"   [lap] Zapdos north staging unreadable ({_nze}) — questline owns")
+            return None
+        if here == (1, 95):
+            return None                       # inside the Plant — the strike owns
+        if here == (3, 28):
+            if y > 50:
+                log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: on R10 SOUTH segment (y={y}) — "
+                    f"dropping to Lavender to ride the Saffron–Cerulean loop (LOUD)")
+                try:
+                    _r = self.trav.travel(target_map=(3, 4), edge="south",
+                                          max_seconds=180)
+                except Exception as _zde:
+                    log(f"   [lap] Zapdos south-drop errored ({_zde}) — retry next tick")
+                    return "ok"
+                return f"stage:{_r}"
+            return None                       # NORTH half — the strike owns from here
+        if here == (3, 27):
+            return None                       # Route 9 — one edge from R10 NORTH
+        try:
+            log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: from {here} riding the graph to "
+                f"Route 9 (Route 10 BANNED — south segment trap) (LOUD)")
+            self._extra_travel_avoid = {(3, 28)}
+            try:
+                _r = self._travel_to_known("travel:3,27", state, hunt_on_arrival=False)
+                if _r == "no_route":
+                    _r = self._travel_to_known("travel:3,3", state, hunt_on_arrival=False)
+            finally:
+                self._extra_travel_avoid = set()
+            if _r == "no_route":
+                self._lap_note_fail("zapdos", "north staging no_route")
+            return f"stage:{_r}"
+        except Exception as _zns:
+            log(f"   [lap] Zapdos north staging skipped ({_zns})")
+            return None
 
     def _lap_order_party_for_e4(self):
         """DELIBERATE E4 party order (2026-08-04): ace first, then every fighter by level

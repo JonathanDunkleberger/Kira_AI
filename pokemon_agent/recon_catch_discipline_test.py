@@ -2230,6 +2230,94 @@ def main():
               any("map flipped" in l or "warped off-rail" in l for l in logs40))
     finally:
         LS.tv.map_id = _mid40
+
+    print("== 41. ZAPDOS NORTH STAGING: the split-map fix (the missing-method crash) ==")
+    # b7e32ad shipped the call `self._zapdos_north_staging(state)` WITHOUT the method ->
+    # AttributeError every victory_lap tick (soak 20260807_202018), the lap wedged on
+    # zapdos forever. Route 10 is SPLIT by Rock Tunnel: Lavender's north edge lands the
+    # SOUTH half (y~79) where the strike reads 'no path from (11,79)'; the Power Plant
+    # door is reachable only from the NORTH half. Staging: south -> drop to Lavender;
+    # anywhere else -> ride the graph to Route 9 with R10 BANNED; R10-north/R9/Plant ->
+    # None (strike/questline owns). Never raises.
+    camp41 = C.Campaign.__new__(C.Campaign)
+    camp41.b = object()
+    camp41._lap_fails = {}
+    check("method EXISTS (the crash fix)",
+          callable(getattr(camp41, "_zapdos_north_staging", None)))
+    _orig_map41, _orig_co41 = C.tv.map_id, C.tv.coords
+    try:
+        C.tv.map_id = lambda _b: (3, 28)
+        C.tv.coords = lambda _b: (11, 79)
+        travels41 = []
+
+        class _Trav41:
+            def travel(self, target_map=None, edge=None, max_seconds=None):
+                travels41.append((target_map, edge))
+                return "arrived"
+
+        camp41.trav = _Trav41()
+        r41a = camp41._zapdos_north_staging({"map": (3, 28)})
+        check("R10 SOUTH (y=79) -> drop to Lavender (3,4), stage:*",
+              r41a == "stage:arrived" and travels41 == [((3, 4), "south")])
+        C.tv.coords = lambda _b: (10, 20)
+        check("R10 NORTH (y=20) -> None (the strike owns from here)",
+              camp41._zapdos_north_staging({"map": (3, 28)}) is None)
+        C.tv.map_id = lambda _b: (1, 95)
+        C.tv.coords = lambda _b: (5, 10)
+        check("inside the Plant -> None (strike in progress)",
+              camp41._zapdos_north_staging({"map": (1, 95)}) is None)
+        C.tv.map_id = lambda _b: (3, 27)
+        check("on Route 9 -> None (questline owns the final edge)",
+              camp41._zapdos_north_staging({"map": (3, 27)}) is None)
+        # Fuchsia (the live crash site): ride to Route 9 with R10 BANNED, ban cleared after.
+        C.tv.map_id = lambda _b: (3, 7)
+        C.tv.coords = lambda _b: (20, 30)
+        picks41, avoid41 = [], []
+
+        def _ttk41(pick, state, hunt_on_arrival=True):
+            picks41.append(pick)
+            avoid41.append(set(getattr(camp41, "_extra_travel_avoid", set())))
+            return "traveling"
+
+        camp41._travel_to_known = _ttk41
+        r41e = camp41._zapdos_north_staging({"map": (3, 7)})
+        check("Fuchsia -> stage:*, rides to R9 with R10 BANNED, ban cleared after",
+              r41e == "stage:traveling"
+              and picks41 == ["travel:3,27"]
+              and avoid41 == [{(3, 28)}]
+              and getattr(camp41, "_extra_travel_avoid", None) == set())
+        # no_route fallback: R9 unreachable -> Cerulean; both dead -> bounded fail noted.
+        picks41.clear()
+
+        def _ttk41b(pick, state, hunt_on_arrival=True):
+            picks41.append(pick)
+            return "no_route"
+
+        camp41._travel_to_known = _ttk41b
+        fails41 = []
+        camp41._lap_note_fail = lambda key, why: fails41.append((key, why))
+        r41f = camp41._zapdos_north_staging({"map": (3, 7)})
+        check("no_route -> Cerulean fallback -> bounded fail noted, stage:no_route",
+              r41f == "stage:no_route"
+              and picks41 == ["travel:3,27", "travel:3,3"]
+              and fails41 == [("zapdos", "north staging no_route")])
+        # A raising _travel_to_known must NOT re-create the crash — fail-safe None.
+        def _ttk41c(pick, state, hunt_on_arrival=True):
+            raise RuntimeError("graph exploded")
+
+        camp41._travel_to_known = _ttk41c
+        check("travel exception -> None (fail-safe, never raises)",
+              camp41._zapdos_north_staging({"map": (3, 7)}) is None
+              and getattr(camp41, "_extra_travel_avoid", None) == set())
+
+        def _bad41(_b):
+            raise RuntimeError("RAM flake")
+
+        C.tv.map_id = _bad41
+        check("unreadable map -> None (fail-safe)",
+              camp41._zapdos_north_staging({"map": (3, 7)}) is None)
+    finally:
+        C.tv.map_id, C.tv.coords = _orig_map41, _orig_co41
     print()
 
     if FAILS:
