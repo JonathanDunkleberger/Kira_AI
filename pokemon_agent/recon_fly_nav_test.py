@@ -135,6 +135,35 @@ def main():
     finally:
         tv.map_id, tv.coords = _om2, _oc2
 
+    print("== fly pending: Cut re-teachable from case -> NOT skipped ==")
+    import hm_teach as _ht
+    camp2 = C.Campaign.__new__(C.Campaign)
+    camp2.b = b
+    camp2._lap_skipped = {"fly"}          # previously latched 'no Cut'
+    camp2.world = type("W", (), {"has_cap": staticmethod(lambda n: False)})()
+    _otc, _opk, _ocu = _ht.tm_case_row, st.party_knows_move, C.fm.can_use
+    try:
+        # HM02 NOT in case, flag clear, nobody knows Cut — but HM01 IS in the case.
+        _ht.tm_case_row = lambda _b, item: (0 if item == 339 else None)
+        st.party_knows_move = lambda _b, m, c=6: None
+        C.fm.can_use = lambda _b, k, c=6: False
+        _orf = C.fm.read_flag
+        C.fm.read_flag = lambda _b, f: False
+        camp2._lap_skip = lambda k, why: camp2._lap_skipped.add(k)
+        pend = camp2._lap_pending("fly")
+        check("HM01 in case -> fly PENDING (Cut teach-in-place unblocks fetch)",
+              pend is True)
+        check("stale 'no Cut' skip refunded", "fly" not in camp2._lap_skipped)
+        # No HM01 anywhere -> genuine dead end, honest skip.
+        camp2._lap_skipped = set()
+        _ht.tm_case_row = lambda _b, item: None
+        pend2 = camp2._lap_pending("fly")
+        check("no Cut + no HM01 -> honest skip", pend2 is False
+              and "fly" in camp2._lap_skipped)
+    finally:
+        _ht.tm_case_row, st.party_knows_move, C.fm.can_use = _otc, _opk, _ocu
+        C.fm.read_flag = _orf
+
     if check.fails:
         print(f"\n{check.fails} FAILED")
         sys.exit(1)

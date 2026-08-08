@@ -13463,7 +13463,7 @@ class Campaign:
         try:
             b = self.b
             # Fly skip refund MUST run before the skip latch — LIVE 18:37 latched
-            # 'no Cut' while she already had a flyer; pending stayed False forever.
+            # 'no Cut' while the chain was actually viable; pending stayed False forever.
             if key == "fly":
                 cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
                 if fm.can_use(b, "fly", cnt):
@@ -13474,6 +13474,11 @@ class Campaign:
                     if (_ht.tm_case_row(b, 340) is not None or fm.read_flag(b, 568)):
                         (getattr(self, "_lap_skipped", None) or set()).discard("fly")
                         return True
+                    # Cut re-teachable from the case → fetch viable → refund the latch.
+                    if (_ht.tm_case_row(b, 339) is not None
+                            or self.world.has_cap("cut")
+                            or st.party_knows_move(b, 15, cnt) is not None):
+                        (getattr(self, "_lap_skipped", None) or set()).discard("fly")
                 except Exception:
                     pass
             if key in getattr(self, "_lap_skipped", set()):
@@ -13522,9 +13527,19 @@ class Campaign:
                 return EEVEE_FETCH_ENABLED and not fm.read_flag(b, 0x263)
             if key == "fly":
                 # Fetch path only (usable/HM-ready handled above before the skip latch).
+                # Cut is re-teachable from the case (HM01=339) — only a party with no
+                # Cut AND no HM01 in the case is a genuine dead end.
                 cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
-                if st.party_knows_move(b, 15, cnt) is None and not self.world.has_cap("cut"):
-                    self._lap_skip(key, "no Cut — Route 16 Fly house is behind a tree")
+                if (st.party_knows_move(b, 15, cnt) is None
+                        and not self.world.has_cap("cut")):
+                    try:
+                        import hm_teach as _ht2
+                        if _ht2.tm_case_row(b, 339) is not None:
+                            return True          # Cut teach-in-place unblocks the fetch
+                    except Exception:
+                        pass
+                    self._lap_skip(key, "no Cut and no HM01 in the case — Route 16 "
+                                        "Fly house unreachable")
                     return False
                 return True
             spec = self._LAP_HUNT_SPEC.get(key)
@@ -13720,6 +13735,30 @@ class Campaign:
                 return "ok"
             self._lap_note_fail("fly", f"TeachFlow -> {r}")
             return "ok"
+        # CUT PREREQ (2026-08-08, the endgame party swap): the Route 16 house is behind
+        # a Cut tree and the CURRENT party (Blastoise/Lapras/birds) lost Cut when the
+        # old ace was benched. HM01 lives in the TM case forever — re-teach it NOW so
+        # the fetch gate arms (else _fly_gate returns None and the lap parks).
+        if not self.world.has_cap("cut") and ht.tm_case_row(self.b, 339) is not None:
+            cut_plan = ht.default_plan(self.b, "cut", cnt)
+            if cut_plan is None:
+                self._lap_note_fail("fly", "no party mon can re-learn HM01 Cut")
+                return "ok"
+            c_slot, c_forget, c_reason = cut_plan
+            c_mon = st.SPECIES_NAME.get(st.read_party_species(self.b, c_slot),
+                                        f"slot{c_slot}")
+            log(f"   [lap] ✂️ re-teaching HM01 Cut -> {c_mon} ({c_reason}) — "
+                f"the Route 16 Fly house is behind a tree (LOUD)")
+            self.on_event(f"one tree between me and Fly — {c_mon}, you're learning "
+                          f"Cut again.", kind="route", tier=2)
+            rc = ht.TeachFlow(self, log=log, on_event=self.on_event).teach(
+                "cut", c_slot, forget_idx=c_forget)
+            if rc == "taught":
+                self._refresh_world_caps()
+                log("   [lap] Cut re-taught — the 'fly' fetch gate arms next step")
+            else:
+                self._lap_note_fail("fly", f"Cut re-teach -> {rc}")
+                return "ok"
         # Fetch path: Route 16 house behind Cut tree.
         gate = self._fly_gate(state)
         if gate is None:
@@ -18770,6 +18809,19 @@ class Campaign:
         except Exception as _ws:
             log(f"   [world] seed/caps skipped: {_ws}")
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
+        # BOOT MENU-CLOSE (2026-08-08 LIVE, the Summary stare): a save banked mid-menu
+        # (party SUMMARY / bag) leaves CB2 off-overworld and every travel/lap actuator
+        # mashes a dead screen. B-cascade to the overworld before anything else runs.
+        try:
+            if not ram.battle_cb2_dead(self.b) and not st.in_battle(self.b):
+                log("   [roam] !! BOOT MENU-CLOSE: screen is off-overworld (menu save) — "
+                    "B-cascading out before the first action (LOUD)")
+                import hm_teach as _htbc
+                _f = _htbc.TeachFlow(self, log=log, on_event=self.on_event)
+                _f._b_cascade(12)
+                _f._confirm_world_back("boot-menu-close")
+        except Exception as _bmc:
+            log(f"   [roam] boot menu-close skipped: {_bmc}")
         # LEGENDARY REWIND (2026-08-05 EMERGENCY): a battled-away-but-uncaught quarry with a
         # 'pre-<key>' bank resumes INTO the encounter — before the anchor below banks, before
         # any lap/questline machinery can read the fought flag as 'done' and wander off.
