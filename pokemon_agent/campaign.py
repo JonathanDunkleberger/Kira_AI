@@ -14418,6 +14418,8 @@ class Campaign:
             return _go("Underground Path → Route 8", "travel:3,26", ban_r10=True)
         if here == (20, 0):                       # Saffron gatehouse (Route 8 <-> Saffron)
             return _go("Saffron gatehouse → Saffron", "travel:3,10", ban_r10=True)
+        if here == (17, 1):                       # Saffron gatehouse (Saffron <-> Route 5)
+            return _go("Saffron gatehouse → Route 5", "travel:3,23", ban_r10=True)
 
         return None
 
