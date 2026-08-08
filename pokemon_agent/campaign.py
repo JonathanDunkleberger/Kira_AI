@@ -9998,6 +9998,38 @@ class Campaign:
                 return 0                    # mid-battle items are battle_agent's flow, never ours
             if dd_box_open(self.b):
                 return 0                    # scripted scene / open box — never fight the script
+            # FIELD REVIVE FIRST (2026-08-08, Jonny: 'lapras is dead — revive her'):
+            # a fainted teammate keeps SURVIVAL HURT firing hard recoveries (the
+            # heal-return that walked into Seafoam), and a corpse refuses potions.
+            # Revive(24)/Max Revive(25) from the bag, bounded, before any potion pass.
+            try:
+                import hm_teach as _htr
+                for s, hp, mx, _frac in (self.party_health() or []):
+                    if hp > 0:
+                        continue
+                    _rid = next((i for i in (24, 25)
+                                 if _htr.items_pocket_qty(self.b, i) > 0), None)
+                    if _rid is None:
+                        if time.time() >= getattr(self, "_revive_empty_logged", 0):
+                            self._revive_empty_logged = time.time() + 600
+                            log("   [revive] fainted teammate but NO Revive in the bag — "
+                                "honest skip (Center owns it)")
+                        break
+                    _nm = st.SPECIES_NAME.get(st.read_party_species(self.b, s),
+                                              f"slot{s}").title()
+                    log(f"   [revive] {reason}: {_nm} is DOWN — using "
+                        f"{'Max Revive' if _rid == 25 else 'Revive'} from the bag NOW")
+                    self.on_event(f"{_nm} is down and I'm carrying a Revive — okay, "
+                                  f"up you get. no Center detours.", kind="heal", tier=1)
+                    _rr = _htr.TeachFlow(self, log=log,
+                                         on_event=self.on_event).field_revive(_rid, s)
+                    if _rr != "revived":
+                        self._field_heal_backoff = time.time() + 600
+                        log(f"   [revive] !! bag-drive -> {_rr} — backing off 10 min (LOUD)")
+                        break
+                    healed_n += 1
+            except Exception as _rvx:
+                log(f"   [revive] pass skipped: {_rvx}")
             voiced = False
             for _pass in range(FIELDHEAL_MAX_PER_SEAM):
                 tgt = self._field_heal_pick(top_up=top_up)
