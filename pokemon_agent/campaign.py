@@ -14323,6 +14323,147 @@ class Campaign:
             self._lap_note_fail(key, "withdraw pulled nothing")
         return "ok"
 
+    def _zapdos_cut_ready(self):
+        """True iff a party member knows Cut (the Route 9 tree can be cleared). Read-only,
+        fail-closed to False (a read flake routes into the Cut-prep, never into the tree)."""
+        try:
+            import field_moves as _fmv
+            return bool(_fmv.can_use(self.b, "cut"))
+        except Exception:
+            return False
+
+    def _clear_route9_seam(self):
+        """Reset the seam-thrash breaker for the Cerulean<->Route 9 seam so she can walk
+        cleanly across Route 9 to Route 10 NORTH. The breaker no-go'd Route 9 when the
+        Cut-tree wedge made her ping-pong the border; once Cut is in hand that ban is stale
+        and must be lifted or the north staging can never cross. Clears the pair from
+        _seam_broken, lifts Route 9 (and Cerulean) out of _seam_nogo, drops the forced
+        head_to_gym commit, and forgets the crossing history for that seam."""
+        try:
+            pair = frozenset((tuple(CERULEAN), tuple(ROUTE9)))
+            sb = getattr(self, "_seam_broken", None)
+            if sb and pair in sb:
+                sb.discard(pair)
+                log("   [lap] ✂️ seam-breaker: cleared the Cerulean↔Route 9 NO-GO pair "
+                    "(Cut is in hand — the border war is over)")
+            nogo = getattr(self, "_seam_nogo", None)
+            if nogo:
+                for m in (tuple(ROUTE9), tuple(CERULEAN)):
+                    if m in nogo:
+                        nogo.discard(m)
+            if getattr(self, "_seam_commit_ticks", 0):
+                self._seam_commit_ticks = 0
+            sh = getattr(self, "_seam_hist", None)
+            if sh:
+                self._seam_hist = [e for e in sh if e[1] != pair]
+        except Exception as e:
+            log(f"   [lap] seam-breaker reset skipped ({e})")
+
+    def _zapdos_cut_prep(self, state):
+        """Cut-prep state machine for the Zapdos north path. Route 9's cuttable tree needs a
+        Cut user; the only Cut-learner is Diglett and box_bench benched it. State machine
+        (one step per tick, tracked in _zapdos_cut_stage):
+          0 -> ensure HM01 is in the case; locate Diglett in the box; route to nearest PC
+          1 -> at a PC: withdraw Diglett
+          2 -> teach HM01 Cut to Diglett
+          3 -> done: reset the Route 9 seam-breaker, return 'ready'
+        Returns 'ready' when Cut is in the party, else a stage:* sentinel (the caller holds
+        the turn). Bounded: a step that keeps failing latches an honest skip so the lap never
+        wedges."""
+        import field_moves as _fmv
+        import hm_teach as _ht
+        stage = getattr(self, "_zapdos_cut_stage", 0)
+        # Already have Cut (taught, or re-checked) — reset the breaker and go.
+        if self._zapdos_cut_ready():
+            self._clear_route9_seam()
+            self._zapdos_cut_stage = 0
+            return "ready"
+        fails = getattr(self, "_zapdos_cut_fails", 0)
+        if fails >= 6:
+            log("   [lap] !! ZAPDOS CUT-PREP: 6 failed steps — honest skip, the lap moves on")
+            self._lap_note_fail("zapdos", "cut-prep could not field a Cut user")
+            return "stage:no_cut"
+        # Step 0: prerequisites + route to a PC.
+        if stage == 0:
+            try:
+                if _ht.tm_case_row(self.b, 339) is None:      # HM01 Cut not in the case
+                    log("   [lap] !! ZAPDOS CUT-PREP: HM01 not in the TM case — can't teach Cut")
+                    self._lap_note_fail("zapdos", "no HM01 in case")
+                    return "stage:no_cut"
+                cb, occ = self._box_scan()
+                dig = next(((bx, sl) for (bx, sl), sp in occ.items() if sp == 50), None)
+                if dig is None:
+                    log("   [lap] !! ZAPDOS CUT-PREP: no Diglett in the box — no Cut-learner")
+                    self._lap_note_fail("zapdos", "no Diglett in box")
+                    return "stage:no_cut"
+            except Exception as e:
+                log(f"   [lap] ZAPDOS CUT-PREP: prereq read failed ({e})")
+                self._zapdos_cut_fails = fails + 1
+                return "stage:prereq_failed"
+            self._zapdos_cut_stage = 1
+            log("   [lap] ✂️ ZAPDOS CUT-PREP: Diglett in the box — routing to the nearest PC")
+            return self._lap_pc_march("zapdos", state)
+        # Step 1: at a PC? withdraw Diglett.
+        if stage == 1:
+            cur = tuple(tv.map_id(self.b))
+            pc_door = CITY_PC_DOORS.get(cur)
+            if pc_door is None:
+                return self._lap_pc_march("zapdos", state)
+            try:
+                cb, occ = self._box_scan()
+                dig = next(((bx, sl) for (bx, sl), sp in occ.items()
+                            if sp == 50 and bx == cb), None)
+            except Exception as e:
+                log(f"   [lap] ZAPDOS CUT-PREP: box scan failed ({e})")
+                self._zapdos_cut_fails = fails + 1
+                return "stage:scan_failed"
+            if dig is None:
+                log("   [lap] !! ZAPDOS CUT-PREP: Diglett not in the OPEN box — can't withdraw")
+                self._zapdos_cut_stage = 0
+                self._zapdos_cut_fails = fails + 1
+                return "stage:no_diglett_open"
+            bx, sl = dig
+            r = self.withdraw_mon(bx, sl, pc_door)
+            if r == "withdrawn":
+                self._zapdos_cut_stage = 2
+                log("   [lap] ✂️ ZAPDOS CUT-PREP: Diglett withdrawn — teaching Cut next")
+                return "stage:withdrawn"
+            self._zapdos_cut_fails = fails + 1
+            log(f"   [lap] ZAPDOS CUT-PREP: withdraw -> {r}")
+            return "stage:withdraw_failed"
+        # Step 2: teach HM01 Cut to Diglett.
+        if stage == 2:
+            try:
+                cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                slot = next((s for s in range(min(cnt, 6))
+                             if st.read_party_species(self.b, s) == 50), None)
+                if slot is None:
+                    log("   [lap] !! ZAPDOS CUT-PREP: Diglett not in party to teach")
+                    self._zapdos_cut_stage = 0
+                    self._zapdos_cut_fails = fails + 1
+                    return "stage:no_diglett"
+                plan = _ht.default_plan(self.b, "cut", cnt)
+                forget = None
+                if plan and plan[0] == slot:
+                    forget = plan[1]
+                r = _ht.TeachFlow(self, log=log, on_event=self.on_event).teach(
+                    "cut", slot, forget_idx=forget)
+                if r == "taught":
+                    self._zapdos_cut_stage = 3
+                    log("   [lap] ✂️ ZAPDOS CUT-PREP: Diglett learned CUT — Route 9 opens")
+                    return "stage:taught"
+                self._zapdos_cut_fails = fails + 1
+                log(f"   [lap] ZAPDOS CUT-PREP: teach -> {r}")
+                return "stage:teach_failed"
+            except Exception as e:
+                log(f"   [lap] ZAPDOS CUT-PREP: teach errored ({e})")
+                self._zapdos_cut_fails = fails + 1
+                return "stage:teach_errored"
+        # Step 3: done.
+        self._clear_route9_seam()
+        self._zapdos_cut_stage = 0
+        return "ready"
+
     def _zapdos_north_staging(self, state):
         """Walk the overworld loop into Route 10's NORTH half for the Power Plant.
 
@@ -14348,6 +14489,20 @@ class Campaign:
             return None
         if here == ROUTE10 and y <= 50:
             return None
+
+        # CUT GATE (2026-08-08): the ONLY path to Route 10 NORTH is Cerulean -> Route 9,
+        # and a CUTTABLE TREE at Route 9 (2,8) blocks it (pret: LOCALID_ROUTE9_CUT_TREE,
+        # FLAG_TEMP_12). The travel executor auto-cuts a tree on the gap ONLY when a party
+        # mon knows Cut (travel.py FIELD OBSTACLE block) — and the post-box_bench party
+        # (Blastoise/Lapras/birds/Kadabra) has NO Cut user (ROM: only Diglett learns it,
+        # and box_bench benched it). So before routing north, make sure Cut is in the party:
+        # if it isn't, run the Cut-prep state machine (PC -> withdraw Diglett -> teach HM01).
+        # Until Cut is ready we must NOT enter Route 9 (she'd wedge on the tree and the
+        # Cerulean<->Route 9 seam-thrash would re-trip).
+        if not self._zapdos_cut_ready():
+            r = self._zapdos_cut_prep(state)
+            if r != "ready":
+                return r
 
         def _go(label, pick, ban_r10=False):
             log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: {label} "

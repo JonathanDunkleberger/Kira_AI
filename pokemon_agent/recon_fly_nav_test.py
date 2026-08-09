@@ -182,6 +182,7 @@ def main():
         lambda pick, state, hunt_on_arrival=False: travels.append(pick) or "ok")
     camp_z._next_step_rideable = lambda cur, dst, avoid: ("hop", dst)
     camp_z._lap_note_fail = lambda k, why: None
+    camp_z._zapdos_cut_ready = lambda: True      # Cut gate satisfied -> test the staging legs
     _omz, _ocz = tv.map_id, tv.coords
     try:
         tv.map_id = lambda _b: (3, 7)          # Fuchsia — last night's strand
