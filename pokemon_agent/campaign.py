@@ -14169,6 +14169,18 @@ class Campaign:
             return st.read_party_species(b, s)
 
         ace = self._lap_ace_slot()
+        # CUT-PREP SHUTTLE GUARD (2026-08-09 look-ahead): while Zapdos is still owed, Diglett is
+        # the Route-9 tree key (the ONLY Cut-learner left) — and it ALREADY knows Cut: the moment
+        # cut-prep withdraws it, can_use('cut') flips True, the old cut_ready-based guard released,
+        # and box_bench benched it right back before staging could cross ('Diglett not in party to
+        # teach' x6 -> honest skip). Reserve it for the WHOLE owed-zapdos window; once the bird is
+        # owned the RE-ARM exception below re-benches it for the E4 six.
+        try:
+            _dig_reserved = (ram.pokedex_owns(b, 145) is not True
+                             and not fm.read_flag(b, 0x2BF)
+                             and not fm.read_flag(b, 0x05D))
+        except Exception:
+            _dig_reserved = False
         drops, passengers = [], []
         for s in range(cnt):
             if s == ace:
@@ -14177,6 +14189,8 @@ class Campaign:
             if sp in SPECIES_E4_KEEP:
                 continue                          # Kadabra / Lapras / birds / Blastoise stay
             if sp in SPECIES_E4_DROP:
+                if _dig_reserved and sp in (50, 51):
+                    continue                      # Cut-learner reserved for the Route 9 tree
                 drops.append(s)
             elif _lv(s) <= BOX_BENCH_MAX_LEVEL:
                 passengers.append(s)
@@ -14359,6 +14373,46 @@ class Campaign:
         except Exception as e:
             log(f"   [lap] seam-breaker reset skipped ({e})")
 
+    def _cut_prep_pc_march(self, state):
+        """March to the NEAREST Center PC (by true learned-graph length) for the Cut-prep
+        withdraw. The lap's shared _lap_pc_march orders CINNABAR first (the post-Giovanni
+        endgame corridor) — from Route 9 that graph route runs EAST across the VERY cut tree
+        being fetched, so the march died no_route_hm_blocked six times and zapdos honest-skipped
+        with Diglett still boxed (soak 2026-08-09 look-ahead). Nearest-by-hops wins here; the
+        rideable filter and bounded-fail ledger are unchanged. Only proper Center cities are
+        candidates (never the Route-10/Lavender/Sevii doors — the Route-10 one sits BEHIND the
+        tree)."""
+        cur = tuple(tv.map_id(self.b))
+        if cur in CITY_PC_DOORS:
+            log(f"   [lap] ✂️ CUT-PREP already at a Center PC ({self.world.name(cur)}) — "
+                f"withdrawing next tick")
+            return "ok"                       # stage 1 owns the withdraw on the next tick
+        ring = (CERULEAN, CELADON, SAFFRON, VERMILION, FUCHSIA, VIRIDIAN, CINNABAR, PEWTER)
+        cands = []
+        for c in ring:
+            if c not in CITY_PC_DOORS:
+                continue
+            try:
+                path = self.world.route(cur, c, avoid=set())
+            except Exception:
+                path = None
+            if not path:
+                continue
+            if self._next_step_rideable(cur, c, set()) is None:
+                continue
+            cands.append((len(path), c))
+        if not cands:
+            self._lap_note_fail("zapdos", "cut-prep: no rideable Center city from here")
+            return "ok"
+        cands.sort(key=lambda t: t[0])
+        hops, tgt = cands[0]
+        log(f"   [lap] ✂️ CUT-PREP needs a Center PC — marching to {self.world.name(tgt)} {tgt} "
+            f"(nearest: {hops - 1} hop(s); candidates {[(self.world.name(c), h - 1) for h, c in cands]})")
+        r = self._travel_to_known(f"travel:{tgt[0]},{tgt[1]}", state, hunt_on_arrival=False)
+        if r in ("no_route", "bad_travel_target") or str(r).startswith("travel:"):
+            self._lap_note_fail("zapdos", f"cut-prep PC march -> {r}")
+        return r
+
     def _zapdos_cut_prep(self, state):
         """Cut-prep state machine for the Zapdos north path. Route 9's cuttable tree needs a
         Cut user; the only Cut-learner is Diglett and box_bench benched it. State machine
@@ -14402,13 +14456,13 @@ class Campaign:
                 return "stage:prereq_failed"
             self._zapdos_cut_stage = 1
             log("   [lap] ✂️ ZAPDOS CUT-PREP: Diglett in the box — routing to the nearest PC")
-            return self._lap_pc_march("zapdos", state)
+            return self._cut_prep_pc_march(state)
         # Step 1: at a PC? withdraw Diglett.
         if stage == 1:
             cur = tuple(tv.map_id(self.b))
             pc_door = CITY_PC_DOORS.get(cur)
             if pc_door is None:
-                return self._lap_pc_march("zapdos", state)
+                return self._cut_prep_pc_march(state)
             try:
                 cb, occ = self._box_scan()
                 dig = next(((bx, sl) for (bx, sl), sp in occ.items()
