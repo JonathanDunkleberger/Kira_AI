@@ -2124,12 +2124,24 @@ class BattleAgent:
         # unlocks the bench-chipper switch (and, bench exhausted, a last-resort high-HP throw).
         _ace_overkill = False
         _no_chipper_left = False
+        _zapdos_override = False
         try:
             _rb0 = st.read_battle(self.b)
             # FLEE-ON-SIGHT SPECIES (Abra/Kadabra): every weaken/status/switch turn hands it the
             # Teleport exit. Skip ALL softening and throw immediately — the deliberate, narrated
             # version of what previously looked like a mistake.
             _foe_sp0 = (_rb0 or {}).get("enemy", {}).get("species")
+            # ZAPDOS EXECUTIVE OVERRIDE (Jonny's hardcode, 2026-08-09): lead Blastoise, force
+            # exactly ONE attacking hit (KO guard DISABLED - a faint just resets), then Ultra-Ball
+            # spam at whatever HP is left. NO chipping, NO status, NO bench walk. Reset on faint /
+            # out-of-balls. _no_chipper_left bypasses the hard throw floor so full-HP spams are
+            # sanctioned.
+            _zapdos_override = (_foe_sp0 == 145)
+            if _zapdos_override:
+                weaken = False
+                _no_chipper_left = True
+                self.log("   [catch] ZAPDOS EXECUTIVE OVERRIDE — no chipping; Blastoise hits ONCE, "
+                         "then Ultra-Ball spam (reset on faint/empty)")
             if _rb0 and _rb0.get("enemy", {}).get("maxhp"):
                 # LOUD [catch] HEADER: the soak report must confess the discipline per target.
                 self.log(f"   [catch] target={st.SPECIES_NAME.get(_foe_sp0, f'#{_foe_sp0}')} "
@@ -2199,6 +2211,23 @@ class BattleAgent:
             for _ in range(40):
                 self.b.run_frame(); self.render()
             return "caught" if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0 else "fled"
+
+        # ZAPDOS EXECUTIVE OVERRIDE — Blastoise lands exactly ONE hit (KO guard off: a faint just
+        # resets), then the loop below is pure Ultra-Ball spam. No chipping, no status, no bench.
+        if _zapdos_override and st.in_battle(self.b):
+            _zs = st.read_battle(self.b)
+            _our_sp = (_zs or {}).get("ours", {}).get("species")
+            if _our_sp != 9:                       # ensure Blastoise (ace) is the active lead
+                self._switch_to_slot(0, _our_sp)
+                _zs = st.read_battle(self.b)
+            # Blastoise's party moveset readonly: [SkullBash130, Surf57, EQ89, 0]. Fire Surf
+            # (index 1, single-turn, STAB water) as the one chunk. _fire_move has no KO guard,
+            # so it hits whether or not it looks fatal — the user's explicit call (faint -> reset).
+            self.log("   [catch] ZAPDOS EXECUTIVE — Blastoise hits ONCE (KO-guard off), "
+                     "then Ultra-Ball spam only")
+            self.emit("okay — one big hit, then we do NOT touch it again. Ultra Balls only.",
+                      beat=True, tier=2)
+            self._fire_move(1)                     # Surf (index 1) — the single chunk
 
         while time.time() - t0 < max_seconds:
             if not st.in_battle(self.b):
