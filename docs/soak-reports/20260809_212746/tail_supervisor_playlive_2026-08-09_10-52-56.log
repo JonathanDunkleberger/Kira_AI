@@ -1,0 +1,1442 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 28) coords=(12, 44) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 1 blocked tile(s), 1 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headset (@System32\\drivers\\bthhfenum.sys,#2;%1 Hands-Free%0\r\n;(Leviathan))', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=17284).
+
+   [soul] continuity loaded: 18 roster bond(s), 1276 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 161 place(s) known, 259 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 28) coords=(12, 44) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260809_105257_route-10_8b_40h02m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'fly': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'done', 'zapdos': 'pending', 'ice_beam': 'done', 'repack': 'done'} -> next: zapdos (PROXIMITY TRUMP: standing at the zapdos hunt)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/zapdos → steps=['surf', 'zapdos'] actionable=zapdos (resolved=True)
+
+   [campaign]    [lap] 🏁 VICTORY LAP arms 'zapdos' — the pre-E4 checklist owns the errand slot (order: earthquake → fly → box_bench → moltres → articuno → zapdos → ice_beam → repack)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught."  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] known-good snapshot SKIPPED — this spot can't reach a Center; refusing to bank a poisoned escape target (would reload back into the strand)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (12, 44) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 28) (12,44) f2 -- badge8 $4302 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,27', 'travel:3,30', 'travel:3,26', 'travel:3,22']
+
+   [campaign]    [soul] surface_want FIRE -> Route 10
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 28), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 1s, restart 1/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=21452).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 2/8) — GAME CONTINUES; respawning audio.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='catch Zapdos at the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'catch Zapdos at the Power Plant'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 6
+
+   [kira-voice] -> T2·savor· (want) 'catch Zapdos at the Power Plant'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [teamplan] next action: acquire_special (zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO) — folding a forward-plan beat
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: the Power Plant (ZAPDOS — the legendary electric bird) — attempt 1/3 from (3, 28)
+
+   [campaign]    [plant-door-approach] replan at (12, 44) (len 9, budget 9)
+
+   [dialogue] +++ "Humph. I'm not angry!"  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "Humph. I\'m not angry!"'
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=21640).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 3/8) — GAME CONTINUES; respawning audio.
+
+   [campaign]    [plant-door] (3, 28) -> (1, 95) @ (5, 38)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 601; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=22200).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 4/8) — GAME CONTINUES; respawning audio.
+
+   [campaign]    [plant-door-egress] stepped OFF landing warp (5, 38) -> (6, 38) via RIGHT
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 901; bursts here = audible crackle)
+
+   [campaign]    [plant-door-egress] FORWARD into room (6, 38) -> (6, 37) via UP
+
+   [campaign]    [hunt] Ultra pocket check — 28 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L69 hp 211/211 dmgPP 37 safePP 0 (Skull Bash:15, Surf:13, Earthquake:9); slot1 L26 hp 110/110 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Perish Song:5); slot2 L50 hp 150/150 dmgPP 30 safePP 30 (83:15, Agility:30, 203:10, 53:15); slot3 L50 hp 155/155 dmgPP 10 safePP 0 (54:30, Agility:30, 170:5, Ice Beam:10); slot4 L19 hp 45/45 dmgPP 25 safePP 25 (Teleport:20, Confusion:25, Disable:20); slot5 L18 hp 35/35 dmgPP 105 safePP 65 (Scratch:35, Magnitude:30, Dig:10, Cut:30) | ace slot0 safe 0, party safe 150 (vs Zapdos electric/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 150; mins 5/8) and no Center leg is wired for zapdos — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 28 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L69 hp 211/211 dmgPP 37 safePP 0 (Skull Bash:15, Surf:13, Earthquake:9); slot1 L26 hp 110/110 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Perish Song:5); slot2 L50 hp 150/150 dmgPP 30 safePP 30 (83:15, Agility:30, 203:10, 53:15); slot3 L50 hp 155/155 dmgPP 10 safePP 0 (54:30, Agility:30, 170:5, Ice Beam:10); slot4 L19 hp 45/45 dmgPP 25 safePP 25 (Teleport:20, Confusion:25, Disable:20); slot5 L18 hp 35/35 dmgPP 105 safePP 65 (Scratch:35, Magnitude:30, Dig:10, Cut:30) | ace slot0 safe 0, party safe 150 (vs Zapdos electric/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-zapdos bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Zapdos. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [quarry-approach] replan at (6, 37) (len 167, budget 9)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1201; bursts here = audible crackle)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1501; bursts here = audible crackle)
+
+   [pkmn-audio] audio child started (pid=2176).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 5/8) — GAME CONTINUES; respawning audio.
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against electabuzz — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1801; bursts here = audible crackle)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs electabuzz 83/83 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=9,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2101; bursts here = audible crackle)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2401; bursts here = audible crackle)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's electabuzz went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] audio child started (pid=7476).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 6/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 2701; bursts here = audible crackle)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3001; bursts here = audible crackle)
+
+   [campaign]    [quarry-approach] replan at (6, 27) (len 157, budget 10)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3301; bursts here = audible crackle)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [pkmn-audio] audio child started (pid=32232).
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3601; bursts here = audible crackle)
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 7/8) — GAME CONTINUES; respawning audio.
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 3901; bursts here = audible crackle)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against magnemite — your blastoise is up front'  fired=True  [age 0.0s + post 10ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 47/47 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=8,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4201; bursts here = audible crackle)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [pkmn-audio] audio child started (pid=15940).
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 8/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4501; bursts here = audible crackle)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's magnemite went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 4801; bursts here = audible crackle)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 5101; bursts here = audible crackle)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (12, 19) (len 137, budget 11)
+
+   [pkmn-audio] audio child started (pid=31304).
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 5401; bursts here = audible crackle)
+
+   [pkmn-audio-child] !! could not open OutputStream (device=38, rate=48000): Error opening OutputStream: Invalid number of channels [PaErrorCode -9998] � exiting.
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 0s, restart 9/8) — GAME CONTINUES; respawning audio.
+
+   [pkmn-audio] !! audio child died too many times — DISABLING audio for this run (game keeps running, silent). Investigate the output device.
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against magnemite — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 43/43 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=7,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (21, 30) (len 113, budget 12)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against magnemite — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 47/47 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=6,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (40, 31) (len 89, budget 13)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [play-live] battle context: trainer=False foe=pikachu rare=True -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — whoa — that's a PIKACHU, an actually rare one. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against pikachu — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L24 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs pikachu 54/54 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=5,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's pikachu went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 25ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (45, 26) (len 79, budget 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against voltorb — your blastoise is up front'  fired=True  [age 0.0s + post 32ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs voltorb 55/55 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=4,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's voltorb went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (22, 12) (len 28, budget 15)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against magnemite — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 51/51 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=3,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's magnemite went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (20, 12) (len 26, budget 16)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against magnemite — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 45/45 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=2,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's magnemite went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (15, 8) (len 17, budget 17)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against magneton — your blastoise is up front'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magneton 78/78 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=1,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's magneton went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (5, 7) (len 4, budget 18)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against zapdos — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a zapdos. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 14ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+
+   [play-live]    [catch] target=zapdos L50 hp=100% status=none balls=28 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=133% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (moltres) to chip it into the catchable band
+
+   [play-live]    [engine] switch: target party slot 2 sp=146 -> menu row 2
+
+   [play-live]    [engine] switch: SWITCHED to species 146 (slot 2)
+
+   [kira-voice] -> T1·brisk· (event) "blastoise hits way too hard for this — moltres, you're up. soften it, don't finish it."  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 100% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 100% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 100% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 91% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 85% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 79% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 79% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 79% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 79% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 65% HP
+
+   [kira-voice] ·floor· (<1s since last) T1 'your moltres took a big hit'
+
+   [kira-voice] -> T1·brisk· (event) 'your moltres used an attack'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] !! HARD THROW FLOOR — REFUSING the Ultra dump — foe at 59% (floor 50%); deepening ACE chip, NEVER fleeing (MonFlewAway spends the bird) (LOUD)
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 59% HP
+
+   [play-live]    [catch] chip STOPPING — gentlest move move#53 est 100% vs foe at 49% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] !! ACE deepen reached throw floor (49%) — throws are legal now (LOUD)
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x28 left, pref=best) at zapdos hp=44% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your moltres used an attack'
+
+   [play-live]    [catch] THROW Ultra Ball (x27 left, pref=best) at zapdos hp=38% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live]    [catch] OUR ACTIVE IS DOWN mid-catch — abandoning this turn's throw; the forced send-in flow runs first (the bag cannot open in the send-in state)
+
+   [kira-voice] -> T2·savor· (event) 'hold the catch — my Pokémon just went down. next one up first.'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] fswitch retry 4: target row 2 sp=9 skip_rows=[] party_cur=2 menu_rows=[(146, 0), (131, 110), (9, 211), (144, 155), (64, 45), (50, 35)]
+
+   [play-live]    [engine] fswitch: selecting row 2 (sp=9 L69 hp=211)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [play-live]    [catch] send-in seated — re-asking whether the catch can resume (order still stands)
+
+   [play-live]    [engine] !! legendary capture unfinished (stuck) — still in fight with balls + live bird; NOT soft-reloading (FINISH the catch) (LOUD)
+
+   [kira-voice] -> T2·savor· (event) 'still got a shot at zapdos — not rewinding, finishing this.'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] target=zapdos L50 hp=38% status=none balls=26 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=133% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 3 (articuno) to chip it into the catchable band
+
+   [play-live]    [engine] switch: target party slot 3 sp=144 -> menu row 3
+
+   [play-live]    [engine] switch: SWITCHED to species 144 (slot 3)
+
+   [kira-voice] -> T1·brisk· (event) "blastoise hits way too hard for this — articuno, you're up. soften it, don't finish it."  fired=True  [age 0.0s + post 7ms]
+
+   [play-live]    [catch] chip STOPPING — gentlest move Ice Beam est 199% vs foe at 38% HP; a swing risks the KO. Throwing now.
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x26 left, pref=best) at zapdos hp=38% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [kira-voice] -> T1·brisk· (event) 'your articuno took a big hit'  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x25 left, pref=best) at zapdos hp=38% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x24 left, pref=best) at zapdos hp=38% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [kira-voice] -> T1·brisk· (event) 'your articuno is at low HP - this is getting tense'  fired=True  [age 0.0s + post 7ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x23 left, pref=best) at zapdos hp=38% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x22 left, pref=best) at zapdos hp=38% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x21 left, pref=best) at zapdos hp=38% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T1·brisk· (event) 'your articuno fainted'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x20 left, pref=best) at zapdos hp=38% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [play-live]    [engine] !! throw_ball: ball selected but no throw consumed a ball — aborting LOUDLY
+
+   [play-live]    [catch] throw abort (select did not consume a ball) — consecutive 1/3 this battle
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [hunt] Ultra pocket check — 20 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L69 hp 211/211 dmgPP 28 safePP 0 (Skull Bash:15, Surf:13, Earthquake:0); slot1 L26 hp 110/110 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Perish Song:5); slot4 L19 hp 45/45 dmgPP 25 safePP 25 (Teleport:20, Confusion:25, Disable:20); slot5 L18 hp 35/35 dmgPP 105 safePP 65 (Scratch:35, Magnitude:30, Dig:10, Cut:30) | ace slot0 safe 0, party safe 120 (vs Zapdos electric/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP with EMPTY ace SAFE tank (safe=0) but ace still has 28 damaging PP — soft-reload cannot mint safer chips (overlevel); ENGAGING in LADDER MODE (NO rewind off the bird) (LOUD)
+
+   [campaign]    [hunt] doorstep empty-tank settle — ace safe now 0; ENGAGING (LOUD)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (1 tile(s) from Zapdos) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 20 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] !! Zapdos still LIVE after the fight return — re-pressing at the bird (NO retreat) (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against zapdos — your lapras is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a zapdos. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 5ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 6ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+
+   [play-live]    [catch] target=zapdos L50 hp=30% status=none balls=20 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] weaken plan — chip with Strength (est 15%/hit) into the throw band
+
+   [play-live]    [catch] weaken — Strength (est 15%) at foe 30% HP
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now "That didn't do much for us. We still got this. We're gonna catch this little bird, this little zappy bird."
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 8ms]
+
+   [play-live]    [catch] weaken — Strength (est 15%) at foe 30% HP
+
+   [play-live]    [catch] chip LADDER — Strength est 15% vs foe at 21% HP: cannot faint from this HP — swinging (legendary depth, ace-only)
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now 'Nice job, I think you can catch it now.'
+
+   [play-live]    [catch] chip done — foe at 14% HP (target 15%); throwing
+
+   [kira-voice] -> T1·brisk· (event) 'your lapras used an attack'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x20 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x19 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 15ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x18 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [play-live]    [catch] THROW Ultra Ball (x17 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [play-live]    [catch] THROW Ultra Ball (x16 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [campaign]    [order] !! CREATOR ORDER ACTIVE (LAW): catch_now "Its speed won't go higher. Okay, now we can catch him."
+
+   [kira-voice] -> T3·BIG· (order) "catch order locked in — next wild gets the ball treatment, not a KO. I'm listening."  fired=True  [age 0.0s + post 7ms]
+
+   [play-live]    [catch] OUR ACTIVE IS DOWN mid-catch — abandoning this turn's throw; the forced send-in flow runs first (the bag cannot open in the send-in state)
+
+   [kira-voice] -> T2·savor· (event) 'hold the catch — my Pokémon just went down. next one up first.'  fired=True  [age 0.0s + post 31ms]
+
+   [play-live]    [engine] fswitch: selecting row 3 (sp=9 L69 hp=211)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [play-live]    [catch] send-in seated — re-asking whether the catch can resume (order still stands)
+
+   [play-live]    [engine] !! legendary capture unfinished (stuck) — still in fight with balls + live bird; NOT soft-reloading (FINISH the catch) (LOUD)
+
+   [kira-voice] -> T2·savor· (event) 'still got a shot at zapdos — not rewinding, finishing this.'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [catch] target=zapdos L50 hp=6% status=none balls=15 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=133% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [catch] target ready — hp=6% status=none — THROWING (no more weakening)
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x15 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x14 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x13 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x12 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x11 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x10 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x9 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x8 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x7 left, pref=best) at zapdos hp=6% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [hunt] Ultra pocket check — 6 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L69 hp 211/211 dmgPP 28 safePP 0 (Skull Bash:15, Surf:13, Earthquake:0); slot4 L19 hp 45/45 dmgPP 25 safePP 25 (Teleport:20, Confusion:25, Disable:20); slot5 L18 hp 35/35 dmgPP 105 safePP 65 (Scratch:35, Magnitude:30, Dig:10, Cut:30) | ace slot0 safe 0, party safe 90 (vs Zapdos electric/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP with EMPTY ace SAFE tank (safe=0) but ace still has 28 damaging PP — soft-reload cannot mint safer chips (overlevel); ENGAGING in LADDER MODE (NO rewind off the bird) (LOUD)
+
+   [campaign]    [hunt] doorstep empty-tank settle — ace safe now 0; ENGAGING (LOUD)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (1 tile(s) from Zapdos) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 6 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] !! Zapdos still LIVE after the fight return — re-pressing at the bird (NO retreat) (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against zapdos — your blastoise is up front'  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a zapdos. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 17ms]
+
+   [dialogue] +++ 'The ZAPDOS flew away!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "The ZAPDOS flew away!"'
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ "Humph. I'm not angry!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Humph. I\'m not angry!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-zapdos': checkpoint '20260809_103323_route-10_8b_39h57m_pre-zapdos' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-zapdos] -> campaign/kira_campaign.state  (map=(3, 28) coords=(12, 44) badges=8 party=6)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-zapdos] -> campaign/kira_campaign.state  (map=(3, 28) coords=(12, 44) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-zapdos] -> checkpoints/20260809_111236_route-10_8b_40h21m_pre-zapdos  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-zapdos' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-zapdos' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260809_103323_route-10_8b_39h57m_pre-zapdos (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 1/4: 'pre-zapdos' reloaded — fought flag clear, balls restored, standing at the zapdos again (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'no. we are NOT losing Zapdos like that. rewinding to right before the fight — fresh balls, fresh plan.'  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [quarry-approach] replan at (12, 44) (len 70, budget 9)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [surf] MOUNTED at (19, 31) (attempt 1)
+
+   [campaign]    [quarry-approach] replan at (5, 11) (len 2, budget 9)
+
+   [campaign]    [quarry-approach] replan at (5, 11) (len 2, budget 9)
+
+   [campaign]    [quarry-approach] replan at (5, 11) (len 2, budget 9)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_world): nothing on screen has meaningfully changed for 8.0s at (3, 28)@(5, 10) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    [quarry-approach] replan at (5, 11) (len 2, budget 9)
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE -> failed (now (3, 28)@(5, 11))
+
+   [campaign]    [lap] 'zapdos' questline step -> questline_strike_failed
+
+   [campaign]    [lap] 'zapdos' dispatch failed (questline_strike_failed) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> questline_strike_failed | pos (3, 28)(12, 44) -> (3, 28)(5, 11) (MOVED)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    [lap] 🦅 PROXIMITY FAIL-CLEAR 'zapdos': standing on the hunt's own maps — loop-burned fail ledger dropped (once per run)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 6, 19, 232) @ Route 10 (ring=1/4)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (5, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 28) (5,11) f1 -- badge8 $4302 party:4daa bag:212a]
+
+   [campaign]    [roam] !!!! WATCHDOG DISENGAGE #1 at (3, 28)@(5, 10) (reason=frozen_world, frozen 8.0s) — top-level recovery, sub-layer-agnostic
+
+   [campaign]    [roam] wedge spot: blocking (5, 9) on (3, 28) (route around it) + marking (5, 10) a resolved talk-spot — unified block memory now 2 tile(s)
+
+   [kira-voice] -> T2·savor· (recover) "I've been stuck on the same spot going nowhere — backing off and trying something different."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick2] -> campaign/kira_campaign.state  (map=(3, 28) coords=(5, 11) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] !! CREATOR ORDER (LAW): the strengthen-first prep stands down — Jonny said go, so she goes
+
+   [campaign] -- ROAM TICK 3/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (5, 11) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 28) (5,11) f1 -- badge8 $4302 party:4daa bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'talk_npc', 'travel:3,27', 'travel:3,30', 'travel:3,26', 'travel:3,22']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: the Power Plant (ZAPDOS — the legendary electric bird) — attempt 2/3 from (3, 28)
+
+   [campaign]    [plant-door-approach] replan at (5, 11) (len 79, budget 9)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 9ms]
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "BLASTOISE used SURF!"'
+
+   [campaign]    [surf] MOUNTED at (19, 4) (attempt 1)
+
+   [campaign]    [plant-door] (3, 28) -> (1, 95) @ (5, 38)
+
+   [campaign]    [plant-door-egress] stepped OFF landing warp (5, 38) -> (6, 38) via RIGHT
+
+   [campaign]    [plant-door-egress] FORWARD into room (6, 38) -> (6, 37) via UP
+
+   [campaign]    [hunt] Ultra pocket check — 28 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L69 hp 211/211 dmgPP 37 safePP 0 (Skull Bash:15, Surf:13, Earthquake:9); slot1 L26 hp 110/110 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Perish Song:5); slot2 L50 hp 150/150 dmgPP 30 safePP 30 (83:15, Agility:30, 203:10, 53:15); slot3 L50 hp 155/155 dmgPP 10 safePP 0 (54:30, Agility:30, 170:5, Ice Beam:10); slot4 L19 hp 45/45 dmgPP 25 safePP 25 (Teleport:20, Confusion:25, Disable:20); slot5 L18 hp 35/35 dmgPP 105 safePP 65 (Scratch:35, Magnitude:30, Dig:10, Cut:30) | ace slot0 safe 0, party safe 150 (vs Zapdos electric/flying L50)
+
+   [campaign]    [hunt] !! chip PP THIN (ace 0 safe swing(s), party 150; mins 5/8) and no Center leg is wired for zapdos — engaging in LADDER MODE (bench chipper carries the chip) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 28 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L69 hp 211/211 dmgPP 37 safePP 0 (Skull Bash:15, Surf:13, Earthquake:9); slot1 L26 hp 110/110 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Perish Song:5); slot2 L50 hp 150/150 dmgPP 30 safePP 30 (83:15, Agility:30, 203:10, 53:15); slot3 L50 hp 155/155 dmgPP 10 safePP 0 (54:30, Agility:30, 170:5, Ice Beam:10); slot4 L19 hp 45/45 dmgPP 25 safePP 25 (Teleport:20, Confusion:25, Disable:20); slot5 L18 hp 35/35 dmgPP 105 safePP 65 (Scratch:35, Magnitude:30, Dig:10, Cut:30) | ace slot0 safe 0, party safe 150 (vs Zapdos electric/flying L50)
+
+   [campaign]    [hunt] !! SKIPPING pre-zapdos bank — ace safe chip PP is 0 (would poison soft-reload) (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Zapdos. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 13ms]
+
+   [campaign]    [quarry-approach] replan at (6, 37) (len 167, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [play-live] battle context: trainer=False foe=pikachu rare=True -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — whoa — that's a PIKACHU, an actually rare one. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 9ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against pikachu — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "catch order — switching to balls on this pikachu. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this pikachu. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 10ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (14, 23) (len 131, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against magnemite — your blastoise is up front'  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this magnemite. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this magnemite. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 8ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (15, 28) (len 123, budget 11)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against voltorb — your blastoise is up front'  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this voltorb. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this voltorb. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 7ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (21, 30) (len 113, budget 12)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against electabuzz — your blastoise is up front'  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this electabuzz. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this electabuzz. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 6ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (31, 31) (len 100, budget 13)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against voltorb — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) "catch order — switching to balls on this voltorb. weaken, don't KO."  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this voltorb. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 14ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (43, 30) (len 85, budget 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against voltorb — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) "catch order — switching to balls on this voltorb. weaken, don't KO."  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this voltorb. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 7ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (31, 5) (len 44, budget 15)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against voltorb — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) "catch order — switching to balls on this voltorb. weaken, don't KO."  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this voltorb. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (24, 10) (len 32, budget 16)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [play-live] battle context: trainer=False foe=pikachu rare=True -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — whoa — that's a PIKACHU, an actually rare one. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 8ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against pikachu — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<0.4s since last) T2 "catch order — switching to balls on this pikachu. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this pikachu. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 7ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (15, 9) (len 18, budget 17)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against magnemite — your blastoise is up front'  fired=True  [age 0.0s + post 30ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "catch order — switching to balls on this magnemite. weaken, don't KO."
+
+   [play-live]    [catch] RESERVE — ultras held for the hunt, skipping trash catch
+
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+
+   [kira-voice] -> T3·BIG· (event) "my Ultra Balls are the legendaries' — I'm not spending them here and I'm NOT killing this magnemite. backing out; cheap balls first, then we catch."  fired=True  [age 0.0s + post 7ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [quarry-approach] replan at (13, 6) (len 13, budget 18)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against zapdos — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a zapdos. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 16ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 9ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+
+   [play-live]    [catch] target=zapdos L50 hp=100% status=none balls=28 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=133% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (moltres) to chip it into the catchable band
+
+   [play-live]    [engine] switch: target party slot 2 sp=146 -> menu row 2
+
+   [play-live]    [engine] switch: SWITCHED to species 146 (slot 2)
+
+   [kira-voice] -> T1·brisk· (event) "blastoise hits way too hard for this — moltres, you're up. soften it, don't finish it."  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 100% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 100% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 100% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 100% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 92% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 86% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 80% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 80% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 70% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 56% HP
+
+   [kira-voice] ·floor· (<1s since last) T1 'your moltres took a big hit'
+
+   [kira-voice] -> T1·brisk· (event) 'your moltres used an attack'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x28 left, pref=best) at zapdos hp=50% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your moltres used an attack'
+
+   [play-live]    [catch] THROW Ultra Ball (x27 left, pref=best) at zapdos hp=43% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 27ms]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'your moltres used an attack'
+
+   [play-live]    [catch] THROW Ultra Ball (x26 left, pref=best) at zapdos hp=37% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [play-live]    [engine] !! legendary capture unfinished (stuck) — still in fight with balls + live bird; NOT soft-reloading (FINISH the catch) (LOUD)
+
+   [kira-voice] -> T2·savor· (event) 'still got a shot at zapdos — not rewinding, finishing this.'  fired=True  [age 0.0s + post 21ms]
+
+   [play-live]    [catch] target=zapdos L50 hp=37% status=none balls=25 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] weaken plan — chip with move#83 (est 16%/hit) into the throw band
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] weaken — move#83 (est 16%) at foe 37% HP
+
+   [play-live]    [catch] chip LADDER — ACE-ONLY on legendaries (moltres stays in; NO bench switch — Jonny: Blastoise handles Moltres himself) (foe at 37%)
+
+   [play-live]    [catch] !! ACE chip stopped at 37% HP (at/under hard floor 50%, above red band 20%): SANCTIONED throw (sleep rung still applies) (LOUD)
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x25 left, pref=best) at zapdos hp=37% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x24 left, pref=best) at zapdos hp=37% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T1·brisk· (event) 'your moltres fainted'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x23 left, pref=best) at zapdos hp=37% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [play-live]    [engine] !! throw_ball: ball selected but no throw consumed a ball — aborting LOUDLY
+
+   [play-live]    [catch] throw abort (select did not consume a ball) — consecutive 1/3 this battle
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [hunt] Ultra pocket check — 23 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L69 hp 211/211 dmgPP 37 safePP 0 (Skull Bash:15, Surf:13, Earthquake:9); slot1 L26 hp 110/110 dmgPP 30 safePP 30 (Strength:15, Body Slam:15, Perish Song:5); slot3 L50 hp 155/155 dmgPP 10 safePP 0 (54:30, Agility:30, 170:5, Ice Beam:10); slot4 L19 hp 45/45 dmgPP 25 safePP 25 (Teleport:20, Confusion:25, Disable:20); slot5 L18 hp 35/35 dmgPP 105 safePP 65 (Scratch:35, Magnitude:30, Dig:10, Cut:30) | ace slot0 safe 0, party safe 120 (vs Zapdos electric/flying L50)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP with EMPTY ace SAFE tank (safe=0) but ace still has 37 damaging PP — soft-reload cannot mint safer chips (overlevel); ENGAGING in LADDER MODE (NO rewind off the bird) (LOUD)
+
+   [campaign]    [hunt] doorstep empty-tank settle — ace safe now 0; ENGAGING (LOUD)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (1 tile(s) from Zapdos) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 23 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] !! Zapdos still LIVE after the fight return — re-pressing at the bird (NO retreat) (LOUD)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against zapdos — your lapras is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a zapdos. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 9ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+
+   [play-live]    [catch] target=zapdos L50 hp=30% status=none balls=23 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] weaken plan — chip with Strength (est 15%/hit) into the throw band
+
+   [play-live]    [catch] weaken — Strength (est 15%) at foe 30% HP
+
+   [play-live]    [catch] weaken — Strength (est 15%) at foe 23% HP
+
+   [play-live]    [catch] chip done — foe at 7% HP (target 15%); throwing
+
+   [kira-voice] -> T1·brisk· (event) 'your lapras used an attack'  fired=True  [age 0.0s + post 27ms]
+
+   [play-live]    [catch] LEGENDARY SLEEP — no sleep move anywhere in the party; the red-zone chip + balls carry it alone
+
+   [play-live]    [catch] THROW Ultra Ball (x23 left, pref=best) at zapdos hp=7% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x22 left, pref=best) at zapdos hp=7% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "ULTRA BALL is selected."'
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'alright — throwing a Poké Ball'
+
+   [kira-voice] -> T1·brisk· (event) 'your lapras took a big hit'  fired=True  [age 0.0s + post 8ms]
+
+   [play-live]    [catch] THROW Ultra Ball (x21 left, pref=best) at zapdos hp=7% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice]    (dialogue tags: item)
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "ULTRA BALL is selected."'  fired=True  [age 0.0s + post 4ms]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'alright — throwing a Poké Ball'
+
+   [play-live]    [catch] THROW Ultra Ball (x20 left, pref=best) at zapdos hp=7% status=none
+
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+
+   [dialogue] +++ 'ULTRA BALL is selected.'  tags=['ITEM']
+
+   [kira-voice] -> T1·brisk· (event) 'alright — throwing a Poké Ball'  fired=True  [age 0.0s + post 13ms]
+
+   [dialogue] +++ 'The ZAPDOS flew away!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "The ZAPDOS flew away!"'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ "Humph. I'm not angry!"  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Humph. I\'m not angry!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-zapdos': checkpoint '20260809_111236_route-10_8b_40h21m_pre-zapdos' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-zapdos] -> campaign/kira_campaign.state  (map=(3, 28) coords=(12, 44) badges=8 party=6)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-zapdos] -> campaign/kira_campaign.state  (map=(3, 28) coords=(12, 44) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-zapdos] -> checkpoints/20260809_112656_route-10_8b_40h36m_pre-zapdos  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-zapdos' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-zapdos' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260809_111236_route-10_8b_40h21m_pre-zapdos (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 1/4: 'pre-zapdos' reloaded — fought flag clear, balls restored, standing at the zapdos again (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'no. we are NOT losing Zapdos like that. rewinding to right before the fight — fresh balls, fresh plan.'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [quarry-approach] replan at (12, 44) (len 70, budget 9)
+
