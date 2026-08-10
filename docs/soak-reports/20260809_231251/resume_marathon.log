@@ -1,4 +1,4 @@
-resume_marathon 20260809_222644  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260809_231251  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 git branch at start: cursor/endgame-credits-path-bdbc
 == git fetch origin ==
@@ -6,16 +6,17 @@ git branch at start: cursor/endgame-credits-path-bdbc
 == git pull ==
 Already up to date.
 
-running commit: e5a5266 fix(catch): field the gentlest legendary chipper first (Lapras into Zapdos)
+running commit: e5c03c7 fix(catch): Zapdos executive override - Blastoise one-hit + full-HP Ultra spam
 running branch: cursor/endgame-credits-path-bdbc
 == crash forensics ==
 == logs\debug listing (newest 25) ==
 
 Name                            LastWriteTime        Length
 ----                            -------------        ------
+console_2026-08-09_22-26-52.log 8/9/2026 10:37:41 PM  79785
+latest.log                      8/9/2026 10:37:41 PM  79785
+playlive_faulthandler.log       8/9/2026 10:27:51 PM  19800
 console_2026-08-09_22-04-47.log 8/9/2026 10:26:44 PM 207365
-latest.log                      8/9/2026 10:26:44 PM 207365
-playlive_faulthandler.log       8/9/2026 10:05:46 PM  19690
 console_2026-08-09_21-27-55.log 8/9/2026 9:37:59 PM   58995
 console_2026-08-09_10-52-01.log 8/9/2026 11:27:03 AM 178153
 console_2026-08-09_08-50-33.log 8/9/2026 9:29:21 AM  315816
@@ -37,13 +38,12 @@ console_2026-08-07_18-28-30.log 8/7/2026 6:31:53 PM   30845
 console_2026-08-07_18-14-32.log 8/7/2026 6:20:34 PM   58428
 console_2026-08-07_17-53-47.log 8/7/2026 6:04:09 PM  101951
 console_2026-08-07_17-39-08.log 8/7/2026 5:49:15 PM  109106
-console_2026-08-07_17-09-57.log 8/7/2026 5:31:35 PM  187276
 
 
 
-tailed newest debug log: console_2026-08-09_22-04-47.log
+tailed newest debug log: console_2026-08-09_22-26-52.log
+tailed supervisor log: playlive_2026-08-09_22-27-51.log
 tailed supervisor log: playlive_2026-08-09_22-05-46.log
-tailed supervisor log: playlive_2026-08-09_21-29-41.log
 extracted engine forensics -> engine_tail.log
 == sandbox inventory (G:\temp\kira_watch) ==
 [1] G:\temp\kira_watch\sandbox_canonical_20260728_125926
@@ -53,13 +53,14 @@ extracted engine forensics -> engine_tail.log
     last activity: 07/28/2026 12:57:41
     badges=8 party=[venusaur L95, persian L39, fearow L37, raticate L31, ekans L17, lapras L27] place=Route 1 played=2min timeline=sherpa
 == canonical campaign ==
-    last activity: 08/09/2026 22:26:43
-    badges=8 party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] place=the Power Plant played=2478min timeline=sherpa
+    last activity: 08/09/2026 22:37:39
+    badges=8 party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] place=Route 10 played=2488min timeline=sherpa
 == campaign snapshot inventory (*.state, newest first) ==
 
 Name                             LastWriteTime         Length
 ----                             -------------         ------
-kira_campaign.state              8/9/2026 10:15:32 PM  397312
+kira_campaign.state              8/9/2026 10:37:38 PM  397312
+replaced_20260809_222644.state   8/9/2026 10:15:32 PM  397312
 pre_reload_20260809_123850.state 8/9/2026 12:38:50 PM  397312
 pre_reload_20260809_114929.state 8/9/2026 11:49:29 AM  397312
 replaced_20260809_212746.state   8/9/2026 11:26:56 AM  397312
@@ -103,8 +104,8 @@ pre_reload_20260806_193351.state 8/6/2026 7:33:51 PM   397312
 replaced_20260806_090652.state   8/6/2026 9:04:53 AM   397312
 replaced_20260806_085349.state   8/6/2026 8:48:19 AM   397312
 replaced_20260806_083445.state   8/6/2026 8:30:20 AM   397312
-replaced_20260806_082756.state   8/6/2026 8:16:35 AM   397312
 replaced_20260806_082259.state   8/6/2026 8:16:35 AM   397312
+replaced_20260806_082756.state   8/6/2026 8:16:35 AM   397312
 replaced_20260806_081352.state   8/6/2026 8:11:17 AM   397312
 replaced_20260806_080642.state   8/6/2026 7:56:29 AM   397312
 replaced_20260805_134812.state   8/5/2026 8:50:35 AM   397312
@@ -186,6 +187,8 @@ seg_opening.state                7/28/2026 2:02:29 PM 397312
 
 Name                                          LastWriteTime       
 ----                                          -------------       
+20260809_223739_route-10_8b_41h27m_pre-zapdos 8/9/2026 10:37:39 PM
+20260809_222753_route-10_8b_41h18m_roam-start 8/9/2026 10:27:53 PM
 20260809_221430_route-10_8b_41h05m_pre-zapdos 8/9/2026 10:14:30 PM
 20260809_220547_route-10_8b_40h57m_roam-start 8/9/2026 10:05:47 PM
 20260809_212944_route-10_8b_40h49m_roam-start 8/9/2026 9:29:44 PM 
@@ -204,8 +207,6 @@ Name                                          LastWriteTime
 20260809_114532_route-10_8b_40h37m_pre-zapdos 8/9/2026 11:45:32 AM
 20260809_114443_route-10_8b_40h36m_pre-zapdos 8/9/2026 11:44:43 AM
 20260809_114401_route-10_8b_40h36m_roam-start 8/9/2026 11:44:01 AM
-20260809_112656_route-10_8b_40h36m_pre-zapdos 8/9/2026 11:26:56 AM
-20260809_111236_route-10_8b_40h21m_pre-zapdos 8/9/2026 11:12:36 AM
 
 
 
@@ -214,12 +215,12 @@ Name                                          LastWriteTime
 FullName                                                                                                                             LastWriteTime        
 --------                                                                                                                             -------------        
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\archive                                                                                   6/26/2026 4:11:48 PM 
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/9/2026 10:26:43 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign                                                                                  8/9/2026 10:37:39 PM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423                                                         7/29/2026 9:04:20 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira                                                                                      8/9/2026 10:23:47 PM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\staging_showtime_20260729_095427                                                          7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\workshop                                                                                  7/15/2026 12:12:19 PM
-G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/9/2026 10:14:30 PM 
+G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\checkpoints                                                                      8/9/2026 10:37:39 PM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign\pre_marathon_rescue_20260729_095423_backup_20260729_095427                       7/29/2026 9:54:27 AM 
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\badge3_bank_20260706_212559                             7/6/2026 9:24:06 PM  
 G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\campaign_archived_20260729_095423\checkpoints                                             7/29/2026 8:59:40 AM 
@@ -272,7 +273,7 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 
 
 
-CKPT promoted: 20260809_124109_route-10_8b_40h48m_pre-zapdos -> kira_campaign.state (old save backed up as replaced_20260809_222644.state)
+CKPT promoted: 20260809_221430_route-10_8b_41h05m_pre-zapdos -> kira_campaign.state (old save backed up as replaced_20260809_231251.state)
   sidecar restored: world_model.json -> world_model.json
   sidecar restored: strat_memory.json -> strat_memory.json
   sidecar restored: journey_core.json -> journey_core.json
@@ -280,35 +281,3 @@ CKPT promoted: 20260809_124109_route-10_8b_40h48m_pre-zapdos -> kira_campaign.st
   sidecar restored: dialogue_hints.json -> dialogue_hints.json
 == push soak report (this can take ~30s; console stays quiet on purpose) ==
 == push soak report ==
-[cursor/endgame-credits-path-bdbc 9a59066] report(soak): 20260809_222644 inventory/rescue (auto from resume_marathon.ps1)
- 10 files changed, 2615 insertions(+)
- create mode 100644 docs/soak-reports/20260809_222644/canonical_health.json
- create mode 100644 docs/soak-reports/20260809_222644/engine_tail.log
- create mode 100644 docs/soak-reports/20260809_222644/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260809_222644/resume_marathon.log
- create mode 100644 docs/soak-reports/20260809_222644/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260809_222644/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260809_222644/tail_console_2026-08-09_22-04-47.log
- create mode 100644 docs/soak-reports/20260809_222644/tail_supervisor_playlive_2026-08-09_21-29-41.log
- create mode 100644 docs/soak-reports/20260809_222644/tail_supervisor_playlive_2026-08-09_22-05-46.log
-branch 'cursor/endgame-credits-path-bdbc' set up to track 'origin/cursor/endgame-credits-path-bdbc'.
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:534 char:5
-+     git push -u origin $pushBranch
-+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   e5a5266..9a59066  cursor/endgame-credits-path-bdbc -> cursor/endgame-credits-path-bdbc
-
-push soak report finished (branch=cursor/endgame-credits-path-bdbc; see log if git complained).
-== launching bot (window 1) ==
-    expect: a PowerShell titled roughly 'python run.py' + browser dashboard at :8766
-waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
-    still waiting for bot... (15s)
-    still waiting for bot... (30s)
-bot is up. == launching supervised marathon (window 2) ==
-    expect: a PowerShell for supervisor.py, THEN the FireRed / mGBA game window
-She is live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking.
-If the GAME window never appears: look at window 2 for a Traceback (ROM path / SDL / mgba).
-To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T
