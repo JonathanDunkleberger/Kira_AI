@@ -1580,13 +1580,14 @@ class BattleAgent:
                 except Exception:
                     incoming = 1.0          # unread species -> neutral; still eligible by level
             # CHIPPER RANKING (2026-08-09, the Zapdos overkill deadlock): for a NORMAL catch a
-            # resistant close-level chipper is right (incoming, then level). But a LEGENDARY
-            # overkill chipper must SURVIVE the bird's free switch hit AND its return fire long
-            # enough to land several chips — level is the bulk proxy and `incoming` the damage
-            # proxy, so rank by survivability (lv / incoming): a L50 body beats a resistant-but-
-            # fragile L18 (Kadabra/Diglett into Zapdos fainted before chipping once).
+            # resistant close-level chipper is right (incoming, then level). For a LEGENDARY the
+            # ace one-shots, so the bench must chip — and the bird's free switch hit + return fire
+            # means the chipper must both SURVIVE and chip GENTLY. Rank by lv/incoming: a mid-level
+            # body that doesn't eat the bird's STAB lands many soft chips (Lapras into Zapdos), while
+            # a same-level bird (Moltres/Articuno) hits too hard and stalls high, and a frail L18
+            # faints before chipping. Lowest ratio fields first; `incoming` breaks ties.
             if legend:
-                key = (-lv / max(incoming, 0.25), incoming)
+                key = (lv / max(incoming, 0.25), incoming)
             else:
                 key = (incoming, -lv)   # lower incoming better; then higher level
             if best_key is None or key < best_key:
