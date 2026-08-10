@@ -383,6 +383,13 @@ ICEBEAM_FETCH_ENABLED = os.getenv("POKEMON_ICEBEAM_FETCH", "1") != "0"
 # Mewtwo. (Mew is event-only distribution hardware — not obtainable by play; Mewtwo IS this
 # cartridge's Mew-class prize.) Disable with POKEMON_LEGENDARY_HUNTS=0.
 LEGENDARY_HUNTS_ENABLED = os.getenv("POKEMON_LEGENDARY_HUNTS", "1") != "0"
+# 2026-08-08 (Zapdos push): the ROUTE 16 HM02 FLY fetch. Fly is a luxury (fast travel) — it is
+# NOT required for Zapdos or the E4. The fetch's final step (enter the hidden house behind the
+# Cut tree and talk to the girl) has no door-hint into the house interior, so the questline
+# reaches Route 16 but can't finish — she paces outside talking to nobody. Default OFF so the
+# lap skips Fly and walks the (repaired) Saffron gate route to Zapdos; re-enable with
+# POKEMON_FLY_FETCH=1 once the house-entry is wired.
+FLY_FETCH_ENABLED = os.getenv("POKEMON_FLY_FETCH", "0") != "0"
 # NS#13: the CINNABAR GYM strike (Blaine, badge 7). Cinnabar is FRLG's SIX quiz-door gym — the general
 # beat_gym clears juniors but never opens the quiz doors, so the leader battle never fires (the bounce the
 # mansion look-ahead surfaced). blaine_gym.run_gym does the FULL tour (quiz chain -> Blaine -> badge ->
@@ -458,12 +465,15 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
 # CREDITS-FIRST order (2026-08-07): no Eevee — Jolteon is optional fluff once Zapdos/Moltres
 # exist; the Celadon detour blocked League after Articuno and under-leveled the E4 floor.
-# Fly AFTER Articuno (must be outdoors — Seafoam blocks Fly) and BEFORE Zapdos so she
-# can warp to Cerulean / Route 10 instead of Surfing half of Kanto (Jonny 2026-08-08).
+# Fly BEFORE box_bench (2026-08-08): the ONLY Cut-learner left is Diglett — box_bench wants
+# to bench it for the Zapdos seat, but Fly needs it FIRST to cut the Route 16 tree and fetch
+# HM02. So fly runs, teaches Cut->Diglett, fetches HM02, teaches Fly to a bird, and ONLY THEN
+# does box_bench bench Diglett. (Blastoise/Lapras/birds CANNOT learn Cut in this ROM — the
+# earlier "Blastoise re-learns Cut" assumption was wrong; verified against gTMHMLearnsets.)
 # ice_beam AFTER zapdos: TM13 teach overwrites Blastoise's re-learned Cut, so the
 # Route 16 Fly fetch (Cut-gated) must be done first; the gate self-suppresses until
 # the coin budget is affordable (chat 2026-08-08: 'ice beam for blastoise for E4').
-VICTORY_LAP_ORDER = ("earthquake", "box_bench", "moltres", "articuno", "fly", "zapdos",
+VICTORY_LAP_ORDER = ("earthquake", "fly", "box_bench", "moltres", "articuno", "zapdos",
                      "ice_beam", "repack")
 VICTORY_LAP_MAX_FAILS = int(os.getenv("POKEMON_VICTORY_LAP_FAILS", "6"))
 # Sticky exhausted-hunt set: proximity may unskip a thin-ball skip, but NEVER a hunt that
@@ -994,7 +1004,22 @@ CELADON_DEPT_STONE_FRONT = (5, 13)    # customer side; stones clerk at (3,13)
 ITEM_THUNDER_STONE = 96
 DEPT4F_ROW_THUNDER_STONE = 3
 SPECIES_EEVEE_N, SPECIES_JOLTEON_N = 133, 135
+# Endgame E4 roster (badge-8 victory lap): KEEP these seats; DROP Diglett/Fearow so
+# Zapdos can join and Kadabra/Lapras get the grind (Jonny 2026-08-08: Kadabra over Diglett).
+SPECIES_E4_KEEP = frozenset({
+    7, 8, 9,          # Squirtle → Blastoise (ace)
+    63, 64, 65,       # Abra → Kadabra (psychic sweeper — Bruno/Agatha)
+    131,              # Lapras (bulk / Ice Beam)
+    144, 145, 146,    # Articuno / Zapdos / Moltres
+})
+SPECIES_E4_DROP = frozenset({
+    50, 51,           # Diglett / Dugtrio — Surge job is done at badge 8
+    21, 22,           # Spearow / Fearow — Fly taxi, not an E4 body
+})
 LAVENDER = (3, 4)                 # the graph gateway to Route 7/8/Celadon, reached only across Rock Tunnel (Flash-gated)
+ROUTE5, ROUTE8, ROUTE9 = (3, 23), (3, 26), (3, 27)
+ROUTE10, ROUTE12, ROUTE13 = (3, 28), (3, 30), (3, 31)
+ROUTE14, ROUTE15 = (3, 32), (3, 33)
 # Fuchsia (badge 5, Koga) — door/NPC coords from the disasm (FuchsiaCity/FuchsiaCity_Gym
 # map.json, 2026-07-07); the CITY MAP ID is the city-block extrapolation (Pallet 3,0 ..
 # Celadon 3,6 confirmed live) — EXPECTED until she walks it (a wrong id = beat_gym just
@@ -8735,16 +8760,36 @@ class Campaign:
             log(f"   [roam] prep-for-e4 target skipped: {e}")
             return None
 
+    def _e4_fighter_levels(self, party):
+        """Levels of the E4 six — ignores Diglett/Fearow DROP seats so a stranded passenger
+        can't set the readiness floor to L18 and NON-CONVERGE the gate (Jonny 2026-08-08)."""
+        out = []
+        for m in (party or []):
+            try:
+                sp = m.get("species_id")
+                if sp is None:
+                    nm = (m.get("species") or "").lower()
+                    sp = next((k for k, v in st.SPECIES_NAME.items()
+                               if v == nm), None)
+                if sp in SPECIES_E4_DROP:
+                    continue
+                out.append(int(m.get("level", 0)))
+            except Exception:
+                continue
+        return out
+
     def _e4_entry_ready(self, party):
         """RUN-4 E4-READINESS GATE predicate. Qualifying team-shape for the League gauntlet: a FULL six,
-        EVERY member >= E4_ENTRY_MIN_LEVEL, AND ace-to-floor gap <= E4_ENTRY_GAP_MAX (which also caps the
-        ceiling near L100 — floor>=42 & gap<=15 => ceil<=57). Returns (ready, floor, ceil, gap). Fail-safe:
-        a thin/empty party (< 6) is NEVER ready — she must never enter the League under-shape."""
-        levels = [int(m.get("level", 0)) for m in (party or [])]
+        EVERY fighter >= E4_ENTRY_MIN_LEVEL, AND ace-to-floor gap <= E4_ENTRY_GAP_MAX (which also caps the
+        ceiling near L100 — floor>=42 & gap<=15 => ceil<=57). DROP species (Diglett/Fearow) do not set
+        the floor. Returns (ready, floor, ceil, gap). Fail-safe: a thin/empty party (< 6) is NEVER ready
+        — she must never enter the League under-shape."""
+        all_levels = [int(m.get("level", 0)) for m in (party or [])]
+        levels = self._e4_fighter_levels(party) or all_levels
         floor = min(levels) if levels else 0
         ceil = max(levels) if levels else 0
         gap = ceil - floor
-        if len(levels) < 6:
+        if len(all_levels) < 6:
             return (False, floor, ceil, gap)
         ready = (floor >= E4_ENTRY_MIN_LEVEL) and (gap <= E4_ENTRY_GAP_MAX)
         return (ready, floor, ceil, gap)
@@ -8753,8 +8798,10 @@ class Campaign:
         """The bench-FLOOR the readiness grind must reach to turn the gate GREEN: high enough that BOTH
         (a) floor >= E4_ENTRY_MIN_LEVEL AND (b) the ace-floor gap <= E4_ENTRY_GAP_MAX (i.e. floor >= ace-15).
         Reads the CAPPED ace level (the ace earns no XP while the gate is RED), so the target can't chase a
-        runaway ace — it's a fixed bar the bench climbs to."""
-        ceil = max((int(m.get("level", 0)) for m in (party or [])), default=0)
+        runaway ace — it's a fixed bar the bench climbs to. DROP species ignored for the ace ceiling."""
+        fighters = self._e4_fighter_levels(party)
+        ceil = max(fighters, default=0) if fighters else max(
+            (int(m.get("level", 0)) for m in (party or [])), default=0)
         return max(E4_ENTRY_MIN_LEVEL, ceil - E4_ENTRY_GAP_MAX)
 
     def _prep_team_target(self, state):
@@ -13129,6 +13176,8 @@ class Campaign:
         (Cut prereq), 'fly' is in OVERWORLD_SAFE_QUESTLINES, gives_cap flows to the world
         model, and travel prefers fly-to between visited towns the moment she owns it.
         Returns a Gate once badges>=5 with HM02 unowned and Cut in hand, else None."""
+        if not FLY_FETCH_ENABLED:
+            return None                            # fetch disabled (house-entry unwired) -> walk instead
         try:
             if (state.get("badge_count") or 0) < 5:
                 return None
@@ -13533,6 +13582,8 @@ class Campaign:
                 if fm.can_use(b, "fly", cnt):
                     (getattr(self, "_lap_skipped", None) or set()).discard("fly")
                     return False
+                if not FLY_FETCH_ENABLED:
+                    return False                 # fetch disabled -> walk to Zapdos; fly not pending
                 _fly_fails = (getattr(self, "_lap_fails", None) or {}).get("fly", 0)
                 if _fly_fails < VICTORY_LAP_MAX_FAILS:
                     try:
@@ -13568,19 +13619,31 @@ class Campaign:
                 # POKEMON_BOX_FLOW=0 (or the PCBOX master flag) removes it cleanly.
                 if not (BOX_FLOW_ENABLED and PCBOX_ENABLED):
                     return False
+                plan = self._lap_bench_plan()
                 # ONE-TRIP LATCH (2026-08-05, the Cinnabar deposit<->catch SHUTTLE): the executor
                 # completing its plan latches box_bench DONE for the session. Without it, ANY
                 # mid-lap pickup (a Route-21 tentacool off a misheard catch_now) regrew the plan,
                 # flipped this back to 'pending', and the lap marched her back into the Center —
                 # the logged door loop was the PC<->Route-21 shuttle, not the door itself. A
                 # pickup now rides in the trunk until 'repack'; the seat math still ran once.
+                #
+                # RE-ARM EXCEPTION (2026-08-08): Diglett/Fearow hogging a seat while Zapdos is
+                # still owed — the latch must NOT leave Diglett on the E4 six forever. Freeing
+                # that seat is the bird-join math, not a Tentacool shuttle.
                 if getattr(self, "_lap_bench_done", False):
-                    if self._lap_bench_plan() and not getattr(self, "_lap_bench_relatch_logged", False):
+                    seat_need = (self._lap_join_seat_shortfall() > 0
+                                 or self._lap_boxed_bird_present())
+                    if plan and seat_need:
+                        self._lap_bench_done = False
+                        log("   [box] ♻️ RE-ARM box_bench — bird seat blocked by a drop "
+                            f"(Diglett/Fearow); depositing {len(plan)} (LOUD)")
+                        return True
+                    if plan and not getattr(self, "_lap_bench_relatch_logged", False):
                         self._lap_bench_relatch_logged = True
                         log("   [box] bench already DONE this session — a mid-lap pickup regrew the "
                             "plan but the LATCH holds (no march back to the Center; trunk until repack)")
                     return False
-                return bool(self._lap_bench_plan())
+                return bool(plan)
             if key == "repack":
                 # Owed only when THIS run actually benched someone and the party ended short
                 # of six (a skipped hunt) — the E4 gate's FULL-SIX law needs the bodies back.
@@ -14068,27 +14131,83 @@ class Campaign:
     _LAP_JOIN_SPECIES = (146, 144, 145)        # Moltres, Articuno, Zapdos (lap join items)
     _LAP_JOIN_KEYS = ("moltres", "articuno", "zapdos")
 
+    def _lap_join_seat_shortfall(self):
+        """How many free party seats the still-owed lap birds still need (0 = enough room)."""
+        try:
+            cnt = min(self.b.rd8(ram.GPLAYER_PARTY_CNT) or 0, 6)
+        except Exception:
+            return 0
+        joins = sum(1 for k in self._LAP_JOIN_KEYS if self._lap_pending(k))
+        return max(0, joins - (6 - cnt))
+
+    def _lap_boxed_bird_present(self):
+        """True when a lap bird (Moltres/Articuno/Zapdos) is sitting in the open PC box."""
+        try:
+            _cb, occ = self._box_scan()
+        except Exception:
+            return False
+        return any(sp in self._LAP_JOIN_SPECIES for sp in (occ or {}).values())
+
     def _lap_bench_plan(self):
-        """Which party SLOTS ride the box (lowest level first): passengers (non-ace, level <=
-        BOX_BENCH_MAX_LEVEL) up to exactly the seat shortfall for the still-owed join-items,
-        never below BOX_BENCH_MIN_PARTY bodies. Empty list = nothing owed. Sized per-tick from
-        LIVE RAM so a skipped hunt shrinks the deposit and a done deposit reads complete."""
+        """Which party SLOTS ride the box (lowest level first).
+
+        Seat math for still-owed join-items (birds), PLUS the badge-8 E4 roster rule:
+        Diglett/Fearow are DROP species (never keepers) so Zapdos can take the seat and
+        Kadabra/Lapras stay on the grind six. SPECIES_E4_KEEP is never deposited.
+        Empty list = nothing owed. Sized per-tick from LIVE RAM."""
         b = self.b
         cnt = min(b.rd8(ram.GPLAYER_PARTY_CNT) or 0, 6)
         if cnt <= BOX_BENCH_MIN_PARTY:
             return []
-        joins = sum(1 for k in self._LAP_JOIN_KEYS if self._lap_pending(k))
-        need = joins - (6 - cnt)
-        if need <= 0:
-            return []
+        shortfall = self._lap_join_seat_shortfall()
+        bird_boxed = self._lap_boxed_bird_present()
 
         def _lv(s):
             return b.rd8(ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE + 0x54)
 
+        def _sp(s):
+            return st.read_party_species(b, s)
+
         ace = self._lap_ace_slot()
-        passengers = sorted((s for s in range(cnt)
-                             if s != ace and _lv(s) <= BOX_BENCH_MAX_LEVEL), key=_lv)
-        return passengers[:min(need, cnt - BOX_BENCH_MIN_PARTY)]
+        # CUT-PREP SHUTTLE GUARD (2026-08-09 look-ahead): while Zapdos is still owed, Diglett is
+        # the Route-9 tree key (the ONLY Cut-learner left) — and it ALREADY knows Cut: the moment
+        # cut-prep withdraws it, can_use('cut') flips True, the old cut_ready-based guard released,
+        # and box_bench benched it right back before staging could cross ('Diglett not in party to
+        # teach' x6 -> honest skip). Reserve it for the WHOLE owed-zapdos window; once the bird is
+        # owned the RE-ARM exception below re-benches it for the E4 six.
+        try:
+            _dig_reserved = (ram.pokedex_owns(b, 145) is not True
+                             and not fm.read_flag(b, 0x2BF)
+                             and not fm.read_flag(b, 0x05D))
+        except Exception:
+            _dig_reserved = False
+        drops, passengers = [], []
+        for s in range(cnt):
+            if s == ace:
+                continue
+            sp = _sp(s)
+            if sp in SPECIES_E4_KEEP:
+                continue                          # Kadabra / Lapras / birds / Blastoise stay
+            if sp in SPECIES_E4_DROP:
+                if _dig_reserved and sp in (50, 51):
+                    continue                      # Cut-learner reserved for the Route 9 tree
+                drops.append(s)
+            elif _lv(s) <= BOX_BENCH_MAX_LEVEL:
+                passengers.append(s)
+        drops = sorted(drops, key=_lv)
+        passengers = sorted(passengers, key=_lv)
+        # Prefer Diglett/Fearow out first (E4 roster), then low-level junk passengers.
+        ordered = drops + [s for s in passengers if s not in drops]
+        if not ordered:
+            return []
+        # Deposit at least the bird-seat shortfall; also park every DROP while a bird is
+        # still owed OR already auto-boxed (party-6 Diglett would keep Zapdos in storage).
+        need = shortfall
+        if shortfall > 0 or bird_boxed:
+            need = max(need, len(drops) if drops else shortfall)
+        if need <= 0:
+            return []
+        return ordered[:min(need, cnt - BOX_BENCH_MIN_PARTY, len(ordered))]
 
     def _lap_pc_march(self, key, state):
         """March toward the nearest RIDEABLE Center city for a [box] leg — CINNABAR first (the
@@ -14218,6 +14337,303 @@ class Campaign:
             self._lap_note_fail(key, "withdraw pulled nothing")
         return "ok"
 
+    def _zapdos_cut_ready(self):
+        """True iff a party member knows Cut (the Route 9 tree can be cleared). Read-only,
+        fail-closed to False (a read flake routes into the Cut-prep, never into the tree)."""
+        try:
+            import field_moves as _fmv
+            return bool(_fmv.can_use(self.b, "cut"))
+        except Exception:
+            return False
+
+    def _clear_route9_seam(self):
+        """Reset the seam-thrash breaker for the Cerulean<->Route 9 seam so she can walk
+        cleanly across Route 9 to Route 10 NORTH. The breaker no-go'd Route 9 when the
+        Cut-tree wedge made her ping-pong the border; once Cut is in hand that ban is stale
+        and must be lifted or the north staging can never cross. Clears the pair from
+        _seam_broken, lifts Route 9 (and Cerulean) out of _seam_nogo, drops the forced
+        head_to_gym commit, and forgets the crossing history for that seam."""
+        try:
+            pair = frozenset((tuple(CERULEAN), tuple(ROUTE9)))
+            sb = getattr(self, "_seam_broken", None)
+            if sb and pair in sb:
+                sb.discard(pair)
+                log("   [lap] ✂️ seam-breaker: cleared the Cerulean↔Route 9 NO-GO pair "
+                    "(Cut is in hand — the border war is over)")
+            nogo = getattr(self, "_seam_nogo", None)
+            if nogo:
+                for m in (tuple(ROUTE9), tuple(CERULEAN)):
+                    if m in nogo:
+                        nogo.discard(m)
+            if getattr(self, "_seam_commit_ticks", 0):
+                self._seam_commit_ticks = 0
+            sh = getattr(self, "_seam_hist", None)
+            if sh:
+                self._seam_hist = [e for e in sh if e[1] != pair]
+        except Exception as e:
+            log(f"   [lap] seam-breaker reset skipped ({e})")
+
+    def _cut_prep_pc_march(self, state):
+        """March to the NEAREST Center PC (by true learned-graph length) for the Cut-prep
+        withdraw. The lap's shared _lap_pc_march orders CINNABAR first (the post-Giovanni
+        endgame corridor) — from Route 9 that graph route runs EAST across the VERY cut tree
+        being fetched, so the march died no_route_hm_blocked six times and zapdos honest-skipped
+        with Diglett still boxed (soak 2026-08-09 look-ahead). Nearest-by-hops wins here; the
+        rideable filter and bounded-fail ledger are unchanged. Only proper Center cities are
+        candidates (never the Route-10/Lavender/Sevii doors — the Route-10 one sits BEHIND the
+        tree)."""
+        cur = tuple(tv.map_id(self.b))
+        if cur in CITY_PC_DOORS:
+            log(f"   [lap] ✂️ CUT-PREP already at a Center PC ({self.world.name(cur)}) — "
+                f"withdrawing next tick")
+            return "ok"                       # stage 1 owns the withdraw on the next tick
+        ring = (CERULEAN, CELADON, SAFFRON, VERMILION, FUCHSIA, VIRIDIAN, CINNABAR, PEWTER)
+        cands = []
+        for c in ring:
+            if c not in CITY_PC_DOORS:
+                continue
+            try:
+                path = self.world.route(cur, c, avoid=set())
+            except Exception:
+                path = None
+            if not path:
+                continue
+            if self._next_step_rideable(cur, c, set()) is None:
+                continue
+            cands.append((len(path), c))
+        if not cands:
+            self._lap_note_fail("zapdos", "cut-prep: no rideable Center city from here")
+            return "ok"
+        cands.sort(key=lambda t: t[0])
+        hops, tgt = cands[0]
+        log(f"   [lap] ✂️ CUT-PREP needs a Center PC — marching to {self.world.name(tgt)} {tgt} "
+            f"(nearest: {hops - 1} hop(s); candidates {[(self.world.name(c), h - 1) for h, c in cands]})")
+        r = self._travel_to_known(f"travel:{tgt[0]},{tgt[1]}", state, hunt_on_arrival=False)
+        if r in ("no_route", "bad_travel_target") or str(r).startswith("travel:"):
+            self._lap_note_fail("zapdos", f"cut-prep PC march -> {r}")
+        return r
+
+    def _zapdos_cut_prep(self, state):
+        """Cut-prep state machine for the Zapdos north path. Route 9's cuttable tree needs a
+        Cut user; the only Cut-learner is Diglett and box_bench benched it. State machine
+        (one step per tick, tracked in _zapdos_cut_stage):
+          0 -> ensure HM01 is in the case; locate Diglett in the box; route to nearest PC
+          1 -> at a PC: withdraw Diglett
+          2 -> teach HM01 Cut to Diglett
+          3 -> done: reset the Route 9 seam-breaker, return 'ready'
+        Returns 'ready' when Cut is in the party, else a stage:* sentinel (the caller holds
+        the turn). Bounded: a step that keeps failing latches an honest skip so the lap never
+        wedges."""
+        import field_moves as _fmv
+        import hm_teach as _ht
+        stage = getattr(self, "_zapdos_cut_stage", 0)
+        # Already have Cut (taught, or re-checked) — reset the breaker and go.
+        if self._zapdos_cut_ready():
+            self._clear_route9_seam()
+            self._zapdos_cut_stage = 0
+            return "ready"
+        fails = getattr(self, "_zapdos_cut_fails", 0)
+        if fails >= 6:
+            log("   [lap] !! ZAPDOS CUT-PREP: 6 failed steps — honest skip, the lap moves on")
+            self._lap_note_fail("zapdos", "cut-prep could not field a Cut user")
+            return "stage:no_cut"
+        # Step 0: prerequisites + route to a PC.
+        if stage == 0:
+            try:
+                if _ht.tm_case_row(self.b, 339) is None:      # HM01 Cut not in the case
+                    log("   [lap] !! ZAPDOS CUT-PREP: HM01 not in the TM case — can't teach Cut")
+                    self._lap_note_fail("zapdos", "no HM01 in case")
+                    return "stage:no_cut"
+                cb, occ = self._box_scan()
+                dig = next(((bx, sl) for (bx, sl), sp in occ.items() if sp == 50), None)
+                if dig is None:
+                    log("   [lap] !! ZAPDOS CUT-PREP: no Diglett in the box — no Cut-learner")
+                    self._lap_note_fail("zapdos", "no Diglett in box")
+                    return "stage:no_cut"
+            except Exception as e:
+                log(f"   [lap] ZAPDOS CUT-PREP: prereq read failed ({e})")
+                self._zapdos_cut_fails = fails + 1
+                return "stage:prereq_failed"
+            self._zapdos_cut_stage = 1
+            log("   [lap] ✂️ ZAPDOS CUT-PREP: Diglett in the box — routing to the nearest PC")
+            return self._cut_prep_pc_march(state)
+        # Step 1: at a PC? withdraw Diglett.
+        if stage == 1:
+            cur = tuple(tv.map_id(self.b))
+            pc_door = CITY_PC_DOORS.get(cur)
+            if pc_door is None:
+                return self._cut_prep_pc_march(state)
+            try:
+                cb, occ = self._box_scan()
+                dig = next(((bx, sl) for (bx, sl), sp in occ.items()
+                            if sp == 50 and bx == cb), None)
+            except Exception as e:
+                log(f"   [lap] ZAPDOS CUT-PREP: box scan failed ({e})")
+                self._zapdos_cut_fails = fails + 1
+                return "stage:scan_failed"
+            if dig is None:
+                log("   [lap] !! ZAPDOS CUT-PREP: Diglett not in the OPEN box — can't withdraw")
+                self._zapdos_cut_stage = 0
+                self._zapdos_cut_fails = fails + 1
+                return "stage:no_diglett_open"
+            bx, sl = dig
+            r = self.withdraw_mon(bx, sl, pc_door)
+            if r == "withdrawn":
+                self._zapdos_cut_stage = 2
+                log("   [lap] ✂️ ZAPDOS CUT-PREP: Diglett withdrawn — teaching Cut next")
+                return "stage:withdrawn"
+            self._zapdos_cut_fails = fails + 1
+            log(f"   [lap] ZAPDOS CUT-PREP: withdraw -> {r}")
+            return "stage:withdraw_failed"
+        # Step 2: teach HM01 Cut to Diglett.
+        if stage == 2:
+            try:
+                cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                slot = next((s for s in range(min(cnt, 6))
+                             if st.read_party_species(self.b, s) == 50), None)
+                if slot is None:
+                    log("   [lap] !! ZAPDOS CUT-PREP: Diglett not in party to teach")
+                    self._zapdos_cut_stage = 0
+                    self._zapdos_cut_fails = fails + 1
+                    return "stage:no_diglett"
+                plan = _ht.default_plan(self.b, "cut", cnt)
+                forget = None
+                if plan and plan[0] == slot:
+                    forget = plan[1]
+                r = _ht.TeachFlow(self, log=log, on_event=self.on_event).teach(
+                    "cut", slot, forget_idx=forget)
+                if r == "taught":
+                    self._zapdos_cut_stage = 3
+                    log("   [lap] ✂️ ZAPDOS CUT-PREP: Diglett learned CUT — Route 9 opens")
+                    return "stage:taught"
+                self._zapdos_cut_fails = fails + 1
+                log(f"   [lap] ZAPDOS CUT-PREP: teach -> {r}")
+                return "stage:teach_failed"
+            except Exception as e:
+                log(f"   [lap] ZAPDOS CUT-PREP: teach errored ({e})")
+                self._zapdos_cut_fails = fails + 1
+                return "stage:teach_errored"
+        # Step 3: done.
+        self._clear_route9_seam()
+        self._zapdos_cut_stage = 0
+        return "ready"
+
+    def _zapdos_north_staging(self, state):
+        """Walk the overworld loop into Route 10's NORTH half for the Power Plant.
+
+        Route 10 is SPLIT by Rock Tunnel: Lavender's north edge lands the SOUTH segment
+        (y≈79) where ZapdosHunt can't reach plant door (7,40) — 'no path' forever, then
+        the KB step walks her back south (the all-night Kanto orbit). Enter from Route 9
+        (Cerulean east) to land the NORTH segment (Center / water strip).
+
+        One leg per tick. Returns a stage:* sentinel while staging, or None when already
+        on R10 NORTH (or indoors on the plant) so the questline/strike can fire.
+        Live crash (soak 20260807_202018): this method was called but never defined —
+        every victory_lap tick AttributeError'd while she stood in Fuchsia.
+        """
+        try:
+            here = tuple(tv.map_id(self.b))
+            y = (tv.coords(self.b) or (0, 0))[1]
+        except Exception as e:
+            log(f"   [lap] Zapdos north staging: map read failed ({e})")
+            return None
+
+        # Already on the good half / inside the plant — strike owns the turn.
+        if here == (1, 95):                         # Power Plant interior
+            return None
+        if here == ROUTE10 and y <= 50:
+            return None
+
+        # CUT GATE (2026-08-08): the ONLY path to Route 10 NORTH is Cerulean -> Route 9,
+        # and a CUTTABLE TREE at Route 9 (2,8) blocks it (pret: LOCALID_ROUTE9_CUT_TREE,
+        # FLAG_TEMP_12). The travel executor auto-cuts a tree on the gap ONLY when a party
+        # mon knows Cut (travel.py FIELD OBSTACLE block) — and the post-box_bench party
+        # (Blastoise/Lapras/birds/Kadabra) has NO Cut user (ROM: only Diglett learns it,
+        # and box_bench benched it). So before routing north, make sure Cut is in the party:
+        # if it isn't, run the Cut-prep state machine (PC -> withdraw Diglett -> teach HM01).
+        # Until Cut is ready we must NOT enter Route 9 (she'd wedge on the tree and the
+        # Cerulean<->Route 9 seam-thrash would re-trip).
+        if not self._zapdos_cut_ready():
+            r = self._zapdos_cut_prep(state)
+            if r != "ready":
+                return r
+
+        def _go(label, pick, ban_r10=False):
+            log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: {label} "
+                f"(from {here}@{tv.coords(self.b)}"
+                f"{', R10 BANNED' if ban_r10 else ''}) (LOUD)")
+            prev = getattr(self, "_extra_travel_avoid", set())
+            if ban_r10:
+                self._extra_travel_avoid = set(prev) | {ROUTE10}
+            try:
+                r = self._travel_to_known(pick, state, hunt_on_arrival=False)
+            finally:
+                self._extra_travel_avoid = prev
+            if r == "no_route":
+                self._lap_note_fail("zapdos", f"north staging no_route ({label})")
+            return f"stage:{r}"
+
+        # SOUTH segment trap — drop to Lavender, then ride the loop.
+        if here == ROUTE10 and y > 50:
+            log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: on R10 SOUTH (y={y}) — "
+                f"dropping to Lavender for the Saffron–Cerulean loop (LOUD)")
+            try:
+                r = self.trav.travel(target_map=LAVENDER, edge="south",
+                                     max_seconds=180)
+            except Exception as e:
+                log(f"   [lap] R10-south drop failed ({e})")
+                r = "no_route"
+                self._lap_note_fail("zapdos", f"r10-south drop ({e})")
+            return f"stage:{r}"
+
+        # North approach corridor — do NOT ban R10; R9's east edge is the entry.
+        if here == ROUTE9:
+            return _go("Route 9 → Route 10 NORTH", "travel:3,28", ban_r10=False)
+        if here == CERULEAN:
+            return _go("Cerulean → Route 9", "travel:3,27", ban_r10=False)
+        if here == ROUTE5:
+            return _go("Route 5 → Cerulean", "travel:3,3", ban_r10=False)
+        if here == SAFFRON:
+            return _go("Saffron → Route 5", "travel:3,23", ban_r10=False)
+        if here == ROUTE8:
+            return _go("Route 8 → Saffron", "travel:3,10", ban_r10=True)
+        if here in ((3, 43), (3, 44)):            # Route 24/25 — dead-end maps NORTH of Cerulean
+            return _go("Route 24/25 → Cerulean", "travel:3,3", ban_r10=True)
+
+        # Southern cluster (Fuchsia / R12–R15 / Lavender / …) and any other group-3
+        # overworld that isn't already on the north pad: ban R10 so the graph never
+        # re-enters the south segment. Prefer R8 → Saffron → Cerulean → R9.
+        north_pad = {ROUTE10, ROUTE9, CERULEAN, ROUTE5, SAFFRON, ROUTE8}
+        if (isinstance(here, tuple) and here[0] == 3 and here not in north_pad):
+            for pick, label in (
+                ("travel:3,26", "→ Route 8 (then Saffron–Cerulean–R9)"),
+                ("travel:3,10", "→ Saffron"),
+                ("travel:3,3",  "→ Cerulean"),
+                ("travel:3,27", "→ Route 9"),
+            ):
+                try:
+                    dst = tuple(int(x) for x in pick.split(":")[1].split(","))
+                    if self._next_step_rideable(here, dst, {ROUTE10}) is None:
+                        continue
+                except Exception:
+                    pass                              # probe failed — still try the travel
+                return _go(label, pick, ban_r10=True)
+            return _go("→ Route 8 (forced)", "travel:3,26", ban_r10=True)
+
+        # INDOOR LEGS (2026-08-08, the Route 8<->gatehouse bounce): the route north crosses two
+        # indoor maps — the Underground Path (Route 7<->Route 8) and the Saffron gatehouse
+        # (Route 8<->Saffron). They're group != 3, so every branch above misses them and this
+        # staging returned None, letting the questline bounce her back out. Own the leg: keep
+        # walking to the far-side waypoint until she's outdoors again.
+        if here == (1, 35):                       # Underground Path (Route 7 <-> Route 8)
+            return _go("Underground Path → Route 8", "travel:3,26", ban_r10=True)
+        if here == (20, 0):                       # Saffron gatehouse (Route 8 <-> Saffron)
+            return _go("Saffron gatehouse → Saffron", "travel:3,10", ban_r10=True)
+        if here == (17, 1):                       # Saffron gatehouse (Saffron <-> Route 5)
+            return _go("Saffron gatehouse → Route 5", "travel:3,23", ban_r10=True)
+
+        return None
+
     def _run_victory_lap(self, state):
         """EXECUTOR for the 'victory_lap' pick: run the FIRST owed checklist item. Earthquake
         teaches in place; box_bench/repack drive the Center-PC box flow ([box]); the hunts/
@@ -14316,9 +14732,27 @@ class Campaign:
                         f"(now {tv.map_id(self.b)}@{tv.coords(self.b)})")
             except Exception as _zfe:
                 log(f"   [lap] Zapdos fly staging skipped ({_zfe})")
+            # NORTH STAGING — Route 10 is SPLIT; Power Plant only from the north half.
+            # Method owns Fuchsia/southern cluster → Cerulean → R9 → R10 NORTH.
+            # (soak 20260807_202018: AttributeError when this helper was missing.)
             _sr = self._zapdos_north_staging(state)
             if _sr is not None:
                 return _sr
+            # NORTH-PAD GUARD (2026-08-08, the Lavender<->Route 12 ping-pong): north staging
+            # returning None is ONLY valid on R10 NORTH (y<=50) or inside the plant. Anywhere
+            # else it means a transient map-read flake — opening the questline there lets its
+            # anchor-first steer drag her onto the R10 SOUTH dead-end again (the oscillation
+            # that tripped the seam-thrash breaker into a dead 'regroup' state). Hold and
+            # re-tick so staging gets another crack instead.
+            try:
+                _zh2 = tuple(tv.map_id(self.b))
+                _zy2 = (tv.coords(self.b) or (0, 0))[1]
+                if not (_zh2 == (1, 95) or (_zh2 == ROUTE10 and _zy2 <= 50)):
+                    log(f"   [lap] !! ZAPDOS staging said 'on the pad' but she's at "
+                        f"{_zh2}@{_zy2} — holding the questline, re-ticking (LOUD)")
+                    return "ok"
+            except Exception:
+                pass
         gate = self._lap_gate_for(key, state)
         if gate is None:
             # Owed by raw truth but the gate self-suppresses. Ball-thin is OURS to fix; any
@@ -14352,59 +14786,6 @@ class Campaign:
                    "questline_strike_failed", "stuck", "failed"):
             self._lap_note_fail(key, r)
         return r
-
-    def _zapdos_north_staging(self, state):
-        """NORTH-HALF STAGING (2026-08-08 LIVE, the all-night Kanto lap): Route 10 is a
-        SPLIT map — Rock Tunnel separates the halves and the world graph can't see it.
-        Entering from Lavender's north edge lands the SOUTH half (y≈79); the Power Plant
-        door (7,40) is reachable ONLY by surfing from the NORTH half (the pond by the
-        Rock Tunnel Center). From the south the strike reads 'no path from (11,79)'
-        forever and the walk-back re-enters south — the loop that circled Kanto for an
-        hour. So: on the south half, drop to Lavender; anywhere else, ride the graph the
-        long way (Lavender → Route 8 → Saffron → Route 5 → Cerulean → Route 9) with
-        Route 10 BANNED from routing (_extra_travel_avoid); R9's east edge enters R10
-        NORTH, and from R9 itself the questline's anchor-first machinery owns the final
-        edge. One leg per tick; each leg is proven machinery. Returns a roam result
-        ('stage:*' / 'ok') while staging owns the tick, or None when the strike/questline
-        owns from here. Never raises — any fault falls through to the gate machinery."""
-        try:
-            here = tuple(tv.map_id(self.b))
-            y = (tv.coords(self.b) or (0, 0))[1]
-        except Exception as _nze:
-            log(f"   [lap] Zapdos north staging unreadable ({_nze}) — questline owns")
-            return None
-        if here == (1, 95):
-            return None                       # inside the Plant — the strike owns
-        if here == (3, 28):
-            if y > 50:
-                log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: on R10 SOUTH segment (y={y}) — "
-                    f"dropping to Lavender to ride the Saffron–Cerulean loop (LOUD)")
-                try:
-                    _r = self.trav.travel(target_map=(3, 4), edge="south",
-                                          max_seconds=180)
-                except Exception as _zde:
-                    log(f"   [lap] Zapdos south-drop errored ({_zde}) — retry next tick")
-                    return "ok"
-                return f"stage:{_r}"
-            return None                       # NORTH half — the strike owns from here
-        if here == (3, 27):
-            return None                       # Route 9 — one edge from R10 NORTH
-        try:
-            log(f"   [lap] 🧭 ZAPDOS NORTH STAGING: from {here} riding the graph to "
-                f"Route 9 (Route 10 BANNED — south segment trap) (LOUD)")
-            self._extra_travel_avoid = {(3, 28)}
-            try:
-                _r = self._travel_to_known("travel:3,27", state, hunt_on_arrival=False)
-                if _r == "no_route":
-                    _r = self._travel_to_known("travel:3,3", state, hunt_on_arrival=False)
-            finally:
-                self._extra_travel_avoid = set()
-            if _r == "no_route":
-                self._lap_note_fail("zapdos", "north staging no_route")
-            return f"stage:{_r}"
-        except Exception as _zns:
-            log(f"   [lap] Zapdos north staging skipped ({_zns})")
-            return None
 
     def _lap_order_party_for_e4(self):
         """DELIBERATE E4 party order (2026-08-04): ace first, then every fighter by level
@@ -19977,7 +20358,7 @@ class Campaign:
                     "(dominant / creator order; grass is OFF the menu)")
             # FORCE VICTORY LAP (2026-08-04): the pre-E4 checklist is not a taste question —
             # when the lap action is on the menu it IS the endgame road (explicit order:
-            # Earthquake → Moltres → Articuno → Eevee → Zapdos). Heal still outranks a lap
+            # Earthquake → box_bench → birds → Fly → Zapdos → Ice Beam → repack). Heal still outranks a lap
             # leg (the hunts are combat dungeons; nobody starts one hurt) — the lap re-forces
             # next tick at full HP.
             if _forced_pick is None and "victory_lap" in avail:

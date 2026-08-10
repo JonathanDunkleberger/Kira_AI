@@ -1191,6 +1191,32 @@ class Traveler:
                 for t in _stale_marks:
                     self.blocked_npcs.discard((cur_map, t))
                 blocked_here -= _stale_marks
+            # FIELD-OBSTACLE RELEASE (2026-08-09, the Route-9 cut-tree wedge): the FIELD OBSTACLE
+            # branch marks a cut tree/boulder into the shared block memory "until the HM is owned"
+            # — but nothing ever released it, so a tree marked PRE-HM (and persisted by wedge
+            # memory) stayed banned after Cut/Strength became usable: blocked_here kept the
+            # NPC-allowing probe BFS from pathing through the tile, the probe found no path, and
+            # the auto-cut branch (which NEEDS that probe to identify the blocker) never fired.
+            # Release live-scanned obstacle tiles whose HM is NOW usable so the probe can route
+            # through and the auto-cut clears them.
+            if blocked_here and self.field_clear is not None:
+                try:
+                    import field_moves as _fmr
+                    _fobjs = {ob["coord"]: ob["gfx"] for ob in _fmr.scan_field_objects(
+                        self.b, {_fmr.GFX_CUT_TREE, _fmr.GFX_BOULDER})}
+                    _rel = {t for t in blocked_here
+                            if ((_fobjs.get(t) == _fmr.GFX_CUT_TREE
+                                 and _fmr.can_use(self.b, "cut"))
+                                or (_fobjs.get(t) == _fmr.GFX_BOULDER
+                                    and _fmr.can_use(self.b, "strength")))}
+                    if _rel:
+                        self.log(f"   [travel] releasing field-obstacle block(s) {sorted(_rel)} — "
+                                 f"the HM is usable now (marked before Cut/Strength was owned)")
+                        for t in _rel:
+                            self.blocked_npcs.discard((cur_map, t))
+                        blocked_here -= _rel
+                except Exception:
+                    pass
             def free(sx, sy):
                 return ((sx, sy) not in npc and (sx, sy) not in static_blocked
                         and (sx, sy) not in avoid and (sx, sy) not in blocked_here

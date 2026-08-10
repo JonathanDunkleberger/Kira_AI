@@ -1,0 +1,1500 @@
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for the Power Plant (ZAPDOS — the legendary electric bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for the Power Plant (ZAPDOS — the legendary electric bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(9, 79) -> map (3, 4) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] MAP TRANSITION (3, 28) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] south connection band cols: [11, 12, 24]
+
+   [travel] ARRIVED at target map (3, 4) coords=(9, 0)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 28)(9, 79) -> (3, 4)(9, 0) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(9, 0) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101636_lavender-town_8b_38h08m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'done', 'moltres': 'done', 'articuno': 'done', 'fly': 'SKIPPED', 'zapdos': 'pending', 'ice_beam': 'done', 'repack': 'pending'} -> next: zapdos (cost-ordered from (3, 4))
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 28) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (5 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'travel:3,30', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 22/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (9, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (9,0) f1 -- badge8 $2910 party:a8e4 bag:212a]
+
+   [campaign]    [roam] !!!! BORDER PING-PONG BREAKER (strike 1): 12 border crossings among [(3, 4), (3, 26), (3, 28), (3, 30), (20, 0)] with ZERO world progress — clearing the errand, forgetting 'proven' connectors on these maps, holding head_to_gym off them for 120s LOUD
+
+   [campaign]    [roam] questline cleared (border ping-pong breaker)
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'head_to_gym', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> Lavender Town
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 4), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'Press on through the league', 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] -> T2·savor· (route) "okay, stop — I've been pacing the same doors like a lost tourist. deep breath. new plan from the top."  fired=True  [age 0.0s + post 21ms]
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(9, 0) -> map (3, 30) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [11, 12, 24]
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 17ms]
+
+   [travel] step 0: (9, 0)->(9, 1) map=(3, 4) (path 25 to exit)
+
+   [travel] step 10: (11, 8)->(12, 8) map=(3, 4) (path 15 to exit)
+
+   [travel] step 20: (13, 16)->(13, 17) map=(3, 4) (path 5 to exit)
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(9, 0) -> (3, 30)(12, 0) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101643_route-12_8b_38h08m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 29) toward Route 11 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (4 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,28', 'travel:3,29', 'travel:3,31', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! BORDER PING-PONG HOLD: ['head_to_gym', 'victory_lap'] off the menu on this thrashed map (112s left) — the breaker owns the rhythm
+
+   [campaign]    [roam] !! EMPTY-OPTIONS FLOOR: no honest action was available here — offering the regroup-at-Center anchor so the roam never dead-ends
+
+   [campaign] -- ROAM TICK 23/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:a8e4 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['regroup']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. From here: NORTH → Lavender Town — a Pokémon Center; SOUTH → Route 13 — wild Pokémon to catch/train; WEST → Route 11 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 10; Route 8; Route 14. You can walk to anywhere you\'ve already been. You have SURF — you can cross water. Field moves ready: STRENGTH.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. All 8 badges are yours — the Elite Four is the final challenge before the credits. Word on the road about the Elite Four: the Elite Four open with an ice-and-water lady — folks say lightning and grass are how you slip past her; and then the dragon master himself — and everyone says the same thing: ice is the only thing a dragon truly fears. YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): All eight Gym Badges are yours. The Elite Four and the Champion are the summit.. Time to pick up my zapdos from Power Plant (static L50 — Surf up the Route 10 water from the east bank). This has been on the plan since the start.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and push forward to the next objective. Next: Press on through the league. Bigger picture: Take on the Elite Four. Your team right now: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'Press on through the league', 'long': 'Take on the Elite Four'}, 'strategy': "1) WAR PREP: the Elite Four is five fights with NO Center between them — full restores, revives, ethers, and a levelled WHOLE team, or don't walk in.\n2) TEAM BUILD: zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO.\n3) DEX PUSH: 19/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['regroup']
+
+   [kira-voice] ORACLE kind=action options=['regroup'] -> pick='regroup'
+
+   [campaign]    [soul] ORACLE pick -> 'regroup'
+
+   [campaign]    [roam] DECISION THINK: 2921ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: regroup
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 2 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    7 door(s); candidates (chosen order): [(14, 15)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> coord (14, 14) (budget 60s, surf-capable)
+
+   [travel] step 0: (12, 0)->(12, 1) map=(3, 30) (path 17 to exit)
+
+   [travel] step 10: (12, 10)->(12, 11) map=(3, 30) (path 7 to exit)
+
+   [travel] reached target coord (14, 14)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (14, 15) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 5 warp(s) on (23, 0): (5, 1)->(3, 30), (6, 1)->(3, 30), (5, 11)->(3, 30), (6, 11)->(3, 30), (8, 10)->(23, 1)
+
+   [campaign]    WARPED (3, 30) -> (23, 0) via directional door (14, 15)
+
+   [campaign]    [world] learned 5 warp(s) on (23, 0): (5, 1)->(3, 30), (6, 1)->(3, 30), (5, 11)->(3, 30), (6, 11)->(3, 30), (8, 10)->(23, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(23, 0) coords=(5, 2) -> coord (8, 10) (budget 110s, surf-capable)
+
+   [travel] step 0: (5, 2)->(5, 3) map=(23, 0) (path 12 to exit)
+
+   [travel] step 10: (7, 10)->(8, 10) map=(23, 0) (path 2 to exit)
+
+   [travel] reached target coord (8, 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [world] learned 1 warp(s) on (23, 1): (10, 9)->(23, 0)
+
+   [campaign]    PASSTHROUGH: (14, 15) dead-ends inside ((23, 1)) — backing out
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(23, 1) coords=(10, 9) -> coord (11, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (10, 9)->(11, 9) map=(23, 1) (path 2 to exit)
+
+   [travel] reached target coord (11, 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (10, 9) (behavior 0x6f) entered via LEFT
+
+   [campaign]    [world] learned 5 warp(s) on (23, 0): (5, 1)->(3, 30), (6, 1)->(3, 30), (5, 11)->(3, 30), (6, 11)->(3, 30), (8, 10)->(23, 1)
+
+   [campaign]    EXIT-BUILDING: (23, 1) -> (23, 0)@(8, 10)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(23, 0) coords=(8, 10) -> coord (5, 10) (budget 60s, surf-capable)
+
+   [travel] step 0: (8, 10)->(7, 10) map=(23, 0) (path 4 to exit)
+
+   [travel] reached target coord (5, 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (5, 11) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    EXIT-BUILDING: (23, 0) -> (3, 30)@(14, 22)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(14, 22) -> coord (15, 15) (budget 240s, surf-capable)
+
+   [travel] path blocked at (14, 22) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 22) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 22) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] REGROUP: no Center here — riding toward Lavender Town (next hop north -> Lavender Town)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(14, 22) -> map (3, 4) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [11, 12, 24]
+
+   [travel] path blocked at (14, 22) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (14, 22) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (14, 22) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 2 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    7 door(s); candidates (chosen order): [(14, 21)]
+
+   [campaign]    door (14, 21): at (14, 22) (approach=(14, 22)) — stepping UP in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 30) -> (23, 0) via door (14, 21) (on-tile)
+
+   [campaign]    [world] learned 5 warp(s) on (23, 0): (5, 1)->(3, 30), (6, 1)->(3, 30), (5, 11)->(3, 30), (6, 11)->(3, 30), (8, 10)->(23, 1)
+
+   [campaign]    [world] learned 5 warp(s) on (23, 0): (5, 1)->(3, 30), (6, 1)->(3, 30), (5, 11)->(3, 30), (6, 11)->(3, 30), (8, 10)->(23, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(23, 0) coords=(5, 11) -> coord (6, 1) (budget 110s, surf-capable)
+
+   [travel] path blocked at (5, 11) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (5, 11) AND no NPC-allowing path (npcs nearby=[(1, 5)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (5, 11) map=(23, 0) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    3 door(s); candidates (chosen order): [(6, 1)]
+
+   [campaign]    reachable door (6, 1): walking to approach (6, 2)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(23, 0) coords=(5, 11) -> coord (6, 2) (budget 90s, surf-capable)
+
+   [travel] step 0: (5, 11)->(5, 10) map=(23, 0) (path 11 to exit)
+
+   [travel] reached target coord (6, 2)
+
+   [campaign]    pick (6, 1) failed — trying adjacent actuatable door (5, 1) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(23, 0) coords=(6, 2) -> coord (5, 1) (budget 110s, surf-capable)
+
+   [travel] step 0: (6, 2)->(5, 2) map=(23, 0) (path 3 to exit)
+
+   [travel] reached target coord (5, 1)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    PASSTHROUGH: CROSSED via door (14, 21): (3, 30)@(14, 22) -> (3, 30)@(14, 15)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 6ms]
+
+   [travel] start map=(3, 30) coords=(14, 15) -> map (3, 4) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [11, 12, 24]
+
+   [travel] step 0: (14, 15)->(14, 14) map=(3, 30) (path 18 to exit)
+
+   [travel] step 10: (12, 7)->(12, 6) map=(3, 30) (path 8 to exit)
+
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: regroup -> regrouped | pos (3, 30)(12, 0) -> (3, 4)(12, 19) (MOVED)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(12, 19) badges=8 party=5)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101740_lavender-town_8b_38h09m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 28) toward Route 10 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (3 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'travel:3,30', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! BORDER PING-PONG HOLD: ['head_to_gym', 'victory_lap'] off the menu on this thrashed map (55s left) — the breaker owns the rhythm
+
+   [campaign] -- ROAM TICK 24/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (12, 19) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (12,19) f2 -- badge8 $2910 party:a8e4 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['talk_npc', 'swap_keeper']
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. From here: NORTH → Route 10 — wild Pokémon to catch/train, a Pokémon Center; SOUTH → Route 12 — wild Pokémon to catch/train; WEST → Route 8 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 9; Route 11; Route 13. You can walk to anywhere you\'ve already been. You have SURF — you can cross water. Field moves ready: STRENGTH.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. RIGHT NOW your team is thin/lopsided (a strong lead but weak or too few others) — that\'s why tough trainers wall you. Building up a real squad (catch a good new teammate, level the weak ones) is how a prepared trainer gets past these. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. All 8 badges are yours — the Elite Four is the final challenge before the credits. Word on the road about the Elite Four: the Elite Four open with an ice-and-water lady — folks say lightning and grass are how you slip past her; and then the dragon master himself — and everyone says the same thing: ice is the only thing a dragon truly fears. YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): All eight Gym Badges are yours. The Elite Four and the Champion are the summit.. Time to pick up my zapdos from Power Plant (static L50 — Surf up the Route 10 water from the east bank). This has been on the plan since the start.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE."; "KIRA received TM06 from KOGA.". YOUR PLAN — right now: You\'re ready — stop grinding and push forward to the next objective. Next: Press on through the league. Bigger picture: Take on the Elite Four. Your team right now: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'Press on through the league', 'long': 'Take on the Elite Four'}, 'strategy': "1) WAR PREP: the Elite Four is five fights with NO Center between them — full restores, revives, ethers, and a levelled WHOLE team, or don't walk in.\n2) TEAM BUILD: zapdos (static) — a LEGENDARY upgrade over any raised electric: L50 on capture, out-levels the whole badge-8 curve. Weaken carefully and BALL it — never KO.\n3) DEX PUSH: 19/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n4) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['talk_npc', 'swap_keeper']
+
+   [kira-voice] ORACLE kind=action options=['talk_npc', 'swap_keeper'] -> pick='swap_keeper'
+
+   [campaign]    [soul] ORACLE pick -> 'swap_keeper'
+
+   [campaign]    [roam] DECISION THINK: 3804ms (world stayed live — pumped idle, not a freeze)
+
+   [campaign]    [roam] PICK OUT: swap_keeper
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    PCBOX: withdrawing diglett from box 0 slot 12 at the Center on (3, 4) (door (6, 5))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(12, 19) -> coord (6, 6) (budget 120s, surf-capable)
+
+   [travel] step 0: (12, 19)->(12, 18) map=(3, 4) (path 22 to exit)
+
+   [travel] step 10: (13, 10)->(13, 9) map=(3, 4) (path 12 to exit)
+
+   [travel] step 20: (7, 6)->(6, 6) map=(3, 4) (path 2 to exit)
+
+   [travel] reached target coord (6, 6)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    PCBOX: PC console stand = (11, 2)
+
+   [dialogue] +++ 'KIRA booted up the PC.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "KIRA booted up the PC."'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'Which PC should be accessed?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Which PC should be accessed?"'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ "Accessed BILL's PC."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Accessed BILL\'s PC."'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'POK.MON Storage System opened.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "POK.MON Storage System opened."'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [dialogue] +++ 'Which PC should be accessed?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "Which PC should be accessed?"'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(8, 0) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+
+   [travel] step 0: (11, 2)->(11, 3) map=(8, 0) (path 10 to exit)
+
+   [travel] reached target coord (7, 7)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 8) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    EXIT-BUILDING: (8, 0) -> (3, 4)@(6, 6)
+
+   [campaign]    PCBOX: party count 5 -> 6 | species [9, 131, 146, 144, 64, 50] (map=(3, 4))
+
+   [campaign]    [roam] RESULT: swap_keeper -> swapped | pos (3, 4)(12, 19) -> (3, 4)(6, 6) (MOVED)
+
+   [kira-voice] -> T1·brisk· (roster) 'pulled one of mine back out of the box — bringing them onto the active team.'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [catch] -> campaign/kira_campaign.state  (map=(3, 4) coords=(6, 6) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-catch] -> checkpoints/20260808_101840_lavender-town_8b_38h10m_gain-catch  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [box] ♻️ RE-ARM box_bench — bird seat blocked by a drop (Diglett/Fearow); depositing 1 (LOUD)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'pending', 'moltres': 'done', 'articuno': 'done', 'fly': 'SKIPPED', 'zapdos': 'pending', 'ice_beam': 'done', 'repack': 'done'} -> next: box_bench (cost-ordered from (3, 4))
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/zapdos → steps=['surf', 'zapdos'] actionable=zapdos (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 "Okay — to get past this I need Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught."
+
+   [campaign]    [roam] 🏆 PROACTIVE LEGENDARY HUNT: ⚡ ZAPDOS (Power Plant) is live — routing the hunt
+
+   [campaign]    [lap] checklist owes 'box_bench' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 28) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (2 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'travel:3,30', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 25/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (6, 6) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (6,6) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Lavender Town
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 4), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [strat] roster size = 6
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE ANCHOR-FIRST: Route 10 is the live north connection of Lavender Town — walking the edge (ground truth beats the learned graph)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(6, 6) -> map (3, 28) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] step 0: (6, 6)->(7, 6) map=(3, 4) (path 10 to exit)
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 28)
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 28) coords=(9, 79)
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(6, 6) -> (3, 28)(9, 79) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 28) coords=(9, 79) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101846_route-10_8b_38h10m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'pending', 'moltres': 'done', 'articuno': 'done', 'fly': 'SKIPPED', 'zapdos': 'pending', 'ice_beam': 'done', 'repack': 'done'} -> next: zapdos (PROXIMITY TRUMP: standing at the zapdos hunt)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing west -> (3, 27) toward Route 9 (backward — no forward grass reachable, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (1 builds left): forced head_to_gym, pruned ['battle', 'travel:3,22', 'travel:3,26', 'travel:3,27', 'travel:3,30', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 26/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (9, 79) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 28) (9,79) f2 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for the Power Plant (ZAPDOS — the legendary electric bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] questline STRIKE: 3 attempts exhausted for the Power Plant (ZAPDOS — the legendary electric bird) — surfacing so recovery/other options carry her (not looping the strike)
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 28) coords=(9, 79) -> map (3, 4) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] MAP TRANSITION (3, 28) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] south connection band cols: [11, 12, 24]
+
+   [travel] ARRIVED at target map (3, 4) coords=(9, 0)
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 28)(9, 79) -> (3, 4)(9, 0) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(9, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101847_lavender-town_8b_38h10m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'pending', 'moltres': 'done', 'articuno': 'done', 'fly': 'SKIPPED', 'zapdos': 'pending', 'ice_beam': 'done', 'repack': 'done'} -> next: box_bench (cost-ordered from (3, 4))
+
+   [campaign]    [lap] checklist owes 'box_bench' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 28) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (0 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'travel:3,30', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 27/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (9, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (9,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(9, 0) -> map (3, 30) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [11, 12, 24]
+
+   [travel] step 0: (9, 0)->(9, 1) map=(3, 4) (path 25 to exit)
+
+   [travel] step 10: (11, 8)->(12, 8) map=(3, 4) (path 15 to exit)
+
+   [travel] step 20: (13, 16)->(13, 17) map=(3, 4) (path 5 to exit)
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(9, 0) -> (3, 30)(12, 0) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101851_route-12_8b_38h10m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'box_bench' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 28/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,29', 'travel:3,31', 'travel:3,28', 'travel:3,26']
+
+   [campaign]    [soul] surface_want FIRE -> Route 12
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 30), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    [box] 'box_bench' needs a Center PC — marching to Cinnabar Island (3, 8)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Cinnabar Island (next hop south -> Route 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    7 door(s); candidates (chosen order): [(14, 21)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [lap] 'box_bench' dispatch failed (PC march -> travel:no_path) — bounded attempt 1/6
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick28] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'box_bench' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 29/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,29', 'travel:3,31', 'travel:3,28', 'travel:3,26']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [box] 'box_bench' needs a Center PC — marching to Cinnabar Island (3, 8)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Cinnabar Island (next hop south -> Route 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·floor· (<1s since last) T1 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    7 door(s); candidates (chosen order): [(14, 21)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [lap] 'box_bench' dispatch failed (PC march -> travel:no_path) — bounded attempt 2/6
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'box_bench' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 30/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,29', 'travel:3,31', 'travel:3,28', 'travel:3,26']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [box] 'box_bench' needs a Center PC — marching to Cinnabar Island (3, 8)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Cinnabar Island (next hop south -> Route 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    7 door(s); candidates (chosen order): [(14, 21)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [lap] 'box_bench' dispatch failed (PC march -> travel:no_path) — bounded attempt 3/6
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick30] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'box_bench' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 31/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 3 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,29', 'travel:3,31', 'travel:3,28', 'travel:3,26']
+
+   [campaign]    [soul] surface_want FIRE -> Route 12
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 30), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='get to the Power Plant and catch Zapdos'
+
+   [campaign]    [soul] ORACLE pick -> 'get to the Power Plant and catch Zapdos'
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 3 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 3 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'get to the Power Plant and catch Zapdos'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [box] 'box_bench' needs a Center PC — marching to Cinnabar Island (3, 8)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Cinnabar Island (next hop south -> Route 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    7 door(s); candidates (chosen order): [(14, 21)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [lap] 'box_bench' dispatch failed (PC march -> travel:no_path) — bounded attempt 4/6
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'box_bench' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 32/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 4 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,29', 'travel:3,31', 'travel:3,28', 'travel:3,26']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 4 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 4 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [box] 'box_bench' needs a Center PC — marching to Cinnabar Island (3, 8)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Cinnabar Island (next hop south -> Route 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    7 door(s); candidates (chosen order): [(14, 21)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [lap] 'box_bench' dispatch failed (PC march -> travel:no_path) — bounded attempt 5/6
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick32] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'box_bench' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 33/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: YELLOW (unchanged 5 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,29', 'travel:3,31', 'travel:3,28', 'travel:3,26']
+
+   [campaign]    [roam] !! MACRO YELLOW: no progress 5 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 5 turns - it went 'travel:no_path', and you don't seem to be getting anywhere."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (YELLOW)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [box] 'box_bench' needs a Center PC — marching to Cinnabar Island (3, 8)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Cinnabar Island (next hop south -> Route 13)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 1 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    7 door(s); candidates (chosen order): [(14, 21)]
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    [lap] 'box_bench' dispatch failed (PC march -> travel:no_path) — bounded attempt 6/6
+
+   [campaign]    [lap] ⏭️ HONEST SKIP 'box_bench': 6 bounded dispatch attempts spent (last: PC march -> travel:no_path) — the lap moves on (never an infinite park)
+
+   [campaign]    [roam] RESULT: victory_lap -> travel:no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [kira-voice] -> T2·savor· (route) "calling it on the box_bench side quest — 6 bounded dispatch attempts spent (last: PC march -> travel:no_path). the League won't wait forever."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] CHECKLIST {'earthquake': 'done', 'box_bench': 'SKIPPED', 'moltres': 'done', 'articuno': 'done', 'fly': 'SKIPPED', 'zapdos': 'pending', 'ice_beam': 'done', 'repack': 'done'} -> next: zapdos (cost-ordered from (3, 30))
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 34/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: RED (unchanged 6 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'travel:3,29', 'travel:3,31', 'travel:3,28', 'travel:3,26']
+
+   [campaign]    [soul] surface_want FIRE -> Route 12
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 30), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [roam] !! MACRO RED: no progress 6 ticks — feeding awareness back to the oracle: "You keep trying to victory lap but the world hasn't changed in 6 turns - it went 'travel:no_path', and you're completely stuck."
+
+   [campaign]    [roam] !! REPEAT-NO-PROGRESS: 'victory_lap' repeated with a stuck fingerprint — nudging a different action
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap  <- her RECOVERY move (RED)
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [lap] 🧭 ZAPDOS NORTH STAGING: → Route 8 (then Saffron–Cerulean–R9) (from (3, 30)@(12, 0), R10 BANNED) (LOUD)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Route 8 (next hop north -> Lavender Town)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [11, 12, 24]
+
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: victory_lap -> stage:hop_ok | pos (3, 30)(12, 0) -> (3, 4)(12, 19) (MOVED)
+
+   [campaign]    [roam] !!!! SEAM-THRASH BREAKER: crossed the Lavender Town↔Route 12 border 3x in 120s with no badge progress — Route 12 is NO-GO for the session; hard-committing the FORWARD objective for the next 8 builds
+
+   [kira-voice] ·floor· (<1s since last) T2 "okay, I've been pacing the same border like a lost tourist — enough. Picking a direction and COMMITTING: forward, next objective, go."
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(12, 19) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101912_lavender-town_8b_38h10m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 28) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (7 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 35/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (12, 19) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (12,19) f2 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [11, 12, 24]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(12, 19) -> (3, 30)(12, 0) (MOVED)
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101913_route-12_8b_38h10m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (6 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,28', 'travel:3,29', 'travel:3,31', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 36/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 30) right after riding in from (3, 4) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T2·savor· (travel) "okay, this road just dead-ends into water and rock — no getting through here the straight way. I'll find another route and come back when I can cross."  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick36] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (5 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,28', 'travel:3,29', 'travel:3,31', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 37/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 12
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 30), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos — get to the Power Plant now'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos — get to the Power Plant now'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos — get to the Power Plant now'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 30) right after riding in from (3, 4) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (4 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,28', 'travel:3,29', 'travel:3,31', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['victory_lap']
+
+   [campaign] -- ROAM TICK 38/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 🧭 ZAPDOS NORTH STAGING: → Route 8 (then Saffron–Cerulean–R9) (from (3, 30)@(12, 0), R10 BANNED) (LOUD)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Route 8 (next hop north -> Lavender Town)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [11, 12, 24]
+
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+
+   [campaign]    [roam] RESULT: victory_lap -> stage:hop_ok | pos (3, 30)(12, 0) -> (3, 4)(12, 19) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 30) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(12, 19) badges=8 party=6)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 16ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101920_lavender-town_8b_38h10m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 28) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (3 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,27', 'travel:3,28', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 39/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (12, 19) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (12,19) f2 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'talk_npc', 'head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 30) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [11, 12, 24]
+
+   [travel] MAP TRANSITION (3, 4) -> (3, 30)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] ARRIVED at target map (3, 30) coords=(12, 0)
+
+   [campaign]    [roam] RESULT: head_to_gym -> arrived | pos (3, 4)(12, 19) -> (3, 30)(12, 0) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 4) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    [roam] standing objective complete (head_to_gym -> arrived) — clearing it
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101921_route-12_8b_38h10m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (2 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,28', 'travel:3,29', 'travel:3,31', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 40/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'head_to_gym']
+
+   [campaign]    [soul] surface_want FIRE -> Route 12
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 12 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 30), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "I can't find a way through here — let me rethink this"
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 30) right after riding in from (3, 4) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 1, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [tick40] -> campaign/kira_campaign.state  (map=(3, 30) coords=(12, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (1 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,28', 'travel:3,29', 'travel:3,31', 'wander_catch'] — the border war is OVER
+
+   [campaign] -- ROAM TICK 41/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 1 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'head_to_gym']
+
+   [campaign]    [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED (dominant / creator order; grass is OFF the menu)
+
+   [campaign]    [roam] PICK OUT: head_to_gym
+
+   [campaign]    [roam] RATIONALE: Heading for the next gym: You're ready — stop grinding and push forward to the next objective.
+
+   [campaign]    [roam] 🧭 QUESTLINE STEP: 'Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught' — heading SOUTH toward the Power Plant — Surf the Route 10 water strip south of the Rock Tunnel Pokemon Center; the door is across the water at (7,40) (success=('flag', 'FLAG_FOUGHT_ZAPDOS'))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 31) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+
+   [travel] path blocked at (12, 0) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (12, 0) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (12, 0) map=(3, 30) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [campaign]    [roam] RESULT: head_to_gym -> no_path | pos (3, 30)(12, 0) -> (3, 30)(12, 0) (NO MOVEMENT)
+
+   [campaign]    [roam] !! SPLIT-MAP DEAD ROAD: head_to_gym dead on (3, 30) right after riding in from (3, 4) — BOTH legs parked for the session (strikes persist across visits)
+
+   [campaign]    [roam] !! SILENT NO-MOVE: 'head_to_gym' returned 'no_path' but her position never changed (streak 2, dead routes ['head_to_gym']) — not moving her; ALL dead routes get pruned next tick so she must do something that works
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [world] learned 4 warp(s) on (3, 30): (12, 86)->(23, 2), (14, 15)->(23, 0), (15, 15)->(23, 0), (14, 21)->(23, 0)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 4) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] !! SEAM-COMMIT (0 builds left): forced head_to_gym, pruned ['battle', 'travel:3,26', 'travel:3,28', 'travel:3,29', 'travel:3,31', 'wander_catch'] — the border war is OVER
+
+   [campaign]    [roam] !! NO-MOVE PRUNE: dead routes ['head_to_gym'] haven't moved her (streak 2) — removed this tick so she picks something that works; remaining: ['victory_lap']
+
+   [campaign] -- ROAM TICK 42/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 12 (12, 0) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 2 ticks) | fp[(3, 30) (12,0) f1 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap']
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [campaign]    [lap] 🧭 ZAPDOS NORTH STAGING: → Route 8 (then Saffron–Cerulean–R9) (from (3, 30)@(12, 0), R10 BANNED) (LOUD)
+
+   [campaign]    [roam] TRAVEL: Route 12 -> Route 8 (next hop north -> Lavender Town)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 30) coords=(12, 0) -> map (3, 4) (budget 300s, surf-capable)
+
+   [travel] north connection band cols: [11, 12, 24]
+
+   [travel] MAP TRANSITION (3, 30) -> (3, 4)
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [travel] north connection band cols: [8, 9, 10, 11, 12, 24]
+
+   [travel] ARRIVED at target map (3, 4) coords=(12, 19)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'made it to a new area'
+
+   [campaign]    [roam] RESULT: victory_lap -> stage:hop_ok | pos (3, 30)(12, 0) -> (3, 4)(12, 19) (MOVED)
+
+   [campaign]    [roam] structural dead routes KEPT on (3, 30) across exit (≥2 strikes): ['head_to_gym']
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [new_area] -> campaign/kira_campaign.state  (map=(3, 4) coords=(12, 19) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-new_area] -> checkpoints/20260808_101929_lavender-town_8b_38h11m_gain-new-area  (4 bundle file(s))
+
+   [campaign]    [world] learned 6 warp(s) on (3, 4): (18, 6)->(1, 88), (6, 5)->(8, 0), (10, 11)->(8, 2), (5, 16)->(8, 3), (10, 16)->(8, 4), (20, 15)->(8, 5)
+
+   [campaign]    [lap] checklist owes 'zapdos' — victory_lap is the endgame action (head_to_league/enter_league held until the lap clears)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 28) toward Route 10 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign] -- ROAM TICK 43/100000000 --
+
+   [campaign]    [roam] STATE IN: Lavender Town (12, 19) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, moltres L50, articuno L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 4) (12,19) f2 -- badge8 $2910 party:9912 bag:212a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['victory_lap', 'battle', 'wander_catch', 'talk_npc', 'travel:3,28', 'travel:3,26', 'travel:3,27']
+
+   [campaign]    [soul] surface_want FIRE -> Lavender Town
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Lavender Town — outdoors under open sky (a town with a Pokémon Center).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 4), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 19 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), moltres (L50), articuno (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': "FIRST Zapdos — the L50 legendary bird inside the Power Plant, across Route 10's water strip. The electric answer to Lorelei's waters and Lance's Gyarados, free for the catching once Surf is taught — the gym comes right after; that errand is the road", 'long': 'Take on the Elite Four'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Zapdos from the Power Plant'
+
+   [campaign]    [soul] ORACLE pick -> 'Zapdos from the Power Plant'
+
+   [campaign]    [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns the endgame sequencing; the order is code, not mood)
+
+   [campaign]    [roam] PICK OUT: victory_lap
+
+   [campaign]    [roam] RATIONALE: You're ready — stop grinding and push forward to the next objective. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'Zapdos from the Power Plant'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [lap] 🧭 ZAPDOS NORTH STAGING: → Route 8 (then Saffron–Cerulean–R9) (from (3, 4)@(12, 19), R10 BANNED) (LOUD)
+
+   [campaign]    [roam] TRAVEL: Lavender Town -> Route 8 (next hop west -> Route 8)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 4) coords=(12, 19) -> map (3, 26) (budget 300s, surf-capable)
+
+   [travel] west connection band rows: [9, 10, 11]
+
+   [travel] step 0: (12, 19)->(12, 18) map=(3, 4) (path 21 to exit)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 36364 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 4) coords=(7, 17)  badge=True
+
+   [kira-voice] === 45 fired, 45 gated (0 failed) | by tier: T3=1 T2=22 T1=22 (incl ambient trickle) ===
+
+================================================================
+

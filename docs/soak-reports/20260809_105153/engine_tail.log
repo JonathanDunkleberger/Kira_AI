@@ -1,0 +1,308 @@
+===== playlive_2026-08-09_08-51-58.log =====
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 3) (budget 300s, surf-capable)
+   [travel] west connection band rows: [6, 8, 9, 11]
+   [travel] MAP TRANSITION (3, 27) -> (3, 3)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 16, 17, 18, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] ARRIVED at target map (3, 3) coords=(47, 18)
+   [travel] start map=(3, 3) coords=(47, 18) -> coord (22, 20) (budget 120s, surf-capable)
+   [travel] step 0: (47, 18)->(47, 19) map=(3, 3) (path 31 to exit)
+   [travel] step 10: (38, 19)->(37, 19) map=(3, 3) (path 21 to exit)
+   [travel] step 20: (31, 22)->(30, 22) map=(3, 3) (path 12 to exit)
+   [travel] step 30: (23, 20)->(22, 20) map=(3, 3) (path 2 to exit)
+   [travel] reached target coord (22, 20)
+   [travel] start map=(7, 3) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(7, 3) (path 10 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 3) coords=(22, 20) -> map (3, 27) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] path blocked at (22, 20) (NPC on the gap?) - waiting
+   [travel] no clean path from (22, 20) AND no NPC-allowing path (npcs nearby=[(16, 21), (32, 29)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (22, 20) map=(3, 3) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 3) coords=(22, 20) -> coord (30, 12) (budget 240s, surf-capable)
+   [travel] step 0: (22, 20)->(21, 20) map=(3, 3) (path 41 to exit)
+   [travel] step 10: (14, 18)->(13, 18) map=(3, 3) (path 31 to exit)
+   [travel] step 20: (10, 12)->(11, 12) map=(3, 3) (path 21 to exit)
+   [travel] step 30: (20, 12)->(21, 12) map=(3, 3) (path 11 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 3) coords=(30, 12) elapsed=5s
+   [travel] reached target coord (30, 12)
+   [travel] start map=(7, 1) coords=(3, 7) -> coord (4, 1) (budget 110s, surf-capable)
+   [travel] step 0: (3, 7)->(3, 6) map=(7, 1) (path 10 to exit)
+   [travel] reached target coord (4, 1)
+   [travel] start map=(3, 3) coords=(31, 8) -> map (3, 27) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (31, 8)->(31, 7) map=(3, 3) (path 30 to exit)
+   [travel] step 10: (35, 12)->(35, 13) map=(3, 3) (path 20 to exit)
+   [travel] step 20: (39, 18)->(40, 18) map=(3, 3) (path 10 to exit)
+   [travel] MAP TRANSITION (3, 3) -> (3, 27)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] ARRIVED at target map (3, 27) coords=(0, 8)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] releasing field-obstacle block(s) [(2, 8)] — the HM is usable now (marked before Cut/Strength was owned)
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8); NPC-allowing path EXISTS (len 95), blocker NPC tile=(2, 8), npcs nearby=[(2, 8)] -> approaching to interact/trigger
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+   [campaign]    [dlg hm-cut] 'DIGLETT used CUT!'
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 3.03s (sink 0ms, hold 0.10s, end=next_box)
+   [campaign]    [dlg-pace hm-cut] box 'DIGLETT used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+   [travel] FIELD OBSTACLE (2, 8) on (3, 27) CLEARED with cut — continuing the leg
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] releasing 1 stale NPC block(s) [(2, 8)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 0: (0, 8)->(1, 8) map=(3, 27) (path 95 to exit)
+   [travel] step 10: (9, 9)->(10, 9) map=(3, 27) (path 85 to exit)
+   [travel] step 20: (15, 13)->(16, 13) map=(3, 27) (path 76 to exit)
+   [travel] step 30: (25, 13)->(26, 13) map=(3, 27) (path 66 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 27) coords=(35, 13) elapsed=6s
+   [travel] step 40: (35, 13)->(36, 13) map=(3, 27) (path 56 to exit)
+   [travel] step 50: (45, 13)->(46, 13) map=(3, 27) (path 46 to exit)
+   [travel] step 60: (52, 10)->(52, 9) map=(3, 27) (path 36 to exit)
+   [travel] step 70: (52, 2)->(53, 2) map=(3, 27) (path 26 to exit)
+   [travel] HEARTBEAT step=80 map=(3, 27) coords=(60, 2) elapsed=36s
+   [travel] step 80: (60, 2)->(61, 2) map=(3, 27) (path 18 to exit)
+   [travel] step 90: (64, 8)->(65, 8) map=(3, 27) (path 9 to exit)
+   [travel] MAP TRANSITION (3, 27) -> (3, 28)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+   [travel] ARRIVED at target map (3, 28) coords=(0, 8)
+   [play-live]    [engine] JUST FIGHT: L69 vs L10 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x2) vs tentacool 30/30 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] JUST FIGHT: L69 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs rhyhorn 86/86 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=15,ref=0,sc=570) [2]Earthquake(p100,pp=9,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L29 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs lickitung 92/92 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=14,ref=0,sc=142.5) [2]Earthquake(p100,pp=9,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magneton 84/84 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=9,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 49/49 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=8,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L31 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magneton 74/74 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=7,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L32 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs electabuzz 83/83 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=6,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magneton 86/86 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=5,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 43/43 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=4,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 43/43 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=3,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 47/47 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=2,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs voltorb 51/51 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=1,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+   [play-live]    [engine] !! legendary capture unfinished (stuck) — still in fight with balls + live bird; NOT soft-reloading (FINISH the catch) (LOUD)
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+   [play-live]    [engine] !! legendary capture unfinished (stuck) — still in fight with balls + live bird; NOT soft-reloading (FINISH the catch) (LOUD)
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+   [play-live]    [engine] !! legendary capture unfinished (stuck) — still in fight with balls + live bird; NOT soft-reloading (FINISH the catch) (LOUD)
+   [travel] start map=(1, 95) coords=(5, 10) -> coord (2, 11) (budget 60s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+   [play-live]    [engine] !! legendary capture unfinished (stuck) — still in fight with balls + live bird; NOT soft-reloading (FINISH the catch) (LOUD)
+   [travel] battle outcome=stuck; resuming pathfind
+   [travel] !! WALL-CLOCK BUDGET BLOWN (362s > 60s) at (5, 10) map=(1, 95) step=1 - ABORT LOUD (grinding / wedged, not progressing fast)
+   [travel] start map=(1, 95) coords=(5, 10) -> coord (1, 12) (budget 45s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+===== playlive_2026-08-08_15-02-10.log =====
+   [travel] start map=(3, 3) coords=(0, 22) -> map (3, 27) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (0, 22)->(1, 22) map=(3, 3) (path 74 to exit)
+   [travel] step 10: (7, 25)->(7, 26) map=(3, 3) (path 64 to exit)
+   [travel] step 20: (11, 31)->(12, 31) map=(3, 3) (path 54 to exit)
+   [travel] step 30: (21, 31)->(22, 31) map=(3, 3) (path 44 to exit)
+   [travel] path blocked at (26, 31) (NPC on the gap?) - waiting
+   [travel] no clean path from (26, 31); NPC-allowing path EXISTS (len 39), blocker NPC tile=(26, 32), npcs nearby=[(26, 32), (32, 29), (33, 29)] -> approaching to interact/trigger
+   [travel] !! FIELD OBSTACLE on the only gap: (26, 32) on (3, 3) is a CUT tree -> no_route_hm_blocked (honest; not a stuck NPC)
+   [travel] start map=(3, 3) coords=(26, 31) -> coord (30, 12) (budget 240s, surf-capable)
+   [travel] step 0: (26, 31)->(26, 30) map=(3, 3) (path 56 to exit)
+   [travel] step 10: (20, 27)->(20, 26) map=(3, 3) (path 46 to exit)
+   [travel] step 20: (19, 18)->(18, 18) map=(3, 3) (path 36 to exit)
+   [travel] step 30: (10, 17)->(10, 16) map=(3, 3) (path 26 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 3) coords=(15, 12) elapsed=5s
+   [travel] step 40: (15, 12)->(16, 12) map=(3, 3) (path 16 to exit)
+   [travel] step 50: (25, 12)->(26, 12) map=(3, 3) (path 6 to exit)
+   [travel] reached target coord (30, 12)
+   [travel] start map=(7, 1) coords=(3, 7) -> coord (4, 1) (budget 110s, surf-capable)
+   [travel] step 0: (3, 7)->(3, 6) map=(7, 1) (path 10 to exit)
+   [travel] reached target coord (4, 1)
+   [travel] start map=(3, 3) coords=(31, 8) -> map (3, 27) (budget 300s, surf-capable)   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 18ms]
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (31, 8)->(31, 7) map=(3, 3) (path 30 to exit)
+   [travel] step 10: (35, 12)->(35, 13) map=(3, 3) (path 20 to exit)
+   [travel] step 20: (39, 18)->(40, 18) map=(3, 3) (path 10 to exit)
+   [travel] MAP TRANSITION (3, 3) -> (3, 27)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] ARRIVED at target map (3, 27) coords=(0, 8)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 3) (budget 120s, surf-capable)
+   [travel] west connection band rows: [6, 8, 9, 11]
+   [travel] MAP TRANSITION (3, 27) -> (3, 3)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 16, 17, 18, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] ARRIVED at target map (3, 3) coords=(47, 18)
+   [travel] start map=(3, 3) coords=(47, 18) -> map (3, 27) (budget 120s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (47, 18)->(0, 8) map=(3, 3) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 3) -> (3, 27)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] ARRIVED at target map (3, 27) coords=(0, 8)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 3) (budget 300s, surf-capable)
+   [travel] west connection band rows: [6, 8, 9, 11]
+   [travel] MAP TRANSITION (3, 27) -> (3, 3)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 16, 17, 18, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] ARRIVED at target map (3, 3) coords=(47, 18)
+   [travel] start map=(3, 3) coords=(47, 18) -> map (3, 27) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (47, 18)->(0, 8) map=(3, 3) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 3) -> (3, 27)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] ARRIVED at target map (3, 27) coords=(0, 8)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 3) (budget 120s, surf-capable)
+   [travel] west connection band rows: [6, 8, 9, 11]
+   [travel] MAP TRANSITION (3, 27) -> (3, 3)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 16, 17, 18, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] ARRIVED at target map (3, 3) coords=(47, 18)
+   [travel] start map=(3, 3) coords=(47, 18) -> map (3, 27) (budget 120s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (47, 18)->(0, 8) map=(3, 3) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 3) -> (3, 27)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] ARRIVED at target map (3, 27) coords=(0, 8)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 3) (budget 300s, surf-capable)
+   [travel] west connection band rows: [6, 8, 9, 11]
+   [travel] MAP TRANSITION (3, 27) -> (3, 3)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 16, 17, 18, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] ARRIVED at target map (3, 3) coords=(47, 18)
+   [travel] start map=(3, 3) coords=(47, 18) -> map (3, 27) (budget 300s, surf-capable)
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 16, 18, 19, 21, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (47, 18)->(0, 8) map=(3, 3) (path 2 to exit)
+   [travel] MAP TRANSITION (3, 3) -> (3, 27)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] ARRIVED at target map (3, 27) coords=(0, 8)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 27) coords=(0, 8) -> map (3, 28) (budget 300s, surf-capable)
+   [travel] east connection band rows: [8, 9, 10]
+   [travel] path blocked at (0, 8) (NPC on the gap?) - waiting
+   [travel] no clean path from (0, 8) AND no NPC-allowing path (npcs nearby=[(2, 8)]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (0, 8) map=(3, 27) (reason=no_route) -> returning to roam LOUD (no inner spin)
