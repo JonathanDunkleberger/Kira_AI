@@ -2311,12 +2311,6 @@ class BattleAgent:
                         self.emit("let me put it to sleep first — easier to catch that way", beat=True)
                         self._fire_move(si)
                         continue
-                # LEGENDARY PARALYSIS RUNG (2026-08-09, the 8-attempt Zapdos ball-burn): a base-3
-                # legendary is ~2%/ball even at 8% HP with NO status. Lapras Body Slam (paralyze) is
-                # the team's only status source — a permanent x1.5 on every throw. One bounded attempt,
-                # only at >=50% HP (Body Slam must not risk the KO) and a healthy Lapras.
-                if _legend and self._legend_paralyze_rung(state):
-                    continue
                 # CHIPPER SWITCH (2026-07-30, Jonny live report: 'she needs to weaken it with NOT the
                 # ace'): no sleep move up and the ace would one-shot the target — the real-player play
                 # is to field a CLOSE-LEVEL teammate whose hits chip instead of KO. Reuses the proven,
