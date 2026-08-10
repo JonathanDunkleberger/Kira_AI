@@ -1832,7 +1832,10 @@ class BattleAgent:
                      f"(MonFlewAway would spend the bird) (LOUD)")
             return False
         n = getattr(self, "_legend_soft_reloads", 0)
-        if n >= 2:
+        # ZAPDOS EXECUTIVE OVERRIDE (2026-08-10): the reset loop IS the strategy — an empty
+        # Ultra pocket reloads 'pre-zapdos' and repeats, so the 2-per-session budget is waived
+        # while the override is armed (re-derived on every catch_pokemon entry).
+        if n >= 2 and not getattr(self, "_zapdos_executive", False):
             self.log(f"   [catch] !! legend soft-reload budget spent ({n}/2) — NOT fleeing (LOUD)")
             return False
         self.log(f"   [catch] !!!! LEGEND SOFT-RELOAD — rewinding 'pre-{key}' WITHOUT RUN "
@@ -2124,12 +2127,29 @@ class BattleAgent:
         # unlocks the bench-chipper switch (and, bench exhausted, a last-resort high-HP throw).
         _ace_overkill = False
         _no_chipper_left = False
+        _zapdos_override = False
         try:
             _rb0 = st.read_battle(self.b)
             # FLEE-ON-SIGHT SPECIES (Abra/Kadabra): every weaken/status/switch turn hands it the
             # Teleport exit. Skip ALL softening and throw immediately — the deliberate, narrated
             # version of what previously looked like a mistake.
             _foe_sp0 = (_rb0 or {}).get("enemy", {}).get("species")
+            # ZAPDOS EXECUTIVE OVERRIDE (Jonny's hardcode, 2026-08-10, LIVE marathon call):
+            # Blastoise leads, Lapras lands exactly ONE Body Slam (chunk + 30% paralyze fish;
+            # KO guard DISABLED — a faint just resets), then PURE Ultra-Ball spam: NEVER attack
+            # again this battle. Faint / empty Ultra pocket -> reset ('pre-zapdos' reload) and
+            # repeat the exact same process. No chipping, no sleep rung, no bench walk.
+            # _no_chipper_left bypasses the hard throw floor so full-HP spams are sanctioned.
+            # (Blastoise cannot learn Body Slam — Lapras is the party's only user; Jonny
+            # sanctioned the Blastoise-lead + Lapras-swap when shown the movesets.)
+            _zapdos_override = (_foe_sp0 == 145)
+            if _zapdos_override:
+                weaken = False
+                _no_chipper_left = True
+                max_seconds = max(max_seconds, 900)   # a full Ultra-pocket spam outlives the 150s band
+                self.log("   [catch] ZAPDOS EXECUTIVE OVERRIDE — Blastoise leads, ONE Lapras "
+                         "Body Slam (KO guard OFF), then Ultra-Ball spam ONLY; reset on "
+                         "faint / empty Ultra pocket (LOUD)")
             if _rb0 and _rb0.get("enemy", {}).get("maxhp"):
                 # LOUD [catch] HEADER: the soak report must confess the discipline per target.
                 self.log(f"   [catch] target={st.SPECIES_NAME.get(_foe_sp0, f'#{_foe_sp0}')} "
@@ -2192,6 +2212,9 @@ class BattleAgent:
                              f"(est {_cest:.0%}/hit) into the throw band")
         except Exception:
             pass
+        # Re-derived on EVERY catch entry: lifts the per-session soft-reload budget below so the
+        # Zapdos reset loop (empty Ultra pocket -> 'pre-zapdos' reload -> repeat) never starves.
+        self._zapdos_executive = _zapdos_override
 
         def _ended():
             """Battle ended: settle, then a party+1 means we CAUGHT it (the 'Gotcha!' can end the
@@ -2199,6 +2222,43 @@ class BattleAgent:
             for _ in range(40):
                 self.b.run_frame(); self.render()
             return "caught" if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0 else "fled"
+
+        # ZAPDOS EXECUTIVE OVERRIDE — the scripted opening (Jonny 2026-08-10): Blastoise (ace,
+        # slot 0) leads and tanks the free switch hit; Lapras comes in and lands exactly ONE
+        # Body Slam (chunk + 30% paralyze fish). KO guard OFF by explicit order — _fire_move has
+        # no guard; a faint just resets. After this single hit the loop below is PURE Ultra-Ball
+        # spam: she NEVER attacks again this battle. Any failure of the swap degrades to
+        # ball-only spam (never to more attacks).
+        if _zapdos_override and st.in_battle(self.b):
+            _zs = st.read_battle(self.b)
+            _our_sp = (_zs or {}).get("ours", {}).get("species")
+            if _our_sp != 9:                       # ensure Blastoise (ace) is the active lead
+                self._switch_to_slot(0, _our_sp)
+                _zs = st.read_battle(self.b)
+                _our_sp = (_zs or {}).get("ours", {}).get("species")
+            _lapras_slot, _bs_idx = None, None
+            try:
+                for _ps in range(min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)):
+                    if st.read_party_species(self.b, _ps) != 131:      # Lapras
+                        continue
+                    _pmv = st.read_party_moves(self.b, _ps)
+                    if 34 in _pmv:                 # Body Slam
+                        _lapras_slot, _bs_idx = _ps, _pmv.index(34)
+                    break
+            except Exception:
+                pass
+            if _our_sp != 131 and _lapras_slot is not None:
+                if self._switch_to_slot(_lapras_slot, _our_sp) == "switched":
+                    _our_sp = 131
+                else:
+                    self.log("   [catch] !! ZAPDOS EXECUTIVE — Lapras switch did not confirm; "
+                             "Ultra-Ball spam WITHOUT the Body Slam (never attack) (LOUD)")
+            if _our_sp == 131 and _bs_idx is not None and st.in_battle(self.b):
+                self.log("   [catch] ZAPDOS EXECUTIVE — Lapras fires ONE Body Slam (KO guard "
+                         "OFF); Ultra-Ball spam only from here on")
+                self.emit("one Body Slam to chunk it — and maybe it paralyzes. then we do NOT "
+                          "touch it again. Ultra Balls only.", beat=True, tier=2)
+                self._fire_move(_bs_idx)           # the single chunk — no KO guard, by order
 
         while time.time() - t0 < max_seconds:
             if not st.in_battle(self.b):
@@ -2455,10 +2515,24 @@ class BattleAgent:
                     if _ref is not None:
                         return _ref
                     continue
+            # ZAPDOS EXECUTIVE OVERRIDE — ULTRAS ONLY: the moment the Ultra pocket is empty the
+            # attempt is OVER (never lesser balls) — soft-reload 'pre-zapdos' resets the board
+            # (balls restored, bird live) and the hunt re-presses for a fresh attempt. A failed
+            # reload falls out as 'no_balls' with the bird live; the fight-clear KO then resets
+            # via the faint path (Jonny: "if Zapdos faints, so be it, we will just reset").
+            if _zapdos_override and self._ball_qty(self._BALL_ULTRA) <= 0:
+                self.log("   [catch] ZAPDOS EXECUTIVE — Ultra pocket EMPTY; resetting NOW "
+                         "(soft-reload 'pre-zapdos'; NEVER throwing lesser balls) (LOUD)")
+                self.emit("out of Ultra Balls — rewinding to right before the fight. same plan "
+                          "again.", beat=True, tier=2)
+                self._try_legend_soft_reload(145)
+                return "no_balls"
             # THE SLEEP RUNG (legendary doctrine): before EVERY throw, a status-free legendary
             # gets a sleep cast (or the one sleeper switch) — x2 on the ball math, and it
             # covers the wake-up mid-throws. Bounded inside the rung; False -> just throw.
-            if _legend and state is not None and st.in_battle(self.b) \
+            # ZAPDOS EXECUTIVE OVERRIDE: exempt — after the single Body Slam the ONLY action
+            # is an Ultra Ball (never another move of any kind).
+            if _legend and not _zapdos_override and state is not None and st.in_battle(self.b) \
                     and self._legend_sleep_rung(state):
                 continue
             res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))),
