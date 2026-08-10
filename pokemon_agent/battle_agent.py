@@ -1579,7 +1579,16 @@ class BattleAgent:
                             pass
                 except Exception:
                     incoming = 1.0          # unread species -> neutral; still eligible by level
-            key = (incoming, -lv)   # lower incoming better; then higher level
+            # CHIPPER RANKING (2026-08-09, the Zapdos overkill deadlock): for a NORMAL catch a
+            # resistant close-level chipper is right (incoming, then level). But a LEGENDARY
+            # overkill chipper must SURVIVE the bird's free switch hit AND its return fire long
+            # enough to land several chips — level is the bulk proxy and `incoming` the damage
+            # proxy, so rank by survivability (lv / incoming): a L50 body beats a resistant-but-
+            # fragile L18 (Kadabra/Diglett into Zapdos fainted before chipping once).
+            if legend:
+                key = (-lv / max(incoming, 0.25), incoming)
+            else:
+                key = (incoming, -lv)   # lower incoming better; then higher level
             if best_key is None or key < best_key:
                 best, best_key = s, key
         return best
@@ -1649,6 +1658,67 @@ class BattleAgent:
                 return True                        # next loop fires the sleep move
             self.log("   [catch] LEGENDARY SLEEP — sleeper switch didn't confirm; "
                      "throwing without the multiplier (fail-safe)")
+        except Exception:
+            pass
+        return False
+
+    def _legend_paralyze_rung(self, state):
+        """PARALYSIS RUNG (2026-08-09, the 8-attempt Zapdos ball-burn): a base-catch-3 legendary at
+        8% HP is still only ~2%/ball with NO status — chip+throw burned ~200 Ultras without a catch.
+        Lapras' Body Slam (30% paralyze) is this team's only status source; paralysis is a PERMANENT
+        x1.5 on every subsequent throw. One bounded attempt per encounter: only while the foe is
+        above 50% HP (Body Slam must not risk the KO), only with Lapras healthy enough to eat the
+        free switch hit, and only with 2+ healthy mons. Returns True when it consumed the turn
+        (caller `continue`s); the chipper ladder then carries the weakened+paralyzed foe to the band."""
+        try:
+            foe = state["enemy"]
+            if foe.get("status1", 0):
+                return False                       # already statused — go throw
+            if getattr(self, "_legend_paralyze_tried", False):
+                return False                       # one attempt per encounter
+            if not foe.get("maxhp"):
+                return False
+            if (foe.get("hp") or 0) / foe["maxhp"] < 0.50:
+                return False                       # Body Slam could KO at low HP — chip/throw instead
+            if self._healthy_party_count() < 2:
+                return False
+            cnt = min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)
+            lapras_slot, bs_idx = None, None
+            for s in range(cnt):
+                if st.read_party_species(self.b, s) != 131:      # Lapras
+                    continue
+                base = ram.GPLAYER_PARTY + s * st.PARTY_MON_SIZE
+                hp, mx = self.b.rd16(base + 0x56), self.b.rd16(base + 0x58)
+                if hp <= 0 or (mx and hp / mx < 0.5):
+                    break                          # Lapras too hurt to survive the free hit
+                moves = st.read_party_moves(self.b, s)
+                if 34 in moves:                    # Body Slam
+                    lapras_slot, bs_idx = s, moves.index(34)
+                break
+            if lapras_slot is None:
+                return False
+            self._legend_paralyze_tried = True
+            if self._switch_to_slot(lapras_slot, state["ours"].get("species")) != "switched":
+                return False
+            self.emit("hold on — let me numb it first. Body Slam, and maybe it paralyzes.",
+                      beat=True, tier=2)
+            swings = 0
+            for _ in range(2):
+                s2 = st.read_battle(self.b)
+                if not s2 or not st.in_battle(self.b):
+                    break
+                if (s2.get("enemy") or {}).get("status1", 0):
+                    break                          # paralyzed — done
+                if (s2.get("ours") or {}).get("hp", 1) <= 0:
+                    break                          # Lapras went down — hand off
+                self._fire_move(bs_idx)
+                swings += 1
+            s3 = st.read_battle(self.b)
+            _par = bool((s3 or {}).get("enemy", {}).get("status1", 0))
+            self.log(f"   [catch] LEGEND PARALYSIS RUNG — Lapras Body Slam x{swings}: "
+                     + ("PARALYZED (x1.5 catch rate on every throw)" if _par
+                        else "no paralysis — chips + balls will have to carry it"))
+            return True
         except Exception:
             pass
         return False
@@ -2032,6 +2102,8 @@ class BattleAgent:
         _legend = (divert_reason == "legendary")
         self._legend_sleeps = 0
         self._legend_sleeper_tried = False
+        self._legend_paralyze_tried = False      # reset per attempt: a soft-reload clears the
+        #                                            paralysis, so each retry may re-attempt it
         _chip_tgt = CATCH_CHIP_TARGET_LEGEND if _legend else None
         _chip_hits = LEGEND_CHIP_HITS if _legend else 4
         self._reach_first_menu(t0, max_seconds)
@@ -2046,6 +2118,11 @@ class BattleAgent:
         # move is damage-free with ZERO KO risk and x2 catch rate in Gen 3 — with a thin ball supply
         # that's the difference between "caught" and "the last ball broke free". Sleep-then-throw.
         chipper_tried = set()
+        # LEGEND OVERKILL (2026-08-09, the Zapdos deadlock): the ace has damaging moves but EVERY
+        # one estimates a KO, so it can never safely chip. Flagged below from the opening pick; it
+        # unlocks the bench-chipper switch (and, bench exhausted, a last-resort high-HP throw).
+        _ace_overkill = False
+        _no_chipper_left = False
         try:
             _rb0 = st.read_battle(self.b)
             # FLEE-ON-SIGHT SPECIES (Abra/Kadabra): every weaken/status/switch turn hands it the
@@ -2099,6 +2176,9 @@ class BattleAgent:
                 if _foe_sp0 == 143 or _ci is None or not _csafe:
                     # Snorlax stays a hard never-chip (Surf/Hydro from Blastoise OHKOs).
                     status_only = True
+                    # OVERKILL (not Snorlax, not move-less): the ace HAS damaging moves but every
+                    # one estimates a KO — the bench chipper switch is the only way to soften this.
+                    _ace_overkill = (_foe_sp0 != 143 and _ci is not None and not _csafe)
                     _mv_nm = ("none" if _ci is None
                               else _rb0["ours"]["moves"][_ci].get("name", f"slot {_ci}"))
                     self.log(f"   [catch] OVERKILL RISK — gentlest usable move={_mv_nm} "
@@ -2231,6 +2311,12 @@ class BattleAgent:
                         self.emit("let me put it to sleep first — easier to catch that way", beat=True)
                         self._fire_move(si)
                         continue
+                # LEGENDARY PARALYSIS RUNG (2026-08-09, the 8-attempt Zapdos ball-burn): a base-3
+                # legendary is ~2%/ball even at 8% HP with NO status. Lapras Body Slam (paralyze) is
+                # the team's only status source — a permanent x1.5 on every throw. One bounded attempt,
+                # only at >=50% HP (Body Slam must not risk the KO) and a healthy Lapras.
+                if _legend and self._legend_paralyze_rung(state):
+                    continue
                 # CHIPPER SWITCH (2026-07-30, Jonny live report: 'she needs to weaken it with NOT the
                 # ace'): no sleep move up and the ace would one-shot the target — the real-player play
                 # is to field a CLOSE-LEVEL teammate whose hits chip instead of KO. Reuses the proven,
@@ -2238,12 +2324,19 @@ class BattleAgent:
                 # non-confirm -> we just fall through to the old full-HP throw). One attempt per catch;
                 # the wild's free turn during the switch is priced in (flee-risk species never reach
                 # here — they take the ball-on-sight path above).
-                # LEGENDARY: never voluntary-switch the bench in (Fearow into Moltres =
-                # free KO + bird spent). Ace chips alone; hard floor / free-retry owns thin PP.
-                if (not _legend and not chipper_tried
-                        and not state["enemy"].get("asleep")):
+                # LEGENDARY: default ACE-ONLY (Jonny 2026-08-06, Moltres) — but that ruling assumes
+                # the ace CAN chip. OVERKILL EXCEPTION (2026-08-09, the Zapdos deadlock): when every
+                # ace move one-shots the bird (Blastoise L69 vs Zapdos: gentlest Skull Bash est
+                # 133%), ACE-ONLY is an infinite can't-chip / can't-throw loop. A STATIC legendary
+                # never flees, so fielding a bench chipper cannot spend the encounter — walk the
+                # bench (chipper_tried excludes the already-felled) until one chips the bird into the
+                # band. Non-legendaries keep the original one-shot switch.
+                _chipper_ok = ((not _legend and not chipper_tried)
+                               or (_legend and _ace_overkill))
+                if _chipper_ok and not state["enemy"].get("asleep"):
                     ch = self._catch_chipper_slot(
-                        state["enemy"].get("level"), legend=False,
+                        state["enemy"].get("level"), legend=_legend,
+                        exclude=chipper_tried,
                         foe_types=state["enemy"].get("types") or [])
                     if ch is not None:
                         chipper_tried.add(ch)
@@ -2254,19 +2347,50 @@ class BattleAgent:
                         if self._switch_to_slot(ch, state["ours"].get("species")) == "switched":
                             self.emit(f"{_my_nm} hits way too hard for this — {_ch_nm}, you're up. "
                                       f"soften it, don't finish it.", beat=True, tier=1)
-                            self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits,
-                                            legend=_legend)
+                            _wv = self._weaken_hp(target_frac=_chip_tgt, max_hits=_chip_hits,
+                                                  legend=_legend)
+                            if _wv == "our_down":
+                                # the chipper fainted mid-chip — let the send-in gate seat the next
+                                # mon; the loop re-asks for a chipper (this one is now excluded).
+                                self.log(f"   [engine] catch: chipper {_ch_nm} went down mid-chip — "
+                                         f"handing off to the send-in gate (bench walk continues)")
+                                softened = False
+                                continue
+                            # CHIP-COMPLETE GUARD (2026-08-09, the 40%-HP ball dump): only start
+                            # throwing once the foe is actually in the catch band. If this chipper
+                            # stopped ABOVE the band (faint-guard / PP dry / swing budget), keep
+                            # walking the bench so the NEXT chipper finishes the job — dumping Ultra
+                            # Balls at 40-50% HP is a ~1.5%-per-ball waste that looped the Zapdos
+                            # catch. Bounded: chipper_tried exhausts the bench, then the sanctioned
+                            # high-HP throw below is the fallback (never an infinite loop).
+                            _st_now = st.read_battle(self.b)
+                            _foe_now = (_st_now or {}).get("enemy") or {}
+                            _mhp_now = _foe_now.get("maxhp") or 0
+                            _frac_now = ((_foe_now.get("hp") or 0) / _mhp_now) if _mhp_now else 1.0
+                            if _mhp_now and _frac_now > CATCH_READY_FRAC_LEGEND:
+                                self.log(f"   [catch] chipper {_ch_nm} stopped at {_frac_now:.0%} — "
+                                         f"above the ready band ({CATCH_READY_FRAC_LEGEND:.0%}); "
+                                         f"keeping the bench walk, NOT dumping high-HP balls")
+                                softened = False
+                                continue
                             softened = True
                             continue
                         self.log("   [engine] catch: chipper switch didn't confirm — falling back to "
                                  "the full-HP throw (fail-safe)")
+                    elif _legend and _ace_overkill:
+                        # Whole bench walked (or nobody eligible) and the ace still overkills — a
+                        # high-HP throw is the only play left. Sanction it below (never loop forever).
+                        _no_chipper_left = True
+                        self.log("   [catch] !! LEGEND OVERKILL — no bench chipper left to chip with; "
+                                 "sanctioning the high-HP throw (last resort, never an infinite loop)")
                 if not softened and not state["enemy"].get("asleep"):
                     # THE SANCTIONED EARLY THROW (weaken-then-throw rule 1): every usable move
                     # likely one-shots, no sleep move, no in-band chipper — a wasted ball beats
                     # a dead target. Loud so soak reports show it was a DECISION, not the bug.
                     # LEGENDARY HARD FLOOR: above half HP this is a refuse, not a dump.
                     _ef_early = _hp_frac(state["enemy"])
-                    if _legend and not legend_throw_allowed(_ef_early):
+                    if (_legend and not legend_throw_allowed(_ef_early)
+                            and not _no_chipper_left):
                         _ref = self._legend_refuse_throw(
                             _ef_early, "EARLY THROW BLOCKED by HARD FLOOR")
                         if _ref == "keep_chipping":
@@ -2323,9 +2447,11 @@ class BattleAgent:
                 continue
             # HARD THROW FLOOR (legendary): never dump Ultras above half HP — even if some
             # other path latched softened=True early. Deepen / keep fighting — never RUN.
+            # OVERKILL EXEMPT (2026-08-09): when the ace overkills and the whole bench walked
+            # without a chip (_no_chipper_left), the high-HP throw is sanctioned — the only play.
             if _legend and state is not None and state["enemy"].get("maxhp"):
                 _ef_floor = _hp_frac(state["enemy"])
-                if not legend_throw_allowed(_ef_floor):
+                if not legend_throw_allowed(_ef_floor) and not _no_chipper_left:
                     _ref = self._legend_refuse_throw(
                         _ef_floor, "HARD THROW FLOOR — REFUSING the Ultra dump")
                     if _ref == "keep_chipping":
