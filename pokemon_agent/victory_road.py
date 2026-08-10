@@ -22,7 +22,8 @@ the save), so the dispatch loop keys on the CURRENT map every iteration and skip
 a mid-VR whiteout costs a re-cross, never solved ground.
 
 Resume-safe: already at Indigo -> 'reached_indigo'; anywhere on the road/floors -> the map dispatch picks
-up from there. run_strike returns:
+up from there. OFF-CORRIDOR overworld boots (2026-08-10 LIVE: post-Zapdos Route 10) hop the learned world
+graph to Viridian first — doors on outdoor maps are entrances, never the exit vehicle. run_strike returns:
   'reached_indigo' — at the Indigo Plateau exterior, healed. (Success — the E4 vehicle takes it from here.)
   'battle_loss'    — a fight loss loop the caller's recovery should own (rare; the loop self-recovers most).
   'stuck'          — a wedge cap hit (puzzle/warp/edge) or the deadline. Surfaces LOUD.
@@ -622,6 +623,42 @@ class VictoryRoad:
         except Exception as e:
             self.log(f"   [teach-eq] errored: {e} — continuing without EQ (LOUD)")
 
+    # ── OFF-ROUTE APPROACH (2026-08-10 LIVE, the Route-10 door-spin): overworld graph hops ─────────────
+    def _hop_toward_viridian(self):
+        """One learned-world-graph hop from an OFF-CORRIDOR overworld map toward VIRIDIAN (the
+        corridor's entry). Mirrors _travel_to_known's hop actuation (warp walk-in + enter_warp /
+        _edge_travel edge cross), heal-aware. The strike's dispatch loop re-keys on the new map
+        each iteration, so repeated hops converge Route 10 -> Route 9 -> Cerulean -> Route 4 ->
+        Route 3 -> Pewter -> Route 2 -> Viridian (verified against the live world model). Returns
+        True when she MOVED (or healed to keep moving), False when the graph has no route / the
+        hop failed (caller wedge-caps)."""
+        camp, b = self.camp, self.b
+        here = tuple(tv.map_id(b))
+        if here == VIRIDIAN:
+            return True
+        try:
+            step = camp._next_step_rideable(here, VIRIDIAN, avoid=set())
+        except Exception as e:
+            self.log(f"!! off-route graph hop errored ({e}) — LOUD")
+            return False
+        if step is None:
+            self.log(f"!! no world-graph route {here} -> {VIRIDIAN} from her feet (LOUD)")
+            return False
+        nxt, kind, detail = step
+        self.log(f"   off-route overworld {here}: graph hop toward {VIRIDIAN} "
+                 f"({('warp ' + str(detail)) if kind == 'warp' else detail} -> {nxt})")
+        if kind == "warp":
+            before = tuple(tv.map_id(b))
+            camp.trav.travel(target_map=None, arrive_coord=detail, max_steps=300)
+            if tuple(tv.map_id(b)) == before:
+                camp.enter_warp(pick=detail)
+            return tuple(tv.map_id(b)) != before
+        r = camp._edge_travel(nxt, detail)
+        if r == "need_heal":
+            camp.heal_nearest()
+            return True                            # healed — re-hop next iteration
+        return tuple(tv.map_id(b)) != here
+
     # ── the strike ───────────────────────────────────────────────────────────────────────────────────
     def run(self):
         b, camp = self.b, self.camp
@@ -747,10 +784,22 @@ class VictoryRoad:
                                       avoid=((38, 14), (39, 14))) and self.wedge("3f-to-2f"):
                     return "stuck"
             else:
-                # off-route (whiteout center interior, etc.) — exit to the overworld
-                self.log(f"   off-route at {here} — exiting to the overworld")
-                camp.enter_warp(prefer="south")
-                self.settle(80)
+                # off-route — NOT on the Viridian->Indigo corridor.
+                # OVERWORLD (map group 3 — the 2026-08-10 LIVE wedge): doors on outdoor maps are
+                # ENTRANCES, not exits — the strike booted on Route 10 (post-Zapdos catch) and the
+                # blind enter_warp spun 'no reachable door warped (entry geometry?)' forever. Hop
+                # the learned world graph toward Viridian (the corridor's entry) instead; the loop
+                # re-keys on each new map (whiteout-tolerant like every other branch).
+                # INTERIOR (whiteout center, etc.) — exit to the overworld as before.
+                if here and here[0] == 3:
+                    if not self._hop_toward_viridian() and self.wedge("offroute-hop", 6):
+                        return "stuck"
+                else:
+                    self.log(f"   off-route at {here} - exiting to the overworld")
+                    if camp.enter_warp(prefer="south") == "no_warp" \
+                            and self.wedge("offroute-exit", 6):
+                        return "stuck"
+                    self.settle(80)
 
         if tuple(tv.map_id(b)) != INDIGO:
             self.log(f"!! never reached Indigo Plateau (at {tv.map_id(b)}@{tv.coords(b)}) — deadline/exhausted")
