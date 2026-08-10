@@ -1,0 +1,602 @@
+===== playlive_2026-08-10_09-53-25.log =====
+===== playlive_2026-08-10_09-27-17.log =====
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L24 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs pikachu 56/56 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=8,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 50/50 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=7,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs voltorb 54/54 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=6,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L22 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs pikachu 48/48 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=5,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs voltorb 57/57 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=4,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magnemite 53/53 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=3,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L25 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs voltorb 57/57 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=2,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L69 vs L34 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Earthquake - a super-effective hit -> slot 2 (eff x4) vs magneton 82/82 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=1,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a super-effective hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — zapdos: weaken+balls, never KO
+   [play-live]    [engine] switch: target party slot 1 sp=131 -> menu row 1
+   [play-live]    [engine] switch: SWITCHED to species 131 (slot 1)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] throw_ball: aiming row 1 = item 2 (ultra ball, pref=best)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] start map=(3, 28) coords=(7, 41) -> coord (13, 21) (budget 120s, surf-capable)
+   [travel] step 0: (7, 41)->(7, 42) map=(3, 28) (path 102 to exit)
+   [travel] step 10: (13, 45)->(14, 45) map=(3, 28) (path 92 to exit)
+   [travel] step 20: (17, 39)->(17, 38) map=(3, 28) (path 82 to exit)
+   [campaign]    [dlg hm-surf] 'The water is dyed a deep blue.. Would you like to SURF?'
+   [campaign]    [dlg hm-surf] 'BLASTOISE used SURF!'
+   [campaign]    [dlg-pace hm-surf] box 'The water is dyed a deep blue.. Would you like t' visible 1.27s (sink 0ms, hold 0.09s, end=next_box)
+   [campaign]    [dlg-pace hm-surf] box 'BLASTOISE used SURF!' visible 2.65s (sink 0ms, hold 0.04s, end=closed)
+   [travel] ?? SURF MOUNT at (18, 31) -> (19, 31) (map (3, 28))
+   [travel] step 30: (19, 31)->(19, 30) map=(3, 28) (path 72 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 28) coords=(19, 21) elapsed=12s
+   [travel] step 40: (19, 21)->(19, 20) map=(3, 28) (path 62 to exit)
+   [travel] step 50: (19, 11)->(19, 10) map=(3, 28) (path 52 to exit)
+   [travel] step 60: (16, 4)->(15, 4) map=(3, 28) (path 42 to exit)
+   [travel] releasing 1 stale NPC block(s) [(5, 9)] — tile(s) read empty now (wanderer moved on)
+   [travel] step 70: (6, 4)->(5, 4) map=(3, 28) (path 32 to exit)
+   [travel] releasing 1 stale NPC block(s) [(5, 12)] — tile(s) read empty now (wanderer moved on)
+   [travel] HEARTBEAT step=80 map=(3, 28) coords=(6, 10) elapsed=19s
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] step 90: (10, 14)->(11, 14) map=(3, 28) (path 17 to exit)
+   [travel] step 100: (16, 18)->(16, 19) map=(3, 28) (path 7 to exit)
+   [travel] reached target coord (13, 21)
+   [travel] start map=(21, 0) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(21, 0) (path 10 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 28) coords=(13, 21) -> coord (13, 21) (budget 120s, surf-capable)
+   [travel] reached target coord (13, 21)
+   [travel] start map=(21, 0) coords=(9, 4) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(21, 0) coords=(9, 4) -> coord (7, 9) (budget 45s, surf-capable)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(21, 0) coords=(9, 4) -> coord (7, 7) (budget 45s, surf-capable)
+   [travel] step 0: (9, 4)->(9, 5) map=(21, 0) (path 6 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 28) coords=(13, 21) -> coord (13, 21) (budget 120s, surf-capable)
+   [travel] reached target coord (13, 21)
+   [travel] start map=(21, 0) coords=(11, 2) -> coord (7, 7) (budget 60s, surf-capable)
+   [travel] step 0: (11, 2)->(11, 3) map=(21, 0) (path 10 to exit)
+   [travel] reached target coord (7, 7)
+   [travel] start map=(3, 28) coords=(13, 21) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 21)->(14, 21) map=(3, 28) (path 18 to exit)
+   [travel] step 10: (16, 14)->(16, 13) map=(3, 28) (path 8 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (14, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (14, 10)
+   [travel] start map=(3, 28) coords=(14, 10) -> coord (14, 9) (budget 80s, surf-capable)
+   [travel] step 0: (14, 10)->(14, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (14, 9)
+   [travel] start map=(3, 28) coords=(14, 9) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (14, 9)->(14, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (15, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(14, 10) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (14, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (15, 10)
+   [travel] start map=(3, 28) coords=(15, 10) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (15, 10)->(15, 9) map=(3, 28) (path 4 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (14, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(14, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (14, 9)
+   [travel] start map=(3, 28) coords=(14, 9) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (14, 9)->(14, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (13, 8) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (13, 8)
+   [travel] start map=(3, 28) coords=(13, 8) -> coord (12, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 8)->(13, 9) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (13, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (13, 9) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 9); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (12, 9)
+   [travel] start map=(3, 28) coords=(12, 9) -> coord (12, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 9)->(12, 8) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (12, 8)
+   [travel] start map=(3, 28) coords=(12, 8) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (12, 8)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (12, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(11, 10) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 10)->(12, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (12, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (13, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (13, 9) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 9); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (12, 9)
+   [travel] start map=(3, 28) coords=(12, 9) -> coord (12, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 9)->(12, 8) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (12, 8)
+   [travel] start map=(3, 28) coords=(12, 8) -> coord (12, 7) (budget 80s, surf-capable)
+   [travel] step 0: (12, 8)->(12, 7) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (12, 7)
+   [travel] start map=(3, 28) coords=(12, 7) -> coord (11, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 7)->(12, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 8)
+   [travel] start map=(3, 28) coords=(11, 8) -> coord (13, 8) (budget 80s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (13, 8)
+   [travel] start map=(3, 28) coords=(13, 8) -> coord (12, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 8)->(13, 9) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (13, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (13, 9) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 9); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (12, 9)
+   [travel] start map=(3, 28) coords=(12, 9) -> coord (12, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 9)->(12, 8) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (12, 8)
+   [travel] start map=(3, 28) coords=(12, 8) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (12, 8)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (12, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(11, 10) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 10)->(12, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (12, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 9)
+   [travel] start map=(3, 28) coords=(12, 9) -> coord (12, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 9)->(12, 8) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (12, 8)
+   [travel] start map=(3, 28) coords=(12, 8) -> coord (12, 7) (budget 80s, surf-capable)
+   [travel] step 0: (12, 8)->(12, 7) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (12, 7)
+   [travel] start map=(3, 28) coords=(12, 7) -> coord (11, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 7)->(12, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 8)
+   [travel] start map=(3, 28) coords=(11, 8) -> coord (13, 8) (budget 80s, surf-capable)
+   [travel] step 0: (11, 8)->(12, 8) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (12, 8) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (13, 8)
+   [travel] start map=(3, 28) coords=(13, 8) -> coord (12, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 8)->(13, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 9)
+   [travel] start map=(3, 28) coords=(12, 9) -> coord (12, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 9)->(12, 8) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (12, 8)
+   [travel] start map=(3, 28) coords=(12, 8) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (12, 8)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (12, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(11, 10) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 10)->(12, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (12, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 9)
+   [travel] start map=(3, 28) coords=(12, 9) -> coord (12, 8) (budget 80s, surf-capable)
+   [travel] path blocked at (12, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (12, 8)
+   [travel] start map=(3, 28) coords=(12, 8) -> coord (12, 7) (budget 80s, surf-capable)
+   [travel] step 0: (12, 8)->(12, 7) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (12, 7)
+   [travel] start map=(3, 28) coords=(12, 7) -> coord (11, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 7)->(12, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 8)
+   [travel] start map=(3, 28) coords=(11, 8) -> coord (13, 8) (budget 80s, surf-capable)
+   [travel] step 0: (11, 8)->(12, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (13, 8)
+   [travel] start map=(3, 28) coords=(13, 8) -> coord (12, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 8)->(13, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 9)
+   [travel] start map=(3, 28) coords=(12, 9) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] path blocked at (12, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(11, 10) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 10)->(11, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (10, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (11, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (11, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (11, 10); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (10, 10)
+   [travel] start map=(3, 28) coords=(10, 10) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (10, 10)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (14, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (14, 10)
+   [travel] start map=(3, 28) coords=(14, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (14, 10)->(13, 10) map=(3, 28) (path 4 to exit)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 10)->(11, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (10, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (10, 10)
+   [travel] start map=(3, 28) coords=(10, 10) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (10, 10)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] path blocked at (12, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (14, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (14, 10)
+   [travel] start map=(3, 28) coords=(14, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (14, 10)->(13, 10) map=(3, 28) (path 4 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 10)->(11, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (10, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (10, 10)
+   [travel] start map=(3, 28) coords=(10, 10) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (10, 10)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] path blocked at (12, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (14, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (14, 10)
+   [travel] start map=(3, 28) coords=(14, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (14, 10)->(13, 10) map=(3, 28) (path 4 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 10)->(11, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (10, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (11, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (11, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (11, 10); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (10, 10)
+   [travel] start map=(3, 28) coords=(10, 10) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (10, 10)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (14, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (14, 10)
+   [travel] start map=(3, 28) coords=(14, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (14, 10)->(13, 10) map=(3, 28) (path 4 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] path blocked at (11, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (11, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (11, 10); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (10, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (10, 10)
+   [travel] start map=(3, 28) coords=(10, 10) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (10, 10)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (14, 10) (budget 80s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (14, 10)
+   [travel] start map=(3, 28) coords=(14, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (14, 10)->(13, 10) map=(3, 28) (path 4 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (11, 10)->(11, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (10, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (10, 10)
+   [travel] start map=(3, 28) coords=(10, 10) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (13, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 10)
+   [travel] start map=(3, 28) coords=(13, 10) -> map (3, 1) (budget 300s, surf-capable)
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 10) map=(3, 28) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 28) coords=(13, 10) -> map (3, 1) (budget 300s, surf-capable)
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 10) map=(3, 28) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 28) coords=(13, 10) -> map (3, 1) (budget 300s, surf-capable)
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 10) map=(3, 28) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 28) coords=(13, 10) -> map (3, 1) (budget 300s, surf-capable)
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 10) map=(3, 28) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 28) coords=(13, 10) -> map (3, 1) (budget 300s, surf-capable)
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 10) map=(3, 28) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 28) coords=(13, 10) -> map (3, 1) (budget 300s, surf-capable)
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 28) coords=(13, 10) -> map (3, 1) (budget 300s, surf-capable)
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [travel] start map=(3, 28) coords=(13, 10) -> map (3, 1) (budget 300s, surf-capable)
+   [travel] south connection band cols: [8, 9, 10, 11, 12, 24]
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (13, 10) map=(3, 28) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 28) coords=(13, 10) -> coord (13, 9) (budget 80s, surf-capable)
+   [travel] step 0: (13, 10)->(13, 9) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (13, 9)
+   [travel] start map=(3, 28) coords=(13, 9) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (13, 9)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (13, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 10); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (14, 10) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(13, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (14, 10)
+   [travel] start map=(3, 28) coords=(14, 10) -> coord (11, 10) (budget 80s, surf-capable)
+   [travel] step 0: (14, 10)->(13, 10) map=(3, 28) (path 4 to exit)
+   [travel] reached target coord (11, 10)
+   [travel] start map=(3, 28) coords=(11, 10) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] path blocked at (11, 10) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (11, 10) (NPC on the gap?) - waiting
+   [travel] no clean path from (11, 10); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (10, 10) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (10, 10)
+   [travel] start map=(3, 28) coords=(10, 10) -> coord (12, 10) (budget 80s, surf-capable)
+   [travel] step 0: (10, 10)->(11, 10) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 10)
+   [travel] start map=(3, 28) coords=(12, 10) -> coord (11, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 10)->(12, 9) map=(3, 28) (path 4 to exit)
+   [travel] reached target coord (11, 8)
+   [travel] start map=(3, 28) coords=(11, 8) -> coord (10, 8) (budget 80s, surf-capable)
+   [travel] step 0: (11, 8)->(10, 8) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (10, 8)
+   [travel] start map=(3, 28) coords=(10, 8) -> coord (12, 8) (budget 80s, surf-capable)
+   [travel] step 0: (10, 8)->(11, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 8)
+   [travel] start map=(3, 28) coords=(12, 8) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (12, 8)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (11, 7) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 7)
+   [travel] start map=(3, 28) coords=(11, 7) -> coord (11, 6) (budget 80s, surf-capable)
+   [travel] step 0: (11, 7)->(11, 6) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 6)
+   [travel] start map=(3, 28) coords=(11, 6) -> coord (10, 7) (budget 80s, surf-capable)
+   [travel] step 0: (11, 6)->(11, 7) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (10, 7)
+   [travel] start map=(3, 28) coords=(10, 7) -> coord (12, 7) (budget 80s, surf-capable)
+   [travel] step 0: (10, 7)->(11, 7) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (11, 7) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] reached target coord (12, 7)
+   [travel] start map=(3, 28) coords=(12, 7) -> coord (11, 8) (budget 80s, surf-capable)
+   [travel] step 0: (12, 7)->(12, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 8)
+   [travel] start map=(3, 28) coords=(11, 8) -> coord (10, 8) (budget 80s, surf-capable)
+   [travel] step 0: (11, 8)->(10, 8) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (10, 8)
+   [travel] start map=(3, 28) coords=(10, 8) -> coord (12, 8) (budget 80s, surf-capable)
+   [travel] step 0: (10, 8)->(11, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (12, 8)
+   [travel] start map=(3, 28) coords=(12, 8) -> coord (11, 9) (budget 80s, surf-capable)
+   [travel] step 0: (12, 8)->(12, 9) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (12, 9) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (12, 9) (NPC on the gap?) - waiting
+   [travel] no clean path from (12, 9); NPC-allowing path EXISTS (len 2), blocker NPC tile=None, npcs nearby=[] -> approaching to interact/trigger
+   [travel] reached target coord (11, 9)
+   [travel] start map=(3, 28) coords=(11, 9) -> coord (11, 7) (budget 80s, surf-capable)
+   [travel] step 0: (11, 9)->(11, 8) map=(3, 28) (path 3 to exit)
+   [travel] reached target coord (11, 7)
+   [travel] start map=(3, 28) coords=(11, 7) -> coord (11, 6) (budget 80s, surf-capable)
+   [travel] step 0: (11, 7)->(11, 6) map=(3, 28) (path 2 to exit)
+   [travel] reached target coord (11, 6)
+   [travel] start map=(3, 28) coords=(11, 6) -> coord (10, 7) (budget 80s, surf-capable)
+   [travel] step 0: (11, 6)->(11, 7) map=(3, 28) (path 3 to exit)
+   [travel] path blocked at (11, 7) (NPC on the gap?) - waiting
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+   [play-live]    [engine] WILD CATCH DIVERT (creator_catch_now) — only RESERVED ultras; FLEEING (NOT fighting — that KOs the catch target)
+   [travel] battle outcome=no_balls; resuming pathfind
+   [travel] path blocked at (11, 7) (NPC on the gap?) - waiting
