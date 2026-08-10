@@ -49,7 +49,10 @@ FORWARD_DRIVE_ENABLED = os.getenv("POKEMON_FORWARD_DRIVE", "1") != "0"  # forwar
 # STRATEGIC UNDERLEVEL-GRIND (Task B): when a forward wall keeps beating her because the TEAM is
 # under-levelled, grinding fields the WEAK party members (not the ace) to readiness, then resumes the
 # march. Extends the forward-drive family; firewall-clean (mode-side only). OFF restores grind(lead+2).
-STRATEGIC_GRIND_ENABLED = os.getenv("POKEMON_STRATEGIC_GRIND", "1") != "0"
+# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10, LIVE marathon call): default OFF — the L69 Blastoise
+# + three L50 birds team is declared FULLY READY for the League; no party-leveling stops on the way.
+# Re-arm with POKEMON_STRATEGIC_GRIND=1.
+STRATEGIC_GRIND_ENABLED = os.getenv("POKEMON_STRATEGIC_GRIND", "0") != "0"
 # BLOCK #3 (2026-07-06 nursery): she JUDGES a wild before throwing — dupe/coverage/level/room — and
 # voices the choice both ways ("not this one because…" / "THIS one because…"). The oracle decides
 # live; headless follows the framework's lean. OFF restores catch-whatever-appears.
@@ -125,7 +128,9 @@ SOLO_WEAK_GRIND = os.getenv("POKEMON_SOLO_WEAK_GRIND", "0") != "0"
 # +6 stint per badge — never the celadon_run1 27-level marathon that parked the road. Flag-gated (instant
 # revert); touches only action-menu dominance (no new battle code). The gaps below select SEVERE (solo
 # carry) from MODEST (bench trails ~10 — road-bench-XP finishes that organically without a full stop).
-LOPSIDED_GRIND_ENABLED = os.getenv("POKEMON_LOPSIDED_GRIND", "1") != "0"
+# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10): default OFF — no bench-leveling stops; the team as-is
+# is declared the E4 squad. Re-arm with POKEMON_LOPSIDED_GRIND=1.
+LOPSIDED_GRIND_ENABLED = os.getenv("POKEMON_LOPSIDED_GRIND", "0") != "0"
 LOPSIDED_MS_GAP = int(os.getenv("POKEMON_LOPSIDED_MS_GAP", "12"))    # floor >= this far under milestone
 LOPSIDED_ACE_GAP = int(os.getenv("POKEMON_LOPSIDED_ACE_GAP", "15"))  # ace towers >= this over the floor
 # QUESTLINE-BENCH RELAX (2026-07-13, ATTENDED — the fresh_go_2 ace-runaway/underleveled-bench root, 2nd
@@ -199,7 +204,9 @@ DUNGEON_QUESTLINE_STEPS = frozenset({
 # walkable non-warp tiles to draw step-encounters (the proven catch_one cave-wander), so the team levels
 # in the cave it's already crossing — and Lapras crosses L43 -> Ice Beam (the NS#16 move-learn fix lands
 # it). Default OFF pending a VR smoke + a no-park look-ahead (verify-gated grind change, NS#1's hard gate).
-CAVE_GRIND_ENABLED = os.getenv("POKEMON_CAVE_GRIND", "1") != "0"
+# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10): default OFF — Victory Road is crossed to REACH the
+# League, never as an EXP farm. Re-arm with POKEMON_CAVE_GRIND=1.
+CAVE_GRIND_ENABLED = os.getenv("POKEMON_CAVE_GRIND", "0") != "0"
 # CAVE-GRIND WANDER RADIUS (NS#17): the NS#16 wander picked FARTHEST-first waypoints to maximise steps —
 # fine in an OPEN cave (Mt. Moon) but on a PUZZLE cave (Victory Road) it drifts the whole floor, shoving
 # Strength boulders + tripping trainers (the party-6 VR1F smoke: 93 boulder/trainer collisions). Cap the
@@ -462,7 +469,11 @@ E4_STRIKE_ENABLED = os.getenv("POKEMON_E4_STRIKE", "1") != "0"
 #      then the benched passengers) until the party is whole again.
 # Kill switch: POKEMON_BOX_FLOW=0 removes both items from the checklist entirely (the lap
 # collapses to the original five; passengers ride in the trunk, the E4 sort keeps them last).
-VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "1") != "0"
+# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10, LIVE marathon call): default OFF — the lap's real
+# work is DONE (Earthquake on the ace, all three birds caught). The remaining luxury legs (Fly
+# fetch, box_bench, Ice Beam coin-grind, repack) are exactly the detours Jonny killed: the League
+# road opens NOW (NS#15 straight-at-the-League dispatch). Re-arm with POKEMON_VICTORY_LAP=1.
+VICTORY_LAP_ENABLED = os.getenv("POKEMON_VICTORY_LAP", "0") != "0"
 # CREDITS-FIRST order (2026-08-07): no Eevee — Jolteon is optional fluff once Zapdos/Moltres
 # exist; the Celadon detour blocked League after Articuno and under-leveled the E4 floor.
 # Fly BEFORE box_bench (2026-08-08): the ONLY Cut-learner left is Diglett — box_bench wants
@@ -493,7 +504,12 @@ BOX_BENCH_MIN_PARTY = 2            # never deposit below ace + one body (whiteou
 # ace-cap ALSO kills the whiteout-retry partial-Champion clears that fed the ace L63->L100 (she never enters
 # while RED). Gating the endgame DISPATCH (head_to_league pre-VR + enter_league at Indigo) prep the bench on
 # open ground BEFORE the ace runs away in the Victory-Road cave. Flag-gated (default ON) -> revertible.
-E4_GATE_ENABLED = os.getenv("POKEMON_E4_READINESS_GATE", "1") != "0"
+# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10, LIVE marathon call): default OFF — "the current team
+# (L69 Blastoise + L50 Zapdos/Articuno/Moltres) is fully ready for the endgame. Do not halt for EXP
+# grinding." The RED gate (floor L42 / gap 15) was parking her on an ace-capped bench grind (Lapras
+# L26 + Kadabra L19 drag the floor); Jonny waived the shape check — dispatch the League strikes NOW.
+# Re-arm with POKEMON_E4_READINESS_GATE=1.
+E4_GATE_ENABLED = os.getenv("POKEMON_E4_READINESS_GATE", "0") != "0"
 E4_ENTRY_MIN_LEVEL = int(os.getenv("POKEMON_E4_ENTRY_MIN", "42"))    # every member must reach this
 E4_ENTRY_GAP_MAX = int(os.getenv("POKEMON_E4_ENTRY_GAP", "15"))      # ace-to-floor gap ceiling (also caps ~L100)
 E4_GATE_MAX_STINTS = int(os.getenv("POKEMON_E4_GATE_STINTS", "80"))  # anti-infinite: total stints before stand-down
@@ -20370,6 +20386,22 @@ class Campaign:
                     _forced_pick = "victory_lap"
                     log("   [lap] !! FORCE VICTORY LAP — oracle SKIPPED (the checklist owns "
                         "the endgame sequencing; the order is code, not mood)")
+            # FORCE ENDGAME (2026-08-10, Jonny's executive call — LIVE marathon): at 8 badges the
+            # League road is not a taste question. head_to_league / enter_league on the menu ->
+            # oracle SKIPPED, march. Ends the 08-10 morning dither (grass picks — "training time,
+            # articuno leads so it soaks up the XP" — and confabulated Flash/Rock-Tunnel goals).
+            # Heal still outranks: nobody starts Victory Road hurt — the strike re-forces next
+            # tick at full HP (same doctrine as the lap leg above).
+            if _forced_pick is None and ("head_to_league" in avail or "enter_league" in avail):
+                _eg_pick = "enter_league" if "enter_league" in avail else "head_to_league"
+                if "heal" in avail and self.needs_heal():
+                    _forced_pick = "heal"
+                    log(f"   [roam] !! heal BEFORE the League push — {_eg_pick} re-forces at full HP")
+                else:
+                    _forced_pick = _eg_pick
+                    log(f"   [roam] !! FORCE ENDGAME: {_eg_pick} — oracle SKIPPED (Jonny's call: "
+                        f"the team is READY — Viridian -> Route 22 -> Victory Road -> Indigo; "
+                        f"no grinding, no detours)")
             # FORCE STOCK-UP (2026-08-03, the crucial battle lost with an empty-ish bag):
             # standing IN a mart town, wallet healthy, carrying almost no heals = shopping is
             # not a personality question. A real player tops up before walking back into the
@@ -21360,6 +21392,19 @@ class Campaign:
             pl = party[0]["level"] if party else None
             team_n = len(party)
             ng = state.get("next_gym")
+            # ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10, LIVE marathon call): at 8 badges the
+            # three horizons are the League road, VERBATIM — forced, not derived. Drowns the
+            # confabulated early-game goals the oracle voiced in the 08-10 morning log ("First
+            # step: HM Flash... Oak's aide on Route 2... Rock Tunnel" — all 30h behind her) and
+            # feeds the SAME spine to the dashboard (Now/Next/Goal) and the brain's journey POST.
+            if int(state.get("badge_count", 0)) >= 8 and not state.get("post_game"):
+                if tuple(state.get("map") or ()) == ENDGAME_INDIGO:
+                    return {"short": "Enter the Pokémon League and take on the Elite Four",
+                            "medium": "Beat Lorelei, Bruno, Agatha, Lance and the Champion",
+                            "long": "Beat the Elite Four and Champion — roll the credits"}
+                return {"short": "Head to Viridian City, go west onto Route 22, and enter Victory Road",
+                        "medium": "Navigate Victory Road to reach Indigo Plateau",
+                        "long": "Beat the Elite Four and Champion"}
             # LONG — the next badge milestone
             if ng:
                 try:
