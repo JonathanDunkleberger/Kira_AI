@@ -1,0 +1,1110 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 28) coords=(13, 10) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 1 blocked tile(s), 3 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=15060).
+
+   [soul] continuity loaded: 19 roster bond(s), 1283 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 161 place(s) known, 259 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 28) coords=(13, 10) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260810_101654_route-10_8b_42h43m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 5 warp(s) on (3, 28): (8, 19)->(1, 81), (8, 57)->(1, 81), (7, 40)->(1, 95), (13, 20)->(21, 0), (2, 37)->(1, 95)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/eevee → steps=['eevee'] actionable=eevee (resolved=True)
+
+   [campaign]    [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is unclaimed — climbing the back stairwell for the roof-room ball
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need the gift Eevee — a guaranteed Poke Ball in the Celadon Condominiums roof room (back stairwell). One of a kind: a Thunder Stone from the Dept. Store turns it into Jolteon, the team's electric answer."  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, diglett, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 6, 20, 264) @ Route 10 (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 10 (13, 10) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, moltres L50, lapras L26, articuno L50, kadabra L19, zapdos L50] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 20 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 28) (13,10) f4 -- badge8 $4302 party:7e57 bag:ae7c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_league', 'battle', 'wander_catch', 'travel:3,27', 'travel:3,30', 'travel:3,26', 'travel:3,22', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> Route 10
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 10 — outdoors under open sky (a town with a Pokémon Center; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), moltres (L50), lapras (L26), articuno (L50), abra the kadabra (L19), zapdos (L50). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 28), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 20 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), moltres (L50), lapras (L26), articuno (L50), abra the kadabra (L19), zapdos (L50)', 'goal': {'short': 'Head to Viridian City, go west onto Route 22, and enter Victory Road', 'medium': 'Navigate Victory Road to reach Indigo Plateau', 'long': 'Beat the Elite Four and Champion'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='reach Victory Road'
+
+   [campaign]    [soul] ORACLE pick -> 'reach Victory Road'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 6
+
+   [campaign]    [teamplan] next action: teach_tm (teach ice-beam to blastoise for Erika, Giovanni, Lance) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE ENDGAME: head_to_league — oracle SKIPPED (Jonny's call: the team is READY — Viridian -> Route 22 -> Victory Road -> Indigo; no grinding, no detours)
+
+   [campaign]    [roam] PICK OUT: head_to_league
+
+   [campaign]    [roam] RATIONALE: Head to Viridian City, go west onto Route 22, and enter Victory Road. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'reach Victory Road'  fired=True  [age 0.0s + post 7ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 "all eight badges — there are no more gyms. It's Victory Road and the League now. let's finish this climb."
+
+   [campaign]    victory road strike: boot map=(3, 28) coords=(13, 10) badge8=True lead=100%
+
+   [campaign]    EQ teach SKIPPED — Venusaur (species 3) not in party
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    off-route at (3, 28) — exiting to the overworld
+
+   [campaign]    7 door(s); candidates (chosen order): [(18, 86), (6, 85), (8, 57), (7, 40), (2, 37), (13, 20), (8, 19)]
+
+   [campaign]    directional warp (2, 37): no stand/neighbor reachable from (13, 10) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 173s, restart 1/8) — GAME CONTINUES; respawning audio.
+
