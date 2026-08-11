@@ -839,6 +839,20 @@ class VictoryRoad:
         except Exception:
             pass
 
+    def _cut_usable_and_walled(self, here):
+        """A party mon KNOWS Cut but a poisoned blocked tile still walls the BFS on this map.
+        travel's FIELD-OBSTACLE RELEASE can't un-block it (the object scan is empty 69 tiles
+        away), so the strike must release it itself. True iff Cut usable AND a blocked mark
+        exists on `here`."""
+        try:
+            import field_moves as _fmv
+            if not _fmv.can_use(self.b, "cut"):
+                return False
+            return any(tuple(m) == tuple(here)
+                       for (m, _t) in getattr(self.camp, "_blocked_npcs", ()))
+        except Exception:
+            return False
+
     def _hop_toward_viridian(self):
         """One dispatch-loop step toward VIRIDIAN from an off-corridor overworld map. Normally a
         plain graph hop; when the leg is Cut-blocked (the Route-9 tree), runs the Cut escort:
@@ -854,7 +868,16 @@ class VictoryRoad:
         r = self._graph_hop_to(VIRIDIAN)
         if r in ("moved", "healed"):
             return True
-        if r != "hm_blocked" and not (r == "failed" and self._cut_blocker_likely()):
+        if r not in ("hm_blocked", "failed"):
+            return False
+        # CASE A: a party mon already KNOWS Cut but a poisoned blocked tile still walls the BFS
+        # (travel's release can't see the tree at range). Release it and retry — the in-leg
+        # chokepoint logic will auto-cut up close.
+        if self._cut_usable_and_walled(here):
+            self._release_cut_blocks(here)
+            return True
+        # CASE B: no party Cut user — run the escort to field one.
+        if not self._cut_blocker_likely():
             return False
         # CUT-BLOCKED: run the escort to completion (bounded) — hop to the nearest mapped PC
         # THIS side of the tree, swap the passenger for the boxed Cut learner, then the next
@@ -865,7 +888,7 @@ class VictoryRoad:
             if esc == "swapped":
                 self._release_cut_blocks(tree_map)
                 return True
-            if esc != "need_pc":                    # 'ready' (weird wall) / 'none' — wedge counts
+            if esc != "need_pc":                    # 'ready' / 'none' — wedge counts
                 return False
             avoid = set()
             bn = getattr(self, "_blocked_nxt", None)
@@ -897,15 +920,18 @@ class VictoryRoad:
             if not pc_door:
                 return
             pc = b.rd8(ram.GPLAYER_PARTY_CNT)
-            dig_slot = next((s for s in range(pc)
-                             if st.read_party_species(b, s) == DIGLETT_SP), None)
-            if dig_slot is not None:
-                rd = camp.deposit_mon(dig_slot, pc_door)
+            # whoever carries Cut rides out (Diglett OR the Rattata the 18:05 swap chaos taught —
+            # neither belongs on the E4 six); the corridor past Viridian needs no Cut.
+            cut_slot = next((s for s in range(pc)
+                             if MOVE_CUT in (st.read_party_moves(b, s) or [])), None)
+            if cut_slot is not None:
+                _cut_sp = st.SPECIES_NAME.get(st.read_party_species(b, cut_slot), "?")
+                rd = camp.deposit_mon(cut_slot, pc_door)
                 if rd != "deposited":
-                    self.log(f"!! ESCORT RESTORE: Diglett deposit failed ({rd}) — it rides on "
+                    self.log(f"!! ESCORT RESTORE: Cut-user deposit failed ({rd}) — it rides on "
                              f"(LOUD)")
                     return
-                self.log(f"   ESCORT RESTORE: boxed Diglett at {camp.world.name(here)} — the "
+                self.log(f"   ESCORT RESTORE: boxed {_cut_sp} at {camp.world.name(here)} — the "
                          f"Route 9 tree is behind us")
             # Cross-instance fallback: the strike re-instantiates per dispatch, so a walk that
             # spans two invocations loses _escort_deposited — Kadabra was the benched passenger
