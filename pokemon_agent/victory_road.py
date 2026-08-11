@@ -695,18 +695,39 @@ class VictoryRoad:
                 best, best_len = pm, len(r)
         return best
 
+    def _box_mon_moves(self, bx, sl):
+        """Decrypt the 4 move IDs of a BOXED mon — mirrors _box_scan's BoxPokemon decryption
+        (gPokemonStoragePtr 0x03005010, 80-byte BoxPokemon) but reads the Attacks substructure
+        (pret PokemonSubstruct1 { u16 moves[4]; }), same scheme as read_party_moves. Read-only."""
+        GSTORAGE_PTR, BOX_MON_SIZE, PER_BOX = 0x03005010, 80, 30
+        b = self.camp.b
+        base0 = b.rd32(GSTORAGE_PTR)
+        if not base0:
+            return []
+        mbase = base0 + 4 + (bx * PER_BOX + sl) * BOX_MON_SIZE
+        pid = b.rd32(mbase)
+        if pid == 0 and b.rd32(mbase + 4) == 0:
+            return []
+        key = pid ^ b.rd32(mbase + 4)
+        order = st._SUBSTRUCT_ORDER[pid % 24]
+        a = mbase + 32 + order.index("A") * 12
+        w0 = b.rd32(a + 0) ^ key
+        w1 = b.rd32(a + 4) ^ key
+        return [w0 & 0xFFFF, (w0 >> 16) & 0xFFFF, w1 & 0xFFFF, (w1 >> 16) & 0xFFFF]
+
     def _ensure_cut_escort(self):
         """CUT ESCORT (2026-08-10 LIVE, the Route-9 tree — the ONLY land gate from eastern Kanto
         to Viridian): the party's only Cut user (Diglett) was boxed for the Zapdos seat, so the
         endgame march dead-ended on 'no_route_hm_blocked'. Field it: at a mapped-Center map,
         deposit the Kadabra passenger (Jonny's call — never the lead; the planner-default chaff
-        would box Moltres, the only off-plan member), then withdraw the boxed Cut learner from
-        the OPEN box. The retried hop's travel then clears the tree in-leg via field_clear.
+        would box Moltres, the only off-plan member), then withdraw a boxed mon that KNOWS Cut
+        from the OPEN box (knows-first: the box also holds cut-CAPABLE rattata/tentacool that
+        would withdraw useless). The retried hop's travel then clears the tree in-leg.
         Returns
           'ready'   — a party mon already knows Cut (travel clears the tree itself)
           'need_pc' — no mapped PC door on this map (caller hops toward the nearest one)
-          'swapped' — Cut learner fielded (retry the hop)
-          'none'    — nothing boxed can learn Cut / swap failed (caller wedge-caps)."""
+          'swapped' — Cut user fielded (retry the hop)
+          'none'    — nothing boxed knows Cut / swap failed (caller wedge-caps)."""
         camp, b = self.camp, self.b
         pc = b.rd8(ram.GPLAYER_PARTY_CNT)
         if st.party_knows_move(b, MOVE_CUT, pc) is not None:
@@ -717,12 +738,11 @@ class VictoryRoad:
         if not pc_door:
             return "need_pc"
         try:
-            import hm_teach as ht
             cb, occ = camp._box_scan()
             cand = next(((bx, sl, sp) for (bx, sl), sp in sorted(occ.items())
-                         if bx == cb and ht.hm_compatible(b, "cut", sp)), None)
+                         if bx == cb and MOVE_CUT in self._box_mon_moves(bx, sl)), None)
             if cand is None:
-                self.log("!! CUT ESCORT: no boxed Cut learner in the open box (LOUD)")
+                self.log("!! CUT ESCORT: no boxed mon KNOWS Cut in the open box (LOUD)")
                 return "none"
             bx, sl, sp = cand
             dep_slot = next((s for s in range(1, pc)
@@ -749,7 +769,7 @@ class VictoryRoad:
                 self._escort_deposited = _added[0] if _added else None
                 cb, occ = camp._box_scan()
                 cand = next(((bx2, sl2, sp2) for (bx2, sl2), sp2 in sorted(occ.items())
-                             if bx2 == cb and ht.hm_compatible(b, "cut", sp2)), None)
+                             if bx2 == cb and MOVE_CUT in self._box_mon_moves(bx2, sl2)), None)
                 if cand is None:
                     return "none"
                 bx, sl, sp = cand
@@ -772,25 +792,52 @@ class VictoryRoad:
         """The 'hm_blocked' signal DIES once the tree tile sits in the persistent blocked-NPC
         memory: the planning BFS excludes it, so travel aborts with a generic no_route before
         ever identifying the tree (the 17:20 chalk — wedged at (71,10), escort never fired).
-        True iff a Cut tree is live on this map, no party member can use Cut, and a boxed Cut
-        learner exists in the open box — i.e. the escort can actually fix this wall. Pure RAM
-        reads; one attempt per map per strike; never raises."""
+        Tree evidence is a NEARBY scanned Cut tree OR a persistent blocked tile on THIS map —
+        at 70 tiles the object scan is empty (objects only load close-in), so the poisoned block
+        memory IS the far-detection fingerprint. True iff that evidence holds, no party member
+        can use Cut, and a boxed mon KNOWS Cut (the Diglett) — i.e. the escort can fix this wall.
+        Pure RAM reads; one attempt per map per strike; never raises."""
         try:
             import field_moves as _fmv
             if _fmv.can_use(self.b, "cut"):
                 return False                      # Cut usable -> travel's release+auto-cut owns it
-            if not _fmv.scan_field_objects(self.b, {_fmv.GFX_CUT_TREE}):
-                return False                      # no live tree on this map -> not a Cut wall
             here = tuple(tv.map_id(self.b))
             if getattr(self, "_escort_likely_tried", None) == here:
                 return False                      # one escort attempt per map per strike
+            tree_near = bool(_fmv.scan_field_objects(self.b, {_fmv.GFX_CUT_TREE}))
+            blocked_here = {tuple(t) for (m, t) in getattr(self.camp, "_blocked_npcs", ())
+                            if tuple(m) == here}
+            if not (tree_near or blocked_here):
+                return False                      # no tree / no block -> not a Cut wall
             self._escort_likely_tried = here
-            import hm_teach as ht
             cb, occ = self.camp._box_scan()
-            return any(bx == cb and ht.hm_compatible(self.b, "cut", sp)
-                       for (bx, _sl), sp in occ.items())
+            # a boxed mon that KNOWS Cut — capable-only would withdraw a Rattata/Tentacool that
+            # can learn Cut but doesn't, which can't clear the tree (the live box has both).
+            return any(bx == cb and MOVE_CUT in self._box_mon_moves(bx, sl)
+                       for (bx, sl), _sp in occ.items())
         except Exception:
             return False
+
+    def _release_cut_blocks(self, tree_map):
+        """Cut is now fielded but the tree tile is still in the poisoned blocked-NPC memory, and
+        travel's FIELD-OBSTACLE RELEASE can't see the tree at range (object scan empty 69 tiles
+        away), so it never un-blocks. Clear the blocked marks on the tree's map so the BFS can
+        path TO the tree; the in-leg chokepoint logic re-identifies it up close and auto-cuts
+        (can_use(cut) is now True). Releasing a legit plain-NPC mark is harmless — travel
+        re-encounters and re-marks it on arrival."""
+        try:
+            bn = getattr(self.camp, "_blocked_npcs", None)
+            if not bn:
+                return
+            tm = tuple(tree_map)
+            removed = sorted(t for (m, t) in list(bn) if tuple(m) == tm)
+            for t in removed:
+                bn.discard((tm, t))
+            if removed:
+                self.log(f"   CUT ESCORT: Cut fielded — released poisoned block(s) {removed} on "
+                         f"{tm} so travel can path to the tree and auto-cut")
+        except Exception:
+            pass
 
     def _hop_toward_viridian(self):
         """One dispatch-loop step toward VIRIDIAN from an off-corridor overworld map. Normally a
@@ -812,10 +859,11 @@ class VictoryRoad:
         # CUT-BLOCKED: run the escort to completion (bounded) — hop to the nearest mapped PC
         # THIS side of the tree, swap the passenger for the boxed Cut learner, then the next
         # dispatch iteration retries the hop and travel clears the tree in-leg.
-        here = tuple(tv.map_id(self.b))
+        tree_map = here
         for _ in range(4):
             esc = self._ensure_cut_escort()
             if esc == "swapped":
+                self._release_cut_blocks(tree_map)
                 return True
             if esc != "need_pc":                    # 'ready' (weird wall) / 'none' — wedge counts
                 return False
