@@ -49,10 +49,11 @@ FORWARD_DRIVE_ENABLED = os.getenv("POKEMON_FORWARD_DRIVE", "1") != "0"  # forwar
 # STRATEGIC UNDERLEVEL-GRIND (Task B): when a forward wall keeps beating her because the TEAM is
 # under-levelled, grinding fields the WEAK party members (not the ace) to readiness, then resumes the
 # march. Extends the forward-drive family; firewall-clean (mode-side only). OFF restores grind(lead+2).
-# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10, LIVE marathon call): default OFF — the L69 Blastoise
-# + three L50 birds team is declared FULLY READY for the League; no party-leveling stops on the way.
-# Re-arm with POKEMON_STRATEGIC_GRIND=1.
-STRATEGIC_GRIND_ENABLED = os.getenv("POKEMON_STRATEGIC_GRIND", "0") != "0"
+# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10, revised): ON again — the VR2F prep top-up
+# (Kadabra/Lapras at the best farming spot, Jonny's ask) reads _prep_e4_target, which is gated
+# on this flag. The mid-game grind detours he banned can't fire at badge 8 (only the E4-prep
+# branch runs there), and the prep itself is bounded inside _enter_league.
+STRATEGIC_GRIND_ENABLED = os.getenv("POKEMON_STRATEGIC_GRIND", "1") != "0"
 # BLOCK #3 (2026-07-06 nursery): she JUDGES a wild before throwing — dupe/coverage/level/room — and
 # voices the choice both ways ("not this one because…" / "THIS one because…"). The oracle decides
 # live; headless follows the framework's lean. OFF restores catch-whatever-appears.
@@ -100,7 +101,7 @@ ROAD_XP_ROTATE_BAND = int(os.getenv("POKEMON_ROAD_XP_ROTATE_BAND", "3"))
 # floored the whole realistic L28-29 bench as "chaff" and never VR2F-grinded it — the exact "arrives thin"
 # shape the E4-prep exists to fix. Floor L25 still excludes true box-fodder (L8-14) and stays livelock-proof
 # (stall-marks + bounded VR2F stints bound it; a member VR2F can't level retires cleanly). Env-tunable.
-E4_PREP_BAND = int(os.getenv("POKEMON_E4_PREP_BAND", "30"))
+E4_PREP_BAND = int(os.getenv("POKEMON_E4_PREP_BAND", "40"))
 # SOLO weak-grind: field the weak member as lead and let it grind SOLO in the grass (no in-battle
 # participation-switch needed — that switch wedges the long core). Viable now that she can buy Super
 # Potions (the in-battle heal instinct keeps a weak lead alive) + heals route to a reachable Center.
@@ -204,9 +205,10 @@ DUNGEON_QUESTLINE_STEPS = frozenset({
 # walkable non-warp tiles to draw step-encounters (the proven catch_one cave-wander), so the team levels
 # in the cave it's already crossing — and Lapras crosses L43 -> Ice Beam (the NS#16 move-learn fix lands
 # it). Default OFF pending a VR smoke + a no-park look-ahead (verify-gated grind change, NS#1's hard gate).
-# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10): default OFF — Victory Road is crossed to REACH the
-# League, never as an EXP farm. Re-arm with POKEMON_CAVE_GRIND=1.
-CAVE_GRIND_ENABLED = os.getenv("POKEMON_CAVE_GRIND", "0") != "0"
+# ENDGAME EXECUTIVE OVERRIDE (Jonny 2026-08-10, revised): ON again — _enter_league's bounded VR2F
+# top-up (the best farming spot, per Jonny) is gated on this flag. The Route-9/tree escort no longer
+# depends on it (the strike releases poisoned blocks itself).
+CAVE_GRIND_ENABLED = os.getenv("POKEMON_CAVE_GRIND", "1") != "0"
 # CAVE-GRIND WANDER RADIUS (NS#17): the NS#16 wander picked FARTHEST-first waypoints to maximise steps —
 # fine in an OPEN cave (Mt. Moon) but on a PUZZLE cave (Victory Road) it drifts the whole floor, shoving
 # Strength boulders + tripping trainers (the party-6 VR1F smoke: 93 boulder/trainer collisions). Cap the
@@ -7721,13 +7723,11 @@ class Campaign:
         the road and outrank roster surgery. The creator-order LAW check lives at the call site."""
         try:
             # ENDGAME LAP OWNS THE SEATS (2026-08-07 19:43 LIVE, the Lavender PC
-            # shuttle): at badge 8 pre-credits the victory lap's box_bench frees a
-            # party seat for the Zapdos catch — and the breather's swap_keeper kept
-            # WITHDRAWING Diglett right back into it (deposit → withdraw → deposit,
-            # three PC trips in five ticks). The lap sequences the roster now;
-            # roster surgery breathers are for the badge climb only.
-            if (int(state.get("badge_count") or 0) >= 8
-                    and not state.get("post_game") and VICTORY_LAP_ENABLED):
+            # shuttle): at badge 8 pre-credits the roster is Jonny's declared six; roster
+            # surgery breathers are for the badge climb only (unconditional at badge 8 -
+            # the 19:2x chalk showed VICTORY_LAP=0 re-armed the breather and she PC-shuffled
+            # Rattata/Kadabra/Diglett/Moltres for minutes).
+            if int(state.get("badge_count") or 0) >= 8 and not state.get("post_game"):
                 return False
             party = state.get("party") or []
             lvls = [int(m.get("level") or 0) for m in party if isinstance(m, dict)]
@@ -14859,7 +14859,10 @@ class Campaign:
             # so the gauntlet fires unchanged by default. Never blocks (returns 'ready').
             if CAVE_GRIND_ENABLED:
                 try:
-                    self.prep_e4_in_victory_road()
+                    # BOUNDED top-up (Jonny 2026-08-10): level the two underleveled fighters
+                    # (Kadabra/Lapras) on VR2F - the best farming spot - for at most 4 stints /
+                    # 20 min, then the gauntlet fires regardless (prep never blocks credits).
+                    self.prep_e4_in_victory_road(max_stints=4, budget_s=1200)
                 except Exception as e:
                     log(f"   !! VR-GRIND pre-gauntlet errored ({e}) — proceeding to the E4 (LOUD)")
             import e4_strike

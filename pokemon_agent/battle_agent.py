@@ -383,7 +383,11 @@ WHIFF_RESERVE_LEVEL_BAND = int(os.getenv("POKEMON_WHIFF_RESERVE_BAND", "15"))  #
 # than Route 4 at all, OR make a true strand (heal 'stuck', no reachable Center) force an escape-hatch reload
 # that recovers. Flagged in STATE §0 as the top rebuild item. Switch MECHANISM + BATTLE_SWITCH stay armed/verified.
 # 2026-08-03 NUCLEAR: DEFAULT OFF with BATTLE_SWITCH — same party-menu thrash class.
-GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "0") == "1"
+# 2026-08-10 ENDGAME REVISED (Jonny: "why is she not focussing on using them?"): ON for the
+# League push — the bounded VR2F prep fields Kadabra/Lapras as leads and turn-1 switches to the
+# ace so they bank participation XP without taking hits (the human Abra-leveling trick). The
+# switch is fail-safe (non-confirm just fights) and scoped to grind_weak_members calls.
+GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "1") == "1"
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
 # SELECTIVE SOLO (2026-07-11 NS#26 — the bench-leveling KILL-XP lever, the frontier #2). The participation
 # GRIND SWITCH hands the KO to the ace, so the fielded weak lead banks only a SHARE of participation XP —

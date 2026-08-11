@@ -59,6 +59,7 @@ DELTA = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
 ARROW_KEY = {0x62: "RIGHT", 0x63: "LEFT", 0x64: "UP", 0x65: "DOWN"}
 DIRN_OF = {"south": 1, "north": 2, "west": 3, "east": 4}
 MOVE_CUT, DIGLETT_SP, KADABRA_SP = 15, 50, 64      # Cut escort constants (2026-08-10)
+DECLARED_SIX = (9, 146, 131, 144, 64, 145)        # Jonny's E4 roster (2026-08-10)
 
 # ── the hand-solved, elevation-aware boulder-push puzzles (recon_victory constants, verbatim) ───────────
 VR1F_PUZZLE = [("strength", (7, 18)),
@@ -670,7 +671,24 @@ class VictoryRoad:
             self._blocked_nxt = tuple(nxt)
         if r == "no_route_hm_blocked":
             return "hm_blocked"
-        return "moved" if moved else "failed"
+        if moved:
+            return "moved"
+        # EDGE FALLBACK (2026-08-10 LIVE, the Route-4 wedge): the mental map's stored edge
+        # direction can be wrong for her entry side (Route 4 -> Route 3 stored 'south', but the
+        # in-game door is on Route 4's WEST end) — every strike hop wedged and the macro ledger
+        # diverted her into grass/PC shuffles. Try the other cardinal edges for the SAME target;
+        # a transition both crosses her AND the transit learner corrects the model edge, so the
+        # map self-heals for future runs. Wrong edges fail fast (empty band) or drift one map
+        # (next dispatch re-plans from there — same as today's recovery, but bounded).
+        for alt in ("west", "east", "north", "south"):
+            if alt == detail or tuple(tv.map_id(b)) != here:
+                continue
+            self.log(f"   hop edge {detail} wedged — probing {alt} for {nxt}")
+            camp._edge_travel(nxt, alt, budget_s=90)
+            if tuple(tv.map_id(b)) == tuple(nxt):
+                self.log(f"   hop edge CORRECTED: {alt} reached {nxt} (model edge self-heals)")
+                return "moved"
+        return "failed"
 
     def _nearest_pc_map(self, here, avoid_maps=frozenset()):
         """Nearest mapped-PC-door map by learned-graph path length (the Cut escort's fetch point).
@@ -933,26 +951,35 @@ class VictoryRoad:
                     return
                 self.log(f"   ESCORT RESTORE: boxed {_cut_sp} at {camp.world.name(here)} — the "
                          f"Route 9 tree is behind us")
-            # Cross-instance fallback: the strike re-instantiates per dispatch, so a walk that
-            # spans two invocations loses _escort_deposited — Kadabra was the benched passenger
-            # (Jonny's call), so it is the default restore target.
-            dep_sp = getattr(self, "_escort_deposited", None) or KADABRA_SP
-            cb, occ = camp._box_scan()
-            cand = next(((bx, sl) for (bx, sl), sp in sorted(occ.items())
-                         if bx == cb and sp == dep_sp), None)
-            if cand is None:
-                self.log(f"!! ESCORT RESTORE: {st.SPECIES_NAME.get(dep_sp, dep_sp)} not in the "
-                         f"open box — the party rides on as-is (LOUD)")
+            # Refill the declared E4 six (Jonny's roster): the breather chaos benched Moltres
+            # and fielded Diglett, earlier chaos benched Kadabra — after the Cut user rides
+            # out, withdraw whatever declared member is missing (sorted box order) until the
+            # party is whole again.
+            done = True
+            for _ in range(3):
+                pc = b.rd8(ram.GPLAYER_PARTY_CNT)
+                if pc >= 6:
+                    break
+                have = {st.read_party_species(b, s) for s in range(pc)}
+                missing = [sp for sp in DECLARED_SIX if sp not in have]
+                cb, occ = camp._box_scan()
+                cand = next(((bx, sl, sp) for (bx, sl), sp in sorted(occ.items())
+                             if bx == cb and sp in missing), None)
+                if cand is None:
+                    self.log("!! ESCORT RESTORE: no missing declared-six mon in the open box "
+                             "(LOUD)")
+                    break
+                rw = camp.withdraw_mon(cand[0], cand[1], pc_door)
+                if rw != "withdrawn":
+                    self.log(f"!! ESCORT RESTORE: withdraw "
+                             f"{st.SPECIES_NAME.get(cand[2], cand[2])} failed ({rw}) — "
+                             f"retrying at the next PC (LOUD)")
+                    done = False
+                    break
+                self.log(f"   ESCORT RESTORE: {st.SPECIES_NAME.get(cand[2], cand[2])} back on "
+                         f"the team")
+            if done:
                 self._escort_restored = True
-                return
-            rw = camp.withdraw_mon(cand[0], cand[1], pc_door)
-            if rw == "withdrawn":
-                self.log(f"   ESCORT RESTORE: {st.SPECIES_NAME.get(dep_sp, dep_sp)} back on the "
-                         f"team — the E4 six is whole")
-                self._escort_restored = True
-            else:
-                self.log(f"!! ESCORT RESTORE: withdraw failed ({rw}) — retrying at the next "
-                         f"PC (LOUD)")
         except Exception as e:
             self.log(f"!! ESCORT RESTORE errored ({e}) — LOUD")
 
