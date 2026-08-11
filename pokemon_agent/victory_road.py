@@ -58,6 +58,7 @@ KEY_OF = {(0, -1): "UP", (0, 1): "DOWN", (-1, 0): "LEFT", (1, 0): "RIGHT"}
 DELTA = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
 ARROW_KEY = {0x62: "RIGHT", 0x63: "LEFT", 0x64: "UP", 0x65: "DOWN"}
 DIRN_OF = {"south": 1, "north": 2, "west": 3, "east": 4}
+MOVE_CUT, DIGLETT_SP, KADABRA_SP = 15, 50, 64      # Cut escort constants (2026-08-10)
 
 # ── the hand-solved, elevation-aware boulder-push puzzles (recon_victory constants, verbatim) ───────────
 VR1F_PUZZLE = [("strength", (7, 18)),
@@ -624,40 +625,230 @@ class VictoryRoad:
             self.log(f"   [teach-eq] errored: {e} — continuing without EQ (LOUD)")
 
     # ── OFF-ROUTE APPROACH (2026-08-10 LIVE, the Route-10 door-spin): overworld graph hops ─────────────
-    def _hop_toward_viridian(self):
-        """One learned-world-graph hop from an OFF-CORRIDOR overworld map toward VIRIDIAN (the
-        corridor's entry). Mirrors _travel_to_known's hop actuation (warp walk-in + enter_warp /
-        _edge_travel edge cross), heal-aware. The strike's dispatch loop re-keys on the new map
-        each iteration, so repeated hops converge Route 10 -> Route 9 -> Cerulean -> Route 4 ->
-        Route 3 -> Pewter -> Route 2 -> Viridian (verified against the live world model). Returns
-        True when she MOVED (or healed to keep moving), False when the graph has no route / the
-        hop failed (caller wedge-caps)."""
+    def _graph_hop_to(self, dst):
+        """One learned-world-graph hop toward `dst`. Mirrors _travel_to_known's hop actuation
+        (warp walk-in + enter_warp / _edge_travel edge cross), heal-aware. Clears a stale
+        watchdog latch FIRST so a prior leg's disengage can't insta-bail this hop (the 12:24
+        chalk: a latched disengage killed every retry leg before it started). Returns
+        'moved' | 'healed' | 'hm_blocked' | 'failed'."""
         camp, b = self.camp, self.b
         here = tuple(tv.map_id(b))
-        if here == VIRIDIAN:
-            return True
+        if here == tuple(dst):
+            return "moved"
         try:
-            step = camp._next_step_rideable(here, VIRIDIAN, avoid=set())
+            camp._stuck_request = None
+            if camp._stuckwatch is not None:
+                camp._stuckwatch.reset()
+        except Exception:
+            pass
+        try:
+            step = camp._next_step_rideable(here, tuple(dst), avoid=set())
         except Exception as e:
-            self.log(f"!! off-route graph hop errored ({e}) — LOUD")
-            return False
+            self.log(f"!! graph hop toward {dst} errored ({e}) — LOUD")
+            return "failed"
         if step is None:
-            self.log(f"!! no world-graph route {here} -> {VIRIDIAN} from her feet (LOUD)")
-            return False
+            self.log(f"!! no world-graph route {here} -> {dst} from her feet (LOUD)")
+            return "failed"
         nxt, kind, detail = step
-        self.log(f"   off-route overworld {here}: graph hop toward {VIRIDIAN} "
+        self.log(f"   off-route overworld {here}: graph hop toward {dst} "
                  f"({('warp ' + str(detail)) if kind == 'warp' else detail} -> {nxt})")
         if kind == "warp":
             before = tuple(tv.map_id(b))
             camp.trav.travel(target_map=None, arrive_coord=detail, max_steps=300)
             if tuple(tv.map_id(b)) == before:
                 camp.enter_warp(pick=detail)
-            return tuple(tv.map_id(b)) != before
+            return "moved" if tuple(tv.map_id(b)) != before else "failed"
         r = camp._edge_travel(nxt, detail)
         if r == "need_heal":
             camp.heal_nearest()
-            return True                            # healed — re-hop next iteration
-        return tuple(tv.map_id(b)) != here
+            return "healed"
+        if r == "no_route_hm_blocked":
+            self._blocked_nxt = tuple(nxt)      # the escort's PC fetch must not route through it
+            return "hm_blocked"
+        return "moved" if tuple(tv.map_id(b)) != here else "failed"
+
+    def _nearest_pc_map(self, here, avoid_maps=frozenset()):
+        """Nearest mapped-PC-door map by learned-graph path length (the Cut escort's fetch point).
+        The graph is capability-blind, so `avoid_maps` drops every candidate whose route runs
+        through a map we just proved hm-blocked (from Route 9 the naive nearest is Cerulean —
+        which is on the FAR side of the very Cut tree that blocked us)."""
+        from campaign import CITY_PC_DOORS
+        best, best_len = None, None
+        for pm in CITY_PC_DOORS:
+            pm = tuple(pm)
+            if pm == tuple(here):
+                return pm
+            if pm in avoid_maps:
+                continue
+            try:
+                r = self.camp.world.route(here, pm)
+            except Exception:
+                r = None
+            if not r or any(tuple(m) in avoid_maps for m in r[1:]):
+                continue
+            if best_len is None or len(r) < best_len:
+                best, best_len = pm, len(r)
+        return best
+
+    def _ensure_cut_escort(self):
+        """CUT ESCORT (2026-08-10 LIVE, the Route-9 tree — the ONLY land gate from eastern Kanto
+        to Viridian): the party's only Cut user (Diglett) was boxed for the Zapdos seat, so the
+        endgame march dead-ended on 'no_route_hm_blocked'. Field it: at a mapped-Center map,
+        deposit the Kadabra passenger (Jonny's call — never the lead; the planner-default chaff
+        would box Moltres, the only off-plan member), then withdraw the boxed Cut learner from
+        the OPEN box. The retried hop's travel then clears the tree in-leg via field_clear.
+        Returns
+          'ready'   — a party mon already knows Cut (travel clears the tree itself)
+          'need_pc' — no mapped PC door on this map (caller hops toward the nearest one)
+          'swapped' — Cut learner fielded (retry the hop)
+          'none'    — nothing boxed can learn Cut / swap failed (caller wedge-caps)."""
+        camp, b = self.camp, self.b
+        pc = b.rd8(ram.GPLAYER_PARTY_CNT)
+        if st.party_knows_move(b, MOVE_CUT, pc) is not None:
+            return "ready"
+        from campaign import CITY_PC_DOORS
+        here = tuple(tv.map_id(b))
+        pc_door = CITY_PC_DOORS.get(here)
+        if not pc_door:
+            return "need_pc"
+        try:
+            import hm_teach as ht
+            cb, occ = camp._box_scan()
+            cand = next(((bx, sl, sp) for (bx, sl), sp in sorted(occ.items())
+                         if bx == cb and ht.hm_compatible(b, "cut", sp)), None)
+            if cand is None:
+                self.log("!! CUT ESCORT: no boxed Cut learner in the open box (LOUD)")
+                return "none"
+            bx, sl, sp = cand
+            dep_slot = next((s for s in range(1, pc)
+                             if st.read_party_species(b, s) == KADABRA_SP), None)
+            if dep_slot is not None:
+                rd = camp.deposit_mon(dep_slot, pc_door)
+                if rd != "deposited":
+                    self.log(f"!! CUT ESCORT: Kadabra deposit failed ({rd}) — party intact (LOUD)")
+                    return "none"
+                self._escort_deposited = KADABRA_SP
+                cb, occ = camp._box_scan()          # deposit adds an occupant — re-locate
+                if (bx, sl) not in occ or bx != cb:
+                    self.log("!! CUT ESCORT: box shifted after deposit — aborting (Kadabra "
+                             "boxed, benign; the escort retries next leg)")
+                    return "none"
+            else:
+                from collections import Counter
+                _c0 = Counter(camp._box_scan()[1].values())
+                if not camp._box_swap_for_hm("cut", camp.read_live_state()):
+                    self.log("!! CUT ESCORT: no Kadabra in party and the NS#28 chaff swap "
+                             "found no depositable mon (LOUD)")
+                    return "none"
+                _added = list((Counter(camp._box_scan()[1].values()) - _c0).elements())
+                self._escort_deposited = _added[0] if _added else None
+                cb, occ = camp._box_scan()
+                cand = next(((bx2, sl2, sp2) for (bx2, sl2), sp2 in sorted(occ.items())
+                             if bx2 == cb and ht.hm_compatible(b, "cut", sp2)), None)
+                if cand is None:
+                    return "none"
+                bx, sl, sp = cand
+            rw = camp.withdraw_mon(bx, sl, pc_door)
+            if rw != "withdrawn":
+                self.log(f"!! CUT ESCORT: withdraw failed ({rw}) (LOUD)")
+                return "none"
+            self.log(f"   CUT ESCORT: fielded {st.SPECIES_NAME.get(sp, sp)} from box{bx} "
+                     f"slot{sl} — the Route 9 tree is next")
+            camp.on_event(f"none of my team knows Cut — but there's a "
+                          f"{st.SPECIES_NAME.get(sp, 'Diglett')} sitting in the box. swapping "
+                          f"them in; one tree stands between us and the League.",
+                          kind="roster", tier=2)
+            return "swapped"
+        except Exception as e:
+            self.log(f"!! CUT ESCORT errored ({e}) — LOUD")
+            return "none"
+
+    def _hop_toward_viridian(self):
+        """One dispatch-loop step toward VIRIDIAN from an off-corridor overworld map. Normally a
+        plain graph hop; when the leg is Cut-blocked (the Route-9 tree), runs the Cut escort:
+        hop to the nearest mapped Center, box the Kadabra passenger, field the boxed Cut
+        learner — then the retried hop's travel clears the tree in-leg. Returns True on any
+        progress (moved / healed / escort step), False when genuinely walled (caller wedge-caps)."""
+        here = tuple(tv.map_id(self.b))
+        if here == VIRIDIAN:
+            return True
+        r = self._graph_hop_to(VIRIDIAN)
+        if r in ("moved", "healed"):
+            return True
+        if r != "hm_blocked":
+            return False
+        # CUT-BLOCKED: run the escort to completion (bounded) — hop to the nearest mapped PC
+        # THIS side of the tree, swap the passenger for the boxed Cut learner, then the next
+        # dispatch iteration retries the hop and travel clears the tree in-leg.
+        here = tuple(tv.map_id(self.b))
+        for _ in range(4):
+            esc = self._ensure_cut_escort()
+            if esc == "swapped":
+                return True
+            if esc != "need_pc":                    # 'ready' (weird wall) / 'none' — wedge counts
+                return False
+            avoid = set()
+            bn = getattr(self, "_blocked_nxt", None)
+            if bn:
+                avoid.add(tuple(bn))
+            pc_map = self._nearest_pc_map(here, avoid_maps=avoid)
+            if pc_map is None or pc_map == here:
+                self.log("!! CUT ESCORT: no reachable mapped PC from here (LOUD)")
+                return False
+            self.log(f"   CUT ESCORT: no PC on {here} — fetching the Cut user via {pc_map}")
+            if self._graph_hop_to(pc_map) not in ("moved", "healed"):
+                return False
+            here = tuple(tv.map_id(self.b))
+        return False
+
+    def _restore_escort_party(self):
+        """One-shot PC restore after the Cut crossing: box the Cut user (the League corridor —
+        Route 22/23, Victory Road, Indigo — has NO Cut trees, so it never rides to the E4) and
+        withdraw the benched passenger so the declared E4 six walks into Victory Road. Called at
+        Viridian (pre-Route 22) with an Indigo-heal backstop; re-entry safe (the deposit only
+        happens if the Cut user is still in the party, the withdraw retries until done)."""
+        if getattr(self, "_escort_restored", False):
+            return
+        camp, b = self.camp, self.b
+        try:
+            from campaign import CITY_PC_DOORS
+            here = tuple(tv.map_id(b))
+            pc_door = CITY_PC_DOORS.get(here)
+            if not pc_door:
+                return
+            pc = b.rd8(ram.GPLAYER_PARTY_CNT)
+            dig_slot = next((s for s in range(pc)
+                             if st.read_party_species(b, s) == DIGLETT_SP), None)
+            if dig_slot is not None:
+                rd = camp.deposit_mon(dig_slot, pc_door)
+                if rd != "deposited":
+                    self.log(f"!! ESCORT RESTORE: Diglett deposit failed ({rd}) — it rides on "
+                             f"(LOUD)")
+                    return
+                self.log(f"   ESCORT RESTORE: boxed Diglett at {camp.world.name(here)} — the "
+                         f"Route 9 tree is behind us")
+            # Cross-instance fallback: the strike re-instantiates per dispatch, so a walk that
+            # spans two invocations loses _escort_deposited — Kadabra was the benched passenger
+            # (Jonny's call), so it is the default restore target.
+            dep_sp = getattr(self, "_escort_deposited", None) or KADABRA_SP
+            cb, occ = camp._box_scan()
+            cand = next(((bx, sl) for (bx, sl), sp in sorted(occ.items())
+                         if bx == cb and sp == dep_sp), None)
+            if cand is None:
+                self.log(f"!! ESCORT RESTORE: {st.SPECIES_NAME.get(dep_sp, dep_sp)} not in the "
+                         f"open box — the party rides on as-is (LOUD)")
+                self._escort_restored = True
+                return
+            rw = camp.withdraw_mon(cand[0], cand[1], pc_door)
+            if rw == "withdrawn":
+                self.log(f"   ESCORT RESTORE: {st.SPECIES_NAME.get(dep_sp, dep_sp)} back on the "
+                         f"team — the E4 six is whole")
+                self._escort_restored = True
+            else:
+                self.log(f"!! ESCORT RESTORE: withdraw failed ({rw}) — retrying at the next "
+                         f"PC (LOUD)")
+        except Exception as e:
+            self.log(f"!! ESCORT RESTORE errored ({e}) — LOUD")
 
     # ── the strike ───────────────────────────────────────────────────────────────────────────────────
     def run(self):
@@ -685,6 +876,7 @@ class VictoryRoad:
                 if self.lead_frac() < 0.9:
                     camp.heal_nearest()
                     continue
+                self._restore_escort_party()   # box the Cut user, back the passenger — E4 six whole
                 if not self.cross_edge("west", "to-r22") and self.wedge("viridian-west"):
                     return "stuck"
             elif here == R22:
@@ -812,6 +1004,7 @@ class VictoryRoad:
         except Exception as e:
             self.log(f"   Indigo heal errored: {e} — continuing (LOUD)")
         self.drain(key="B")
+        self._restore_escort_party()           # backstop: if the Cut user rode this far, box it here
         self.log(f"   INDIGO REACHED: pos {tv.map_id(b)}@{tv.coords(b)} | lead {self.lead_frac():.0%} | "
                  f"battles {self.n_battles} | money ${camp.money()}")
         self.snap("80_final")
