@@ -662,10 +662,15 @@ class VictoryRoad:
         if r == "need_heal":
             camp.heal_nearest()
             return "healed"
+        moved = tuple(tv.map_id(b)) != here
+        if not moved:
+            # the edge toward nxt just failed (hm_blocked OR a generic wedge — e.g. the tree
+            # tile poisoned into blocked-NPC memory) — the escort's PC fetch must route around it
+            # (naive nearest from Route 9 is Cerulean, on the FAR side of the tree).
+            self._blocked_nxt = tuple(nxt)
         if r == "no_route_hm_blocked":
-            self._blocked_nxt = tuple(nxt)      # the escort's PC fetch must not route through it
             return "hm_blocked"
-        return "moved" if tuple(tv.map_id(b)) != here else "failed"
+        return "moved" if moved else "failed"
 
     def _nearest_pc_map(self, here, avoid_maps=frozenset()):
         """Nearest mapped-PC-door map by learned-graph path length (the Cut escort's fetch point).
@@ -763,19 +768,46 @@ class VictoryRoad:
             self.log(f"!! CUT ESCORT errored ({e}) — LOUD")
             return "none"
 
+    def _cut_blocker_likely(self):
+        """The 'hm_blocked' signal DIES once the tree tile sits in the persistent blocked-NPC
+        memory: the planning BFS excludes it, so travel aborts with a generic no_route before
+        ever identifying the tree (the 17:20 chalk — wedged at (71,10), escort never fired).
+        True iff a Cut tree is live on this map, no party member can use Cut, and a boxed Cut
+        learner exists in the open box — i.e. the escort can actually fix this wall. Pure RAM
+        reads; one attempt per map per strike; never raises."""
+        try:
+            import field_moves as _fmv
+            if _fmv.can_use(self.b, "cut"):
+                return False                      # Cut usable -> travel's release+auto-cut owns it
+            if not _fmv.scan_field_objects(self.b, {_fmv.GFX_CUT_TREE}):
+                return False                      # no live tree on this map -> not a Cut wall
+            here = tuple(tv.map_id(self.b))
+            if getattr(self, "_escort_likely_tried", None) == here:
+                return False                      # one escort attempt per map per strike
+            self._escort_likely_tried = here
+            import hm_teach as ht
+            cb, occ = self.camp._box_scan()
+            return any(bx == cb and ht.hm_compatible(self.b, "cut", sp)
+                       for (bx, _sl), sp in occ.items())
+        except Exception:
+            return False
+
     def _hop_toward_viridian(self):
         """One dispatch-loop step toward VIRIDIAN from an off-corridor overworld map. Normally a
         plain graph hop; when the leg is Cut-blocked (the Route-9 tree), runs the Cut escort:
         hop to the nearest mapped Center, box the Kadabra passenger, field the boxed Cut
-        learner — then the retried hop's travel clears the tree in-leg. Returns True on any
-        progress (moved / healed / escort step), False when genuinely walled (caller wedge-caps)."""
+        learner — then the retried hop's travel clears the tree in-leg. The escort fires on the
+        honest 'hm_blocked' signal OR on a generic hop failure when a Cut tree is the likely
+        blocker (the poisoned blocked-NPC-memory case — see _cut_blocker_likely). Returns True
+        on any progress (moved / healed / escort step), False when genuinely walled (caller
+        wedge-caps)."""
         here = tuple(tv.map_id(self.b))
         if here == VIRIDIAN:
             return True
         r = self._graph_hop_to(VIRIDIAN)
         if r in ("moved", "healed"):
             return True
-        if r != "hm_blocked":
+        if r != "hm_blocked" and not (r == "failed" and self._cut_blocker_likely()):
             return False
         # CUT-BLOCKED: run the escort to completion (bounded) — hop to the nearest mapped PC
         # THIS side of the tree, swap the passenger for the boxed Cut learner, then the next
