@@ -283,3 +283,34 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 >> no PROMOTE_TARGET.txt -- defaulting to CANONICAL launch (canonical save as-is).
 == push soak report (this can take ~30s; console stays quiet on purpose) ==
 == push soak report ==
+[cursor/endgame-credits-path-bdbc d94bd4e] report(soak): 20260815_120542 inventory/rescue (auto from resume_marathon.ps1)
+ 10 files changed, 4069 insertions(+)
+ create mode 100644 docs/soak-reports/20260815_120542/canonical_health.json
+ create mode 100644 docs/soak-reports/20260815_120542/engine_tail.log
+ create mode 100644 docs/soak-reports/20260815_120542/playlive_faulthandler.log
+ create mode 100644 docs/soak-reports/20260815_120542/resume_marathon.log
+ create mode 100644 docs/soak-reports/20260815_120542/sandbox1_sandbox_canonical_20260728_125926_health.json
+ create mode 100644 docs/soak-reports/20260815_120542/sandbox2_sandbox_canonical_20260728_125602_health.json
+ create mode 100644 docs/soak-reports/20260815_120542/tail_console_2026-08-15_11-43-20.log
+ create mode 100644 docs/soak-reports/20260815_120542/tail_supervisor_playlive_2026-08-15_10-59-41.log
+ create mode 100644 docs/soak-reports/20260815_120542/tail_supervisor_playlive_2026-08-15_11-44-09.log
+branch 'cursor/endgame-credits-path-bdbc' set up to track 'origin/cursor/endgame-credits-path-bdbc'.
+git : To https://github.com/JonathanDunkleberger/Kira_AI.git
+At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:534 char:5
++     git push -u origin $pushBranch
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   8444c3e..d94bd4e  cursor/endgame-credits-path-bdbc -> cursor/endgame-credits-path-bdbc
+
+push soak report finished (branch=cursor/endgame-credits-path-bdbc; see log if git complained).
+== launching bot (window 1) ==
+    expect: a PowerShell titled roughly 'python run.py' + browser dashboard at :8766
+waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
+    still waiting for bot... (15s)
+bot is up. == launching supervised marathon (window 2) ==
+    expect: a PowerShell for supervisor.py, THEN the FireRed / mGBA game window
+She is live on FREE-ROAM: windowed, true speed, crash auto-restart, campaign banking.
+If the GAME window never appears: look at window 2 for a Traceback (ROM path / SDL / mgba).
+To stop everything later: just rerun this script (it stops her first), or taskkill /F /IM python.exe /T

@@ -1,0 +1,437 @@
+===== playlive_2026-08-15_12-06-39.log =====
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '28/234', 'status': 'paralysis', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 23, aim=active)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_cure item 23 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] HEAL-FAIL: item 23 failed — NOT latching species 9 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs onix 112/112 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=14,ref=0,sc=570) [2]Earthquake(p100,pp=1,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] E4 SEND: zapdos (matchup, not highest-level; skipped dying stepping-stone)
+   [play-live]    [engine] fswitch retry 2: target row 3 sp=145 skip_rows=[] party_cur=1 menu_rows=[(9, 0), (144, 157), (146, 16), (145, 79)]
+   [play-live]    [engine] fswitch: selecting row 3 (sp=145 L51 hp=79)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] WHIFF: foe HP unchanged at 112 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '79/159', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: first miss (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 145 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Drill Peck - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Drill Peck - E4 wincon -> slot 3 (eff x0.5) vs onix 112/112 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=14,ref=0,sc=0) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Drill Peck - E4 wincon slot 3 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] move slot 3 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [3], refusals {3: 1}, futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '34/159', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=1/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=2/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=3/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive cursor reading FROZEN at 0 across 3 taps — MUTE (heap-moved slotId / stale frames), latching for this core and handing off to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x3 from HOME row 0 (informed, want row 3/blastoise, ring=5, attempt=0); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x3 did not consume — no box seen — either the A was swallowed or the box reader is blind too; next attempt enumerates k=0
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 2/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 145 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Drill Peck - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+   [play-live]    [engine] action menu: Drill Peck - E4 wincon -> slot 3 (eff x0.5) vs onix 112/112 | [0]move#86(p0*STAB,pp=19,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=14,ref=0,sc=0) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=1,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Drill Peck - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] E4 SEND: moltres (matchup, not highest-level)
+   [play-live]    [engine] fswitch retry 3: target row 2 sp=146 skip_rows=[] party_cur=1 menu_rows=[(145, 0), (144, 157), (146, 16), (9, 0)]
+   [play-live]    [engine] fswitch: selecting row 2 (sp=146 L51 hp=16)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.5) vs onix 96/112 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=14,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [2], refusals {3: 1, 2: 1}, futility 1/4)
+   [play-live]    [engine] !! PARTY THRASH #1: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: THIN-PARTY revive kept (alive=2 fainted=2 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '16/153', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=2 fainted=2; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x2 from HOME row 0 (enumerating corpses [3, 2], want row 3/blastoise, ring=5, attempt=1); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x2 did not consume — no box seen — either the A was swallowed or the box reader is blind too; next attempt enumerates k=1
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 3/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 146 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.5) vs onix 96/112 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=14,ref=1,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 1: target row 1 sp=144 skip_rows=[] party_cur=1 menu_rows=[(146, 0), (144, 157), (145, 0), (9, 0)]
+   [play-live]    [engine] fswitch: selecting row 1 (sp=144 L51 hp=157)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4/league: LAST-BODY revive kept (alive=1 fainted=3 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '157/157', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=1 fainted=3; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x2 from HOME row 0 (enumerating corpses [3, 1, 2], want row 3/blastoise, ring=5, attempt=2); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x2 did not consume — no box seen — either the A was swallowed or the box reader is blind too; next attempt enumerates k=2
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 1, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 4/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 144 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x2) vs onix 36/112 | [0]move#54(p0*STAB,pp=30,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=1,sc=0) [3]Ice Beam(p95*STAB,pp=10,ref=1,sc=285)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4/league: LAST-BODY revive kept (alive=1 fainted=3 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '157/157', 'status': 'none', 'foe': 'hitmonchan'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=1 fainted=3; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x3 from HOME row 0 (enumerating corpses [3, 1, 2], want row 3/blastoise, ring=5, attempt=3); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x3 did not consume — no box seen — either the A was swallowed or the box reader is blind too; next attempt enumerates k=3
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 1, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 5/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+===== playlive_2026-08-15_11-44-09.log =====
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '28/234', 'status': 'paralysis', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 23, aim=active)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_cure item 23 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] HEAL-FAIL: item 23 failed — NOT latching species 9 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs onix 112/112 | [0]Skull Bash(p100,pp=15,ref=0,sc=25) [1]Surf(p95*STAB,pp=14,ref=0,sc=570) [2]Earthquake(p100,pp=1,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] E4 SEND: zapdos (matchup, not highest-level; skipped dying stepping-stone)
+   [play-live]    [engine] fswitch retry 2: target row 3 sp=145 skip_rows=[] party_cur=1 menu_rows=[(9, 0), (144, 157), (146, 16), (145, 79)]
+   [play-live]    [engine] fswitch: selecting row 3 (sp=145 L51 hp=79)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] WHIFF: foe HP unchanged at 112 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '79/159', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=1/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=2/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=3/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive cursor reading FROZEN at 0 across 3 taps — MUTE (heap-moved slotId / stale frames), latching for this core and handing off to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x0 from HOME (informed: home=3, want row 3/blastoise, ring=5, attempt=0); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x0 did not consume — next attempt enumerates k=0
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: first miss (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 145 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Drill Peck - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Drill Peck - E4 wincon -> slot 3 (eff x0.5) vs onix 112/112 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=14,ref=0,sc=0) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Drill Peck - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '79/159', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x0 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=1); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x0 did not consume — next attempt enumerates k=1
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 2/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 145 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Drill Peck - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Drill Peck - E4 wincon -> slot 3 (eff x0.5) vs onix 97/112 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=14,ref=0,sc=0) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=19,ref=0,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Drill Peck - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '79/159', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x1 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=2); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x1 did not consume — next attempt enumerates k=2
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 3/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 145 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Drill Peck - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Drill Peck - E4 wincon -> slot 3 (eff x0.5) vs onix 82/112 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=14,ref=0,sc=0) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=18,ref=0,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Drill Peck - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '36/159', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 4/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 145 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Drill Peck - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+   [play-live]    [engine] action menu: Drill Peck - E4 wincon -> slot 3 (eff x0.5) vs onix 66/112 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=14,ref=0,sc=0) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=17,ref=0,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Drill Peck - E4 wincon slot 3 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] move slot 3 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [3], refusals {3: 1}, futility 1/4)
+   [play-live]    [engine] E4 SEND: moltres (matchup, not highest-level)
+   [play-live]    [engine] fswitch: selecting row 2 (sp=146 L51 hp=16)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.5) vs onix 66/112 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=14,ref=0,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 0, want 2) — RAM-correcting
+   [play-live]    [engine] move slot 2 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [2, 3], refusals {3: 1, 2: 1}, futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: THIN-PARTY revive kept (alive=2 fainted=2 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '16/153', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=2 fainted=2; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x2 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=3); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x2 did not consume — next attempt enumerates k=3
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 5/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 146 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.5) vs onix 66/112 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=14,ref=1,sc=71.25)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: THIN-PARTY revive kept (alive=2 fainted=2 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '16/153', 'status': 'none', 'foe': 'hitmonchan'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=2 fainted=2; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x3 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=4); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x3 did not consume — next attempt enumerates k=4
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 6/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 146 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x1) vs hitmonchan 131/131 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=13,ref=1,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: THIN-PARTY revive kept (alive=2 fainted=2 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '16/153', 'status': 'none', 'foe': 'hitmonchan'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=2 fainted=2; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x4 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=5); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x4 did not consume — next attempt enumerates k=0
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 7/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 146 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x1) vs hitmonchan 59/131 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=12,ref=1,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: THIN-PARTY revive kept (alive=2 fainted=2 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '16/153', 'status': 'none', 'foe': 'machamp'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=2 fainted=2; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x0 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=6); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x0 did not consume — next attempt enumerates k=1
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive blind aim already spent this bag trip — refusing a second (it would press DOWN/A on the BAG list); the next turn's offer enumerates the next offset
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 8/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 146 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x1) vs machamp 183/183 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=11,ref=1,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: THIN-PARTY revive kept (alive=2 fainted=2 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '16/153', 'status': 'none', 'foe': 'machamp'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=2 fainted=2; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x1 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=7); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x1 did not consume — next attempt enumerates k=2
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 9/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 146 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x1) vs machamp 76/183 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=10,ref=1,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] !! post-faint drain: 40 advances, zero progress -> switching to B-first decline pairs (wedge frame saved)
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: THIN-PARTY revive kept (alive=2 fainted=2 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '16/153', 'status': 'none', 'foe': 'hitmonlee'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=2 fainted=2; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 10/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 146 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x1) vs hitmonlee 131/131 | [0]Agility(p0,pp=29,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=9,ref=1,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] fswitch retry 3: target row 1 sp=144 skip_rows=[] party_cur=1 menu_rows=[(146, 0), (144, 157), (145, 0), (9, 0)]
+   [play-live]    [engine] fswitch: selecting row 1 (sp=144 L51 hp=157)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4/league: LAST-BODY revive kept (alive=1 fainted=3 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '157/157', 'status': 'none', 'foe': 'hitmonlee'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=1 fainted=3; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: first miss (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 144 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x1) vs hitmonlee 63/131 | [0]move#54(p0*STAB,pp=30,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=10,ref=0,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] move slot 3 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [3], refusals {3: 1}, futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4/league: LAST-BODY revive kept (alive=1 fainted=3 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '104/157', 'status': 'none', 'foe': 'hitmonlee'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=1 fainted=3; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x2 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=8); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x2 did not consume — next attempt enumerates k=3
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 1, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 2/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 144 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x1) vs hitmonlee 63/131 | [0]move#54(p0*STAB,pp=29,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=10,ref=1,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: LAST-BODY revive kept (alive=1 fainted=3 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '44/157', 'status': 'none', 'foe': 'hitmonlee'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=1 fainted=3; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 3/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 144 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x1) vs hitmonlee 17/131 | [0]move#54(p0*STAB,pp=29,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=9,ref=1,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L51 legendary bird is NOT fodder next to L77 — offering heal
+   [play-live]    [engine] E4/league: LAST-BODY revive kept (alive=1 fainted=3 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '44/157', 'status': 'none', 'foe': 'hitmonlee'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=1 fainted=3; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive cursor readback already PROVEN mute on this core — skipping the walk, straight to the blind sweep
+   [play-live]    [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x3 from HOME (enumerating, want row 3/blastoise, ring=5, attempt=9); one A per bag trip, count-drop is the only truth
+   [play-live]    [engine] use_item: revive blind aim DOWN x3 did not consume — next attempt enumerates k=4
+   [play-live]    [engine] use_item: REFUSE A on alive slot (wanted fainted row 3, cursor=0 not 0-HP; tried rows [3, 1, 2]) — B out, fight
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: miss 4/14 (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 144 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x1) vs hitmonlee 84/131 | [0]move#54(p0*STAB,pp=29,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=8,ref=1,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [travel] start map=(13, 0) coords=(13, 12) -> coord (11, 15) (budget 60s, surf-capable)
+   [travel] path blocked at (13, 12) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 12); NPC-allowing path EXISTS (len 6), blocker NPC tile=None, npcs nearby=[(7, 14), (13, 10)] -> approaching to interact/trigger
+   [travel] reached target coord (11, 15)
+   [travel] start map=(13, 0) coords=(11, 16) -> coord (11, 15) (budget 60s, surf-capable)
+   [travel] step 0: (11, 16)->(11, 15) map=(13, 0) (path 2 to exit)
+   [travel] reached target coord (11, 15)
