@@ -49,6 +49,11 @@ R23 = (3, 42)
 GATE = (28, 0)                       # Route22 North-Entrance gatehouse (group 28)
 VR1F, VR2F, VR3F = (1, 39), (1, 40), (1, 41)
 INDIGO = (3, 9)
+VR1F_DOOR = (5, 28)                  # Route 23 west cave mouth (south entrance)
+# y<=30 was used as "north of VR / Indigo side". That is WRONG on the stoop:
+# the door is (5, 28), so (5, 29)/(5, 30) are the SOUTH approach, not past VR.
+# Live 2026-08-13: cy<=30 sent (5, 30) into to-indigo-band; BFS has no overworld
+# path around the mountain → watchdog freeze. The east exit is (18, 28).
 FLAG_BADGE_EARTH = 0x827             # badge 8 — the prereq; also the strike's own preflight guard
 FLAG_STR_ACTIVE = 0x805             # Strength armed for the session
 TM26_ITEM, MOVE_EQ = 314, 89
@@ -59,7 +64,47 @@ DELTA = {"UP": (0, -1), "DOWN": (0, 1), "LEFT": (-1, 0), "RIGHT": (1, 0)}
 ARROW_KEY = {0x62: "RIGHT", 0x63: "LEFT", 0x64: "UP", 0x65: "DOWN"}
 DIRN_OF = {"south": 1, "north": 2, "west": 3, "east": 4}
 MOVE_CUT, DIGLETT_SP, KADABRA_SP = 15, 50, 64      # Cut escort constants (2026-08-10)
-DECLARED_SIX = (9, 146, 131, 144, 64, 145)        # Jonny's E4 roster (2026-08-10)
+# Jonny 2026-08-13: Diglett was Cut escort only. Kadabra L19 / Lapras L26 are
+# not the E4 plan. Steamroll = Blastoise + the three birds. Empty seats stay empty.
+DECLARED_SIX = (9, 146, 144, 145)                 # Blastoise, Moltres, Articuno, Zapdos
+# CREDITS MARCH (2026-08-13): ONE corridor to Viridian. Do not invent a second.
+# Proven live walls:
+#   * Route 7 ↔ Celadon ping-pong (graph BFS has no Bike edge, so Celadon only
+#     neighbors Route 7 — soak 20260811_121822)
+#   * Cycling Road gate: "No pedestrians are allowed on CYCLING ROAD!" (no Bike)
+#   * Route 4 → Route 3 is a bogus learned edge (real door is Mt. Moon)
+# She HAS walked Saffron → Vermilion → Diglett's Cave → Route 2 this timeline.
+# Celadon/Route 7 JOIN east onto that corridor. Never hop west onto Route 16.
+CREDITS_MARCH = (
+    (3, 3),    # Cerulean
+    (3, 23),   # Route 5
+    (17, 1),   # Underground Path (Route 5 ↔ Saffron)
+    (3, 10),   # Saffron
+    (3, 24),   # Route 6
+    (3, 5),    # Vermilion
+    (3, 29),   # Route 11 (Diglett's Cave south mouth)
+    (1, 38),   # Diglett's Cave vestibule (from Route 11)
+    (1, 37),   # Diglett's Cave long floor
+    (1, 36),   # Diglett's Cave (Route 2 mouth)
+    (3, 20),   # Route 2 — north half must go THROUGH Viridian Forest (pret)
+    VIRIDIAN,  # (3, 1)
+)
+# Side doors onto the march. Celadon leaves EAST. Route 16 (bike-gate strand) backs out.
+# Forest chain: pret/pokefirered Route2 + gate + ViridianForest map.json (2026-08-13).
+FOREST = (1, 0)          # gMapGroup_Dungeons[0] ViridianForest
+GATE_N = (15, 3)         # IndoorRoute2[3] Route2_ViridianForest_NorthEntrance
+GATE_S = (15, 0)         # IndoorRoute2[0] Route2_ViridianForest_SouthEntrance
+R2_HOUSE = (15, 1)       # IndoorRoute2[1] Route2_House (Diglett-side cottage)
+R2_LEDGE = (15, 2)       # IndoorRoute2[2] Route2_EastBuilding (ledge skip)
+CREDITS_JOIN = {
+    (3, 6): (3, 25),    # Celadon → Route 7 (east — NEVER Route 16)
+    (3, 25): (19, 0),   # Route 7 → Underground → Saffron
+    (19, 0): (3, 10),   # Underground → Saffron (joins CREDITS_MARCH)
+    (3, 34): (3, 6),    # Route 16 bike-gate strand → back to Celadon
+    GATE_N: FOREST,     # north gate south mats → forest
+    FOREST: GATE_S,     # forest y=62 mats → south gate
+    GATE_S: (3, 20),    # south gate south mats → Route 2 (5,51)
+}
 
 # ── the hand-solved, elevation-aware boulder-push puzzles (recon_victory constants, verbatim) ───────────
 VR1F_PUZZLE = [("strength", (7, 18)),
@@ -102,6 +147,7 @@ class VictoryRoad:
         self.n_battles = 0
         self.wedges = {}
         self.deadline = time.time() + 3600
+        self._last_hop_src = None            # map-id we just hopped FROM (hysteresis guard)
 
     # ── snap / battle / dialogue drains ────────────────────────────────────────────────────────────────
     def snap(self, name):
@@ -626,6 +672,128 @@ class VictoryRoad:
             self.log(f"   [teach-eq] errored: {e} — continuing without EQ (LOUD)")
 
     # ── OFF-ROUTE APPROACH (2026-08-10 LIVE, the Route-10 door-spin): overworld graph hops ─────────────
+    def _warp_to_dest(self, dest):
+        """Enter the first warp on this map whose destination is `dest` (pret dest_map)."""
+        dest = tuple(dest)
+        try:
+            for wxy, d, _i in tv.read_warps(self.b):
+                if tuple(d) == dest:
+                    return self.camp.enter_warp(pick=tuple(wxy)) == "warped"
+        except Exception as e:
+            self.log(f"   route2-viridian: warp-to {dest} failed ({e})")
+        return False
+
+    def _route2_unlatch(self):
+        try:
+            self.camp._stuck_request = None
+            if self.camp._stuckwatch is not None:
+                self.camp._stuckwatch.reset()
+        except Exception:
+            pass
+
+    def _route2_south_to_viridian(self, _depth=0):
+        """Route 2 north cannot walk overworld-south to Viridian.
+
+        pret/pokefirered Route2/map.json: Viridian is a `down` connection at the
+        BOTTOM of the map. Forest north doors are (5,13)/(6,13) → GATE_N (15,3).
+        Forest south doors are (5,51)/(6,51) → GATE_S (15,0). The Cut tree at
+        (11,13) is the 'NPC' travel saw at (11,14). Live 2026-08-13: south-edge
+        BFS from y=14 is a wall. North half (y<40) goes through the forest.
+        South half (y>=40, past forest/ledges) walks the Viridian connection."""
+        if _depth > 6:
+            self.log("   route2-viridian: chain depth cap — failed")
+            return "failed"
+        camp, b = self.camp, self.b
+        ROUTE2 = (3, 20)
+        self._route2_unlatch()
+        here = tuple(tv.map_id(b))
+        if here == VIRIDIAN:
+            return "moved"
+
+        if here == R2_LEDGE or here == R2_HOUSE:
+            self.log(f"   route2-viridian: interior {here} — exit south onto Route 2")
+            if not self._warp_to_dest(ROUTE2):
+                try:
+                    camp._exit_to_overworld(max_tries=4)
+                except Exception:
+                    camp.enter_warp(prefer="south")
+            here = tuple(tv.map_id(b))
+
+        if here == GATE_N:
+            # pret: south mats (6/7/8,10) → FOREST warp 2; north (7,1) → Route 2.
+            self.log("   route2-viridian: north forest gate -> forest")
+            if not self._warp_to_dest(FOREST):
+                camp.enter_warp(prefer="south")
+            here = tuple(tv.map_id(b))
+
+        if here == FOREST:
+            # pret: south mats (28/29/30,62) → GATE_S; north (4/5/6,9) → GATE_N.
+            self.log("   route2-viridian: Viridian Forest -> south gate")
+            old = camp.trav.battle_runner
+            try:
+                if getattr(camp, "_flee_runner", None):
+                    camp.trav.battle_runner = camp._flee_runner
+                if not self._warp_to_dest(GATE_S):
+                    camp.enter_warp(prefer="south")
+            finally:
+                camp.trav.battle_runner = old
+            here = tuple(tv.map_id(b))
+
+        if here == GATE_S:
+            # pret: south mats (6/7/8,10) → Route 2 warp 2 = (5,51); north (7,1) → forest.
+            self.log("   route2-viridian: south forest gate -> Route 2 south")
+            if not self._warp_to_dest(ROUTE2):
+                camp.enter_warp(prefer="south")
+            here = tuple(tv.map_id(b))
+
+        if here == VIRIDIAN:
+            self._last_hop_src = ROUTE2
+            return "moved"
+        if here != ROUTE2:
+            if here in (GATE_N, FOREST, GATE_S, R2_LEDGE, R2_HOUSE):
+                return self._route2_south_to_viridian(_depth=_depth + 1)
+            self.log(f"   route2-viridian: off Route 2 at {here} — failed")
+            return "failed"
+
+        xy = tuple(tv.coords(b) or (0, 0))
+        if xy[1] < 40:
+            # NORTH half. pret forest doors (5,13)/(6,13). Do NOT overworld-south.
+            self.log(f"   route2-viridian: north Route 2 {xy} — through Viridian Forest "
+                     f"(pret doors (5,13)/(6,13) → {GATE_N})")
+            # Cut tree is (11,13) — one tile north of the live wedge. Open sand is y<=12.
+            if xy[1] >= 13:
+                camp.trav.travel(target_map=None, arrive_coord=(11, 12),
+                                 avoid={(17, 11)}, max_steps=80, max_seconds=40)
+            self._route2_unlatch()
+            entered = False
+            for door, appr in (((6, 13), (6, 14)), ((5, 13), (5, 14))):
+                camp.trav.travel(target_map=None, arrive_coord=appr,
+                                 avoid={(17, 11)}, max_steps=200, max_seconds=90)
+                self._route2_unlatch()
+                if camp.enter_warp(pick=door) == "warped":
+                    entered = True
+                    break
+            if not entered:
+                self.log("   route2-viridian: forest door missed — cutting and retrying")
+                try:
+                    if camp.field and camp.field.clear_obstacle("cut", "LEFT") == "used":
+                        self._route2_unlatch()
+                    camp.enter_warp(pick=(6, 13))
+                except Exception as e:
+                    self.log(f"   route2-viridian: forest enter failed ({e})")
+            if tuple(tv.map_id(b)) != ROUTE2:
+                return self._route2_south_to_viridian(_depth=_depth + 1)
+            return "failed"
+
+        # SOUTH half (y>=40): past the forest / ledge-house landing. Map connection down.
+        self.log(f"   route2-viridian: south Route 2 {xy} — edge south to Viridian")
+        avoid = {tuple(w[0]) for w in tv.read_warps(b)}
+        camp.trav.travel(target_map=VIRIDIAN, edge="south", avoid=avoid, max_seconds=180)
+        if tuple(tv.map_id(b)) == VIRIDIAN:
+            self._last_hop_src = ROUTE2
+            return "moved"
+        return "failed"
+
     def _graph_hop_to(self, dst):
         """One learned-world-graph hop toward `dst`. Mirrors _travel_to_known's hop actuation
         (warp walk-in + enter_warp / _edge_travel edge cross), heal-aware. Clears a stale
@@ -636,6 +804,18 @@ class VictoryRoad:
         here = tuple(tv.map_id(b))
         if here == tuple(dst):
             return "moved"
+        if here in ((3, 20), FOREST, GATE_N, GATE_S, R2_LEDGE, R2_HOUSE) and tuple(dst) in (
+                VIRIDIAN, FOREST, GATE_S, (3, 20)):
+            return self._route2_south_to_viridian()
+        # BOUNDARY HYSTERESIS (2026-08-10 ping-pong fix): never hop back to the map we just
+        # crossed FROM this tick. The graph BFS has no notion of "I just left there" — so on a
+        # two-map border it picks the first-neighbor hop toward dst, which is the map we came
+        # from (proven: Route 7 <-> Celadon loop at line 660-672). Track the previous map per
+        # strike instance; the next hop from here must NOT target it. Only blocks the immediate
+        # reverse — legitimate rerouting through that map on a LATER tick is unaffected.
+        prev = self._last_hop_src
+        if prev is not None and tuple(dst) == prev:
+            self.log(f"   graph hop: hysteresis — dst {dst} == last src {prev}, seeking alternate")
         try:
             camp._stuck_request = None
             if camp._stuckwatch is not None:
@@ -651,6 +831,37 @@ class VictoryRoad:
             self.log(f"!! no world-graph route {here} -> {dst} from her feet (LOUD)")
             return "failed"
         nxt, kind, detail = step
+        # CYCLING-ROAD POISON (2026-08-13): never hop onto Route 16 / Celadon-west when the
+        # destination is Viridian. No Bike = the gate NPC is a hard wall (soak 20260811).
+        _bike_wall = {(3, 34), (3, 35), (3, 36)}
+        if tuple(dst) == VIRIDIAN and tuple(nxt) in _bike_wall:
+            self.log(f"   graph hop: refusing Cycling Road {nxt} (no Bike) — excluding it")
+            try:
+                alt = camp._next_step_rideable(here, tuple(dst), avoid=list(_bike_wall))
+                if alt is not None:
+                    nxt, kind, detail = alt
+                else:
+                    self.log(f"!! no Viridian route excluding Cycling Road from {here} (LOUD)")
+                    return "failed"
+            except Exception as e:
+                self.log(f"!! Cycling Road exclude errored ({e}) — LOUD")
+                return "failed"
+        # HYSTERESIS CHECK: if the first-hop neighbor is the map we just came from, ask the
+        # world graph for the route EXCLUDING that previous map — the BFS then finds the real
+        # forward path (or None if the previous map was the only bridge, in which case we fail
+        # honestly rather than oscillate forever).
+        if prev is not None and tuple(nxt) == prev:
+            self.log(f"   graph hop: hysteresis — next hop {nxt} == last src {prev}, excluding it")
+            try:
+                alt = camp._next_step_rideable(here, tuple(dst), avoid=[prev])
+                if alt is not None:
+                    nxt, kind, detail = alt
+                else:
+                    self.log(f"!! hysteresis: excluding {prev} leaves no route {here} -> {dst} (LOUD)")
+                    return "failed"
+            except Exception as e:
+                self.log(f"!! hysteresis re-route errored ({e}) — LOUD")
+                return "failed"
         self.log(f"   off-route overworld {here}: graph hop toward {dst} "
                  f"({('warp ' + str(detail)) if kind == 'warp' else detail} -> {nxt})")
         if kind == "warp":
@@ -658,6 +869,7 @@ class VictoryRoad:
             camp.trav.travel(target_map=None, arrive_coord=detail, max_steps=300)
             if tuple(tv.map_id(b)) == before:
                 camp.enter_warp(pick=detail)
+            self._last_hop_src = tuple(here)
             return "moved" if tuple(tv.map_id(b)) != before else "failed"
         r = camp._edge_travel(nxt, detail)
         if r == "need_heal":
@@ -665,21 +877,12 @@ class VictoryRoad:
             return "healed"
         moved = tuple(tv.map_id(b)) != here
         if not moved:
-            # the edge toward nxt just failed (hm_blocked OR a generic wedge — e.g. the tree
-            # tile poisoned into blocked-NPC memory) — the escort's PC fetch must route around it
-            # (naive nearest from Route 9 is Cerulean, on the FAR side of the tree).
             self._blocked_nxt = tuple(nxt)
         if r == "no_route_hm_blocked":
             return "hm_blocked"
         if moved:
+            self._last_hop_src = tuple(here)
             return "moved"
-        # EDGE FALLBACK (2026-08-10 LIVE, the Route-4 wedge): the mental map's stored edge
-        # direction can be wrong for her entry side (Route 4 -> Route 3 stored 'south', but the
-        # in-game door is on Route 4's WEST end) — every strike hop wedged and the macro ledger
-        # diverted her into grass/PC shuffles. Try the other cardinal edges for the SAME target;
-        # a transition both crosses her AND the transit learner corrects the model edge, so the
-        # map self-heals for future runs. Wrong edges fail fast (empty band) or drift one map
-        # (next dispatch re-plans from there — same as today's recovery, but bounded).
         for alt in ("west", "east", "north", "south"):
             if alt == detail or tuple(tv.map_id(b)) != here:
                 continue
@@ -687,6 +890,7 @@ class VictoryRoad:
             camp._edge_travel(nxt, alt, budget_s=90)
             if tuple(tv.map_id(b)) == tuple(nxt):
                 self.log(f"   hop edge CORRECTED: {alt} reached {nxt} (model edge self-heals)")
+                self._last_hop_src = tuple(here)
                 return "moved"
         return "failed"
 
@@ -857,6 +1061,29 @@ class VictoryRoad:
         except Exception:
             pass
 
+    def _march_hop(self):
+        """One hop toward VIRIDIAN along CREDITS_MARCH. Never Celadon-west / Cycling Road."""
+        here = tuple(tv.map_id(self.b))
+        if here == VIRIDIAN:
+            return "moved"
+        join = CREDITS_JOIN.get(here)
+        if join is not None:
+            self.log(f"   credits-march JOIN {here} -> {join}")
+            return self._graph_hop_to(join)
+        if here in CREDITS_MARCH[:-1]:
+            nxt = CREDITS_MARCH[CREDITS_MARCH.index(here) + 1]
+            self.log(f"   credits-march {here} -> {nxt}")
+            if here == (3, 29) and nxt == (1, 38):
+                try:
+                    self.camp.on_event(
+                        "Diglett's Cave is the tunnel to Route 2 — Viridian is the other side, "
+                        "not a detour.",
+                        kind="travel", tier=2)
+                except Exception:
+                    pass
+            return self._graph_hop_to(nxt)
+        return self._graph_hop_to(VIRIDIAN)
+
     def _cut_usable_and_walled(self, here):
         """A party mon KNOWS Cut but a poisoned blocked tile still walls the BFS on this map.
         travel's FIELD-OBSTACLE RELEASE can't un-block it (the object scan is empty 69 tiles
@@ -923,11 +1150,14 @@ class VictoryRoad:
         return False
 
     def _restore_escort_party(self):
-        """One-shot PC restore after the Cut crossing: box the Cut user (the League corridor —
-        Route 22/23, Victory Road, Indigo — has NO Cut trees, so it never rides to the E4) and
-        withdraw the benched passenger so the declared E4 six walks into Victory Road. Called at
-        Viridian (pre-Route 22) with an Indigo-heal backstop; re-entry safe (the deposit only
-        happens if the Cut user is still in the party, the withdraw retries until done)."""
+        """Viridian PC: dump Cut-escort + dead-weight, pull the three birds.
+
+        Diglett was only here to Cut trees. Kadabra L19 / Lapras L26 are not the
+        E4 plan (Jonny 2026-08-13). Box anyone not in DECLARED_SIX, withdraw
+        Moltres, walk into Route 22 as Blastoise + Articuno + Zapdos + Moltres.
+        Empty seats stay empty — no L18 fodder in the faint-through. Called at
+        Viridian (pre-Route 22) with an Indigo-heal backstop. Does not latch
+        until the party is only stompers."""
         if getattr(self, "_escort_restored", False):
             return
         camp, b = self.camp, self.b
@@ -937,51 +1167,63 @@ class VictoryRoad:
             pc_door = CITY_PC_DOORS.get(here)
             if not pc_door:
                 return
-            pc = b.rd8(ram.GPLAYER_PARTY_CNT)
-            # whoever carries Cut rides out (Diglett OR the Rattata the 18:05 swap chaos taught —
-            # neither belongs on the E4 six); the corridor past Viridian needs no Cut.
-            cut_slot = next((s for s in range(pc)
-                             if MOVE_CUT in (st.read_party_moves(b, s) or [])), None)
-            if cut_slot is not None:
-                _cut_sp = st.SPECIES_NAME.get(st.read_party_species(b, cut_slot), "?")
-                rd = camp.deposit_mon(cut_slot, pc_door)
+            # Ace stays slot 0 — deposit_mon refuses slot 0.
+            try:
+                ace = next((s for s in range(b.rd8(ram.GPLAYER_PARTY_CNT))
+                            if st.read_party_species(b, s) == 9), 0)
+                if ace:
+                    camp._swap_party_slots(0, ace)
+            except Exception:
+                pass
+            dumped = []
+            for _ in range(4):
+                pc = b.rd8(ram.GPLAYER_PARTY_CNT)
+                dump = next((s for s in range(1, pc)
+                             if st.read_party_species(b, s) not in DECLARED_SIX), None)
+                if dump is None:
+                    break
+                sp = st.read_party_species(b, dump)
+                name = st.SPECIES_NAME.get(sp, sp)
+                rd = camp.deposit_mon(dump, pc_door)
                 if rd != "deposited":
-                    self.log(f"!! ESCORT RESTORE: Cut-user deposit failed ({rd}) — it rides on "
-                             f"(LOUD)")
+                    self.log(f"!! STEAMROLL: boxing {name} failed ({rd}) — retry next PC (LOUD)")
                     return
-                self.log(f"   ESCORT RESTORE: boxed {_cut_sp} at {camp.world.name(here)} — the "
-                         f"Route 9 tree is behind us")
-            # Refill the declared E4 six (Jonny's roster): the breather chaos benched Moltres
-            # and fielded Diglett, earlier chaos benched Kadabra — after the Cut user rides
-            # out, withdraw whatever declared member is missing (sorted box order) until the
-            # party is whole again.
-            done = True
+                dumped.append(name)
+                self.log(f"   STEAMROLL: boxed {name} at {camp.world.name(here)} "
+                         f"(Cut escort / dead weight — not the E4)")
             for _ in range(3):
                 pc = b.rd8(ram.GPLAYER_PARTY_CNT)
                 if pc >= 6:
                     break
                 have = {st.read_party_species(b, s) for s in range(pc)}
                 missing = [sp for sp in DECLARED_SIX if sp not in have]
+                if not missing:
+                    break
                 cb, occ = camp._box_scan()
                 cand = next(((bx, sl, sp) for (bx, sl), sp in sorted(occ.items())
                              if bx == cb and sp in missing), None)
                 if cand is None:
-                    self.log("!! ESCORT RESTORE: no missing declared-six mon in the open box "
-                             "(LOUD)")
+                    self.log(f"!! STEAMROLL: {st.SPECIES_NAME.get(missing[0], missing[0])} "
+                             f"not in the open box (LOUD)")
                     break
                 rw = camp.withdraw_mon(cand[0], cand[1], pc_door)
                 if rw != "withdrawn":
-                    self.log(f"!! ESCORT RESTORE: withdraw "
+                    self.log(f"!! STEAMROLL: withdraw "
                              f"{st.SPECIES_NAME.get(cand[2], cand[2])} failed ({rw}) — "
                              f"retrying at the next PC (LOUD)")
-                    done = False
-                    break
-                self.log(f"   ESCORT RESTORE: {st.SPECIES_NAME.get(cand[2], cand[2])} back on "
+                    return
+                self.log(f"   STEAMROLL: {st.SPECIES_NAME.get(cand[2], cand[2])} back on "
                          f"the team")
-            if done:
+            pc = b.rd8(ram.GPLAYER_PARTY_CNT)
+            have = {st.read_party_species(b, s) for s in range(pc)}
+            extras = [st.SPECIES_NAME.get(sp, sp) for sp in have if sp not in DECLARED_SIX]
+            names = [f"{st.SPECIES_NAME.get(st.read_party_species(b, s), '?')}"
+                     for s in range(pc)]
+            self.log(f"   STEAMROLL PARTY: {names} dumped={dumped or 'none'}")
+            if not extras and 146 in have:
                 self._escort_restored = True
         except Exception as e:
-            self.log(f"!! ESCORT RESTORE errored ({e}) — LOUD")
+            self.log(f"!! STEAMROLL restore errored ({e}) — LOUD")
 
     # ── the strike ───────────────────────────────────────────────────────────────────────────────────
     def run(self):
@@ -1030,8 +1272,12 @@ class VictoryRoad:
                     if self.wedge("gate-thru", 6):
                         return "stuck"
             elif here == R23:
-                cy = (tv.coords(b) or (0, 0))[1]
-                if cy <= 30:                              # north side (past VR)
+                cx, cy = tuple(tv.coords(b) or (0, 0))
+                # Stoop of VR 1F door (5, 28) is the SOUTH entrance. y<=30 includes
+                # it and BFS-stalls trying to walk to Indigo around the mountain.
+                at_vr1_stoop = (abs(cx - VR1F_DOOR[0]) <= 4 and 26 <= cy <= 34)
+                past_vr = (cy <= 30) and not at_vr1_stoop
+                if past_vr:
                     if not self.cross_edge("north", "to-indigo") and self.wedge("r23-north"):
                         return "stuck"
                 else:
@@ -1039,7 +1285,15 @@ class VictoryRoad:
                         self.log(f"   ROUTE 23 @ {tv.coords(b)} after {self.n_battles} battles "
                                  f"(Gary handled en route) [lead {self.lead_frac():.0%}]")
                         r23_logged = True
-                    if not self.go_warp((5, 28), VR1F, "vr-door") and self.wedge("vr-door"):
+                    if at_vr1_stoop:
+                        self.log(f"   R23 south stoop @ {(cx, cy)} — VR 1F door "
+                                 f"{VR1F_DOOR}, not indigo-band")
+                        try:
+                            self.camp._release_wedge_marks_on(
+                                [R23], "vr1-stoop — phantom watchdog marks from indigo-band stall")
+                        except Exception:
+                            pass
+                    if not self.go_warp(VR1F_DOOR, VR1F, "vr-door") and self.wedge("vr-door"):
                         return "stuck"
             elif here == VR1F:
                 if not vr_logged:
@@ -1116,12 +1370,52 @@ class VictoryRoad:
                 # the learned world graph toward Viridian (the corridor's entry) instead; the loop
                 # re-keys on each new map (whiteout-tolerant like every other branch).
                 # INTERIOR (whiteout center, etc.) — exit to the overworld as before.
-                if here and here[0] == 3:
-                    if not self._hop_toward_viridian() and self.wedge("offroute-hop", 6):
+                # OVERWORLD + the Diglett's Cave tunnel (group 1) are on CREDITS_MARCH —
+                # hop the chain. Other interiors (Centers, connectors) still exit toward Viridian.
+                _on_march = (here in CREDITS_MARCH or here in CREDITS_JOIN
+                             or (here and here[0] == 3))
+                if _on_march:
+                    _before = here
+                    _hr = self._march_hop()
+                    try:
+                        _now = tuple(tv.map_id(b))
+                        if _now != _before and not st.in_battle(b):
+                            self.camp._bank_milestone(f"credits-march-{_now}")
+                    except Exception:
+                        pass
+                    if _hr not in ("moved", "healed") and self.wedge("offroute-hop", 6):
                         return "stuck"
                 else:
                     self.log(f"   off-route at {here} - exiting to the overworld")
-                    if camp.enter_warp(prefer="south") == "no_warp" \
+                    # SETTLE FIRST (2026-08-10 dry-run chalk): right after a warp the coord read
+                    # is STALE (still the old map's tile), so enter_warp's BFS starts off-grid and
+                    # every door reads unreachable. Let the arrival land before picking a door.
+                    self.settle(40)
+                    # TARGET-AWARE EXIT (2026-08-10 dry-run chalk): connector interiors
+                    # (Route 7<->Saffron passage) have doors BOTH ways; prefer="south" picked
+                    # the door BACK to Route 7 and she ping-ponged. Pick the door whose warp
+                    # destination is the next map on the world route to VIRIDIAN.
+                    _pick_door = None
+                    try:
+                        _rt = camp.world.route(here, VIRIDIAN)
+                        if _rt and len(_rt) > 1:
+                            _want = tuple(_rt[1])
+                            for _wxy, _d, _i in tv.read_warps(b):
+                                if tuple(_d) == _want:
+                                    _pick_door = tuple(_wxy)
+                                    break
+                            if _pick_door:
+                                self.log(f"   target-aware exit: door {_pick_door} -> {_want}")
+                    except Exception:
+                        _pick_door = None
+                    # approach side varies per door (top-edge doors need stand-below/step-UP,
+                    # bottom-edge stand-above/step-DOWN) — chain both before falling back blind.
+                    _xr = None
+                    if _pick_door:
+                        _xr = camp.enter_warp(pick=_pick_door, prefer="nearest")
+                        if _xr == "no_warp":
+                            _xr = camp.enter_warp(pick=_pick_door, prefer="south")
+                    if _xr != "warped" and camp.enter_warp(prefer="south") == "no_warp" \
                             and self.wedge("offroute-exit", 6):
                         return "stuck"
                     self.settle(80)

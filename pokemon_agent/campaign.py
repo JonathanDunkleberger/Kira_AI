@@ -1764,9 +1764,7 @@ class Campaign:
                                 pause_check=lambda: self.needs_heal() and not self._suppress_heal,
                                 stuck_check=self._stuck_latched,   # latch honor + TTL self-heal (no instabail storms)
                                 blocked_npcs=self._blocked_npcs,   # LAYER A: shared route-around memory
-                                field_clear=lambda hm, face: (
-                                    self.field.clear_obstacle(hm, face)
-                                    if getattr(self, "field", None) else "cant"),
+                                field_clear=self._field_clear_unlatch,
                                 # transit-time map learning: step-on mats fire MID-leg (UGP
                                 # tunnel->hut), so every transition folds into the mental map
                                 on_transition=lambda: self._learn_transit(),
@@ -2178,6 +2176,25 @@ class Campaign:
         # the street — the ship exits into Vermilion, whose own Center is registered. Pre-HM01
         # re-boarding is proven; post-HM01 the run has already GOAL'd.
         if tuple(m)[0] != 3:
+            # E4 rooms: nearest door is often NORTH into the next seat
+            # (Agatha (7,6) → (6,2) Lance is closer than (6,12) Bruno).
+            # Live 09:27: heal-north, empty kit, whiteout. Bag items or SOUTH.
+            try:
+                import e4_strike as _e4h
+                if tuple(m) in _e4h.ROOM_SEAT:
+                    log(f"   HEAL: E4 room {m} — bag items only (CloseEntry sealed "
+                        f"the south door; NEVER walk into a closed door, NEVER "
+                        f"north as a 'heal')")
+                    self.field_heal_check(reason="e4-room-heal", party_wide=True,
+                                          force=True)
+                    try:
+                        _e4h.switch_dying_lead(
+                            self, log, seat=_e4h.next_uncleared_seat(self.b))
+                    except Exception as _sw:
+                        log(f"   HEAL: E4 dying-lead switch skipped ({_sw}) — LOUD")
+                    return "ok"
+            except Exception as _e4he:
+                log(f"   HEAL: E4-room guard skipped ({_e4he}) — falling through (LOUD)")
             log(f"   HEAL: inside a building complex {m} — exiting to the overworld before routing")
             try:
                 # Seafoam: Articuno column climb — generic south-prefer exit digs deeper
@@ -2957,6 +2974,21 @@ class Campaign:
             # couldn't step across at this column — give up this direction
         return "failed"
 
+    def _field_clear_unlatch(self, hm, face):
+        """Cut/Strength dialogue is a still box. The 8s frozen_box watchdog latches
+        mid-prompt; if the latch survives a successful clear, travel bails and never
+        walks through the gap (Route 2 2026-08-13: cut → house loop). Unlatch on use."""
+        r = (self.field.clear_obstacle(hm, face)
+             if getattr(self, "field", None) else "cant")
+        if r == "used":
+            self._stuck_request = None
+            if self._stuckwatch is not None:
+                try:
+                    self._stuckwatch.reset()
+                except Exception:
+                    pass
+        return r
+
     def _edge_travel(self, target_map, edge, budget_s=None):
         """An edge hop with the pass-through fallback: when the crossing reports a hard no-route
         (fence/tree/NPC-walled region), try a building connector, then retry the crossing once.
@@ -2968,6 +3000,13 @@ class Campaign:
         hard_noroute = (r in ("no_route_hm_blocked", "no_route_npc_blocked")
                         or (r in ("no_path", "stuck")
                             and getattr(self.trav, "last_fail_reason", "") in ("no_route", "npc_blocked")))
+        # Route 2 → Viridian: the ledge-house (15,2) is a same-map "crossing" that
+        # dumps her south of the ledges, then she cuts, bails, and walks back through
+        # the house forever. Cut the east-pocket tree and walk WEST. Never passthrough.
+        if hard_noroute and tuple(tv.map_id(self.b)) == (3, 20) and tuple(target_map or ()) == (3, 1):
+            log("   [roam] Route 2→Viridian: refusing PASSTHROUGH "
+                "(north half goes through Viridian Forest, not overworld-south)")
+            return r
         if hard_noroute:
             pt = self._door_passthrough(want_map=tuple(target_map) if target_map else None)
             if pt == "need_heal":
@@ -10017,14 +10056,15 @@ class Campaign:
                 return iid
         return best
 
-    def _field_heal_pick(self, top_up=False):
+    def _field_heal_pick(self, top_up=False, party_wide=False):
         """(slot, hp, mx, item_id) for the neediest heal-worthy member, or None. The ACE
         (highest level — the mon that actually fights) heals under FIELDHEAL_ACE_FRAC and
         OUTRANKS the bench; other standing members under FIELDHEAL_BENCH_FRAC. `top_up`
         raises the ace's bar to FIELDHEAL_TOPUP_FRAC (the pre-legendary near-full seam).
-        Fainted mons are skipped (a potion is refused on a corpse — Revive/Center owns
-        them). An EMPTY heal pocket with a hurt mon logs an honest [fieldheal] skip
-        (rate-limited) and returns None — never a wedge."""
+        `party_wide` (E4 between-room): EVERY living member heals under TOPUP_FRAC —
+        the L50 birds are the E4 team, not bench rats. Fainted mons are skipped (a potion
+        is refused on a corpse — Revive/Center owns them). An EMPTY heal pocket with a
+        hurt mon logs an honest [fieldheal] skip (rate-limited) and returns None."""
         ph = self.party_health()
         if not ph:
             return None
@@ -10035,11 +10075,14 @@ class Campaign:
         for s, hp, mx, frac in ph:
             if hp <= 0:
                 continue
-            thr = (FIELDHEAL_TOPUP_FRAC if (top_up and s == ace)
-                   else (FIELDHEAL_ACE_FRAC if s == ace else FIELDHEAL_BENCH_FRAC))
+            if party_wide:
+                thr = FIELDHEAL_TOPUP_FRAC
+            else:
+                thr = (FIELDHEAL_TOPUP_FRAC if (top_up and s == ace)
+                       else (FIELDHEAL_ACE_FRAC if s == ace else FIELDHEAL_BENCH_FRAC))
             # Micro top-ups at the legendary doorstep look insane (Jonny 08:43: "healed
             # Blastoise barely for no reason, then turned around") — skip <20 missing HP.
-            if top_up and s == ace and (mx - hp) < FIELDHEAL_TOPUP_MIN_MISSING:
+            if (top_up or party_wide) and (mx - hp) < FIELDHEAL_TOPUP_MIN_MISSING:
                 continue
             if frac < thr:
                 need.append((0 if s == ace else 1, frac, s, hp, mx))
@@ -10057,22 +10100,23 @@ class Campaign:
             return None
         return (s, hp, mx, iid)
 
-    def field_heal_check(self, reason="tick", top_up=False):
+    def field_heal_check(self, reason="tick", top_up=False, party_wide=False, force=False):
         """OUT-OF-BATTLE FIELD HEAL (2026-08-05, the Mt. Ember climb: 'she is not healing
         outside of battle when she probably should' — badge-8 Blastoise grinding up Kindle
         Road/Summit Path with potions in the bag and no Center on the mountain). The seam
         runs between battles (free-roam tick), at strike leg boundaries, and as the
-        pre-legendary TOP-UP right before the static A-press (`top_up=True`). Drinks via
-        the PROVEN TeachFlow bag rails, cheapest-adequate first, up to
-        FIELDHEAL_MAX_PER_SEAM bottles per seam; a failed bag-drive backs off 10 minutes
-        (a Center heal still owns it — never a loop). Status on a standing mon rides the
-        existing field-cure flow at the end (the climb has no roam tick to catch it).
-        Returns how many heals landed. Best-effort + LOUD; never raises."""
+        pre-legendary TOP-UP right before the static A-press (`top_up=True`).
+        `party_wide` (E4 between-room): heal EVERY living member + revive fainted — she
+        cannot walk out to a Center without restarting the gauntlet. `force` skips the
+        10-min bag-fail backoff so a prior mountain fail cannot skip the League heal.
+        Drinks via the PROVEN TeachFlow bag rails, cheapest-adequate first, up to
+        FIELDHEAL_MAX_PER_SEAM bottles per seam (8 when party_wide); a failed bag-drive
+        backs off 10 minutes. Returns how many heals landed. Best-effort + LOUD; never raises."""
         if not FIELD_HEAL_ENABLED:
             return 0
         healed_n = 0
         try:
-            if time.time() < getattr(self, "_field_heal_backoff", 0):
+            if not force and time.time() < getattr(self, "_field_heal_backoff", 0):
                 return 0
             if st.in_battle(self.b):
                 return 0                    # mid-battle items are battle_agent's flow, never ours
@@ -10084,7 +10128,25 @@ class Campaign:
             # Revive(24)/Max Revive(25) from the bag, bounded, before any potion pass.
             try:
                 import hm_teach as _htr
-                for s, hp, mx, _frac in (self.party_health() or []):
+                _rev_rows = list(self.party_health() or [])
+                try:
+                    import e4_strike as _e4r
+                    if tuple(tv.map_id(self.b) or ()) in _e4r.LEAGUE_CHAIN_MAPS:
+                        _pref = _e4r.e4_between_room_revive_species(
+                            _e4r.next_uncleared_seat(self.b)) or ()
+                        def _rev_key(row):
+                            _s, _hp, _mx, _fr = row
+                            if _hp > 0:
+                                return (2, 0)
+                            _sp = st.read_party_species(self.b, _s)
+                            try:
+                                return (0, _pref.index(_sp))
+                            except ValueError:
+                                return (1, _s)
+                        _rev_rows = sorted(_rev_rows, key=_rev_key)
+                except Exception:
+                    pass
+                for s, hp, mx, _frac in _rev_rows:
                     if hp > 0:
                         continue
                     _rid = next((i for i in (24, 25)
@@ -10103,22 +10165,37 @@ class Campaign:
                                   f"up you get. no Center detours.", kind="heal", tier=1)
                     _rr = _htr.TeachFlow(self, log=log,
                                          on_event=self.on_event).field_revive(_rid, s)
+                    if _rr != "revived" and reason == "e4-between-room":
+                        # Live Lance wipe: START failed once after Agatha's door,
+                        # 10-min backoff skipped Articuno, she walked in 2-alive.
+                        for _try in range(2):
+                            time.sleep(0.35)
+                            _rr = _htr.TeachFlow(self, log=log,
+                                                 on_event=self.on_event).field_revive(_rid, s)
+                            if _rr == "revived":
+                                break
+                            log(f"   [revive] e4-between-room retry {_try + 1}/2 -> {_rr}")
                     if _rr != "revived":
-                        self._field_heal_backoff = time.time() + 600
-                        log(f"   [revive] !! bag-drive -> {_rr} — backing off 10 min (LOUD)")
-                        break
+                        if reason != "e4-between-room":
+                            self._field_heal_backoff = time.time() + 600
+                            log(f"   [revive] !! bag-drive -> {_rr} — backing off 10 min (LOUD)")
+                            break
+                        log(f"   [revive] !! e4-between-room bag-drive -> {_rr} — "
+                            f"trying the NEXT fainted (no 10-min abort) (LOUD)")
+                        continue
                     healed_n += 1
             except Exception as _rvx:
                 log(f"   [revive] pass skipped: {_rvx}")
             voiced = False
-            for _pass in range(FIELDHEAL_MAX_PER_SEAM):
-                tgt = self._field_heal_pick(top_up=top_up)
+            _max = 8 if party_wide else FIELDHEAL_MAX_PER_SEAM
+            for _pass in range(_max):
+                tgt = self._field_heal_pick(top_up=top_up, party_wide=party_wide)
                 if tgt is None:
                     break
                 slot, hp, mx, iid = tgt
                 nm = st.SPECIES_NAME.get(st.read_party_species(self.b, slot),
                                          f"slot{slot}").title()
-                log(f"   [fieldheal] {reason}{' TOP-UP' if top_up else ''}: {nm} at "
+                log(f"   [fieldheal] {reason}{' TOP-UP' if top_up else ''}{' PARTY-WIDE' if party_wide else ''}: {nm} at "
                     f"{hp}/{mx} HP — drinking {ITEM_NAMES.get(iid, iid)} from the bag NOW "
                     f"(cheapest-adequate; no Center on this road)")
                 if not voiced:
@@ -10531,6 +10608,13 @@ class Campaign:
         """From the Flash west pocket (Route 2 / Diglett / Pewter…), cross Diglett's Cave EAST to
         Route 11 → Vermilion — the Celadon road-head. Returns a status string; sets `_flash_returned`
         ONLY when she is actually on the Celadon spine."""
+        # Badge 8: this is the OPPOSITE of the credits march (cave west to Route 2 / Viridian).
+        try:
+            if sum(1 for i in range(8) if self.has_badge(0x820 + i)) >= 8:
+                log("   [flash-return] SKIPPED — 8 badges; Diglett's Cave is the Viridian tunnel now")
+                return "endgame"
+        except Exception:
+            pass
         ROUTE11 = (3, 29)
         b = self.b
         cur = tuple(tv.map_id(b))
@@ -13201,6 +13285,10 @@ class Campaign:
                 return None
             if not self.world.has_cap("cut"):
                 return None                          # can't reach the house yet
+            # House-entry is UNWIRED (POKEMON_FLY_FETCH default OFF). At badge 8 do not
+            # even offer the gate — she would pace Route 16 talking to nobody.
+            if (state.get("badge_count") or 0) >= 8 and not state.get("post_game"):
+                return None
         except Exception:
             return None
         return ql.Gate(ql.STORY_NPC, missing="fly", where=tuple(CELADON),
@@ -13224,6 +13312,11 @@ class Campaign:
         if not EEVEE_FETCH_ENABLED:
             return None
         try:
+            # ENDGAME FOCUS (Jonny 2026-08-10): the gift Eevee is a luxury detour that kept
+            # opening a questline mid-march at badge 8 ("I need the roof-room Eevee" while the
+            # League waits). Post-credits it may arm again; pre-credits the march owns the run.
+            if (state.get("badge_count") or 0) >= 8 and not state.get("post_game"):
+                return None
             if self._lap_sevii_stranded():
                 return None
             if (state.get("badge_count") or 0) < 4:
@@ -13282,6 +13375,10 @@ class Campaign:
         try:
             import game_corner as gc
             if (state.get("badge_count") or 0) < 5:
+                return None
+            # ENDGAME FOCUS (2026-08-13): Ice Beam is a Celadon Game Corner coin errand.
+            # At badge 8 it stole the march back to Celadon. Post-credits it may arm again.
+            if (state.get("badge_count") or 0) >= 8 and not state.get("post_game"):
                 return None
             slot, why = gc.IceBeamErrand(self, log=log).pick_recipient()
             if slot is None or why == "already":
@@ -14840,6 +14937,18 @@ class Campaign:
             dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "victory_probe")
             self.on_event("all eight badges — there are no more gyms. It's Victory Road and the League now. "
                           "let's finish this climb.", kind="travel", tier=2)
+            # If Fly is already taught, skip the walk. She does NOT have it today (Cut/Surf/Strength
+            # only) — this is a no-op until a bird knows HM02. Never FETCH Fly here (house unwired).
+            try:
+                import field_moves as _fmfly
+                _cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+                _here = tuple(tv.map_id(self.b))
+                if (_fmfly.can_use(self.b, "fly", _cnt)
+                        and _here not in (VIRIDIAN, ENDGAME_INDIGO)):
+                    rfly = self.fly_to("viridian")
+                    log(f"   [roam] 🕊️ endgame Fly to Viridian -> {rfly}")
+            except Exception as _fe:
+                log(f"   [roam] endgame Fly skipped ({_fe})")
             r = victory_road.run_strike(self, log, dbg_dir=dbg)
             log(f"   [roam] 🏔️  VICTORY ROAD strike -> {r}")
             return r
@@ -14854,23 +14963,47 @@ class Campaign:
         (DEFEATED flags ratchet). Returns 'credits' (the summit) | 'battle_loss' | 'stuck' (a real wall —
         usually team-depth: a thin team can't out-attrition Lance/Gary; the caller grinds + retries)."""
         try:
+            # Box Cut-escort / Kadabra / Lapras BEFORE the grind gate. Viridian restore
+            # can miss (Cut escort boxed Diglett and left); L19/L26 bodies would then
+            # trip CAVE_GRIND and park ~8 min in VR2F instead of walking into the E4.
+            # Indigo PC is in CITY_PC_DOORS — dump anyone not DECLARED_SIX, then re-read.
+            try:
+                import victory_road as _vr
+                _vr.VictoryRoad(self, log)._restore_escort_party()
+            except Exception as _re:
+                log(f"   !! STEAMROLL restore at League skipped ({_re}) — LOUD")
             # NS#17 TEAM-DEPTH: if the team is underleveled for the E4, cave-grind the adjacent Victory
             # Road 2F first (Indigo-anchored heal loop). Flag-gated (CAVE_GRIND) -> byte-inert when OFF,
             # so the gauntlet fires unchanged by default. Never blocks (returns 'ready').
-            if CAVE_GRIND_ENABLED:
+            # Jonny 2026-08-13: steamroll. Do not park 20 min leveling Kadabra/Lapras —
+            # those two get boxed at Viridian. If a sub-L40 body is still on the team
+            # (restore missed), one short top-up; otherwise walk into the League.
+            _lvs = []
+            try:
+                _lvs = list(self._party_levels() or [])
+            except Exception:
+                _lvs = []
+            if CAVE_GRIND_ENABLED and _lvs and any(l < 40 for l in _lvs):
                 try:
-                    # BOUNDED top-up (Jonny 2026-08-10): level the two underleveled fighters
-                    # (Kadabra/Lapras) on VR2F - the best farming spot - for at most 4 stints /
-                    # 20 min, then the gauntlet fires regardless (prep never blocks credits).
-                    self.prep_e4_in_victory_road(max_stints=4, budget_s=1200)
+                    self.prep_e4_in_victory_road(max_stints=2, budget_s=480)
                 except Exception as e:
                     log(f"   !! VR-GRIND pre-gauntlet errored ({e}) — proceeding to the E4 (LOUD)")
+            else:
+                log(f"   [roam] STEAMROLL: skip VR2F grind (levels {_lvs}) — League door now")
             import e4_strike
             dbg = os.path.join(os.environ.get("TEMP", _HERE), "longrun", "e4_probe")
             # DELIBERATE E4 PARTY ORDER (2026-08-04, the victory lap's last act): ace lead, the
             # fighters (birds/Lapras) by level behind, the low-level passengers LAST — set ONCE
             # at the League door; e4_strike's answer_lead still retunes the lead per seat.
             self._lap_order_party_for_e4()
+            try:
+                e4_strike.teach_zapdos_electric(self, log)
+            except Exception as _zt:
+                log(f"   [roam] E4 zapdos-TM at League door skipped ({_zt}) — LOUD")
+            try:
+                e4_strike.apply_answer_lead(self, log, e4_strike.next_uncleared_seat(self.b))
+            except Exception as _al:
+                log(f"   [roam] E4 answer-lead at League door skipped ({_al}) — LOUD")
             self.on_event("the Indigo Plateau. the Elite Four are right through those doors. "
                           "everything's led to this — okay. let's go.", kind="gym", tier=2)
             r = e4_strike.run_strike(self, log, dbg_dir=dbg)
@@ -16483,12 +16616,24 @@ class Campaign:
             # town's Center — so fall through to offer the forward push (head_to_gym below) instead
             # of freezing; a blackout en route just respawns her healed. The strand guard further
             # down keeps 'heal' itself suppressed while heal-dead, so she pushes forward, not circles.
-            if tuple(state.get("map") or ()) not in getattr(self, "_heal_dead_maps", set()):
+            _on_league_crit = False
+            try:
+                import e4_strike as _e4c
+                _on_league_crit = (tuple(state.get("map") or ())
+                                   in _e4c.LEAGUE_CHAIN_MAPS)
+            except Exception:
+                pass
+            if _on_league_crit:
+                # Live 09:27: only-heal from Agatha walked NORTH into Lance.
+                log("   [roam] survival-critical ON League maps — enter_league owns "
+                    "Center/shop; not freezing on generic heal (live 09:27)")
+            elif tuple(state.get("map") or ()) not in getattr(self, "_heal_dead_maps", set()):
                 a["heal"] = ("you're about to faint — get to a Pokémon Center and heal NOW; this comes "
                              "FIRST, before anything else")
                 return a
-            log("   [roam] survival-critical BUT heal proven-dead on this map — NOT freezing on "
-                "only-'heal'; offering the forward push to the next town's Center instead")
+            else:
+                log("   [roam] survival-critical BUT heal proven-dead on this map — NOT freezing on "
+                    "only-'heal'; offering the forward push to the next town's Center instead")
         ng = state.get("next_gym")
         if ng:
             a["head_to_gym"] = f"head toward the next gym - {ng['leader']} of {ng['city']}"
@@ -16499,11 +16644,19 @@ class Campaign:
         # endgame-aware chooser) rides it because its ctx names the League as the one thing left.
         elif int(state.get("badge_count", 0)) >= 8 and not state.get("post_game"):
             _emp = tuple(state.get("map") or ())
+            _on_league = _emp == ENDGAME_INDIGO
+            try:
+                import e4_strike as _e4m
+                _on_league = _emp in _e4m.LEAGUE_CHAIN_MAPS
+            except Exception:
+                pass
             # THE VICTORY LAP HOLDS THE LEAGUE DOOR (2026-08-04): while a pre-E4 checklist item
             # is owed (Earthquake → Moltres → Articuno → Zapdos, each done-or-honestly-
             # skipped), head_to_league/enter_league are OFF the menu and 'victory_lap' is the
             # endgame action — the lap's order lives in code, not in the oracle's mood.
-            _lap_key = self._victory_lap_next(state)
+            # Already ON the League chain (Center / E4 room): lap does NOT apply —
+            # live 09:27 mid-Agatha must stay on enter_league, not a lap detour.
+            _lap_key = None if _on_league else self._victory_lap_next(state)
             if _lap_key is not None:
                 a["victory_lap"] = (
                     f"the VICTORY LAP — all 8 badges are banked and the League can wait one "
@@ -16514,14 +16667,15 @@ class Campaign:
                     f"of a lifetime.")
                 log(f"   [lap] checklist owes '{_lap_key}' — victory_lap is the endgame action "
                     f"(head_to_league/enter_league held until the lap clears)")
+            elif _on_league and E4_STRIKE_ENABLED:
+                a["enter_league"] = ("you're at the Pokémon League — Center, shop, then the "
+                                     "Elite Four (Lorelei, Bruno, Agatha, Lance) and the Champion. "
+                                     "Win and the credits roll. Already inside a room is still "
+                                     "this strike (never a generic heal-north into the next seat).")
             elif _emp != ENDGAME_INDIGO and VICTORY_ROAD_ENABLED:
                 a["head_to_league"] = ("all 8 badges are yours — no gyms left. The road to the Pokémon League "
                                        "is open: through Viridian, past your rival on Route 22, up Route 23 and "
                                        "the Victory Road cave to the Indigo Plateau. THIS is the way forward now.")
-            elif _emp == ENDGAME_INDIGO and E4_STRIKE_ENABLED:
-                a["enter_league"] = ("you're at the Indigo Plateau — the Pokémon League. Stock up, then take on "
-                                     "the Elite Four (Lorelei, Bruno, Agatha, Lance) and the Champion. Win and "
-                                     "the credits roll. This is the whole journey coming down to this.")
         # POST-GAME (the summit-watch strand fix, scoped): a Champion parked inside the league (or any
         # interior) has no gym objective and no overworld route — offer the walk OUT so the victory lap
         # can actually start. Post-game-gated: pre-credits behavior untouched.
@@ -16809,14 +16963,25 @@ class Campaign:
                     for k in _prn_sc:
                         a.pop(k, None)
                     _ngsc = state.get("next_gym") or {}
-                    a["head_to_gym"] = (
-                        f"COMMIT — you were pacing the same border back and forth. The move is "
-                        f"FORWARD, one direction, no second-guessing: toward "
-                        f"{_ngsc.get('city', 'the next objective')} and the "
-                        f"{_ngsc.get('leader', 'next')} badge.")
-                    self._force_gym_pick = True
-                    log(f"   [roam] !! SEAM-COMMIT ({self._seam_commit_ticks} builds left): forced "
-                        f"head_to_gym, pruned {sorted(_prn_sc)} — the border war is OVER")
+                    if int(state.get("badge_count") or 0) >= 8 and not state.get("post_game"):
+                        # ENDGAME FOCUS (Jonny 2026-08-10): at badge 8 there IS no gym — the old
+                        # seam-commit forced head_to_gym (next_gym None) and fought head_to_league
+                        # for the menu. Commit to the League instead.
+                        a["head_to_league"] = (
+                            "COMMIT — the border war is OVER. FORWARD, one direction: Viridian, "
+                            "Route 22, Victory Road, the League. No second-guessing.")
+                        log(f"   [roam] !! SEAM-COMMIT ({self._seam_commit_ticks} builds left): "
+                            f"forced head_to_league (badge 8 — no gym to force), pruned "
+                            f"{sorted(_prn_sc)}")
+                    else:
+                        a["head_to_gym"] = (
+                            f"COMMIT — you were pacing the same border back and forth. The move is "
+                            f"FORWARD, one direction, no second-guessing: toward "
+                            f"{_ngsc.get('city', 'the next objective')} and the "
+                            f"{_ngsc.get('leader', 'next')} badge.")
+                        self._force_gym_pick = True
+                        log(f"   [roam] !! SEAM-COMMIT ({self._seam_commit_ticks} builds left): forced "
+                            f"head_to_gym, pruned {sorted(_prn_sc)} — the border war is OVER")
             except Exception as _scx:
                 log(f"   [roam] seam-commit skipped: {_scx}")
             if GYM_READINESS_FLOOR_ENABLED and "head_to_gym" in a and state.get("next_gym"):
@@ -20028,9 +20193,23 @@ class Campaign:
                                  and self._lap_sevii_stranded())
                 except Exception:
                     _lap_owns = False
+                # ENDGAME FOCUS (2026-08-13): at 8 badges the want oracle still picks Eevee /
+                # Fossil / starters and she VOICES them while FORCE ENDGAME walks the League
+                # (soak 20260811: T2 savor 'Eevee' on the same tick as head_to_league). That is
+                # the leftover goal-pile on stream. Suppress the fire; HUD/journey pin the
+                # League want below. Post-credits the want oracle may speak again (Mewtwo).
+                _endgame_owns = False
+                try:
+                    _endgame_owns = (int(state.get("badge_count") or 0) >= 8
+                                     and not state.get("post_game"))
+                except Exception:
+                    _endgame_owns = False
                 if _lap_owns:
                     log(f"   [soul] surface_want SUPPRESSED — Sevii ride-home owns the turn "
                         f"({state['place']})")
+                elif _endgame_owns:
+                    log(f"   [soul] surface_want SUPPRESSED — credits march owns the turn "
+                        f"({state['place']}; no Eevee/Fossil/side-quest wants)")
                 else:
                     log(f"   [soul] surface_want FIRE -> {state['place']}")
                     self.soul.surface_want({"place": self._location_block(state), "map": state["map"],
@@ -20250,7 +20429,10 @@ class Campaign:
             # tell her to STOP repeating it and do something different. Gated on non-GREEN so a legit
             # multi-tick action (walking to a Center) — where the fingerprint keeps changing — is never
             # nagged. One repeat is the ceiling a viewer accepts; this fires at the first stuck repeat.
-            if self._repeat_pick_n >= 1 and macro != ledger.GREEN and self._last_action_pick in avail:
+            if (self._repeat_pick_n >= 1 and macro != ledger.GREEN
+                    and self._last_action_pick in avail
+                    and not (int(state.get("badge_count") or 0) >= 8
+                             and self._last_action_pick == "head_to_league")):
                 where = (f"{where}. HEADS UP — you just chose '{self._last_action_pick}' and NOTHING "
                          f"changed (same spot, no progress). Repeating it again will do the same nothing. "
                          f"Pick a DIFFERENT action this time and break the loop.")
@@ -20397,7 +20579,20 @@ class Campaign:
             # tick at full HP (same doctrine as the lap leg above).
             if _forced_pick is None and ("head_to_league" in avail or "enter_league" in avail):
                 _eg_pick = "enter_league" if "enter_league" in avail else "head_to_league"
-                if "heal" in avail and self.needs_heal():
+                _on_league = False
+                try:
+                    import e4_strike as _e4f
+                    _on_league = tuple(tv.map_id(self.b) or ()) in _e4f.LEAGUE_CHAIN_MAPS
+                except Exception:
+                    pass
+                if _on_league and "enter_league" in avail:
+                    # Live 09:27: heal BEFORE League from Agatha's Room walked
+                    # NORTH into Lance (closer door) with Revive x0. e4_strike
+                    # owns Center shop + south-retreat. Never generic heal here.
+                    _forced_pick = "enter_league"
+                    log("   [roam] !! FORCE ENDGAME: enter_league — already on League "
+                        "maps; e4_strike owns heal/shop (never heal-north into Lance)")
+                elif "heal" in avail and self.needs_heal() and not _on_league:
                     _forced_pick = "heal"
                     log(f"   [roam] !! heal BEFORE the League push — {_eg_pick} re-forces at full HP")
                 else:
@@ -20520,6 +20715,23 @@ class Campaign:
             _moved = _pos0 != _pos1
             log(f"   [roam] RESULT: {pick} -> {out} | pos {_pos0[0]}{_pos0[1]} -> {_pos1[0]}{_pos1[1]} "
                 f"({'MOVED' if _moved else 'NO MOVEMENT'})")
+            # ── THE ENDING (2026-08-14, Jonny's call: "the credits are the ending") ───────────────
+            # e4_strike returns 'credits' only after the Hall of Fame ceremony, the credits roll, the
+            # post-credits SoftReset, START->CONTINUE, the recap drain, and her tier-3 victory line —
+            # i.e. she is back in the world as Champion and has said her piece. Nothing after that is
+            # on the build (Mewtwo needs the unbuilt Sevii/National-Dex road), and the old code never
+            # tested for 'credits' at all: the loop just ticked on, so the show ran past its own
+            # ending. Return the ONE outcome play_live maps to exit 0 (the supervisor's
+            # exit-code contract: 0 == GENUINE COMPLETION -> let the show END; anything else
+            # relaunches with --resume and she'd wander the post-game forever).
+            if out == "credits":
+                log("   [roam] ***** CREDITS — THE RUN IS COMPLETE. Pallet Town to the Hall of Fame, "
+                    "autonomously. Ending the show (exit 0, no relaunch). *****")
+                try:
+                    self._save_campaign("credits")
+                except Exception:
+                    pass
+                return "all_segments_complete"
             ledger.note_action(pick, out)              # remember for next tick's progress check + feedback
             # PROBLEM 3 — SILENT-NO-MOVE GUARD: a movement pick that returned WITHOUT moving her and
             # WITHOUT arriving is silently failing (the live "head_to_gym isn't moving me" loop). Drop the
@@ -21401,13 +21613,49 @@ class Campaign:
             # step: HM Flash... Oak's aide on Route 2... Rock Tunnel" — all 30h behind her) and
             # feeds the SAME spine to the dashboard (Now/Next/Goal) and the brain's journey POST.
             if int(state.get("badge_count", 0)) >= 8 and not state.get("post_game"):
-                if tuple(state.get("map") or ()) == ENDGAME_INDIGO:
+                here = tuple(state.get("map") or ())
+                _long = "Beat the Elite Four and Champion — roll the credits"
+                _vr = "Navigate Victory Road to reach Indigo Plateau"
+                if here == ENDGAME_INDIGO:
                     return {"short": "Enter the Pokémon League and take on the Elite Four",
                             "medium": "Beat Lorelei, Bruno, Agatha, Lance and the Champion",
-                            "long": "Beat the Elite Four and Champion — roll the credits"}
-                return {"short": "Head to Viridian City, go west onto Route 22, and enter Victory Road",
-                        "medium": "Navigate Victory Road to reach Indigo Plateau",
-                        "long": "Beat the Elite Four and Champion"}
+                            "long": _long}
+                if here == VIRIDIAN:
+                    return {"short": "Go west onto Route 22 and enter Victory Road",
+                            "medium": _vr, "long": _long}
+                if here == (3, 41):  # Route 22
+                    return {"short": "Walk north through the League gate, then into Victory Road",
+                            "medium": _vr, "long": _long}
+                if here in ((1, 36), (1, 37), (1, 38)):
+                    return {"short": "Cross Diglett's Cave — it exits onto Route 2, right above Viridian",
+                            "medium": "Viridian, then Route 22 west to Victory Road",
+                            "long": _long}
+                if here == (3, 20):  # Route 2 — pret: forest occupies the middle
+                    _xy = tuple(state.get("coords") or ())
+                    if len(_xy) == 2 and _xy[1] < 40:
+                        return {"short": "Walk through Viridian Forest into Viridian City",
+                                "medium": "Then west onto Route 22 into Victory Road",
+                                "long": _long}
+                    return {"short": "Walk south into Viridian City",
+                            "medium": "Then west onto Route 22 into Victory Road",
+                            "long": _long}
+                if here == (15, 3):
+                    return {"short": "Enter Viridian Forest through this gate",
+                            "medium": "Forest south → Route 2 south → Viridian",
+                            "long": _long}
+                if here == (1, 0):
+                    return {"short": "Cross Viridian Forest south — Viridian is the other side",
+                            "medium": "Then west onto Route 22 into Victory Road",
+                            "long": _long}
+                if here == (15, 0):
+                    return {"short": "Exit this gate onto Route 2, then south into Viridian",
+                            "medium": "Then west onto Route 22 into Victory Road",
+                            "long": _long}
+                # Route 7 / Saffron / Vermilion / anywhere else: do NOT say "go west" —
+                # west of Route 7 is Celadon (bike wall). Diglett's Cave is the tunnel.
+                return {"short": "Get to Viridian City (tunnel through Diglett's Cave from Vermilion)",
+                        "medium": "Then Route 22 west into Victory Road",
+                        "long": _long}
             # LONG — the next badge milestone
             if ng:
                 try:
@@ -21692,6 +21940,28 @@ class Campaign:
             if _e4_open or _e4_lance:
                 spine += (" Word on the road about the Elite Four: "
                           + "; and ".join(x for x in (_e4_open, _e4_lance) if x) + ".")
+            # LOAD-BEARING lead plan (2026-08-13): the chatter request — she KNOWS which
+            # body takes point into each seat. Reaches DECISION ctx, not just the HUD.
+            try:
+                import e4_strike as _e4s
+                _nxt = _e4s.next_uncleared_seat(self.b)
+                _party = ", ".join(
+                    f"{m.get('species')} L{m.get('level')}" for m in (state.get("party") or [])[:6])
+                spine += (f" LEAGUE PLAN (executing, not flavor): Lorelei lead = BLASTOISE "
+                          f"(Earthquake) unless Zapdos has Thunderbolt — never Articuno Ice "
+                          f"into her waters, never Surf a Water-type. "
+                          f"Next uncleared seat is {_nxt}. "
+                          f"Bruno → Articuno, Agatha → Zapdos, Lance → Articuno Ice "
+                          f"(Zapdos only with Electric), "
+                          f"Gary → Articuno into Pidgeot / Moltres into Venusaur. "
+                          f"Between rooms: item-heal the whole party (birds included) — "
+                          f"leaving for the Center restarts the gauntlet. "
+                          f"Current party: {_party}. "
+                          f"Whiteout → Indigo Center → heal → honest lead → walk in from Lorelei. "
+                          f"Do not catch, do not grind Kadabra/Lapras, do not flee-loop.")
+            except Exception:
+                spine += (" LEAGUE PLAN: lead the type-answer into each Elite Four seat before "
+                          "walking in; whiteout retries from the Indigo Center door.")
         hist = self._story_so_far(bc)
         return spine + (f" YOUR STORY SO FAR (what you've actually done — your past, not the future): "
                         f"{hist}" if hist else "")
@@ -21704,6 +21974,8 @@ class Campaign:
         ng = state.get("next_gym")
         nxt = f" then on to {ng['city']} for {ng['leader']}" if ng else " then on to the Elite Four"
         short = (goals or {}).get("short") or "exploring"
+        if pick == "head_to_league":
+            return f"{short}."
         if pick == "head_to_gym":
             return f"Heading for the next gym{(' — ' + ng['city']) if ng else ''}: {short}."
         if pick in ("battle", "wander_catch"):
@@ -21758,7 +22030,9 @@ class Campaign:
             objective = (f"Beat {ng['leader']} of {ng['city']}" if ng else "Challenge the Elite Four")
             want = ""
             try:
-                if self.soul is not None and self.soul.wants:
+                if int(state.get("badge_count") or 0) >= 8 and not state.get("post_game"):
+                    want = "Beat the Elite Four — roll the credits"
+                elif self.soul is not None and self.soul.wants:
                     want = str(self.soul.wants[-1])
             except Exception:
                 pass
@@ -21966,6 +22240,13 @@ class Campaign:
             if self.soul is not None:
                 bonds = self.soul.bonds or {}
                 wants = list(self.soul.wants or [])
+        except Exception:
+            pass
+        # ENDGAME FOCUS (2026-08-13): the want pile is 1000+ leftover Eevee/Fossil lines.
+        # At badge 8 pre-credits the journey sentence is the League, not a luxury.
+        try:
+            if int(state.get("badge_count") or 0) >= 8 and not state.get("post_game"):
+                wants = ["Beat the Elite Four — roll the credits"]
         except Exception:
             pass
         # RICH ROSTER — each LIVE teammate as a RELATIONSHIP, not a species string: cross the live
@@ -23173,6 +23454,17 @@ class Campaign:
                                           abs(t[0] - cur[0]) + abs(t[1] - cur[1])))
             moved = False
             for wt in cands:
+                try:
+                    import e4_strike as _e4x
+                    if before in _e4x.ROOM_SEAT:
+                        _dwt = _dest.get(tuple(wt))
+                        _nxt = _e4x.next_uncleared_seat(self.b)
+                        if _dwt and _e4x.ROOM_SEAT.get(tuple(_dwt)) == _nxt:
+                            log(f"   EXIT: door {wt} -> {_dwt} is the NEXT E4 seat "
+                                f"({_nxt}) — skip (heal-into-Lance class)")
+                            continue
+                except Exception:
+                    pass
                 # ASYNC-WHITEOUT GUARD (koga_run3, the Fuchsia Center wedge ×6): a pending whiteout
                 # warp can fire MID-attempt (she engaged Koga, "lost", and the respawn executed while
                 # the first exit leg was walking) — the map silently changes under us and every

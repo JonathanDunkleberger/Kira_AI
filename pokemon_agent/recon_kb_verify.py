@@ -35,8 +35,12 @@ for seat in ["Lorelei", "Bruno", "Agatha", "Lance"]:
     check(len(team) == 5 and all("species" in m and "level" in m for m in team),
           f"e4 {seat}: {len(team)} mons")
 champ = r["champion"]["team"]
-check(len(champ) == 6, f"champion: {len(champ)} mons (bulbasaur branch)")
-check(any(m["species"] == "charizard" for m in champ), "champion has Charizard ace (bulbasaur branch)")
+check(len(champ) == 6, f"champion.team fallback: {len(champ)} mons")
+by_s = (r["champion"].get("by_starter") or {})
+for br, ace in (("squirtle", "venusaur"), ("bulbasaur", "charizard"), ("charmander", "blastoise")):
+    team = by_s.get(br) or []
+    check(len(team) == 6 and any(m["species"] == ace for m in team),
+          f"champion by_starter[{br}]: {len(team)} mons, ace {ace}")
 
 print("=== GATE A2: frlg_evolutions.json ===")
 ev = load("frlg_evolutions.json")

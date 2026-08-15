@@ -1425,6 +1425,18 @@ class Traveler:
                                             self.log(f"   [travel] FIELD OBSTACLE {blk} on "
                                                      f"{cur_map} CLEARED with {_hm} — "
                                                      f"continuing the leg")
+                                            # Route 2 2026-08-13: Cut dialogue is a still box
+                                            # (~8s). The frozen_box latch then bailed THIS
+                                            # continue, so she never walked through the gap
+                                            # and PASSTHROUGH looped the ledge-house. The
+                                            # collision grid still had the tree until rebuild.
+                                            grid = Grid(self.b)
+                                            plan_cache = None
+                                            blocked.pop(blk, None)
+                                            fail_count.pop(blk, None)
+                                            static_blocked.discard(blk)
+                                            self.blocked_npcs.discard((cur_map, blk))
+                                            blocked_here.discard(blk)
                                             no_path = stuck = fp_stall = 0
                                             last_fp = None
                                             continue

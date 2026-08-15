@@ -131,3 +131,4 @@ RUN_STATS_fresh_go_5.md
 
 # soak-reports are the PC->Mac agent channel (crash logs etc.) - never ignore
 !docs/soak-reports/**
+.aider*
