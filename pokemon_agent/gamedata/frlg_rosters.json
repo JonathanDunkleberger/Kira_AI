@@ -1,11 +1,11 @@
 {
  "_meta": {
   "purpose": "FULL per-mon rosters for every forward threat (gyms + Elite Four + Champion + key rival fights) in Pokemon FireRed. Sibling to frlg_strategy.json (which holds the curated type/answer SUMMARY) — this holds the GROUND TRUTH team each threat actually fields, so the TeamPlanner (pokemon_planner.py) can compute the real union of what she must beat and size level milestones to the exact ace. Portable-engine split (CLAUDE.md rule 14): FireRed facts live HERE; the planner engine is game-agnostic.",
-  "source": "Bulbapedia leader/E4/rival pages (FireRed/LeafGreen, FIRST-challenge rosters, not rematch) fetched 2026-07-09 + verified per-mon; Champion roster is the BULBASAUR-starter branch (player chose Bulbasaur -> Blue carries the Charmander line -> Charizard ace). Koga confirmed vs live RAM on the fuchsia_gate fixture (shift 9). Gym juniors (trainers before the leader) are NOT listed here — only the leader/boss team.",
+  "source": "Bulbapedia leader/E4/rival pages (FireRed/LeafGreen, FIRST-challenge rosters, not rematch) fetched 2026-07-09 + Serebii fireredleafgreen/elitefour.shtml 2026-08-13 (species/levels + Champion squirtle-start order). No held items listed on Serebii first-challenge. Rematch tables IGNORED. Champion.team = Squirtle-start / Venusaur ace (this Sherpa timeline). Koga confirmed vs live RAM on the fuchsia_gate fixture (shift 9). Gym juniors are NOT listed — only the leader/boss team.",
   "firewall": "MODE-GATED. Consumed only inside the Pokemon campaign planner. Never touches core Kira identity.",
-  "schema": "gyms/e4 = {leader_name: [ {species, level, types, moves} ]}; ordered by badge/seat. champion = the Bulbasaur-branch team. rivals = notable rival fights that gate progress.",
+  "schema": "gyms/e4 = {leader_name: [ {species, level, types, moves} ]}; ordered by badge/seat. champion.by_starter = {squirtle|bulbasaur|charmander: team}; champion.team = the active-timeline fallback (Squirtle-start / Venusaur ace). rivals = notable rival fights that gate progress.",
   "verify_note": "GATE A1 spot-checks >=3 leader teams vs live gEnemyParty (read_enemy_species/read_enemy_level). Koga VERIFIED shift 9. Others authored from Bulbapedia; verify organically as the look-ahead reaches each fight.",
-  "updated": "2026-07-09 (mission-pivot Part A)"
+  "updated": "2026-08-13 (Serebii E4/Champ first-challenge cross-check)"
  },
 
  "gyms": {
@@ -86,15 +86,41 @@
  },
 
  "champion": {
-  "_branch": "bulbasaur-start (player chose Bulbasaur -> Blue chose Charmander -> Charizard ace). If the canonical start ever differs, swap the ace line: Squirtle-start -> Blastoise + Exeggutor swapped for Alakazam? no — see _branch_notes.",
-  "_branch_notes": "Blue's fixed core (all branches): Pidgeot, Alakazam, Rhydon. The 3 variable slots track the type triangle vs the player's starter. Bulbasaur branch = Exeggutor, Gyarados, Charizard.",
+  "_branch": "Detect from HER starter line (party). Squirtle-start (this Sherpa timeline: Blastoise) -> rival's Venusaur ace. Bulbasaur-start -> Charizard. Charmander-start -> Blastoise.",
+  "_branch_notes": "Blue's fixed core (all branches): Pidgeot, Alakazam, Rhydon. The 3 variable slots track the type triangle vs the player's starter. pret: TRAINER_CHAMPION_FIRST_SQUIRTLE / BULBASAUR / CHARMANDER. Hall of Fame clears these via EventScript_ResetEliteFour.",
+  "by_starter": {
+   "squirtle": [
+    {"species": "pidgeot", "level": 59, "types": ["normal", "flying"], "moves": ["aerial-ace", "feather-dance", "sand-attack", "whirlwind"]},
+    {"species": "alakazam", "level": 57, "types": ["psychic"], "moves": ["psychic", "future-sight", "recover", "reflect"]},
+    {"species": "rhydon", "level": 59, "types": ["ground", "rock"], "moves": ["take-down", "earthquake", "rock-tomb", "scary-face"]},
+    {"species": "gyarados", "level": 59, "types": ["water", "flying"], "moves": ["hydro-pump", "dragon-rage", "bite", "thrash"]},
+    {"species": "arcanine", "level": 61, "types": ["fire"], "moves": ["fire-blast", "bite", "roar", "take-down"]},
+    {"species": "venusaur", "level": 63, "types": ["grass", "poison"], "moves": ["petal-dance", "growth", "sleep-powder", "razor-leaf"]}
+   ],
+   "bulbasaur": [
+    {"species": "pidgeot", "level": 59, "types": ["normal", "flying"], "moves": ["aerial-ace", "feather-dance", "sand-attack", "whirlwind"]},
+    {"species": "alakazam", "level": 57, "types": ["psychic"], "moves": ["psychic", "future-sight", "recover", "reflect"]},
+    {"species": "rhydon", "level": 59, "types": ["ground", "rock"], "moves": ["take-down", "earthquake", "rock-tomb", "scary-face"]},
+    {"species": "exeggutor", "level": 59, "types": ["grass", "psychic"], "moves": ["giga-drain", "egg-bomb", "sleep-powder", "light-screen"]},
+    {"species": "gyarados", "level": 61, "types": ["water", "flying"], "moves": ["hydro-pump", "dragon-rage", "bite", "thrash"]},
+    {"species": "charizard", "level": 63, "types": ["fire", "flying"], "moves": ["flamethrower", "wing-attack", "slash", "fire-spin"]}
+   ],
+   "charmander": [
+    {"species": "pidgeot", "level": 59, "types": ["normal", "flying"], "moves": ["aerial-ace", "feather-dance", "sand-attack", "whirlwind"]},
+    {"species": "alakazam", "level": 57, "types": ["psychic"], "moves": ["psychic", "future-sight", "recover", "reflect"]},
+    {"species": "rhydon", "level": 59, "types": ["ground", "rock"], "moves": ["take-down", "earthquake", "rock-tomb", "scary-face"]},
+    {"species": "arcanine", "level": 59, "types": ["fire"], "moves": ["fire-blast", "bite", "roar", "take-down"]},
+    {"species": "exeggutor", "level": 61, "types": ["grass", "psychic"], "moves": ["giga-drain", "egg-bomb", "sleep-powder", "light-screen"]},
+    {"species": "blastoise", "level": 63, "types": ["water"], "moves": ["hydro-pump", "rain-dance", "skull-bash", "bite"]}
+   ]
+  },
   "team": [
    {"species": "pidgeot", "level": 59, "types": ["normal", "flying"], "moves": ["aerial-ace", "feather-dance", "sand-attack", "whirlwind"]},
    {"species": "alakazam", "level": 57, "types": ["psychic"], "moves": ["psychic", "future-sight", "recover", "reflect"]},
    {"species": "rhydon", "level": 59, "types": ["ground", "rock"], "moves": ["take-down", "earthquake", "rock-tomb", "scary-face"]},
-   {"species": "exeggutor", "level": 59, "types": ["grass", "psychic"], "moves": ["giga-drain", "egg-bomb", "sleep-powder", "light-screen"]},
-   {"species": "gyarados", "level": 61, "types": ["water", "flying"], "moves": ["hydro-pump", "dragon-rage", "bite", "thrash"]},
-   {"species": "charizard", "level": 63, "types": ["fire", "flying"], "moves": ["flamethrower", "wing-attack", "slash", "fire-spin"]}
+   {"species": "gyarados", "level": 59, "types": ["water", "flying"], "moves": ["hydro-pump", "dragon-rage", "bite", "thrash"]},
+   {"species": "arcanine", "level": 61, "types": ["fire"], "moves": ["fire-blast", "bite", "roar", "take-down"]},
+   {"species": "venusaur", "level": 63, "types": ["grass", "poison"], "moves": ["petal-dance", "growth", "sleep-powder", "razor-leaf"]}
   ]
  },
 

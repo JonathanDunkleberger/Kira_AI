@@ -1297,22 +1297,17 @@ class LegendaryHunt(GiovanniGym):
             self.log("   [hunt] !! Ultra pocket still thin AFTER doorstep settle — "
                      "war-chest wins over engage (LOUD)")
             return False
-        # PRE-LEGENDARY CHECKPOINT (2026-08-05 addendum): standing in front of the bird, topped
-        # up, board solved — the exact moment Jonny wants a recovery (or a manual
-        # PROMOTE_TARGET pin) to respawn into. Named 'pre-<quarry>' in the inventory.
-        # NEVER bank a dry ace tank (soak 083445: Bite:0 froze into preferred pre-moltres
-        # and every soft-reload re-armed the OVERKILL loop). NEVER bank a thin Ultra pocket
-        # either (Jonny 09:13: soft-reload of a 6-ball pre undid the war-chest).
+        # PRE-LEGENDARY CHECKPOINT (2026-08-05) — banked AT THE DOORSTEP (2026-08-09, Jonny:
+        # "spawn her in front of Zapdos like a human save") so a failed-catch reload respawns her
+        # RIGHT at the bird instead of a 5-minute re-walk. The bench-chipper ladder does the HP
+        # on reload, so a 'dry ace tank' is no longer a soft-reload poison. Still NEVER bank a
+        # thin Ultra pocket (Jonny 09:13: a 6-ball pre undid the war-chest).
         try:
-            _bank_safe = self._chip_pp_audit()[1]
+            _bank_ultras = self._ultra_count()
         except Exception:
-            _bank_safe = 99
-        _bank_ultras = self._ultra_count()
+            _bank_ultras = 0
         _ultra_floor = self._ultra_min_engage()
-        if _bank_safe is not None and _bank_safe < 1:
-            self.log(f"   [hunt] !! SKIPPING pre-{(q.get('name') or 'quarry').lower()} bank "
-                     f"— ace safe chip PP is {_bank_safe} (would poison soft-reload) (LOUD)")
-        elif _bank_ultras < _ultra_floor:
+        if _bank_ultras < _ultra_floor:
             self.log(f"   [hunt] !! SKIPPING pre-{(q.get('name') or 'quarry').lower()} bank "
                      f"— only {_bank_ultras} Ultras (floor {_ultra_floor}; would poison "
                      f"soft-reload back to a prayer stack) (LOUD)")

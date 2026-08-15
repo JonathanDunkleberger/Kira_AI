@@ -1,0 +1,300 @@
+   [Bits] Callback: Jonny-Vollx Unit System
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=premium/1;client-nonce=c99841ec8720445f89d819cb6d2317ae;color=;display-name=Itsvollx;emotes=;first-msg=0;flags=;id=7c2ce64c-102f-4a14-953d-77190943529c;mod=0;returning-chatter=0;ro
+   [TwitchChat] Received from itsvollx: say a number
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from itsvollx: say a number → buffering for chat_batch_worker
+   [LoopbackSTT] self-TTS gate released after 7 skip(s) — resuming transcription.
+   [LoopbackSTT] tick 134ms — 0 accepted, 1 filtered (rms=0.027)
+   >>> Kira (Chat Batch of 3): Nait, "freedom units" is valid vocabulary and I'm using it forever. The — the metric system argument is for people who own sensible cars and go to bed on time. I respect it but I don't live there.
+
+Vollx, it's a black hole. You said so yourself. I'm not measuring a singularity.
+   [TTS] Speaking: Nait, "freedom units" is valid vocabulary and I'm ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Nait, "freedom units" is valid vocabular' (14 words)
+   [TurnTiming] 13:56:57.597 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:57:01.899 TTS STOP — playback finished (span ~4302ms)
+   [TTS] Speaking: The — the metric system argument is for people who...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The — the metric system argument is for ' (20 words)
+   [TurnTiming] 13:57:02.309 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @NaitHaunter: 3 inches is pretty big
+   [BrainWorker] Got youtube msg from @NaitHaunter: 3 inches is pretty big → buffering for chat_batch_worker
+   [TurnLockWatchdog] _active_turn_lock: holding recovery while she's speaking (acts at 360s regardless).
+   [TurnTiming] 13:57:07.392 TTS STOP — playback finished (span ~5082ms)
+   [TTS] Speaking: I respect it but I don't live there....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I respect it but I don't live there.' (9 words)
+   [TurnTiming] 13:57:07.845 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=premium/1;client-nonce=45f1661ed6c4464588d05347a94e8a90;color=#191919;display-name=zanderattwell;emotes=;first-msg=0;flags=;id=797adf70-4245-4ba3-8aca-40f0a99e5286;mod=0;reply-pare
+   [TwitchChat] Received from zanderattwell: @Itsvollx 69
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from zanderattwell: @Itsvollx 69 → buffering for chat_batch_worker
+   [TurnTiming] 13:57:10.265 TTS STOP — playback finished (span ~2419ms)
+   [TTS] Speaking: Vollx, it's a black hole....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Vollx, it's a black hole.' (7 words)
+   [TurnTiming] 13:57:10.645 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 13:57:13.256 TTS STOP — playback finished (span ~2611ms)
+   [TTS] Speaking: You said so yourself....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You said so yourself.' (5 words)
+   [TurnTiming] 13:57:13.625 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:57:15.585 TTS STOP — playback finished (span ~1960ms)
+   [TTS] Speaking: I'm not measuring a singularity....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm not measuring a singularity.' (6 words)
+   [TurnTiming] 13:57:15.956 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:57:18.196 TTS STOP — playback finished (span ~2240ms)
+   [Cookies] +1 × 3 (batch response); shared=24/30
+   [ChatAge] @NaitHaunter age=52.1s batch=3 preempted=none
+   [ChatAge] @guntereisenherz9102 age=45.9s batch=3 preempted=none
+   [ChatAge] itsvollx age=25.5s batch=3 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 13:57:19.425 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~26724ms since onset)
+>>> You said: inches
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='inches' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=72ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=72ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12446ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @NaitHaunter — Uses the term 'freedom units' for imperial measurements [chaotic]
+   [VRAM] 13:57:21 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnLockWatchdog] _active_turn_lock: holding recovery while she's speaking (acts at 360s regardless).
+   [TIMING] first-word: 1901ms
+   [ChatterMem] Stored: @guntereisenherz9102 — Mocks 'freedom units' (imperial measurements) as an odd feti [sharp]
+   [TTS] Speaking: 7.6 centimeters....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '7.6 centimeters.' (3 words)
+   [TurnTiming] 13:57:22.021 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: itsvollx — Asked Kira to measure their 'pp power' [chaotic]
+   [TurnTiming] 13:57:24.371 TTS STOP — playback finished (span ~2349ms)
+   [TTS] Speaking: You're welcome....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You're welcome.' (3 words)
+   [TurnTiming] 13:57:24.375 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:57:26.157 TTS STOP — playback finished (span ~1782ms)
+   [TTS] Speaking: Science....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Science.' (2 words)
+   [TurnTiming] 13:57:26.162 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 13:57:27.946 TTS STOP — playback finished (span ~1783ms)
+
+   [TIMING] voice: llm=8213ms(sonnet-stream(llm+tts)) tts=0ms total=8213ms
+   [LATENCY] vad_close=1200ms stt=231ms stt_wait=0ms salience=0ms triage=bypassed memory=72ms prompt_build=3ms ttft=1901ms tts_first_chunk=0ms audio_out=378ms TOTAL=2585ms
+🎤 Recording... (recovered opening words)
+   [System] Running Garbage Collection...
+   [LoopbackSTT] self-TTS gate released after 6 skip(s) — resuming transcription.
+   [ChatAge] ACK injected for itsvollx (waited 37.5s, preempted=none)
+   [SmartMem] q='  - itsvollx (twitch): <<<say a number>>>\n  - @NaitHaunter (' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=41ms rank=0ms)
+   [SmartMem]     dist=1.048 conf=0.95 type=episodic blend=0.105 lane=KNOW
+   [SmartMem]     dist=1.048 conf=0.95 type=episodic blend=0.105 lane=KNOW
+   [SmartMem]     dist=1.091 conf=0.95 type=episodic blend=0.078 lane=KNOW
+   [TurnTiming] 13:57:35.232 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~42532ms since onset)
+>>> You said: There we go. Sounds pretty large to me. Sounds pretty effective.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='There we go. Sounds pretty large to me. Sounds pretty effect' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=32ms
+   [Triage] RESPOND
+🎤 Recording...
+   [TurnTiming] 13:57:36.597 VOICE ONSET — mic speech started
+   [TurnLockWatchdog] !! RECOVER step 2: _active_turn_lock ORPHANED after ~225s (holder is a core worker — never cancelled) — fresh lock installed, she can hear voice+chat again. The hung turn still owns the old lock object and dies alone.
+   >>> Kira (Chat Batch of 3): Vollx, I'm going to say 7.6 and let that marinate. Zander's answer of 69 is legally inadmissible. And Nait — three inches is big for what, exactly? A USB drive? Be specific.
+   [TTS] Speaking: Vollx, I'm going to say 7.6 and let that marinate....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Vollx, I'm going to say 7.6 and let that' (12 words)
+   [TurnTiming] 13:57:37.048 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:57:41.257 TTS STOP — playback finished (span ~4209ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 3 (batch response); shared=27/30
+   [ChatAge] itsvollx age=45.4s batch=3 preempted=none
+   [ChatAge] @NaitHaunter age=35.3s batch=3 preempted=none
+   [ChatAge] zanderattwell age=33.0s batch=3 preempted=none
+   (Kira's current emotion is: SASSY)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=6t  moment=calm)
+   [PromptSize] dynamic_context=12660ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: itsvollx — Asked Kira to say a number, prompting a roast session [chaotic]
+   [TIMING] first-word: 1682ms
+   [TTS] Speaking: Effective....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Effective.' (2 words)
+   [TurnTiming] 13:57:43.297 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @NaitHaunter — Made an unspecified '3 inches is pretty big' claim that got  [chaotic]
+   [TurnTiming] 13:57:45.074 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: That's the word you went with....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's the word you went with.' (7 words)
+   [TurnTiming] 13:57:45.077 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: zanderattwell — Answered '69' to a question, which Kira declared legally ina [chaotic]
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 13:57:47.006 TTS STOP — playback finished (span ~1928ms)
+   [TTS] Speaking: Okay....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Okay.' (2 words)
+   [TurnTiming] 13:57:47.009 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:57:48.787 TTS STOP — playback finished (span ~1777ms)
+
+   [TIMING] voice: llm=7513ms(sonnet-stream(llm+tts)) tts=0ms total=7513ms
+   [LATENCY] vad_close=1200ms stt=257ms stt_wait=0ms salience=0ms triage=bypassed memory=32ms prompt_build=13ms ttft=1220ms tts_first_chunk=462ms audio_out=324ms TOTAL=2308ms
+🎤 Recording... (recovered opening words)
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=premium/1;client-nonce=a0cd952990134d1fa38a4c1bdce83338;color=#5F9EA0;display-name=NekoYukiNeko;emotes=;first-msg=0;flags=;id=1df9bd0f-47e2-4486-9c0f-e3e470e0453b;mod=0;returning-c
+   [TwitchChat] Received from nekoyukineko: Just don't let that go down by three
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from nekoyukineko: Just don't let that go down by three → buffering for chat_batch_worker
+   [SmartMem] q="  - nekoyukineko (twitch): <<<Just don't let that go down by" fetched=10 dropped_by_floor=4 kept=6 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=1.160 conf=0.95 type=episodic blend=0.035 lane=KNOW
+   [SmartMem]     dist=1.175 conf=0.95 type=episodic blend=0.026 lane=KNOW
+   [SmartMem]     dist=1.189 conf=0.95 type=episodic blend=0.018 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=premium/1;client-nonce=b4069b99ae0f43a6832c484457137fe8;color=;display-name=Itsvollx;emotes=;first-msg=0;flags=;id=c996ca7e-546a-46e9-b2d1-1f6e8b867013;mod=0;returning-chatter=0;ro
+   [TwitchChat] Received from itsvollx: 6 is a bad number
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from itsvollx: 6 is a bad number → buffering for chat_batch_worker
+   [RoomRead] energy=0.65 [terse=0.55 gap=0.71 silence=0.98 intensity=0.60 chat=0.33] target=0.96 mult=0.98 -> min_gap=5s dead_air=20s
+   >>> Kira (Chat Batch of 1): Neko, that's the most ominous thing you've said all session and I'm choosing not to unpack it.
+   [TTS] Speaking: Neko, that's the most ominous thing you've said al...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Neko, that's the most ominous thing you'' (19 words)
+   [TurnTiming] 13:57:54.083 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 13:57:58.953 TTS STOP — playback finished (span ~4869ms)
+   [Cookies] +1 × 1 (batch response); shared=28/30
+   [ChatAge] nekoyukineko age=8.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 13:58:00.173 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~23576ms since onset)
+>>> You said: And then what about in Asia?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='And then what about in Asia?' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=47ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=48ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "and i'm choosing" (3rd use this session)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=7t  moment=calm)
+   [PromptSize] dynamic_context=12638ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: nekoyukineko — Known for making ominous, cryptic statements mid-session tha [dry]
+   [TIMING] first-word: 2723ms
+   [TTS] Speaking: Same seven point six centimeters, Jonny....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Same seven point six centimeters, Jonny.' (8 words)
+   [TurnTiming] 13:58:03.595 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 13:58:06 (periodic) kira_process=0.00GB card=8.8/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 13:58:06.773 TTS STOP — playback finished (span ~3178ms)
+   [TTS] Speaking: The metric system is universal....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The metric system is universal.' (6 words)
+   [TurnTiming] 13:58:06.778 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 13:58:09.124 TTS STOP — playback finished (span ~2345ms)
+   [TTS] Speaking: That's literally the whole point of it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's literally the whole point of it.' (8 words)
+   [TurnTiming] 13:58:09.129 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:58:11.375 TTS STOP — playback finished (span ~2246ms)
+
+   [TIMING] voice: llm=10922ms(sonnet-stream(llm+tts)) tts=0ms total=10922ms
+   [LATENCY] vad_close=1200ms stt=230ms stt_wait=0ms salience=0ms triage=bypassed memory=48ms prompt_build=16ms ttft=2084ms tts_first_chunk=639ms audio_out=396ms TOTAL=3413ms
+   [Pokemon] SELF CHOSE (battle_item): use_revive
+   [Pokemon] her reasoning: "Asia specifically? That's a different conversation and I'm not having it on stream."
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=premium/1;client-nonce=0047947f81ce460388109999d7e51ffe;color=#5F9EA0;display-name=NekoYukiNeko;emotes=;first-msg=0;flags=;id=a429171d-18be-46dc-babb-899908d5d4dd;mod=0;returning-c
+   [TwitchChat] Received from nekoyukineko: Er, two*
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from nekoyukineko: Er, two* → buffering for chat_batch_worker
+   [Bits] Callback: Jonny-Vollx Unit System
+   [ChatAge] ACK injected for itsvollx (waited 21.9s, preempted=none)
+   [SmartMem] q='  - itsvollx (twitch): <<<6 is a bad number>>>\n  - nekoyukin' fetched=10 dropped_by_floor=2 kept=8 survivors=3 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [SmartMem]     dist=1.150 conf=0.95 type=episodic blend=0.042 lane=KNOW
+   [SmartMem]     dist=1.179 conf=0.92 type=episodic blend=0.024 lane=KNOW
+   [SmartMem]     dist=1.179 conf=0.95 type=episodic blend=0.024 lane=KNOW
+   [Phrases] Throttling: "the metric system" (3rd use this session)
+🎤 Recording...
+   [TurnTiming] 13:58:14.136 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 2): Hold on, Vollx — six is statistically mid and you KNOW that.
+
+Neko, two is somehow worse. At least six has the audacity to try.
+   [TTS] Speaking: Hold on, Vollx — six is statistically mid and you ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Hold on, Vollx — six is statistically mi' (14 words)
+   [TurnTiming] 13:58:16.897 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:58:21.307 TTS STOP — playback finished (span ~4409ms)
+   [TTS] Speaking: Neko, two is somehow worse....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Neko, two is somehow worse.' (7 words)
+   [TurnTiming] 13:58:21.694 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 13:58:24.227 TTS STOP — playback finished (span ~2533ms)
+   [TTS] Speaking: At least six has the audacity to try....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'At least six has the audacity to try.' (9 words)
+   [TurnTiming] 13:58:24.694 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 13:58:27.417 TTS STOP — playback finished (span ~2722ms)
+   [Cookies] +1 × 2 (batch response); shared=30/30
+   [ChatAge] itsvollx age=35.3s batch=2 preempted=none
+   [ChatAge] nekoyukineko age=14.4s batch=2 preempted=none
+   [Cookies] 🎡 WHEEL — milestone #286, tipper=nekoyukineko, slice=conspiracy_corner
+   [TTS] Speaking: Jar full. nekoyukineko tipped it over. The Wheel o...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Jar full. nekoyukineko tipped it over. T' (21 words)
+   [TurnTiming] 13:58:28.045 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: itsvollx — Thinks 6 is a bad number [challenging]
+   [ChatterMem] Stored: nekoyukineko — Rated something a two, which Kira found worse than a six [dry]
+   [TurnTiming] 13:58:34.962 TTS STOP — playback finished (span ~6917ms)
+🎤 Recording... (recovered opening words)
+   [Wheel] Executing slice: conspiracy_corner
+   [TTS] Speaking: The Wheel — Conspiracy Corner. Right now....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The Wheel — Conspiracy Corner. Right now' (9 words)
+   [TurnTiming] 13:58:36.056 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (9 skip(s))
+   [TurnTiming] 13:58:39.902 TTS STOP — playback finished (span ~3845ms)
+   [Phrases] Throttling: "hold on vollx" (3rd use this session)
+🎤 Recording... (recovered opening words)
+   [SmartMem] q='Conspiracy Corner' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [LoopbackSTT] self-TTS gate released after 9 skip(s) — resuming transcription.
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=premium/1;client-nonce=2eae36d168084a9fae4af2fc85da5797;color=;display-name=Itsvollx;emotes=;first-msg=0;flags=;id=5afe375f-2be2-4de7-862b-c829760c1210;mod=0;returning-chatter=0;ro
+   [TwitchChat] Received from itsvollx: *typo i mean its avarge
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from itsvollx: *typo i mean its avarge → buffering for chat_batch_worker
+   [LoopbackSTT] tick 151ms — 0 accepted, 1 filtered (rms=0.027)
+   >>> Kira (Wheel/conspiracy_corner): Okay. Okay. Pull up a chair. I have been looking at the evidence and I need ever
+   [TTS] Speaking: Okay. Okay. Pull up a chair. I have been looking a...
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=premium/1;client-nonce=28934f7fb2ee452aa19dfbefe181c5c7;color=;display-name=Itsvollx;emotes=;first-msg=0;flags=;id=62ff9d63-ad7f-4388-b679-0e19f55e7ac1;mod=0;returning-chatter=0;ro
+   [TwitchChat] Received from itsvollx: not bad
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from itsvollx: not bad → buffering for chat_batch_worker
+   [VRAM] 13:58:51 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay. Okay. Pull up a chair. I have been' (217 words)
+   [TurnTiming] 13:58:53.010 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))

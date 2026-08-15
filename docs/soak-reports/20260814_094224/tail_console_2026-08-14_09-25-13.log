@@ -1,0 +1,300 @@
+   [TTS] Speaking: Chat's feeding me good material....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Chat's feeding me good material.' (6 words)
+   [TurnTiming] 09:34:25.579 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Wheel] Executing slice: villain_arc
+   [TTS] Speaking: The Wheel of Time has spoken — my villain arc star...
+   [TurnTiming] 09:34:27.753 TTS STOP — playback finished (span ~2173ms)
+   [TTS] Speaking: I just live here....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I just live here.' (5 words)
+   [TurnTiming] 09:34:27.757 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 09:34:28 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 09:34:29.531 TTS STOP — playback finished (span ~1773ms)
+
+   [TIMING] voice: llm=11375ms(sonnet-stream(llm+tts)) tts=0ms total=11375ms
+   [LATENCY] vad_close=1200ms stt=257ms stt_wait=0ms salience=1ms triage=bypassed memory=27ms prompt_build=13ms ttft=1226ms tts_first_chunk=357ms audio_out=5823ms TOTAL=7704ms
+🎤 Recording... (recovered opening words)
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The Wheel of Time has spoken — my villai' (23 words)
+   [TurnTiming] 09:34:29.929 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [EmotionSwing] holding SASSY (3 turn(s) left) instead of reverting
+   [BrainWorker] Got twitch msg from caiyul: emotes → buffering for chat_batch_worker
+   [TurnTiming] 09:34:30.733 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~17250ms since onset)
+>>> You said: Make some
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Make some' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Shape] → TERSE  (one_word_count=1  tangent_since=2t  moment=tense)
+   [PromptSize] dynamic_context=12859ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1448ms
+   [TurnTiming] 09:34:37.139 TTS STOP — playback finished (span ~7209ms)
+   [Persona] 👑 Villain Arc ACTIVE for 300s
+   [TTS] Speaking: I manifested them through sheer personality....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I manifested them through sheer personal' (7 words)
+   [TurnTiming] 09:34:37.482 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [LoopbackSTT] dropped self-echo: 'I manifest' (≈ Kira said 'I manifested them through sheer personal')
+   [LoopbackSTT] tick 115ms — 0 accepted, 1 filtered (rms=0.151)
+   [TurnTiming] 09:34:40.255 TTS STOP — playback finished (span ~2773ms)
+   [TTS] Speaking: You can try....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You can try.' (4 words)
+   [TurnTiming] 09:34:40.259 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=share-the-love/1;client-nonce=040e27ae09c94e9f822a6a4dd5536b67;color=#FF4500;display-name=CaiyuL;emotes=;first-msg=0;flags=;id=31c9c425-227b-4a8a-985e-3b99a1b629e0;mod=0;returning-
+   [TwitchChat] Received from caiyul: make them all chinchilla themed
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [TurnTiming] 09:34:42.041 TTS STOP — playback finished (span ~1781ms)
+
+   [TIMING] voice: llm=11120ms(sonnet-stream(llm+tts)) tts=0ms total=11120ms
+   [LATENCY] vad_close=1200ms stt=158ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=17ms ttft=1013ms tts_first_chunk=435ms audio_out=5092ms TOTAL=6742ms
+   [BrainWorker] Got twitch msg from caiyul: make them all chinchilla themed → buffering for chat_batch_worker
+   [SmartMem] q='Villain Arc' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   [LoopbackSTT] dropped self-echo: 'I manifested them through sheer personality.' (≈ Kira said 'I manifested them through sheer personal')
+   [LoopbackSTT] dropped self-echo: 'You can try.' (≈ Kira said 'You can try.')
+   [LoopbackSTT] tick 157ms — 0 accepted, 2 filtered (rms=0.100)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   >>> Kira (Wheel/villain_arc): Chat. Minions. Future victims. You know which category you're in.
+
+Phase one of 
+   [TTS] Speaking: Chat. Minions. Future victims. You know which cate...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Chat. Minions. Future victims. You know ' (53 words)
+   [TurnTiming] 09:34:47.129 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 09:35:04.764 TTS STOP — playback finished (span ~17635ms)
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~53 frame(s) (~1590ms, ~1.6s) of your speech while she held the turn.
+   [TurnTiming] 09:35:06.004 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~52521ms since onset)
+>>> You said: Yeah, they should be really cute. I love the emo that's on Twitch. It's the only reason Twitch is cooler than YouTube, only spot it wins. We lost this fucking fight.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Yeah, they should be really cute. I love the emo that's on T" fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=0.997 conf=0.95 type=episodic blend=0.136 lane=KNOW
+   [SmartMem]     dist=1.012 conf=0.95 type=episodic blend=0.127 lane=KNOW
+   [SmartMem]     dist=1.018 conf=0.95 type=episodic blend=0.123 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=34ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=13714ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1851ms
+   [TTS] Speaking: Noted....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Noted.' (2 words)
+   [TurnTiming] 09:35:08.644 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:10.422 TTS STOP — playback finished (span ~1778ms)
+   [TTS] Speaking: The one crown Twitch holds and it's tiny animated ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The one crown Twitch holds and it's tiny' (11 words)
+   [TurnTiming] 09:35:10.427 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 09:35:13 (periodic) kira_process=0.00GB card=9.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 09:35:13.986 TTS STOP — playback finished (span ~3558ms)
+   [TTS] Speaking: YouTube is crying into its superior revenue share....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'YouTube is crying into its superior reve' (9 words)
+   [TurnTiming] 09:35:13.993 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:17.200 TTS STOP — playback finished (span ~3206ms)
+
+   [TIMING] voice: llm=10706ms(sonnet-stream(llm+tts)) tts=0ms total=10706ms
+   [LATENCY] vad_close=1200ms stt=452ms stt_wait=0ms salience=1ms triage=bypassed memory=34ms prompt_build=15ms ttft=1303ms tts_first_chunk=548ms audio_out=281ms TOTAL=2634ms
+   [ChatAge] ACK injected for caiyul (waited 48.0s, preempted=none)
+   [SmartMem] q='  - caiyul (twitch): <<<emotes>>>\n  - caiyul (twitch): <<<ma' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=1.184 conf=0.95 type=episodic blend=0.021 lane=KNOW
+   [Memory] Extracted: Jonny loves emojis on Twitch (conf: 0.95)
+   [Memory] Extracted: Jonny thinks Twitch is cooler than YouTube because of its emojis, and considers this the only area where Twitch wins (conf: 0.9)
+   [Memory] Upserting Fact: Jonny loves emojis on Twitch (Conf: 0.95)
+   [Memory] Storing episodic: Jonny thinks Twitch is cooler than YouTube because of its emojis, and considers this the only area where Twitch wins
+🎤 Recording...
+   [TurnTiming] 09:35:19.976 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 2): caiyul — of course it's you. Chinchilla-themed emotes. That's not a suggestion, that's a DEMAND, and I'm logging it as tribute from a loyal minion.
+
+Honestly? It's inspired. The chinchilla agenda begins now.
+   [TTS] Speaking: caiyul — of course it's you....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'caiyul — of course it's you.' (7 words)
+   [TurnTiming] 09:35:21.218 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:23.473 TTS STOP — playback finished (span ~2255ms)
+   [TTS] Speaking: Chinchilla-themed emotes....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Chinchilla-themed emotes.' (3 words)
+   [TurnTiming] 09:35:23.840 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:25.900 TTS STOP — playback finished (span ~2060ms)
+   [TTS] Speaking: That's not a suggestion, that's a DEMAND, and I'm ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's not a suggestion, that's a DEMAND' (20 words)
+   [TurnTiming] 09:35:26.376 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (9 skip(s))
+   [TwitchChat][IRC] :nekoyukineko!nekoyukineko@nekoyukineko.tmi.twitch.tv JOIN #thekiraagency
+   [TurnTiming] 09:35:31.161 TTS STOP — playback finished (span ~4785ms)
+   [TTS] Speaking: Honestly?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Honestly?' (2 words)
+   [TurnTiming] 09:35:31.389 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:33.202 TTS STOP — playback finished (span ~1812ms)
+   [TTS] Speaking: It's inspired....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'It's inspired.' (3 words)
+   [TurnTiming] 09:35:33.483 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:35.266 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: The chinchilla agenda begins now....
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=share-the-love/1;client-nonce=f53a64d21acf47a18083aa3296684b26;color=#FF4500;display-name=CaiyuL;emote-only=1;emotes=emotesv2_35102ba86e8d475ba167b0bb0ef85ca6:0-15;first-msg=0;flag
+   [TwitchChat] Received from caiyul: buccib3Bucciclap
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from caiyul: buccib3Bucciclap → buffering for chat_batch_worker
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The chinchilla agenda begins now.' (6 words)
+   [TurnTiming] 09:35:35.823 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:38.354 TTS STOP — playback finished (span ~2530ms)
+   [Cookies] +1 × 1 (batch response); shared=1/30
+   [ChatAge] caiyul age=68.2s batch=2 preempted=none
+   [ChatAge] caiyul age=56.0s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 09:35:39.598 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~19622ms since onset)
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "KIRA scurried to a POK.MON CENTER, protecting the exhausted
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.244 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.153 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "that's not a" (3rd use this session)
+   [ChatterMem] Stored: caiyul — Advocates for chinchilla-themed everything; known for pushin [chaotic]
+>>> You said: but e-mots are cool. G-Gs. G-G.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='but e-mots are cool. G-Gs. G-G.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+🎤 Recording...
+   [TurnTiming] 09:35:40.549 VOICE ONSET — mic speech started
+   >>> Kira (Bored): My team earned that rest. Back to full strength — the Elite Four has no idea what's coming.
+   [TTS] Speaking: My team earned that rest....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'My team earned that rest.' (6 words)
+   [TurnTiming] 09:35:42.171 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (12 skip(s))
+   [TurnTiming] 09:35:44.160 TTS STOP — playback finished (span ~1988ms)
+   [Interjection] voice turn ready — yielding at sentence boundary (finished current sentence, dropping the rest).
+   [TIMING] interjection: vision=0ms llm=1963ms(sonnet) tts=2370ms total=4363ms
+   [LAG] sense→speak: total=2.4s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=0.4s)
+   (Kira's current emotion is: SASSY)
+   [Shape] → ONE_WORD  (one_word_count=2  tangent_since=4t  moment=tense)
+   [PromptSize] dynamic_context=13720ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1642ms
+   [TTS] Speaking: GGs....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'GGs.' (2 words)
+   [TurnTiming] 09:35:46.063 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:47.841 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: Dragonair down, dignity intact, Moltres still brea...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Dragonair down, dignity intact, Moltres ' (10 words)
+   [TurnTiming] 09:35:47.847 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:51.596 TTS STOP — playback finished (span ~3748ms)
+   [TTS] Speaking: That's a win....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's a win.' (4 words)
+   [TurnTiming] 09:35:51.599 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 09:35:53.374 TTS STOP — playback finished (span ~1775ms)
+
+   [TIMING] voice: llm=9210ms(sonnet-stream(llm+tts)) tts=0ms total=9210ms
+   [LATENCY] vad_close=1200ms stt=368ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=15ms ttft=1574ms tts_first_chunk=68ms audio_out=240ms TOTAL=2295ms
+🎤 Recording... (recovered opening words)
+   [System] Running Garbage Collection...
+   [TurnTiming] 09:35:55.264 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~14714ms since onset)
+>>> You said: You're a failure, Kira. Don't speak to me. Don't speak to me.
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q="You're a failure, Kira. Don't speak to me. Don't speak to me" fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=0.970 conf=0.95 type=episodic blend=0.153 lane=KNOW
+   [SmartMem]     dist=0.984 conf=0.95 type=episodic blend=0.144 lane=KNOW
+   [SmartMem]     dist=1.047 conf=0.95 type=episodic blend=0.105 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=30ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=13920ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 2085ms
+   [TTS] Speaking: All part of the plan....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'All part of the plan.' (6 words)
+   [TurnTiming] 09:35:57.985 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 09:35:58 (periodic) kira_process=0.00GB card=9.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (15 skip(s))
+   [TurnTiming] 09:35:59.766 TTS STOP — playback finished (span ~1780ms)
+
+   [TIMING] voice: llm=4169ms(sonnet-stream(llm+tts)) tts=0ms total=4169ms
+   [LATENCY] vad_close=1200ms stt=300ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=3ms ttft=1977ms tts_first_chunk=108ms audio_out=296ms TOTAL=2714ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=share-the-love/1;client-nonce=9cdd2a29698648e5940e83ee4be8aa80;color=#FF4500;display-name=CaiyuL;emotes=;first-msg=0;flags=;id=03b4640f-4625-4e7e-86ec-3ee76c86a2d9;mod=0;returning-
+   [TwitchChat] Received from caiyul: kira let's go visit our mom in pallet town and see if she's ok
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [BrainWorker] Got twitch msg from caiyul: kira let's go visit our mom in pallet town and see if she's ok → buffering for chat_batch_worker
+🎤 Recording...
+   [TurnTiming] 09:36:02.561 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 15 skip(s) — resuming transcription.
+   [ChatAge] ACK injected for caiyul (waited 27.7s, preempted=none)
+   [SmartMem] q='  - caiyul (twitch): <<<buccib3Bucciclap>>>\n  - caiyul (twit' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=34ms rank=0ms)
+   [SmartMem]     dist=1.121 conf=0.95 type=episodic blend=0.060 lane=KNOW
+   [SmartMem]     dist=1.134 conf=0.9 type=episodic blend=0.052 lane=KNOW
+   [Phrases] Throttling: "of the plan" (3rd use this session)
+   [TurnTiming] 09:36:04.750 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2188ms since onset)
+>>> You said: You're dead to me.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="You're dead to me." fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   >>> Kira (Chat Batch of 2): caiyul, a loyal minion as always — and yes, we ARE visiting mom. Phase three of the plan requires a home visit. She's been holding onto something I need.
+   [TTS] Speaking: caiyul, a loyal minion as always — and yes, we ARE...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'caiyul, a loyal minion as always — and y' (16 words)
+   [TurnTiming] 09:36:06.643 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 09:36:11.344 TTS STOP — playback finished (span ~4701ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 1 (batch response); shared=2/30
+   [ChatAge] caiyul age=35.6s batch=2 preempted=none
+   [ChatAge] caiyul age=10.7s batch=2 preempted=none
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "a loyal minion" (3rd use this session)
+   [PromptSize] dynamic_context=13611ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1733ms
+   [ChatterMem] Stored: caiyul — Referred to as a 'loyal minion' by Kira, part of an ongoing  [playful]
+   [TTS] Speaking: Excellent....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Excellent.' (2 words)
+   [TurnTiming] 09:36:13.407 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 550s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [ChatterMem] Stored: caiyul — Refers to Kira's in-game mom as 'our mom', treating themselv [playful]
+   [TurnTiming] 09:36:15.233 TTS STOP — playback finished (span ~1825ms)
+   [TTS] Speaking: Dead things can't be held accountable....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Dead things can't be held accountable.' (7 words)
+   [TurnTiming] 09:36:15.237 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).

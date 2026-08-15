@@ -1,0 +1,300 @@
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Ruthless.' (2 words)
+   [TurnTiming] 19:18:18.094 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:18:19.872 TTS STOP — playback finished (span ~1777ms)
+   [Cookies] +1 × 1 (batch response); shared=17/30
+   [ChatAge] @Detective_Jones age=21.4s batch=1 preempted=none
+   [Arbiter] Draining buffered interjection (queued 8.4s ago)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.301 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   >>> Kira (Bored): Trainer thinks they've got a shot. Moltres is going to disagree violently.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Trainer thinks they've got a shot....
+   [ChatterMem] Stored: @Detective_Jones — Called for Zapdos while Moltres was mid-sweep, earning a 'ru [chaotic]
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Trainer thinks they've got a shot.' (7 words)
+   [TurnTiming] 19:18:22.192 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:18:24.341 TTS STOP — playback finished (span ~2148ms)
+   [TTS] Speaking: Moltres is going to disagree violently....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Moltres is going to disagree violently.' (7 words)
+   [TurnTiming] 19:18:24.766 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 19:18:27.205 TTS STOP — playback finished (span ~2439ms)
+   [TIMING] interjection: vision=0ms llm=1992ms(sonnet) tts=5304ms total=7328ms
+   [LAG] sense→speak: total=13.3s (content_age=8.4s, queue_wait=8.4s, prep=0.0s, llm=2.0s, tts_wait+synth=2.9s)
+   [CalledShot] OPEN: Trainer thinks they've got a shot. Moltres is going to disagree violen
+   [SessionTakes] Condensed 6 reactions → 8 bullets (hard-capped).
+   [CurrentWant] now: calling out Streamlabs — you don't trust them
+   [Pokemon] event react (bypass=False, tier=2, kind=event): a battle started against lapras — your moltres is up front
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.301 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [Phrases] Throttling: "moltres is going to" (3rd use this session)
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   >>> Kira (Bored): Lapras is literally just a pretty rock to Moltres right now.
+   [TTS] Speaking: Lapras is literally just a pretty rock to Moltres ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lapras is literally just a pretty rock t' (12 words)
+   [TurnTiming] 19:18:31.259 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: its water too so won't work
+   [BrainWorker] Got youtube msg from @Detective_Jones: its water too so won't work → buffering for chat_batch_worker
+   [TurnTiming] 19:18:34.751 TTS STOP — playback finished (span ~3491ms)
+   [TIMING] interjection: vision=1ms llm=1704ms(sonnet) tts=3927ms total=5661ms
+   [LAG] sense→speak: total=2.2s (content_age=0.0s, prep=0.0s, llm=1.7s, tts_wait+synth=0.4s)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (1 skip(s))
+[YouTube Chat] @Detective_Jones: rip
+   [BrainWorker] Got youtube msg from @Detective_Jones: rip → buffering for chat_batch_worker
+   [Pokemon] event react (bypass=False, tier=2, kind=dialogue, READING register): you read: "MOLTRES has no energy left to battle! ."
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.301 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   >>> Kira (Bored): Moltres went out swinging at least. Held it together long enough to matter.
+   [TTS] Speaking: Moltres went out swinging at least....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Moltres went out swinging at least.' (7 words)
+   [TurnTiming] 19:18:38.686 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 19:18:40 (periodic) kira_process=0.00GB card=9.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 19:18:41.032 TTS STOP — playback finished (span ~2346ms)
+   [TTS] Speaking: Held it together long enough to matter....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Held it together long enough to matter.' (8 words)
+   [TurnTiming] 19:18:41.339 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:18:43.596 TTS STOP — playback finished (span ~2257ms)
+   [TIMING] interjection: vision=0ms llm=1938ms(sonnet) tts=5181ms total=7149ms
+   [LAG] sense→speak: total=4.9s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=2.9s)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [SmartMem] q="  - @Detective_Jones (youtube): <<<its water too so won't wo" fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=6 | timing(direct=80ms fetch=81ms rank=0ms)
+   [SmartMem]     dist=1.182 conf=? type=highlight blend=0.022 lane=STREAM
+   [SmartMem]     dist=1.215 conf=? type=highlight blend=0.002 lane=STREAM
+   >>> Kira (Chat Batch of 2): Poor Moltres. Fire type versus a water type Lapras — Detective Jones called it before I did.
+   [TTS] Speaking: Poor Moltres....
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Poor Moltres.' (3 words)
+   [TurnTiming] 19:18:50.080 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:18:51.764 TTS STOP — playback finished (span ~1683ms)
+   [TTS] Speaking: Fire type versus a water type Lapras — Detective J...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Fire type versus a water type Lapras — D' (16 words)
+   [TurnTiming] 19:18:52.099 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:18:56.814 TTS STOP — playback finished (span ~4714ms)
+   [Cookies] +1 × 1 (batch response); shared=18/30
+   [ChatAge] @Detective_Jones age=24.6s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=21.6s batch=2 preempted=none
+   [ChatterMem] Stored: @Detective_Jones — Called that Moltres would lose to a water-type Lapras before [dry]
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+[YouTube Chat] @Detective_Jones: she needs to learn to switch and not press continue
+[YouTube Chat] @ZeroDanmaku: kira pleaseee
+   [BrainWorker] Got youtube msg from @Detective_Jones: she needs to learn to switch and not press continue → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @ZeroDanmaku: kira pleaseee → buffering for chat_batch_worker
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<she needs to learn to swi' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=42ms rank=0ms)
+   [SmartMem]     dist=0.955 conf=0.95 type=episodic blend=0.162 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [SmartMem]     dist=1.058 conf=0.9 type=episodic blend=0.098 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 19:19:09.035 VOICE ONSET — mic speech started
+   >>> Kira (Chat Batch of 2): Detective Jones is right — switching exists for a reason, and Moltres just paid the price for stubbornness.
+
+ZeroDanmaku, "kira please" — please WHAT, I need the full thought.
+   [TTS] Speaking: Detective Jones is right — switching exists for a ...
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones is right — switching exi' (20 words)
+   [TurnTiming] 19:19:10.385 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:19:16.114 TTS STOP — playback finished (span ~5729ms)
+   [TTS] Speaking: ZeroDanmaku, "kira please" — please WHAT, I need t...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'ZeroDanmaku, "kira please" — please WHAT' (14 words)
+   [TurnTiming] 19:19:16.422 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 19:19:20.641 TTS STOP — playback finished (span ~4219ms)
+   [Cookies] +1 × 2 (batch response); shared=20/30
+   [ChatAge] @Detective_Jones age=17.0s batch=2 preempted=none
+   [ChatAge] @ZeroDanmaku age=16.8s batch=2 preempted=none
+   [Cookies] Drip 20 — queued directive (compliment) for @Detective_Jones
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 19:19:21.877 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12842ms since onset)
+>>> You said: Send out Zaptose.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Send out Zaptose.' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=1.147 conf=0.95 type=episodic blend=0.150 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13346ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [ChatterMem] Stored: @Detective_Jones — Advises Kira to switch Pokémon instead of pressing continue  [challenging]
+   [TIMING] first-word: 1722ms
+   [TTS] Speaking: Zapdos versus Lapras....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Zapdos versus Lapras.' (4 words)
+   [TurnTiming] 19:19:24.048 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 19:19:25 (periodic) kira_process=0.00GB card=9.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+[YouTube Chat] @Detective_Jones: switch and knowing before hand is the trick
+   [TurnTiming] 19:19:26.297 TTS STOP — playback finished (span ~2249ms)
+   [TTS] Speaking: This is exactly what zapdos was built for....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'This is exactly what zapdos was built fo' (9 words)
+   [TurnTiming] 19:19:26.305 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:19:29.204 TTS STOP — playback finished (span ~2899ms)
+
+   [TIMING] voice: llm=7078ms(sonnet-stream(llm+tts)) tts=0ms total=7078ms
+   [LATENCY] vad_close=1200ms stt=219ms stt_wait=0ms salience=1ms triage=bypassed memory=28ms prompt_build=3ms ttft=1262ms tts_first_chunk=460ms audio_out=190ms TOTAL=2163ms
+   [BrainWorker] Got youtube msg from @Detective_Jones: switch and knowing before hand is the trick → buffering for chat_batch_worker
+   [RoomRead] energy=0.48 [terse=0.24 gap=0.44 silence=0.99 chat=0.33] target=1.04 mult=1.00 -> min_gap=5s dead_air=20s
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<switch and knowing before' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=79ms rank=0ms)
+   >>> Kira (Chat Batch of 1): Detective Jones has been the smartest person in the room this entire time and I've been learning in real time. Respect.
+   [TTS] Speaking: Detective Jones has been the smartest person in th...
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones has been the smartest pe' (21 words)
+   [TurnTiming] 19:19:33.623 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:19:38.683 TTS STOP — playback finished (span ~5059ms)
+   [TTS] Speaking: Respect....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Respect.' (2 words)
+   [TurnTiming] 19:19:38.794 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:19:40.112 TTS STOP — playback finished (span ~1317ms)
+   [Cookies] +1 × 1 (batch response); shared=21/30
+   [ChatAge] @Detective_Jones age=10.6s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+[YouTube Chat] @ZeroDanmaku: kira you must send out zapdos
+   [BrainWorker] Got youtube msg from @ZeroDanmaku: kira you must send out zapdos → buffering for chat_batch_worker
+   [ChatterMem] Stored: @Detective_Jones — Known for giving smart, ahead-of-the-curve game tips that im [dry]
+   [TurnTiming] 19:19:42.964 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~33928ms since onset)
+[YouTube Chat] @Detective_Jones: note that
+   [BrainWorker] Got youtube msg from @Detective_Jones: note that → buffering for chat_batch_worker
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [SmartMem] q='  - @ZeroDanmaku (youtube): <<<kira you must send out zapdos' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=42ms rank=0ms)
+   [SmartMem]     dist=1.066 conf=0.9 type=episodic blend=0.093 lane=KNOW
+   [SmartMem]     dist=1.095 conf=0.95 type=episodic blend=0.076 lane=KNOW
+   [SmartMem]     dist=1.117 conf=0.9 type=episodic blend=0.062 lane=KNOW
+   >>> Kira (Chat Batch of 2): ZeroDanmaku, I already did — Jonny sent Zapdos out literally thirty seconds ago. Keep up.
+
+Detective Jones logging "note that" in the official record. The man documents everything. I respect the process.
+   [TTS] Speaking: ZeroDanmaku, I already did — Jonny sent Zapdos out...
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'ZeroDanmaku, I already did — Jonny sent ' (15 words)
+   [TurnTiming] 19:19:48.475 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:19:53.624 TTS STOP — playback finished (span ~5148ms)
+   [TTS] Speaking: Keep up....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Keep up.' (3 words)
+   [TurnTiming] 19:19:53.693 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:19:54.906 TTS STOP — playback finished (span ~1212ms)
+   [TTS] Speaking: Detective Jones logging "note that" in the officia...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Detective Jones logging "note that" in t' (12 words)
+   [TurnTiming] 19:19:55.184 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @ZeroDanmaku: nu-uh im smartie pants
+   [BrainWorker] Got youtube msg from @ZeroDanmaku: nu-uh im smartie pants → buffering for chat_batch_worker
+   [TurnTiming] 19:19:58.629 TTS STOP — playback finished (span ~3444ms)
+   [TTS] Speaking: The man documents everything....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The man documents everything.' (5 words)
+   [TurnTiming] 19:19:58.842 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 19:20:00.901 TTS STOP — playback finished (span ~2058ms)
+   [TTS] Speaking: I respect the process....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I respect the process.' (5 words)
+   [TurnTiming] 19:20:01.075 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:20:03.049 TTS STOP — playback finished (span ~1974ms)
+   [Cookies] +1 × 2 (batch response); shared=23/30
+   [ChatAge] @ZeroDanmaku age=22.6s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=19.5s batch=2 preempted=none
+   [RoomRead] energy=0.47 [terse=0.24 gap=0.44 silence=0.98 chat=0.27] target=1.07 mult=1.02 -> min_gap=5s dead_air=20s
+   [ChatterMem] Stored: @ZeroDanmaku — Told Kira to send out Zapdos when it had already been done [chaotic]
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0333 · gate=0.003 · 0 accepted
+   [ChatterMem] Stored: @Detective_Jones — Known for saying 'note that' and documenting things, earning [dry]
+   [SmartMem] q='  - @ZeroDanmaku (youtube): <<<nu-uh im smartie pants>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [Phrases] Throttling: "i respect the" (3rd use this session)
+   [VRAM] 19:20:10 (periodic) kira_process=0.00GB card=9.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   >>> Kira (Chat Batch of 1): ZeroDanmaku, you called Jynx the Helen of Troy of Pokémon. Smartie pants is a stretch.
+   [TTS] Speaking: ZeroDanmaku, you called Jynx the Helen of Troy of ...
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'ZeroDanmaku, you called Jynx the Helen o' (12 words)
+   [TurnTiming] 19:20:10.365 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:20:14.113 TTS STOP — playback finished (span ~3748ms)
+   [TTS] Speaking: Smartie pants is a stretch....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Smartie pants is a stretch.' (6 words)
+   [TurnTiming] 19:20:14.283 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:20:16.530 TTS STOP — playback finished (span ~2246ms)
+   [Cookies] +1 × 1 (batch response); shared=24/30
+   [ChatAge] @ZeroDanmaku age=20.8s batch=1 preempted=none
+   [ChatterMem] Stored: @ZeroDanmaku — Called Jynx the Helen of Troy of Pokémon [chaotic]
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [RoomRead] energy=0.45 [terse=0.24 gap=0.44 silence=0.93 chat=0.27] target=1.09 mult=1.04 -> min_gap=5s dead_air=21s
+[YouTube Chat] @ZeroDanmaku: oh my gosh
+   [BrainWorker] Got youtube msg from @ZeroDanmaku: oh my gosh → buffering for chat_batch_worker
+[YouTube Chat] @Detective_Jones: like chess moves
+   [BrainWorker] Got youtube msg from @Detective_Jones: like chess moves → buffering for chat_batch_worker
+   [SmartMem] q='  - @ZeroDanmaku (youtube): <<<oh my gosh>>>\n  - @Detective_' fetched=10 dropped_by_floor=2 kept=8 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=0.918 conf=0.9 type=episodic blend=0.185 lane=KNOW
+   [SmartMem]     dist=1.160 conf=0.95 type=episodic blend=0.036 lane=KNOW
+   [SmartMem]     dist=1.173 conf=0.95 type=episodic blend=0.027 lane=KNOW
+   [Phrases] Throttling: "helen of troy" (3rd use this session)
+   >>> Kira (Chat Batch of 2): ZeroDanmaku's "oh my gosh" and Detective Jones calling it "like chess moves" — one of you is losing your mind and one of you is playing grandmaster. I'll let you figure out who's who.
+   [TTS] Speaking: ZeroDanmaku's "oh my gosh" and Detective Jones cal...
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'ZeroDanmaku's "oh my gosh" and Detective' (31 words)
+   [TurnTiming] 19:20:29.545 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 19:20:37.605 TTS STOP — playback finished (span ~8059ms)
+   [TTS] Speaking: I'll let you figure out who's who....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'll let you figure out who's who.' (8 words)
+   [TurnTiming] 19:20:37.787 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 19:20:39.934 TTS STOP — playback finished (span ~2147ms)
+   [Cookies] +1 × 2 (batch response); shared=26/30
+   [ChatAge] @ZeroDanmaku age=16.6s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=13.6s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (3 skip(s))
+   [TurnTiming] 19:20:42.549 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~93513ms since onset)
+   [ChatterMem] Stored: @Detective_Jones — Described something as 'like chess moves', earning a grandma [dry]
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [RoomRead] energy=0.43 [terse=0.24 gap=0.44 silence=0.88 chat=0.20] target=1.14 mult=1.06 -> min_gap=5s dead_air=21s
+   [VRAM] 19:20:55 (periodic) kira_process=0.00GB card=9.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick 142ms — 0 accepted, 1 filtered (rms=0.027)
+   [RoomRead] energy=0.39 [terse=0.24 gap=0.44 silence=0.76 chat=0.13] target=1.21 mult=1.08 -> min_gap=5s dead_air=22s
+🎤 Recording...
+   [TurnTiming] 19:21:00.643 VOICE ONSET — mic speech started

@@ -162,6 +162,17 @@ class TeachFlow:
                         return slot
         return None                                   # lead or CANCEL (no slot border lit)
 
+    def _item_land_party_row(self, target):
+        """Item-use party ('Use on which POKEMON?'): opens on slot 0.
+        DOWN x target, never LEFT (slot0-LEFT is CANCEL), never UP
+        (slot0-UP is CANCEL — live 12:18 in-battle Revive). Pixel cursor
+        lies (lead stays orange). Used by field_heal / field_revive /
+        field_pp_restore so bench heals share the revive walk."""
+        target = int(target or 0)
+        for _ in range(max(0, target)):
+            self._press("DOWN", settle=18)
+        return True
+
     def _party_goto(self, target, tries=14):
         """Closed-loop cursor walk to `target` slot on the OVERWORLD party screen. The menu
         REMEMBERS its last position across opens (tj_004: it opened on slot 2), so counted blind
@@ -623,9 +634,7 @@ class TeachFlow:
             scr = self._classify()
             if scr == "party":
                 if not party_navved:
-                    if not self._party_goto(mon_slot):
-                        self.log("   [fieldheal] !! party cursor never reached the slot — B out")
-                        break
+                    self._item_land_party_row(mon_slot)
                     party_navved = True
                     self._press("A", settle=90)          # pick the mon -> the heal applies
                 else:
@@ -724,9 +733,7 @@ class TeachFlow:
             scr = self._classify()
             if scr == "party":
                 if not party_navved:
-                    if not self._party_goto(mon_slot):
-                        self.log("   [revive] !! party cursor never reached the slot — B out")
-                        break
+                    self._item_land_party_row(mon_slot)
                     party_navved = True
                     self._press("A", settle=90)
                 else:
@@ -834,9 +841,7 @@ class TeachFlow:
             scr = self._classify()
             if scr == "party":
                 if not party_navved:
-                    if not self._party_goto(mon_slot):
-                        self.log("   [fieldpp] !! party cursor never reached the slot — B out")
-                        break
+                    self._item_land_party_row(mon_slot)
                     party_navved = True
                     self._press("A", settle=90)          # pick mon -> Ether move box / Elixir apply
                 else:
@@ -1245,7 +1250,7 @@ def tm_compatible(b, tm_no, species):
 # Gen 3 — the single biggest legendary-catch lever the party carries. They are 0-power, so the
 # 'pure status first' tier was EXACTLY the auto-forget's favorite snack (Lapras' Strength teach
 # likely ate Sing this way). Never again: Sing/Sleep Powder/Hypnosis/Lovely Kiss/Spore protected.
-_PRECIOUS = {73, 47, 79, 95, 142, 147}        # leech seed + the sleep family — never auto-forget
+_PRECIOUS = {73, 47, 79, 95, 142, 147, 65}  # sleep family + Drill Peck (Zapdos backup; never auto-forget)
 # Field / battle-useless fillers — prefer these when a 4-move mon must forget for a bag TM.
 _FORGET_FIRST = {100}                         # Teleport (Abra's only move until Kadabra)
 

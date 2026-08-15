@@ -257,6 +257,35 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
     exhausts — a compass fallback surfs circles forever and never counts a lap fail; (c) a
     voice-order regex without a NEGATION guard turns "don't try to catch it" into a
     catch_now LAW that keeps refilling the party and re-arming the shuttle.
+41. **THE BLINK-COUNTER LAW: a byte that TRACKS A CURSOR on one screen can be the cursor's
+    BLINK ANIMATION on another (2026-08-14, the six-unused-Revives wall).** `PARTY_CURSOR`
+    0x02020777 is the real `gPartyMenu.slotId` on the in-battle SWITCH screen, where it was
+    derived. On the ITEM-USE target screen ("Use on which POKéMON?") the same byte cycles
+    `2,1,0,2,1,0,…` in lockstep with the highlight's blink while the highlight itself walks
+    lead→1→2→3→CANCEL. The Revive walk asked "am I on row 2 yet?", the counter answered "2"
+    on lap 1 by pure coincidence, the loop `break`ed **without pressing a single key**, and
+    the (correct) 0-HP safety gate then refused to confirm. Live Lorelei: 6 Revives in the
+    bag, a dead Zapdos on the floor, three attempts, zero consumed — and because the guard
+    fired, the logs read "REFUSE A — still on living lead", which frames it as an *aiming*
+    bug when it was a *reading* bug. Laws:
+      (a) **A cursor address is only valid for the screen it was derived on.** Re-derive per
+          screen. Naming it after the struct (`gPartyMenu.slotId`) invites reuse everywhere;
+          name it after the SCREEN (`ITEM_PARTY_CURSOR`) instead.
+      (b) **Validate a candidate against a MOVING sequence, not one position.** One reading
+          of "2" proves nothing; a 10-stop ring walk (`recon_revive_cursor2.py`) told the
+          cursor and the blink counter apart instantly, and found the real byte
+          (0x0203B0A9, CANCEL=7) as the *only* address in all of EWRAM+IWRAM that tracked.
+      (c) **A guard that fires is not a fix — read the guard's own diagnostic as a suspect.**
+          Three separate "hardening" passes had already been layered on this walk (pixel
+          override, consume-or-step, orange-beats-lead) because each new symptom looked like
+          a new aiming edge case. All of them were downstream of the lie.
+      (d) **Prefer the reading that survives the frozen-frame disease AND the fade.** Pixels
+          (the selection border) read the item-use highlight correctly at every stop — but
+          only after the opening fade; ~40 frames in, a half-drawn palette reported the wrong
+          row *and* swallowed the tap. Settle to a STABLE reading before the first press.
+      (e) **Walk with the one key that cannot detonate.** DOWN wraps the whole ring
+          (…→last→CANCEL→lead), so DOWN-only reaches every row from anywhere and never
+          touches LEFT/UP/B — the keys that cancel this screen back into the bag.
 
 **STATUS ADDENDUM (2026-07-07): GAME #1 SUMMITED.** FireRed credits rolled autonomously
 (bedroom → 8 badges → E4 → Champion). The engine list above is what did it; the post-credits

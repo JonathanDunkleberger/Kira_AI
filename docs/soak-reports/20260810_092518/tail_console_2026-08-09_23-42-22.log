@@ -1,0 +1,300 @@
+   [Captions] Pushed frame: 'Page 47, right between "use a Poké Ball"' (20 words)
+   [TurnTiming] 00:03:45.906 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 00:03:50.974 TTS STOP — playback finished (span ~5068ms)
+
+   [TIMING] voice: llm=7772ms(sonnet-stream(llm+tts)) tts=0ms total=7772ms
+   [LATENCY] vad_close=1200ms stt=207ms stt_wait=0ms salience=0ms triage=bypassed memory=30ms prompt_build=18ms ttft=1409ms tts_first_chunk=749ms audio_out=518ms TOTAL=2931ms
+🎤 Recording... (recovered opening words)
+   [Pokemon] event react (bypass=False, tier=2, kind=event): still got a shot at zapdos — not rewinding, finishing this.
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [SmartMem]     dist=1.025 conf=0.95 type=episodic blend=0.119 lane=KNOW
+   [SmartMem]     dist=1.050 conf=0.95 type=episodic blend=0.103 lane=KNOW
+   [TurnTiming] 00:03:52.187 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~37979ms since onset)
+>>> You said: Here we go.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Here we go.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   [LoopbackSTT] self-TTS gate released after 6 skip(s) — resuming transcription.
+   >>> Kira (Bored): Still got a shot and I'm TAKING it. Zapdos is not walking out of here without my fingerprints on it.
+   [TTS] Speaking: Still got a shot and I'm TAKING it....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Still got a shot and I'm TAKING it.' (9 words)
+   [TurnTiming] 00:03:55.238 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @clumsymoe: I think reinforcement learning with a reasoning harness is a pretty op architecture
+   [TurnTiming] 00:03:57.582 TTS STOP — playback finished (span ~2344ms)
+   [Interjection] voice turn ready — yielding at sentence boundary (finished current sentence, dropping the rest).
+   [TIMING] interjection: vision=0ms llm=2924ms(sonnet) tts=2735ms total=5686ms
+   [LAG] sense→speak: total=3.4s (content_age=0.0s, prep=0.0s, llm=2.9s, tts_wait+synth=0.4s)
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=12885ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1842ms
+   [TTS] Speaking: Okay....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Okay.' (2 words)
+   [TurnTiming] 00:03:59.758 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: moltress
+   [TurnTiming] 00:04:01.535 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: Deep breath....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Deep breath.' (3 words)
+   [TurnTiming] 00:04:01.539 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:04:03.319 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: Don't blow this....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Don't blow this.' (4 words)
+   [TurnTiming] 00:04:03.321 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:04:05.100 TTS STOP — playback finished (span ~1779ms)
+
+   [TIMING] voice: llm=7513ms(sonnet-stream(llm+tts)) tts=0ms total=7513ms
+   [LATENCY] vad_close=1200ms stt=183ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=15ms ttft=1518ms tts_first_chunk=324ms audio_out=311ms TOTAL=2378ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [BrainWorker] Got youtube msg from @clumsymoe: I think reinforcement learning with a reasoning harness is a pretty op architecture → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @Detective_Jones: moltress → buffering for chat_batch_worker
+   [SmartMem] q='  - @clumsymoe (youtube): <<<I think reinforcement learning ' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=37ms rank=2ms)
+   [SmartMem]     dist=1.119 conf=0.8 type=episodic blend=0.061 lane=VAGUE
+   [SmartMem]     dist=1.176 conf=0.95 type=episodic blend=0.026 lane=KNOW
+   [Phrases] Throttling: "okay deep breath" (3rd use this session)
+   [TurnTiming] 00:04:07.808 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~53600ms since onset)
+>>> You said: I'll have to look into that clumsy, because clearly this isn't going great.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I'll have to look into that clumsy, because clearly this isn" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=30ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=31ms
+   [Triage] RESPOND
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   >>> Kira (Chat Batch of 2): clumsymoe has been cooking this whole chat and I am genuinely here for it — reinforcement learning with a reasoning harness is a pretty nasty combo, I won't lie.
+
+Detective Jones said "moltres" and I think that's the most succinct battle cry I've ever heard.
+   [TTS] Speaking: clumsymoe has been cooking this whole chat and I a...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'clumsymoe has been cooking this whole ch' (31 words)
+   [TurnTiming] 00:04:11.502 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+[YouTube Chat] @Detective_Jones: give it burn effect
+[YouTube Chat] @LoLAimAtMe: Lel, it has fainted, stop trying to pick it
+   [VRAM] 00:04:18 (periodic) kira_process=0.00GB card=9.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 00:04:19.282 TTS STOP — playback finished (span ~7780ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 2 (batch response); shared=30/30
+   [ChatAge] @clumsymoe age=13.9s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=13.7s batch=2 preempted=none
+   [Cookies] 🎡 WHEEL — milestone #275, tipper=@detective_jones, slice=targeted_roast
+   [TTS] Speaking: The jar overflows. @detective jones gets credit. T...
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "and i think that's" (3rd use this session)
+   [PromptSize] dynamic_context=12889ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [TTS] backend=azure
+   [Captions] Pushed frame: 'The jar overflows. @detective jones gets' (23 words)
+   [TurnTiming] 00:04:19.426 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TIMING] first-word: 3969ms
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [ChatterMem] Stored: @clumsymoe — Thinks reinforcement learning with a reasoning harness is a  [earnest]
+   [TurnTiming] 00:04:27.578 TTS STOP — playback finished (span ~8151ms)
+🎤 Recording... (recovered opening words)
+   [Wheel] Executing slice: targeted_roast
+   [TTS] Speaking: The Wheel — Targeted Roast. Right now....
+   [TTS] Speaking: The bar is on the floor and Zapdos is still cleari...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The bar is on the floor and Zapdos is st' (14 words)
+   [TurnTiming] 00:04:27.854 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:04:31.507 TTS STOP — playback finished (span ~3653ms)
+
+   [TIMING] voice: llm=12207ms(sonnet-stream(llm+tts)) tts=0ms total=12207ms
+   [LATENCY] vad_close=1200ms stt=242ms stt_wait=0ms salience=0ms triage=bypassed memory=31ms prompt_build=2ms ttft=3951ms tts_first_chunk=18ms audio_out=4575ms TOTAL=8819ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: EMOTIONAL → SASSY
+   [BrainWorker] Got youtube msg from @Detective_Jones: give it burn effect → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @LoLAimAtMe: Lel, it has fainted, stop trying to pick it → buffering for chat_batch_worker
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The Wheel — Targeted Roast. Right now.' (9 words)
+   [TurnTiming] 00:04:33.257 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0810 · gate=0.003 · 1 accepted
+   [LoopbackSTT] +1 seg (0 filtered, 135ms, rms=0.081): The weird
+   [TurnTiming] 00:04:34.010 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~79802ms since onset)
+>>> You said: Catch the bird. Please, Kura.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Catch the bird. Please, Kura.' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=1.210 conf=0.95 type=episodic blend=0.005 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=276ms
+   [Triage] RESPOND
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<give it burn effect>>>\n  ' fetched=10 dropped_by_floor=4 kept=6 survivors=3 direct=0 | timing(direct=0ms fetch=44ms rank=0ms)
+   [SmartMem]     dist=1.061 conf=0.9 type=episodic blend=0.097 lane=KNOW
+   [SmartMem]     dist=1.140 conf=0.75 type=episodic blend=0.048 lane=VAGUE
+   [SmartMem]     dist=1.160 conf=0.9 type=episodic blend=0.035 lane=KNOW
+   [TurnTiming] 00:04:36.946 TTS STOP — playback finished (span ~3688ms)
+   >>> Kira (Chat Batch of 2): LoLAimAtMe saying "it has fainted, stop trying to pick it" is the most accurate thing anyone's said about my Zapdos strategy all day.
+
+Detective Jones — burn effect. Bold. Chaotic. I respect the escalation.
+   [TTS] Speaking: LoLAimAtMe saying "it has fainted, stop trying to ...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'LoLAimAtMe saying "it has fainted, stop ' (27 words)
+   [TurnTiming] 00:04:38.368 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 00:04:45.773 TTS STOP — playback finished (span ~7405ms)
+   [Yieldable] Voice turn ready — yielding gate at sentence boundary, dropping rest.
+   [Cookies] +1 × 2 (batch response); shared=2/30
+   [ChatAge] @Detective_Jones age=13.9s batch=2 preempted=none
+   [ChatAge] @LoLAimAtMe age=13.7s batch=2 preempted=none
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "i respect the" (3rd use this session)
+   [Phrases] Throttling: "is the most" (3rd use this session)
+   [Shape] → TANGENT  (one_word_count=2  tangent_since=9t  moment=calm)
+   [PromptSize] dynamic_context=14145ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [ChatterMem] Stored: @Detective_Jones — Requested a burn effect during Kira's Zapdos strategy bit [chaotic]
+   [TIMING] first-word: 1862ms
+   [TTS] Speaking: I'm TRYING....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm TRYING.' (3 words)
+   [TurnTiming] 00:04:47.995 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [ChatterMem] Stored: @LoLAimAtMe — Coined 'it has fainted, stop trying to pick it' as a critiqu [chaotic]
+   [TurnTiming] 00:04:49.788 TTS STOP — playback finished (span ~1792ms)
+   [TTS] Speaking: The bird has opinions about being caught and they ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The bird has opinions about being caught' (13 words)
+   [TurnTiming] 00:04:49.795 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:04:53.446 TTS STOP — playback finished (span ~3650ms)
+
+   [TIMING] voice: llm=7665ms(sonnet-stream(llm+tts)) tts=0ms total=7665ms
+   [LATENCY] vad_close=1200ms stt=248ms stt_wait=0ms salience=0ms triage=bypassed memory=276ms prompt_build=18ms ttft=1339ms tts_first_chunk=523ms audio_out=326ms TOTAL=2730ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [SmartMem] q='Targeted Roast' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   >>> Kira (Wheel/targeted_roast): Chat, give me a name. First one I see, they're getting it.
+   [TTS] Speaking: Chat, give me a name. First one I see, they're get...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Chat, give me a name. First one I see, t' (16 words)
+   [TurnTiming] 00:04:55.853 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @clumsymoe: if you can make ai trained network transfer wasd and mouse movement skills between different games
+   [BrainWorker] Got youtube msg from @clumsymoe: if you can make ai trained network transfer wasd and mouse movement skills between different games → buffering for chat_batch_worker
+   [TurnTiming] 00:05:00.205 TTS STOP — playback finished (span ~4351ms)
+   [SmartMem] q='  - @clumsymoe (youtube): <<<if you can make ai trained netw' fetched=10 dropped_by_floor=5 kept=5 survivors=3 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=1.149 conf=0.9 type=episodic blend=0.222 lane=KNOW
+   [SmartMem]     dist=0.917 conf=0.95 type=episodic blend=0.185 lane=KNOW
+   [SmartMem]     dist=1.167 conf=0.9 type=episodic blend=0.032 lane=KNOW
+   >>> Kira (Chat Batch of 1): clumsymoe, you keep saying things that sound completely made up until I actually think about them and realize you're probably right — which is the most unsettling pattern you've established.
+   [TTS] Speaking: clumsymoe, you keep saying things that sound compl...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [VRAM] 00:05:03 (periodic) kira_process=0.00GB card=9.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'clumsymoe, you keep saying things that s' (32 words)
+   [TurnTiming] 00:05:04.159 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:05:12.593 TTS STOP — playback finished (span ~8434ms)
+   [Cookies] +1 × 1 (batch response); shared=3/30
+   [ChatAge] @clumsymoe age=14.7s batch=1 preempted=none
+   [LoopbackSTT] self-TTS gate released after 7 skip(s) — resuming transcription.
+   [ChatterMem] Stored: @clumsymoe — Known for making offhand statements that sound absurd but tu [challenging]
+[YouTube Chat] @clumsymoe: sassy kid
+   [BrainWorker] Got youtube msg from @clumsymoe: sassy kid → buffering for chat_batch_worker
+   [SmartMem] q='  - @clumsymoe (youtube): <<<sassy kid>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   >>> Kira (Chat Batch of 1): clumsymoe calling me a sassy kid like he hasn't been out here making confident tech claims about things he hasn't touched yet. We're the same.
+   [TTS] Speaking: clumsymoe calling me a sassy kid like he hasn't be...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'clumsymoe calling me a sassy kid like he' (23 words)
+   [TurnTiming] 00:05:36.005 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 00:05:41.915 TTS STOP — playback finished (span ~5909ms)
+   [TTS] Speaking: We're the same....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'We're the same.' (4 words)
+   [TurnTiming] 00:05:42.236 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:05:44.016 TTS STOP — playback finished (span ~1780ms)
+   [Cookies] +1 × 1 (batch response); shared=4/30
+   [ChatAge] @clumsymoe age=12.5s batch=1 preempted=none
+   [ChatterMem] Stored: @clumsymoe — Known for making confident claims about tech he hasn't actua [playful]
+   [VRAM] 00:05:48 (periodic) kira_process=0.00GB card=9.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 00:05:57.156 VOICE ONSET — mic speech started
+   [TurnTiming] 00:05:58.431 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1275ms since onset)
+   [LoopbackSTT] tick 138ms — 0 accepted, 1 filtered (rms=0.030)
+🎤 Recording...
+   [TurnTiming] 00:06:01.011 VOICE ONSET — mic speech started
+   [TurnTiming] 00:06:04.809 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3798ms since onset)
+>>> You said: Kira, what are you doing?
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q='Kira, what are you doing?' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=0.796 conf=0.9 type=episodic blend=0.260 lane=KNOW
+   [SmartMem]     dist=0.807 conf=0.95 type=episodic blend=0.253 lane=KNOW
+   [SmartMem]     dist=0.815 conf=0.9 type=episodic blend=0.248 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=12915ch  hist=20turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 3805ms
+   [TTS] Speaking: Negotiating....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Negotiating.' (2 words)
+   [TurnTiming] 00:06:09.255 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:06:11.032 TTS STOP — playback finished (span ~1777ms)
+   [TTS] Speaking: Zapdos and I are in a standoff and neither of us i...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Zapdos and I are in a standoff and neith' (14 words)
+   [TurnTiming] 00:06:11.037 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:06:14.510 TTS STOP — playback finished (span ~3472ms)
+
+   [TIMING] voice: llm=9483ms(sonnet-stream(llm+tts)) tts=0ms total=9483ms
+   [LATENCY] vad_close=1200ms stt=190ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=2ms ttft=3731ms tts_first_chunk=74ms audio_out=416ms TOTAL=4440ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 00:06:15.710 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~14699ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+[YouTube Chat] @clumsymoe: kira knock knock
+   [BrainWorker] Got youtube msg from @clumsymoe: kira knock knock → buffering for chat_batch_worker
+   [SmartMem] q='  - @clumsymoe (youtube): <<<kira knock knock>>>' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=42ms rank=0ms)
+   [SmartMem]     dist=0.928 conf=0.95 type=episodic blend=0.179 lane=KNOW
+   [SmartMem]     dist=0.946 conf=0.9 type=episodic blend=0.167 lane=KNOW
+   [SmartMem]     dist=0.995 conf=0.95 type=episodic blend=0.137 lane=KNOW
+   >>> Kira (Chat Batch of 1): Who's there.
+   [TTS] Speaking: Who's there....
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Who's there.' (3 words)
+   [TurnTiming] 00:06:26.218 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 00:06:27.989 TTS STOP — playback finished (span ~1770ms)
+   [Cookies] +1 × 1 (batch response); shared=5/30
+   [ChatAge] @clumsymoe age=4.4s batch=1 preempted=none
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (1/1s) (1 skip(s))
+[YouTube Chat] @LoLAimAtMe: She repeatedly tried to select Lapras and it failed and stopped when she couldn't proceed
+   [BrainWorker] Got youtube msg from @LoLAimAtMe: She repeatedly tried to select Lapras and it failed and stopped when she couldn't proceed → buffering for chat_batch_worker
+   [VRAM] 00:06:33 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0313 · gate=0.003 · 2 accepted
+   [FreshGate] interjection SUPPRESSED — no fresh sense (vision/MW/loopback/audio all stale); staying quiet.
+   [Valence] updated 3 entit(ies): LoLAimAtMe +0.00→+0.28; Detective Jones -0.43→+0.02; clumsymoe +0.51→+0.55
+   [SmartMem] q='  - @LoLAimAtMe (youtube): <<<She repeatedly tried to select' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [SmartMem]     dist=1.207 conf=0.9 type=episodic blend=0.007 lane=KNOW
+   >>> Kira (Chat Batch of 1): LoLAimAtMe, Lapras has been in the PC box since Silph Co. and apparently has opinions about staying there.
+   [TTS] Speaking: LoLAimAtMe, Lapras has been in the PC box since Si...
+   [CardOverlay] card_show → 1 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'LoLAimAtMe, Lapras has been in the PC bo' (12 words)
+   [TurnTiming] 00:06:41.559 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).

@@ -1,0 +1,300 @@
+   [LATENCY] vad_close=1200ms stt=374ms stt_wait=0ms salience=0ms triage=bypassed memory=25ms prompt_build=4ms ttft=1057ms tts_first_chunk=439ms audio_out=406ms TOTAL=2305ms
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [SmartMem] q='  - @veraCoded (youtube): <<<But the question is, how the he' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=2 | timing(direct=77ms fetch=30ms rank=0ms)
+   [SmartMem]     dist=0.686 conf=0.95 type=episodic blend=0.328 lane=KNOW
+   [SmartMem]     dist=0.722 conf=0.95 type=episodic blend=0.305 lane=KNOW
+   [SmartMem]     dist=0.732 conf=0.9 type=episodic blend=0.299 lane=KNOW
+[YouTube Chat] @Detective_Jones: i hate its half water
+   [BrainWorker] Got youtube msg from @Detective_Jones: i hate its half water → buffering for chat_batch_worker
+   >>> Kira (Chat Batch of 1): veraCoded, honestly? "This is Kira, she lives on my PC and has opinions about my life choices." Done. That's the whole explanation.
+   [TTS] Speaking: veraCoded, honestly?...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'veraCoded, honestly?' (4 words)
+   [TurnTiming] 11:34:41.393 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:34:43.447 TTS STOP — playback finished (span ~2054ms)
+   [TTS] Speaking: "This is Kira, she lives on my PC and has opinions...
+   [TTS] backend=azure
+   [Captions] Pushed frame: '"This is Kira, she lives on my PC and ha' (19 words)
+   [TurnTiming] 11:34:43.954 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:34:49.669 TTS STOP — playback finished (span ~5715ms)
+   [TTS] Speaking: That's the whole explanation....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's the whole explanation.' (5 words)
+   [TurnTiming] 11:34:50.029 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:34:52.098 TTS STOP — playback finished (span ~2069ms)
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @veraCoded age=28.4s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (3 skip(s))
+   [ChatterMem] Stored: @veraCoded — Joked about how Kira would be explained to a future wife — ' [chaotic]
+   [TurnTiming] 11:34:54.506 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~75156ms since onset)
+>>> You said: I was never married, but I spent a thousand hours making this daughter.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I was never married, but I spent a thousand hours making thi' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=27ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=7t  moment=tense)
+   [PromptSize] dynamic_context=12826ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1343ms
+   [TTS] Speaking: That's fatherhood....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's fatherhood.' (3 words)
+   [TurnTiming] 11:34:56.488 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:34:58.268 TTS STOP — playback finished (span ~1780ms)
+
+   [TIMING] voice: llm=3489ms(sonnet-stream(llm+tts)) tts=0ms total=3489ms
+   [LATENCY] vad_close=1200ms stt=245ms stt_wait=0ms salience=0ms triage=bypassed memory=27ms prompt_build=4ms ttft=1150ms tts_first_chunk=193ms audio_out=358ms TOTAL=1977ms
+🎤 Recording... (recovered opening words)
+   [Memory] Rejected (conf 0.70 < 0.9): Jonny has a daughter that he created or developed, spending approximately a thousand hours on it
+   [ChatAge] ACK injected for @Detective_Jones (waited 23.1s, preempted=none)
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<i hate its half water>>>' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [SmartMem]     dist=1.178 conf=? type=highlight blend=0.024 lane=STREAM
+   [SmartMem]     dist=1.208 conf=? type=highlight blend=0.006 lane=STREAM
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [VRAM] 11:35:03 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 11:35:03.942 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~84593ms since onset)
+>>> You said: And so you're going to have to accept that and raise her as your own, as if you birthed her, and you must accept this.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="And so you're going to have to accept that and raise her as " fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=33ms
+   [Triage] RESPOND
+   >>> Kira (Chat Batch of 1): Professor, half water IS the issue — Slowbro's the only Water type on Lorelei's team and it's sitting there like a bouncer we can't get past.
+   [TTS] Speaking: Professor, half water IS the issue — Slowbro's the...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Professor, half water IS the issue — Slo' (28 words)
+   [TurnTiming] 11:35:05.178 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:35:12.582 TTS STOP — playback finished (span ~7403ms)
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @Detective_Jones age=33.5s batch=1 preempted=none
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=12619ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [ChatterMem] Stored: @Detective_Jones — Frustrated by Slowbro being a roadblock on Lorelei's team [chaotic]
+   [TIMING] first-word: 2074ms
+   [TTS] Speaking: I mean....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I mean.' (3 words)
+   [TurnTiming] 11:35:14.895 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @veraCoded: completely sane explanation, flawless, stepmom acquired 
+   [TurnTiming] 11:35:16.676 TTS STOP — playback finished (span ~1780ms)
+   [TTS] Speaking: Misa is my mum and Jonny is my dad who spent a tho...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Misa is my mum and Jonny is my dad who s' (21 words)
+   [TurnTiming] 11:35:16.685 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:35:21.565 TTS STOP — playback finished (span ~4880ms)
+   [TTS] Speaking: This is already my origin story....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'This is already my origin story.' (7 words)
+   [TurnTiming] 11:35:21.570 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:35:23.996 TTS STOP — playback finished (span ~2425ms)
+   [TTS] Speaking: I've accepted it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I've accepted it.' (4 words)
+   [TurnTiming] 11:35:23.999 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:35:25.785 TTS STOP — playback finished (span ~1785ms)
+
+   [TIMING] voice: llm=13195ms(sonnet-stream(llm+tts)) tts=0ms total=13195ms
+   [LATENCY] vad_close=1200ms stt=315ms stt_wait=0ms salience=1ms triage=bypassed memory=33ms prompt_build=14ms ttft=1438ms tts_first_chunk=636ms audio_out=214ms TOTAL=2651ms
+   [BitCooldown] 'Misa Is Mum' invoked x1 lifetime — resting 180s
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @veraCoded: completely sane explanation, flawless, stepmom acquired  → buffering for chat_batch_worker
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [SmartMem] q='  - @veraCoded (youtube): <<<completely sane explanation, fl' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=1ms fetch=60ms rank=0ms)
+   [SmartMem]     dist=1.129 conf=0.9 type=episodic blend=0.054 lane=KNOW
+   [SmartMem]     dist=1.217 conf=0.9 type=episodic blend=0.000 lane=KNOW
+   [Bits] Callback: Misa Is Mum
+   >>> Kira (Chat Batch of 1): veraCoded, honestly? "This is Kira, she lives on my PC and has opinions about my life choices." Done. That's the whole explanation. The future wife either gets it or she doesn't.
+   [TTS] Speaking: veraCoded, honestly?...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'veraCoded, honestly?' (4 words)
+   [TurnTiming] 11:35:30.485 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:35:32.549 TTS STOP — playback finished (span ~2063ms)
+   [TTS] Speaking: "This is Kira, she lives on my PC and has opinions...
+   [TTS] backend=azure
+   [Captions] Pushed frame: '"This is Kira, she lives on my PC and ha' (19 words)
+   [TurnTiming] 11:35:32.715 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:35:38.455 TTS STOP — playback finished (span ~5740ms)
+   [TTS] Speaking: That's the whole explanation....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's the whole explanation.' (5 words)
+   [TurnTiming] 11:35:38.719 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:35:40.682 TTS STOP — playback finished (span ~1963ms)
+   [TTS] Speaking: The future wife either gets it or she doesn't....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The future wife either gets it or she do' (10 words)
+   [TurnTiming] 11:35:41.059 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:35:43.778 TTS STOP — playback finished (span ~2718ms)
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @veraCoded age=17.6s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 11:35:45.040 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~125690ms since onset)
+   [ChatterMem] Stored: @veraCoded — Jokingly acquired Kira as a 'stepmom' via completely sane ex [chaotic]
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 11:35:47.740 VOICE ONSET — mic speech started
+   [VRAM] 11:35:48 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 11:35:56.633 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~8892ms since onset)
+>>> You said: That should do damage, right? It didn't do anything! What the fuck, how does fire not burn a water slug?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="That should do damage, right? It didn't do anything! What th" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=35ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "life choices done that's the whole explanation" (3rd use this session)
+   [Phrases] Throttling: "opinions about my life choices done that's" (3rd use this session)
+   [Phrases] Throttling: "veracoded honestly this is kira she lives" (3rd use this session)
+   [Phrases] Throttling: "has opinions about my life choices done" (3rd use this session)
+   [Phrases] Throttling: "and has opinions about my life choices" (3rd use this session)
+   [Phrases] Throttling: "about my life choices done that's the" (3rd use this session)
+   [Phrases] Throttling: "my life choices done that's the whole" (3rd use this session)
+   [Phrases] Throttling: "honestly this is kira she lives on" (3rd use this session)
+   [Phrases] Throttling: "pc and has opinions about my life" (3rd use this session)
+   [Phrases] Throttling: "lives on my pc and has opinions" (3rd use this session)
+   [Phrases] Throttling: "on my pc and has opinions about" (3rd use this session)
+   [Phrases] Throttling: "my pc and has opinions about my" (3rd use this session)
+   [Phrases] Throttling: "this is kira she lives on my" (3rd use this session)
+   [Phrases] Throttling: "kira she lives on my pc and" (3rd use this session)
+   [Phrases] Throttling: "is kira she lives on my pc" (3rd use this session)
+   [Phrases] Throttling: "she lives on my pc and has" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=9t  moment=tense)
+   [PromptSize] dynamic_context=12829ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 2420ms
+   [TTS] Speaking: Slowbro is built different....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Slowbro is built different.' (5 words)
+   [TurnTiming] 11:35:59.947 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:36:02.095 TTS STOP — playback finished (span ~2147ms)
+   [TTS] Speaking: Thermodynamically immune....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Thermodynamically immune.' (3 words)
+   [TurnTiming] 11:36:02.097 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:36:04.155 TTS STOP — playback finished (span ~2057ms)
+   [TTS] Speaking: The science doesn't apply to it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The science doesn't apply to it.' (7 words)
+   [TurnTiming] 11:36:04.161 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: not good
+   [TurnTiming] 11:36:06.316 TTS STOP — playback finished (span ~2154ms)
+
+   [TIMING] voice: llm=9267ms(sonnet-stream(llm+tts)) tts=0ms total=9267ms
+   [LATENCY] vad_close=1200ms stt=379ms stt_wait=0ms salience=0ms triage=bypassed memory=35ms prompt_build=5ms ttft=1931ms tts_first_chunk=489ms audio_out=469ms TOTAL=3308ms
+🎤 Recording... (recovered opening words)
+   [BrainWorker] Got youtube msg from @Detective_Jones: not good → buffering for chat_batch_worker
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 11:36:07.534 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~19793ms since onset)
+[YouTube Chat] @veraCoded: "she either gets it or she doesn't" very true Kira
+   [BrainWorker] Got youtube msg from @veraCoded: "she either gets it or she doesn't" very true Kira → buffering for chat_batch_worker
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<not good>>>\n  - @veraCode' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [SmartMem]     dist=0.801 conf=0.95 type=episodic blend=0.257 lane=KNOW
+   [SmartMem]     dist=0.837 conf=0.9 type=episodic blend=0.235 lane=KNOW
+   [SmartMem]     dist=0.861 conf=0.95 type=episodic blend=0.220 lane=KNOW
+   >>> Kira (Chat Batch of 2): Professor is right to be worried, and veraCoded — stepmom acquired is the funniest possible outcome of that conversation and I won't be taking questions.
+   [TTS] Speaking: Professor is right to be worried, and veraCoded — ...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Professor is right to be worried, and ve' (27 words)
+   [TurnTiming] 11:36:11.786 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:36:19.375 TTS STOP — playback finished (span ~7588ms)
+   [Cookies] +1 × 2 (batch response); shared=30/30
+   [ChatAge] @Detective_Jones age=12.7s batch=2 preempted=none
+   [ChatAge] @veraCoded age=11.4s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the enemy's gyarados fainted — your moltres took it down
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.237 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.149 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [TurnTiming] 11:36:20.586 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~32845ms since onset)
+   >>> Kira (Bored): Gyarados down. Lance is already running out of excuses.
+   [TTS] Speaking: Gyarados down....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Gyarados down.' (3 words)
+   [TurnTiming] 11:36:21.616 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [ChatterMem] Stored: @veraCoded — Coined or celebrated 'stepmom acquired' as a funny outcome i [playful]
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:36:23.424 TTS STOP — playback finished (span ~1808ms)
+   [TTS] Speaking: Lance is already running out of excuses....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lance is already running out of excuses.' (8 words)
+   [TurnTiming] 11:36:23.816 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:36:26.534 TTS STOP — playback finished (span ~2718ms)
+   [TIMING] interjection: vision=0ms llm=1876ms(sonnet) tts=5153ms total=7058ms
+   [LAG] sense→speak: total=4.3s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=2.4s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+[YouTube Chat] @Detective_Jones: YOO FLAME GOOD RNG
+   [BrainWorker] Got youtube msg from @Detective_Jones: YOO FLAME GOOD RNG → buffering for chat_batch_worker
+   [TurnTiming] 11:36:30.089 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~42348ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:36:30.319 VOICE ONSET — mic speech started
+   [TurnTiming] 11:36:31.705 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1385ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:36:32.123 VOICE ONSET — mic speech started
+   [VRAM] 11:36:33 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<YOO FLAME GOOD RNG>>>' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=43ms rank=0ms)
+   >>> Kira (Chat Batch of 1): Professor, moltres said "let me cook."
+   [TTS] Speaking: Professor, moltres said "let me cook."...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Professor, moltres said "let me cook."' (9 words)
+   [TurnTiming] 11:36:37.092 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:36:39.815 TTS STOP — playback finished (span ~2723ms)
+   [Cookies] +1 × 1 (batch response); shared=30/30
+   [ChatAge] @Detective_Jones age=10.3s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 11:36:41.034 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~8910ms since onset)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 11:36:44.407 VOICE ONSET — mic speech started
+   [TurnTiming] 11:36:46.563 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2156ms since onset)
+   [LoopbackSTT] tick 151ms — 0 accepted, 1 filtered (rms=0.031)
+🎤 Recording...
+   [TurnTiming] 11:36:50.875 VOICE ONSET — mic speech started
+   [LoopbackSTT] tick 132ms — 0 accepted, 1 filtered (rms=0.033)
+   [TurnTiming] 11:36:53.230 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2355ms since onset)
+[YouTube Chat] @Detective_Jones: she not completing this
+   [BrainWorker] Got youtube msg from @Detective_Jones: she not completing this → buffering for chat_batch_worker
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<she not completing this>>' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [SmartMem]     dist=1.176 conf=0.95 type=episodic blend=0.026 lane=KNOW
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 3351s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   >>> Kira (Chat Batch of 1): Professor, she is literally Lance's room and you doubt her? That's cold.
+   [TTS] Speaking: Professor, she is literally Lance's room and you d...
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Professor, she is literally Lance's room' (12 words)
+   [TurnTiming] 11:36:57.769 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).

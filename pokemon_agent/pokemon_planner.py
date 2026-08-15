@@ -350,12 +350,10 @@ class StrategicPlanner:
         if ice_owned:
             lv = ice_owned.get("level", 0)
             if lv < max(1, low - COUNTER_UNDERLEVEL_GAP) and not pinned:
-                # fresh run: the actionable "level her first" (she should prep before the gauntlet)
                 pieces.append(f"— and ICE is the dragon-slayer, so my {ice_owned['species']} is literally my "
                               f"Lance answer… except it's only L{lv}. That is the mon I need to level up "
                               f"BEFORE the gauntlet, not the ace that's already fine")
             else:
-                # pinned watch (or already-levelled): in-the-moment confidence, no walk-out directive
                 pieces.append(f"— and ICE is the dragon-slayer, so my {ice_owned['species']} is my Lance "
                               f"answer. That's the plan when I get to him")
         elif not pinned:
@@ -364,12 +362,26 @@ class StrategicPlanner:
         else:
             pieces.append("— and everyone says ICE is the only thing a dragon fears; I'll have to out-fight "
                           "him without one")
+        # PRE-BATTLE LEADS (2026-08-13): name WHO takes point, from HER actual party types.
+        names = {(m.get("species") or "").lower() for m in party}
+        leads = []
+        if "zapdos" in names:
+            leads.append("Zapdos leads Lorelei ONLY with Thunderbolt; otherwise Blastoise Earthquake (never Surf her waters)")
+        if "articuno" in names:
+            leads.append("Articuno leads into Bruno's Onix and Lance's dragons")
+        if "moltres" in names:
+            leads.append("Moltres is the fire answer for Gary's grass if he brought Venusaur")
+        if "zapdos" in names and "psychic" not in "".join(
+                t for m in party for t in (m.get("types") or [])):
+            leads.append("no Psychic for Agatha — Zapdos takes point (can actually hit her Golbat)")
+        if leads:
+            pieces.append(". Lead plan, before each door: " + "; ".join(leads))
         # bench alarm — the E4 is where an ace-heavy team dies (fresh-run prep only; a pin fights as-is)
         bench = "" if pinned else self._bench_alarm(party)
         if bench:
             pieces.append(f". {_cap(bench)} — there's no Pokémon Center between the five of them, so the "
                           f"whole six has to pull weight")
-        note = pieces[0] + " " + pieces[1] + (pieces[2] if len(pieces) > 2 else "")
+        note = " ".join(p for p in pieces if p)
         return note.strip().rstrip(",") + ("." if not note.rstrip().endswith(".") else "")
 
 
@@ -582,6 +594,13 @@ class TeamPlanner:
         self.ensure_plan(party, badge_count)
         if post_game:
             return {"kind": "on_track", "why": "post-game victory lap — the team is built",
+                    "voice": ""}
+        # ENDGAME FOCUS (Jonny 2026-08-10): at badge 8 pre-credits the roster is the declared
+        # six and the League march owns the run — no teach/evolve/catch beats (the ice-beam
+        # Game Corner beat kept routing her to Celadon mid-march). The VR2F prep reads
+        # _prep_e4_target directly, so on_track here never starves the top-up.
+        if badge_count >= 8:
+            return {"kind": "on_track", "why": "endgame — the League march owns the run",
                     "voice": ""}
         upcoming = self._upcoming_threats(badge_count, post_game)
 

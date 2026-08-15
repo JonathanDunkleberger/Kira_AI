@@ -1,11 +1,11 @@
 {
  "_meta": {
   "purpose": "The STRATEGY game-knowledge KB — sibling to frlg_gates.json. It is the data the StrategicPlanner (pokemon_planner.py) reads to turn 'what's ahead of her' into PROACTIVE prep WANTS, surfaced through the same `place`/oracle seam the folklore + questline notes use. This is the 'she read every strategy guide' layer: gym/E4/Champion rosters + counters, keeper-species quality + where to catch them, and the handful of game-changing TMs. Portable-engine split (CLAUDE.md rule 14): FireRed FACTS live HERE; the planner engine is game-agnostic and reads this file.",
-  "source": "pret/pokefirered (data/trainers, party rosters) + Bulbapedia leader/E4 pages + long-standing FRLG playthrough knowledge, distilled offline. FireRed version (Vulpix/Growlithe/Scyther available; Sandshrew/Meowth/Pinsir are LeafGreen).",
+  "source": "pret/pokefirered (data/trainers, party rosters) + Bulbapedia leader/E4 pages + Serebii fireredleafgreen/elitefour.shtml 2026-08-13 (method notes: Hail/Spikes, Cloyster Protect PP-drain, Jynx Lovely Kiss, Poké Flute wake, Hyper Beam recharge). FireRed version (Vulpix/Growlithe/Scyther available; Sandshrew/Meowth/Pinsir are LeafGreen).",
   "firewall": "MODE-GATED. Consumed only inside the Pokémon campaign free-roam oracle context. Never touches core Kira identity; never surfaces in unrelated chat. Same firewall class as frlg_gates.json.",
   "voice_rule": "The planner renders these facts as ONE characterful anticipation beat in HER voice (excited-kid-who-did-her-homework), never a data dump. The `counter`/`folklore` strings are her raw material, not lines to read verbatim.",
   "type_note": "`weak_to` = attack types that hit the leader's overall team hard (a curated summary, not a per-mon chart). `answer_types` = the practical types SHE should field to beat them. `answer_species` = specific keepers that hard-counter (used for the 'level your existing counter' nudge). `level_band` = [low, high] of the leader's team on the first (non-rematch) fight. `bring_cures` = non-volatile statuses the gym commonly lands (Thunder Wave, Toxic, Sleep Powder…) — stock those cures at the city Mart BEFORE the fight (Bulbapedia kit foresight), not only after she's already been hit.",
-  "updated": "2026-07-08 (the strategic-intelligence mega-batch)"
+  "updated": "2026-08-13 (Serebii E4 method notes + Champion squirtle-start order)"
  },
 
  "threats": {
@@ -81,40 +81,46 @@
    "order": 9, "kind": "e4", "city": "Indigo Plateau", "seat": 1,
    "types": ["ice", "water"], "ace": "lapras", "level_band": [52, 54],
    "weak_to": ["electric", "grass", "fighting", "rock"],
-   "answer_types": ["electric", "grass"], "answer_species": ["raichu", "jolteon", "venusaur", "victreebel"],
-   "counter": "the Elite Four opens with Ice-and-Water — Electric and Grass hit her water mons hard; Grass eats her Lapras, and a strong physical hitter cracks the ice",
+   "answer_types": ["electric", "grass"], "answer_species": ["zapdos", "moltres", "raichu", "jolteon"],
+   "preferred_leads": ["blastoise", "zapdos", "moltres"],
+   "banned_leads": ["articuno"],
+   "counter": "LEAD BLASTOISE (Earthquake) unless Zapdos has Thunderbolt. Never Surf her waters. Lapras is Water/Ice — Articuno Ice Beam is 0.25x NEVER. Cloyster Protect + Hail drains EQ PP — Elixir or Skull Bash, never Surf. Jynx Lovely Kiss is the sleep — Full Heal, never potion a sleeper. Hail+Spikes residual. Moltres only vs Jynx; yank back to Blastoise for Lapras even if frozen.",
    "folklore": "the Elite Four opens with an ice-and-water lady — they say lightning and grass are how you get past her"
   },
   "Bruno": {
    "order": 10, "kind": "e4", "city": "Indigo Plateau", "seat": 2,
    "types": ["fighting", "rock"], "ace": "machamp", "level_band": [51, 56],
    "weak_to": ["psychic", "water", "grass", "flying"],
-   "answer_types": ["psychic", "water", "grass", "flying"], "answer_species": ["alakazam", "venusaur", "gengar", "starmie"],
-   "counter": "second seat is Fighting/Rock — PSYCHIC blows his fighters away; his two Onix drown to Water or Grass",
+   "answer_types": ["psychic", "water", "grass", "flying"],    "answer_species": ["articuno", "moltres", "zapdos", "blastoise"],
+   "preferred_leads": ["articuno", "moltres", "zapdos", "blastoise"],
+   "counter": "LEAD ARTICUNO into Onix (Ice 4x Rock/Ground, Flying immune to Earthquake). Flying birds next vs the Hitmons. Blastoise is fine vs Onix if the birds are down.",
    "folklore": "second is the muscle — Fighting and Rock; a Psychic type turns his whole gym to jelly"
   },
   "Agatha": {
    "order": 11, "kind": "e4", "city": "Indigo Plateau", "seat": 3,
    "types": ["ghost", "poison"], "ace": "gengar", "level_band": [53, 58],
    "weak_to": ["psychic", "ground", "dark"],
-   "answer_types": ["psychic", "ground"], "answer_species": ["alakazam", "dugtrio", "starmie", "nidoking"],
-   "counter": "third is Ghost/Poison — PSYCHIC and GROUND both hit her hard; watch out, Normal moves do NOTHING to her ghosts, so bring the right tool",
+   "answer_types": ["water", "psychic"],    "answer_species": ["blastoise", "zapdos", "moltres"],
+   "preferred_leads": ["blastoise", "zapdos", "moltres", "articuno"],
+   "counter": "LEAD BLASTOISE — Surf is the Gengar wincon (Skull Bash is 0x Ghost, Earthquake is 0x Levitate). Never lead Zapdos Drill Peck into Gengar. Sleep/poison/confusion — keep Full Heals. Poké Flute (key item) wakes sleep in battle.",
    "folklore": "third is the ghost-woman — Ghost and Poison; Psychic answers both, and don't bother swinging Normal moves at ghosts"
   },
   "Lance": {
    "order": 12, "kind": "e4", "city": "Indigo Plateau", "seat": 4,
    "types": ["dragon", "flying"], "ace": "dragonite", "level_band": [54, 60],
    "weak_to": ["ice", "electric", "rock"],
-   "answer_types": ["ice", "electric"], "answer_species": ["lapras", "dewgong", "jynx", "articuno", "cloyster"],
-   "counter": "the dragon master — and ICE is the dragon-slayer: an Ice Beam / Blizzard is 4x on his Dragonite and shreds his Dragonairs; Electric handles his Gyarados and Aerodactyl. An Ice-type like Lapras is EXACTLY his counter",
+   "answer_types": ["ice", "electric"],    "answer_species": ["zapdos", "articuno", "lapras"],
+   "preferred_leads": ["zapdos", "articuno"],
+   "counter": "LEAD ZAPDOS if he has Electric damage (4x Gyarados — switch the instant Gyarados is out). Else Articuno (Ice vs the dragon wave). NEVER Moltres vs Gyarados (Fire 0.5x). Wild Zapdos Drill Peck is 0.5x — teach TM24/TM25/TM34 first. Ice 4x on Dragonite. Hyper Beam recharge is a free hit. Outrage is his other nuke.",
    "folklore": "fourth is the dragon master — and everyone says the same thing: ice is the only thing a dragon truly fears"
   },
   "Gary": {
    "order": 13, "kind": "champion", "city": "Indigo Plateau", "seat": 5,
    "types": ["mixed"], "ace": "starter's final form", "level_band": [59, 65],
-   "weak_to": [],
-   "answer_types": [], "answer_species": [],
-   "counter": "the Champion — your rival, and his team is MIXED (Pidgeot, Alakazam, Rhydon, an Eeveelution or Arcanine/Exeggutor/Gyarados, and his starter's final form). No single answer: this is the fight your whole balanced, levelled SIX exists for. His Alakazam is glass — hit it fast; his Rhydon falls to Water/Grass; save your best for his ace",
+   "weak_to": ["electric", "ice", "water", "fire"],
+   "answer_types": ["electric", "ice", "fire", "water"],    "answer_species": ["zapdos", "articuno", "moltres", "blastoise"],
+   "preferred_leads": ["articuno", "moltres", "zapdos"],
+   "counter": "Squirtle-start (Serebii): Pidgeot 59, Alakazam 57, Rhydon 59, Gyarados 59, Arcanine 61, Venusaur 63. LEAD ARTICUNO (Ice 2x Pidgeot). Gyarados is slot 4 at 59 — Zapdos-with-gun or Blastoise EQ, never Articuno Ice. Moltres Fire in vs Venusaur. Rhydon falls to Ice/Water.",
    "folklore": "and at the very top — HIM. Gary. The rival. Whatever his team is by now, this is the one the whole journey's been building to"
   }
  },

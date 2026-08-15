@@ -588,6 +588,10 @@ def main():
 
     print("== 25. THE FLUID LAP: proximity trump + cost ordering from her live position ==")
     _orig_map25, _orig_owns25 = C.tv.map_id, C.ram.pokedex_owns
+    # Lap mechanics are flag-gated (default OFF after the 2026-08-10 endgame push); pin ON
+    # here so the proximity/cost internals stay under test.
+    _orig_vl25 = C.VICTORY_LAP_ENABLED
+    C.VICTORY_LAP_ENABLED = True
     pos25 = {"here": (1, 101)}                    # Mt. Ember summit — standing at the bird
     C.tv.map_id = lambda b: pos25["here"]
     C.ram.pokedex_owns = lambda b, sp: False
@@ -656,6 +660,7 @@ def main():
               camp25d._victory_lap_next() in ("articuno", "zapdos"))
     finally:
         C.tv.map_id, C.ram.pokedex_owns = _orig_map25, _orig_owns25
+        C.VICTORY_LAP_ENABLED = _orig_vl25
 
     print("== 26. spent_final: a spent-but-UNCAUGHT quarry reloads before any leg home ==")
     hunt26 = LS.MoltresHunt.__new__(LS.MoltresHunt)
@@ -1608,6 +1613,8 @@ def main():
     camp37._moltres_hide = False
     _orig_tv_h = C.tv.map_id
     _orig_owns_h = C.ram.pokedex_owns
+    _orig_vl_h = C.VICTORY_LAP_ENABLED      # lap flag is default-OFF post-2026-08-10; pin ON
+    C.VICTORY_LAP_ENABLED = True
     try:
         C.tv.map_id = lambda _b: LS.ONE_HARBOR   # (32, 4) — harbor, not just town
         C.ram.pokedex_owns = lambda _b, n: False if n == 146 else True
@@ -1693,6 +1700,7 @@ def main():
     finally:
         C.tv.map_id = _orig_tv_h
         C.ram.pokedex_owns = _orig_owns_h
+        C.VICTORY_LAP_ENABLED = _orig_vl_h
         print()
 
     # 38. THREE ISLAND BIKER ROADBLOCK (2026-08-06 LIVE): Mart is north of the

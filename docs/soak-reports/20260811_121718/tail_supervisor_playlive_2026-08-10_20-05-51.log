@@ -1,0 +1,300 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 25) coords=(15, 10) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 1 blocked tile(s), 2 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=18720).
+
+   [soul] continuity loaded: 19 roster bond(s), 1291 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 161 place(s) known, 259 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 25) coords=(15, 10) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260810_200552_route-7_8b_43h14m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/eevee → steps=['eevee'] actionable=eevee (resolved=True)
+
+   [campaign]    [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is unclaimed — climbing the back stairwell for the roof-room ball
+
+   [kira-voice] -> T2·savor· (route) "Okay — to get past this I need the gift Eevee — a guaranteed Poke Ball in the Celadon Condominiums roof room (back stairwell). One of a kind: a Thunder Stone from the Dept. Store turns it into Jolteon, the team's electric answer."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [teamplan] catch_keeper SUPPRESSED for the victory lap (eevee, growlithe) — the E4 team arrives via the lap strikes, not diverts (POKEMON_LAP_NO_CATCH=0 reverts)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 6, 20, 232) @ Route 7 (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 7 (15, 10) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, articuno L50, zapdos L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 20 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 25) (15,10) f3 -- badge8 $4302 party:0513 bag:ae7c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_league', 'battle', 'wander_catch', 'travel:3,34', 'travel:3,23', 'travel:3,24', 'travel:3,26']
+
+   [campaign]    [soul] surface_want FIRE -> Route 7
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're on Route 7 — outdoors under open sky (tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L69), lapras (L26), articuno (L50), zapdos (L50), abra the kadabra (L19), diglett (L18). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 25), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': '8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 20 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.', 'party': 'blastoise (L69), lapras (L26), articuno (L50), zapdos (L50), abra the kadabra (L19), diglett (L18)', 'goal': {'short': 'Head to Viridian City, go west onto Route 22, and enter Victory Road', 'medium': 'Navigate Victory Road to reach Indigo Plateau', 'long': 'Beat the Elite Four and Champion'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='Get through Victory Road and reach Indigo Plateau'
+
+   [campaign]    [soul] ORACLE pick -> 'Get through Victory Road and reach Indigo Plateau'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 6
+
+   [campaign]    [teamplan] next action: teach_tm (teach ice-beam to blastoise for Erika, Giovanni, Lance) — folding a forward-plan beat
+
+   [campaign]    [roam] !! FORCE ENDGAME: head_to_league — oracle SKIPPED (Jonny's call: the team is READY — Viridian -> Route 22 -> Victory Road -> Indigo; no grinding, no detours)
+
+   [campaign]    [roam] PICK OUT: head_to_league
+
+   [campaign]    [roam] RATIONALE: Head to Viridian City, go west onto Route 22, and enter Victory Road. then on to the Elite Four
+
+   [kira-voice] ·floor· (<1s since last) T2 "all eight badges — there are no more gyms. It's Victory Road and the League now. let's finish this climb."
+
+   [campaign]    victory road strike: boot map=(3, 25) coords=(15, 10) badge8=True lead=100%
+
+   [campaign]    EQ teach SKIPPED — Venusaur (species 3) not in party
+
+   [kira-voice] -> T2·savor· (want) 'Get through Victory Road and reach Indigo Plateau'  fired=True  [age 0.0s + post 8ms]
+
+   [campaign]    off-route overworld (3, 25): graph hop toward (3, 1) (warp (15, 10) -> (19, 0))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 10) -> coord (15, 10) (budget 300s, surf-capable)
+
+   [travel] reached target coord (15, 10)
+
+   [campaign]    3 door(s); candidates (chosen order): [(15, 10)]
+
+   [campaign]    door (15, 10): at (15, 10) (approach=(15, 11)) — stepping UP in
+
+   [dialogue] +++ 'DIGLETT used CUT!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "DIGLETT used CUT!"'
+
+   [campaign]    reachable door (15, 10): walking to approach (15, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 2) -> coord (15, 11) (budget 300s, surf-capable)
+
+   [travel] step 0: (15, 2)->(15, 3) map=(3, 25) (path 10 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against pidgey — your blastoise is up front'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out pidgey'
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L19 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs pidgey 44/44 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 44 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L19 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs pidgey 44/44 | [0]Skull Bash(p100,pp=13,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 44 across the full turn -> accuracy-debuff spiral (streak 2/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L19 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs pidgey 44/44 | [0]Skull Bash(p100,pp=13,ref=0,sc=50) [1]Surf(p95*STAB,pp=12,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's pidgey went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 18ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 7ms]
+
+   [travel] step 10: (15, 8)->(15, 9) map=(3, 25) (path 4 to exit)
+
+   [travel] reached target coord (15, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 3) -> coord (14, 10) (budget 60s, surf-capable)
+
+   [travel] step 0: (15, 3)->(15, 4) map=(3, 25) (path 9 to exit)
+
+   [travel] reached target coord (14, 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (15, 10) (behavior 0x62) entered via RIGHT
+
+   [campaign]    [world] learned 4 warp(s) on (19, 0): (1, 5)->(3, 25), (1, 6)->(3, 25), (11, 5)->(3, 10), (11, 6)->(3, 10)
+
+   [campaign]    WARPED (3, 25) -> (19, 0) via directional door (15, 10)
+
+   [campaign]    off-route at (19, 0) - exiting to the overworld
+
+   [campaign]    2 door(s); candidates (chosen order): [(1, 5), (11, 5)]
+
+   [campaign]    door (1, 5): at (1, 5) (approach=(1, 4)) — stepping DOWN in
+
+   [campaign]    reachable door (1, 5): walking to approach (1, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(19, 0) coords=(1, 7) -> coord (1, 4) (budget 300s, surf-capable)
+
+   [travel] step 0: (1, 7)->(1, 6) map=(19, 0) (path 4 to exit)
+
+   [travel] reached target coord (1, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(19, 0) coords=(1, 7) -> coord (2, 5) (budget 60s, surf-capable)
+
+   [travel] step 0: (1, 7)->(1, 6) map=(19, 0) (path 4 to exit)
+
+   [travel] reached target coord (2, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (1, 5) (behavior 0x63) entered via LEFT
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    WARPED (19, 0) -> (3, 25) via directional door (1, 5)
+
+   [campaign]    off-route overworld (3, 25): graph hop toward (3, 1) (warp (15, 10) -> (19, 0))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 10) -> coord (15, 10) (budget 300s, surf-capable)
+
+   [travel] reached target coord (15, 10)
+
+   [campaign]    3 door(s); candidates (chosen order): [(15, 10)]
+
+   [campaign]    door (15, 10): at (15, 10) (approach=(15, 11)) — stepping UP in
+
+   [campaign]    reachable door (15, 10): walking to approach (15, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 2) -> coord (15, 11) (budget 300s, surf-capable)
+
+   [travel] step 0: (15, 2)->(15, 3) map=(3, 25) (path 10 to exit)
+
+   [travel] reached target coord (15, 11)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 3) -> coord (14, 10) (budget 60s, surf-capable)
+
+   [travel] step 0: (15, 3)->(15, 4) map=(3, 25) (path 9 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against meowth — your blastoise is up front'  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out meowth'
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L17 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs meowth 45/45 | [0]Skull Bash(p100,pp=13,ref=0,sc=50) [1]Surf(p95*STAB,pp=11,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 8351 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 25) coords=(15, 5)  badge=True
+
+   [kira-voice] === 7 fired, 5 gated (0 failed) | by tier: T3=0 T2=2 T1=5 (incl ambient trickle) ===
+
+================================================================
+

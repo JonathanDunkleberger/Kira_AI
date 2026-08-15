@@ -1,0 +1,300 @@
+   [Captions] Pushed frame: 'actually a sound strategy.' (5 words)
+   [TurnTiming] 16:36:55.853 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (15 skip(s))
+   [TurnTiming] 16:36:58.008 TTS STOP — playback finished (span ~2155ms)
+   [TTS] Speaking: I'm taking notes....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I'm taking notes.' (4 words)
+   [TurnTiming] 16:36:58.012 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:36:59.694 TTS STOP — playback finished (span ~1682ms)
+   [TTS] Speaking: Chat, consider this your formal warning....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Chat, consider this your formal warning.' (8 words)
+   [TurnTiming] 16:36:59.698 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:02.405 TTS STOP — playback finished (span ~2706ms)
+   [TTS] Speaking: Turn your pockets out....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Turn your pockets out.' (5 words)
+   [TurnTiming] 16:37:02.408 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:04.194 TTS STOP — playback finished (span ~1785ms)
+   [TTS] Speaking: It's for the Elite Four....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'It's for the Elite Four.' (6 words)
+   [TurnTiming] 16:37:04.198 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TwitchChat][IRC PRIVMSG] @badge-info=;badges=;client-nonce=05453a9d-8319-4810-8110-67ed434c4ec2;color=#1E90FF;display-name=davidcarlscherer;emotes=;first-msg=1;flags=;id=14d24aba-f437-4e58-b32e-f2ad2ea82732;mod=0;returning-ch
+   [TwitchChat] Received from davidcarlscherer: r u there?
+   [TwitchChat] Forwarded to brain queue (qsize=1).
+   [TurnTiming] 16:37:06.082 TTS STOP — playback finished (span ~1883ms)
+   [TTS] Speaking: It's for me....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'It's for me.' (4 words)
+   [TurnTiming] 16:37:06.084 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:07.482 TTS STOP — playback finished (span ~1397ms)
+   [TTS] Speaking: Same thing....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Same thing.' (3 words)
+   [TurnTiming] 16:37:07.484 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:08.993 TTS STOP — playback finished (span ~1509ms)
+
+   [TIMING] voice: llm=16294ms(sonnet-stream(llm+tts)) tts=0ms total=16294ms
+   [LATENCY] vad_close=1200ms stt=316ms stt_wait=0ms salience=0ms triage=bypassed memory=31ms prompt_build=2ms ttft=1208ms tts_first_chunk=513ms audio_out=109ms TOTAL=2179ms
+   [BrainWorker] Got twitch msg from davidcarlscherer: r u there? → buffering for chat_batch_worker
+   [Cookies] +1 → davidcarlscherer (first message this session); shared=3/30
+   [Pokemon] event react (bypass=False, tier=2, kind=milestone): four mons and a thin wallet. trainers pay cash in this game. Vermilion
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.227 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.143 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "the elite four" (3rd use this session)
+   [Bits] Callback: Jonny That's Just Parenting
+   [VRAM] 16:37:10 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 17 skip(s) — resuming transcription.
+   >>> Kira (Bored): Four Pokémon and a nearly empty wallet going into the endgame. Phase Two is right on schedule.
+   [TTS] Speaking: Four Pokémon and a nearly empty wallet going into ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Four Pokémon and a nearly empty wallet g' (12 words)
+   [TurnTiming] 16:37:12.114 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:15.580 TTS STOP — playback finished (span ~3465ms)
+   [TTS] Speaking: Phase Two is right on schedule....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Phase Two is right on schedule.' (7 words)
+   [TurnTiming] 16:37:15.784 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:37:18.217 TTS STOP — playback finished (span ~2433ms)
+   [TIMING] interjection: vision=0ms llm=2024ms(sonnet) tts=6436ms total=8487ms
+   [LAG] sense→speak: total=6.1s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=4.0s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 16:37:19.432 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~97348ms since onset)
+>>> You said: What's up, David? That's the idea, Detective Jones.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="What's up, David? That's the idea, Detective Jones." fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=21ms rank=0ms)
+   [SmartMem]     dist=1.130 conf=0.95 type=episodic blend=0.054 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [Phrases] Throttling: "going into the" (3rd use this session)
+   [Phrases] Throttling: "phase two is" (3rd use this session)
+   [PromptSize] dynamic_context=13309ch  hist=12turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1980ms
+   [TTS] Speaking: David's here....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'David's here.' (3 words)
+   [TurnTiming] 16:37:21.804 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:23.298 TTS STOP — playback finished (span ~1493ms)
+   [TTS] Speaking: Welcome, David....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Welcome, David.' (4 words)
+   [TurnTiming] 16:37:23.301 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:25.181 TTS STOP — playback finished (span ~1880ms)
+   [TTS] Speaking: You're either a minion or a future victim — I have...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You're either a minion or a future victi' (14 words)
+   [TurnTiming] 16:37:25.188 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 16:37:28.941 TTS STOP — playback finished (span ~3752ms)
+   [TTS] Speaking: Cooperate and we'll see....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Cooperate and we'll see.' (5 words)
+   [TurnTiming] 16:37:28.944 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:30.909 TTS STOP — playback finished (span ~1964ms)
+
+   [TIMING] voice: llm=11224ms(sonnet-stream(llm+tts)) tts=0ms total=11224ms
+   [LATENCY] vad_close=1200ms stt=226ms stt_wait=0ms salience=1ms triage=bypassed memory=22ms prompt_build=1ms ttft=1416ms tts_first_chunk=564ms audio_out=136ms TOTAL=2366ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 16:37:32.913 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~110828ms since onset)
+>>> You said: I was hoping she could sell some stuff, but...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='I was hoping she could sell some stuff, but...' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=13131ch  hist=14turns  moment=calm
+>>> Kira (streaming):    [Bits] New running bit: David Classification Pending
+   [TIMING] first-word: 1702ms
+   [TTS] Speaking: Sell what, Jonny?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Sell what, Jonny?' (5 words)
+   [TurnTiming] 16:37:35.000 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:36.874 TTS STOP — playback finished (span ~1873ms)
+   [TTS] Speaking: You have TMs and vibes....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'You have TMs and vibes.' (6 words)
+   [TurnTiming] 16:37:36.877 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:39.131 TTS STOP — playback finished (span ~2254ms)
+   [TTS] Speaking: The market for vibes is rough right now....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The market for vibes is rough right now.' (9 words)
+   [TurnTiming] 16:37:39.135 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 16:37:41.759 TTS STOP — playback finished (span ~2623ms)
+
+   [TIMING] voice: llm=8629ms(sonnet-stream(llm+tts)) tts=0ms total=8629ms
+   [LATENCY] vad_close=1200ms stt=191ms stt_wait=0ms salience=0ms triage=bypassed memory=22ms prompt_build=1ms ttft=1190ms tts_first_chunk=512ms audio_out=164ms TOTAL=2080ms
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [Bits] Callback: Accidental Expert
+   [TurnTiming] 16:37:44.009 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~121924ms since onset)
+>>> You said: You've got a nugget. Can you not sell TMs?
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="You've got a nugget. Can you not sell TMs?" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13126ch  hist=16turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1660ms
+   [TTS] Speaking: A nugget!...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'A nugget!' (3 words)
+   [TurnTiming] 16:37:46.020 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:47.336 TTS STOP — playback finished (span ~1315ms)
+   [TTS] Speaking: We're rich....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'We're rich.' (3 words)
+   [TurnTiming] 16:37:47.337 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:48.829 TTS STOP — playback finished (span ~1491ms)
+   [TTS] Speaking: Relatively....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Relatively.' (2 words)
+   [TurnTiming] 16:37:48.831 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:50.337 TTS STOP — playback finished (span ~1505ms)
+   [TTS] Speaking: Jonny found the one item standing between us and c...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Jonny found the one item standing betwee' (12 words)
+   [TurnTiming] 16:37:50.344 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:54.290 TTS STOP — playback finished (span ~3946ms)
+   [TTS] Speaking: Sell the nugget....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Sell the nugget.' (4 words)
+   [TurnTiming] 16:37:54.294 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:55.803 TTS STOP — playback finished (span ~1509ms)
+   [TTS] Speaking: Don't think about it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Don't think about it.' (5 words)
+   [TurnTiming] 16:37:55.806 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 16:37:55 (periodic) kira_process=0.00GB card=8.9/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (9 skip(s))
+   [TurnTiming] 16:37:57.390 TTS STOP — playback finished (span ~1583ms)
+   [TTS] Speaking: Don't name it....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Don't name it.' (4 words)
+   [TurnTiming] 16:37:57.393 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:37:58.798 TTS STOP — playback finished (span ~1404ms)
+
+   [TIMING] voice: llm=14563ms(sonnet-stream(llm+tts)) tts=0ms total=14563ms
+   [LATENCY] vad_close=1200ms stt=201ms stt_wait=0ms salience=0ms triage=bypassed memory=22ms prompt_build=2ms ttft=1106ms tts_first_chunk=554ms audio_out=121ms TOTAL=2006ms
+🎤 Recording... (recovered opening words)
+   [EmotionSwing] holding EMOTIONAL (3 turn(s) left) instead of reverting
+   [Bits] Callback: Unhinged About Fictional Characters
+   [ChatBatch] Evicted 3 stale message(s) (>60s old)
+   [LoopbackSTT] self-TTS gate released after 9 skip(s) — resuming transcription.
+   [ChatAge] ACK injected for davidcarlscherer (waited 51.6s, preempted=none)
+   [SmartMem] q='  - davidcarlscherer (twitch) [FIRST TIME CHATTER]: <<<r u t' fetched=10 dropped_by_floor=1 kept=9 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=1.196 conf=0.95 type=episodic blend=0.116 lane=KNOW
+   [SmartMem]     dist=1.168 conf=0.95 type=episodic blend=0.031 lane=KNOW
+   [SmartMem]     dist=1.170 conf=0.95 type=episodic blend=0.030 lane=KNOW
+   [RoomRead] energy=0.54 [terse=0.37 gap=0.69 silence=0.95 intensity=0.60 chat=0.07] target=0.99 mult=1.02 -> min_gap=5s dead_air=20s
+   >>> Kira (Chat Batch of 1): David. Yes, I'm here. I'm always here. That's the problem, for you specifically.
+
+Welcome to the stream, davidcarlscherer — minion classification, pending loyalty review.
+   [BitCooldown] 'David Classification Pending' invoked x1 lifetime — resting 180s
+   [TTS] Speaking: David....
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'David.' (2 words)
+   [TurnTiming] 16:38:03.454 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: tell nuggets
+   [BrainWorker] Got youtube msg from @Detective_Jones: tell nuggets → buffering for chat_batch_worker
+   [TurnTiming] 16:38:04.663 TTS STOP — playback finished (span ~1208ms)
+   [TTS] Speaking: Yes, I'm here....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Yes, I'm here.' (5 words)
+   [TurnTiming] 16:38:04.835 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:38:06.617 TTS STOP — playback finished (span ~1781ms)
+   [TTS] Speaking: I'm always here....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I'm always here.' (4 words)
+   [TurnTiming] 16:38:06.785 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @Detective_Jones: *sell
+   [BrainWorker] Got youtube msg from @Detective_Jones: *sell → buffering for chat_batch_worker
+   [TurnTiming] 16:38:08.362 TTS STOP — playback finished (span ~1576ms)
+   [TTS] Speaking: That's the problem, for you specifically....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's the problem, for you specifically' (8 words)
+   [TurnTiming] 16:38:08.577 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:38:11.110 TTS STOP — playback finished (span ~2532ms)
+   [TTS] Speaking: Welcome to the stream, davidcarlscherer — minion c...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Welcome to the stream, davidcarlscherer ' (14 words)
+   [TurnTiming] 16:38:11.482 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 16:38:16.751 TTS STOP — playback finished (span ~5269ms)
+   [Cookies] +1 × 1 (batch response); shared=4/30
+   [ChatAge] davidcarlscherer age=67.4s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 16:38:17.964 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~155879ms since onset)
+   [LoopbackSTT] self-TTS gate released after 3 skip(s) — resuming transcription.
+   [SmartMem] q='  - @Detective_Jones (youtube): <<<tell nuggets>>>\n  - @Dete' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=40ms rank=0ms)
+   >>> Kira (Chat Batch of 2): Professor. Sell the nugget. That's not advice, that's an order from your future overlord. The treasury funds itself.
+   [TTS] Speaking: Professor....
+   [CardOverlay] card_show → 2 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Professor.' (2 words)
+   [TurnTiming] 16:38:24.310 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 16:38:25.611 TTS STOP — playback finished (span ~1300ms)
+   [TTS] Speaking: Sell the nugget....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Sell the nugget.' (4 words)
+   [TurnTiming] 16:38:25.687 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 16:38:27.191 TTS STOP — playback finished (span ~1503ms)
+   [TTS] Speaking: That's not advice, that's an order from your futur...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's not advice, that's an order from ' (12 words)
+   [TurnTiming] 16:38:27.447 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 208s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [TurnTiming] 16:38:30.833 TTS STOP — playback finished (span ~3386ms)
+   [TTS] Speaking: The treasury funds itself....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The treasury funds itself.' (5 words)
+   [TurnTiming] 16:38:31.021 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @guntereisenherz9102: Kira, get money. You are the daughter of a banker. 
+   [BrainWorker] Got youtube msg from @guntereisenherz9102: Kira, get money. You are the daughter of a banker.  → buffering for chat_batch_worker
+   [Cookies] +2 → @guntereisenherz9102 (first message this session); shared=6/30
+   [TurnTiming] 16:38:33.092 TTS STOP — playback finished (span ~2070ms)
+   [Cookies] +1 × 1 (batch response); shared=7/30
+   [ChatAge] @Detective_Jones age=28.9s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=25.9s batch=2 preempted=none

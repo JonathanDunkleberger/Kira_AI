@@ -823,8 +823,10 @@ def main():
                 if wedge("gate-thru", 6):
                     return 1
         elif here == R23:
-            cy = (tv.coords(b) or (0, 0))[1]
-            if cy <= 30:                              # north side (past VR)
+            cx, cy = tuple(tv.coords(b) or (0, 0))
+            # (5, 28) is the VR 1F door. y<=30 includes its stoop — that is NOT past VR.
+            at_vr1_stoop = (abs(cx - 5) <= 4 and 26 <= cy <= 34)
+            if cy <= 30 and not at_vr1_stoop:
                 if not cross_edge("north", "to-indigo") and wedge("r23-north"):
                     return 1
             else:

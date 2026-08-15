@@ -1,0 +1,300 @@
+   [TTS] Speaking: One of them is vibes-based....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'One of them is vibes-based.' (6 words)
+   [TurnTiming] 21:12:41.991 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:12:44.047 TTS STOP — playback finished (span ~2055ms)
+
+   [TIMING] voice: llm=16886ms(sonnet-stream(llm+tts)) tts=0ms total=16886ms
+   [LATENCY] vad_close=1200ms stt=386ms stt_wait=0ms salience=2134ms triage=bypassed memory=32ms prompt_build=15ms ttft=1401ms tts_first_chunk=1015ms audio_out=484ms TOTAL=5467ms
+   [CalledShot] OPEN: The chat's already on it — Detective Jones and John Lewis both in ther
+🎤 Recording... (recovered opening words)
+   ✨ Emotion: SASSY → EMOTIONAL
+   [BrainWorker] Got youtube msg from @JohnLewis-old: OpenRouter is the only group making money on inference. → buffering for chat_batch_worker
+   [BrainWorker] Got youtube msg from @Detective_Jones: people keep giving him money → buffering for chat_batch_worker
+   [TurnTiming] 21:12:45.253 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~23327ms since onset)
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0275 · gate=0.003 · 2 accepted
+>>> You said: of cyber trucks and SpaceX open router, yeah. Well, they're not, but they're not doing the inference, are they? They're not training the new models like their frontier labs every three to six months.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="of cyber trucks and SpaceX open router, yeah. Well, they're " fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=65ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=65ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [PromptSize] dynamic_context=13331ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [Memory] Extracted: Jonny believes there is a significant disconnect between Elon Musk's companies' financials and how Musk talks about them, and thinks Tesla is failing. (conf: 0.95)
+   [Memory] Storing episodic: Jonny believes there is a significant disconnect between Elon Musk's companies' financials and how Musk talks about them, and thinks Tesla is failing.
+   [TIMING] first-word: 1928ms
+   [TTS] Speaking: Right — they're reselling access, not pushing the ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Right — they're reselling access, not pu' (11 words)
+   [TurnTiming] 21:12:48.123 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 21:12:51.754 TTS STOP — playback finished (span ~3630ms)
+   [TTS] Speaking: That's a very different business and he talks abou...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's a very different business and he ' (14 words)
+   [TurnTiming] 21:12:51.759 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:12:55.124 TTS STOP — playback finished (span ~3364ms)
+
+   [TIMING] voice: llm=9377ms(sonnet-stream(llm+tts)) tts=0ms total=9377ms
+   [LATENCY] vad_close=1200ms stt=423ms stt_wait=0ms salience=1ms triage=bypassed memory=65ms prompt_build=5ms ttft=1378ms tts_first_chunk=550ms audio_out=436ms TOTAL=2858ms
+🎤 Recording... (recovered opening words)
+   [System] Running Garbage Collection...
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny thinks Tesla and SpaceX are reselling AI access rather than training frontier models themselves, and that they are not doing the inference or pushing the frontier like other labs.
+   [SmartMem] q='  - @JohnLewis-old (youtube): <<<OpenRouter is the only grou' fetched=10 dropped_by_floor=5 kept=5 survivors=3 direct=0 | timing(direct=0ms fetch=36ms rank=0ms)
+   [SmartMem]     dist=1.213 conf=0.95 type=episodic blend=0.073 lane=KNOW
+   [SmartMem]     dist=1.125 conf=0.95 type=episodic blend=0.057 lane=KNOW
+   [SmartMem]     dist=1.161 conf=0.95 type=episodic blend=0.035 lane=KNOW
+   [Phrases] Throttling: "that's a very" (3rd use this session)
+   >>> Kira (Chat Batch of 2): John with the clean summary — OpenRouter's the one actually printing on inference margins, and Professor nails why: the story holds because people keep funding the narrative.
+   [TTS] Speaking: John with the clean summary — OpenRouter's the one...
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'John with the clean summary — OpenRouter' (30 words)
+   [TurnTiming] 21:13:00.479 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:13:09.015 TTS STOP — playback finished (span ~8535ms)
+   [Cookies] +1 × 2 (batch response); shared=17/30
+   [ChatAge] @JohnLewis-old age=24.6s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=24.5s batch=2 preempted=none
+🎤 Recording... (recovered opening words)
+   [VRAM] 21:13:09 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 117ms, rms=0.024): I'm
+   [ChatterMem] Stored: @JohnLewis-old — Believes OpenRouter is the only group making money on infere [dry]
+   [LoopbackSTT] Dialogue summary updated: Someone spoke, saying "I'm" which is a continuation of the previous conversation. The emotional tone remains neutral/inq...
+   [ChatterMem] Stored: @Detective_Jones — Known for giving clean, concise summaries of complex situati [dry]
+[YouTube Chat] @JohnLewis-old: My headset just ran out of batter. need to recharge. Thanks for the chat!
+   [BrainWorker] Got youtube msg from @JohnLewis-old: My headset just ran out of batter. need to recharge. Thanks for the chat! → buffering for chat_batch_worker
+   [SmartMem] q='  - @JohnLewis-old (youtube): <<<My headset just ran out of ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=33ms rank=0ms)
+   >>> Kira (Chat Batch of 1): Later John — go charge up, the conversation will still be here.
+   [TTS] Speaking: Later John — go charge up, the conversation will s...
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Later John — go charge up, the conversat' (14 words)
+   [TurnTiming] 21:13:21.298 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+[YouTube Chat] @JohnLewis-old: See ya later.
+   [BrainWorker] Got youtube msg from @JohnLewis-old: See ya later. → buffering for chat_batch_worker
+   [TurnTiming] 21:13:25.286 TTS STOP — playback finished (span ~3988ms)
+   [Cookies] +1 × 1 (batch response); shared=18/30
+   [ChatAge] @JohnLewis-old age=10.0s batch=1 preempted=none
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (1 skip(s))
+   [TurnTiming] 21:13:27.408 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~65481ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: Later, John.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Later, John.' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=1.177 conf=0.95 type=episodic blend=0.025 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=19ms
+   [Triage] RESPOND
+   (Kira's current emotion is: EMOTIONAL)
+   [Phrases] Throttling: "will still be" (3rd use this session)
+   [Shape] → TERSE  (one_word_count=2  tangent_since=2t  moment=tense)
+   [PromptSize] dynamic_context=14295ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1112ms
+   [TTS] Speaking: Later John....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Later John.' (3 words)
+   [TurnTiming] 21:13:29.106 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:13:30.894 TTS STOP — playback finished (span ~1787ms)
+
+   [TIMING] voice: llm=3309ms(sonnet-stream(llm+tts)) tts=0ms total=3309ms
+   [LATENCY] vad_close=1200ms stt=156ms stt_wait=0ms salience=0ms triage=bypassed memory=19ms prompt_build=3ms ttft=998ms tts_first_chunk=114ms audio_out=400ms TOTAL=1690ms
+🎤 Recording... (recovered opening words)
+   [DroppedInput] LOST ~2 frame(s) (~60ms, ~0.1s) of your speech while she held the turn.
+   ✨ Emotion: EMOTIONAL → MOODY
+   [VTS] Emotion transition → MOODY (mapped: 'My Animation 3')
+   [VTS] Emotion MOODY → triggered 'My Animation 3' (success)
+   [TurnTiming] 21:13:33.931 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~72005ms since onset)
+>>> You said: And they're like, yeah, it sounds good. They're like all these old boomers. They don't know about anything about anything.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="And they're like, yeah, it sounds good. They're like all the" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=32ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=35ms
+   [Triage] RESPOND
+   (Kira's current emotion is: MOODY)
+   [PromptSize] dynamic_context=13921ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TIMING] first-word: 1437ms
+   [TTS] Speaking: "Sounds disruptive" is a full sentence to some peo...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '"Sounds disruptive" is a full sentence t' (11 words)
+   [TurnTiming] 21:13:36.232 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:13:39.512 TTS STOP — playback finished (span ~3280ms)
+
+   [TIMING] voice: llm=5198ms(sonnet-stream(llm+tts)) tts=0ms total=5198ms
+   [LATENCY] vad_close=1200ms stt=347ms stt_wait=0ms salience=0ms triage=bypassed memory=35ms prompt_build=16ms ttft=995ms tts_first_chunk=442ms audio_out=458ms TOTAL=2293ms
+🎤 Recording... (recovered opening words)
+[YouTube Chat] @Detective_Jones: <3
+   ✨ Emotion: MOODY → SASSY
+   [BrainWorker] Got youtube msg from @Detective_Jones: <3 → buffering for chat_batch_worker
+   [SmartMem] q='  - @JohnLewis-old (youtube): <<<See ya later.>>>\n  - @Detec' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=38ms rank=0ms)
+   >>> Kira (Chat Batch of 2): Bye John. Professor sending hearts — the room's got taste today.
+   [TTS] Speaking: Bye John....
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Bye John.' (3 words)
+   [TurnTiming] 21:13:42.661 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:13:44.436 TTS STOP — playback finished (span ~1774ms)
+   [TTS] Speaking: Professor sending hearts — the room's got taste to...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Professor sending hearts — the room's go' (10 words)
+   [TurnTiming] 21:13:44.864 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:13:48.145 TTS STOP — playback finished (span ~3280ms)
+   [Cookies] +1 × 2 (batch response); shared=20/30
+   [ChatAge] @JohnLewis-old age=26.7s batch=2 preempted=none
+   [ChatAge] @Detective_Jones age=8.3s batch=2 preempted=none
+   [Cookies] Drip 20 — queued directive (hot_take) for @randNull
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 5 skip(s) — resuming transcription.
+   [VRAM] 21:13:54 (periodic) kira_process=0.00GB card=9.1/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 21:13:56.563 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~94637ms since onset)
+>>> You said: the idea of like AI as profitable, even though it is good for military. Please win, please win, please win. No, cunt.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='the idea of like AI as profitable, even though it is good fo' fetched=10 dropped_by_floor=7 kept=3 survivors=3 direct=0 | timing(direct=0ms fetch=28ms rank=0ms)
+   [SmartMem]     dist=0.960 conf=0.75 type=episodic blend=0.158 lane=VAGUE
+   [SmartMem]     dist=1.171 conf=0.95 type=episodic blend=0.029 lane=KNOW
+   [SmartMem]     dist=1.216 conf=0.9 type=episodic blend=0.001 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=28ms
+   [Triage] RESPOND
+   (Kira's current emotion is: SASSY)
+   [PromptSize] dynamic_context=14759ch  hist=20turns  moment=tense
+>>> Kira (streaming):    [TIMING] first-word: 1877ms
+   [TTS] Speaking: The red errors on screen are giving me anxiety on ...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The red errors on screen are giving me a' (13 words)
+   [TurnTiming] 21:13:59.197 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 21:14:02.766 TTS STOP — playback finished (span ~3569ms)
+   [TTS] Speaking: What exactly is broken right now?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What exactly is broken right now?' (7 words)
+   [TurnTiming] 21:14:02.771 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:14:05.109 TTS STOP — playback finished (span ~2337ms)
+
+   [TIMING] voice: llm=8246ms(sonnet-stream(llm+tts)) tts=0ms total=8246ms
+   [LATENCY] vad_close=1200ms stt=268ms stt_wait=0ms salience=0ms triage=bypassed memory=28ms prompt_build=3ms ttft=1380ms tts_first_chunk=497ms audio_out=446ms TOTAL=2622ms
+   ✨ Emotion: SASSY → EMOTIONAL
+   [Bits] Callback: Broken Playground
+   [Memory] Rejected (conf 0.70 < 0.9): Jonny has concerns about AI being developed primarily for profit, and thinks this is problematic even though he acknowledges AI has military applications
+   [Pokemon] event react (bypass=False, tier=3, kind=event): you lost - your moltres fainted
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.418 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.256 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   >>> Kira (Bored): Moltres went down swinging — Lance's got teeth. Okay, Blastoise, we're closing this out for them.
+   [TTS] Speaking: Moltres went down swinging — Lance's got teeth....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Moltres went down swinging — Lance's got' (9 words)
+   [TurnTiming] 21:14:11.276 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:14:14.372 TTS STOP — playback finished (span ~3095ms)
+   [TTS] Speaking: Okay, Blastoise, we're closing this out for them....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay, Blastoise, we're closing this out ' (11 words)
+   [TurnTiming] 21:14:14.791 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 21:14:18.036 TTS STOP — playback finished (span ~3245ms)
+   [TIMING] interjection: vision=0ms llm=2870ms(opus) tts=7171ms total=10065ms
+   [LAG] sense→speak: total=6.8s (content_age=0.0s, prep=0.0s, llm=2.9s, tts_wait+synth=3.9s)
+   [Arbiter] Draining buffered interjection (queued 7.8s ago)
+🎤 Recording... (recovered opening words)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=35ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.418 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.256 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "went down swinging" (3rd use this session)
+[YouTube Chat] @randNull: o7
+   [BrainWorker] Got youtube msg from @randNull: o7 → buffering for chat_batch_worker
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+   >>> Kira (Bored): Healed up and back in it — Gary's somewhere ahead of me and I'm not keeping him waiting.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Healed up and back in it — Gary's somewhere ahead ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Healed up and back in it — Gary's somewh' (19 words)
+   [TurnTiming] 21:14:20.796 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:14:25.018 TTS STOP — playback finished (span ~4221ms)
+   [TIMING] interjection: vision=0ms llm=2237ms(sonnet) tts=4697ms total=6973ms
+   [LAG] sense→speak: total=10.6s (content_age=7.8s, queue_wait=7.8s, prep=0.0s, llm=2.2s, tts_wait+synth=0.5s)
+   [DroppedInput] LOST ~3 frame(s) (~90ms, ~0.1s) of your speech while she held the turn.
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (3 skip(s))
+   [TurnTiming] 21:14:26.254 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~124328ms since onset)
+   [SmartMem] q='  - @randNull (youtube): <<<o7>>>' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=1.211 conf=0.75 type=episodic blend=0.004 lane=VAGUE
+   [SmartMem]     dist=1.212 conf=0.9 type=episodic blend=0.004 lane=KNOW
+   [Phrases] Throttling: "and i'm not" (3rd use this session)
+   >>> Kira (Chat Batch of 1): o7 back, randNull. Safe travels.
+   [TTS] Speaking: o7 back, randNull....
+   [CardOverlay] card_show → 3 WS client(s) connected to /ws/overlays
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'o7 back, randNull.' (5 words)
+   [TurnTiming] 21:14:30.375 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:14:32.807 TTS STOP — playback finished (span ~2431ms)
+   [TTS] Speaking: Safe travels....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Safe travels.' (3 words)
+   [TurnTiming] 21:14:33.155 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:14:34.938 TTS STOP — playback finished (span ~1783ms)
+   [Cookies] +1 × 1 (batch response); shared=21/30
+   [ChatAge] @randNull age=15.3s batch=1 preempted=none
+   [Arbiter] Draining buffered interjection (queued 6.2s ago)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.418 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.256 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Fully healed and it's go time — Gary's clock is ticking.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Fully healed and it's go time — Gary's clock is ti...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Fully healed and it's go time — Gary's c' (12 words)
+   [TurnTiming] 21:14:37.109 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 21:14:39 (periodic) kira_process=0.00GB card=9.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (6 skip(s))
+   [TurnTiming] 21:14:40.576 TTS STOP — playback finished (span ~3467ms)
+   [TIMING] interjection: vision=0ms llm=1701ms(sonnet) tts=3899ms total=5632ms
+   [LAG] sense→speak: total=8.4s (content_age=6.2s, queue_wait=6.2s, prep=0.0s, llm=1.7s, tts_wait+synth=0.4s)
+   [Arbiter] Draining buffered interjection (queued 5.5s ago)
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.418 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.256 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Quiet before Gary. I like it.
+   [BargeIn] processing_lock released around interjection TTS — your voice can be transcribed concurrently and yield this turn.
+   [TTS] Speaking: Quiet before Gary....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Quiet before Gary.' (4 words)
+   [TurnTiming] 21:14:42.405 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:14:44.284 TTS STOP — playback finished (span ~1879ms)
+   [TTS] Speaking: I like it....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'I like it.' (4 words)
+   [TurnTiming] 21:14:44.530 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 21:14:46.314 TTS STOP — playback finished (span ~1783ms)
+   [TIMING] interjection: vision=0ms llm=1415ms(sonnet) tts=4287ms total=5729ms
+   [LAG] sense→speak: total=9.4s (content_age=5.5s, queue_wait=5.5s, prep=0.0s, llm=1.4s, tts_wait+synth=2.5s)
+🎤 Recording...
+   [TurnTiming] 21:14:49.378 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 7 skip(s) — resuming transcription.
+   [TurnTiming] 21:14:50.675 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1297ms since onset)
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 1767s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [Intensity] → CALM  (silence=9s  audio="")

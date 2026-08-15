@@ -1,0 +1,1482 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 25) coords=(15, 10) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [soul] continuity loaded: 19 roster bond(s), 1291 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 161 place(s) known, 259 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [pkmn-audio] audio child started (pid=23400).
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 25) coords=(15, 10) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260813_101625_route-7_8b_43h22m_roam-start  (4 bundle file(s))
+
+   [campaign]    [world] learned 2 warp(s) on (3, 25): (7, 14)->(1, 33), (15, 10)->(19, 0)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 6, 20, 232) @ Route 7 (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Route 7 (15, 10) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L69, lapras L26, articuno L50, zapdos L50, kadabra L19, diglett L18] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). All 8 badges earned. Pokédex: 20 caught. All 8 badges — Victory Road and the Elite Four are next. This is the endgame.
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 25) (15,10) f3 -- badge8 $4302 party:0513 bag:ae7c]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['head_to_league', 'battle', 'wander_catch', 'travel:3,34', 'travel:3,23', 'travel:3,24', 'travel:3,26']
+
+   [campaign]    [soul] surface_want SUPPRESSED — credits march owns the turn (Route 7; no Eevee/Fossil/side-quest wants)
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 6
+
+   [campaign]    [planner] forward-prep for __E4__: folding a proactive plan beat into the oracle ctx
+
+   [campaign]    [roam] !! FORCE ENDGAME: head_to_league — oracle SKIPPED (Jonny's call: the team is READY — Viridian -> Route 22 -> Victory Road -> Indigo; no grinding, no detours)
+
+   [campaign]    [roam] PICK OUT: head_to_league
+
+   [campaign]    [roam] RATIONALE: Get to Viridian City (tunnel through Diglett's Cave from Vermilion).
+
+   [campaign]    victory road strike: boot map=(3, 25) coords=(15, 10) badge8=True lead=100%
+
+   [campaign]    EQ teach SKIPPED — Venusaur (species 3) not in party
+
+   [campaign]    credits-march JOIN (3, 25) -> (19, 0)
+
+   [campaign]    off-route overworld (3, 25): graph hop toward (19, 0) (warp (15, 10) -> (19, 0))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 10) -> coord (15, 10) (budget 300s, surf-capable)
+
+   [travel] reached target coord (15, 10)
+
+   [kira-voice] -> T2·savor· (travel) "all eight badges — there are no more gyms. It's Victory Road and the League now. let's finish this climb."  fired=True  [age 0.0s + post 15ms]
+
+   [campaign]    3 door(s); candidates (chosen order): [(15, 10)]
+
+   [campaign]    door (15, 10): at (15, 10) (approach=(15, 11)) — stepping UP in
+
+   [dialogue] +++ 'DIGLETT used CUT!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "DIGLETT used CUT!"'
+
+   [pkmn-audio-child] LIVE: device=11, 48000Hz, 2ch � writing until parent EOF.
+
+   [campaign]    reachable door (15, 10): walking to approach (15, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 2) -> coord (15, 11) (budget 300s, surf-capable)
+
+   [travel] step 0: (15, 2)->(15, 3) map=(3, 25) (path 10 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against growlithe — your blastoise is up front'  fired=True  [age 0.0s + post 15ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out growlithe'
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L18 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs growlithe 49/49 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=ended; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'the battle ended'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<1s since last) T1 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] step 10: (15, 8)->(15, 9) map=(3, 25) (path 4 to exit)
+
+   [travel] reached target coord (15, 11)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 25) coords=(15, 3) -> coord (14, 10) (budget 60s, surf-capable)
+
+   [travel] step 0: (15, 3)->(15, 4) map=(3, 25) (path 9 to exit)
+
+   [travel] reached target coord (14, 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (15, 10) (behavior 0x62) entered via RIGHT
+
+   [campaign]    [world] learned 4 warp(s) on (19, 0): (1, 5)->(3, 25), (1, 6)->(3, 25), (11, 5)->(3, 10), (11, 6)->(3, 10)
+
+   [campaign]    WARPED (3, 25) -> (19, 0) via directional door (15, 10)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(19, 0)] -> campaign/kira_campaign.state  (map=(19, 0) coords=(1, 5) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(19, 0)] -> checkpoints/20260813_101712_the-route-7-saffron-gate_8b_43h23m_credits-march-19-0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(19, 0)' banked — any recovery now resumes right here
+
+   [campaign]    credits-march JOIN (19, 0) -> (3, 10)
+
+   [campaign]    off-route overworld (19, 0): graph hop toward (3, 10) (warp (11, 4) -> (3, 10))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(19, 0) coords=(1, 5) -> coord (11, 4) (budget 300s, surf-capable)
+
+   [travel] step 0: (1, 5)->(1, 4) map=(19, 0) (path 12 to exit)
+
+   [travel] step 10: (10, 4)->(11, 4) map=(19, 0) (path 2 to exit)
+
+   [travel] reached target coord (11, 4)
+
+   [campaign]    2 door(s); candidates (chosen order): [(11, 4)]
+
+   [campaign]    door (11, 4): at (11, 4) (approach=(11, 5)) — stepping UP in
+
+   [campaign]    reachable door (11, 4): walking to approach (11, 5)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(19, 0) coords=(11, 3) -> coord (11, 5) (budget 300s, surf-capable)
+
+   [travel] step 0: (11, 3)->(11, 4) map=(19, 0) (path 3 to exit)
+
+   [travel] reached target coord (11, 5)
+
+   [campaign]    pick (11, 4) failed — trying adjacent actuatable door (11, 5) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(19, 0) coords=(11, 3) -> coord (10, 5) (budget 60s, surf-capable)
+
+   [travel] step 0: (11, 3)->(11, 4) map=(19, 0) (path 4 to exit)
+
+   [travel] reached target coord (10, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (11, 5) (behavior 0x62) entered via RIGHT
+
+   [campaign]    [world] learned 15 warp(s) on (3, 10): (33, 30)->(1, 47), (22, 14)->(14, 0), (40, 12)->(14, 2), (46, 12)->(14, 3), (27, 21)->(14, 4), (40, 21)->(14, 5)
+
+   [campaign]    WARPED (19, 0) -> (3, 10) via mat-row door (11, 5)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(3, 10)] -> campaign/kira_campaign.state  (map=(3, 10) coords=(8, 27) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(3, 10)] -> checkpoints/20260813_101733_saffron-city_8b_43h23m_credits-march-3-10  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(3, 10)' banked — any recovery now resumes right here
+
+   [campaign]    credits-march (3, 10) -> (3, 24)
+
+   [campaign]    off-route overworld (3, 10): graph hop toward (3, 24) (warp (34, 46) -> (18, 0))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 10) coords=(8, 27) -> coord (34, 46) (budget 300s, surf-capable)
+
+   [travel] step 0: (8, 27)->(8, 28) map=(3, 10) (path 46 to exit)
+
+   [travel] step 10: (15, 30)->(15, 31) map=(3, 10) (path 36 to exit)
+
+   [travel] step 20: (15, 40)->(15, 41) map=(3, 10) (path 26 to exit)
+
+   [travel] step 30: (24, 41)->(25, 41) map=(3, 10) (path 16 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 10) coords=(31, 44) elapsed=5s
+
+   [travel] step 40: (31, 44)->(32, 44) map=(3, 10) (path 6 to exit)
+
+   [travel] reached target coord (34, 46)
+
+   [campaign]    19 door(s); candidates (chosen order): [(34, 46)]
+
+   [campaign]    door (34, 46): at (34, 46) (approach=(34, 47)) — stepping UP in
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 10) coords=(34, 39) -> coord (34, 45) (budget 60s, surf-capable)
+
+   [travel] step 0: (34, 39)->(34, 40) map=(3, 10) (path 7 to exit)
+
+   [travel] reached target coord (34, 45)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (34, 46) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (18, 0): (4, 1)->(3, 10), (5, 1)->(3, 10), (4, 9)->(3, 24), (5, 9)->(3, 24)
+
+   [campaign]    WARPED (3, 10) -> (18, 0) via directional door (34, 46)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(18, 0)] -> campaign/kira_campaign.state  (map=(18, 0) coords=(4, 2) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(18, 0)] -> checkpoints/20260813_101754_the-passage-between-saffron-_8b_43h23m_credits-march-18-0  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(18, 0)' banked — any recovery now resumes right here
+
+   [campaign]    off-route at (18, 0) - exiting to the overworld
+
+   [campaign]    target-aware exit: door (4, 9) -> (3, 24)
+
+   [campaign]    2 door(s); candidates (chosen order): [(4, 9)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(18, 0) coords=(4, 2) -> coord (4, 8) (budget 60s, surf-capable)
+
+   [travel] step 0: (4, 2)->(4, 3) map=(18, 0) (path 7 to exit)
+
+   [travel] reached target coord (4, 8)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 9) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 3 warp(s) on (3, 24): (19, 13)->(1, 32), (12, 5)->(18, 0), (13, 5)->(18, 0)
+
+   [campaign]    WARPED (18, 0) -> (3, 24) via directional door (4, 9)
+
+   [campaign]    credits-march (3, 24) -> (3, 5)
+
+   [campaign]    off-route overworld (3, 24): graph hop toward (3, 5) (south -> (3, 5))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 24) coords=(12, 6) -> map (3, 5) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12]
+
+   [travel] step 0: (12, 6)->(12, 7) map=(3, 24) (path 51 to exit)
+
+   [travel] step 10: (10, 14)->(9, 14) map=(3, 24) (path 42 to exit)
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [travel] step 20: (9, 21)->(10, 21) map=(3, 24) (path 32 to exit)
+
+   [egress] blocker on (12, 21) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(3, 16), (12, 21), (13, 21), (20, 25)])
+
+   [egress] wait on (12, 21) TIMED OUT (12s) — re-pathing around it
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 3ms]
+
+   [travel] step 30: (17, 21)->(17, 22) map=(3, 24) (path 24 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 24) coords=(15, 29) elapsed=18s
+
+   [travel] step 40: (15, 29)->(14, 29) map=(3, 24) (path 14 to exit)
+
+   [travel] step 50: (12, 36)->(12, 37) map=(3, 24) (path 4 to exit)
+
+   [travel] MAP TRANSITION (3, 24) -> (3, 5)
+
+   [campaign]    [world] learned 10 warp(s) on (3, 5): (22, 34)->(1, 4), (23, 34)->(1, 4), (24, 34)->(1, 4), (9, 6)->(9, 0), (15, 6)->(9, 1), (12, 17)->(9, 3)
+
+   [travel] south connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+
+   [travel] ARRIVED at target map (3, 5) coords=(24, 0)
+
+   [kira-voice] -> T1·brisk· (beat) 'made it to a new area'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(3, 5)] -> campaign/kira_campaign.state  (map=(3, 5) coords=(24, 0) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(3, 5)] -> checkpoints/20260813_101825_vermilion-city_8b_43h24m_credits-march-3-5  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(3, 5)' banked — any recovery now resumes right here
+
+   [campaign]    credits-march (3, 5) -> (3, 29)
+
+   [campaign]    off-route overworld (3, 5): graph hop toward (3, 29) (east -> (3, 29))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 5) coords=(24, 0) -> map (3, 29) (budget 300s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 18, 19, 20, 21, 22, 23, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+
+   [travel] step 0: (24, 0)->(24, 1) map=(3, 5) (path 44 to exit)
+
+   [travel] step 10: (24, 10)->(24, 11) map=(3, 5) (path 34 to exit)
+
+   [travel] step 20: (25, 19)->(26, 19) map=(3, 5) (path 24 to exit)
+
+   [travel] step 30: (35, 19)->(36, 19) map=(3, 5) (path 14 to exit)
+
+   [travel] HEARTBEAT step=40 map=(3, 5) coords=(45, 19) elapsed=5s
+
+   [travel] step 40: (45, 19)->(46, 19) map=(3, 5) (path 4 to exit)
+
+   [travel] MAP TRANSITION (3, 5) -> (3, 29)
+
+   [campaign]    [world] learned 3 warp(s) on (3, 29): (6, 7)->(1, 38), (58, 10)->(22, 0), (65, 10)->(22, 0)
+
+   [travel] east connection band rows: [9, 10, 11]
+
+   [travel] ARRIVED at target map (3, 29) coords=(0, 9)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(3, 29)] -> campaign/kira_campaign.state  (map=(3, 29) coords=(0, 9) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(3, 29)] -> checkpoints/20260813_101831_route-11_8b_43h24m_credits-march-3-29  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(3, 29)' banked — any recovery now resumes right here
+
+   [campaign]    credits-march (3, 29) -> (1, 38)
+
+   [kira-voice] -> T2·savor· (travel) "Diglett's Cave is the tunnel to Route 2 — Viridian is the other side, not a detour."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    off-route overworld (3, 29): graph hop toward (1, 38) (warp (6, 7) -> (1, 38))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 29) coords=(0, 9) -> coord (6, 7) (budget 300s, surf-capable)
+
+   [travel] step 0: (0, 9)->(0, 8) map=(3, 29) (path 9 to exit)
+
+   [travel] reached target coord (6, 7)
+
+   [campaign]    3 door(s); candidates (chosen order): [(6, 7)]
+
+   [campaign]    door (6, 7): at (6, 7) (approach=(6, 8)) — stepping UP in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 29) -> (1, 38) via door (6, 7) (on-tile)
+
+   [dialogue] +++ "DIGLETT'S CAVE"  tags=['PLACE']
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "DIGLETT\'S CAVE"'
+
+   [campaign]    [world] learned 2 warp(s) on (1, 38): (4, 6)->(3, 29), (6, 4)->(1, 37)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(1, 38)] -> campaign/kira_campaign.state  (map=(1, 38) coords=(4, 6) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(1, 38)] -> checkpoints/20260813_101834_diglett-s-cave_8b_43h24m_credits-march-1-38  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(1, 38)' banked — any recovery now resumes right here
+
+   [campaign]    credits-march (1, 38) -> (1, 37)
+
+   [campaign]    off-route overworld (1, 38): graph hop toward (1, 37) (warp (6, 4) -> (1, 37))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 38) coords=(4, 6) -> coord (6, 4) (budget 300s, surf-capable)
+
+   [travel] step 0: (4, 6)->(4, 5) map=(1, 38) (path 5 to exit)
+
+   [travel] reached target coord (6, 4)
+
+   [campaign]    2 door(s); candidates (chosen order): [(6, 4)]
+
+   [campaign]    door (6, 4): at (6, 4) (approach=(6, 5)) — stepping UP in
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (1, 38) -> (1, 37) via door (6, 4) (on-tile)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 37): (3, 3)->(1, 36), (82, 71)->(1, 38)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(1, 37)] -> campaign/kira_campaign.state  (map=(1, 37) coords=(82, 71) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(1, 37)] -> checkpoints/20260813_101836_diglett-s-cave_8b_43h24m_credits-march-1-37  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(1, 37)' banked — any recovery now resumes right here
+
+   [campaign]    credits-march (1, 37) -> (1, 36)
+
+   [campaign]    off-route overworld (1, 37): graph hop toward (1, 36) (warp (3, 3) -> (1, 36))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(82, 71) -> coord (3, 3) (budget 300s, surf-capable)
+
+   [travel] step 0: (82, 71)->(81, 71) map=(1, 37) (path 148 to exit)
+
+   [travel] step 10: (76, 67)->(75, 67) map=(1, 37) (path 138 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against diglett — your blastoise is up front'  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L15 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 30/30 | [0]Skull Bash(p100,pp=13,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's diglett went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 5ms]
+
+   [travel] step 30: (72, 55)->(72, 54) map=(1, 37) (path 122 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 37) coords=(67, 50) elapsed=44s
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (67, 50) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 13ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against diglett — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out diglett'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L17 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 35/35 | [0]Skull Bash(p100,pp=12,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's diglett went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) "it's dim and quiet down here, the path winding deeper into the dark"  fired=True  [age 0.0s + post 3ms]
+
+   [travel] step 50: (61, 50)->(60, 50) map=(1, 37) (path 106 to exit)
+
+   [travel] step 60: (55, 46)->(55, 45) map=(1, 37) (path 96 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against diglett — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out diglett'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L19 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 37/37 | [0]Skull Bash(p100,pp=12,ref=0,sc=50) [1]Surf(p95*STAB,pp=12,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's diglett went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'you pick your way through the cavern, watching the ground in the gloom'  fired=True  [age 0.0s + post 9ms]
+
+   [travel] step 70: (53, 42)->(52, 42) map=(1, 37) (path 90 to exit)
+
+   [travel] HEARTBEAT step=80 map=(1, 37) coords=(47, 38) elapsed=113s
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against diglett — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out diglett'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=12,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=12,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 2/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=11,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 3/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] WHIFF-SPIRAL but no healthy reserve to reset with -> fighting on
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=10,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=9,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 2/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=8,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 3/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] WHIFF-SPIRAL but no healthy reserve to reset with -> fighting on
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=7,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=6,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 2/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=5,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 31 across the full turn -> accuracy-debuff spiral (streak 3/3)
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L16 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] WHIFF-SPIRAL but no healthy reserve to reset with -> fighting on
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 31/31 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=4,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's diglett went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the cave presses in close around you, every sound echoing off the rock'
+
+   [travel] step 90: (42, 37)->(41, 37) map=(1, 37) (path 74 to exit)
+
+   [travel] step 100: (39, 30)->(39, 29) map=(1, 37) (path 64 to exit)
+
+   [travel] step 110: (34, 25)->(33, 25) map=(1, 37) (path 54 to exit)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a wild Pokemon leaps out at you'
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against diglett — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] ·floor· (<1s since last) T2 'the trainer sent out diglett'
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L18 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 37/37 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=3,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's diglett went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 26ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "it's dim and quiet down here, the path winding deeper into the dark"
+
+   [travel] !! WALL-CLOCK BUDGET BLOWN (321s > 300s) at (30, 23) map=(1, 37) step=120 - ABORT LOUD (grinding / wedged, not progressing fast)
+
+   [kira-voice] -> T1·brisk· (event) "this is taking forever - I'm stuck grinding, let me regroup"  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    2 door(s); candidates (chosen order): [(3, 3)]
+
+   [campaign]    reachable door (3, 3): walking to approach (3, 4)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 37) coords=(30, 23) -> coord (3, 4) (budget 300s, surf-capable)
+
+   [travel] step 0: (30, 23)->(30, 22) map=(1, 37) (path 47 to exit)
+
+   [travel] step 10: (22, 21)->(22, 20) map=(1, 37) (path 37 to exit)
+
+   [travel] step 20: (15, 18)->(14, 18) map=(1, 37) (path 27 to exit)
+
+   [travel] step 30: (11, 12)->(11, 11) map=(1, 37) (path 17 to exit)
+
+   [travel] HEARTBEAT step=40 map=(1, 37) coords=(6, 7) elapsed=5s
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [travel] path blocked at (6, 7) (NPC on the gap?) - waiting
+
+   [travel] ENCOUNTER -> on-time beat, warm up, hand off
+
+   [kira-voice] -> T1·brisk· (beat) 'a wild Pokemon leaps out at you'  fired=True  [age 0.0s + post 3ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against diglett — your blastoise is up front'
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out diglett'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L69 vs L19 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a super-effective hit -> slot 1 (eff x4) vs diglett 37/37 | [0]Skull Bash(p100,pp=9,ref=0,sc=50) [1]Surf(p95*STAB,pp=3,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a super-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's diglett went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] battle outcome=win; resuming pathfind
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (beat) 'the cave presses in close around you, every sound echoing off the rock'  fired=True  [age 0.0s + post 27ms]
+
+   [travel] reached target coord (3, 4)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (1, 37) -> (1, 36) via door (3, 3)
+
+   [campaign]    [world] learned 2 warp(s) on (1, 36): (6, 4)->(1, 37), (4, 6)->(3, 20)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(1, 36)] -> campaign/kira_campaign.state  (map=(1, 36) coords=(6, 4) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(1, 36)] -> checkpoints/20260813_102433_diglett-s-cave_8b_43h30m_credits-march-1-36  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(1, 36)' banked — any recovery now resumes right here
+
+   [campaign]    credits-march (1, 36) -> (3, 20)
+
+   [campaign]    off-route overworld (1, 36): graph hop toward (3, 20) (warp (4, 6) -> (3, 20))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 36) coords=(6, 4) -> coord (4, 6) (budget 300s, surf-capable)
+
+   [travel] step 0: (6, 4)->(6, 5) map=(1, 36) (path 5 to exit)
+
+   [travel] reached target coord (4, 6)
+
+   [campaign]    2 door(s); candidates (chosen order): [(4, 6)]
+
+   [campaign]    door (4, 6): at (4, 6) (approach=(4, 7)) — stepping UP in
+
+   [dialogue] +++ "I went inside ROCK TUNNEL, but it's pitch-black and scary in there. If I could get a POK.MON to use FLASH and light it up.."  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "I went inside ROCK TUNNEL, but it\'s pitch-black and scary in there. If I could get a POK.MON to use FLASH and light it up.."'  fired=True  [age 0.0s + post 5ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 36) coords=(4, 5) -> coord (4, 5) (budget 60s, surf-capable)
+
+   [travel] reached target coord (4, 5)
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (1, 36)@(4, 5) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    credits-march (1, 36) -> (3, 20)
+
+   [campaign]    off-route overworld (1, 36): graph hop toward (3, 20) (warp (4, 6) -> (3, 20))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 36) coords=(4, 5) -> coord (4, 6) (budget 300s, surf-capable)
+
+   [travel] step 0: (4, 5)->(4, 6) map=(1, 36) (path 2 to exit)
+
+   [travel] reached target coord (4, 6)
+
+   [campaign]    2 door(s); candidates (chosen order): [(4, 6)]
+
+   [campaign]    door (4, 6): at (4, 6) (approach=(4, 7)) — stepping UP in
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(1, 36) coords=(4, 5) -> coord (4, 5) (budget 60s, surf-capable)
+
+   [travel] reached target coord (4, 5)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (4, 6) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 20): (5, 13)->(15, 3), (6, 13)->(15, 3), (5, 51)->(15, 0), (17, 11)->(1, 36), (17, 22)->(15, 1), (18, 46)->(15, 2)
+
+   [campaign]    WARPED (1, 36) -> (3, 20) via directional door (4, 6)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [credits-march-(3, 20)] -> campaign/kira_campaign.state  (map=(3, 20) coords=(17, 12) badges=8 party=6)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [credits-march-(3, 20)] -> checkpoints/20260813_102509_route-2_8b_43h31m_credits-march-3-20  (4 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'credits-march-(3, 20)' banked — any recovery now resumes right here
+
+   [campaign]    credits-march (3, 20) -> (3, 1)
+
+   [campaign]    off-route overworld (3, 20): graph hop toward (3, 1) (south -> (3, 1))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(17, 12) -> map (3, 1) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [7, 8, 9, 10, 11]
+
+   [travel] path blocked at (17, 12) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (17, 12) AND no NPC-allowing path (npcs nearby=[(11, 13)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (17, 12) map=(3, 20) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] -> T1·brisk· (event) "I can't find a way through here — let me rethink this"  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 6 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·floor· (<1s since last) T1 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(18, 41)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(17, 12) -> coord (18, 40) (budget 60s, surf-capable)
+
+   [travel] step 0: (17, 12)->(17, 13) map=(3, 20) (path 30 to exit)
+
+   [travel] step 10: (19, 20)->(19, 21) map=(3, 20) (path 20 to exit)
+
+   [egress] blocker on (18, 26) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(18, 26)])
+
+   [egress] wait on (18, 26) TIMED OUT (12s) — re-pathing around it
+
+   [travel] path blocked at (18, 25) (NPC on the gap?) - waiting
+
+   [kira-voice] -> T1·brisk· (beat) 'the route opens up ahead, grass swaying at the edges of the path'  fired=True  [age 0.0s + post 9ms]
+
+   [travel] no clean path from (18, 25); NPC-allowing path EXISTS (len 14), blocker NPC tile=(18, 26), npcs nearby=[(18, 26)] -> approaching to interact/trigger
+
+   [egress] blocker on (18, 26) (only-gap blocker) — holding position, waiting up to 12s for it to wander off (live bodies=[(18, 26)])
+
+   [egress] blocker on (18, 26) hasn't moved in 3.5s — stationary (trainer/squatter); falling back to interact/re-path
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 20)@(18, 25) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [kira-voice] -> T1·brisk· (event) "that little tree's in my way — good thing I carry Cut now. TIMBER!"  fired=True  [age 0.0s + post 3ms]
+
+   [dialogue] +++ 'DIGLETT used CUT!'  tags=[]
+
+   [kira-voice] ·throttle· (brisk <1.8s) 'you read: "DIGLETT used CUT!"'
+
+   [campaign]    [dlg hm-cut] 'DIGLETT used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'DIGLETT used CUT!' visible 4.28s (sink 1ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (18, 26) on (3, 20) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(18, 25) -> coord (18, 42) (budget 45s, surf-capable)
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(18, 25) -> coord (18, 40) (budget 45s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] step 0: (18, 25)->(18, 26) map=(3, 20) (path 14 to exit)
+
+   [travel] step 10: (18, 35)->(18, 36) map=(3, 20) (path 5 to exit)
+
+   [travel] reached target coord (18, 40)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (18, 41) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (15, 2): (6, 10)->(3, 20), (7, 10)->(3, 20), (8, 10)->(3, 20), (7, 1)->(3, 20)
+
+   [campaign]    WARPED (3, 20) -> (15, 2) via directional door (18, 41)
+
+   [campaign]    [world] learned 4 warp(s) on (15, 2): (6, 10)->(3, 20), (7, 10)->(3, 20), (8, 10)->(3, 20), (7, 1)->(3, 20)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(15, 2) coords=(7, 2) -> coord (6, 10) (budget 110s, surf-capable)
+
+   [travel] step 0: (7, 2)->(7, 3) map=(15, 2) (path 10 to exit)
+
+   [travel] reached target coord (6, 10)
+
+   [campaign]    2 door(s); candidates (chosen order): [(6, 10)]
+
+   [campaign]    door (6, 10): at (6, 10) (approach=(6, 11)) — stepping UP in
+
+   [campaign]    pick (6, 10) failed — trying adjacent actuatable door (7, 10) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(15, 2) coords=(6, 2) -> coord (7, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (6, 2)->(6, 3) map=(15, 2) (path 9 to exit)
+
+   [travel] reached target coord (7, 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 10) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 20): (5, 13)->(15, 3), (6, 13)->(15, 3), (5, 51)->(15, 0), (17, 11)->(1, 36), (17, 22)->(15, 1), (18, 46)->(15, 2)
+
+   [campaign]    WARPED (15, 2) -> (3, 20) via mat-row door (7, 10)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (18, 41): (3, 20)@(17, 12) -> (3, 20)@(18, 47)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 5ms]
+
+   [travel] start map=(3, 20) coords=(18, 47) -> map (3, 1) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [7, 8, 9, 10, 11]
+
+   [travel] step 0: (18, 47)->(18, 48) map=(3, 20) (path 37 to exit)
+
+   [travel] step 10: (17, 56)->(17, 57) map=(3, 20) (path 28 to exit)
+
+   [travel] step 20: (16, 65)->(16, 66) map=(3, 20) (path 19 to exit)
+
+   [egress] blocker on (15, 69) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(15, 69), (16, 62), (17, 64)])
+
+   [egress] wait on (15, 69) TIMED OUT (12s) — re-pathing around it
+
+   [travel] path blocked at (16, 69) (NPC on the gap?) - waiting
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] no clean path from (16, 69); NPC-allowing path EXISTS (len 15), blocker NPC tile=(15, 69), npcs nearby=[(15, 69), (16, 62), (17, 64)] -> approaching to interact/trigger
+
+   [egress] blocker on (15, 69) (only-gap blocker) — holding position, waiting up to 12s for it to wander off (live bodies=[(15, 69), (16, 62), (17, 64)])
+
+   [egress] blocker on (15, 69) hasn't moved in 3.5s — stationary (trainer/squatter); falling back to interact/re-path
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 20)@(16, 69) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "that little tree's in my way — good thing I carry Cut now. TIMBER!"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'DIGLETT used CUT!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "DIGLETT used CUT!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [dlg hm-cut] 'DIGLETT used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'DIGLETT used CUT!' visible 4.48s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (15, 69) on (3, 20) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    hop edge south wedged — probing west for (3, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(16, 69) -> map (3, 1) (budget 90s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    hop edge south wedged — probing east for (3, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(16, 69) -> map (3, 1) (budget 90s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (16, 69) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (16, 69) AND no NPC-allowing path (npcs nearby=[(16, 62), (17, 64)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (16, 69) map=(3, 20) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 5 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] -> T1·brisk· (route) 'hmm — no way through out here. maybe one of these buildings has a back way…'  fired=True  [age 0.0s + post 6ms]
+
+   [campaign]    10 door(s); candidates (chosen order): [(18, 41)]
+
+   [campaign]    directional warp (18, 41): no stand/neighbor reachable from (16, 69) — sealed pocket, skipping (0 legs)
+
+   [campaign]    pick (18, 41) failed — trying adjacent actuatable door (19, 41) (mat-row)
+
+   [campaign]    directional warp (19, 41): no stand/neighbor reachable from (16, 69) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    10 door(s); candidates (chosen order): [(18, 46)]
+
+   [campaign]    reachable door (18, 46): walking to approach (18, 47)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(16, 69) -> coord (18, 47) (budget 240s, surf-capable)
+
+   [travel] step 0: (16, 69)->(16, 68) map=(3, 20) (path 27 to exit)
+
+   [travel] step 10: (17, 60)->(17, 59) map=(3, 20) (path 17 to exit)
+
+   [travel] step 20: (19, 52)->(19, 51) map=(3, 20) (path 7 to exit)
+
+   [travel] reached target coord (18, 47)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 20) -> (15, 2) via door (18, 46)
+
+   [campaign]    [world] learned 4 warp(s) on (15, 2): (6, 10)->(3, 20), (7, 10)->(3, 20), (8, 10)->(3, 20), (7, 1)->(3, 20)
+
+   [campaign]    [world] learned 4 warp(s) on (15, 2): (6, 10)->(3, 20), (7, 10)->(3, 20), (8, 10)->(3, 20), (7, 1)->(3, 20)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(15, 2) coords=(7, 10) -> coord (7, 1) (budget 110s, surf-capable)
+
+   [travel] step 0: (7, 10)->(7, 9) map=(15, 2) (path 10 to exit)
+
+   [travel] reached target coord (7, 1)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    PASSTHROUGH: CROSSED via door (18, 46): (3, 20)@(16, 69) -> (3, 20)@(18, 41)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (route) "ha — knew it! through the building and out the other side. the road's open."  fired=True  [age 0.0s + post 3ms]
+
+   [travel] start map=(3, 20) coords=(18, 41) -> map (3, 1) (budget 90s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+   [travel] path blocked at (18, 41) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (18, 41) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (18, 41) map=(3, 20) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    hop edge south wedged — probing north for (3, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(18, 41) -> map (3, 1) (budget 90s, surf-capable)
+
+   [travel] north connection band cols: [8, 9, 10, 11]
+
+   [travel] step 0: (18, 41)->(18, 40) map=(3, 20) (path 53 to exit)
+
+   [travel] step 10: (19, 32)->(19, 31) map=(3, 20) (path 43 to exit)
+
+   [egress] blocker on (18, 26) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(18, 26)])
+
+   [egress] wait on (18, 26) TIMED OUT (12s) — re-pathing around it
+
+   [travel] path blocked at (18, 27) (NPC on the gap?) - waiting
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] no clean path from (18, 27); NPC-allowing path EXISTS (len 37), blocker NPC tile=(18, 26), npcs nearby=[(18, 26)] -> approaching to interact/trigger
+
+   [egress] blocker on (18, 26) (only-gap blocker) — holding position, waiting up to 12s for it to wander off (live bodies=[(18, 26)])
+
+   [egress] blocker on (18, 26) hasn't moved in 3.5s — stationary (trainer/squatter); falling back to interact/re-path
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.1s at (3, 20)@(18, 27) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "that little tree's in my way — good thing I carry Cut now. TIMBER!"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'DIGLETT used CUT!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "DIGLETT used CUT!"'
+
+   [campaign]    [dlg hm-cut] 'DIGLETT used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'DIGLETT used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (18, 26) on (3, 20) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    credits-march (3, 20) -> (3, 1)
+
+   [campaign]    off-route overworld (3, 20): graph hop toward (3, 1) (south -> (3, 1))
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(18, 27) -> map (3, 1) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [7, 8, 9, 10, 11]
+
+   [travel] path blocked at (18, 27) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (18, 27) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (18, 27) map=(3, 20) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 6 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(18, 46)]
+
+   [campaign]    pick (18, 46) failed — trying adjacent actuatable door (19, 46) (mat-row)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    10 door(s); candidates (chosen order): [(19, 41)]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(18, 27) -> coord (19, 40) (budget 60s, surf-capable)
+
+   [travel] step 0: (18, 27)->(18, 28) map=(3, 20) (path 13 to exit)
+
+   [travel] step 10: (18, 37)->(18, 38) map=(3, 20) (path 5 to exit)
+
+   [travel] reached target coord (19, 40)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (19, 41) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 4 warp(s) on (15, 2): (6, 10)->(3, 20), (7, 10)->(3, 20), (8, 10)->(3, 20), (7, 1)->(3, 20)
+
+   [campaign]    WARPED (3, 20) -> (15, 2) via directional door (19, 41)
+
+   [campaign]    [world] learned 4 warp(s) on (15, 2): (6, 10)->(3, 20), (7, 10)->(3, 20), (8, 10)->(3, 20), (7, 1)->(3, 20)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(15, 2) coords=(7, 2) -> coord (6, 10) (budget 110s, surf-capable)
+
+   [travel] step 0: (7, 2)->(7, 3) map=(15, 2) (path 10 to exit)
+
+   [travel] reached target coord (6, 10)
+
+   [campaign]    2 door(s); candidates (chosen order): [(6, 10)]
+
+   [campaign]    door (6, 10): at (6, 10) (approach=(6, 11)) — stepping UP in
+
+   [campaign]    pick (6, 10) failed — trying adjacent actuatable door (7, 10) (mat-row)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(15, 2) coords=(6, 2) -> coord (7, 9) (budget 60s, surf-capable)
+
+   [travel] step 0: (6, 2)->(6, 3) map=(15, 2) (path 9 to exit)
+
+   [travel] reached target coord (7, 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (7, 10) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 10 warp(s) on (3, 20): (5, 13)->(15, 3), (6, 13)->(15, 3), (5, 51)->(15, 0), (17, 11)->(1, 36), (17, 22)->(15, 1), (18, 46)->(15, 2)
+
+   [campaign]    WARPED (15, 2) -> (3, 20) via mat-row door (7, 10)
+
+   [campaign]    PASSTHROUGH: CROSSED via door (19, 41): (3, 20)@(18, 27) -> (3, 20)@(18, 47)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(18, 47) -> map (3, 1) (budget 300s, surf-capable)
+
+   [travel] south connection band cols: [7, 8, 9, 10, 11]
+
+   [travel] step 0: (18, 47)->(18, 48) map=(3, 20) (path 37 to exit)
+
+   [travel] step 10: (17, 56)->(17, 57) map=(3, 20) (path 28 to exit)
+
+   [travel] step 20: (16, 65)->(16, 66) map=(3, 20) (path 19 to exit)
+
+   [egress] blocker on (15, 69) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(15, 69), (16, 62), (17, 64)])
+
+   [egress] wait on (15, 69) TIMED OUT (12s) — re-pathing around it
+
+   [travel] path blocked at (16, 69) (NPC on the gap?) - waiting
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] no clean path from (16, 69); NPC-allowing path EXISTS (len 15), blocker NPC tile=(15, 69), npcs nearby=[(15, 69), (16, 62), (17, 64)] -> approaching to interact/trigger
+
+   [egress] blocker on (15, 69) (only-gap blocker) — holding position, waiting up to 12s for it to wander off (live bodies=[(15, 69), (16, 62), (17, 64)])
+
+   [egress] blocker on (15, 69) hasn't moved in 3.5s — stationary (trainer/squatter); falling back to interact/re-path
+
+   [dialogue] +++ 'This tree looks like it can be CUT down! Would you like to CUT it?'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "This tree looks like it can be CUT down! Would you like to CUT it?"'
+
+   [campaign]    [roam] !!!! WATCHDOG TRIPPED (frozen_box): nothing on screen has meaningfully changed for 8.0s at (3, 20)@(16, 69) — latching a top-level disengage (catches a sub-layer wedge the per-tick ledger can't see). LOUD
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "that little tree's in my way — good thing I carry Cut now. TIMBER!"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [dlg hm-cut] 'This tree looks like it can be CUT down! Would you like to CUT it?'
+
+   [dialogue] +++ 'DIGLETT used CUT!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "DIGLETT used CUT!"'
+
+   [campaign]    [dlg hm-cut] 'DIGLETT used CUT!'
+
+   [campaign]    [dlg-pace hm-cut] box 'This tree looks like it can be CUT down! Would y' visible 1.78s (sink 0ms, hold 0.10s, end=next_box)
+
+   [campaign]    [dlg-pace hm-cut] box 'DIGLETT used CUT!' visible 4.25s (sink 0ms, hold 0.04s, end=closed)
+
+   [travel] FIELD OBSTACLE (15, 69) on (3, 20) CLEARED with cut — continuing the leg
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    hop edge south wedged — probing west for (3, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(16, 69) -> map (3, 1) (budget 90s, surf-capable)
+
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+
+   [campaign]    hop edge south wedged — probing east for (3, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(16, 69) -> map (3, 1) (budget 90s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+   [campaign]    [roam] !! WATCHDOG latch STORM (3 legs bailed on one latch) — a sub-loop is consuming bails without unwinding. Self-healing NOW: latch cleared, watch reset, play resumes; a real wedge re-trips in 8s.
+
+   [travel] path blocked at (16, 69) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (16, 69) AND no NPC-allowing path (npcs nearby=[(16, 62), (17, 64)]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (16, 69) map=(3, 20) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    PASSTHROUGH: overworld can't reach the target — trying 4 door(s) as connectors (a building can open onto the far side)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'hmm — no way through out here. maybe one of these buildings has a back way…'
+
+   [campaign]    10 door(s); candidates (chosen order): [(19, 41)]
+
+   [campaign]    directional warp (19, 41): no stand/neighbor reachable from (16, 69) — sealed pocket, skipping (0 legs)
+
+   [campaign]    pick (19, 41) failed — trying adjacent actuatable door (18, 41) (mat-row)
+
+   [campaign]    directional warp (18, 41): no stand/neighbor reachable from (16, 69) — sealed pocket, skipping (0 legs)
+
+   [campaign]    no reachable door warped (entry geometry?) - LOUD
+
+   [campaign]    10 door(s); candidates (chosen order): [(19, 46)]
+
+   [campaign]    reachable door (19, 46): walking to approach (19, 47)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(16, 69) -> coord (19, 47) (budget 240s, surf-capable)
+
+   [travel] step 0: (16, 69)->(16, 68) map=(3, 20) (path 26 to exit)
+
+   [travel] step 10: (17, 60)->(17, 59) map=(3, 20) (path 16 to exit)
+
+   [travel] step 20: (19, 52)->(19, 51) map=(3, 20) (path 6 to exit)
+
+   [travel] reached target coord (19, 47)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    WARPED (3, 20) -> (15, 2) via door (19, 46)
+
+   [campaign]    [world] learned 4 warp(s) on (15, 2): (6, 10)->(3, 20), (7, 10)->(3, 20), (8, 10)->(3, 20), (7, 1)->(3, 20)
+
+   [campaign]    [world] learned 4 warp(s) on (15, 2): (6, 10)->(3, 20), (7, 10)->(3, 20), (8, 10)->(3, 20), (7, 1)->(3, 20)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(15, 2) coords=(7, 10) -> coord (7, 1) (budget 110s, surf-capable)
+
+   [travel] step 0: (7, 10)->(7, 9) map=(15, 2) (path 10 to exit)
+
+   [travel] reached target coord (7, 1)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    PASSTHROUGH: CROSSED via door (19, 46): (3, 20)@(16, 69) -> (3, 20)@(18, 41)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(18, 41) -> map (3, 1) (budget 90s, surf-capable)
+
+   [travel] east connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]
+
+   [travel] path blocked at (18, 41) (NPC on the gap?) - waiting
+
+   [travel] no clean path from (18, 41) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (18, 41) map=(3, 20) (reason=no_route) -> returning to roam LOUD (no inner spin)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "I can't find a way through here — let me rethink this"
+
+   [campaign]    hop edge south wedged — probing north for (3, 1)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(3, 20) coords=(18, 41) -> map (3, 1) (budget 90s, surf-capable)
+
+   [travel] north connection band cols: [8, 9, 10, 11]
+
+   [travel] step 0: (18, 41)->(18, 40) map=(3, 20) (path 53 to exit)
+
+   [travel] step 10: (19, 32)->(19, 31) map=(3, 20) (path 43 to exit)
+
+   [egress] blocker on (18, 26) (committed step) — holding position, waiting up to 12s for it to wander off (live bodies=[(18, 26)])
+
+   [egress] wait on (18, 26) TIMED OUT (12s) — re-pathing around it
+
+   [travel] path blocked at (18, 27) (NPC on the gap?) - waiting
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'the route opens up ahead, grass swaying at the edges of the path'
+
+   [travel] no clean path from (18, 27); NPC-allowing path EXISTS (len 37), blocker NPC tile=(18, 26), npcs nearby=[(18, 26)] -> approaching to interact/trigger
+
+   [egress] blocker on (18, 26) (only-gap blocker) — holding position, waiting up to 12s for it to wander off (live bodies=[(18, 26)])
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 783s, restart 1/8) — GAME CONTINUES; respawning audio.
+

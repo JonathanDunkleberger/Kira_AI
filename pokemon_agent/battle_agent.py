@@ -26,6 +26,9 @@ _LEGENDARY_SPECIES = frozenset({144, 145, 146, 150, 151})   # Articuno, Zapdos, 
 # when unowned (2026-08-02 Diglett chalk: Flash cave-cross fought every Diglett after Jonny said catch).
 _DIGLETT_CAVE_MAPS = frozenset({(1, 36), (1, 37), (1, 38)})
 _DIGLETT_LINE = frozenset({50, 51})  # Diglett, Dugtrio
+# Elite Four + Champion rooms (campaign._PLACE_NAMES). Smash-switch is legal here even
+# when the L72 ace is "crushing" a L52 opener — Zapdos still belongs in vs Dewgong.
+_LEAGUE_MAPS = frozenset({(1, 75), (1, 76), (1, 77), (1, 78), (1, 79)})
 # Creator "catch that!" latch path (kira/bot.py -> states/*/creator_order.json).
 _CREATOR_ORDER_TTL_S = float(os.getenv("POKEMON_CREATOR_ORDER_TTL_S", "1800"))
 
@@ -221,6 +224,19 @@ DOUBLES_ENABLED = os.getenv("POKEMON_DOUBLES", "1") == "1"
 # UP decrements (0=lead, 1=2nd, ... + a CANCEL entry past the last mon). Lets the in-battle SWITCH nav by
 # readback instead of blind DOWN*slot taps that wedge/mis-land on the long core (the gated switch's gap).
 PARTY_CURSOR = 0x02020777
+# ── THE BLINK-COUNTER LAW (2026-08-14, recon_revive_cursor/2 — the six-unused-Revives wall) ──
+# PARTY_CURSOR above is the SWITCH screen's cursor. On the ITEM-USE target screen ("Use on which
+# POKéMON?") that same byte is NOT a cursor at all: DOWN-walking the whole ring on the live
+# Lorelei fixture read [2,1,0,2,1,0,2,1,0,2] out of it while the highlight went
+# lead->1->2->3->CANCEL->lead->... — it is the highlight's 3-phase BLINK counter. Every historical
+# "REFUSE A ... cursor=0 not 0-HP" / "still on living lead after RIGHT/DOWN" line is this byte:
+# the walk asked for row 2, the blink counter happened to read 2 on lap 1, the loop `break`ed
+# WITHOUT PRESSING ANYTHING, and the (correct) 0-HP guard then refused A. Live 17:3x Lorelei:
+# 6 Revives in the bag, a dead Zapdos on the floor, 3 attempts, 0 consumed.
+# The REAL item-use slotId — the only address in all of EWRAM+IWRAM whose value tracked the
+# highlight across a 10-stop ring — is below. CANCEL reads 7, party rows read 0..n-1.
+ITEM_PARTY_CURSOR = 0x0203B0A9
+ITEM_PARTY_CANCEL = 6            # our normalised CANCEL index (the byte itself reads 7)
 # gMain.callback2 TRUTH for the in-battle BAG/PARTY sub-screens (2026-08-04, the Revive
 # insta-click: the aim block only ran on laps where the PIXEL party classifier fired, so on
 # frozen frames the bare walk-A confirmed the target screen's HOME cursor — the alive lead —
@@ -383,7 +399,11 @@ WHIFF_RESERVE_LEVEL_BAND = int(os.getenv("POKEMON_WHIFF_RESERVE_BAND", "15"))  #
 # than Route 4 at all, OR make a true strand (heal 'stuck', no reachable Center) force an escape-hatch reload
 # that recovers. Flagged in STATE §0 as the top rebuild item. Switch MECHANISM + BATTLE_SWITCH stay armed/verified.
 # 2026-08-03 NUCLEAR: DEFAULT OFF with BATTLE_SWITCH — same party-menu thrash class.
-GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "0") == "1"
+# 2026-08-10 ENDGAME REVISED (Jonny: "why is she not focussing on using them?"): ON for the
+# League push — the bounded VR2F prep fields Kadabra/Lapras as leads and turn-1 switches to the
+# ace so they bank participation XP without taking hits (the human Abra-leveling trick). The
+# switch is fail-safe (non-confirm just fights) and scoped to grind_weak_members calls.
+GRIND_SWITCH_ENABLED = os.getenv("POKEMON_GRIND_SWITCH", "1") == "1"
 PROTECT_LEAD_GRIND = False                 # set True by grind_weak_members only; read per battle in run()
 # SELECTIVE SOLO (2026-07-11 NS#26 — the bench-leveling KILL-XP lever, the frontier #2). The participation
 # GRIND SWITCH hands the KO to the ace, so the fielded weak lead banks only a SHARE of participation XP —
@@ -484,12 +504,21 @@ class BattleAgent:
         self._catching = False         # F-7(c) guard: KOing a CATCH target is a failure, never a
                                        # "you won" beat — set for the catch_pokemon flow.
         self._switch_fail_n = 0        # voluntary matchup-switch fails this battle (latch at 1)
+        self._switch_ping_from = None  # anti-ping-pong: species we just switched OUT
+        self._switch_ping_to = None    # anti-ping-pong: species we just switched IN
         self._throw_bag_aborts = 0     # CATCH-ABORT LATCH (2026-08-05, the Magmar wedge):
                                        # consecutive throw_ball aborts; a real throw resets it.
         self._catch_abort = False      # latched at CATCH_ABORT_MAX -> no more throws this battle
                                        # (campaign calls catch_pokemon on FRESH agents, so the
                                        # __init__ zero is the direct-call battle scope; run()'s
                                        # attach re-zeros it per battle for the divert path).
+        self._heal_failed = set()
+        # Battle-wide revive latch (survives MENU-WEDGE re-attach via the bridge flag).
+        self._revive_blocked = bool(getattr(bridge, "_revive_fail_latched", False))
+        self._revive_fail_n = 0 if not self._revive_blocked else 2
+        self._potion_blocked = set()       # species whose potion no_effect'd (NOT battle-wide)
+        self._cure_blocked = set()         # species whose cure no_effect'd (NOT battle-wide)
+        self._bag_blocked = False          # one bag-open/MUTE fail → fight (no menu loop)
 
     # ── input (owner-attributed) ───────────────────────────────────────────────
     def _tap(self, key):
@@ -645,6 +674,23 @@ class BattleAgent:
             if not ts or time.time() - ts > _CREATOR_ORDER_TTL_S:
                 return False
             return True
+        except Exception:
+            return False
+
+    def _lap_no_catch_era(self):
+        """Badge 8 + credits not rolled — the steamroll / victory lap owns the run.
+
+        A stale catch_now + reserved Ultras flee-loops every cave wild (weaken, don't
+        KO, no cheap balls, order stays live 30 min). Trash is a KO until GAME_CLEAR.
+        POKEMON_LAP_NO_CATCH=0 reverts. Legendaries/shinies still divert above this."""
+        if not LAP_NO_CATCH:
+            return False
+        try:
+            import field_moves as _fm
+            badges = sum(1 for i in range(8) if _fm.read_flag(self.b, 0x820 + i))
+            if badges < 8:
+                return False
+            return not _fm.read_flag(self.b, 0x82C)  # FLAG_SYS_GAME_CLEAR
         except Exception:
             return False
 
@@ -1580,13 +1626,14 @@ class BattleAgent:
                 except Exception:
                     incoming = 1.0          # unread species -> neutral; still eligible by level
             # CHIPPER RANKING (2026-08-09, the Zapdos overkill deadlock): for a NORMAL catch a
-            # resistant close-level chipper is right (incoming, then level). But a LEGENDARY
-            # overkill chipper must SURVIVE the bird's free switch hit AND its return fire long
-            # enough to land several chips — level is the bulk proxy and `incoming` the damage
-            # proxy, so rank by survivability (lv / incoming): a L50 body beats a resistant-but-
-            # fragile L18 (Kadabra/Diglett into Zapdos fainted before chipping once).
+            # resistant close-level chipper is right (incoming, then level). For a LEGENDARY the
+            # ace one-shots, so the bench must chip — and the bird's free switch hit + return fire
+            # means the chipper must both SURVIVE and chip GENTLY. Rank by lv/incoming: a mid-level
+            # body that doesn't eat the bird's STAB lands many soft chips (Lapras into Zapdos), while
+            # a same-level bird (Moltres/Articuno) hits too hard and stalls high, and a frail L18
+            # faints before chipping. Lowest ratio fields first; `incoming` breaks ties.
             if legend:
-                key = (-lv / max(incoming, 0.25), incoming)
+                key = (lv / max(incoming, 0.25), incoming)
             else:
                 key = (incoming, -lv)   # lower incoming better; then higher level
             if best_key is None or key < best_key:
@@ -1831,7 +1878,10 @@ class BattleAgent:
                      f"(MonFlewAway would spend the bird) (LOUD)")
             return False
         n = getattr(self, "_legend_soft_reloads", 0)
-        if n >= 2:
+        # ZAPDOS EXECUTIVE OVERRIDE (2026-08-10): the reset loop IS the strategy — an empty
+        # Ultra pocket reloads 'pre-zapdos' and repeats, so the 2-per-session budget is waived
+        # while the override is armed (re-derived on every catch_pokemon entry).
+        if n >= 2 and not getattr(self, "_zapdos_executive", False):
             self.log(f"   [catch] !! legend soft-reload budget spent ({n}/2) — NOT fleeing (LOUD)")
             return False
         self.log(f"   [catch] !!!! LEGEND SOFT-RELOAD — rewinding 'pre-{key}' WITHOUT RUN "
@@ -2123,12 +2173,29 @@ class BattleAgent:
         # unlocks the bench-chipper switch (and, bench exhausted, a last-resort high-HP throw).
         _ace_overkill = False
         _no_chipper_left = False
+        _zapdos_override = False
         try:
             _rb0 = st.read_battle(self.b)
             # FLEE-ON-SIGHT SPECIES (Abra/Kadabra): every weaken/status/switch turn hands it the
             # Teleport exit. Skip ALL softening and throw immediately — the deliberate, narrated
             # version of what previously looked like a mistake.
             _foe_sp0 = (_rb0 or {}).get("enemy", {}).get("species")
+            # ZAPDOS EXECUTIVE OVERRIDE (Jonny's hardcode, 2026-08-10, LIVE marathon call):
+            # Blastoise leads, Lapras lands exactly ONE Body Slam (chunk + 30% paralyze fish;
+            # KO guard DISABLED — a faint just resets), then PURE Ultra-Ball spam: NEVER attack
+            # again this battle. Faint / empty Ultra pocket -> reset ('pre-zapdos' reload) and
+            # repeat the exact same process. No chipping, no sleep rung, no bench walk.
+            # _no_chipper_left bypasses the hard throw floor so full-HP spams are sanctioned.
+            # (Blastoise cannot learn Body Slam — Lapras is the party's only user; Jonny
+            # sanctioned the Blastoise-lead + Lapras-swap when shown the movesets.)
+            _zapdos_override = (_foe_sp0 == 145)
+            if _zapdos_override:
+                weaken = False
+                _no_chipper_left = True
+                max_seconds = max(max_seconds, 900)   # a full Ultra-pocket spam outlives the 150s band
+                self.log("   [catch] ZAPDOS EXECUTIVE OVERRIDE — Blastoise leads, ONE Lapras "
+                         "Body Slam (KO guard OFF), then Ultra-Ball spam ONLY; reset on "
+                         "faint / empty Ultra pocket (LOUD)")
             if _rb0 and _rb0.get("enemy", {}).get("maxhp"):
                 # LOUD [catch] HEADER: the soak report must confess the discipline per target.
                 self.log(f"   [catch] target={st.SPECIES_NAME.get(_foe_sp0, f'#{_foe_sp0}')} "
@@ -2191,6 +2258,9 @@ class BattleAgent:
                              f"(est {_cest:.0%}/hit) into the throw band")
         except Exception:
             pass
+        # Re-derived on EVERY catch entry: lifts the per-session soft-reload budget below so the
+        # Zapdos reset loop (empty Ultra pocket -> 'pre-zapdos' reload -> repeat) never starves.
+        self._zapdos_executive = _zapdos_override
 
         def _ended():
             """Battle ended: settle, then a party+1 means we CAUGHT it (the 'Gotcha!' can end the
@@ -2198,6 +2268,43 @@ class BattleAgent:
             for _ in range(40):
                 self.b.run_frame(); self.render()
             return "caught" if self.b.rd8(ram.GPLAYER_PARTY_CNT) > p0 else "fled"
+
+        # ZAPDOS EXECUTIVE OVERRIDE — the scripted opening (Jonny 2026-08-10): Blastoise (ace,
+        # slot 0) leads and tanks the free switch hit; Lapras comes in and lands exactly ONE
+        # Body Slam (chunk + 30% paralyze fish). KO guard OFF by explicit order — _fire_move has
+        # no guard; a faint just resets. After this single hit the loop below is PURE Ultra-Ball
+        # spam: she NEVER attacks again this battle. Any failure of the swap degrades to
+        # ball-only spam (never to more attacks).
+        if _zapdos_override and st.in_battle(self.b):
+            _zs = st.read_battle(self.b)
+            _our_sp = (_zs or {}).get("ours", {}).get("species")
+            if _our_sp != 9:                       # ensure Blastoise (ace) is the active lead
+                self._switch_to_slot(0, _our_sp)
+                _zs = st.read_battle(self.b)
+                _our_sp = (_zs or {}).get("ours", {}).get("species")
+            _lapras_slot, _bs_idx = None, None
+            try:
+                for _ps in range(min(self.b.rd8(ram.GPLAYER_PARTY_CNT), 6)):
+                    if st.read_party_species(self.b, _ps) != 131:      # Lapras
+                        continue
+                    _pmv = st.read_party_moves(self.b, _ps)
+                    if 34 in _pmv:                 # Body Slam
+                        _lapras_slot, _bs_idx = _ps, _pmv.index(34)
+                    break
+            except Exception:
+                pass
+            if _our_sp != 131 and _lapras_slot is not None:
+                if self._switch_to_slot(_lapras_slot, _our_sp) == "switched":
+                    _our_sp = 131
+                else:
+                    self.log("   [catch] !! ZAPDOS EXECUTIVE — Lapras switch did not confirm; "
+                             "Ultra-Ball spam WITHOUT the Body Slam (never attack) (LOUD)")
+            if _our_sp == 131 and _bs_idx is not None and st.in_battle(self.b):
+                self.log("   [catch] ZAPDOS EXECUTIVE — Lapras fires ONE Body Slam (KO guard "
+                         "OFF); Ultra-Ball spam only from here on")
+                self.emit("one Body Slam to chunk it — and maybe it paralyzes. then we do NOT "
+                          "touch it again. Ultra Balls only.", beat=True, tier=2)
+                self._fire_move(_bs_idx)           # the single chunk — no KO guard, by order
 
         while time.time() - t0 < max_seconds:
             if not st.in_battle(self.b):
@@ -2454,10 +2561,24 @@ class BattleAgent:
                     if _ref is not None:
                         return _ref
                     continue
+            # ZAPDOS EXECUTIVE OVERRIDE — ULTRAS ONLY: the moment the Ultra pocket is empty the
+            # attempt is OVER (never lesser balls) — soft-reload 'pre-zapdos' resets the board
+            # (balls restored, bird live) and the hunt re-presses for a fresh attempt. A failed
+            # reload falls out as 'no_balls' with the bird live; the fight-clear KO then resets
+            # via the faint path (Jonny: "if Zapdos faints, so be it, we will just reset").
+            if _zapdos_override and self._ball_qty(self._BALL_ULTRA) <= 0:
+                self.log("   [catch] ZAPDOS EXECUTIVE — Ultra pocket EMPTY; resetting NOW "
+                         "(soft-reload 'pre-zapdos'; NEVER throwing lesser balls) (LOUD)")
+                self.emit("out of Ultra Balls — rewinding to right before the fight. same plan "
+                          "again.", beat=True, tier=2)
+                self._try_legend_soft_reload(145)
+                return "no_balls"
             # THE SLEEP RUNG (legendary doctrine): before EVERY throw, a status-free legendary
             # gets a sleep cast (or the one sleeper switch) — x2 on the ball math, and it
             # covers the wake-up mid-throws. Bounded inside the rung; False -> just throw.
-            if _legend and state is not None and st.in_battle(self.b) \
+            # ZAPDOS EXECUTIVE OVERRIDE: exempt — after the single Body Slam the ONLY action
+            # is an Ultra Ball (never another move of any kind).
+            if _legend and not _zapdos_override and state is not None and st.in_battle(self.b) \
                     and self._legend_sleep_rung(state):
                 continue
             res = self.throw_ball(max_seconds=max(20, int(max_seconds - (time.time() - t0))),
@@ -2701,7 +2822,15 @@ class BattleAgent:
         """From the ACTION menu: cursor->BAG (verified by readback) -> A. The bag is open iff the white
         action panel is GONE (a blue description box). If A didn't open it (white panel stays), B out +
         retry. The readback nav (vs a blind RIGHT) is the fix for the long-core 'eaten RIGHT' that left
-        her unable to use a Potion mid-fight — never fires a move (that needs a 2nd A in the move list)."""
+        her unable to use a Potion mid-fight — never fires a move (that needs a 2nd A in the move list).
+
+        2026-08-14 DO-NOT-"FIX"-BLIND: this exit test is loose (it also passes on transition frames),
+        and roughly 1 use in 4 bails downstream with "pocket byte MUTE ... bag never opened" — one
+        wasted turn, self-retried next turn. Two principled tightenings were MEASURED on the Lorelei
+        fixture (recon_revive_land) and BOTH were worse: waiting for `_bag_menu_cb2()/_bag_screen()`
+        took the MUTE bails 4 -> 6, and additionally B-retrying instead of trusting the white-box test
+        turned the fight from a WIN into a LOSS (4x the menu thrash). Whatever is really happening on
+        those frames is not "the bag is slow" — measure it before touching this again."""
         for _ in range(tries):
             if not self._goto_bag():
                 self._settle_action_menu(); continue
@@ -2921,13 +3050,13 @@ class BattleAgent:
     def use_item_in_battle(self, item_id, max_seconds=30, target=None):
         """Use one `item_id` from the Items pocket. Returns 'used' (count dropped) | 'no_item' |
         'failed' | 'no_effect'. FAIL-SAFE: anything but 'used' leaves the battle fightable. `target`
-        aims the item's party screen: 'active' (the mon that is OUT — always menu row 0, the lead
-        panel) or 'fainted' (the strongest downed mon — Revive). The row is resolved by CONTENT at
-        MENU TIME (_menu_rows order law): run14 frame-proof — a Revive aimed at a PRE-menu slot
-        index confirmed the healthy active mon's panel, ate 'It won't have any effect.' boxes all
-        night, and never consumed. None keeps the legacy un-aimed walk; aim taps are
-        party-screen-gated (pixel truth) so a lagging party open never taps into the bag's
-        USE/CANCEL sub-box."""
+        aims the item's party screen: 'active' (the mon that is OUT — gBattlerPartyIndexes[0],
+        which is where PARTY_MENU_TYPE_USE_ITEM homes the cursor) or 'fainted' (the strongest
+        downed mon — Revive). The row is resolved by CONTENT at MENU TIME (_menu_rows): a
+        Revive aimed at an assumed home-0 confirmed the living battler, ate 'It won't have
+        any effect.' boxes, and never consumed (live 12:34: Articuno out = home slot 3).
+        None keeps the legacy un-aimed walk; aim taps are party-screen-gated (pixel truth)
+        so a lagging party open never taps into the bag's USE/CANCEL sub-box."""
         ids = [i for i, _ in self._items_pocket()]
         if item_id not in ids:
             self.log(f"   [engine] use_item: item {item_id} NOT in pocket {ids[:8]} — no_item (LOUD)")
@@ -2941,6 +3070,7 @@ class BattleAgent:
             return "failed"
         if not self._open_bag():
             self.log("   [engine] use_item: bag wouldn't open (eaten RIGHT?) — keep fighting (LOUD)")
+            self._latch_bag_fail("bag wouldn't open")
             self._exit_bag(); return "failed"
         # POCKET LIVENESS PROBE (2026-08-03 13:01 — 'hovering over Teachy TV and Helix Fossil
         # mid fight'): Teachy TV/Helix Fossil live in the KEY ITEMS pocket. The pocket byte
@@ -2974,6 +3104,7 @@ class BattleAgent:
                     self.log("   [engine] use_item: pocket byte MUTE + NO bag/white pixels + "
                              "callback2 not the bag — bag never opened; keep fighting "
                              "(LOUD, no blind taps fired)")
+                    self._latch_bag_fail("pocket byte MUTE — bag never opened")
                     self._exit_bag(); return "failed"
             self.log("   [engine] use_item: pocket byte is MUTE (frozen RAM) — BLIND clamp "
                      "LEFT x4 to the Items pocket")
@@ -3020,7 +3151,12 @@ class BattleAgent:
         # as a stray sub-menu and B-cancelled it every lap, so the item never consumed.
         # Count drop is the only truth; a mis-aim just exhausts the walk -> 'failed' ->
         # keep fighting (fail-safe, never a wedge).
+        # REVIVE EXCEPTION (2026-08-13 live Lorelei): never CONFIRM BLIND. A on the HOME
+        # cursor (alive Blastoise) eats "It won't have any effect." forever. Aim must land
+        # on a 0-HP row via species+HP readback; else B out and fight.
         aimed = target is None                             # no aim requested = nothing to do
+        _is_revive = item_id in _REVIVE_ITEMS_PREF or target == "fainted"
+        self._revive_aimed_row = None                      # set only after a 0-HP walk this use
         # Cap raised 4->6 (2026-08-04 Gary): frozen-frame battles burn 2-3 laps before the
         # party screen even registers, so a 4-lap budget died the instant aiming started.
         # The wrong-aim A-spam risk that set the old cap is now closed by the no_effect
@@ -3050,9 +3186,28 @@ class BattleAgent:
                 rows = self._menu_rows()
                 if isinstance(target, int):                # an EXACT party slot (revive routing)
                     _row = target
-                elif target == "fainted":
-                    _row = next((r["row"] for r in sorted(rows, key=lambda r: -r["level"])
-                                 if r["hp"] == 0), None)
+                elif target == "fainted" or _is_revive:
+                    _row = None
+                    try:
+                        if self._league_seat():
+                            import e4_strike as _e4aim
+                            _st = st.read_battle(self.b) or {}
+                            _en = self._enemy_for_matchup(_st)
+                            _zap = False
+                            for _r in rows:
+                                if _r.get("species") == _e4aim.ZAPDOS_SP:
+                                    _zap = _e4aim.slot_has_electric_damage(
+                                        self.b, _r.get("row", 0))
+                                    break
+                            _row = _e4aim.e4_revive_target_from_rows(
+                                rows, self._league_seat(),
+                                _en.get("types") or [], _en.get("species"),
+                                zap_has_electric=_zap)
+                    except Exception:
+                        _row = None
+                    if _row is None:
+                        _row = next((r["row"] for r in sorted(
+                            rows, key=lambda r: -r["level"]) if r["hp"] == 0), None)
                     if _row is None:
                         # No fainted row visible at menu time (torn/frozen party block) —
                         # confirming the healthy default row 0 is the "won't have any
@@ -3061,13 +3216,22 @@ class BattleAgent:
                                  "aborting revive (no_effect; fail-safe)")
                         self._exit_bag()
                         return "no_effect"
-                else:                                      # 'active' -> the lead panel
-                    _row = 0
+                else:                                      # 'active' -> the mon that is OUT
+                    # Item-use party opens on gBattlerPartyIndexes[0], NOT
+                    # display row 0 (live 12:34: Articuno out = home slot 3).
+                    try:
+                        _row = int(self.b.rd16(ram.GBATTLER_PARTY_IDX))
+                    except Exception:
+                        _row = 0
+                    if not (0 <= _row < 6):
+                        _row = 0
                     # 2026-08-02 LIVE: heal aimed at FULL ace (torn gBattleMons said hurt) —
                     # "It won't have any effect." A-spam forever. Abort BEFORE confirming.
                     if _is_heal and rows:
-                        lead = next((r for r in rows if r["row"] == 0), rows[0])
-                        if lead.get("maxhp") and lead.get("hp", 0) >= lead["maxhp"]:
+                        lead = next((r for r in rows if r["row"] == _row), None)
+                        if lead is None and rows:
+                            lead = rows[0]
+                        if lead and lead.get("maxhp") and lead.get("hp", 0) >= lead["maxhp"]:
                             self.log(f"   [engine] use_item: lead {st.SPECIES_NAME.get(lead.get('species'), '?')} "
                                      f"is FULL HP ({lead['hp']}/{lead['maxhp']}) — aborting potion "
                                      f"(no_effect; was the full-ace Super Potion loop)")
@@ -3084,6 +3248,15 @@ class BattleAgent:
                             _st = st.read_battle(self.b) or {}
                             _cur_status = _decode_status((_st.get("ours") or {}).get("status1", 0) or 0)
                         if not _cur_status:
+                            # Live Lorelei 18:23: Full Heal landed ("BLASTOISE became
+                            # healthy") but bag-count lagged one walk; this abort
+                            # returned no_effect, latched CURE-BLOCK, Moltres slept
+                            # with no wake. Recheck count before aborting.
+                            if self._items_count(item_id) < cnt0:
+                                break
+                            self._wait(12)
+                            if self._items_count(item_id) < cnt0:
+                                break
                             self.log("   [engine] use_item: active has NO status — aborting cure "
                                      "(no_effect; was the Awakening re-open loop)")
                             self._exit_bag()
@@ -3098,22 +3271,94 @@ class BattleAgent:
                                       beat=True, tier=2)
                             self._exit_bag()
                             return "no_effect"
-                _seen = (self._party_cursor_slot() is not None
-                         or self._party_cursor_on_lead())
-                if not _seen or not self._party_goto_slot(_row):
-                    # Border readback blind (fade frames / frozen pixels) or the closed-loop
-                    # walk couldn't confirm — walk BLIND from the clamped home (LEFT clamps
-                    # the lead panel; RIGHT + DOWN×(row-1) lands any right-column row). Only
-                    # d-pad taps: on this screen a stray B cancels, a stray A confirms.
-                    self.log(f"   [engine] use_item: cursor unreadable/unreached for row {_row} "
-                             f"— BLIND party walk (LEFT home, RIGHT + DOWN x{max(0, _row - 1)})")
-                    self._party_blind_goto(_row)
-                aimed = True
+                if _is_revive or target == "fainted":
+                    # never _party_focus — B cancels "Use on which POKEMON?" back to
+                    # the bag. never LEFT — LEFT from the lead is CANCEL, then A
+                    # hits the living lead (live 12:00: Moltres selected, "It
+                    # won't have any effect.", Blastoise/Zapdos still FNT).
+                    fainted_rows = [r["row"] for r in sorted(rows, key=lambda r: -r.get("level", 0))
+                                    if int(r.get("hp") or 0) == 0]
+                    if _row is not None:
+                        fainted_rows = [r for r in fainted_rows if r != _row]
+                        fainted_rows.insert(0, _row)
+                    landed = False
+                    for try_row in fainted_rows or [_row]:
+                        if try_row is None:
+                            continue
+                        if self._revive_land_fainted_row(try_row):
+                            landed = True
+                            break
+                    if not landed:
+                        self.log(f"   [engine] use_item: REFUSE A on alive slot "
+                                 f"(wanted fainted row {_row}, cursor={self._party_cursor_row()} "
+                                 f"not 0-HP; tried rows {fainted_rows}) — B out, fight")
+                        self._exit_bag()
+                        return "failed"
+                    aimed = True
+                    # Land already pressed A once. The generic A below is the
+                    # live Agatha CANCEL/bag-reopen spam (WALK landed ×6,
+                    # item 24 never consumed). Wait for count-drop; re-aim
+                    # on a miss — never A-spam the bag list.
+                    if self._items_count(item_id) < cnt0:
+                        break
+                    self.log("   [engine] use_item: revive A after walk did not consume "
+                             f"(count still {cnt0}) — dismiss no-effect, re-aim, no A-spam")
+                    self._dismiss_item_no_effect()
+                    aimed = False
+                    self._revive_aimed_row = None
+                    continue
+                else:
+                    # Heal/cure/ether: SAME walk as Revive. Never LEFT
+                    # (_party_blind_goto LEFTs = CANCEL). Never UP
+                    # (slot0-UP is CANCEL; live 12:18 Revive A returned
+                    # to the bag, item never consumed).
+                    if not self._item_land_party_row(_row, kind="heal"):
+                        self.log(f"   [engine] use_item: heal/cure land missed row {_row} "
+                                 "— B out, fight")
+                        self._exit_bag()
+                        return "failed"
+                    aimed = True
+                    if (_is_heal or _is_cure) and self._items_count(item_id) < cnt0:
+                        break
+                    if _is_heal or _is_cure:
+                        self.log("   [engine] use_item: heal A after walk did not consume "
+                                 f"(count still {cnt0}) — dismiss no-effect, re-aim, no A-spam")
+                        self._dismiss_item_no_effect()
+                        aimed = False
+                        continue
+                    # Ether: lander selected the mon; fall through for the move box.
+            # Hard gate: Revive A only on a 0-HP highlight. Live 16:03 Lance:
+            # orange on Articuno (alive, OUT), Zapdos FNT, "It won't have any
+            # effect." The old "walked row + ignore orange" override WAS that A.
+            # TPP Commander Mode ON-N: confirm only when the cursor slot is
+            # the target. Orange is the selection (pret SINGLE layout).
+            if _is_revive:
+                _on_party = self._party_screen() or self._party_menu_cb2()
+                _on_bag = self._bag_screen() or self._bag_menu_cb2()
+                try:
+                    _dead = self._cursor_on_zero_hp()
+                except Exception:
+                    _dead = False
+                if _on_party and not _dead:
+                    self.log("   [engine] use_item: REFUSE A on alive highlight "
+                             f"(cursor row={self._party_cursor_row()} hp>0 — "
+                             "orange is the selection; live 16:03 Articuno) "
+                             "— B out, fight")
+                    self._exit_bag()
+                    return "failed"
+                if not _on_party and not _on_bag and n > 0:
+                    self.log("   [engine] use_item: REFUSE A (revive, screen unreadable after "
+                             "bag open) — B out, fight")
+                    self._exit_bag()
+                    return "failed"
             self.log(f"   [engine] use_item walk n={n}: party={self._party_screen()} "
                      f"bag={self._bag_screen()} white={self._white_box()} "
                      f"cb2party={self._party_menu_cb2()} cb2bag={self._bag_menu_cb2()} "
                      f"pcur={self._party_cursor_slot()} lead={self._party_cursor_on_lead()}")
-            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(16)
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            # Revive party chooser needs more than 16 frames or the next
+            # lap walks while D-pads are still eaten (live 10:22).
+            self._wait(36 if _is_revive else 16)
             if not st.in_battle(self.b):
                 break
         if self._items_count(item_id) < cnt0:
@@ -3155,6 +3400,10 @@ class BattleAgent:
         (fail-safe — she never wedges, and never faints with unused heals because the option was surfaced)."""
         if not self.choose:
             return False
+        if getattr(self, "_bag_blocked", False):
+            self.log("   [engine] ITEM-INSTINCT: bag latched off this battle — fight "
+                     "(one fail, no MUTE loop)")
+            return False
         ours = state["ours"]
         # HEAL-CONSUME-FAILED LATCH (NS#12): a prior in-battle item use for THIS mon already proved it
         # won't consume this battle (the bag USE/CANCEL non-consume wedge) — re-offering just re-opens the
@@ -3163,9 +3412,24 @@ class BattleAgent:
         # cleared per battle, per species, only after a PROVEN failure (a working heal never latches).
         if HEAL_FAIL_LATCH and (ours.get("species") in self._heal_failed):
             return False
-        if getattr(self, "_potion_blocked", False):
-            # Still allow cure/revive/ether below — only potions are blocked after no_effect.
+        # Already on the move list — do not open the bag (2026-08-13: STREAM COMMIT then
+        # revive theater, "REVIVE is selected" over the fight menu).
+        try:
+            if self._at_move_list() and not self._at_action_menu():
+                self.log("   [engine] ITEM-INSTINCT: move list already open — fight "
+                         "(no bag/revive)")
+                return False
+        except Exception:
             pass
+        # REVIVE-FAIL LATCH (2026-08-13 live Lorelei): one failed revive (item not consumed
+        # OR cursor never on a 0-HP row) → never re-offer revive this battle. Per-species
+        # heal-fail did not stop it: the oracle re-offered on the next body / after MENU
+        # WEDGE re-attach. Fight.
+        if getattr(self, "_revive_blocked", False) or getattr(self.b, "_revive_fail_latched", False):
+            self._revive_blocked = True
+        _pot_block = getattr(self, "_potion_blocked", set()) or set()
+        if not isinstance(_pot_block, set):
+            _pot_block = set()
         frac = _hp_frac(ours)
         # 2026-08-02 LIVE: gBattleMons HP tore (looked crit) while party + HUD said FULL —
         # she opened Super Potion on the ace forever. Trust party struct over battle mons.
@@ -3229,7 +3493,7 @@ class BattleAgent:
                      f"struct says {_pstatus!r} — trusting party (anti wrong-medicine loop)")
             status = _pstatus
         if (frac <= heal_frac and not finishable
-                and not getattr(self, "_potion_blocked", False)):
+                and ours.get("species") not in _pot_block):
             # ACE-FIRST POTION ECONOMY (2026-07-31, the Misty chalk Jonny watched): the aim is
             # always the ACTIVE mon (correct — never a bench row), but after the ace faints the
             # game FORCE-SWITCHES fodder in, and this offer then spent the whole potion stock
@@ -3247,6 +3511,16 @@ class BattleAgent:
                 _fodder = bool(_ours_lv and _top_lv and (_top_lv - _ours_lv) >= 8)
             except Exception:
                 _fodder = False
+            # E4: the L50 birds ARE the team, not bench rats next to L72 Blastoise.
+            # Species 144/145/146 (Articuno/Zapdos/Moltres) never fodder; any league
+            # battle disables ACE-FIRST potion refusal (live 14:00 wipe).
+            _bird = ours.get("species") in (144, 145, 146)
+            if _bird or self._league_seat():
+                if _fodder:
+                    self.log(f"   [engine] ACE-FIRST: L{_ours_lv} "
+                             f"{'legendary bird' if _bird else 'E4/league fighter'} "
+                             f"is NOT fodder next to L{_top_lv} — offering heal")
+                _fodder = False
             if _fodder:
                 self.log(f"   [engine] ACE-FIRST POTIONS: active L{_ours_lv} is fodder next to the "
                          f"team's L{_top_lv} carry — NOT offering a heal on it (the potions are "
@@ -3255,10 +3529,17 @@ class BattleAgent:
                 _missing = max(0, int(round((1.0 - frac) * (ours.get("maxhp") or 0))))
                 heal = self._pick_heal_item(_missing, status)
                 if heal is not None:
-                    plan["use_potion"] = (heal, aim)
-                    offers["use_potion"] = (f"use {ITEM_QTY_NAMES.get(heal, 'a healing item')} — "
-                                            f"you're at {ours['hp']}/{ours['maxhp']} HP, about to "
-                                            f"faint, and it's sized to the damage")
+                    # Super Potion on a sleeper is a free hit for the foe (live Lorelei
+                    # 18:23: four Super Potions on sleeping Moltres, then faint).
+                    # Full Restore (19) is the one exception — one turn wakes AND heals.
+                    if status in ("sleep", "freeze") and heal != 19:
+                        self.log("   [engine] SLEEP-POTION BAN: will not drink a heal on "
+                                 f"{status} (cure or switch — live Lorelei potion-loop)")
+                    else:
+                        plan["use_potion"] = (heal, aim)
+                        offers["use_potion"] = (f"use {ITEM_QTY_NAMES.get(heal, 'a healing item')} — "
+                                                f"you're at {ours['hp']}/{ours['maxhp']} HP, about to "
+                                                f"faint, and it's sized to the damage")
         elif finishable and frac <= heal_frac:
             self.log(f"   [engine] FINISH-THE-FOE: foe at {int(foe_frac*100)}% (<=25%), us {int(frac*100)}% "
                      f"(> crit) -> no heal, land the KO instead")
@@ -3266,7 +3547,10 @@ class BattleAgent:
         # cure costs the turn. Against a nearly-dead foe, landing the KO beats curing —
         # UNLESS the status stops her from acting at all (sleep/freeze; full-para is a
         # gamble but she can still move). Poison/burn chip is survivable for one finishing hit.
-        _cure_now = status and not getattr(self, "_cure_blocked", False)
+        _cure_block = getattr(self, "_cure_blocked", set()) or set()
+        if not isinstance(_cure_block, set):
+            _cure_block = set()
+        _cure_now = bool(status and ours.get("species") not in _cure_block)
         if _cure_now and finishable and status not in ("sleep", "freeze"):
             self.log(f"   [engine] CURE TIMING: {status} can wait — foe at {int(foe_frac*100)}% "
                      f"is one hit from down; KO first, cure after (or the Center does it free)")
@@ -3281,15 +3565,43 @@ class BattleAgent:
                 plan["use_cure"] = (cure, aim)
                 offers["use_cure"] = (f"use {ITEM_QTY_NAMES.get(cure, 'the cure')} for {status} — "
                                       f"it's hurting you and you have the item")
-        elif status and getattr(self, "_cure_blocked", False):
-            self.log(f"   [engine] CURE-BLOCK: status={status} but cures latched off this battle "
-                     f"(anti Awakening re-open loop)")
+        elif status and ours.get("species") in _cure_block:
+            self.log(f"   [engine] CURE-BLOCK: status={status} but cures latched off for "
+                     f"species {ours.get('species')} this battle (anti Awakening re-open loop; "
+                     f"NEXT body still gets a cure)")
         # REVIVE INSTINCT (night shift #13): the fallen-ace case that killed e4_run3 at Lance —
         # Revives rode the bag unused while bench-warmers tanked on. Offer resurrection only when
         # the fainted mon out-levels everything still standing (fodder fainting never triggers it).
         revive = next((i for i in _REVIVE_ITEMS_PREF if self._items_count(i) > 0), None)
-        if revive is not None:
+        if revive is not None and not getattr(self, "_revive_blocked", False):
             down = self._revive_worthy_slot()
+            if down is None:
+                # E4 wincon does not need to out-level L74 Blastoise (live Agatha:
+                # Zapdos fainted, worthy=None, Revive x2 never offered).
+                try:
+                    down = self._e4_revive_wincon_slot(state)
+                except Exception:
+                    down = None
+            if down is None and self._e4_thin_party():
+                try:
+                    import e4_strike as _e4thin
+                    _rows = []
+                    for _i in range(6):
+                        _sp = st.read_party_species(self.b, _i)
+                        _rows.append({
+                            "row": _i,
+                            "species": _sp,
+                            "hp": self.b.rd16(ram.GPLAYER_PARTY + _i * 100 + 0x56)
+                            if _sp else 0,
+                            "level": self.b.rd8(ram.GPLAYER_PARTY + _i * 100 + 0x54)
+                            if _sp else 0,
+                        })
+                    down = _e4thin.e4_thin_party_revive_index(
+                        _rows,
+                        prefer_species=_e4thin.e4_between_room_revive_species(
+                            self._league_seat()) or ())
+                except Exception:
+                    down = None
             if down is not None:
                 # route via "fainted" (the STRONGEST downed mon — the proven no-wedge path). The
                 # int-slot routing wedged the revive item-application at Gary (run10: "item 24 NOT
@@ -3298,6 +3610,40 @@ class BattleAgent:
                 plan["use_revive"] = (revive, "fainted")
                 offers["use_revive"] = ("spend this turn reviving your fallen heavy-hitter — "
                                         "it's stronger than anyone still standing and you HAVE a Revive")
+                # E4 / league rooms: default keep_fighting unless a confirmed fainted-row
+                # cursor is already under the finger. Oracle "use_revive" spam is dead air
+                # (live Lorelei: Revive on living Blastoise every turn).
+                try:
+                    _e4 = bool(self._league_seat() or self._lap_no_catch_era())
+                    _on_dead = self._cursor_on_zero_hp()
+                except Exception:
+                    _e4, _on_dead = bool(self._league_seat()), False
+                if _e4 and not _on_dead:
+                    _win = None
+                    try:
+                        _win = self._e4_revive_wincon_slot(state)
+                    except Exception:
+                        _win = None
+                    _alive_n, _fainted_n = self._e4_party_counts()
+                    _thin = _alive_n <= 2 and _fainted_n > 0
+                    _last = _alive_n == 1
+                    if _win is None and not _thin and not _last:
+                        self.log("   [engine] E4/league: default keep_fighting — no use_revive "
+                                 "offer (cursor not on a 0-HP row; refuse bag theater)")
+                        plan.pop("use_revive", None)
+                        offers.pop("use_revive", None)
+                    elif _last:
+                        self.log("   [engine] E4/league: LAST-BODY revive kept "
+                                 f"(alive={_alive_n} fainted={_fainted_n} — "
+                                 "spend the turn, do not strip)")
+                    elif _thin:
+                        self.log("   [engine] E4/league: THIN-PARTY revive kept "
+                                 f"(alive={_alive_n} fainted={_fainted_n} — "
+                                 "spend the turn, do not strip)")
+                    else:
+                        self.log("   [engine] E4/league: wincon revive offered "
+                                 "(Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; "
+                                 "cursor MUST land on 0-HP at use)")
         if "use_revive" not in offers:
             # FORENSICS (run16 mystery): attempt 1's Arbok endgame cycled 5 fodder mons past a
             # dead L66 ace with 6 Revives in the bag and never a single offer. Whenever a
@@ -3330,6 +3676,29 @@ class BattleAgent:
                     plan["use_ether"] = (ether, aim)
                     offers["use_ether"] = ("restore PP with your Ether — you're out of moves that can "
                                            "hit this foe and it puts your best move back in the fight")
+        # E4 WINCON PP: Earthquake hit 0 vs Cloyster/Slowbro/Lapras while Surf still
+        # had PP — famine never fired, she Surfed Lapras (0.5x). Elixir restores ALL
+        # moves (EQ may not be slot 0). Prefer Elixir; Ether is last resort.
+        if "use_ether" not in plan and self._league_seat():
+            try:
+                import e4_strike as _e4
+                _en = self._enemy_for_matchup(state)
+                if _e4.e4_eq_pp_dry((state.get("ours") or {}).get("moves") or [],
+                                    (state.get("ours") or {}).get("species"),
+                                    _en.get("types") or [], _en.get("species")):
+                    ether = next((i for i in _e4.E4_ELIXIR_PREF
+                                  if self._items_count(i) > 0), None)
+                    if ether is not None:
+                        plan["use_ether"] = (ether, aim)
+                        offers["use_ether"] = ("Elixir on Blastoise Earthquake — PP is 0 vs "
+                                               "this Water-type; Surf is banned, EQ is the wincon")
+                        self.log("   [engine] E4 EQ DRY: offering Elixir/Ether on Earthquake "
+                                 "(Surf still having PP does NOT skip this)")
+                    else:
+                        self.log("   [engine] E4 EQ DRY: no Ether/Elixir in bag — Skull Bash/"
+                                 "Bite, never Surf (LOUD)")
+            except Exception as _ex:
+                self.log(f"   [engine] E4 EQ-dry ether check skipped ({_ex})")
         # REFUSAL-PROVEN FAMINE (2026-08-03 12:07): the PP bytes can lie (frozen-RAM battles
         # read pp>0 on slots the game refuses every turn), so the RAM famine gate above can
         # miss the exact fight that needs the Ether most. If the GAME ITSELF has refused
@@ -3356,10 +3725,11 @@ class BattleAgent:
         # ("saving the Ether for Koga") while zero of her attacks could fire — the persona
         # can flavor the line, but it doesn't get to veto physics. Refusal-proven famine +
         # an Ether in the bag = the Ether gets used, no vote.
-        if "use_ether" in plan and _refusal_famine:
+        if "use_ether" in plan and (_refusal_famine or self._e4_force_ether(state)):
             pick = "use_ether"
-            self.log("   [engine] ITEM-INSTINCT FORCED -> use_ether (refusal-proven famine; "
-                     "oracle bypassed — she cannot attack at all)")
+            self.log("   [engine] ITEM-INSTINCT FORCED -> use_ether (refusal-proven famine "
+                     "or E4 Earthquake PP=0; oracle bypassed — she cannot attack this foe "
+                     "honestly without PP)")
             self.emit("okay, no more juice in my moves — Ether time, no debate.", beat=True, tier=1)
         # FORCED POTION (2026-08-03 12:42 — the crucial gym-road battle lost with potions in
         # the bag): a potion offer only exists when the active mon is genuinely hurt AND not
@@ -3367,37 +3737,89 @@ class BattleAgent:
         # the hard crit floor, one more hit ends the fight — that heal is physics, not a
         # persona choice. The oracle keeps its vote in the 30-50% early-heal comfort zone;
         # below the floor the potion just happens.
+        elif ("use_revive" in plan and self._league_seat()
+              and (self._e4_revive_wincon_slot(state) is not None
+                   or self._e4_thin_party())):
+            _alive_n, _fainted_n = self._e4_party_counts()
+            if ("use_potion" in plan and frac <= BATTLE_CRIT_FRAC and _alive_n == 1):
+                pick = "use_potion"
+                self.log("   [engine] ITEM-INSTINCT FORCED -> use_potion "
+                         "(last body at crit — potion THIS turn, Revive the "
+                         f"bench next; alive=1 fainted={_fainted_n})")
+                self.emit("potion first — if I drop now nobody gets the Revive.",
+                          beat=True, tier=1)
+            else:
+                pick = "use_revive"
+                self.log("   [engine] ITEM-INSTINCT FORCED -> use_revive "
+                         f"(E4 thin-party/wincon; alive={_alive_n} fainted={_fainted_n}; "
+                         "oracle bypassed — live Agatha keep_fighting)")
+                self.emit("Revive first. I'm not walking into this with the answer on the floor.",
+                          beat=True, tier=1)
         elif "use_potion" in plan and frac <= BATTLE_CRIT_FRAC:
-            pick = "use_potion"
-            self.log(f"   [engine] ITEM-INSTINCT FORCED -> use_potion (active at {int(frac*100)}% "
-                     f"<= crit floor {int(BATTLE_CRIT_FRAC*100)}% — a faint loses the fight; "
-                     f"oracle bypassed)")
-            self.emit("nope, I'm about to drop — potion FIRST, pride later.", beat=True, tier=1)
+            if status in ("sleep", "freeze") and plan["use_potion"][0] != 19:
+                # Should have been stripped above; never force-drink on a sleeper.
+                plan.pop("use_potion", None)
+                offers.pop("use_potion", None)
+                if "use_cure" in plan:
+                    pick = "use_cure"
+                    self.log("   [engine] SLEEP-POTION BAN: forced-heal stripped — curing instead")
+                else:
+                    self.log("   [engine] SLEEP-POTION BAN: forced-heal stripped — fight/switch "
+                             "(live Lorelei: 4 Super Potions on sleeping Moltres)")
+                    return False
+            else:
+                pick = "use_potion"
+                self.log(f"   [engine] ITEM-INSTINCT FORCED -> use_potion (active at {int(frac*100)}% "
+                         f"<= crit floor {int(BATTLE_CRIT_FRAC*100)}% — a faint loses the fight; "
+                         f"oracle bypassed)")
+                self.emit("nope, I'm about to drop — potion FIRST, pride later.", beat=True, tier=1)
         else:
             pick = self.choose("battle_item", offers, ctx)
         if pick and pick in plan:
             item, kind = plan[pick]
             self.log(f"   [engine] ITEM-INSTINCT pick -> {pick} (item {item}, aim={kind})")
             res = self.use_item_in_battle(item, target=kind)
+            if res == "failed":
+                self._latch_bag_fail(f"{pick} item {item} not consumed")
+            if pick == "use_revive" and res != "used":
+                self._latch_revive_fail(res)
+                try:
+                    self._blind_menu_unwind(8)
+                    self._rehome_fight_cursor()
+                except Exception:
+                    pass
             if res != "used" and HEAL_FAIL_LATCH:
-                # PROVEN non-consume (the bag USE/CANCEL wedge, or a genuinely no-effect item): latch this
-                # mon OFF for the rest of the battle so we don't re-open the bag and re-wedge next turn.
+                # Latch ONLY on no_effect (item genuinely useless). MUTE / couldn't
+                # reach the action menu is an actuation miss — live 20:26 potioned
+                # Zapdos at 1 HP, never opened the bag, then latched every later
+                # heal/revive off that body. Retry next turn.
                 sp = ours.get("species")
-                if sp:
+                if res != "no_effect":
+                    self.log(f"   [engine] HEAL-FAIL: item {item} {res} — NOT latching "
+                             f"species {sp} (actuation miss; retry next turn)")
+                elif sp:
                     self._heal_failed.add(sp)
                     self.log(f"   [engine] HEAL-FAIL LATCH: item {item} did not consume ({res}) -> "
                              f"suppressing further in-battle item offers for species {sp} this battle "
                              f"(anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)")
-                # Full-ace / no_effect: block ALL potions this battle (species latch alone didn't
-                # stop the loop when gBattleMons kept lying about a different "hurt" reading).
-                if pick == "use_potion" or (res == "no_effect" and pick == "use_potion"):
-                    self._potion_blocked = True
-                    self.log("   [engine] POTION-BLOCK: no more heal-item offers this battle "
-                             "(full-HP / no_effect abort)")
-                if pick == "use_cure" or (res == "no_effect" and pick == "use_cure"):
-                    self._cure_blocked = True
-                    self.log("   [engine] CURE-BLOCK: no more status-cure offers this battle "
-                             "(already-clear / no_effect abort)")
+                # no_effect only — MUTE/failed is species-latched above. Live Agatha:
+                # one Full Heal no_effect + MUTE then battle-wide POTION-BLOCK killed
+                # heals/revives on Blastoise after Zapdos. Next body must still drink.
+                if res == "no_effect" and pick == "use_potion":
+                    if not isinstance(getattr(self, "_potion_blocked", None), set):
+                        self._potion_blocked = set()
+                    if sp:
+                        self._potion_blocked.add(sp)
+                    self.log(f"   [engine] POTION-BLOCK: no more heal-item offers for species "
+                             f"{sp} this battle (full-HP / no_effect abort; next body still drinks)")
+                if res == "no_effect" and pick == "use_cure":
+                    if not isinstance(getattr(self, "_cure_blocked", None), set):
+                        self._cure_blocked = set()
+                    if sp:
+                        self._cure_blocked.add(sp)
+                    self.log(f"   [engine] CURE-BLOCK: no more status-cure offers for species "
+                             f"{sp} this battle (already-clear / no_effect abort; NEXT body still "
+                             f"gets a Full Heal — live Lorelei Moltres sleep)")
             return res == "used"
         self.log(f"   [engine] ITEM-INSTINCT pick -> {pick!r} (keep fighting)")
         return False
@@ -3409,38 +3831,49 @@ class BattleAgent:
         the LAST-BODY INSURANCE (shift-15, run18 Gary postmortem): the worthy gate held the
         whole Lance fight (worthy=None past 3-5 corpses because the L70 ace stood), so she
         entered the Champion room with ONE body and an ace faint = instant whiteout. When
-        the active mon is the LAST body standing, it's genuinely hurt (<=50%), and >=2
-        revives remain, a revived fodder IS worth the turn regardless of level: it converts
-        'ace faints = loss' into the proven comeback cycle (fodder tanks the KO turn, the
-        ace gets revived behind it — the revive_verify Agatha win). >=2 keeps the last
-        revive reserved for the ace itself. The old 50% HP floor is GONE (shift-17,
+        the active mon is the LAST body standing and >=1 Revive remains, a revived
+        teammate IS worth the turn regardless of level (live E4 often has Revive x1 —
+        requiring 2 left the insurance dead). The old 50% HP floor is GONE (shift-17,
         run19/20 postmortem): a healthy last-body ace walked the whole Lance room with no
         spare body banked, so one crit/sleep = instant whiteout — at alive==1 a bench body
-        is ALWAYS worth the turn, and the gate self-closes at alive==2 so it can't drain
-        the kit.
+        is ALWAYS worth the turn. E4 thin-party (alive<=2) is handled in item-instinct
+        via e4_thin_party_revive_index so 2-alive / 2-dead also spends the turn.
 
-        TYPE-ANSWER REVIVE (e4 run5 Gary/Charizard postmortem): the level gate below never
-        revives a fainted specialist while the higher-level ace stands — but vs a foe the ace
-        CAN'T hit (Venusaur 0.25x into Gary's Charizard), the dead L50 Lapras's Ice Beam (2x)
-        is the ONLY answer. If NO alive mon is super-effective on the CURRENT foe but a FAINTED
-        reserve's STAB is (>=2x), revive that type-answer so it can come in and swing."""
+        TYPE-ANSWER REVIVE (e4 run5 Gary/Charizard postmortem): MOVE-GATED (2026-08-13).
+        Type-only math revived Zapdos vs Dewgong because Electric TYPING is 2x, even though
+        his only damage was Drill Peck. If a living mon already has a real SE damaging move
+        (Blastoise Earthquake), do not spend the turn on a revive. A fainted reserve only
+        qualifies if it actually HAS a damaging move that's >=2x on the current foe."""
         try:
-            foe_types = st.species_types(st.read_enemy_species(self.b, 0))
-            if foe_types:
+            if self._league_seat():
+                win = self._e4_revive_wincon_slot(st.read_battle(self.b) or {})
+                if win is not None:
+                    return win
+        except Exception:
+            pass
+        try:
+            foe = {"types": st.species_types(st.read_enemy_species(self.b, 0)) or []}
+            if foe["types"]:
                 alive_se, dead_answer = False, None
                 for i in range(6):
                     sp = st.read_party_species(self.b, i)
                     if not sp:
                         continue
-                    off = self._matchup_off(st.species_types(sp), foe_types)
+                    r_eff = 0.0
+                    for _mid in st.read_party_moves(self.b, i):
+                        if not _mid:
+                            continue
+                        _mt, _mp = st.move_info(self.b, _mid)
+                        if _mp and _mp > 0:
+                            r_eff = max(r_eff, _eff({"type": _mt or "normal"}, foe))
                     if self.b.rd16(ram.GPLAYER_PARTY + i * 100 + 0x56) > 0:
-                        if off >= 2:
+                        if r_eff >= 2:
                             alive_se = True
-                    elif off >= 2 and dead_answer is None:
+                    elif r_eff >= 2 and dead_answer is None:
                         dead_answer = i
                 if dead_answer is not None and not alive_se:
                     self.log(f"   [engine] revive-check: TYPE-ANSWER revive slot {dead_answer} "
-                             f"(no standing mon is SE on this foe; the fainted one is)")
+                             f"(no standing mon has an SE move on this foe; the fainted one does)")
                     return dead_answer
         except Exception:
             pass
@@ -3465,11 +3898,62 @@ class BattleAgent:
         if len(alive) == 1:
             hp, mx, _lv = alive[0]
             n_rev = sum(self._items_count(i) for i in _REVIVE_ITEMS_PREF)
-            if n_rev >= 2:
+            if n_rev >= 1:
                 self.log("   [engine] revive-check: LAST-BODY INSURANCE armed "
                          f"(alive=1 at {hp}/{mx}, revives x{n_rev})")
                 return best[0]
         return None
+
+    def _e4_force_ether(self, state):
+        """True when Blastoise Earthquake is dry vs a Water-type in the League."""
+        try:
+            import e4_strike as _e4
+            if not self._league_seat():
+                return False
+            _en = self._enemy_for_matchup(state)
+            return _e4.e4_eq_pp_dry((state.get("ours") or {}).get("moves") or [],
+                                    (state.get("ours") or {}).get("species"),
+                                    _en.get("types") or [], _en.get("species"))
+        except Exception:
+            return False
+
+    def _e4_party_counts(self):
+        """(alive, fainted) among occupied party slots. (0, 0) on read fail."""
+        alive = fainted = 0
+        try:
+            for i in range(6):
+                if not st.read_party_species(self.b, i):
+                    continue
+                if self.b.rd16(ram.GPLAYER_PARTY + i * 100 + 0x56) > 0:
+                    alive += 1
+                else:
+                    fainted += 1
+        except Exception:
+            return 0, 0
+        return alive, fainted
+
+    def _e4_thin_party(self):
+        """True in the League when 1-2 are alive and a teammate is on the floor."""
+        try:
+            if not self._league_seat():
+                return False
+            alive, fainted = self._e4_party_counts()
+            return alive <= 2 and fainted > 0
+        except Exception:
+            return False
+
+    def _e4_revive_wincon_slot(self, state):
+        """Fainted E4 wincon slot (Blastoise vs Water even EQ-dry, Moltres vs Jynx), or None."""
+        try:
+            if not self._league_seat():
+                return None
+            import e4_strike as _e4
+            _en = self._enemy_for_matchup(state)
+            return _e4.e4_fainted_wincon_slot(self.b, _en.get("types") or [],
+                                              _en.get("species"),
+                                              seat=self._league_seat())
+        except Exception:
+            return None
 
     def _pick_heal_item(self, missing_hp, status=None):
         """RIGHT-SIZED POTION (2026-08-03 13:04 'she doesn't know WHEN to use super potions...
@@ -3766,8 +4250,50 @@ class BattleAgent:
                      f"{st.SPECIES_NAME.get(enemy.get('species'), '?')}")
         _mca = MOVE_CURSOR + (_dblb or 0)
         _aca = ram.GBATTLE_ACTION_CURSOR + (_dblb or 0)
-        idx, desc, low = pol.choose_move(
-            ours["moves"], enemy["types"], _hp_frac(ours), our_types=_our_types)
+        enemy_m = self._enemy_for_matchup(state)
+        etypes = enemy_m.get("types") or enemy.get("types") or []
+        pick_moves = ours["moves"]
+        try:
+            if self._league_seat():
+                import e4_strike as _e4
+                _avoid = 89 if getattr(self, "_whiff_streak", 0) >= 1 else None
+                pref = _e4.e4_preferred_move_index(
+                    ours["moves"], ours.get("species"), etypes, enemy_m.get("species"),
+                    seat=self._league_seat(), avoid_move_id=_avoid)
+                pick_moves = _e4.e4_filter_moves(
+                    ours["moves"], ours.get("species"), etypes, enemy_m.get("species"))
+                if pref is not None:
+                    idx = pref
+                    desc = f"{ours['moves'][pref].get('name', 'move')} - E4 wincon"
+                    low = _hp_frac(ours) < 0.25
+                    # Live 20:22: Surf "didn't fire" (menu miss, PP still 5) then
+                    # skip_streak rotated to Skull Bash 0x Ghost. A menu miss is
+                    # not 0-PP — retry the wincon unless the GAME text-refused it.
+                    if (pref in self._skip_streak
+                            and (ours["moves"][pref].get("pp") or 0) > 0
+                            and self._move_refused.get(pref, 0) < 2):
+                        self._skip_streak.discard(pref)
+                        self.log("   [engine] E4 RETRY: wincon still has PP — last "
+                                 "commit was a menu miss, not 0-PP. Firing it again "
+                                 "(never rotate Surf→Skull Bash / Flamethrower→Agility)")
+                    self.log(f"   [engine] E4 MOVE: {desc} — firing the max-damage pick "
+                             f"(EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)")
+                else:
+                    idx, desc, low = pol.choose_move(
+                        pick_moves, etypes, _hp_frac(ours), our_types=_our_types)
+                    if any(_e4.e4_banned_move(m.get("id") or 0, m.get("type"),
+                                              ours.get("species"), etypes,
+                                              enemy_m.get("species"))
+                           for m in ours["moves"] if (m.get("pp") or 0) > 0):
+                        _who = st.SPECIES_NAME.get(ours.get("species"), "?")
+                        self.log(f"   [engine] E4 MOVE: banned matchup for {_who} "
+                                 f"— picked {desc} (never Ice Beam Lapras / never Surf Water)")
+            else:
+                idx, desc, low = pol.choose_move(
+                    ours["moves"], etypes, _hp_frac(ours), our_types=_our_types)
+        except Exception:
+            idx, desc, low = pol.choose_move(
+                ours["moves"], enemy["types"], _hp_frac(ours), our_types=_our_types)
 
         def _usable(i):                                # a real move with PP the game hasn't disproven
             m = ours["moves"][i]
@@ -3775,11 +4301,51 @@ class BattleAgent:
             # the Tackle re-fire loop: stale pp>0 + war-must-advance streak-clear = forever.
             if self._move_refused.get(i, 0) >= 2:
                 return False
-            return m.get("id", 0) != 0 and m.get("pp", 0) > 0
+            if m.get("id", 0) == 0 or m.get("pp", 0) <= 0:
+                return False
+            # E4: banned (EQ-on-Flying / Skull-Bash-on-Ghost / Ice-into-Lapras)
+            # and setup (Agility / Detect) are NEVER usable when a connecting
+            # hit still exists. Live 20:22 rotated Surf-miss into Skull Bash;
+            # live 20:28 rotated Flamethrower-miss into Agility.
+            try:
+                if self._league_seat():
+                    import e4_strike as _e4
+                    if _e4.e4_banned_move(m.get("id") or 0, m.get("type"),
+                                          ours.get("species"), etypes,
+                                          enemy_m.get("species")):
+                        return False
+                    if _e4.e4_is_setup_move(m.get("id") or 0, m.get("power")):
+                        _has_hit = any(
+                            (ours["moves"][j].get("pp") or 0) > 0
+                            and (ours["moves"][j].get("power") or 0) > 0
+                            and not _e4.e4_banned_move(
+                                ours["moves"][j].get("id") or 0,
+                                ours["moves"][j].get("type"),
+                                ours.get("species"), etypes,
+                                enemy_m.get("species"))
+                            and self._move_refused.get(j, 0) < 2
+                            for j in range(min(4, len(ours["moves"])))
+                        )
+                        if _has_hit:
+                            return False
+            except Exception:
+                pass
+            return True
 
         def _dmg_score(i):
             # STAB × type × accuracy — same yardstick as choose_move (2026-08-02).
-            return pol.move_score(ours["moves"][i], enemy["types"], _our_types)
+            # E4: banned Surf-into-Water / Articuno-Ice-into-Lapras score last.
+            m = ours["moves"][i]
+            try:
+                if self._league_seat():
+                    import e4_strike as _e4
+                    if _e4.e4_banned_move(m.get("id") or 0, m.get("type"),
+                                          ours.get("species"), etypes,
+                                          enemy_m.get("species")):
+                        return -1.0
+            except Exception:
+                pass
+            return pol.move_score(m, etypes, _our_types)
 
         if not (0 <= idx < 4) or not _usable(idx) or idx in self._skip_streak:
             # FIX 1 — REPETITION-AVERSE move pick: exclude EVERY move that already failed to fire this
@@ -3788,6 +4354,13 @@ class BattleAgent:
             # HASN'T tried yet by expected damage. The streak clears the instant any move fires (below),
             # so a working move is never permanently benched (the PoisonPowder-spam lesson).
             cands = [i for i in range(4) if _usable(i) and i not in self._skip_streak]
+            # Never rotate onto Agility / 0x just because the real hit is in
+            # skip_streak (menu miss). Prefer connecting damage even if retried.
+            _dmg = [i for i in cands if _dmg_score(i) > 0]
+            if _dmg:
+                cands = _dmg
+            elif not cands:
+                cands = [i for i in range(4) if _usable(i) and _dmg_score(i) > 0]
             if cands:
                 idx = max(cands, key=_dmg_score)
                 desc = ours["moves"][idx].get("name", desc)
@@ -3801,12 +4374,16 @@ class BattleAgent:
                 # move anyway — even a failing move passes the turn, the foe acts, and the battle reaches
                 # a real resolution (win, faint->forced switch, or whiteout->center ratchet).
                 usable_all = [i for i in range(4) if _usable(i)]
+                _hits = [i for i in usable_all if _dmg_score(i) > 0
+                         and _eff(ours["moves"][i], enemy) > 0]
+                if _hits:
+                    usable_all = _hits
                 if self._is_trainer_battle() and usable_all:
                     self._skip_streak.clear()
                     idx = max(usable_all, key=lambda i: (
-                        # prefer moves that can CONNECT (status counts); immune-damaging is last resort
-                        1 if (ours["moves"][i].get("power", 0) == 0
-                              or _eff(ours["moves"][i], enemy) > 0) else 0,
+                        # prefer moves that can CONNECT; never Agility over Flamethrower
+                        1 if (ours["moves"][i].get("power", 0) > 0
+                              and _eff(ours["moves"][i], enemy) > 0) else 0,
                         _dmg_score(i)))
                     desc = ours["moves"][idx].get("name", desc)
                     self.log(f"   [engine] MOVES EXHAUSTED in a TRAINER battle -> war-must-advance: "
@@ -3835,6 +4412,12 @@ class BattleAgent:
             return not (m.get("power", 0) > 0 and _eff(m, enemy) == 0)
         if 0 <= idx < 4 and ours["moves"][idx].get("power", 0) > 0 and eff == 0:
             _uc = [i for i in range(4) if _useful(i)]
+            if not _uc:
+                # Retry skip_streak hits that actually CONNECT (Surf vs Gengar
+                # after a menu miss). Do NOT war-must-advance Skull Bash 0x.
+                _uc = [i for i in range(4)
+                       if _usable(i) and (ours["moves"][i].get("power") or 0) > 0
+                       and _eff(ours["moves"][i], enemy) > 0]
             if _uc:
                 idx = max(_uc, key=_dmg_score)
                 desc = ours["moves"][idx].get("name", desc)
@@ -4043,6 +4626,28 @@ class BattleAgent:
             self._wait(2)
         except Exception as _wf:
             self.log(f"   [engine] move-cursor force-write failed ({_wf}) — blind walk only")
+        # E4 wincon: do not A until RAM cursor == wanted slot.
+        # Live 12:34 Lance: Shock Wave chosen, Thunder Wave (slot 0) fired;
+        # Ice Beam chosen, slot 0 consumed. Force-write + 2 frames was not
+        # enough — extend the existing STREAM COMMIT / _goto_move path.
+        if self._league_seat():
+            _ram_ok = False
+            for _wt in range(8):
+                try:
+                    _now = int(self.b.rd8(_mca))
+                except Exception:
+                    _now = -1
+                if _now == idx:
+                    _ram_ok = True
+                    break
+                self.log(f"   [engine] STREAM COMMIT: E4 waiting for RAM "
+                         f"cursor {idx} (reads {_now}) — RAM-correcting")
+                self._goto_move(idx)
+                self._wait(4)
+            if not _ram_ok:
+                self.log(f"   [engine] STREAM COMMIT: E4 REFUSE A "
+                         f"(RAM cursor != {idx}) — not firing the parked slot")
+                return "done"
         pp0 = ours["moves"][idx].get("pp", 0) if 0 <= idx < 4 else 0
         # Full PP snapshot for the post-turn WRONG-SLOT AUDIT below (menu-time state).
         _pp_all0 = [int((m or {}).get("pp", 0) or 0) for m in (ours.get("moves") or [])]
@@ -4208,6 +4813,10 @@ class BattleAgent:
         and the TRAINER defeat/prize screen lights the white-panel pixels as a FALSE POSITIVE
         while actually needing B to advance - so force_b taps B regardless of _white_box, which
         is what lets a trainer battle exit cleanly after its last mon faints."""
+        # NEVER A-mash a bag/party menu (live Lorelei: "continue" spam on fainted
+        # Moltres — A selected the corpse, "no energy", loop). Think once, then act.
+        if self._party_screen() or self._bag_screen():
+            return
         self._wait(18)
         self.b.press("A", 2, 12, self.render, owner=self.owner)
         if force_b or not self._white_box():
@@ -4283,6 +4892,190 @@ class BattleAgent:
                 return True
         return False
 
+    def _party_cursor_row(self):
+        """Display-row 0-5 of the in-battle party cursor, or None.
+
+        Pixel orange first (frozen-RAM disease on gPartyMenu.slotId); RAM
+        PARTY_CURSOR as fallback when the border isn't visible (fade frames).
+        """
+        pix = self._party_cursor_slot()
+        if pix is None and self._party_cursor_on_lead():
+            pix = 0
+        if pix is not None:
+            return pix
+        try:
+            ram_cur = int(self.b.rd8(PARTY_CURSOR))
+            if 0 <= ram_cur <= 5:
+                return ram_cur
+        except Exception:
+            pass
+        return None
+
+    def _ram_party_cursor(self):
+        """gPartyMenu.slotId, or None. Shadow-byte on some frames — never the
+        only vote, but useful when the lead-panel orange is a false positive."""
+        try:
+            cur = int(self.b.rd8(PARTY_CURSOR))
+            if 0 <= cur <= 5:
+                return cur
+        except Exception:
+            pass
+        return None
+
+    def _item_slot_id(self):
+        """Position on the ITEM-USE target screen: 0..5 = a party row, 6 = CANCEL, None = unreadable.
+
+        MEASURED (recon_revive_cursor2.py, 2026-08-14, live Lorelei fixture, 10-stop ring):
+          * the right-column/lead ORANGE reads the highlight correctly at every stop once the
+            opening fade is done — pixels are the primary vote
+          * ITEM_PARTY_CURSOR is the confirming second vote and the ONLY vote on CANCEL (where
+            neither the lead panel nor a right-column row is lit): it read [0,1,2,3,7,...]
+          * the old PARTY_CURSOR byte read [2,1,0,2,1,0,...] here — a blink counter, see the
+            BLINK-COUNTER LAW at the top of this file. Never use it on this screen.
+        """
+        pix = self._party_cursor_slot()
+        if pix is None and self._party_cursor_on_lead():
+            pix = 0
+        if pix is not None:
+            return int(pix)
+        try:
+            v = int(self.b.rd8(ITEM_PARTY_CURSOR))
+            if 0 <= v <= 5:
+                return v
+            if v in (6, 7):
+                return ITEM_PARTY_CANCEL
+        except Exception:
+            pass
+        return None
+
+    def _item_party_settle(self, need=3, gap=8, max_frames=120):
+        """Wait for the target screen's highlight to read the SAME thing `need` times.
+
+        The opening fade paints half-drawn palettes the orange test misreads, and any d-pad
+        fired inside that window is EATEN (recon_revive_cursor: 5 frames in it reported
+        'row 2', then the first DOWN landed on the LEAD — the read was junk AND the tap was
+        swallowed). Production used to _wait(24) and tap straight into the fade; the stable
+        highlight only appears ~40 frames after the screen takes input. Returns the settled
+        position, or None if it never settled."""
+        seen, last, f = 0, None, 0
+        while f < max_frames:
+            if not (self._party_screen() or self._party_menu_cb2()):
+                return None
+            p = self._item_slot_id()
+            if p is not None and p == last:
+                seen += 1
+                if seen >= need:
+                    return p
+            else:
+                seen = 1 if p is not None else 0
+            last = p
+            self._wait(gap)
+            f += gap
+        return last
+
+    def _item_party_walk(self, row, kind="item"):
+        """Land the ITEM-USE target cursor on party `row`. DOWN-ONLY, ring-aware.
+
+        MEASURED ring (recon_revive_cursor2): DOWN steps lead -> 1 -> 2 -> ... -> last ->
+        CANCEL -> wraps to lead. So DOWN alone reaches every row from anywhere, and we never
+        need the keys that can detonate: LEFT (lead-LEFT is CANCEL), UP (slot0-UP is CANCEL),
+        B (cancels back to the bag list — the Gary wipe, four Revives 'selected', zero
+        consumed). Returns True iff the cursor is verifiably ON `row`."""
+        if row is None:
+            return False
+        row = int(row)
+        rows = self._menu_rows()
+        if row < 0 or row >= len(rows):
+            return False
+        cur = self._item_party_settle()
+        if cur is None:
+            self.log(f"   [engine] use_item: {kind} target screen highlight never settled "
+                     "— no A (fail-safe)")
+            return False
+        ring = len(rows) + 1                       # party rows + CANCEL
+        budget = 2 * ring + 2                      # two full laps, plus slack for eaten taps
+        for lap in range(budget):
+            if not (self._party_screen() or self._party_menu_cb2()):
+                return False
+            cur = self._item_slot_id()
+            self.log(f"   [engine] use_item: {kind} pos={cur} want={row} "
+                     f"lap={lap}/{budget} (DOWN-only ring, len {ring})")
+            if cur == row:
+                return True
+            self._tap("DOWN")
+            self._wait(16)
+        self.log(f"   [engine] use_item: {kind} ring walk exhausted "
+                 f"(pos={self._item_slot_id()} want={row}) — no A (fail-safe)")
+        return False
+
+    # REMOVED 2026-08-14: _confirm_party_row(want) — a DOWN/UP probe that fell back to
+    # `_ram_party_cursor()` on the item-use screen, i.e. to the BLINK COUNTER (see the law at
+    # the top of this file). It had no callers and it probed by PRESSING KEYS, which on this
+    # screen is how you walk off the target you just aimed at. `_item_party_walk` is the
+    # closed-loop replacement: it reads the measured position and only ever presses DOWN.
+
+    def _cursor_on_zero_hp(self, want_row=None):
+        """True iff the item-use target screen is up AND the cursor sits on a 0-HP row.
+
+        Confirms by menu-time species+HP (`_menu_rows`), not by hoping a blind DOWN landed on
+        Zapdos. False = do not press A (Revive on a living mon is a no-op loop).
+
+        2026-08-14: this used to fall back to `_ram_party_cursor()` — the BLINK COUNTER (see the
+        law at the top of this file) — which could hand the hard gate a bogus "yes, we're on the
+        corpse". It now asks `_item_slot_id()`, the measured reader (pixels first, the real
+        slotId byte for CANCEL), and fails CLOSED when nothing is readable.
+        """
+        if not (self._party_screen() or self._party_menu_cb2()):
+            return False
+        rows = self._menu_rows()
+        cur = self._item_slot_id()
+        if cur is None or cur >= len(rows):
+            return False
+        if want_row is not None and cur != want_row:
+            return False
+        hit = next((r for r in rows if r.get("row") == cur), None)
+        return bool(hit and int(hit.get("hp") or 0) == 0)
+
+    def _latch_bag_fail(self, why=""):
+        """MUTE/non-consume: species latch only (caller adds _heal_failed).
+        Live Agatha: battle-wide bag/potion/cure block after one MUTE killed
+        Super Potions and Revive on the next body. Do not sit in menus on
+        THIS species — the next mon still gets items."""
+        self.log(f"   [engine] BAG-FAIL LATCH: {why or 'failed'} — species only "
+                 "(no battle-wide potion block)")
+
+    def _latch_revive_fail(self, why=""):
+        """Revive miss: first cursor miss RETRIES next turn (live 18:44 wanted
+        fainted row 1, cursor=0 on living Articuno — one miss latched the bag
+        shut and 3 Revives sat unused). Second miss this battle latches
+        battle-wide. Survives MENU-WEDGE re-attach via the bridge flag.
+        Clears in _finish when the battle is over.
+        """
+        self._revive_fail_n = getattr(self, "_revive_fail_n", 0) + 1
+        e4 = False
+        try:
+            e4 = bool(self._league_seat())
+        except Exception:
+            pass
+        # E4: cursor misses are actuation, not "the item is useless." Live
+        # Agatha latched after 2 REFUSE-A and 3 Revives sat unused. Keep
+        # retrying; latch only after a pile of misses so bag theater dies.
+        cap = 6 if e4 else 2
+        if self._revive_fail_n < cap:
+            tag = ("first miss" if self._revive_fail_n == 1
+                   else f"miss {self._revive_fail_n}/{cap}")
+            self.log(f"   [engine] REVIVE-FAIL: {tag} ({why or 'failed'}) — "
+                     "retry next turn (no battle-wide latch"
+                     f"{'; E4 cursor miss' if e4 else '; live 18:44 cursor miss'})")
+            return
+        self._revive_blocked = True
+        try:
+            self.b._revive_fail_latched = True
+        except Exception:
+            pass
+        self.log(f"   [engine] REVIVE-FAIL LATCH: {why or 'failed'} — no more revive "
+                 f"offers this battle (keep fighting; battle-wide after {cap} misses)")
+
     # ── THE PARTY-MENU ORDER LAW (recon_partytruth, 2026-07-07 — settles the flip-flop) ──
     # gPlayerParty HP is LIVE and accurate at all times (probe: Raticate ticked 37->24->11->
     # 7->0 at its own slot while active). While the in-battle party MENU is open, the game
@@ -4349,9 +5142,7 @@ class BattleAgent:
         """Closed-loop cursor walk on the BATTLE party screen. target = party index 0-5 (0 = lead
         panel). Returns True only when the border readback confirms the cursor is on target."""
         for _ in range(tries):
-            cur = self._party_cursor_slot()
-            if cur is None and self._party_cursor_on_lead():
-                cur = 0
+            cur = self._party_cursor_row()
             if cur == target:
                 return True
             if cur is None:                               # nothing lit -> CANCEL (bottom-right)
@@ -4364,9 +5155,7 @@ class BattleAgent:
                 self._tap("RIGHT"); self._wait(16)        # lead -> enter the right column
                 continue
             self._tap("DOWN" if cur < target else "UP"); self._wait(16)
-        cur = self._party_cursor_slot()
-        if cur is None and self._party_cursor_on_lead():
-            cur = 0
+        cur = self._party_cursor_row()
         return cur == target
 
     def _party_blind_goto(self, target):
@@ -4380,6 +5169,151 @@ class BattleAgent:
         for _ in range(max(0, int(target) - 1)):
             self._tap("DOWN"); self._wait(12)
         return True
+
+    def _dismiss_item_no_effect(self):
+        """Clear 'It won't have any effect.' after Revive-on-a-living-mon.
+
+        Live 12:00 Agatha: A landed on Moltres (alive), box stuck on 'It',
+        next lap re-selected REVIVE. A/B the result box only — never B on
+        the bare party list (that cancels back to the bag).
+        """
+        for _ in range(6):
+            if not (self._white_box() or self._party_screen() or self._party_menu_cb2()
+                    or self._bag_screen() or self._bag_menu_cb2()):
+                break
+            if self._white_box() and not (self._party_screen() or self._party_menu_cb2()):
+                self._tap("B")
+                self._wait(16)
+                continue
+            if self._white_box():
+                self._tap("A")
+                self._wait(16)
+                continue
+            break
+
+    # REMOVED 2026-08-14: _item_leave_cancel() — an UP-then-RIGHT escape from the CANCEL entry.
+    # Both landers now walk the ring with DOWN only (measured: DOWN from CANCEL wraps to the
+    # lead), so there is nothing to escape from, and UP/RIGHT here are exactly the keys that
+    # used to hop the cursor off an aimed corpse. It had no callers left.
+
+    def _item_land_party_row(self, row, kind="item"):
+        """Land the item-use cursor on `row` and press A once (heal / cure / ether path).
+
+        2026-08-14: same rewrite as the revive lander. This walked on PARTY_CURSOR too — the
+        blink counter — and only ever "worked" because heals aim at the ACTIVE mon, which is
+        already the home slot, so a spurious `break` was harmless. Aim at anything else (a
+        bench Ether, a bench heal) and it mis-landed exactly like the Revive did. One
+        measured primitive for both paths now.
+        """
+        if row is None:
+            return False
+        row = int(row)
+        if not (self._party_screen() or self._party_menu_cb2()):
+            return False
+        rows = self._menu_rows()
+        if row < 0 or row >= len(rows):
+            return False
+        if not self._item_party_walk(row, kind=kind):
+            return False
+        rows = self._menu_rows()
+        cur = self._item_slot_id()
+        if cur is None or cur < 0 or cur >= len(rows):
+            self.log(f"   [engine] use_item: REFUSE A — {kind} highlight unreadable at "
+                     f"A-time (pos={cur})")
+            return False
+        hp = int(rows[cur].get("hp") or 0)
+        if kind == "revive" and hp != 0:
+            self.log(f"   [engine] use_item: REFUSE A — pos={cur} hp={hp} "
+                     "(not 0-HP; never A on a living mon)")
+            return False
+        row, hp = cur, hp
+        name = st.SPECIES_NAME.get(rows[row].get("species"), "?")
+        self._revive_aimed_row = row if kind == "revive" else None
+        self.log(f"   [engine] use_item: {kind} WALK landed row {row} "
+                 f"({name} hp={hp}) via the DOWN-only ring (measured cursor)")
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+        self._wait(40)
+        return True
+
+    def _revive_land_fainted_row(self, row):
+        """Land the Revive on a 0-HP party row and press A once.
+
+        2026-08-14 REWRITE (the six-unused-Revives wall — see the BLINK-COUNTER LAW at the
+        top of this file). The old version tapped RIGHT into the opening fade (eaten), then
+        walked on PARTY_CURSOR — a blink counter — so lap 1 read `row` spuriously, `break`ed
+        without pressing anything, and the 0-HP guard refused A. Live Lorelei: 3 attempts,
+        6 Revives, 0 consumed. Now: settle the fade, DOWN-only ring walk by measured position,
+        then A once — and still NEVER A unless the highlight is verifiably a 0-HP row.
+        """
+        if row is None:
+            return False
+        row = int(row)
+        if not (self._party_screen() or self._party_menu_cb2()):
+            return False
+        rows = self._menu_rows()
+        if row < 0 or row >= len(rows) or int(rows[row].get("hp") or 0) != 0:
+            return False
+        if not self._item_party_walk(row, kind="revive"):
+            return False
+        # Re-derive at A-time (the MENU-TIME ORDER LAW): confirm the cursor is on a corpse.
+        rows = self._menu_rows()
+        cur = self._item_slot_id()
+        if cur is None or cur < 0 or cur >= len(rows):
+            self.log(f"   [engine] use_item: REFUSE A — revive highlight unreadable at "
+                     f"A-time (pos={cur}) — B out, fight")
+            return False
+        hp = int(rows[cur].get("hp") or 0)
+        if hp != 0:
+            self.log(f"   [engine] use_item: REFUSE A — highlight row {cur} hp={hp} "
+                     "(living; never insta-A the fighter)")
+            return False
+        name = st.SPECIES_NAME.get(rows[cur].get("species"), "?")
+        self._revive_aimed_row = cur
+        self.log(f"   [engine] use_item: revive WALK landed row {cur} "
+                 f"({name} hp=0) via the DOWN-only ring (measured cursor, not the blink byte)")
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+        self._wait(40)
+        return True
+
+    def _e4_force_send_pick(self, cands):
+        """E4: send the matchup answer after a faint, not just the highest level.
+        Live Lorelei: Moltres died vs Lapras, A-mash kept landing the corpse;
+        Zapdos was full HP. Prefer the seat's answer species from `cands`."""
+        if not cands or not self._league_seat():
+            return None
+        try:
+            import e4_strike
+            state = st.read_battle(self.b) or {}
+            enemy = self._enemy_for_matchup(state)
+            zap_elec = False
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            for s in range(min(cnt, 6)):
+                if st.read_party_species(self.b, s) == e4_strike.ZAPDOS_SP:
+                    zap_elec = e4_strike.slot_has_electric_damage(self.b, s)
+                    break
+            pref = e4_strike.e4_force_send_pref(
+                self._league_seat(), enemy.get("types") or [],
+                enemy.get("species"), zap_has_electric=zap_elec)
+            if not pref:
+                return None
+            pick = e4_strike.e4_pick_send_cand(pref, cands)
+            if pick:
+                dying_skip = any(
+                    r.get("species") in pref
+                    and r.get("species") != pick.get("species")
+                    and int(r.get("hp") or 0) > 0
+                    and (int(r.get("hp") or 0)
+                         / max(int(r.get("maxhp") or 1), 1))
+                    <= e4_strike.E4_LEAD_CRIT_FRAC
+                    for r in cands)
+                extra = "; skipped dying stepping-stone" if dying_skip else ""
+                self.log(f"   [engine] E4 SEND: "
+                         f"{st.SPECIES_NAME.get(pick.get('species'), pick.get('species'))} "
+                         f"(matchup, not highest-level{extra})")
+                return pick
+        except Exception:
+            return None
+        return None
 
     def _force_switch(self):
         """Lead fainted with a healthy reserve -> the 'Choose a POKéMON' party menu is up.
@@ -4462,7 +5396,7 @@ class BattleAgent:
                         [r for r in rows if r["hp"] > 0]
                 if not cands:
                     return False                          # nothing standing on the bench
-            tgt = max(cands, key=lambda r: r["level"])     # send the strongest thing standing
+            tgt = self._e4_force_send_pick(cands) or max(cands, key=lambda r: r["level"])
             # Prefer RAM party cursor match over pixel border when available.
             _ram_cur = self.b.rd8(PARTY_CURSOR)
             if _attempt >= 1:
@@ -4544,7 +5478,7 @@ class BattleAgent:
                 live = [r for r in rows if r["hp"] > 0 and r["row"] > 0] or \
                        [r for r in rows if r["hp"] > 0]
                 if live:
-                    tgt = max(live, key=lambda r: r["level"])
+                    tgt = self._e4_force_send_pick(live) or max(live, key=lambda r: r["level"])
                     self.log(f"   [engine] fswitch BLIND: row {tgt['row']} "
                              f"{st.SPECIES_NAME.get(tgt['species'], '?')} L{tgt['level']}")
                     self._party_blind_goto(tgt["row"])
@@ -4623,23 +5557,118 @@ class BattleAgent:
                 best = max(best, pol.effectiveness(t, enemy_types))
         return best
 
+    def _enemy_for_matchup(self, state):
+        """Enemy dict for type math. If battle RAM drops a dual-type (Dewgong Ice-only
+        flake → Electric reads 1x and Ice-SE-on-Flying yanks Zapdos), backfill from the
+        species table. Gen-3 has no Soak/Forest's Curse; table types are ground truth."""
+        enemy = dict(state.get("enemy") or {})
+        ram_t = [t for t in (enemy.get("types") or []) if t]
+        table_t = st.species_types(enemy.get("species") or 0) or []
+        if len(ram_t) < 2 and len(table_t) > len(ram_t):
+            enemy["types"] = [str(t).lower() for t in table_t]
+        elif ram_t:
+            enemy["types"] = [str(t).lower() for t in ram_t]
+        elif table_t:
+            enemy["types"] = [str(t).lower() for t in table_t]
+        return enemy
+
+    def _league_seat(self):
+        try:
+            import e4_strike
+            import travel as tv
+            return e4_strike.ROOM_SEAT.get(tuple(tv.map_id(self.b)))
+        except Exception:
+            return None
+
+    def _lorelei_banned(self):
+        """Articuno never. Blastoise banned only when Zapdos has Electric damage."""
+        if self._league_seat() != "Lorelei":
+            return frozenset()
+        try:
+            import e4_strike
+            zap = None
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            for s in range(min(cnt, 6)):
+                if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                    continue
+                if st.read_party_species(self.b, s) == e4_strike.ZAPDOS_SP:
+                    zap = s
+                    break
+            zap_elec = bool(zap is not None and e4_strike.slot_has_electric_damage(self.b, zap))
+            return e4_strike.lorelei_banned_species(zap_elec)
+        except Exception:
+            return frozenset({144})
+
     def _best_switch_slot(self, state):
-        """A CLEARLY-better healthy reserve to switch into, or None. Conservative (never churn): only
-        when the ACTIVE mon is at a real disadvantage — enemy hits it super-effectively OR it can't
-        damage the enemy at all — AND a healthy reserve exists that the enemy does NOT hit
-        super-effectively. Ranks candidates by (resists-most, hits-hardest). Pure type math (offline-
-        testable); reads non-lead species from RAM."""
-        enemy_types = [t for t in (state.get("enemy", {}).get("types") or []) if t]
+        """A CLEARLY-better healthy reserve to switch into, or None. Conservative (never churn).
+        Scores OFFENSE (our STAB/moves vs them) not only DEFENSE (their STAB vs us) — yanking
+        Zapdos off Dewgong for Blastoise because Ice hits Flying is the inverted lead.
+        Pure type math (offline-testable); reads non-lead species from RAM."""
+        enemy = self._enemy_for_matchup(state)
+        enemy_types = [t for t in (enemy.get("types") or []) if t]
+        ours = state.get("ours") or {}
+        active_types = [t for t in (ours.get("types") or []) if t]
+        active_sp = ours.get("species")
+        # Zapdos vs Water: HOLD only if he actually has an Electric damaging move.
+        # Power-Plant Zapdos is TWave/Agility/Detect/Drill Peck — Drill Peck into Ice
+        # is resisted and he dies. Without the gun, fall through so Blastoise EQ comes in.
+        try:
+            import e4_strike as _e4
+            _zap_vs_water = (active_sp == _e4.ZAPDOS_SP and _e4.lorelei_foe_is_water(
+                enemy_types, enemy.get("species")))
+            _zap_has_gun = False
+            if _zap_vs_water:
+                _zap_has_gun = any(
+                    _e4.move_is_electric_damage(m.get("id") or 0, m.get("type"), m.get("power"))
+                    for m in (ours.get("moves") or []) if m)
+        except Exception:
+            _zap_vs_water = (active_sp == 145 and any(
+                str(t).lower() == "water" for t in enemy_types))
+            _zap_has_gun = False
+        if _zap_vs_water and _zap_has_gun:
+            self.log("   [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)")
+            return None
+        # Lorelei room: hold Zapdos on waters, Moltres only vs Jynx, never Blastoise/Articuno.
+        _lp = self._lorelei_switch_policy(state)
+        if _lp == "stay":
+            self.log("   [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead")
+            return None
+        if isinstance(_lp, int):
+            return _lp
+        # Agatha: vs Gengar/Haunter switch TO Blastoise (Surf). Never hold Zapdos
+        # (live wipe: Drill Peck 1x + Double Team miss spiral + potion loop).
+        _ap = self._agatha_switch_policy(state)
+        if _ap == "stay":
+            self.log("   [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead")
+            return None
+        if isinstance(_ap, int):
+            return _ap
+        _br = self._bruno_switch_policy(state)
+        if _br == "stay":
+            self.log("   [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead")
+            return None
+        if isinstance(_br, int):
+            return _br
+        # Lance: Gyarados → Zapdos-with-gun NOW. Dragons → Articuno. Never Moltres.
+        _lnc = self._lance_switch_policy(state)
+        if _lnc == "stay":
+            self.log("   [engine] MATCHUP SWITCH: Lance answer holds — fight instead")
+            return None
+        if isinstance(_lnc, int):
+            return _lnc
+        # Other E4 seats: don't override the ANSWER-LEAD unless a 4x hole with no elec/fire answer.
+        if self._answer_lead_holds(state, enemy):
+            self.log("   [engine] MATCHUP SWITCH: answer-lead holds — fight instead")
+            return None
         if not enemy_types:
             return None
-        active_types = [t for t in (state.get("ours", {}).get("types") or []) if t]
         # 2026-07-06 OFFENSIVE-RESIST trigger, MOVE-BASED (run-16 lesson): the TYPE proxy lied —
         # Ivysaur's poison TYPING scores 0.5 vs Weedle, but her only damaging MOVES are grass (0.25x
         # Razor Leaf), so the type math never tripped and the gauntlet fight chipped for 15 minutes.
         # Judge by the best USABLE damaging move she actually has; a hard-resisted moveset (<=0.25x)
         # swaps to a reserve with a neutral/SE hit (Spearow's Peck). 0.5x stays acceptable (no churn).
-        _dmg = [_eff(m, state.get("enemy") or {})
-                for m in (state.get("ours", {}).get("moves") or [])
+        _dmg = [_eff(m, enemy)
+                for m in (ours.get("moves") or [])
                 if m.get("id", 0) and m.get("pp", 0) > 0 and m.get("power", 0) > 0]
         # EMPTY DAMAGING SET = CAN'T HIT AT ALL (2026-07-31, the Teleport-only Abra hole): the old
         # `else 1.0` scored a moveless mon as NEUTRAL, so the matchup trigger never saw a reason to
@@ -4649,19 +5678,18 @@ class BattleAgent:
         best_move_eff = max(_dmg) if _dmg else 0.0
         # NEVER ABANDON A SUPER-EFFECTIVE ATTACKER (ns14 anti-churn): if the active mon's best
         # damaging move is >=2x, it's winning the exchange — pulling it out for a defensive matchup
-        # just churns. The infinite loop this kills: Kadabra's Psybeam is 2x into Agatha's Poison
-        # line (stay + sweep), but Agatha's Ghost hits Psychic 2x, so the disadvantage trigger kept
-        # yanking Kadabra out for Venusaur, whose Razor Leaf is 0.5x, so trigger 2 pulled Kadabra
-        # straight back — Venusaur<->Kadabra forever, bleeding both. A glass cannon that out-damages
-        # STAYS and swings.
-        # SE-ACTIVE: resolved AFTER the reserve scan (below) so the ns23 load-share exception can
-        # reference a healthy SE partner. The plain anti-churn `return None` is preserved there.
+        # just churns. Do NOT treat "STAB typing is SE + a 1x coverage move" as super-effective
+        # (2026-08-13 live: Zapdos Electric typing + Drill Peck 1x held him on Dewgong; he had
+        # no Thunderbolt and fainted in 3 turns).
         active_se = best_move_eff >= 2.0
-        active_bad = self._matchup_def(active_types, enemy_types) >= 2 or best_move_eff <= 0.25
-        foe_lv = state.get("enemy", {}).get("level") or 0
-        act_lv = state.get("ours", {}).get("level") or 0
-        active_sp = state.get("ours", {}).get("species")
+        # Out-typed for SWITCH: they hit us SE AND we cannot smash back, OR we can barely scratch.
+        # Defensive SE alone is NOT enough (Ice 2x on Zapdos while Thunderbolt 2x is a trade).
+        active_bad = ((self._matchup_def(active_types, enemy_types) >= 2 and not active_se)
+                      or best_move_eff <= 0.25)
+        foe_lv = enemy.get("level") or 0
+        act_lv = ours.get("level") or 0
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        _lorelei_ban = self._lorelei_banned()
         # ONE reserve scan feeds two picks: `best` (defensive — resists-most, then hits-hardest)
         # for the disadvantage trigger; `best_atk` (the SUPER-EFFECTIVE specialist — hits-hardest)
         # for the offensive-upgrade trigger. Pure type math (offline-testable), species from RAM.
@@ -4674,6 +5702,8 @@ class BattleAgent:
             sp = st.read_party_species(self.b, s)
             if sp == active_sp:
                 continue                                  # (probably) the one already out
+            if sp in _lorelei_ban:
+                continue                                  # NEVER Blastoise/Articuno into Lorelei
             lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
             types = st.species_types(sp)
             if not types:
@@ -4704,7 +5734,7 @@ class BattleAgent:
                     continue
                 _mt, _mp = st.move_info(self.b, _mid)
                 if _mp and _mp > 0:
-                    r_eff = max(r_eff, _eff({"type": _mt or "normal"}, state.get("enemy") or {}))
+                    r_eff = max(r_eff, _eff({"type": _mt or "normal"}, enemy))
             _floor_ok = (r_eff >= 4.0) or not (foe_lv and lv + 15 < foe_lv)
             if r_eff >= 2.0 and _floor_ok:
                 akey = (r_eff, -cdef, lv)                  # hits hardest (real move), resists, level
@@ -4726,8 +5756,12 @@ class BattleAgent:
                                                           # never an improvement (the Ekans churn)
             if cdef >= 2:
                 continue                                  # also weak — not an improvement
-            # resists most, then hits hardest, then the higher level (level breaks type ties)
-            key = (-cdef, coff, lv)
+            # NEVER switch INTO a worse offensive matchup (Blastoise Surf 0.5x vs Dewgong
+            # while Zapdos Thunderbolt is 2x — the inverted lead Jonny just watched).
+            if r_eff + 1e-9 < best_move_eff:
+                continue
+            # OFFENSE first (hits-hardest), then resists, then level.
+            key = (r_eff, -cdef, lv)
             if best_key is None or key > best_key:
                 best, best_key = s, key
         # SE-ACTIVE ANTI-CHURN (was the early return at the top): a >=2x attacker wins the exchange and
@@ -4768,7 +5802,210 @@ class BattleAgent:
         # The bulky Lapras still fields vs Dragonite (>=4x override) and vs Charizard (Venusaur 0.25x).
         if best_atk is not None and best_move_eff <= 0.5:
             return best_atk
+        # TRIGGER 3 — SMASH ON THE BENCH (League / 4+ trainers): the live Lorelei hole.
+        # L72 Blastoise Surf is 1x into Dewgong so TRIGGER 1/2 never fire, crushing-lead
+        # skipped the switch, and Zapdos Thunderbolt 2x sat unused. Scoped to the gauntlet
+        # (not Route-12 trash) so we don't reopen party-menu theater vs Spearow. Anti-churn
+        # holds: once the specialist is out and hitting >=2x, active_se returns None.
+        if best_atk is not None and best_move_eff < 2.0 and self._smash_switch_ok():
+            return best_atk
         return None
+
+    def _in_league(self):
+        try:
+            import travel as tv
+            return tuple(tv.map_id(self.b)) in _LEAGUE_MAPS
+        except Exception:
+            return False
+
+    def _lorelei_switch_policy(self, state):
+        """Lorelei's room (1,75): 'stay' | party slot | None (not her room).
+        Zapdos holds vs Water only with Electric damage. Else Blastoise EQ.
+        Moltres only vs Jynx. Never Articuno."""
+        if self._league_seat() != "Lorelei":
+            return None
+        import e4_strike
+        enemy = self._enemy_for_matchup(state)
+        active = (state.get("ours") or {}).get("species")
+        zap = molt = blast = None
+        zap_elec = False
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            hp = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56)
+            if hp <= 0:
+                continue
+            sp = st.read_party_species(self.b, s)
+            if sp == e4_strike.ZAPDOS_SP:
+                zap = s
+                zap_elec = e4_strike.slot_has_electric_damage(self.b, s)
+            elif sp == e4_strike.MOLTRES_SP:
+                molt = s
+            elif sp == e4_strike.BLASTOISE_SP:
+                blast = s
+        decision = e4_strike.lorelei_inbattle_switch(
+            active, enemy.get("types") or [], enemy.get("species"), zap, molt,
+            zap_has_electric=zap_elec, blast_slot=blast,
+            locked=self._party_locked_species())
+        if decision == "stay":
+            return "stay"
+        if isinstance(decision, int):
+            want = st.read_party_species(self.b, decision)
+            if want in e4_strike.lorelei_banned_species(zap_elec):
+                self.log("   [engine] MATCHUP SWITCH: blocked Articuno/Blastoise-with-gun vs Lorelei")
+                return "stay"
+            return decision
+        return "stay"
+
+    def _agatha_switch_policy(self, state):
+        """Agatha's room (1,77): 'stay' | party slot | None (not her room).
+        Ghost → Blastoise Surf. Golbat → healthy Zapdos. Arbok → Blastoise.
+        Never half-HP Articuno (live 20:00)."""
+        if self._league_seat() != "Agatha":
+            return None
+        import e4_strike
+        enemy = self._enemy_for_matchup(state)
+        active = (state.get("ours") or {}).get("species")
+        blast = zap = None
+        zap_elec = False
+        frail = set()
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            hp = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56)
+            mx = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x58)
+            if hp <= 0:
+                continue
+            sp = st.read_party_species(self.b, s)
+            if mx and hp / mx < 0.70:
+                frail.add(sp)
+            if sp == e4_strike.BLASTOISE_SP:
+                blast = s
+            elif sp == e4_strike.ZAPDOS_SP:
+                zap = s
+                zap_elec = e4_strike.slot_has_electric_damage(self.b, s)
+        decision = e4_strike.agatha_inbattle_switch(
+            active, enemy.get("types") or [], enemy.get("species"), blast,
+            zap_slot=zap, zap_has_electric=zap_elec,
+            locked=self._party_locked_species(), frail=frail)
+        if decision == "stay":
+            return "stay"
+        if isinstance(decision, int):
+            return decision
+        return None
+
+    def _bruno_switch_policy(self, state):
+        """Bruno's room (1,76): Onix → Blastoise Surf. Never Articuno (4x Rock)."""
+        if self._league_seat() != "Bruno":
+            return None
+        import e4_strike
+        enemy = self._enemy_for_matchup(state)
+        active = (state.get("ours") or {}).get("species")
+        blast = None
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            hp = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56)
+            if hp <= 0:
+                continue
+            if st.read_party_species(self.b, s) == e4_strike.BLASTOISE_SP:
+                blast = s
+                break
+        decision = e4_strike.bruno_inbattle_switch(
+            active, enemy.get("types") or [], enemy.get("species"), blast,
+            locked=self._party_locked_species())
+        if decision == "stay":
+            return "stay"
+        if isinstance(decision, int):
+            return decision
+        return None
+
+    def _lance_switch_policy(self, state):
+        """Lance's room (1,78): 'stay' | party slot | None (not his room / Aerodactyl).
+        vs Gyarados: Zapdos-with-gun immediately. vs dragons: Articuno Ice."""
+        if self._league_seat() != "Lance":
+            return None
+        import e4_strike
+        enemy = self._enemy_for_matchup(state)
+        active = (state.get("ours") or {}).get("species")
+        zap = art = blast = None
+        zap_elec = False
+        cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+        for s in range(min(cnt, 6)):
+            hp = self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56)
+            if hp <= 0:
+                continue
+            sp = st.read_party_species(self.b, s)
+            if sp == e4_strike.ZAPDOS_SP:
+                zap = s
+                zap_elec = e4_strike.slot_has_electric_damage(self.b, s)
+            elif sp == e4_strike.ARTICUNO_SP:
+                art = s
+            elif sp == e4_strike.BLASTOISE_SP:
+                blast = s
+        decision = e4_strike.lance_inbattle_switch(
+            active, enemy.get("types") or [], enemy.get("species"), zap, art,
+            zap_has_electric=zap_elec, blast_slot=blast,
+            locked=self._party_locked_species())
+        if decision == "stay":
+            return "stay"
+        if isinstance(decision, int):
+            return decision
+        return None
+
+    def _party_locked_species(self):
+        """Species that cannot act this turn (sleep/freeze) — from party struct +0x50."""
+        locked = set()
+        try:
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            for s in range(min(cnt, 6)):
+                sp = st.read_party_species(self.b, s)
+                if not sp:
+                    continue
+                status = _decode_status(self.b.rd32(ram.GPLAYER_PARTY + s * 100 + 0x50) & 0xFF)
+                if status in ("sleep", "freeze"):
+                    locked.add(sp)
+        except Exception:
+            pass
+        return frozenset(locked)
+
+    def _answer_lead_holds(self, state, enemy=None):
+        """E4 answer-lead stays in unless fainted (not our job) or a 4x defensive hole
+        with no electric/fire SE answer. Lorelei is owned by _lorelei_switch_policy
+        (Jynx → Moltres is the one legal override)."""
+        try:
+            import e4_strike
+            name = self._league_seat()
+            if not name or name in ("Lorelei", "Agatha", "Lance"):
+                return False
+            slot = e4_strike.preferred_lead_slot(self.b, name)
+            if slot is None:
+                return False
+            lead_sp = st.read_party_species(self.b, slot)
+            active = (state.get("ours") or {}).get("species")
+            if active != lead_sp:
+                return False
+            enemy = enemy or self._enemy_for_matchup(state)
+            enemy_types = [t for t in (enemy.get("types") or []) if t]
+            ours = state.get("ours") or {}
+            cdef = self._matchup_def(
+                [t for t in (ours.get("types") or []) if t], enemy_types)
+            if cdef < 4.0:
+                return True
+            for m in (ours.get("moves") or []):
+                if (m.get("pp", 0) > 0 and m.get("power", 0) > 0
+                        and str(m.get("type") or "").lower() in ("electric", "fire")
+                        and _eff(m, enemy) >= 2.0):
+                    return True  # 4x hole but we have the elec/fire answer — hold
+            return False
+        except Exception:
+            return False
+
+    def _smash_switch_ok(self):
+        """True in the E4/Champion rooms, or any 4+ trainer (gym leader / rival / E4)."""
+        if self._in_league():
+            return True
+        try:
+            return self._is_trainer_battle() and self._enemy_live_remaining() >= 4
+        except Exception:
+            return False
 
     def _switch_to_slot(self, slot, before_sp):
         """Switch the active mon to a SPECIFIC party slot, confirming the active SPECIES actually changed.
@@ -4862,6 +6099,8 @@ class BattleAgent:
             cur = st.read_battle(self.b)
             if cur and cur["ours"]["hp"] > 0 and cur["ours"].get("species") == want_sp:
                 self.log(f"   [engine] switch: SWITCHED to species {want_sp} (slot {slot})")
+                self._switch_ping_from = before_sp
+                self._switch_ping_to = want_sp
                 return "switched"
             self.b.press("A", self.hold, self.hold, self.render, owner=self.owner); self._wait(12)
         for _ in range(3):                                # didn't confirm -> back to the action menu, FIGHT
@@ -4931,20 +6170,54 @@ class BattleAgent:
         """Mid-battle switch to a better-matchup reserve. GATED + FAIL-SAFE. Returns 'switched' or False."""
         # FAIL LATCH (2026-08-02 LIVE): ONE failed party-menu attempt = stop. Party-list DOWN
         # probes look like "scrolling forever" on stream; two tries was still unwatchable.
-        if getattr(self, "_switch_fail_n", 0) >= 1:
+        # E4 wincon switch (Zapdos → Blastoise vs Arbok) gets 3 tries.
+        # Live 20:26: one party-menu miss left Zapdos at 1 HP vs Arbok.
+        _switch_cap = 3 if self._league_seat() else 1
+        if getattr(self, "_switch_fail_n", 0) >= _switch_cap:
             return False
         # LEVEL-DOMINANCE (stream): Blastoise L48 vs Route-12 trash must NOT open POKEMON to
-        # "optimize" — just Surf. Crushing lead = fight, no menu theater.
+        # "optimize" — just Surf. Crushing lead = fight, no menu theater. NEVER skip a
+        # league smash (Zapdos vs Lorelei's waters) just because the ace out-levels.
         try:
             _al = (state.get("ours") or {}).get("level") or 0
             _fl = (state.get("enemy") or {}).get("level") or 0
             if _al and _fl and _al >= _fl + 8 and _hp_frac(state.get("ours") or {}) > 0.35:
-                return False
+                if not self._smash_switch_ok():
+                    return False
         except Exception:
             pass
         slot = self._best_switch_slot(state)
         if slot is None:
             return False
+        want_sp = st.read_party_species(self.b, slot)
+        active_sp = (state.get("ours") or {}).get("species")
+        try:
+            if (self._league_seat() == "Lorelei"
+                    and want_sp in self._lorelei_banned()):
+                self.log("   [engine] MATCHUP SWITCH: Blastoise/Articuno banned vs Lorelei "
+                         "— fight instead")
+                return False
+        except Exception:
+            pass
+        if (getattr(self, "_switch_ping_to", None) == active_sp
+                and getattr(self, "_switch_ping_from", None) == want_sp):
+            _override = False
+            try:
+                if self._league_seat() == "Agatha" and want_sp == 9:
+                    import e4_strike as _e4
+                    _en = self._enemy_for_matchup(state)
+                    if (_e4.agatha_foe_is_ghost(_en.get("types") or [], _en.get("species"))
+                            or _e4.agatha_foe_is_arbok(_en.get("types") or [],
+                                                       _en.get("species"))):
+                        _override = True
+                        self.log("   [engine] MATCHUP SWITCH: ping-pong OVERRIDE — "
+                                 "Blastoise is the Agatha answer (live 20:03 Zapdos-Arbok)")
+            except Exception:
+                pass
+            if not _override:
+                self.log(f"   [engine] MATCHUP SWITCH: ping-pong blocked "
+                         f"{active_sp}<->{want_sp} — fight instead")
+                return False
         self.log(f"   [engine] MATCHUP SWITCH: active is out-typed -> trying party slot {slot}")
         r = self._switch_to_slot(slot, state.get("ours", {}).get("species"))
         if r == "switched":
@@ -4978,8 +6251,11 @@ class BattleAgent:
             self._skip_streak.clear()
             return "switched"
         self._switch_fail_n = getattr(self, "_switch_fail_n", 0) + 1
+        _cap = 3 if self._league_seat() else 1
         self.log(f"   [engine] matchup switch did not confirm "
-                 f"(fail {self._switch_fail_n}/1) -> fighting instead (fail-safe, no wedge)")
+                 f"(fail {self._switch_fail_n}/{_cap}) -> "
+                 f"{'retry next turn' if self._switch_fail_n < _cap else 'fighting instead'} "
+                 f"(fail-safe, no wedge)")
         return False
 
     def _active_pp_famine(self, state):
@@ -5012,6 +6288,13 @@ class BattleAgent:
         foe_lv = enemy.get("level") or 0
         if not (act_lv and foe_lv and act_lv >= foe_lv + 8):
             return False
+        # League smash: a specialist on the bench is a better turn than "just Surf" vs Dewgong.
+        if self._smash_switch_ok():
+            try:
+                if self._best_switch_slot(state) is not None:
+                    return False
+            except Exception:
+                pass
         mv = ours.get("moves") or []
         return any(m.get("id") and m.get("pp", 0) > 0 and m.get("power", 0) > 0
                    and getattr(self, "_move_refused", {}).get(i, 0) < 2
@@ -5030,7 +6313,52 @@ class BattleAgent:
         # Crushing lead: stay in and swing (unless hard-locked by sleep/freeze).
         status = _decode_status(ours.get("status1", 0) or 0)
         if status in ("sleep", "freeze"):
+            # E4: switch ONCE to a damaging healthy mon, then fight. Do not
+            # ping-pong MUST-LEAVE while Lapras sits at 69/150.
+            if self._league_seat() and self._must_leave_tried.get(ours.get("species"), 0) >= 1:
+                return False
+            # Frozen/asleep Blastoise vs Lorelei waters: STAY. Live 18:44
+            # yanked him to Moltres; Moltres KO'd Jynx then died on Lapras.
+            # Skull Bash from a frozen L75 still beats a L50 bird into Surf.
+            try:
+                if ours.get("species") == 9:
+                    import e4_strike as _e4
+                    _en = self._enemy_for_matchup(state)
+                    if (self._league_seat() == "Lorelei"
+                            and _e4.lorelei_foe_is_water(_en.get("types") or [],
+                                                         _en.get("species"))):
+                        return False
+                    # Sleeping Blastoise vs Gengar: stay if Surf still has PP.
+                    # Live 20:08 yanked him to Moltres; Hypnosis then Skull Bash 0x.
+                    if (self._league_seat() == "Agatha"
+                            and _e4.agatha_foe_is_ghost(_en.get("types") or [],
+                                                        _en.get("species"))):
+                        if any((m or {}).get("id") == 57 and (m or {}).get("pp", 0) > 0
+                               for m in (ours.get("moves") or [])):
+                            return False
+            except Exception:
+                pass
             return True
+        # Awake Blastoise vs Gengar: Surf is the ONLY hit (EQ 0x Levitate).
+        # Live 20:08 MUST-LEAVE sent Moltres into Hypnosis, then Skull Bash.
+        try:
+            if ours.get("species") == 9 and self._league_seat() == "Agatha":
+                import e4_strike as _e4
+                _en = self._enemy_for_matchup(state)
+                if _e4.agatha_foe_is_ghost(_en.get("types") or [], _en.get("species")):
+                    _surf_pp = 0
+                    for _m in (ours.get("moves") or []):
+                        if _m and _m.get("id") == 57:
+                            _surf_pp = _m.get("pp") or 0
+                    if _surf_pp > 0:
+                        return False
+            if ours.get("species") == 9 and self._league_seat() == "Bruno":
+                import e4_strike as _e4
+                _en = self._enemy_for_matchup(state)
+                if _e4.bruno_foe_is_onix(_en.get("types") or [], _en.get("species")):
+                    return False
+        except Exception:
+            pass
         # FUTILITY (2026-08-03 09:07): the move list has eaten FUTILE_AMOVE_MAX confirms with zero
         # progress — whatever the per-slot ledger/PP bytes claim, staying in cannot win. This is the
         # turn-loop's route to the same bench switch the war paths reach via the futility breaker.
@@ -5044,7 +6372,13 @@ class BattleAgent:
 
     def _alive_bench_slot(self, state):
         """Strongest HP>0 party member that is NOT the active species. Never returns the mon
-        already out — that was the 'switch him for himself' failure mode."""
+        already out — that was the 'switch him for himself' failure mode.
+        E4: pick the reserve that can actually DAMAGE this foe (never Articuno Ice into
+        Lapras; never a lorelei-banned species)."""
+        if self._league_seat():
+            slot = self._e4_damage_bench_slot(state)
+            if slot is not None:
+                return slot
         active_sp = (state.get("ours") or {}).get("species")
         cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
         best, best_lv = None, -1
@@ -5061,6 +6395,46 @@ class BattleAgent:
             if lv > best_lv:
                 best, best_lv = s, lv
         return best
+
+    def _e4_damage_bench_slot(self, state):
+        """Living non-active slot whose best connecting move scores highest vs this foe.
+        Articuno banned vs Lorelei waters. Sleep/freeze locked skipped."""
+        try:
+            import e4_strike as _e4
+            import pokemon_policy as pp
+            enemy = self._enemy_for_matchup(state)
+            etypes = [t for t in (enemy.get("types") or []) if t]
+            active_sp = (state.get("ours") or {}).get("species")
+            banned = self._lorelei_banned()
+            locked = self._party_locked_species()
+            cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            best, best_key = None, None
+            for s in range(min(cnt, 6)):
+                if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
+                    continue
+                sp = st.read_party_species(self.b, s)
+                if not sp or sp == active_sp or sp in banned or sp in locked:
+                    continue
+                score = 0.0
+                for mid in st.read_party_moves(self.b, s):
+                    if not mid:
+                        continue
+                    mt, mp = st.move_info(self.b, mid)
+                    if not mp:
+                        continue
+                    if _e4.e4_banned_move(mid, mt, sp, etypes, enemy.get("species")):
+                        continue
+                    score = max(score, pp.move_score(
+                        {"id": mid, "type": mt or "normal", "power": mp, "pp": 1},
+                        etypes, st.species_types(sp)))
+                if score <= 0:
+                    continue
+                key = (score, self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54))
+                if best_key is None or key > best_key:
+                    best, best_key = s, key
+            return best
+        except Exception:
+            return None
 
     def _move_connects(self, m, state):
         """Can this move DAMAGE the current foe at all? (_eff = type chart + the ability layer;
@@ -5237,9 +6611,12 @@ class BattleAgent:
         # but one flaky menu nav no longer dooms a moveless mon to spam its failing move all battle).
         self._heal_failed = set()          # HEAL-CONSUME-FAILED LATCH: active species whose in-battle
         # item use PROVED it won't consume this battle (bag USE/CANCEL non-consume) -> stop re-offering.
-        self._potion_blocked = False       # 2026-08-02 LIVE: Super Potion on FULL ace forever —
-        # any no_effect/failed heal this battle kills ALL further potion offers (not just one species).
-        self._cure_blocked = False         # same class: Awakening spam after already awake (stream end)
+        self._revive_blocked = bool(getattr(self.b, "_revive_fail_latched", False))
+        self._potion_blocked = set()       # per-species: Super Potion no_effect on THIS mon
+        self._cure_blocked = set()         # per-species: Awakening after already awake (NOT battle-wide —
+        # live Lorelei: Blastoise Full Heal count-lag → CURE-BLOCK → Moltres slept with no wake)
+        self._bag_blocked = False          # 2026-08-13 live Lorelei: pocket MUTE, bag never opened
+        # → one fail, fight. Do not sit in menus.
         self._throw_bag_aborts = 0         # CATCH-ABORT LATCH (2026-08-05, the Magmar wedge):
         # consecutive throw_ball aborts; a real throw resets, CATCH_ABORT_MAX in a row latch below.
         self._catch_abort = False          # latched -> no more throws this battle; battle-scoped
@@ -5249,6 +6626,8 @@ class BattleAgent:
         self._must_leave_tried = {}        # species -> tries: alive-but-stuck voluntary switch
         self._allow_pokemon_menu = False   # NUCLEAR: only force-switch (faint) may open POKEMON
         self._party_thrash_n = 0           # consecutive unexpected party-screen sightings
+        self._switch_ping_from = None      # anti-ping-pong: fresh battle, no A<->B yet
+        self._switch_ping_to = None
         self._whiff_streak = 0             # WHIFF-SPIRAL: consecutive fired-but-no-damage (missed) turns
         self._whiff_recovering = None      # ace species we switched OUT to reset accuracy (switch back next)
         self._whiff_recoveries = 0         # bounded accuracy-resets this battle (never a switch-loop)
@@ -5344,9 +6723,17 @@ class BattleAgent:
                 # WAR-CHEST TRUCE (2026-08-06 LIVE): mid-ferry catch_now flees/reserves Ultras
                 # and wedges Kindle→One — fight/flee trash normally until the Mart returns
                 # (BALL_RESTOCK_MODE / camp._ball_restock_mode).
-                self.emit(f"catch order — switching to balls on this {foe}. weaken, don't KO.",
-                          beat=True, tier=2)
-                return self._divert_wild_catch("creator_catch_now", foe, max_seconds)
+                # STEAMROLL (2026-08-13 LIVE): the same catch_now + reserved Ultras flee-looped
+                # every Victory Road wild for ~60s each (voice: "I'm not killing this geodude").
+                # Badge 8 pre-credits = KO the trash, drop the stale order.
+                if self._lap_no_catch_era():
+                    self.log(f"   [engine] catch_now SUPPRESSED — steamroll owns the run "
+                             f"(badge 8, pre-credits): {foe} is a KO, not a catch")
+                    self._clear_creator_catch_order()
+                else:
+                    self.emit(f"catch order — switching to balls on this {foe}. weaken, don't KO.",
+                              beat=True, tier=2)
+                    return self._divert_wild_catch("creator_catch_now", foe, max_seconds)
             elif _wild and esp in _DIGLETT_LINE and not getattr(self, "_skip_catch_divert", False):
                 # Diglett's Cave: catch the FIRST unowned Diglett/Dugtrio ONLY (dex bit = party∪box).
                 # Arena Trap makes flee impossible — after one is owned, FIGHT the rest.
@@ -5631,6 +7018,15 @@ class BattleAgent:
                         self.emit("one of mine went down — sending in the next one", beat=True)
                         continue
                 _cur = st.read_battle(self.b)
+                if (_cur and (_cur.get("ours") or {}).get("hp", 0) == 0
+                        and self._healthy_reserve_slot() is not None):
+                    self.log("   [engine] party screen + active DOWN — forced send-in "
+                             "(no continue-A mash on the corpse)")
+                    if self._force_switch():
+                        self._we_fainted = False
+                        self._prev = st.read_battle(self.b)
+                        self.emit("that one's down - sending out my next Pokemon", beat=True)
+                    continue
                 if _cur and (_cur.get("ours") or {}).get("hp", 0) > 0:
                     self._party_thrash_n = getattr(self, "_party_thrash_n", 0) + 1
                     self.log(f"   [engine] !! PARTY THRASH #{self._party_thrash_n}: open but "
@@ -5666,6 +7062,19 @@ class BattleAgent:
                 self._note_foe(state)                  # foes-seen ledger (live turn read)
                 self._classify_prev_whiff(state)       # race-free: judge last turn's move at this clean
                 #                                        menu-up read (before the whiff-breaker acts below)
+                # E4 PREPLAN (Jonny 19:26): switch BEFORE items / continue-spam.
+                # Think once when the foe is sent out, then act. League only.
+                if (BATTLE_SWITCH_ENABLED and not PROTECT_LEAD_GRIND and not _dbl_turn
+                        and state and not (self._enemy_fainted or self._we_fainted)
+                        and self._league_seat()
+                        and self._at_action_menu() and not self._at_move_list()
+                        and self._voluntary_switch(state) == "switched"):
+                    self.log("   [engine] E4 PREPLAN SWITCH: matchup decided before items "
+                             "(think once, then act — no continue-spam)")
+                    self._acted_once = True
+                    stall = 0
+                    self._unresolved_turns = 0
+                    continue
                 # Already on the move list (stray open) — commit immediately, skip switch/item theater.
                 if self._at_move_list() and not self._at_action_menu():
                     self.log("   [engine] move list already open at turn top — STREAM COMMIT, "
@@ -5749,6 +7158,20 @@ class BattleAgent:
                             continue
                         self._must_leave_tried[_asp] = self._must_leave_tried.get(_asp, 0) + 1
                         _bs = self._alive_bench_slot(state)
+                        if _bs is not None:
+                            _want = st.read_party_species(self.b, _bs)
+                            if (getattr(self, "_switch_ping_to", None) == _asp
+                                    and getattr(self, "_switch_ping_from", None) == _want):
+                                _stuck = _decode_status(
+                                    (state.get("ours") or {}).get("status1", 0) or 0)
+                                if _stuck in ("sleep", "freeze"):
+                                    self.log(f"   [engine] MUST-LEAVE: ping-pong OVERRIDE "
+                                             f"{_asp}<->{_want} — active is {_stuck}, leave "
+                                             f"the sleeper (live Lorelei Moltres potion-loop)")
+                                else:
+                                    self.log(f"   [engine] MUST-LEAVE: ping-pong blocked "
+                                             f"{_asp}<->{_want} — fight (no Blastoise↔Articuno)")
+                                    _bs = None
                         if _bs is not None:
                             self.log(f"   [engine] MUST-LEAVE: active alive but stuck "
                                      f"(status/famine/exhausted) -> bench slot {_bs} "
@@ -5904,7 +7327,25 @@ class BattleAgent:
                         if state.get("ours", {}).get("species") == self._whiff_recovering:
                             self._whiff_recovering = None   # already back (forced-switch) — fight fresh
                         else:
-                            ace = self._slot_of_healthy_species(self._whiff_recovering)
+                            # Agatha: never swap Zapdos back onto Gengar after Blastoise
+                            # came in (live wipe: WHIFF RECOVERY undid the Surf wincon).
+                            _stay_blast = False
+                            try:
+                                import e4_strike as _e4
+                                _en = self._enemy_for_matchup(state)
+                                if (_e4.agatha_foe_is_ghost(_en.get("types"), _en.get("species"))
+                                        and state.get("ours", {}).get("species") == _e4.BLASTOISE_SP
+                                        and self._whiff_recovering == _e4.ZAPDOS_SP):
+                                    _stay_blast = True
+                            except Exception:
+                                _stay_blast = False
+                            if _stay_blast:
+                                self.log("   [engine] WHIFF RECOVERY: Gengar — keep Blastoise, "
+                                         "do not swap Zapdos back")
+                                self._whiff_recovering = None
+                                ace = None
+                            else:
+                                ace = self._slot_of_healthy_species(self._whiff_recovering)
                             if ace is not None:
                                 self.log(f"   [engine] WHIFF RECOVERY: accuracy reset -> switching the ace "
                                          f"(sp {self._whiff_recovering}) back in to swing clean")
@@ -6065,6 +7506,13 @@ class BattleAgent:
         return "timeout"
 
     def _finish(self):
+        try:
+            if not st.in_battle(self.b):
+                self.b._revive_fail_latched = False
+                self._revive_blocked = False
+                self._revive_fail_n = 0
+        except Exception:
+            pass
         prev = self._prev or {}
         ours = prev.get("ours", {})
         _mine = st.SPECIES_NAME.get(ours.get("species"), "your Pokemon")
