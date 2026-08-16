@@ -1,0 +1,1500 @@
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Skull Bash - a solid hit (never Ice Beam Lapras / never Surf Water)
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 0 (eff x1) vs lapras 111/220 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Skull Bash - a solid hit'  fired=True  [age 0.0s + post 15ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L88 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Skull Bash - a solid hit (never Ice Beam Lapras / never Surf Water)
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 0 (eff x1) vs lapras 4/220 | [0]Skull Bash(p100,pp=13,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: foe HP changed
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] E4 EQ DRY: no Ether/Elixir in bag — Skull Bash/Bite, never Surf (LOUD)
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '80/266', 'status': 'freeze', 'foe': 'lapras'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_cure', 'keep_fighting'] -> pick='use_cure'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 19, aim=active)
+
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+
+   [play-live]    [engine] BAG-FAIL LATCH: use_cure item 19 not consumed — species only (no battle-wide potion block)
+
+   [play-live]    [engine] HEAL-FAIL: item 19 failed — NOT latching species 9 (actuation miss; retry next turn)
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Skull Bash - a solid hit (never Ice Beam Lapras / never Surf Water)
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 0 (eff x1) vs lapras 93/220 | [0]Skull Bash(p100,pp=12,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 0 (menu_up=0 action=False moves=False)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 28ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] E4 EQ DRY: no Ether/Elixir in bag — Skull Bash/Bite, never Surf (LOUD)
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'use_cure', 'keep_fighting'] ctx={'hp': '66/266', 'status': 'freeze', 'foe': 'lapras'}
+
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 24% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+
+   [kira-voice] -> T1·brisk· (event) "nope, I'm about to drop — potion FIRST, pride later."  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 19, aim=active)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'FULL RESTORE is selected.'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "FULL RESTORE is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=0/12 (DOWN-only ring, len 5, moved=False)
+
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=1/12 (DOWN-only ring, len 5, moved=False)
+
+   [play-live]    [engine] use_item: heal pos=1 want=0 lap=2/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=2 want=0 lap=3/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=3 want=0 lap=4/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=6 want=0 lap=5/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=6/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal WALK landed row 0 (blastoise hp=66) via the DOWN-only ring (measured cursor)
+
+   [play-live]    [engine] use_item: USED item 19 (count 3->2)
+
+   [kira-voice] -> T1·brisk· (event) "used an item — that's better"  fired=True  [age 0.0s + post 27ms]
+
+   [play-live]    [engine] battle-progress: item 19 consumed
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 200 point.s.. ."  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 200 point.s.. ."'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] battle context: trainer=True foe=lapras rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against lapras — your blastoise is up front'  fired=True  [age 0.0s + post 24ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L88 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Skull Bash - a solid hit (never Ice Beam Lapras / never Surf Water)
+
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 0 (eff x1) vs lapras 93/220 | [0]Skull Bash(p100,pp=12,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's lapras went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 14ms]
+
+   [dialogue] +++ "..Things shouldn't be this way!"  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "..Things shouldn\'t be this way!"'  fired=True  [age 0.0s + post 19ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(1, 75) coords=(6, 6) badges=8 party=4)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260815_151850_lorelei-s-room_8b_59h41m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [north-door-approach] replan at (6, 6) (len 6, budget 10)
+
+   [dialogue] +++ "You're better than I thought. Go on ahead. You only got a taste of the POK.MON LEAGUE's power."  tags=['PLACE']
+
+   [kira-voice] ·system-box· (not narrated) "You're better than I thought. Go on ahead. You only got a ta"
+
+   [campaign]    [north-door-approach] replan at (6, 6) (len 6, budget 9)
+
+   [campaign]    [north-door] (1, 75) -> (1, 76) @ (6, 7)
+
+   [campaign]    [e4] entry door sealed (CloseEntry) in Bruno — cannot shop mid-gauntlet (Revive x2 FR x2 $5920); between-room bag only, going north toward Bruno
+
+   [campaign]    [e4] room #2: map (1, 76) @ (6, 7) [lead 89%, alive 4]
+
+   [campaign]    [e4] kit: FR x2 MaxPot x0 Hyper x0 Super x0 Potion x0 Revive x2 Ether x0 Elixir x0 money=$5920
+
+   [campaign]    [e4] BETWEEN-ROOM HEAL: field_heal_check -> 0 (items between rooms, not the Center)
+
+   [campaign]    [e4] BETWEEN-ROOM: Blastoise Earthquake PP=0 and NO Ether/Elixir in bag — Skull Bash next fight, never Surf (LOUD)
+
+   [campaign]    [e4] ANSWER-LEAD Bruno: blastoise already leads [preferred]
+
+   [campaign]    [trainer-approach] replan at (6, 7) (len 2, budget 11)
+
+   [kira-voice] -> T2·savor· (milestone) "Bruno next — blastoise takes point. that's the matchup."  fired=True  [age 0.0s + post 15ms]
+
+   [dialogue] +++ "I am BRUNO of the ELITE FOUR! Through rigorous training, people and POK.MON can become stronger without limit. I've lived and trained with my fighting POK.MON! And that will never change! KIRA"  tags=['TYPE']
+
+   [kira-voice] ·floor· (<1s since last) T2 'you read: "I am BRUNO of the ELITE FOUR! Through rigorous training, people and POK.MON can become stronger without limit. I\'ve lived and trained with my fighting POK.MON! And that will never change! KIRA"'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [north-door-approach] replan at (6, 6) (len 6, budget 11)
+
+   [play-live] battle context: trainer=True foe=onix rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 30ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against onix — your blastoise is up front'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs onix 112/112 | [0]Skull Bash(p100,pp=11,ref=0,sc=25) [1]Surf(p95*STAB,pp=15,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's onix fainted — your blastoise took it down"  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out hitmonchan'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L88 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonchan 131/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=14,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Surf - E4 wincon'  fired=True  [age 0.0s + post 28ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L88 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonchan 6/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: foe HP changed
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L88 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonchan 13/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=12,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's hitmonchan fainted — your blastoise took it down"  fired=True  [age 0.0s + post 16ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 89'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out hitmonlee'  fired=True  [age 0.0s + post 29ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonlee 131/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=11,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's hitmonlee fainted — your blastoise took it down"  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out machamp'  fired=True  [age 0.0s + post 22ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L56 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs machamp 183/183 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=10,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Surf - E4 wincon'  fired=True  [age 0.0s + post 32ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L56 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs machamp 62/183 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=9,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's machamp fainted — your blastoise took it down"  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out onix'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs onix 118/118 | [0]Skull Bash(p100,pp=11,ref=0,sc=25) [1]Surf(p95*STAB,pp=8,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's onix went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 17ms]
+
+   [dialogue] +++ 'Why? How could I lose?'  tags=[]
+
+   [campaign]    [health] publish skipped: [WinError 5] Access is denied: 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json.tmp' -> 'G:\\JonnyD\\NeuroAI_Bot\\pokemon_agent\\states\\campaign\\health.json'
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Why? How could I lose?"'  fired=True  [age 0.0s + post 25ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'My job is done. Go face your next challenge.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "My job is done. Go face your next challenge."'  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [evolve] PHASE 3A: control LOCKED after a level-up — driving the cutscene (A-only)
+
+   [campaign]    [evolve] drove a post-battle cutscene (no species change — not an evolution)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(1, 76) coords=(6, 6) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260815_152421_bruno-s-room_8b_59h46m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [north-door-approach] replan at (6, 6) (len 6, budget 10)
+
+   [campaign]    [north-door] (1, 76) -> (1, 77) @ (6, 7)
+
+   [campaign]    [e4] entry door sealed (CloseEntry) in Agatha — cannot shop mid-gauntlet (Revive x2 FR x2 $11520); between-room bag only, going north toward Agatha
+
+   [campaign]    [e4] room #3: map (1, 77) @ (6, 7) [lead 78%, alive 4]
+
+   [campaign]    [e4] kit: FR x2 MaxPot x0 Hyper x0 Super x0 Potion x0 Revive x2 Ether x0 Elixir x0 money=$11520
+
+   [campaign]    [fieldheal] e4-between-room PARTY-WIDE: Blastoise at 211/269 HP — drinking Full Restore from the bag NOW (cheapest-adequate; no Center on this road)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [fieldheal] field heal: item 19 (bag row 2) -> party slot 0 (211/269 HP)
+
+   [kira-voice] -> T1·brisk· (heal) "Blastoise's pretty beat up and I'm literally carrying potions. quick drink, THEN we keep moving."  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'FULL RESTORE is selected.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "FULL RESTORE is selected."'  fired=True  [age 0.0s + post 17ms]
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ "BLASTOISE's HP was restored by 58 point.s.. ."  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE\'s HP was restored by 58 point.s.. ."'  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [fieldheal] VERIFIED: slot 0 HP 211 -> 269/269, item 19 consumed (world callback restored)
+
+   [campaign]    [e4] BETWEEN-ROOM HEAL: field_heal_check -> 1 (items between rooms, not the Center)
+
+   [campaign]    [e4] BETWEEN-ROOM: Blastoise Earthquake PP=0 and NO Ether/Elixir in bag — Skull Bash next fight, never Surf (LOUD)
+
+   [campaign]    [e4] ANSWER-LEAD Agatha: blastoise already leads [preferred]
+
+   [campaign]    [trainer-approach] replan at (6, 7) (len 2, budget 11)
+
+   [kira-voice] -> T2·savor· (milestone) "Agatha next — blastoise takes point. that's the matchup."  fired=True  [age 0.0s + post 18ms]
+
+   [dialogue] +++ "I am AGATHA of the ELITE FOUR. I hear OAK's taken a lot of interest in you, child. That old duff was once tough and handsome. But that was decades ago. He's a shadow of his former self. Now he"  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "I am AGATHA of the ELITE FOUR. I hear OAK\'s taken a lot of interest in you, child. That old duff was once tough and handsome. But that was decades ago. He\'s a shadow of his former self. Now he"'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [north-door-approach] replan at (6, 6) (len 6, budget 11)
+
+   [play-live] battle context: trainer=True foe=gengar rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 19ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against gengar — your blastoise is up front'  fired=True  [age 0.0s + post 23ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs gengar 145/145 | [0]Skull Bash(p100,pp=11,ref=0,sc=0) [1]Surf(p95*STAB,pp=7,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's gengar fainted — your blastoise took it down"  fired=True  [age 0.0s + post 23ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out golbat'  fired=True  [age 0.0s + post 6ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 2
+
+   [play-live]    [engine] switch: target party slot 2 sp=145 -> menu row 2
+
+   [play-live]    [engine] switch: SWITCHED to species 145 (slot 2)
+
+   [kira-voice] -> T2·savor· (event) 'zapdos eats poison/flying types for breakfast — super-effective, switching in. the type chart never lies.'  fired=True  [age 0.0s + post 25ms]
+
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+
+   [kira-voice] -> T2·savor· (event) 'your zapdos took a big hit'  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs golbat 161/161 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=20,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [kira-voice] -> T2·savor· (event) 'your zapdos used Shock Wave - E4 wincon'  fired=True  [age 0.0s + post 21ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 145<->9 — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 145<->9 — fight instead
+
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs golbat 28/161 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=19,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: foe HP changed
+
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 145<->9 — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 145<->9 — fight instead
+
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs golbat 34/161 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=18,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's golbat fainted — your zapdos took it down"  fired=True  [age 0.0s + post 16ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out arbok'  fired=True  [age 0.0s + post 22ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong OVERRIDE — Blastoise is the Agatha answer (live 20:03 Zapdos-Arbok)
+
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 0
+
+   [play-live]    [engine] switch: target party slot 0 sp=9 -> menu row 2
+
+   [play-live]    [engine] switch: SWITCHED to species 9 (slot 0)
+
+   [kira-voice] -> T2·savor· (event) "blastoise, you're up — that's a poison/poison type and you hit it DOUBLE super-effective. this is just bullying."  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L56 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs arbok 150/150 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=6,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 301; bursts here = audible crackle)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Skull Bash - E4 wincon'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L56 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs arbok 31/150 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=6,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=400)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's arbok fainted — your blastoise took it down"  fired=True  [age 0.0s + post 21ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out gengar'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs gengar 155/155 | [0]Skull Bash(p100,pp=9,ref=0,sc=0) [1]Surf(p95*STAB,pp=6,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (asleep) — not a dead move; fighting on (futility 1/4)
+
+   [kira-voice] -> T1·brisk· (event) "no — Surf - E4 wincon didn't happen, I'm asleep! hang in there…"  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] WHIFF: foe HP unchanged at 155 across the full turn -> accuracy-debuff spiral (streak 1/3)
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '209/269', 'status': 'sleep', 'foe': 'gengar'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_cure', 'keep_fighting'] -> pick='use_cure'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 23, aim=active)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'FULL HEAL is selected.'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "FULL HEAL is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=0/12 (DOWN-only ring, len 5, moved=False)
+
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=1/12 (DOWN-only ring, len 5, moved=False)
+
+   [play-live]    [engine] use_item: heal pos=1 want=0 lap=2/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=2 want=0 lap=3/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=3 want=0 lap=4/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=6 want=0 lap=5/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=6/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal WALK landed row 0 (blastoise hp=209) via the DOWN-only ring (measured cursor)
+
+   [dialogue] +++ 'BLASTOISE became healthy. .'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "BLASTOISE became healthy. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] use_item: USED item 23 (count 2->1)
+
+   [kira-voice] ·throttle· (brisk <1.8s) "used an item — that's better"
+
+   [play-live]    [engine] battle-progress: item 23 consumed
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs gengar 155/155 | [0]Skull Bash(p100,pp=8,ref=0,sc=0) [1]Surf(p95*STAB,pp=6,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's gengar fainted — your blastoise took it down"  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out haunter'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs haunter 126/126 | [0]Skull Bash(p100,pp=8,ref=0,sc=0) [1]Surf(p95*STAB,pp=5,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's haunter went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 26ms]
+
+   [dialogue] +++ "Oh, my! You're something special, child!"  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Oh, my! You\'re something special, child!"'  fired=True  [age 0.0s + post 19ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (exhale) "phew — okay, that one's done. shake it off, back to the road."  fired=True  [age 0.0s + post 2ms]
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [fight-won] -> campaign/kira_campaign.state  (map=(1, 77) coords=(6, 6) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [fight-won] -> checkpoints/20260815_153110_agatha-s-room_8b_59h53m_fight-won  (4 bundle file(s))
+
+   [campaign]    [ckpt] FIGHT-WON checkpoint banked — reload lands right after this victory
+
+   [campaign]    [north-door-approach] replan at (6, 6) (len 6, budget 10)
+
+   [dialogue] +++ 'You win! I see what the old duff sees in you now. I have nothing else to say. Run along now, child!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "You win! I see what the old duff sees in you now. I have nothing else to say. Run along now, child!"'
+
+   [campaign]    [north-door-approach] replan at (6, 6) (len 6, budget 9)
+
+   [campaign]    [north-door] (1, 77) -> (1, 78) @ (17, 12)
+
+   [campaign]    [e4] entry door sealed (CloseEntry) in Lance — cannot shop mid-gauntlet (Revive x2 FR x1 $17320); between-room bag only, going north toward Lance
+
+   [campaign]    [e4] room #4: map (1, 78) @ (17, 12) [lead 74%, alive 4]
+
+   [campaign]    [e4] kit: FR x1 MaxPot x0 Hyper x0 Super x0 Potion x0 Revive x2 Ether x0 Elixir x0 money=$17320
+
+   [campaign]    [fieldheal] e4-between-room PARTY-WIDE: Blastoise at 199/269 HP — drinking Full Restore from the bag NOW (cheapest-adequate; no Center on this road)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [fieldheal] field heal: item 19 (bag row 2) -> party slot 0 (199/269 HP)
+
+   [kira-voice] -> T1·brisk· (heal) "Blastoise's pretty beat up and I'm literally carrying potions. quick drink, THEN we keep moving."  fired=True  [age 0.0s + post 17ms]
+
+   [campaign]    [fieldheal] !! START menu never opened — aborting (B out)
+
+   [campaign]    [fieldheal] !! bag-drive -> failed — backing off 10 min (LOUD; the Center path still heals)
+
+   [campaign]    [e4] BETWEEN-ROOM HEAL: field_heal_check -> 0 (items between rooms, not the Center)
+
+   [campaign]    [e4] BETWEEN-ROOM: Blastoise Earthquake PP=0 and NO Ether/Elixir in bag — Skull Bash next fight, never Surf (LOUD)
+
+   [campaign]    [e4] ANSWER-LEAD Lance: fielding zapdos vs opener gyarados [preferred]
+
+   [campaign]    GRIND-WEAK: swap 0<->2 verified — zapdos now leads
+
+   [campaign]    [trainer-approach] replan at (6, 10) (len 2, budget 11)
+
+   [kira-voice] -> T2·savor· (milestone) "Lance next — zapdos takes point. that's the matchup."  fired=True  [age 0.0s + post 19ms]
+
+   [dialogue] +++ "Ah! I've heard about you, KIRA! I lead the ELITE FOUR. You can call me LANCE the dragon TRAINER. You know that dragons are mythical POK.MON. They're hard to catch and raise, but their powers a"  tags=['TYPE']
+
+   [kira-voice] ·floor· (<1s since last) T2 'you read: "Ah! I\'ve heard about you, KIRA! I lead the ELITE FOUR. You can call me LANCE the dragon TRAINER. You know that dragons are mythical POK.MON. They\'re hard to catch and raise, but their powers a"'
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [north-door-approach] replan at (6, 9) (len 6, budget 11)
+
+   [play-live] battle context: trainer=True foe=gyarados rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. team's in good shape — let's play it smart."  fired=True  [age 0.0s + post 17ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against gyarados — your zapdos is up front'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x4) vs gyarados 189/189 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=17,ref=0,sc=360) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your zapdos fainted'  fired=True  [age 0.0s + post 34ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] E4 SEND: blastoise (matchup, not highest-level)
+
+   [play-live]    [engine] fswitch retry 2: target row 2 sp=9 skip_rows=[] party_cur=1 menu_rows=[(145, 0), (146, 162), (9, 199), (144, 160)]
+
+   [play-live]    [engine] fswitch: selecting row 2 (sp=9 L89 hp=199)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 26ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 3
+
+   [play-live]    [engine] switch: target party slot 3 sp=144 -> menu row 3
+
+   [play-live]    [engine] switch: SWITCHED to species 144 (slot 3)
+
+   [kira-voice] -> T2·savor· (event) 'articuno takes this one — the water/flying typing is chewing through who I had out there.'  fired=True  [age 0.0s + post 29ms]
+
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '160/160', 'status': 'none', 'foe': 'gyarados'}
+
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+
+   [kira-voice] -> T1·brisk· (event) "Revive first. I'm not walking into this with the answer on the floor."  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'REVIVE is selected.'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "REVIVE is selected."'  fired=True  [age 0.0s + post 26ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 16ms]
+
+   [play-live]    [engine] use_item: revive pos=0 want=2 lap=0/12 (DOWN-only ring, len 5, moved=False)
+
+   [play-live]    [engine] use_item: revive pos=1 want=2 lap=1/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: revive pos=2 want=2 lap=2/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: revive WALK landed row 2 (zapdos hp=0) via the DOWN-only ring (measured cursor, not the blink byte)
+
+   [play-live]    [engine] use_item: USED item 24 (count 2->1)
+
+   [kira-voice] -> T1·brisk· (event) "used an item — that's better"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] battle-progress: item 24 consumed
+
+   [dialogue] +++ "ZAPDOS's HP was restored by 83 point.s.. ."  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "ZAPDOS\'s HP was restored by 83 point.s.. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 0
+
+   [play-live]    [engine] switch: target party slot 0 sp=145 -> menu row 2
+
+   [play-live]    [engine] switch: SWITCHED to species 145 (slot 0)
+
+   [kira-voice] -> T2·savor· (event) "zapdos, you're up — that's a water/flying type and you hit it DOUBLE super-effective. this is just bullying."  fired=True  [age 0.0s + post 27ms]
+
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x4) vs gyarados 189/189 | [0]move#86(p0*STAB,pp=19,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=17,ref=0,sc=360) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your zapdos fainted'  fired=True  [age 0.0s + post 25ms]
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 2) — LOUD
+
+   [play-live]    [engine] E4 SEND: blastoise (matchup, not highest-level)
+
+   [play-live]    [engine] fswitch retry 2: target row 3 sp=9 skip_rows=[] party_cur=1 menu_rows=[(145, 0), (146, 162), (144, 120), (9, 199)]
+
+   [play-live]    [engine] fswitch: selecting row 3 (sp=9 L89 hp=199)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 30ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 3
+
+   [play-live]    [engine] switch: target party slot 3 sp=144 -> menu row 2
+
+   [play-live]    [engine] switch: SWITCHED to species 144 (slot 3)
+
+   [kira-voice] -> T2·savor· (event) 'articuno takes this one — the water/flying typing is chewing through who I had out there.'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+
+   [kira-voice] -> T2·savor· (event) 'your articuno took a big hit'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '120/160', 'status': 'none', 'foe': 'gyarados'}
+
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+
+   [kira-voice] -> T1·brisk· (event) "Revive first. I'm not walking into this with the answer on the floor."  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'REVIVE is selected.'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "REVIVE is selected."'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=0/12 (DOWN-only ring, len 5, moved=False)
+
+   [play-live]    [engine] use_item: revive pos=1 want=3 lap=1/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: revive pos=2 want=3 lap=2/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: revive pos=3 want=3 lap=3/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: revive WALK landed row 3 (zapdos hp=0) via the DOWN-only ring (measured cursor, not the blink byte)
+
+   [play-live]    [engine] use_item: USED item 24 (count 1->0)
+
+   [kira-voice] -> T1·brisk· (event) "used an item — that's better"  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] battle-progress: item 24 consumed
+
+   [dialogue] +++ "ZAPDOS's HP was restored by 83 point.s.. ."  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "ZAPDOS\'s HP was restored by 83 point.s.. ."'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 0
+
+   [play-live]    [engine] switch: target party slot 0 sp=145 -> menu row 3
+
+   [play-live]    [engine] switch: SWITCHED to species 145 (slot 0)
+
+   [kira-voice] -> T2·savor· (event) "zapdos, you're up — that's a water/flying type and you hit it DOUBLE super-effective. this is just bullying."  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x4) vs gyarados 189/189 | [0]move#86(p0*STAB,pp=18,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=17,ref=0,sc=360) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's gyarados fainted — your zapdos took it down"  fired=True  [age 0.0s + post 13ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out aerodactyl'  fired=True  [age 0.0s + post 11ms]
+
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '83/166', 'status': 'none', 'foe': 'aerodactyl'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_potion', 'keep_fighting'] -> pick='use_potion'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 19, aim=active)
+
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+
+   [play-live]    [engine] BAG-FAIL LATCH: use_potion item 19 not consumed — species only (no battle-wide potion block)
+
+   [play-live]    [engine] HEAL-FAIL: item 19 failed — NOT latching species 145 (actuation miss; retry next turn)
+
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]move#86(p0*STAB,pp=18,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=16,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=60)
+
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=0 action=False moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your zapdos fainted'  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+
+   [play-live]    [engine] E4 SEND: articuno (matchup, not highest-level)
+
+   [play-live]    [engine] fswitch: selecting row 3 (sp=144 L52 hp=80)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] ACE-FIRST: L52 legendary bird is NOT fodder next to L89 — offering heal
+
+   [play-live]    [engine] revive-check: TYPE-ANSWER revive slot 0 (no standing mon has an SE move on this foe; the fainted one does)
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=0, party sp/hp/lv=[(145, 0, 53), (146, 162, 54), (9, 199, 89), (144, 80, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '80/160', 'status': 'none', 'foe': 'aerodactyl'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_potion', 'keep_fighting'] -> pick='use_potion'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 19, aim=active)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'FULL RESTORE is selected.'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "FULL RESTORE is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [play-live]    [engine] use_item: heal pos=0 want=3 lap=0/12 (DOWN-only ring, len 5, moved=False)
+
+   [play-live]    [engine] use_item: heal pos=0 want=3 lap=1/12 (DOWN-only ring, len 5, moved=False)
+
+   [play-live]    [engine] use_item: heal pos=1 want=3 lap=2/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=2 want=3 lap=3/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal pos=3 want=3 lap=4/12 (DOWN-only ring, len 5, moved=True)
+
+   [play-live]    [engine] use_item: heal WALK landed row 3 (zapdos hp=0) via the DOWN-only ring (measured cursor)
+
+   [play-live]    [engine] use_item: heal A after walk did not consume (count still 1) — dismiss no-effect, re-aim, no A-spam
+
+   [play-live]    [engine] use_item walk n=3: party=False bag=False white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [play-live]    [engine] use_item walk n=4: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'FULL RESTORE is selected.'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "FULL RESTORE is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] use_item walk n=5: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+
+   [play-live]    [engine] use_item: pocket=0 cursor=2 scroll=0 row=2 — selected but item 19 NOT consumed (count still 1) — keep fighting (LOUD)
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] BAG-FAIL LATCH: use_potion item 19 not consumed — species only (no battle-wide potion block)
+
+   [play-live]    [engine] HEAL-FAIL: item 19 failed — NOT latching species 144 (actuation miss; retry next turn)
+
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x2) vs aerodactyl 178/178 | [0]move#54(p0*STAB,pp=30,ref=0,sc=0) [1]Agility(p0,pp=30,ref=1,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=10,ref=0,sc=285)
+
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=False moves=False)
+
+   [dialogue] +++ "ARTICUNO's HP was restored by 80 point.s.. ."  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "ARTICUNO\'s HP was restored by 80 point.s.. ."'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your articuno fainted'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] E4 SEND: blastoise (matchup, not highest-level)
+
+   [play-live]    [engine] fswitch retry 4: target row 2 sp=9 skip_rows=[] party_cur=1 menu_rows=[(144, 0), (146, 162), (9, 199), (145, 0)]
+
+   [play-live]    [engine] fswitch: selecting row 2 (sp=9 L89 hp=199)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 12ms]
+
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]Skull Bash(p100,pp=8,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=1,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=0 action=False moves=True)
+
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 2}, futility 1/4)
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash -> slot 0 (eff x0.5) vs aerodactyl 178/178 | [0]Skull Bash(p100,pp=8,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=2,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash slot 0 (menu_up=1 action=True moves=False)
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Skull Bash'  fired=True  [age 0.0s + post 22ms]
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash -> slot 0 (eff x0.5) vs aerodactyl 142/178 | [0]Skull Bash(p100,pp=7,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=2,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] !! MENU WEDGE 60s with NO progress — escaping the scroll theater (fire 1/8, menu_up=0 action=False moves=False bag=False party=False)
+
+   [kira-voice] -> T2·savor· (event) 'menus are glitched — bailing this fight.'  fired=True  [age 0.0s + post 20ms]
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Skull Bash'  fired=True  [age 0.0s + post 15ms]
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash -> slot 0 (eff x0.5) vs aerodactyl 100/178 | [0]Skull Bash(p100,pp=6,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=2,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] JUST FIGHT: L89 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash -> slot 0 (eff x0.5) vs aerodactyl 64/178 | [0]Skull Bash(p100,pp=5,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=2,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise is at low HP - this is getting tense'  fired=True  [age 0.0s + post 29ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] battle context: trainer=True foe=aerodactyl rare=False -> Tier 2 savor
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T2·savor· (stakes) "okay okay — a trainer just locked eyes with me. and we're going in HURT — this could get scary."  fired=True  [age 0.0s + post 3ms]
+
+   [kira-voice] -> T2·savor· (event) 'a battle started against aerodactyl — your blastoise is up front'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 162, 54), (9, 62, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x2) vs aerodactyl 23/178 | [0]Skull Bash(p100,pp=4,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=0,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Surf - E4 wincon'  fired=True  [age 0.0s + post 27ms]
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 162, 54), (9, 62, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x2) vs aerodactyl 136/178 | [0]Skull Bash(p100,pp=3,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=0,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's aerodactyl fainted — your blastoise took it down"  fired=True  [age 0.0s + post 26ms]
+
+   [kira-voice] -> T2·savor· (event) 'my blastoise just leveled up to level 89'  fired=True  [age 0.0s + post 27ms]
+
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out dragonair'  fired=True  [age 0.0s + post 17ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 162, 54), (9, 50, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 146/146 | [0]Skull Bash(p100,pp=3,ref=0,sc=50) [1]Surf(p95*STAB,pp=3,ref=0,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise used Skull Bash - E4 wincon'  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 162, 54), (9, 24, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '24/269', 'status': 'paralysis', 'foe': 'dragonair'}
+
+   [kira-voice] ORACLE kind=battle_item options=['use_cure', 'keep_fighting'] -> pick='use_cure'
+
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 23, aim=active)
+
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'FULL HEAL is selected.'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "FULL HEAL is selected."'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+
+   [dialogue] +++ 'Use on which POK.MON?'  tags=[]
+
+   [play-live] dialogue-hold: menu transaction in flight — yielding the controller to the battle agent (never A/B inside a menu stack)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "Use on which POK.MON?"'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] use_item: active has NO status — aborting cure (no_effect; was the Awakening re-open loop)
+
+   [play-live]    [engine] HEAL-FAIL LATCH: item 23 did not consume (no_effect) -> suppressing further in-battle item offers for species 9 this battle (anti bag-USE/CANCEL livelock — fight/faint, let the next mon resolve it)
+
+   [play-live]    [engine] CURE-BLOCK: no more status-cure offers for species 9 this battle (already-clear / no_effect abort; NEXT body still gets a Full Heal — live Lorelei Moltres sleep)
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 2/146 | [0]Skull Bash(p100,pp=2,ref=0,sc=50) [1]Surf(p95*STAB,pp=3,ref=0,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=False moves=False)
+
+   [dialogue] +++ 'MOON STONE is selected.'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "MOON STONE is selected."'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 1/4)
+
+   [kira-voice] -> T1·brisk· (event) "no — Skull Bash - E4 wincon didn't happen, I'm fully paralyzed! hang in there…"  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] BAG is open at the turn loop (abandoned item flow) -> B-closing it
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 2/146 | [0]Skull Bash(p100,pp=2,ref=0,sc=50) [1]Surf(p95*STAB,pp=3,ref=0,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your blastoise fainted'  fired=True  [age 0.0s + post 18ms]
+
+   [play-live]    [engine] fswitch retry 2: target row 1 sp=146 skip_rows=[] party_cur=1 menu_rows=[(9, 0), (146, 162), (144, 0), (145, 0)]
+
+   [play-live]    [engine] fswitch: selecting row 1 (sp=146 L54 hp=162)
+
+   [play-live]    [engine] battle-progress: force-switch seated
+
+   [kira-voice] -> T2·savor· (event) "that one's down - sending out my next Pokemon"  fired=True  [age 0.0s + post 26ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 162, 54), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.25) vs dragonair 2/146 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=15,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's dragonair fainted — your moltres took it down"  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out dragonair'  fired=True  [age 0.0s + post 20ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 165, 55), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.25) vs dragonair 146/146 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=14,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your moltres used move#53 - E4 wincon'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 165, 55), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.25) vs dragonair 91/146 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=13,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 125, 55), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.25) vs dragonair 35/146 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=12,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: foe HP changed
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 125, 55), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.25) vs dragonair 90/146 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=11,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 85, 55), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.25) vs dragonair 34/146 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=10,ref=0,sc=35.625)
+
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T2·savor· (event) "the enemy's dragonair fainted — your moltres took it down"  fired=True  [age 0.0s + post 16ms]
+
+   [kira-voice] -> T2·savor· (event) 'the trainer sent out dragonite'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 85, 55), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.5) vs dragonite 197/197 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=9,ref=0,sc=71.25)
+
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T2·savor· (event) 'your moltres used move#53 - E4 wincon'  fired=True  [age 0.0s + post 19ms]
+
+   [play-live]    [engine] battle-progress: our mon fainted
+
+   [kira-voice] -> T2·savor· (event) 'your moltres fainted'  fired=True  [age 0.0s + post 18ms]
+
+   [kira-voice] -> T3·BIG· (event) 'you lost - your moltres fainted'  fired=True  [age 0.0s + post 5ms]
+
+   [dialogue] +++ 'KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm..'  tags=[]
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "KIRA scurried to a POK.MON CENTER, protecting the exhausted and fainted POK.MON from further harm.."'  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [evolve] PHASE 3A: control LOCKED after a level-up — driving the cutscene (A-only)
+
+   [dialogue] +++ 'First, you should restore your POK.MON to full health.'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "First, you should restore your POK.MON to full health."'  fired=True  [age 0.0s + post 10ms]
+
+   [dialogue] +++ 'Your POK.MON have been healed to perfect health. We hope you excel!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Your POK.MON have been healed to perfect health. We hope you excel!"'  fired=True  [age 0.0s + post 18ms]
+
+   [campaign]    [evolve] drove a post-battle cutscene (no species change — not an evolution)
+
+   [campaign]    [strat] LOSS recorded vs trainer:Lance's Room:aerodactyl+dragonair+dragonair+dragonite+gyarados (now 1x) at map=(1, 78) — SPATIAL wall active (gated until stronger)
+
+   [campaign]    [north-door-approach] map changed (1, 78) -> (13, 0) — bail
+
+   [campaign]    [north-door] (1, 78) -> (13, 0) @ (13, 12)
+
+   [campaign]    [e4] back at the center from the chain (whiteout) — re-checking the kit [money $6640, FR x0]; retry from the League door (next uncleared: Lorelei)
+
+   [campaign]    HEAL: inside a building complex (13, 0) — exiting to the overworld before routing
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [travel] start map=(13, 0) coords=(13, 12) -> coord (11, 15) (budget 60s, surf-capable)
+
+   [campaign]    [roam] !! WATCHDOG latch STALE (2215s > 45s TTL) — no layer unwound to the roam top to run recovery (a sub-loop kept consuming the bail). Self-healing IN PLACE: latch cleared, watch reset, play resumes; a real wedge will re-trip and get the full recovery.
+
+   [travel] step 0: (13, 12)->(13, 13) map=(13, 0) (path 6 to exit)
+
+   [travel] reached target coord (11, 15)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    directional warp (11, 16) (behavior 0x65) entered via DOWN
+
+   [campaign]    [world] learned 1 warp(s) on (3, 9): (11, 6)->(13, 0)
+
+   [campaign]    EXIT-BUILDING: (13, 0) -> (3, 9)@(11, 7)
+
+   [campaign]    HEAL: whole party already full - skipping
+
+   [campaign]    [e4] heal_nearest -> ok (lead 100%)
+
+   [campaign]    [enter-center] (3, 9) -> (13, 0) @ (11, 16)
+
+   [campaign]    [shop] plan [(19, 2, 1, 3000), (24, 4, 2, 1500), (23, 5, 1, 600)] (money $6640)
+
+   [campaign]    [clerk-approach] replan at (11, 16) (len 19, budget 11)
+
+   [dialogue] +++ 'Hi, there! May I help you?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Hi, there! May I help you?"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [roam] watchdog: non-overworld callback is a stray BAG/PARTY menu — NOT a scene; the watch keeps counting (anti potion-loop)
+
+   [dialogue] +++ 'FULL RESTORE? Certainly. How many would you like?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "FULL RESTORE? Certainly. How many would you like?"'  fired=True  [age 0.0s + post 4ms]
+
+   [dialogue] +++ 'FULL RESTORE, and you want 1. That will be .3000. Okay?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "FULL RESTORE, and you want 1. That will be .3000. Okay?"'  fired=True  [age 0.0s + post 19ms]
+
+   [dialogue] +++ 'Here you are! Thank you!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "Here you are! Thank you!"'  fired=True  [age 0.0s + post 4ms]
+
+   [campaign]    [shop] bought 1 x item 19 (bag x1, money $3640)
+
+   [dialogue] +++ 'REVIVE? Certainly. How many would you like?'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "REVIVE? Certainly. How many would you like?"'  fired=True  [age 0.0s + post 5ms]
+

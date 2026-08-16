@@ -1,4 +1,4 @@
-resume_marathon 20260815_154712  (repo: G:\JonnyD\NeuroAI_Bot)
+resume_marathon 20260816_095649  (repo: G:\JonnyD\NeuroAI_Bot)
 == stopping any running Kira python processes ==
 git branch at start: cursor/endgame-credits-path-bdbc
 == git fetch origin ==
@@ -6,15 +6,16 @@ git branch at start: cursor/endgame-credits-path-bdbc
 == git pull ==
 Already up to date.
 
-running commit: 30de38b report(soak): 20260815_150735 inventory/rescue (auto from resume_marathon.ps1)
+running commit: dc9774a report(soak): 20260815_154712 inventory/rescue (auto from resume_marathon.ps1)
 running branch: cursor/endgame-credits-path-bdbc
 == crash forensics ==
 == logs\debug listing (newest 25) ==
 
 Name                            LastWriteTime         Length
 ----                            -------------         ------
+console_2026-08-15_15-47-21.log 8/15/2026 3:47:52 PM    2836
+latest.log                      8/15/2026 3:47:52 PM    2836
 console_2026-08-15_15-07-43.log 8/15/2026 3:46:31 PM  215626
-latest.log                      8/15/2026 3:46:31 PM  215626
 playlive_faulthandler.log       8/15/2026 3:08:32 PM   26510
 console_2026-08-15_12-05-50.log 8/15/2026 12:12:30 PM  50722
 console_2026-08-15_11-43-20.log 8/15/2026 11:55:55 AM  65912
@@ -37,11 +38,10 @@ console_2026-08-14_09-42-34.log 8/14/2026 10:10:28 AM 252503
 console_2026-08-14_09-25-13.log 8/14/2026 9:36:15 AM  110394
 console_2026-08-13_20-44-35.log 8/13/2026 9:14:59 PM  267940
 console_2026-08-13_20-19-12.log 8/13/2026 8:31:01 PM  101978
-console_2026-08-13_19-35-32.log 8/13/2026 8:09:14 PM  296075
 
 
 
-tailed newest debug log: console_2026-08-15_15-07-43.log
+tailed newest debug log: console_2026-08-15_15-47-21.log
 tailed supervisor log: playlive_2026-08-15_15-08-31.log
 tailed supervisor log: playlive_2026-08-15_12-06-39.log
 extracted engine forensics -> engine_tail.log
@@ -284,29 +284,3 @@ G:\JonnyD\NeuroAI_Bot\pokemon_agent\states\kira\archive_20260728_135539         
 >> no PROMOTE_TARGET.txt -- defaulting to CANONICAL launch (canonical save as-is).
 == push soak report (this can take ~30s; console stays quiet on purpose) ==
 == push soak report ==
-[cursor/endgame-credits-path-bdbc dc9774a] report(soak): 20260815_154712 inventory/rescue (auto from resume_marathon.ps1)
- 10 files changed, 3865 insertions(+)
- create mode 100644 docs/soak-reports/20260815_154712/canonical_health.json
- create mode 100644 docs/soak-reports/20260815_154712/engine_tail.log
- create mode 100644 docs/soak-reports/20260815_154712/playlive_faulthandler.log
- create mode 100644 docs/soak-reports/20260815_154712/resume_marathon.log
- create mode 100644 docs/soak-reports/20260815_154712/sandbox1_sandbox_canonical_20260728_125926_health.json
- create mode 100644 docs/soak-reports/20260815_154712/sandbox2_sandbox_canonical_20260728_125602_health.json
- create mode 100644 docs/soak-reports/20260815_154712/tail_console_2026-08-15_15-07-43.log
- create mode 100644 docs/soak-reports/20260815_154712/tail_supervisor_playlive_2026-08-15_12-06-39.log
- create mode 100644 docs/soak-reports/20260815_154712/tail_supervisor_playlive_2026-08-15_15-08-31.log
-branch 'cursor/endgame-credits-path-bdbc' set up to track 'origin/cursor/endgame-credits-path-bdbc'.
-git : To https://github.com/JonathanDunkleberger/Kira_AI.git
-At G:\JonnyD\NeuroAI_Bot\pokemon_agent\resume_marathon.ps1:534 char:5
-+     git push -u origin $pushBranch
-+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (To https://gith...ger/Kira_AI.git:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-   30de38b..dc9774a  cursor/endgame-credits-path-bdbc -> cursor/endgame-credits-path-bdbc
-
-push soak report finished (branch=cursor/endgame-credits-path-bdbc; see log if git complained).
-== launching bot (window 1) ==
-    expect: a PowerShell titled roughly 'python run.py' + browser dashboard at :8766
-waiting for dashboard at http://127.0.0.1:8766 (up to 3 min)...
-    still waiting for bot... (15s)
