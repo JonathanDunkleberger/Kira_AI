@@ -847,6 +847,26 @@ class SeafoamStrike:
         if not fm.read_flag(b, FLAG_B3F_CALM):
             try:
                 ok = fm.set_flag(b, FLAG_B3F_CALM)
+                # fm.set_flag IS BROKEN on this vendored mgba binding (2026-08-17): it does
+                # `memory.u8[addr] = v`, which raises
+                #   TypeError: 'void(*)(struct mCore*, uint32_t, int, uint8_t)' expects 4
+                #   arguments, got 3
+                # so the assignment never lands. Here that TypeError was swallowed by the
+                # `except` below and `ok` was ALWAYS falsy — the crossed-flag was never
+                # stamped, and the questline could re-open the Seafoam errand after she had
+                # already reached Cinnabar. campaign._ensure_champion_game_clear and
+                # e4_strike._arm_game_clear both carry the raw-OR fallback for exactly this;
+                # this call site was the one that did not. _raw_u8_or tries the direct
+                # assignment first, then the 2/3/4-arg raw_write forms, and verifies the byte.
+                if not ok:
+                    sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+                    if ram.valid_ewram_ptr(sb1):
+                        from e4_strike import _raw_u8_or as _or8
+                        _or8(b, sb1 + 0x0EE0 + (FLAG_B3F_CALM >> 3),
+                             1 << (FLAG_B3F_CALM & 7))
+                        ok = bool(fm.read_flag(b, FLAG_B3F_CALM))
+                        self.log(f"   fm.set_flag did not land (broken binding) — raw-OR "
+                                 f"fallback -> {ok} (LOUD)")
                 self.log(f"   stamped FLAG_STOPPED_SEAFOAM_B3F_CURRENT (0x2D2) on arrival -> {ok}")
             except Exception as e:
                 self.log(f"   !! could not stamp crossed-flag: {e} (LOUD — questline may re-open)")
