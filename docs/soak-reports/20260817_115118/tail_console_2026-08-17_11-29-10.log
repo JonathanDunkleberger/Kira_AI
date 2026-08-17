@@ -1,0 +1,300 @@
+🎤 Recording...
+   [TurnTiming] 11:33:32.406 VOICE ONSET — mic speech started
+   [TurnTiming] 11:33:34.455 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2048ms since onset)
+   [VRAM] 11:33:40 (periodic) kira_process=0.00GB card=7.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 11:33:46.344 VOICE ONSET — mic speech started
+   [TurnTiming] 11:33:47.756 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1411ms since onset)
+   [RoomRead] energy=0.53 [terse=0.30 gap=0.75 silence=0.95 intensity=0.60 chat=0.00] target=0.99 mult=1.01 -> min_gap=5s dead_air=20s
+🎤 Recording...
+   [TurnTiming] 11:33:53.387 VOICE ONSET — mic speech started
+   [TurnTiming] 11:33:54.683 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1296ms since onset)
+   [YTAutoSearch] No live broadcast found (attempt 5, 659s remaining)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0000 · gate=0.003 · 0 accepted
+🎤 Recording...
+   [TurnTiming] 11:34:02.309 VOICE ONSET — mic speech started
+   [TurnTiming] 11:34:06.790 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4481ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:34:09.818 VOICE ONSET — mic speech started
+   [TurnTiming] 11:34:12.014 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2196ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:34:19.407 VOICE ONSET — mic speech started
+   [TurnTiming] 11:34:22.974 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3566ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:34:23.488 VOICE ONSET — mic speech started
+   [TurnTiming] 11:34:25.346 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1857ms since onset)
+   [VRAM] 11:34:25 (periodic) kira_process=0.00GB card=7.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 11:34:27.160 VOICE ONSET — mic speech started
+   [TurnTiming] 11:34:28.785 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1625ms since onset)
+   [Capture] ✓ Reopened, RMS recovered (rms=0.0033, usable) — loopback healthy again.
+   [LoopbackSTT] +2 seg (0 filtered, 265ms, rms=0.004): win raw duels and I think leaf is very good at his micro like the micro | um adjustments he makes like long range finds are really good for him his off angling
+   [SmartMem] q='reactions to ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   >>> Kira (Bored): Chat, did Jonny actually attempt the Cerulean Cave yet or is Mewtwo just sitting there aging poorly?
+   [TTS] Speaking: Chat, did Jonny actually attempt the Cerulean Cave...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Chat, did Jonny actually attempt the Cer' (19 words)
+   [TurnTiming] 11:34:54.459 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [YTAutoSearch] No live broadcast found (attempt 6, 599s remaining)
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [LoopbackSTT] Summary update error: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [TurnTiming] 11:35:00.010 TTS STOP — playback finished (span ~5551ms)
+   [TIMING] interjection: vision=2744ms llm=2404ms(sonnet) tts=6200ms total=11376ms
+   [LAG] sense→speak: total=40.2s (content_age=34.5s, prep=2.8s, llm=2.4s, tts_wait+synth=0.6s)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 172ms, rms=0.004): neon yurro than the phoenix yoru i 100% agree with that yeah
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [VRAM] 11:35:10 (periodic) kira_process=0.00GB card=7.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] LIVE — last line: "neon yurro than the phoenix yoru i 100% agree with that yeah" (4s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0044 · gate=0.003 · 3 accepted
+   [LoopbackSTT] +5 seg (1 filtered, 266ms, rms=0.004): I 100% agree with that. | Phoenix is a very much. | I do agree with that. | Yeah, I think they're trying to do both at the same time. | I think they're trying to do both.
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [LoopbackSTT] Summary update error: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [LoopbackSTT] +3 seg (2 filtered, 284ms, rms=0.005): I do think the neon is better, though. | Because I looked at that comp and I was watching the match, | and I got so distracted.
+   [LoopbackSTT] tick 222ms — 0 accepted, 1 filtered (rms=0.004)
+   [Pokemon] event react (bypass=False, tier=2, kind=route): Okay — to get past this I need Mewtwo — the strongest Pokemon in the g
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 11:35:23.418 VOICE ONSET — mic speech started
+   >>> Kira (Bored): The Master Ball has been in my bag this entire run, saving itself for exactly this moment. Let's go get him.
+   [TTS] Speaking: The Master Ball has been in my bag this entire run...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The Master Ball has been in my bag this ' (19 words)
+   [TurnTiming] 11:35:25.085 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [LoopbackSTT] Summary update error: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [TurnTiming] 11:35:30.139 TTS STOP — playback finished (span ~5054ms)
+   [TTS] Speaking: Let's go get him....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Let's go get him.' (5 words)
+   [TurnTiming] 11:35:30.440 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:35:32.220 TTS STOP — playback finished (span ~1779ms)
+   [TIMING] interjection: vision=0ms llm=2495ms(sonnet) tts=7667ms total=10184ms
+   [LAG] sense→speak: total=8.4s (content_age=0.0s, prep=0.0s, llm=2.5s, tts_wait+synth=5.9s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 11:35:35.747 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~12328ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 190ms, rms=0.005): clone C long to like potentially push someone aggressive off the
+>>> You said: I know I'm waiting, I know, we're gonna get them when their credits are done rolling.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="I know I'm waiting, I know, we're gonna get them when their " fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=26ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=26ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HAPPY)
+   [Shape] → TERSE  (one_word_count=0  tangent_since=2t  moment=calm)
+   [PromptSize] dynamic_context=13573ch  hist=13turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1928ms
+   [TTS] Speaking: Fair....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Fair.' (2 words)
+   [TurnTiming] 11:35:38.358 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:35:40.142 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: Let the moment breathe....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Let the moment breathe.' (5 words)
+   [TurnTiming] 11:35:40.145 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:35:41.924 TTS STOP — playback finished (span ~1779ms)
+
+   [TIMING] voice: llm=5763ms(sonnet-stream(llm+tts)) tts=0ms total=5763ms
+   [LATENCY] vad_close=1200ms stt=385ms stt_wait=0ms salience=1ms triage=bypassed memory=26ms prompt_build=1ms ttft=1720ms tts_first_chunk=208ms audio_out=264ms TOTAL=2605ms
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [LoopbackSTT] Summary update error: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   ERROR during emotion analysis: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [RoomRead] energy=0.40 [terse=0.38 gap=0.10 silence=0.98 intensity=0.60 chat=0.00] target=1.21 mult=1.03 -> min_gap=5s dead_air=21s
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 155ms, rms=0.004): And he was taking valet, so normally that would be your Astras.
+   [RoomRead] energy=0.38 [terse=0.38 gap=0.10 silence=0.91 intensity=0.60 chat=0.00] target=1.23 mult=1.05 -> min_gap=5s dead_air=21s
+   [RoomRead] energy=0.37 [terse=0.38 gap=0.10 silence=0.85 intensity=0.60 chat=0.00] target=1.26 mult=1.08 -> min_gap=5s dead_air=22s
+   [LoopbackSTT] +4 seg (0 filtered, 241ms, rms=0.004): He was taking valet. | So normally that would be your Astra's role, | would be to hang somewhere around grass, sea long kind of thing. | If you're doing an A-side-D.
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [RoomRead] energy=0.36 [terse=0.38 gap=0.10 silence=0.78 intensity=0.60 chat=0.00] target=1.29 mult=1.10 -> min_gap=6s dead_air=22s
+   [VRAM] 11:35:55 (periodic) kira_process=0.00GB card=7.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [YTAutoSearch] No live broadcast found (attempt 7, 539s remaining)
+   [LoopbackSTT] +2 seg (0 filtered, 209ms, rms=0.004): grass, sea long kind of thing, if you're doing an A-side default or that kind of stuff. | And instead it was, Leaf was in that area.
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [LoopbackSTT] Summary update error: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [RoomRead] energy=0.34 [terse=0.38 gap=0.10 silence=0.71 intensity=0.60 chat=0.00] target=1.31 mult=1.13 -> min_gap=6s dead_air=23s
+   [LoopbackSTT] +1 seg (0 filtered, 234ms, rms=0.005): And instead it was Leaf was in that area, and Valen could play a bit tighter to the pack, and Jorg was still the hard entry player and less...
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [Valence] pass FAILED (continuing): API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [SmartMem] q='reactions to ' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=16ms rank=0ms)
+   [LoopbackSTT] +5 seg (0 filtered, 234ms, rms=0.004): And Jorg was still the hard entry player unless Leaf had alt. | I think... | That's strange. | Yeah, that is very strange. | It's nice that you have too big old.
+   >>> Kira (Bored): Chat, when Jonny finally throws that Master Ball — is Mewtwo going to feel relieved or insulted?
+   [TTS] Speaking: Chat, when Jonny finally throws that Master Ball —...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Chat, when Jonny finally throws that Mas' (19 words)
+   [TurnTiming] 11:36:07.358 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Mewtwo, Cerulean Cave'
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [LoopbackSTT] Summary update error: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [TurnTiming] 11:36:12.797 TTS STOP — playback finished (span ~5438ms)
+   [TIMING] interjection: vision=2635ms llm=2087ms(sonnet) tts=5972ms total=10712ms
+   [LAG] sense→speak: total=27.8s (content_age=22.5s, prep=2.7s, llm=2.1s, tts_wait+synth=0.5s)
+   [RoomRead] energy=0.40 [terse=0.38 gap=0.10 silence=0.98 intensity=0.60 chat=0.00] target=1.21 mult=1.15 -> min_gap=6s dead_air=23s
+   [Pokemon] SELF CHOSE (action): travel:3,19
+   [Pokemon] her reasoning: "Bag's basically empty and I'm about to walk into Cerulean Cave to fight the most powerful Pokémon in existence. That's not confidence, that's just being unprepared. Route 1, grab some cash from trainers, hit a Mart on the way north."
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] +1 seg (0 filtered, 125ms, rms=0.003): kind of cool otherwise
+   [LoopbackSTT] +1 seg (1 filtered, 187ms, rms=0.004): barely anything
+   [RoomRead] energy=0.37 [terse=0.38 gap=0.10 silence=0.85 intensity=0.60 chat=0.00] target=1.26 mult=1.17 -> min_gap=6s dead_air=23s
+🎤 Recording...
+   [TurnTiming] 11:36:24.120 VOICE ONSET — mic speech started
+   [TurnTiming] 11:36:25.412 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1292ms since onset)
+   [LoopbackSTT] +1 seg (1 filtered, 217ms, rms=0.004): and the other attack side was better than their defense
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [LoopbackSTT] Summary update error: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] LIVE — last line: "and the other attack side was better than their defense" (4s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0053 · gate=0.003 · 28 accepted
+   [LoopbackSTT] +4 seg (0 filtered, 243ms, rms=0.005): I've baked on it as well. | And their attack side was better than their defense. | Didn't even have gate crashes set up. | He was running and spawn from a...
+   [RoomRead] energy=0.38 [terse=0.38 gap=0.10 silence=0.88 intensity=0.60 chat=0.00] target=1.25 mult=1.19 -> min_gap=6s dead_air=24s
+   [LoopbackSTT] +1 seg (0 filtered, 227ms, rms=0.005): The gate crash is set up, he would like, he was running in spawn from A to C, and then throwing the gate crash back into spawn, like, I don't...
+   [RoomRead] energy=0.35 [terse=0.38 gap=0.10 silence=0.74 intensity=0.60 chat=0.00] target=1.30 mult=1.21 -> min_gap=6s dead_air=24s
+   [VRAM] 11:36:40 (periodic) kira_process=0.00GB card=7.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] +2 seg (0 filtered, 247ms, rms=0.004): the gate crash back in the spawn like i don't brend made a comment which he's not here to deliver so i'm | going to do it on his behalf and i'm going to out him
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [LoopbackSTT] Summary update error: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [Pokemon] event react (bypass=False, tier=2, kind=route): Okay — to get past this I need Mewtwo — the strongest Pokemon in the g
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=18ms rank=2ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [RoomRead] energy=0.33 [terse=0.38 gap=0.10 silence=0.64 intensity=0.60 chat=0.00] target=1.34 mult=1.23 -> min_gap=6s dead_air=25s
+   >>> Kira (Bored): Credits are still rolling and I'm already thinking about Cerulean Cave. Mewtwo's had this coming.
+   [TTS] Speaking: Credits are still rolling and I'm already thinking...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Credits are still rolling and I'm alread' (12 words)
+   [TurnTiming] 11:36:47.643 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:36:51.395 TTS STOP — playback finished (span ~3752ms)
+   [TTS] Speaking: Mewtwo's had this coming....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Mewtwo's had this coming.' (5 words)
+   [TurnTiming] 11:36:51.691 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:36:53.659 TTS STOP — playback finished (span ~1967ms)
+   [TIMING] interjection: vision=0ms llm=2022ms(sonnet) tts=6510ms total=8552ms
+   [LAG] sense→speak: total=6.6s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=4.5s)
+   [YTAutoSearch] No live broadcast found (attempt 8, 479s remaining)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=2, kind=gym): the Indigo Plateau. the Elite Four are right through those doors. ever
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Bored): Champion. We are literally standing in the Hall of Fame right now. Cerulean Cave is next and Mewtwo has no idea what's coming.
+   [TTS] Speaking: Champion....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Champion.' (2 words)
+   [TurnTiming] 11:37:02.757 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:37:04.527 TTS STOP — playback finished (span ~1769ms)
+   [TTS] Speaking: We are literally standing in the Hall of Fame righ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'We are literally standing in the Hall of' (12 words)
+   [TurnTiming] 11:37:04.849 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:37:07.837 TTS STOP — playback finished (span ~2988ms)
+   [TTS] Speaking: Cerulean Cave is next and Mewtwo has no idea what'...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Cerulean Cave is next and Mewtwo has no ' (12 words)
+   [TurnTiming] 11:37:08.289 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:37:12.120 TTS STOP — playback finished (span ~3830ms)
+   [TIMING] interjection: vision=0ms llm=2334ms(sonnet) tts=9636ms total=11994ms
+   [LAG] sense→speak: total=8.2s (content_age=0.0s, prep=0.0s, llm=2.3s, tts_wait+synth=5.8s)
+🎤 Recording... (recovered opening words)
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [SessionTakes] Condense failed (continuing): API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [TurnTiming] 11:37:13.345 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~49225ms since onset)
+   [Pokemon] event react (bypass=False, tier=2, kind=route): Okay — to get past this I need Mewtwo — the strongest Pokemon in the g
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   >>> Kira (Bored): The guard steps aside for Champions only, and I'm finally one. Mewtwo's been down there waiting long enough.
+   [TTS] Speaking: The guard steps aside for Champions only, and I'm ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'The guard steps aside for Champions only' (13 words)
+   [TurnTiming] 11:37:17.884 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:37:21.642 TTS STOP — playback finished (span ~3757ms)
+   [TTS] Speaking: Mewtwo's been down there waiting long enough....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Mewtwo's been down there waiting long en' (8 words)
+   [TurnTiming] 11:37:22.142 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'catch Mewtwo'
+   [TurnTiming] 11:37:24.762 TTS STOP — playback finished (span ~2619ms)
+   [TIMING] interjection: vision=0ms llm=2307ms(sonnet) tts=7324ms total=9663ms
+   [LAG] sense→speak: total=7.0s (content_age=0.0s, prep=0.0s, llm=2.3s, tts_wait+synth=4.7s)
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [SessionTakes] Condense failed (continuing): API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [VRAM] 11:37:25 (periodic) kira_process=0.00GB card=7.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=2, kind=route): Okay — to get past this I need Mewtwo — the strongest Pokemon in the g
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=20ms rank=2ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Bored): Oak showing up just to roast Gary in the Champion's Room is honestly the most unhinged thing that's happened this entire run, and I beat the Elite Four.
+   [TTS] Speaking: Oak showing up just to roast Gary in the Champion'...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oak showing up just to roast Gary in the' (30 words)
+   [TurnTiming] 11:37:42.332 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:37:49.217 TTS STOP — playback finished (span ~6884ms)
+   [TIMING] interjection: vision=0ms llm=2600ms(sonnet) tts=7465ms total=10092ms
+   [LAG] sense→speak: total=3.2s (content_age=0.0s, prep=0.0s, llm=2.6s, tts_wait+synth=0.6s)
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   [SessionTakes] Condense failed (continuing): API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 11:37:52.836 VOICE ONSET — mic speech started
+   [YTAutoSearch] No live broadcast found (attempt 9, 419s remaining)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0000 · gate=0.003 · 35 accepted
+   [TurnTiming] 11:37:57.306 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4470ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:37:58.197 VOICE ONSET — mic speech started
+   [TurnTiming] 11:37:59.521 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1324ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:38:04.511 VOICE ONSET — mic speech started
+   [TurnTiming] 11:38:07.173 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2661ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:38:07.445 VOICE ONSET — mic speech started
+   [TurnTiming] 11:38:08.895 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1450ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:38:10.078 VOICE ONSET — mic speech started
+   [VRAM] 11:38:10 (periodic) kira_process=0.00GB card=7.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [TurnTiming] 11:38:11.379 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1301ms since onset)
+   [Pokemon] SELF WANT: 'Cerulean Cave — catch Mewtwo'
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+🎤 Recording...
+   [TurnTiming] 11:38:16.727 VOICE ONSET — mic speech started
+   [Capture] ⚠ WATCHDOG: wedged stream detected — RMS≈0 for 26s in MEDIA mode (device='Headphones (Leviathan) [Loopback]'). Reopening WASAPI loopback…
+   [Audio] capture thread exited — clearing stream ref
+   [Audio] mood client absent (P-7 purge) — capture proceeds anyway; only the mood heartbeat stays off
+   [TurnTiming] 11:38:18.052 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1324ms since onset)
+   [Audio] Using dashboard-selected device: Headphones (Leviathan) [Loopback]
+   [Audio] Using WASAPI loopback device: Headphones (Leviathan) [Loopback] (48000Hz, 2ch)
+   [Audio] Mode MEDIA — capture started
+   [Capture] Reopen issued — stream re-bound (device='Headphones (Leviathan) [Loopback]'); watching for RMS recovery…
