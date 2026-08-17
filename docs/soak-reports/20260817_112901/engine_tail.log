@@ -1,0 +1,10 @@
+===== playlive_2026-08-17_09-09-39.log =====
+===== playlive_2026-08-17_08-54-40.log =====
+   [travel] start map=(3, 0) coords=(8, 6) -> map (3, 19) (budget 300s, surf-capable)
+   [travel] north connection band cols: [12, 13, 24]
+   [travel] path blocked at (8, 6) (NPC on the gap?) - waiting
+   [travel] no clean path from (8, 6) AND no NPC-allowing path (npcs nearby=[]) - genuine wall/zone gap, will time out
+   [travel] !! TRAVEL WEDGE: identical fp x4 retries at (8, 6) map=(3, 0) (reason=no_route) -> returning to roam LOUD (no inner spin)
+   [travel] start map=(3, 0) coords=(8, 6) -> map (3, 19) (budget 180s, surf-capable)
+   [travel] north connection band cols: [12, 13, 24]
+   [travel] path blocked at (8, 6) (NPC on the gap?) - waiting
