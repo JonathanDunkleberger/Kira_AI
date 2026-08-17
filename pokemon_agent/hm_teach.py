@@ -103,6 +103,31 @@ class TeachFlow:
             self._press(down if v < target else up, settle=16)
         return self.b.rd8(addr) == target
 
+    def _await_free_screen(self, max_seconds=35):
+        """Bounded wait for a script/dialogue/scene to drain BEFORE the first START
+        press (2026-08-16, the Gary-seam revive race). A field rail that presses START
+        INTO a script-owned screen can never open the menu — at the Gary seam the
+        champion's intro cutscene fired mid-revive, both attempts aborted, and she
+        entered the Gary fight 3-alive with her ace at 50%. The intro drains in
+        ~15-25s, inside the 35s bound. Fail-OPEN on unreadable classifiers (today's
+        rails decide). Returns True = screen free to menu."""
+        try:
+            from dialogue_drive import box_open as _box
+        except Exception:
+            _box = None
+        if _box is None:
+            return True
+        t_end = time.time() + max_seconds
+        while time.time() < t_end:
+            try:
+                if not _box(self.b):
+                    return True
+            except Exception:
+                return True                        # unreadable -> proceed (fail-open)
+            self.b.run_frame()
+            self.c.render()
+        return False
+
     # screen classifiers (pixel truth — same doctrine as battle_agent's _party_screen/_bag_screen).
     # CASE vs BAG share the pale-yellow list palette; the CASE has the BLUE description panel across
     # the bottom (the bag's bottom stays tan). Points are native 240x160.
@@ -576,6 +601,13 @@ class TeachFlow:
         qty0 = items_pocket_qty(self.b, item_id)
         base = ram.GPLAYER_PARTY + mon_slot * PARTY_MON_SIZE
         hp0, mx = self.b.rd16(base + P_HP), self.b.rd16(base + P_MAXHP)
+        # 2026-08-16 BRUNO-SEAM MIS-AIM: the item-use party screen REMEMBERS its cursor
+        # across opens (the GRIND-WEAK swaps had left it on Moltres), so the blind
+        # "opens on slot 0" walk can land the bottle on the WRONG mon. Snapshot every
+        # slot's HP now so the tail can tell "drive failed" apart from "healed the
+        # wrong teammate" — those are different outcomes with different callers' responses.
+        hp_all0 = [self.b.rd16(ram.GPLAYER_PARTY + i * PARTY_MON_SIZE + P_HP)
+                   for i in range(6)]
         if mx <= 0 or hp0 <= 0:
             return "fainted"                             # the game REFUSES a potion on a corpse
         if hp0 >= mx:
@@ -583,6 +615,12 @@ class TeachFlow:
         self.b.set_input_owner("agent")
         self.log(f"   [fieldheal] field heal: item {item_id} (bag row {row}) -> party slot "
                  f"{mon_slot} ({hp0}/{mx} HP)")
+        # 2026-08-16 GARY SEAM: never press START into a script-owned screen (the
+        # champion's intro cutscene raced two between-room revives to death).
+        if not self._await_free_screen(max_seconds=35):
+            self.log("   [fieldheal] !! screen script-owned for 35s — never pressed "
+                     "START (LOUD; was the Gary-seam box race)")
+            return "failed"
         # 1. START menu open-verify -> BAG (row 2). Same stale-cursor doctrine as field_cure.
         opened = False
         self._press("START", settle=60)
@@ -659,6 +697,22 @@ class TeachFlow:
             self.log(f"   [fieldheal] VERIFIED: slot {mon_slot} HP {hp0} -> {hp1}/{mx}, "
                      f"item {item_id} consumed (world callback restored)")
             return "healed"
+        # 2026-08-16 THE BRUNO-SEAM MIS-AIM: consumed but the TARGET's HP never moved —
+        # check the snapshot for a teammate whose HP rose. The bottle did real work on the
+        # wrong mon; that is a LANDED heal, not a drive failure. The caller counts it and
+        # keeps the seam moving (the 10-min backoff after this exact mis-read is what left
+        # Blastoise at 20/269 walking into Lance).
+        if consumed and hp1 <= hp0:
+            _hit = next((i for i in range(6)
+                         if self.b.rd16(ram.GPLAYER_PARTY + i * PARTY_MON_SIZE + P_HP)
+                         > hp_all0[i]), None)
+            if _hit is not None and _hit != mon_slot:
+                self.log(f"   [fieldheal] !! MIS-AIM: item {item_id} healed slot {_hit}, not "
+                         f"slot {mon_slot} (remembered cursor — pitfall 41) — a teammate "
+                         f"still healed; NOT a drive failure")
+                if not world_back:
+                    return "menu_stuck"
+                return "mis_aimed"
         self.log(f"   [fieldheal] !! NOT healed (hp {hp0}->{hp1} consumed={consumed} "
                  f"world_back={world_back}) — failed LOUD")
         return "failed"
@@ -686,6 +740,13 @@ class TeachFlow:
         self.b.set_input_owner("agent")
         self.log(f"   [revive] field revive: item {item_id} (bag row {row}) -> party slot "
                  f"{mon_slot} (0/{mx} HP)")
+        # 2026-08-16 GARY SEAM: never press START into a script-owned screen (the
+        # champion's intro cutscene raced two between-room revives to death — she
+        # entered Gary 3-alive with her ace at 50% HP).
+        if not self._await_free_screen(max_seconds=35):
+            self.log("   [revive] !! screen script-owned for 35s — never pressed "
+                     "START (LOUD; was the Gary-seam box race)")
+            return "failed"
         opened = False
         self._press("START", settle=60)
         for _ in range(4):

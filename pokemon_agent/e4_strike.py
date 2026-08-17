@@ -103,7 +103,7 @@ HALL_OF_FAME = (1, 80)
 # Exterior + Center + the five rooms. Roam must offer enter_league here
 # (live 09:27: Agatha's Room offered head_to_league + heal, then heal
 # walked NORTH into Lance with Revive x0).
-LEAGUE_CHAIN_MAPS = frozenset({INDIGO_EXT, LEAGUE_CENTER, *ROOM_SEAT})
+LEAGUE_CHAIN_MAPS = frozenset({INDIGO_EXT, LEAGUE_CENTER, *ROOM_SEAT, HALL_OF_FAME})
 SEAT_FLAG = {
     "Lorelei": FLAG_DEFEATED_LORELEI, "Bruno": FLAG_DEFEATED_BRUNO,
     "Agatha": FLAG_DEFEATED_AGATHA, "Lance": FLAG_DEFEATED_LANCE,
@@ -112,18 +112,30 @@ SEAT_FLAG = {
 SEAT_ORDER = ("Lorelei", "Bruno", "Agatha", "Lance", "Gary")
 # HARD RULE (Jonny 2026-08-13, revised same-day live Lorelei): Zapdos leads Lorelei
 # ONLY if he actually has an Electric damaging move (TM24 Thunderbolt / TM25 Thunder /
-# Shock Wave). Wild Power-Plant Zapdos is TWave/Agility/Detect/Drill Peck — Drill Peck
+# Shock Wave). Wild Power-Plant Zapdos is TWave/Agility/Detect/Drill Peck - Drill Peck
 # is resisted by Ice and he dies in 3 turns. Without the gun, Blastoise Earthquake is
 # the honest water-smash. Articuno (Ice-into-Ice) stays banned. Species ids so a
 # name-table miss cannot soften this.
+#
+# THE 4x LAW (2026-08-15, measured - this REPLACES "gun => Zapdos leads Lorelei"):
+# having the gun is not enough, because Lorelei's line answers it. Ground truth
+# (gamedata/frlg_rosters.json): THREE Ice Beams - Dewgong L52 (her LEAD), Slowbro L52,
+# Lapras L54 - plus Jynx's Ice Punch. Ice is 4x on Electric/FLYING: ~175 damage on a
+# 156-HP L51 Zapdos, a guaranteed OHKO from the very first mon, before a 2x Shock Wave
+# ever pays for itself. Blastoise is Water, so Ice is 0.5x (~22 of 234) - he eats ten.
+# RECEIPT (oracle run 2026-08-15, G:\temp\longrun\banked_TIMEOUT, 5 laps to credits):
+# Zapdos was the FIELDED LEAD 37 times and fainted 34 of them, and every single lap
+# entered Bruno's room at "[lead 0%, alive 3]" - a corpse carried into Agatha, Lance and
+# Gary, where four straight laps wiped. Offense loses to survival here: Zapdos does not
+# fight Lorelei while Blastoise stands.
 ZAPDOS_SP, MOLTRES_SP, ARTICUNO_SP, BLASTOISE_SP = 145, 146, 144, 9
 JYNX_SP = 124
 GYARADOS_SP = 130
 PIDGEOT_SP, VENUSAUR_SP, RHYDON_SP, ARCANINE_SP = 18, 3, 112, 59
-# Dewgong, Cloyster, Slowbro, Lapras — Electric DESTROYS these IF the move exists.
+# Dewgong, Cloyster, Slowbro, Lapras - Electric DESTROYS these IF the move exists.
 LORELEI_WATER_SP = frozenset({87, 91, 80, 131})
-LORELEI_LEAD_ORDER = (ZAPDOS_SP, BLASTOISE_SP, MOLTRES_SP)
-LORELEI_BANNED = frozenset({ARTICUNO_SP})  # Ice-into-Ice always; Blastoise is conditional
+LORELEI_LEAD_ORDER = (BLASTOISE_SP, ZAPDOS_SP, MOLTRES_SP)
+LORELEI_BANNED = frozenset({ARTICUNO_SP})  # Ice-into-Ice always; Zapdos while Blastoise stands
 # Damaging Electric move ids (Gen 3). Thunder Wave (86) is status — never counts.
 # Stale power-byte on Thunderbolt still matches by id.
 ELECTRIC_DAMAGE_IDS = frozenset({
@@ -404,17 +416,26 @@ def zapdos_forget_idx(move_ids):
     return None
 
 
-def lorelei_banned_species(zap_has_electric):
-    """PURE. Articuno always (Ice-into-Ice). Blastoise only when Zapdos actually has the gun."""
+def lorelei_banned_species(zap_has_electric, blastoise_alive=True, moltres_alive=True):
+    """PURE. Articuno always (Ice-into-Ice). ZAPDOS while a body that survives Ice stands.
+
+    See THE 4x LAW at the top of this file: Lorelei fields three Ice Beams and an Ice
+    Punch, and Ice is 4x on Electric/Flying - her lead Dewgong alone OHKOs Zapdos. The
+    gun (`zap_has_electric`) buys 2x on the waters, which is worthless from the grave.
+    So Zapdos is banned whenever Blastoise (Ice 0.5x) is standing, and - gunless - also
+    whenever Moltres is standing (Fire/Flying takes Ice at 1x, not 4x).
+    The defaults are the CONSERVATIVE reading: a caller that cannot see the party gets
+    the ban, because fielding him is the failure that cost four laps."""
     banned = {ARTICUNO_SP}
-    if zap_has_electric:
-        banned.add(BLASTOISE_SP)
+    if blastoise_alive or (moltres_alive and not zap_has_electric):
+        banned.add(ZAPDOS_SP)
     return frozenset(banned)
 
 
 def preferred_lead_slot(b, seat_name):
-    """HARD preferred living species for this seat. Lorelei: Zapdos ONLY with an
-    Electric damaging move; else Blastoise (Earthquake); else Moltres. Never Articuno.
+    """HARD preferred living species for this seat. Lorelei: Blastoise (Ice 0.5x, and
+    she fields three Ice Beams that are 4x on a bird - THE 4x LAW); then Zapdos with an
+    Electric damaging move; then Moltres. Never Articuno.
     Lance: Zapdos-with-gun first (4x Gyarados lead). Else Articuno Ice, then
     Blastoise. Never Moltres vs Gyarados (Fire 0.5x). Drill Peck is 0.5x.
     Gary / squirtle-start: Articuno Ice vs Pidgeot; Zapdos only with Electric.
@@ -432,15 +453,20 @@ def preferred_lead_slot(b, seat_name):
                 return slot
         return None
     if seat_name == "Lorelei":
-        zap = _alive_slot_of(b, ZAPDOS_SP)
-        if zap is not None and slot_has_electric_damage(b, zap):
-            return zap
+        # THE 4x LAW (top of file): Blastoise FIRST. Ice is 0.5x on him and 4x on Zapdos,
+        # and her lead Dewgong's Ice Beam OHKOs a L51 bird. Zapdos-with-gun is the answer
+        # only once Blastoise is off the field; gunless he is behind Moltres too.
         blast = _alive_slot_of(b, BLASTOISE_SP)
         if blast is not None:
             return blast
+        zap = _alive_slot_of(b, ZAPDOS_SP)
+        if zap is not None and slot_has_electric_damage(b, zap):
+            return zap
         molt = _alive_slot_of(b, MOLTRES_SP)
         if molt is not None:
             return molt
+        if zap is not None:
+            return zap
         return None
     if seat_name == "Lance":
         zap = _alive_slot_of(b, ZAPDOS_SP)
@@ -492,12 +518,14 @@ def lorelei_inbattle_switch(active_sp, enemy_types, enemy_species, zap_slot, mol
                             zap_has_electric=True, blast_slot=None, locked=()):
     """PURE in-battle Lorelei policy. Returns 'stay' or a party slot.
 
-    Zapdos vs Water → STAY only if he has an Electric damaging move.
-    Without the gun, Blastoise Earthquake is the water smash (live 13:33: Dewgong
-    + Cloyster fell to EQ after Zapdos Drill-Pecked into Ice and fainted).
+    Blastoise holds the water slot while he stands (THE 4x LAW at the top of this file:
+    Ice is 0.5x on him, 4x on Zapdos, and she carries three Ice Beams). Zapdos-with-gun
+    is the water answer only after Blastoise falls (live 13:33: Dewgong + Cloyster fell
+    to EQ after Zapdos Drill-Pecked into Ice and fainted - gunless he was useless, and
+    the 2026-08-15 oracle proved that WITH the gun he simply dies first instead).
     Moltres is the Jynx answer. Never Articuno vs waters (Ice into Lapras is 0.25x).
-    `locked` = species that cannot act (sleep/freeze) — do not yank back to a
-    sleeper (live 14:00 MUST-LEAVE Blastoise↔Articuno ping-pong).
+    `locked` = species that cannot act (sleep/freeze) - do not yank back to a
+    sleeper (live 14:00 MUST-LEAVE BlastoiseArticuno ping-pong).
     Caller invokes this ONLY in Lorelei's room (1, 75).
     """
     locked = frozenset(locked or ())
@@ -518,21 +546,26 @@ def lorelei_inbattle_switch(active_sp, enemy_types, enemy_species, zap_slot, mol
         if zap_has_electric and zap_slot is not None and ZAPDOS_SP not in locked:
             return zap_slot
         return "stay"
-    # Waters: electric Zapdos holds; otherwise Blastoise (EQ / Skull Bash).
-    # Blastoise stays legal EVEN IF frozen — live 18:44 Moltres KO'd Jynx then
-    # died on Lapras because frozen Blastoise was treated as unfieldable.
-    # MUST-LEAVE already used its one pull on Jynx; he stays vs Lapras.
-    if zap_has_electric and ZAPDOS_SP not in locked:
-        if active_sp == ZAPDOS_SP:
-            return "stay"
-        if zap_slot is not None:
-            return zap_slot
+    # WATERS. THE 4x LAW (top of file, measured 2026-08-15): Blastoise holds the water
+    # slot while he is on the roster. Ice is 0.5x on Water (~22 of his 234) and 4x on
+    # Electric/Flying (~175 on Zapdos's 156) - the Shock Wave 2x never gets to pay.
+    # Blastoise stays legal EVEN IF frozen - live 18:44 Moltres KO'd Jynx then died on
+    # Lapras because frozen Blastoise was treated as unfieldable. MUST-LEAVE already used
+    # its one pull on Jynx; he stays vs Lapras.
     blast_ok = blast_slot is not None
     if blast_ok:
         if active_sp == BLASTOISE_SP:
             return "stay"
         return blast_slot
-    # Blastoise asleep/fainted: never Articuno Ice into Lapras (0.25x).
+    # Blastoise fainted: NOW the gun is the best thing left (Moltres's Fire is 0.5x into
+    # Water; Shock Wave is 2x). This is the "nothing sturdier is standing" branch - it is
+    # not a preference, and it is why the gun is still worth teaching.
+    if zap_has_electric and ZAPDOS_SP not in locked:
+        if active_sp == ZAPDOS_SP:
+            return "stay"
+        if zap_slot is not None:
+            return zap_slot
+    # Blastoise and the gun both gone: never Articuno Ice into Lapras (0.25x).
     if active_sp == ARTICUNO_SP:
         if molt_slot is not None and MOLTRES_SP not in locked:
             return molt_slot
@@ -906,6 +939,16 @@ def e4_force_send_pref(seat, enemy_types, enemy_species, zap_has_electric=False)
             return (ARTICUNO_SP, BLASTOISE_SP, ZAPDOS_SP)
         if lance_foe_is_dragon(enemy_types, enemy_species):
             return (ARTICUNO_SP, BLASTOISE_SP, ZAPDOS_SP)
+        # 2026-08-16 THE LANCE WIPE: Aerodactyl (Rock/Flying) is NOT a dragon and NOT
+        # Gyarados, so it fell through to the old fallback below — which led with
+        # ARTICUNO, a 4x Rock-weak bird. Rock Slide ended it in one turn without it
+        # acting (live 09:58 run). e4_revive_pref already knew the answer (line ~846:
+        # Blastoise first vs Rock/Flying); the SEND path just never got the same branch.
+        # Surf is 2x into Rock and Blastoise takes a neutral Rock Slide — he is the
+        # answer; Zapdos (2x weak) next; the 4x-weak bird LAST.
+        if enemy_species == AERODACTYL_SP or (
+                {str(t).lower() for t in (enemy_types or []) if t} >= {"rock", "flying"}):
+            return (BLASTOISE_SP, ZAPDOS_SP, ARTICUNO_SP)
         return (ARTICUNO_SP, ZAPDOS_SP, BLASTOISE_SP)
     if seat == "Agatha":
         if agatha_foe_is_ghost(enemy_types, enemy_species):
@@ -1530,7 +1573,8 @@ def pick_lead_slot(b, roster, banned=()):
 def apply_answer_lead(camp, log, seat_name=None):
     """Overworld-only save-safe swap of slot 0 to the seat's answer. Called from
     _enter_league (before the door) AND from EliteFour (each room + post-whiteout heal).
-    Lorelei: Zapdos iff he has Electric damage; else Blastoise. Never Articuno."""
+    Lorelei: Blastoise while he stands (Ice is 4x on Zapdos); else Zapdos with the
+    gun. Never Articuno."""
     try:
         if st_in_battle(camp.b):
             return None
@@ -1538,7 +1582,11 @@ def apply_answer_lead(camp, log, seat_name=None):
         import pokemon_state as st
         zap = _alive_slot_of(camp.b, ZAPDOS_SP)
         zap_elec = bool(zap is not None and slot_has_electric_damage(camp.b, zap))
-        banned = lorelei_banned_species(zap_elec) if name == "Lorelei" else frozenset()
+        banned = (lorelei_banned_species(
+            zap_elec,
+            blastoise_alive=_alive_slot_of(camp.b, BLASTOISE_SP) is not None,
+            moltres_alive=_alive_slot_of(camp.b, MOLTRES_SP) is not None,
+        ) if name == "Lorelei" else frozenset())
         best = preferred_lead_slot(camp.b, name)
         why, key = "preferred", None
         if best is None:
@@ -1546,15 +1594,15 @@ def apply_answer_lead(camp, log, seat_name=None):
             picked = pick_lead_slot(camp.b, roster, banned=banned)
             if not picked or picked[0] is None:
                 if name == "Lorelei":
-                    log("   [e4] ANSWER-LEAD Lorelei: no living Zapdos-with-gun / "
-                        "Blastoise / Moltres — fighting the standing order (LOUD)")
+                    log("   [e4] ANSWER-LEAD Lorelei: no living Blastoise / "
+                        "Zapdos-with-gun / Moltres — fighting the standing order (LOUD)")
                 return None
             best, key = picked
             why = "scorer"
         sp_id = st.read_party_species(camp.b, best)
         if name == "Lorelei" and sp_id in banned:
             log(f"   [e4] ANSWER-LEAD Lorelei: BLOCKED {st.SPECIES_NAME.get(sp_id, sp_id)} "
-                f"— Articuno never / Blastoise only without Zapdos's gun")
+                f"— Articuno never / Zapdos only once Blastoise is down (Ice 4x)")
             return None
         sp = st.SPECIES_NAME.get(sp_id, f"slot{best}")
         if best == 0:
@@ -2456,6 +2504,15 @@ class EliteFour:
             if self.handle_interrupts():
                 continue
             here = tuple(tv.map_id(b))
+            # MAP-KEYED HoF (2026-08-16 live): she beat Gary and Oak walked her in, but
+            # seen_rooms was 4 (boot mid-Agatha) so the old "room #6" test never fired and
+            # she tried to fight a trainer in the Hall of Fame. The map IS the ceremony.
+            if here == HALL_OF_FAME:
+                L("   *** [e4] HALL OF FAME — CREDITS INBOUND (map-keyed) ***")
+                self.snap("hall_of_fame")
+                self.on_event_safe("...that's it. that's the whole thing. eight badges, the Elite Four, "
+                                   "the Champion — I actually did it. we did it.", tier=2)
+                break
             came_from, prev_here = prev_here, here
             if here == center and seen_rooms and came_from is not None \
                     and came_from not in (center, INDIGO_EXT):
@@ -2558,8 +2615,9 @@ class EliteFour:
                     # seat=this room so a scarce Revive stands up Zapdos before Lance
                     # (live 21:08 revived Blastoise first, Zapdos stayed dead).
                     between_room_heal(camp, L, seat=ROOM_SEAT.get(here))
-                if len(seen_rooms) >= 6:
-                    # room #6 past the champion = HALL OF FAME — the credits are rolling
+                if here == HALL_OF_FAME or len(seen_rooms) >= 6:
+                    # Hall of Fame is the map, not a room-count. Mid-gauntlet boots
+                    # (live 21:13 Agatha→Gary) never reach "room #6".
                     L("   *** [e4] HALL OF FAME — CREDITS INBOUND ***")
                     self.snap("hall_of_fame")
                     self.on_event_safe("...that's it. that's the whole thing. eight badges, the Elite Four, "
@@ -2717,6 +2775,399 @@ class EliteFour:
             self.camp.on_event(msg, kind="milestone", tier=tier)
         except Exception:
             pass
+
+
+def _world_alive(b):
+    """False once the post-credits SoftReset has torn the world down (title screen)."""
+    try:
+        return (tuple(tv.map_id(b) or ()) != (0, 0)
+                and tv.coords(b) is not None
+                and b.rd8(ram.GPLAYER_PARTY_CNT) > 0)
+    except Exception:
+        return False
+
+
+def _flash_is_empty(b):
+    """True when cart flash/SRAM is unwritten (all 0xFF). HoF autosave never landed;
+    title CONTINUE does not exist — first A is NEW GAME (live 2026-08-17)."""
+    try:
+        sample = b.read_bytes(0x0E000000, 64)
+        return sample == b"\xFF" * 64
+    except Exception:
+        return True                                 # fail closed: do NOT mash CONTINUE
+
+
+def _raw_u8_or(b, addr, mask):
+    """Set bits in a RAM u8. u8.raw_write is 4-arg on this binding (live 2026-08-17)."""
+    cur = b.rd8(addr)
+    new = cur | mask
+    try:
+        b.core.memory.u8[addr] = new
+        if b.rd8(addr) == new:
+            return True
+    except Exception:
+        pass
+    mw = b.core.memory.u8
+    for args in ((addr, new), (addr, 1, new), (addr, 0, new)):
+        try:
+            mw.raw_write(*args)
+            if b.rd8(addr) == new:
+                return True
+        except Exception:
+            continue
+    return b.rd8(addr) == new
+
+
+def _raw_u16(b, addr, value):
+    v = int(value) & 0xFFFF
+    try:
+        b.core.memory.u16.raw_write(addr, v)
+        return
+    except TypeError:
+        b.core.memory.u16.raw_write(addr, 2, v)
+
+
+def _raw_u32(b, addr, value):
+    v = int(value) & 0xFFFFFFFF
+    try:
+        b.core.memory.u32.raw_write(addr, v)
+        return
+    except TypeError:
+        b.core.memory.u32.raw_write(addr, 4, v)
+
+
+def _raw_u8(b, addr, value):
+    """Write a RAM u8. Same binding quirks as _raw_u8_or (live 2026-08-17)."""
+    v = int(value) & 0xFF
+    try:
+        b.core.memory.u8[addr] = v
+        if b.rd8(addr) == v:
+            return True
+    except Exception:
+        pass
+    mw = b.core.memory.u8
+    for args in ((addr, v), (addr, 1, v), (addr, 0, v)):
+        try:
+            mw.raw_write(*args)
+            if b.rd8(addr) == v:
+                return True
+        except Exception:
+            continue
+    return b.rd8(addr) == v
+
+
+# pret pokefirered 1.0 — real map load (NOT coord+CB2_Overworld)
+_SWARP_DEST = 0x02031DBC            # sWarpDestination WarpData (8 bytes)
+_GMAIN_STATE = 0x03003528           # gMain.state (gMain 0x030030F0 + 0x438)
+_GFIELD_CB = 0x03005020             # gFieldCallback
+_GFIELD_CB2 = 0x03005024            # gFieldCallback2
+_QUEST_LOG_STATE = 0x0203ADFA       # gQuestLogState
+_CB2_LOADMAP = 0x0805671C | 1       # CB2_LoadMap | thumb
+_CERULEAN = (3, 3)
+_CERULEAN_SPAWN = (22, 20)          # one tile south of Center door (22, 19)
+_WARP_ID_NONE = 0xFF                # s8 -1
+_CAVE1F = (1, 72)
+
+
+def _write_warp_data(b, addr, group, num, warp_id, x, y):
+    _raw_u8(b, addr + 0, int(group) & 0xFF)
+    _raw_u8(b, addr + 1, int(num) & 0xFF)
+    _raw_u8(b, addr + 2, int(warp_id) & 0xFF)
+    _raw_u8(b, addr + 3, 0)
+    _raw_u16(b, addr + 4, int(x))
+    _raw_u16(b, addr + 6, int(y))
+
+
+def _hof_text_live(b):
+    """Oak's Hall of Fame speech still in gStringVar — the 11:52 overlay signature."""
+    try:
+        from dialogue_reader import decode
+        text, _r = decode(b.read_bytes(0x02021CD0, 0xC0))
+        up = (text or "").upper()
+        return "HALL OF FAME" in up or "THE END" in up
+    except Exception:
+        return False
+
+
+def _ceremony_desync(b):
+    """Saveblock says Pallet/Route 1 / overworld, but the loaded map or Oak script is
+    still the Hall of Fame. Coord + CB2_Overworld poke does this (live 11:52): RAM
+    walks, the window does not."""
+    try:
+        mp = tuple(tv.map_id(b) or ())
+        if mp == HALL_OF_FAME:
+            return True
+        if _cerulean_header_ok(b):
+            return False
+        if _hof_text_live(b) and mp != HALL_OF_FAME:
+            return True
+        warps = tv.read_warps(b)
+        dests = {tuple(w[1]) for w in warps if len(w) > 1}
+        if mp == (3, 19) and dests & {(4, 0), (4, 2), (4, 3)}:
+            return True
+        if mp[:1] == (3,) and HALL_OF_FAME in dests:
+            return True
+        if mp[:1] == (3,) and ram.battle_cb2_dead(b):
+            c = tv.coords(b)
+            if c:
+                g = tv.Grid(b)
+                if not g.walkable(*c) and not g.is_water(*c):
+                    return True
+    except Exception:
+        return False
+    return False
+
+
+def _cerulean_header_ok(b):
+    """gMapHeader is actually Cerulean (cave mouth warp present), not a lying saveblock."""
+    try:
+        if tuple(tv.map_id(b) or ()) != _CERULEAN:
+            return False
+        for w in tv.read_warps(b):
+            tile, dest = w[0], tuple(w[1])
+            if dest == _CAVE1F and tile == (1, 12):
+                return True
+        return any(tuple(w[1]) == _CAVE1F for w in tv.read_warps(b))
+    except Exception:
+        return False
+
+
+def _arm_game_clear(camp, log):
+    """Cerulean Cave guard needs FLAG_SYS_GAME_CLEAR. The Champion-room fallback
+    skipped HoF flash-save; credits already rolled on stream."""
+    b = camp.b
+    try:
+        if fm.read_flag(b, 0x82C):
+            return
+        badges = sum(1 for i in range(8) if camp.has_badge(0x820 + i))
+        if badges < 8:
+            return
+        fm.set_flag(b, 0x82C)
+        if not fm.read_flag(b, 0x82C):
+            sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+            addr = sb1 + 0x0EE0 + (0x82C >> 3)
+            _raw_u8_or(b, addr, 1 << (0x82C & 7))
+        log(f"   [credits] FLAG_SYS_GAME_CLEAR armed -> {fm.read_flag(b, 0x82C)}")
+    except Exception as e:
+        log(f"   [credits] game_clear arm skipped ({e})")
+
+
+def _land_overworld_from_credits(camp, log):
+    """Load a REAL Cerulean overworld via sWarpDestination + CB2_LoadMap.
+
+    Banned (live 11:42 / 11:52): poking player coords + CB2_Overworld. That
+    leaves gMapHeader / object events / VRAM on the Hall of Fame. RAM then
+    lies (Pallet, Route 1) while Oak's HoF script still owns the window and
+    she cannot take a step.
+
+    pret: SetWarpDestination writes sWarpDestination @ 0x02031DBC; WarpIntoMap
+    copies it onto SaveBlock1.location + pos; CB2_LoadMap (0x0805671C) runs
+    LoadMapFromWarp / InitObjectEvents / DrawWholeMapView. WARP_ID_NONE (-1)
+    uses the explicit x,y.
+    """
+    b = camp.b
+    render = getattr(camp, "render", None)
+    gx, gy = _CERULEAN
+    tx, ty = _CERULEAN_SPAWN
+    log(f"   [credits] REAL map-load -> Cerulean {_CERULEAN} spawn {tx, ty} "
+        f"(sWarpDestination + CB2_LoadMap; NOT coord poke)")
+    try:
+        sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+        _write_warp_data(b, _SWARP_DEST, gx, gy, _WARP_ID_NONE, tx, ty)
+        _write_warp_data(b, sb1 + 0x04, gx, gy, _WARP_ID_NONE, tx, ty)
+        _raw_u16(b, sb1 + ram.SB1_OFF_POS_X, tx)
+        _raw_u16(b, sb1 + ram.SB1_OFF_POS_Y, ty)
+        _raw_u8(b, _GMAIN_STATE, 0)
+        _raw_u32(b, _GFIELD_CB, 0)
+        _raw_u32(b, _GFIELD_CB2, 0)
+        _raw_u8(b, _QUEST_LOG_STATE, 0)
+        _raw_u32(b, ram.GMAIN_CB2, _CB2_LOADMAP)
+    except Exception as e:
+        log(f"   [credits] !! warp setup failed ({e})")
+        return "stuck"
+    for i in range(400):
+        b.run_frame()
+        if render:
+            try:
+                render()
+            except Exception:
+                pass
+        try:
+            if (ram.battle_cb2_dead(b)
+                    and tuple(tv.map_id(b) or ()) == _CERULEAN
+                    and _cerulean_header_ok(b)):
+                log(f"   [credits] CB2_LoadMap settled after {i + 1} frames")
+                break
+        except Exception:
+            pass
+    _arm_game_clear(camp, log)
+    mp = tuple(tv.map_id(b) or ())
+    c = tv.coords(b)
+    hof = _hof_text_live(b)
+    hdr = _cerulean_header_ok(b)
+    ow = ram.battle_cb2_dead(b)
+    log(f"   [credits] land -> map={mp} {c} overworld={ow} header_ok={hdr} "
+        f"hof_text={hof} party={b.rd8(ram.GPLAYER_PARTY_CNT)} "
+        f"cb2={hex(b.rd32(ram.GMAIN_CB2))}")
+    ok = (ow and _world_alive(b) and mp == _CERULEAN and hdr)
+    return "ok" if ok else "stuck"
+
+
+def _pallet_grenade_path():
+    """Pallet THE END savestate (Champion RAM, credits CB2). Champion-room is the Oak→HoF loop."""
+    from campaign import STATES_CAMPAIGN, CAMPAIGN_SAVE
+    named = os.path.join(STATES_CAMPAIGN,
+                         "kira_campaign.CHAMPION_THE_END_20260817_085504.state")
+    if os.path.isfile(named):
+        return named
+    ckpt = os.path.join(STATES_CAMPAIGN, "checkpoints",
+                        "20260816_215552_pallet-town_8b_62h14m_roam-start", CAMPAIGN_SAVE)
+    if os.path.isfile(ckpt):
+        return ckpt
+    return None
+
+
+def _load_pallet_grenade_and_land(camp, log):
+    path = _pallet_grenade_path()
+    if path is None:
+        log("   [credits] !! no Pallet THE END grenade on disk")
+        return "stuck"
+    log(f"   [credits] loading Pallet THE END grenade {os.path.basename(path)} "
+        f"(NOT Champion-room — Oak escorts into HoF)")
+    with open(path, "rb") as f:
+        camp.b.load_state(f.read())
+    render = getattr(camp, "render", None)
+    for _ in range(30):
+        camp.b.run_frame()
+        if render:
+            try:
+                render()
+            except Exception:
+                pass
+    return _land_overworld_from_credits(camp, log)
+
+
+def drain_credits_to_champion(camp, log):
+    """From HoF / credits / THE END → a WALKABLE Champion overworld.
+
+    Live 2026-08-17: THE END savestate still has Pallet RAM. A on THE END SoftResets
+    to title. Cart flash is empty (no roms/firered.sav), so CONTINUE does not exist
+    and the first A is NEW GAME. Never mash title when flash is 0xFF — load the
+    Champion-room overworld bank instead.
+
+    Returns 'ok' | 'stuck'.
+    """
+    b = camp.b
+    render = getattr(camp, "render", None)
+
+    def settle(n):
+        for _ in range(n):
+            b.run_frame()
+            if render:
+                try:
+                    render()
+                except Exception:
+                    pass
+
+    def press(key, hold=8, gap=12):
+        b.press(key, hold, gap, render, owner="agent")
+
+    if ram.battle_cb2_dead(b) and _world_alive(b) and not _ceremony_desync(b):
+        try:
+            g = tv.Grid(b)
+            c = tv.coords(b)
+            if c and (g.walkable(*c) or g.is_water(*c)):
+                log(f"   [credits] already in the world: map={tv.map_id(b)} {c} "
+                    f"header_ok={_cerulean_header_ok(b)}")
+                _arm_game_clear(camp, log)
+                return "ok"
+        except Exception:
+            pass
+
+    if _ceremony_desync(b) or not ram.battle_cb2_dead(b):
+        if b.rd8(ram.GPLAYER_PARTY_CNT) >= 1:
+            log("   [credits] ceremony/HoF-desync — REAL Cerulean map-load "
+                "(sWarpDestination + CB2_LoadMap; NOT coord poke, NOT title)")
+            return _land_overworld_from_credits(camp, log)
+
+    if _flash_is_empty(b):
+        # Live 11:32: Champion-room reload made Oak escort her into HoF → credits
+        # again. Never A (title). Warp Champion RAM into a real Cerulean overworld.
+        mp = tuple(tv.map_id(b) or ())
+        if _world_alive(b) and (mp[:1] == (3,) or mp in ((1, 79), (1, 80), HALL_OF_FAME)):
+            log("   [credits] !! EMPTY FLASH + Champion RAM still live — "
+                "Cerulean map-load (NOT Champion-room, NOT title CONTINUE)")
+            return _land_overworld_from_credits(camp, log)
+        log("   [credits] !! EMPTY FLASH — title CONTINUE is NEW GAME. "
+            "Champion RAM gone; Champion-room overworld is last resort")
+        return _load_pallet_grenade_and_land(camp, log)
+
+    log("   [credits] battery present — draining ceremony/THE END → title → CONTINUE")
+    quiet = 0
+    for _ in range(400):
+        if dd_box(b):
+            quiet = 0
+            press("A")
+            settle(20)
+        else:
+            quiet += 1
+            settle(20)
+            if quiet >= 8:
+                break
+
+    t0 = time.time()
+    while _world_alive(b) and time.time() - t0 < 180:
+        if ram.battle_cb2_dead(b):
+            log("   [credits] overworld callback during drain — already in the world")
+            break
+        press("A")
+        settle(40)
+    if _world_alive(b) and ram.battle_cb2_dead(b):
+        log(f"   [credits] BACK IN THE WORLD (no title): map={tv.map_id(b)} {tv.coords(b)}")
+        _arm_game_clear(camp, log)
+        return "ok"
+
+    party0 = 0
+    badges0 = 0
+    try:
+        party0 = b.rd8(ram.GPLAYER_PARTY_CNT)
+        badges0 = sum(1 for i in range(8) if camp.has_badge(0x820 + i))
+    except Exception:
+        pass
+
+    for _ in range(50):
+        press("START")
+        settle(40)
+        if dd_box(b) or _world_alive(b):
+            break
+    log("   [credits] selecting CONTINUE (abort if party/badges drop)")
+    for _ in range(50):
+        press("A")
+        settle(90)
+        try:
+            if b.rd8(ram.GPLAYER_PARTY_CNT) < 1 or (
+                    badges0 >= 8 and
+                    sum(1 for i in range(8) if camp.has_badge(0x820 + i)) < 8):
+                log("   [credits] !! CONTINUE became NEW GAME — aborting to Champion-room bank")
+                return _load_pallet_grenade_and_land(camp, log)
+        except Exception:
+            pass
+        mp = tuple(tv.map_id(b) or ())
+        if _world_alive(b) and mp != HALL_OF_FAME and ram.battle_cb2_dead(b):
+            break
+    if not _world_alive(b):
+        log("   [credits] !! CONTINUE never re-entered the world — Champion-room fallback")
+        return _load_pallet_grenade_and_land(camp, log)
+    settle(240)
+    for _ in range(80):
+        if not dd_box(b) and ram.battle_cb2_dead(b):
+            break
+        press("A")
+        settle(30)
+    _arm_game_clear(camp, log)
+    log(f"   [credits] Champion in control: map={tv.map_id(b)} coords={tv.coords(b)} "
+        f"party={b.rd8(ram.GPLAYER_PARTY_CNT)} overworld={ram.battle_cb2_dead(b)}")
+    return "ok" if ram.battle_cb2_dead(b) and _world_alive(b) else "stuck"
 
 
 def run_strike(camp, log, dbg_dir=None):
