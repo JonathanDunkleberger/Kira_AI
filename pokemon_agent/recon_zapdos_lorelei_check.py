@@ -37,11 +37,29 @@ check(e4.move_is_electric_damage(85, "electric", 0), "Thunderbolt id counts even
 check(e4.zapdos_forget_idx(WILD) == 1, "forget Agility (idx 1), not Drill Peck")
 check(e4.zapdos_forget_idx([65, 65, 65, 65]) is None, "refuse to overwrite Drill Peck-only set")
 
+# THE 4x LAW (2026-08-15): Lorelei fields THREE Ice Beams (Dewgong L52 lead, Slowbro L52,
+# Lapras L54) + Jynx's Ice Punch. Ice is 4x on Electric/Flying: ~175 on a 156-HP L51 Zapdos
+# = OHKO from her lead, so the 2x Shock Wave never pays. Blastoise takes it at 0.5x (~22 of
+# 234). RECEIPT: oracle banked_TIMEOUT — Zapdos led 37 fights and died in 34; every lap
+# entered Bruno at "[lead 0%, alive 3]" and four straight laps wiped at Gary. Blastoise
+# leads; the gun only matters once Blastoise is off the field.
 check(BLAST not in e4.lorelei_banned_species(False),
-      "Blastoise ALLOWED when Zapdos has no gun")
-check(BLAST in e4.lorelei_banned_species(True),
-      "Blastoise banned when Zapdos has the gun")
+      "Blastoise is NEVER banned vs Lorelei (Ice 0.5x — he is the wall)")
+check(BLAST not in e4.lorelei_banned_species(True),
+      "Blastoise stays legal even when Zapdos has the gun (the 4x law)")
+check(ZAP in e4.lorelei_banned_species(True),
+      "gun Zapdos is BANNED vs Lorelei while Blastoise stands (Ice 4x OHKO)")
+check(ZAP in e4.lorelei_banned_species(False),
+      "gunless Zapdos is banned vs Lorelei too")
+check(ZAP not in e4.lorelei_banned_species(True, blastoise_alive=False),
+      "Blastoise down + gun -> Zapdos is the best thing left (ban lifts)")
+check(ZAP in e4.lorelei_banned_species(False, blastoise_alive=False),
+      "Blastoise down, no gun -> still not Zapdos while Moltres stands (Ice 1x vs 4x)")
+check(ZAP not in e4.lorelei_banned_species(False, blastoise_alive=False, moltres_alive=False),
+      "last body standing is never banned (never refuse to field the only mon)")
 check(ART in e4.lorelei_banned_species(False), "Articuno always banned")
+check(e4.LORELEI_LEAD_ORDER[0] == BLAST,
+      "Lorelei preferred lead #1 is Blastoise, not the 4x-Ice bird")
 
 # Waters, no gun: stay on Blastoise / switch TO Blastoise, do not hold Zapdos
 r = e4.lorelei_inbattle_switch(ZAP, ["water", "ice"], DEWGONG, zap_slot=0, molt_slot=3,
@@ -51,13 +69,19 @@ r = e4.lorelei_inbattle_switch(BLAST, ["water", "ice"], DEWGONG, zap_slot=0, mol
                                zap_has_electric=False, blast_slot=2)
 check(r == "stay", f"Blastoise vs Dewgong stays (got {r})")
 
-# Waters, WITH gun: Zapdos holds
+# Waters, WITH gun: Blastoise STILL holds — the gun does not buy a free OHKO on us
 r = e4.lorelei_inbattle_switch(ZAP, ["water"], DEWGONG, zap_slot=0, molt_slot=3,
                                zap_has_electric=True, blast_slot=2)
-check(r == "stay", f"gun Zapdos vs Dewgong stays (got {r})")
+check(r == 2, f"gun Zapdos vs Dewgong -> pull him to Blastoise (got {r})")
 r = e4.lorelei_inbattle_switch(BLAST, ["water"], DEWGONG, zap_slot=0, molt_slot=3,
                                zap_has_electric=True, blast_slot=2)
-check(r == 0, f"gun: Blastoise vs Dewgong -> switch to Zapdos (got {r})")
+check(r == "stay", f"gun: Blastoise vs Dewgong STAYS (never trade him for the bird) (got {r})")
+r = e4.lorelei_inbattle_switch(MOLT, ["water"], DEWGONG, zap_slot=0, molt_slot=3,
+                               zap_has_electric=True, blast_slot=None)
+check(r == 0, f"Blastoise down + gun: Moltres vs Dewgong -> Zapdos (got {r})")
+r = e4.lorelei_inbattle_switch(ZAP, ["water"], DEWGONG, zap_slot=0, molt_slot=3,
+                               zap_has_electric=True, blast_slot=None)
+check(r == "stay", f"Blastoise down + gun: Zapdos holds the waters (got {r})")
 
 # Jynx: L75 Blastoise Surf stays / is preferred. Do NOT send L50 Moltres into Kiss.
 r = e4.lorelei_inbattle_switch(BLAST, ["ice", "psychic"], JYNX, zap_slot=0, molt_slot=3,
@@ -424,15 +448,33 @@ check("ITEM_PARTY_CURSOR = 0x0203B0A9" in ba,
       "the measured item-use slotId (0x0203B0A9) is the one the item screen uses")
 check("BLINK-COUNTER LAW" in ba,
       "the blink-counter law is recorded at the top of battle_agent")
-_reader = ba.split("def _item_slot_id")[1][:1400]
+def _method(name):
+    """The FULL body of `def name(` up to the next same-indent `def` — never a fixed char
+    window. The old slices were `[:1400]`/`[:2000]`/`[:3000]` char cuts, and the 2026-08-15
+    RAM-first rewrite grew these docstrings past every one of them: five assertions started
+    reading only the docstring and FAILED while the code they guard was present and correct
+    (a green-to-red flip with no behavior change). A gate that measures the wrong bytes is
+    worse than no gate — it teaches you to ignore it."""
+    head = f"def {name}("
+    i = ba.find(head)
+    assert i >= 0, f"{name} not found in battle_agent.py"
+    j = ba.find("\n    def ", i + len(head))
+    return ba[i:] if j < 0 else ba[i:j]
+
+
+_reader = _method("_item_slot_id")
+# RAM FIRST is the fix itself (the six-unused-Revives whiteout): on a long-running core the
+# framebuffer freezes, so one stale frame pins the pixel vote on the home panel forever. The
+# measured byte is read first; orange survives only as the fallback for out-of-range reads.
+check(_reader.find("ITEM_PARTY_CURSOR") < _reader.find("_party_cursor_slot"),
+      "item-use position reads ITEM_PARTY_CURSOR (RAM) FIRST, orange pixels second")
 check("_party_cursor_slot" in _reader and "ITEM_PARTY_CURSOR" in _reader,
-      "item-use position reads ORANGE first, ITEM_PARTY_CURSOR second")
+      "item-use position keeps the orange fallback for out-of-range byte reads")
 check("rd8(PARTY_CURSOR)" not in _reader,
       "item-use position NEVER reads the blink byte PARTY_CURSOR")
 check("def _item_party_walk" in ba and "def _item_party_settle" in ba,
       "one measured primitive (settle + DOWN-only ring walk) serves both landers")
-_walk = ba.split("def _item_party_walk")[1].split("def _confirm_party_row")[0] \
-    if "def _confirm_party_row" in ba else ba.split("def _item_party_walk")[1][:2000]
+_walk = _method("_item_party_walk")
 for _banned in ('self._tap("LEFT")', 'self._tap("UP")', 'self._tap("RIGHT")',
                 'self._tap("B")'):
     check(_banned not in _walk,
@@ -440,14 +482,12 @@ for _banned in ('self._tap("LEFT")', 'self._tap("UP")', 'self._tap("RIGHT")',
 check('self._tap("DOWN")' in _walk, "the item-use ring walk presses DOWN")
 check("_item_party_settle" in _walk,
       "the ring walk waits out the opening fade before tapping (eaten-tap window)")
-_lander = ba.split("def _item_land_party_row")[1].split("def _e4_force_send_pick")[0]
+_lander = _method("_item_land_party_row")
 check("self._tap(\"LEFT\")" not in _lander,
       "item-use party land never LEFTs (never LEFT from 0)")
 check("_item_party_walk" in _lander,
       "the heal/cure/ether lander walks via the measured primitive")
-_revive = ba.split("def _revive_land_fainted_row")[1].split("def _item_land_party_row")[0] \
-    if ba.find("def _item_land_party_row") > ba.find("def _revive_land_fainted_row") \
-    else ba.split("def _revive_land_fainted_row")[1][:3000]
+_revive = _method("_revive_land_fainted_row")
 check("self._party_blind_goto" not in _revive,
       "Revive land does not call force-switch LEFT home")
 check("self._tap(\"LEFT\")" not in _revive,
@@ -479,6 +519,39 @@ check("never insta-A the fighter" in _revive,
       "Revive refuses A on a living highlight after the pick")
 check("def _dismiss_item_no_effect" in ba and "won't have any effect" in ba,
       "Failed Revive-on-living dismisses the no-effect box")
+
+# ── THE SOLE-CONTROLLER INTERLOCK (2026-08-15 — the seven-day "she cannot revive in E4" wall) ──
+# play_live's reading-pace `_dialogue_hold` STEALS THE CONTROLLER: b.release(owner="agent") then
+# b.press("A") to advance a page. It is driven from the per-frame render() callback that
+# battle_agent's own _wait() calls, so it fired RE-ENTRANTLY inside bag/party navigation. Both
+# prompts the item path always produces ("REVIVE is selected." / "Use on which POKeMON?") score
+# T2, so the theft happened on EVERY revive: the stolen A confirmed the LIVING lead, the game said
+# "It won't have any effect.", and the count never dropped. Receipts: the headless oracle (no voice
+# reader, so no hold) revives 24/24 on the same savestate; live logged hundreds of misses across
+# seven days; battle MOVES were never hurt because the move menu re-verifies with STREAM COMMIT and
+# retries. These pin BOTH halves — losing either one silently restores the wall.
+check("_menu_txn" in ba, "battle_agent marks a menu transaction (the sole-controller interlock)")
+_txn = _method("use_item_in_battle")
+check("_menu_txn" in _txn and "finally" in _txn,
+      "use_item_in_battle sets the interlock and clears it in a finally (never leaks the guard)")
+check("_use_item_txn" in _txn, "the item body runs inside the interlock wrapper")
+check('int(getattr(self.b, "_menu_txn", 0) or 0) + 1' in _txn,
+      "the interlock is a DEPTH COUNTER (nested item calls cannot drop an outer guard)")
+_pl = open(os.path.join(_HERE, "play_live.py"), encoding="utf-8").read()
+_hold = _pl.split("def _dialogue_hold")[1].split("\n    def ")[0]
+# Compare CODE lines only — the comment above the guard quotes `b.release(owner="agent")` when it
+# explains the bug, and a naive find() matches that comment instead of the statement.
+_hold_code = [ln.strip() for ln in _hold.split("\n")
+              if ln.strip() and not ln.strip().startswith("#")]
+_guard_at = next((i for i, ln in enumerate(_hold_code)
+                  if 'getattr(b, "_menu_txn", False)' in ln), None)
+_steal_at = next((i for i, ln in enumerate(_hold_code)
+                  if ln.startswith('b.release(owner="agent")') or ln.startswith('b.press("A"')),
+                 None)
+check(_guard_at is not None,
+      "the guard lives INSIDE _dialogue_hold (the function that releases + presses A)")
+check(_guard_at is not None and _steal_at is not None and _guard_at < _steal_at,
+      "the interlock is checked BEFORE b.release / press A can fire")
 check("ITEM-INSTINCT FORCED -> use_revive" in ba
       and "_e4_thin_party" in ba,
       "E4 thin-party Revive is forced (oracle cannot keep_fighting)")
@@ -688,6 +761,25 @@ rows_aero = [
 check(e4.e4_revive_target_from_rows(rows_aero, "Lance", ["rock", "flying"],
                                     e4.AERODACTYL_SP, True) == 1,
       "vs Aerodactyl: do not revive 4x-Rock Zapdos when Blastoise is also down")
+# 2026-08-16 THE LANCE WIPE: the SEND path had no Aerodactyl branch (revive did) —
+# it fell through to the generic Lance fallback and force-sent ARTICUNO (4x Rock-weak)
+# into Rock Slide. One turn, no move, dead bird. Blastoise (Surf 2x, neutral Rock
+# Slide) is the answer; the 4x bird goes LAST.
+pref_aero = e4.e4_force_send_pref("Lance", ["rock", "flying"], e4.AERODACTYL_SP)
+check(pref_aero and pref_aero[0] == BLAST and pref_aero[-1] == ART,
+      f"SEND vs Aerodactyl leads Blastoise, Articuno LAST (got {pref_aero})")
+cands_aero = [
+    {"species": ART, "hp": 157, "maxhp": 157, "row": 3},
+    {"species": BLAST, "hp": 200, "maxhp": 269, "row": 0},
+]
+pick = e4.e4_pick_send_cand(pref_aero, cands_aero)
+check(pick and pick["species"] == BLAST,
+      f"SEND vs Aerodactyl seats healthy Blastoise over healthy Articuno (got {pick})")
+cands_aero_blast_down = [{"species": ZAP, "hp": 120, "maxhp": 120, "row": 2},
+                         {"species": ART, "hp": 157, "maxhp": 157, "row": 3}]
+pick = e4.e4_pick_send_cand(pref_aero, cands_aero_blast_down)
+check(pick and pick["species"] == ZAP,
+      f"SEND vs Aerodactyl with Blastoise down: Zapdos (2x) before the 4x bird (got {pick})")
 check(e4.e4_should_hold_north(17, 240, 2, 0, 0),
       "dying ace + potions in bag = hold the north door")
 check(not e4.e4_should_hold_north(17, 240, 0, 1, 0),

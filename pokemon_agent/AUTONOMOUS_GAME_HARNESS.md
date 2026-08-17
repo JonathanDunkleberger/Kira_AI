@@ -286,6 +286,99 @@ from the bedrock + pitfalls, not from scratch. (See CLAUDE.md rule 14.)
       (e) **Walk with the one key that cannot detonate.** DOWN wraps the whole ring
           (…→last→CANCEL→lead), so DOWN-only reaches every row from anywhere and never
           touches LEFT/UP/B — the keys that cancel this screen back into the bag.
+42. **THE LANCE WIPE (2026-08-16, four bugs one room from the credits) — a battle-scoped
+    ledger keyed by SLOT INDEX cross-contaminates across a multi-mon gauntlet.** The
+    move-refusal exile ledger (`{slot: refusals}`, exile at >=2) lived for the whole BATTLE,
+    but slot 1 is Shock Wave on Zapdos and Surf on Blastoise. In the E4 (four mons, one
+    battle) Zapdos's dead slot-1 tally plus one Blastoise menu-miss on slot-1 EXILED Surf;
+    an L89 Blastoise then fought Aerodactyl with a 0.5x 2-turn Skull Bash until it died.
+    Laws:
+      (a) **Any ledger keyed by a per-entity index lives PER ENTITY, not per encounter.**
+          Re-point the view when the active entity changes (sync at the top of the commit
+          funnel); switching out and back RESTORES that entity's ledger (the anti-loop
+          protection must survive a switch, not reset).
+      (b) **A refusal tally is only proof of a dry resource when the resource byte reads
+          empty.** A tally on a move the game still says has PP is OUR actuation missing —
+          and this engine misses a lot (three MENU WEDGEs in one fight). While the wincon
+          reads pp>0, un-exile and re-fire it, BOUNDED per mon (E4_WINCON_REFIRE_MAX); the
+          slot-agnostic futility counter stays the real anti-livelock floor underneath.
+      (c) **The abort/confirm risk in a menu transaction is ASYMMETRIC — weigh it right.**
+          A menu-time status re-check (same two tear-prone structs, one transition later)
+          read empty on a mon the offer had just measured PARALYZED; it aborted a Full Heal
+          at "Use on which POKéMON?", latched a battle-wide cure-block, and left the party
+          screen open -> 60s wedge -> free kill -> whiteout. Confirming a cure on a clear
+          mon costs one dismissable turn; aborting a needed cure costs the RUN. Every
+          witness (party struct, battle struct, the caller's offer-time reading) gets a
+          vote; abort only when ALL agree there is nothing to do, and unwind the menu
+          stack BLIND (classifiers lie on exactly that screen) before returning.
+      (d) **The last unique rescue item is reserved for BATTLE, never field comfort.**
+          The between-room "cheapest-adequate" ladder fell back to biggest-present and
+          drank the bag's ONLY Full Restore for a 70 HP top-up at 74% HP; the party
+          entered the boss sealed-door gauntlet with zero rescue. When the pick is the
+          last of its kind and the patient is at/above the hurt bar, hold it (LOUD) —
+          genuinely-hurt mons still drink.
+      (e) **Keep paired policy tables in LOCKSTEP — the send path and the revive path
+          answer the same question.** `e4_revive_pref` knew Aerodactyl = Blastoise-first;
+          `e4_force_send_pref` had no Aerodactyl branch, fell through to the generic
+          fallback, and force-sent a 4x-Rock-weak Articuno into Rock Slide (one turn,
+          no move, dead). When two tables encode the same matchup knowledge, add the
+          branch to both or share the predicate — the recon check now covers both.
+      (f) **A field rail must never press START into a script-owned screen — wait for
+          the scene-cancelled box to drain, THEN menu (2026-08-16 remedial, the Gary
+          wipe that followed the Lance fix).** The between-room `field_revive` raced
+          the champion's intro cutscene at the Gary seam: START into a script-owned
+          screen never opens the menu → both attempts aborted → she entered Gary
+          3-alive with her ace at 50% and no FR. `TeachFlow._await_free_screen` now
+          bounds-waits ~35s for the box to drain at every field-rail entry; the
+          champion intro drains in ~15-25s. Same family as the check-then-menu laws:
+          menu actuation into a scripted screen is a guaranteed miss.
+      (g) **THE BRUNO-SEAM PAIR (2026-08-16 evening, the second Lance loss): comfort
+          beats critical, and "no HP change" ≠ "no heal happened".** (i) The party-wide
+          between-room picker sorted ACE-FIRST, so an 82% ace took a top-up while a
+          13/165 bench mon waited — and the ace's bottle then landed on the wrong mon
+          anyway. In the gauntlet every body is a type-answer: order by NEED. And the
+          FR reserve in the gauntlet is the last TWO (the doctrine: "4 FR tanks the
+          5-dragon wave" — entering Lance with FR x0 is the recurring kill). (ii) The
+          item-use party screen REMEMBERS its cursor across opens (pitfall 41's
+          lesson, overworld edition): the blind "opens on slot 0" walk healed the
+          WRONG mon, the target-HP verify read "no change", and the caller booked a
+          10-min backoff — two rooms before Lance. Verify heals by ALL-SLOT HP
+          snapshot: consumed + target flat + a teammate rose = "mis_aimed" — a landed
+          heal, not a drive failure; count it and keep the seam moving.
+      (h) **The E4 whiteout is a MONEY DEATH SPIRAL — budget the gauntlet like it's
+          sealed, because it is.** Each wipe at Lance/Gary costs ~$10k in whiteout
+          fees and there is no shop mid-gauntlet; the purse across the live attempts
+          read $23k → $17k → $12k → $6.6k, each retry thinner than the last. "Just
+          let it keep retrying" does NOT converge. The levers are: reserve items
+          (42d/g), the whiteout→restock loop's shop floor, and headless cycles for
+          XP/purse repair (recon_longrun + snap_grind — free, 14x, no TTS spend).
+    PROOF (the standing rule — claims need logs): booted the exact canonical save that
+    wiped (Agatha cleared, Surf 4/15 PP, FR x1) headless at max speed: FR held at
+    199/269 ("holding the LAST Full Restore"), Lance x2 (the post-Gary-loss retry
+    re-ran the gauntlet from the League door), Gary, HALL OF FAME, credits, champion —
+    ~5 min wall, canonical save untouched, bundle round-trip + sanctity VALID.
+43. **EMPTY FLASH + TITLE CONTINUE = NEW GAME (2026-08-17, post-credits).** Hall of Fame
+    autosave writes cart flash (`roms/<rom>.sav`). This harness never attached a battery
+    file, so `0x0E000000` stayed `0xFF`. A Champion savestate parked on THE END still
+    has Pallet RAM; A on THE END SoftResets to title; the title's only option is NEW
+    GAME. Mashing CONTINUE to "leave credits" spawned a fresh bedroom run on stream
+    while the `.state` on disk was still Champion. Laws:
+      (a) **Never press A/START on the title screen unless flash is non-empty AND a
+          CONTINUE slot is confirmed.** Fail closed: treat unread/0xFF flash as empty.
+      (b) **Abort if party or badge count drops during the mash** — that IS a new game.
+      (c) **Do not bank party-0 / badge-regression over a Champion lock.** HUD health
+          is the same poison class.
+      (d) **THE END with empty flash exits via a REAL map load** (`sWarpDestination`
+          + `CB2_LoadMap` into Cerulean, then `FLAG_SYS_GAME_CLEAR`). Champion's Room
+          is the Oak→HoF escort (credits again). **Never poke coords + CB2_Overworld**
+          — RAM will say Pallet/Route 1 while the window stays Hall of Fame.
+44. **COORD POKE ≠ MAP LOAD (2026-08-17, 11:52 live).** Writing SaveBlock1 x,y and
+    poking `CB2_Overworld` does not run `LoadMapFromWarp`. `gMapHeader`, object events,
+    collision, and VRAM stay on the previous map (HoF). Travel then reports "NPC on
+    the gap" with `npcs nearby=[]` and the watchdog freeze-spins. Proof a land
+    worked: header warps match the saveblock map (Cerulean cave mouth `(1,12)→(1,72)`),
+    a step changes coords, and Oak's Hall of Fame string is gone.
+
 
 **STATUS ADDENDUM (2026-07-07): GAME #1 SUMMITED.** FireRed credits rolled autonomously
 (bedroom → 8 badges → E4 → Champion). The engine list above is what did it; the post-credits

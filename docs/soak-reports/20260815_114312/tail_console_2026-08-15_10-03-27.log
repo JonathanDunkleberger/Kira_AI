@@ -1,0 +1,300 @@
+   [TTS] Speaking: Lorelei's already running out of ideas....
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lorelei's already running out of ideas.' (7 words)
+   [TurnTiming] 11:11:30.408 TTS START — audio playback begins
+   [Captions] Drop frame 'Lorelei's already running out ': no overlay clients connected.
+   [TurnTiming] 11:11:33.124 TTS STOP — playback finished (span ~2716ms)
+   [TIMING] interjection: vision=0ms llm=2359ms(sonnet) tts=5096ms total=7474ms
+   [LAG] sense→speak: total=4.8s (content_age=0.0s, prep=0.0s, llm=2.4s, tts_wait+synth=2.4s)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [RoomRead] energy=0.55 [silence=0.97 chat=0.00] target=0.98 mult=1.10 -> min_gap=11s dead_air=22s
+   [VRAM] 11:11:39 (periodic) kira_process=0.00GB card=6.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [RoomRead] energy=0.49 [silence=0.85 chat=0.00] target=1.03 mult=1.08 -> min_gap=11s dead_air=22s
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the trainer sent out slowbro
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=12ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Slowbro. Psychic type — Zapdos is sitting this one out.
+   [TTS] Speaking: Slowbro....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Slowbro.' (2 words)
+   [TurnTiming] 11:11:45.822 TTS START — audio playback begins
+   [Captions] Drop frame 'Slowbro.': no overlay clients connected.
+   [TurnTiming] 11:11:47.594 TTS STOP — playback finished (span ~1771ms)
+   [TTS] Speaking: Psychic type — Zapdos is sitting this one out....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Psychic type — Zapdos is sitting this on' (10 words)
+   [TurnTiming] 11:11:48.042 TTS START — audio playback begins
+   [Captions] Drop frame 'Psychic type — Zapdos is sitti': no overlay clients connected.
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:11:51.412 TTS STOP — playback finished (span ~3370ms)
+   [TIMING] interjection: vision=0ms llm=2332ms(sonnet) tts=5824ms total=8173ms
+   [LAG] sense→speak: total=4.8s (content_age=0.0s, prep=0.0s, llm=2.3s, tts_wait+synth=2.4s)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=2, kind=event): your zapdos used Shock Wave - E4 wincon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=12ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "sitting this one out" (3rd use this session)
+   [Phrases] Throttling: "type zapdos is" (3rd use this session)
+   [RoomRead] energy=0.50 [silence=0.87 chat=0.00] target=1.00 mult=1.06 -> min_gap=11s dead_air=21s
+   >>> Kira (Bored): Shock Wave never misses — that's not a move, that's a guarantee.
+   [TTS] Speaking: Shock Wave never misses — that's not a move, that'...
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Shock Wave never misses — that's not a m' (14 words)
+   [TurnTiming] 11:12:00.216 TTS START — audio playback begins
+   [Captions] Drop frame 'Shock Wave never misses — that': no overlay clients connected.
+   [TurnTiming] 11:12:04.436 TTS STOP — playback finished (span ~4219ms)
+   [TIMING] interjection: vision=0ms llm=1524ms(sonnet) tts=4674ms total=6214ms
+   [LAG] sense→speak: total=2.0s (content_age=0.0s, prep=0.0s, llm=1.5s, tts_wait+synth=0.5s)
+🎤 Recording...
+   [TurnTiming] 11:12:08.783 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 11:12:10.391 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1607ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:12:11.393 VOICE ONSET — mic speech started
+   [TurnTiming] 11:12:14.735 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3341ms since onset)
+   [RoomRead] energy=0.57 [silence=0.99 chat=0.00] target=0.98 mult=1.04 -> min_gap=10s dead_air=21s
+🎤 Recording...
+   [TurnTiming] 11:12:15.641 VOICE ONSET — mic speech started
+   [TurnTiming] 11:12:16.921 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1280ms since onset)
+   [VRAM] 11:12:24 (periodic) kira_process=0.00GB card=6.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0335 · gate=0.003 · 2 accepted
+🎤 Recording...
+   [TurnTiming] 11:12:30.222 VOICE ONSET — mic speech started
+   [TurnTiming] 11:12:31.508 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1286ms since onset)
+   [RoomRead] energy=0.38 [silence=0.67 chat=0.00] target=1.23 mult=1.06 -> min_gap=11s dead_air=21s
+   [RoomRead] energy=0.36 [silence=0.62 chat=0.00] target=1.29 mult=1.08 -> min_gap=11s dead_air=22s
+   [LoopbackSTT] tick 209ms — 0 accepted, 1 filtered (rms=0.027)
+   [RoomRead] energy=0.33 [silence=0.57 chat=0.00] target=1.35 mult=1.10 -> min_gap=11s dead_air=22s
+   [RoomRead] energy=0.30 [silence=0.52 chat=0.00] target=1.40 mult=1.13 -> min_gap=11s dead_air=23s
+   [RoomRead] energy=0.27 [silence=0.47 chat=0.00] target=1.46 mult=1.16 -> min_gap=12s dead_air=23s
+   [RoomRead] energy=0.25 [silence=0.44 chat=0.00] target=1.50 mult=1.18 -> min_gap=12s dead_air=24s
+   [Pokemon] SELF CHOSE (battle_item): use_cure
+   [Pokemon] her reasoning: 'Sleep is death against a team this close to the finish line — I\'m not gambling another turn on "maybe I wake up."'
+   [RoomRead] energy=0.23 [silence=0.41 chat=0.00] target=1.54 mult=1.20 -> min_gap=12s dead_air=24s
+🎤 Recording...
+   [TurnTiming] 11:13:09.193 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.21 [silence=0.37 chat=0.00] target=1.58 mult=1.23 -> min_gap=12s dead_air=25s
+   [VRAM] 11:13:09 (periodic) kira_process=0.00GB card=6.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [RoomRead] energy=0.19 [silence=0.34 chat=0.00] target=1.61 mult=1.25 -> min_gap=13s dead_air=25s
+   [TurnTiming] 11:13:11.488 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2295ms since onset)
+   [RoomRead] energy=0.55 [silence=0.95 chat=0.00] target=0.99 mult=1.23 -> min_gap=12s dead_air=25s
+🎤 Recording...
+   [TurnTiming] 11:13:14.595 VOICE ONSET — mic speech started
+   [LoopbackSTT] tick 110ms — 0 accepted, 1 filtered (rms=0.029)
+   [RoomRead] energy=0.52 [silence=0.90 chat=0.00] target=0.99 mult=1.20 -> min_gap=12s dead_air=24s
+   [TurnTiming] 11:13:17.875 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3280ms since onset)
+   [RoomRead] energy=0.55 [silence=0.96 chat=0.00] target=0.99 mult=1.18 -> min_gap=12s dead_air=24s
+🎤 Recording...
+   [TurnTiming] 11:13:21.616 VOICE ONSET — mic speech started
+   [TurnTiming] 11:13:22.961 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1345ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:13:23.443 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.56 [silence=0.98 chat=0.00] target=0.98 mult=1.16 -> min_gap=12s dead_air=23s
+   [TurnTiming] 11:13:26.042 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2598ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:13:27.149 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.55 [silence=0.96 chat=0.00] target=0.98 mult=1.14 -> min_gap=11s dead_air=23s
+   [TurnTiming] 11:13:28.449 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1300ms since onset)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0343 · gate=0.003 · 2 accepted
+   [RoomRead] energy=0.54 [silence=0.92 intensity=0.60 chat=0.00] target=0.99 mult=1.11 -> min_gap=11s dead_air=22s
+   [Intensity] → CALM  (silence=5s  audio="")
+🎤 Recording...
+   [TurnTiming] 11:13:33.998 VOICE ONSET — mic speech started
+   [TurnTiming] 11:13:35.310 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1312ms since onset)
+   [RoomRead] energy=0.55 [silence=0.94 intensity=0.60 chat=0.00] target=0.99 mult=1.09 -> min_gap=11s dead_air=22s
+   [Captions] Overlay connected: ::1:60459 (1 total)
+   [Captions] Overlay connected: ::1:60478 (2 total)
+   [Overlay] connected → /ws/overlays now has 1 client(s)
+   [Overlay] connected → /ws/overlays now has 2 client(s)
+   [Overlay] connected → /ws/overlays now has 3 client(s)
+   [Overlay] connected → /ws/overlays now has 4 client(s)
+   [Overlay] connected → /ws/overlays now has 5 client(s)
+   [Overlay] connected → /ws/overlays now has 6 client(s)
+   [Pokemon] event react (bypass=False, tier=2, kind=event): your zapdos took a big hit
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=15ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [RoomRead] energy=0.49 [silence=0.80 intensity=0.60 chat=0.00] target=1.02 mult=1.07 -> min_gap=11s dead_air=21s
+   >>> Kira (Bored): Oof — okay, Zapdos took one. Still standing, still fighting.
+   [TTS] Speaking: Oof — okay, Zapdos took one....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oof — okay, Zapdos took one.' (8 words)
+   [TurnTiming] 11:13:48.009 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:13:50.814 TTS STOP — playback finished (span ~2804ms)
+   [TTS] Speaking: Still standing, still fighting....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Still standing, still fighting.' (6 words)
+   [TurnTiming] 11:13:51.133 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:13:53.749 TTS STOP — playback finished (span ~2616ms)
+   [TIMING] interjection: vision=0ms llm=1726ms(sonnet) tts=6214ms total=7959ms
+   [LAG] sense→speak: total=5.3s (content_age=0.0s, prep=0.0s, llm=1.7s, tts_wait+synth=3.6s)
+🎤 Recording...
+   [TurnTiming] 11:13:54.148 VOICE ONSET — mic speech started
+   [VRAM] 11:13:54 (periodic) kira_process=0.00GB card=7.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] SELF CHOSE (battle_item): use_cure
+   [Pokemon] her reasoning: 'Sleep is a kill condition if I let it drag — Full Heal, right now, no debate.'
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 11:13:56.803 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2655ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:13:57.548 VOICE ONSET — mic speech started
+   [TurnTiming] 11:13:58.835 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1287ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:14:00.066 VOICE ONSET — mic speech started
+   [RoomRead] energy=0.56 [silence=0.96 intensity=0.60 chat=0.00] target=0.98 mult=1.05 -> min_gap=10s dead_air=21s
+   [TurnTiming] 11:14:01.413 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1346ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:14:01.539 VOICE ONSET — mic speech started
+   [TurnTiming] 11:14:02.937 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1397ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:14:04.153 VOICE ONSET — mic speech started
+   [TurnTiming] 11:14:05.608 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1455ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:14:07.742 VOICE ONSET — mic speech started
+   [TurnTiming] 11:14:09.054 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1312ms since onset)
+   [RoomRead] energy=0.55 [silence=0.95 intensity=0.60 chat=0.00] target=0.98 mult=1.03 -> min_gap=10s dead_air=21s
+🎤 Recording...
+   [TurnTiming] 11:14:12.483 VOICE ONSET — mic speech started
+   [TurnTiming] 11:14:15.086 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2602ms since onset)
+   [Intensity] → TENSE  (silence=0s  audio="")
+   [LoopbackSTT] tick 125ms — 0 accepted, 1 filtered (rms=0.032)
+🎤 Recording...
+   [TurnTiming] 11:14:16.887 VOICE ONSET — mic speech started
+   [TurnTiming] 11:14:20.286 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3399ms since onset)
+   [LoopbackSTT] tick 147ms — 0 accepted, 2 filtered (rms=0.036)
+   [LoopbackSTT] tick 126ms — 0 accepted, 1 filtered (rms=0.036)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0219 · gate=0.003 · 2 accepted
+   [RoomRead] energy=0.39 [silence=0.68 chat=0.00] target=1.22 mult=1.05 -> min_gap=10s dead_air=21s
+   [VRAM] 11:14:39 (periodic) kira_process=0.00GB card=7.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] event react (bypass=False, tier=2, kind=event): that one's down - sending out my next Pokemon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=18ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Next one's up — let's see what Lorelei's got left.
+   [TTS] Speaking: Next one's up — let's see what Lorelei's got left....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Next one's up — let's see what Lorelei's' (11 words)
+   [TurnTiming] 11:14:43.517 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:14:46.795 TTS STOP — playback finished (span ~3278ms)
+   [TIMING] interjection: vision=0ms llm=1899ms(sonnet) tts=3719ms total=5640ms
+   [LAG] sense→speak: total=2.4s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=0.4s)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [RoomRead] energy=0.40 [silence=0.69 chat=0.00] target=1.21 mult=1.07 -> min_gap=11s dead_air=21s
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the enemy's slowbro fainted — your blastoise took it down
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=14ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "up let's see" (3rd use this session)
+   [RoomRead] energy=0.36 [silence=0.63 chat=0.00] target=1.28 mult=1.09 -> min_gap=11s dead_air=22s
+   >>> Kira (Bored): Slowbro's down — Blastoise just absolutely bullied through that entire lineup.
+   [TTS] Speaking: Slowbro's down — Blastoise just absolutely bullied...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Slowbro's down — Blastoise just absolute' (12 words)
+   [TurnTiming] 11:15:10.133 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:15:14.724 TTS STOP — playback finished (span ~4590ms)
+   [TIMING] interjection: vision=0ms llm=1774ms(sonnet) tts=5005ms total=6799ms
+   [LAG] sense→speak: total=2.2s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=0.4s)
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 11:15:15.950 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~59062ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [RoomRead] energy=0.52 [silence=0.91 chat=0.00] target=0.99 mult=1.07 -> min_gap=11s dead_air=21s
+   [Pokemon] event react (bypass=False, tier=2, kind=event): my blastoise just leveled up to level 77
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=14ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [VRAM] 11:15:24 (periodic) kira_process=0.00GB card=7.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   >>> Kira (Bored): Level 77 and Lorelei didn't even slow us down. Blastoise is just built different.
+   [TTS] Speaking: Level 77 and Lorelei didn't even slow us down....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Level 77 and Lorelei didn't even slow us' (9 words)
+   [TurnTiming] 11:15:25.162 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:15:28.725 TTS STOP — playback finished (span ~3562ms)
+   [TTS] Speaking: Blastoise is just built different....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Blastoise is just built different.' (6 words)
+   [TurnTiming] 11:15:28.994 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:15:31.327 TTS STOP — playback finished (span ~2333ms)
+   [TIMING] interjection: vision=0ms llm=1892ms(sonnet) tts=6609ms total=8518ms
+   [LAG] sense→speak: total=6.2s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=4.3s)
+🎤 Recording...
+   [TurnTiming] 11:15:32.208 VOICE ONSET — mic speech started
+   [TurnTiming] 11:15:33.508 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1299ms since onset)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [RoomRead] energy=0.54 [silence=0.94 chat=0.00] target=0.99 mult=1.05 -> min_gap=11s dead_air=21s
+   [LoopbackSTT] tick 113ms — 0 accepted, 1 filtered (rms=0.026)
+   [RoomRead] energy=0.38 [silence=0.67 chat=0.00] target=1.23 mult=1.07 -> min_gap=11s dead_air=21s
+   [RoomRead] energy=0.35 [silence=0.60 chat=0.00] target=1.31 mult=1.10 -> min_gap=11s dead_air=22s
+   [Pokemon] event react (bypass=False, tier=2, kind=event): your blastoise used Earthquake - a solid hit
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=14ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "down blastoise is" (3rd use this session)
+   [Phrases] Throttling: "level 77 and" (3rd use this session)
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0353 · gate=0.003 · 2 accepted   [RoomRead] energy=0.32 [silence=0.55 chat=0.00] target=1.37 mult=1.12 -> min_gap=11s dead_air=22s
+
+   >>> Kira (Bored): Earthquake through an ice type lineup — Blastoise is basically just bullying at this point.
+   [TTS] Speaking: Earthquake through an ice type lineup — Blastoise ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Earthquake through an ice type lineup — ' (16 words)
+   [TurnTiming] 11:16:01.314 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:16:06.004 TTS STOP — playback finished (span ~4690ms)
+   [TIMING] interjection: vision=0ms llm=2015ms(sonnet) tts=5195ms total=7229ms
+   [LAG] sense→speak: total=2.5s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=0.5s)
+   [VRAM] 11:16:09 (periodic) kira_process=0.00GB card=7.5/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [RoomRead] energy=0.53 [silence=0.93 chat=0.00] target=0.99 mult=1.10 -> min_gap=11s dead_air=22s
+🎤 Recording...
+   [TurnTiming] 11:16:24.873 VOICE ONSET — mic speech started
+   [LoopbackSTT] tick 128ms — 0 accepted, 1 filtered (rms=0.022)
+   [TurnTiming] 11:16:26.217 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1344ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:16:26.253 VOICE ONSET — mic speech started
+   [TurnTiming] 11:16:27.598 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1344ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:16:28.310 VOICE ONSET — mic speech started
+   [TurnTiming] 11:16:29.584 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1274ms since onset)
+   [LoopbackSTT] tick 136ms — 0 accepted, 1 filtered (rms=0.022)
+   [RoomRead] energy=0.56 [silence=0.97 chat=0.00] target=0.98 mult=1.08 -> min_gap=11s dead_air=22s
+   [LoopbackSTT] tick 131ms — 0 accepted, 1 filtered (rms=0.027)
+   [RoomRead] energy=0.36 [silence=0.62 chat=0.00] target=1.29 mult=1.11 -> min_gap=11s dead_air=22s
+   [VRAM] 11:16:54 (periodic) kira_process=0.00GB card=7.6/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [RoomRead] energy=0.33 [silence=0.57 chat=0.00] target=1.35 mult=1.13 -> min_gap=11s dead_air=23s
+   [RoomRead] energy=0.30 [silence=0.52 chat=0.00] target=1.40 mult=1.15 -> min_gap=12s dead_air=23s
+   [RoomRead] energy=0.27 [silence=0.47 chat=0.00] target=1.46 mult=1.18 -> min_gap=12s dead_air=24s
+   [RoomRead] energy=0.25 [silence=0.44 chat=0.00] target=1.50 mult=1.20 -> min_gap=12s dead_air=24s
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0341 · gate=0.003 · 2 accepted
+   [RoomRead] energy=0.23 [silence=0.41 chat=0.00] target=1.54 mult=1.22 -> min_gap=12s dead_air=24s
+   [RoomRead] energy=0.21 [silence=0.37 chat=0.00] target=1.58 mult=1.24 -> min_gap=12s dead_air=25s
+   [RoomRead] energy=0.19 [silence=0.34 chat=0.00] target=1.61 mult=1.27 -> min_gap=13s dead_air=25s
+   [RoomRead] energy=0.17 [silence=0.30 chat=0.00] target=1.65 mult=1.29 -> min_gap=13s dead_air=26s
+   [RoomRead] energy=0.16 [silence=0.27 chat=0.00] target=1.69 mult=1.32 -> min_gap=13s dead_air=26s
+   [RoomRead] energy=0.14 [silence=0.24 chat=0.00] target=1.73 mult=1.34 -> min_gap=13s dead_air=27s
+   [RoomRead] energy=0.12 [silence=0.20 chat=0.00] target=1.77 mult=1.37 -> min_gap=14s dead_air=27s
+   [RoomRead] energy=0.10 [silence=0.17 chat=0.00] target=1.80 mult=1.40 -> min_gap=14s dead_air=28s
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 1058s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [RoomRead] energy=0.08 [silence=0.14 chat=0.00] target=1.84 mult=1.42 -> min_gap=14s dead_air=28s
+   [RoomRead] energy=0.06 [silence=0.10 chat=0.00] target=1.88 mult=1.45 -> min_gap=15s dead_air=29s
+   [RoomRead] energy=0.04 [silence=0.07 chat=0.00] target=1.92 mult=1.48 -> min_gap=15s dead_air=30s

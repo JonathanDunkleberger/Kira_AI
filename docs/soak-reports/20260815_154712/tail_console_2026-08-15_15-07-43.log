@@ -1,0 +1,300 @@
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:42:31.084 TTS STOP — playback finished (span ~1682ms)
+   [TTS] Speaking: Blastoise does NOT faint here — not with the Champ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Blastoise does NOT faint here — not with' (13 words)
+   [TurnTiming] 15:42:31.372 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:42:35.114 TTS STOP — playback finished (span ~3742ms)
+   [TIMING] interjection: vision=0ms llm=1767ms(sonnet) tts=7172ms total=8958ms
+   [LAG] sense→speak: total=5.2s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=3.4s)
+   [Pokemon] event react (bypass=False, tier=2, kind=event): that one's down - sending out my next Pokemon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=18ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Another one down. Lance is running out of Pokémon faster than he's running out of pride.
+   [TTS] Speaking: Another one down....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Another one down.' (4 words)
+   [TurnTiming] 15:42:38.481 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 15:42:40.164 TTS STOP — playback finished (span ~1682ms)
+   [TTS] Speaking: Lance is running out of Pokémon faster than he's r...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lance is running out of Pokémon faster t' (14 words)
+   [TurnTiming] 15:42:40.418 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:42:44.066 TTS STOP — playback finished (span ~3648ms)
+   [TIMING] interjection: vision=0ms llm=1671ms(sonnet) tts=5741ms total=7433ms
+   [LAG] sense→speak: total=3.8s (content_age=0.0s, prep=0.0s, llm=1.7s, tts_wait+synth=2.1s)
+   [RoomRead] energy=0.55 [silence=0.94 intensity=0.60 chat=0.00] target=0.98 mult=1.06 -> min_gap=11s dead_air=21s
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the enemy's dragonair fainted — your moltres took it down
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=17ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "down lance is running out of" (3rd use this session)
+   [Phrases] Throttling: "out of pokémon" (3rd use this session)
+   >>> Kira (Bored): Dragonair's gone. Lance, buddy, it's over.
+   [TTS] Speaking: Dragonair's gone....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Dragonair's gone.' (3 words)
+   [TurnTiming] 15:42:57.523 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 15:42:58 (periodic) kira_process=0.00GB card=8.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:42:59.210 TTS STOP — playback finished (span ~1687ms)
+   [TTS] Speaking: Lance, buddy, it's over....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lance, buddy, it's over.' (7 words)
+   [TurnTiming] 15:42:59.418 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:43:01.940 TTS STOP — playback finished (span ~2521ms)
+   [TIMING] interjection: vision=0ms llm=1668ms(sonnet) tts=4579ms total=6267ms
+   [LAG] sense→speak: total=3.8s (content_age=0.0s, prep=0.0s, llm=1.7s, tts_wait+synth=2.1s)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [RoomRead] energy=0.56 [silence=0.96 intensity=0.60 chat=0.00] target=0.98 mult=1.04 -> min_gap=10s dead_air=21s
+   [LoopbackSTT] +1 seg (0 filtered, 134ms, rms=0.021): I'm gonna
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the trainer sent out dragonair
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Another Dragonair. Lance is really committed to this strategy and I am really committed to dismantling it.
+   [TTS] Speaking: Another Dragonair....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Another Dragonair.' (3 words)
+   [TurnTiming] 15:43:14.337 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:43:16.023 TTS STOP — playback finished (span ~1685ms)
+   [TTS] Speaking: Lance is really committed to this strategy and I a...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lance is really committed to this strate' (16 words)
+   [TurnTiming] 15:43:16.331 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:43:20.648 TTS STOP — playback finished (span ~4316ms)
+   [TIMING] interjection: vision=0ms llm=2240ms(sonnet) tts=6475ms total=8742ms
+   [LAG] sense→speak: total=4.4s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=2.2s)
+   [Intensity] → TENSE  (silence=1s  audio="")
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] event react (bypass=False, tier=2, kind=event): your moltres used move#53 - E4 wincon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "really committed to" (3rd use this session)
+   >>> Kira (Bored): Moltres just ended Lance's whole career. Gary's next.
+   [TTS] Speaking: Moltres just ended Lance's whole career....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Moltres just ended Lance's whole career.' (7 words)
+   [TurnTiming] 15:43:28.133 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:43:30.748 TTS STOP — playback finished (span ~2614ms)
+   [TTS] Speaking: Gary's next....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Gary's next.' (3 words)
+   [TurnTiming] 15:43:30.914 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:43:32.408 TTS STOP — playback finished (span ~1494ms)
+   [TIMING] interjection: vision=0ms llm=1926ms(sonnet) tts=4494ms total=6451ms
+   [LAG] sense→speak: total=5.0s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=3.0s)
+   [RoomRead] energy=0.56 [silence=0.98 chat=0.00] target=0.98 mult=1.02 -> min_gap=10s dead_air=20s
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [VRAM] 15:43:43 (periodic) kira_process=0.00GB card=8.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [RoomRead] energy=0.40 [silence=0.70 chat=0.00] target=1.20 mult=1.04 -> min_gap=10s dead_air=21s
+   [LoopbackSTT] LIVE — last line: "I'm gonna" (44s ago) · device='Headphones (Leviathan) [Loopback]' · rms=0.0248 · gate=0.003 · 5 accepted
+   [RoomRead] energy=0.36 [silence=0.63 chat=0.00] target=1.28 mult=1.07 -> min_gap=11s dead_air=21s
+   [RoomRead] energy=0.33 [silence=0.58 chat=0.00] target=1.33 mult=1.09 -> min_gap=11s dead_air=22s
+   [RoomRead] energy=0.30 [silence=0.53 chat=0.00] target=1.39 mult=1.12 -> min_gap=11s dead_air=22s
+   [RoomRead] energy=0.28 [silence=0.48 chat=0.00] target=1.45 mult=1.15 -> min_gap=11s dead_air=23s
+   [RoomRead] energy=0.26 [silence=0.45 chat=0.00] target=1.49 mult=1.17 -> min_gap=12s dead_air=23s
+   [RoomRead] energy=0.24 [silence=0.42 chat=0.00] target=1.52 mult=1.19 -> min_gap=12s dead_air=24s
+   [LoopbackSTT] tick 131ms — 0 accepted, 1 filtered (rms=0.033)
+   [RoomRead] energy=0.22 [silence=0.38 chat=0.00] target=1.56 mult=1.22 -> min_gap=12s dead_air=24s
+   [RoomRead] energy=0.20 [silence=0.35 chat=0.00] target=1.60 mult=1.24 -> min_gap=12s dead_air=25s
+   [RoomRead] energy=0.18 [silence=0.32 chat=0.00] target=1.64 mult=1.26 -> min_gap=13s dead_air=25s
+   [RoomRead] energy=0.16 [silence=0.28 chat=0.00] target=1.68 mult=1.29 -> min_gap=13s dead_air=26s
+   [RoomRead] energy=0.14 [silence=0.25 chat=0.00] target=1.71 mult=1.32 -> min_gap=13s dead_air=26s
+   [RoomRead] energy=0.12 [silence=0.22 chat=0.00] target=1.75 mult=1.34 -> min_gap=13s dead_air=27s
+   [RoomRead] energy=0.10 [silence=0.18 chat=0.00] target=1.79 mult=1.37 -> min_gap=14s dead_air=27s
+   [RoomRead] energy=0.09 [silence=0.15 chat=0.00] target=1.83 mult=1.40 -> min_gap=14s dead_air=28s
+   [RoomRead] energy=0.07 [silence=0.12 chat=0.00] target=1.87 mult=1.43 -> min_gap=14s dead_air=29s
+   [RoomRead] energy=0.05 [silence=0.08 chat=0.00] target=1.90 mult=1.46 -> min_gap=15s dead_air=29s
+   [VRAM] 15:44:28 (periodic) kira_process=0.00GB card=8.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [RoomRead] energy=0.03 [silence=0.05 chat=0.00] target=1.94 mult=1.49 -> min_gap=15s dead_air=30s
+   [RoomRead] energy=0.01 [silence=0.02 chat=0.00] target=1.98 mult=1.52 -> min_gap=15s dead_air=30s
+   [RoomRead] energy=0.00 [silence=0.00 chat=0.00] target=2.00 mult=1.55 -> min_gap=16s dead_air=31s
+   [RoomRead] energy=0.00 [silence=0.00 chat=0.00] target=2.00 mult=1.58 -> min_gap=16s dead_air=32s
+   [RoomRead] energy=0.00 [silence=0.00 chat=0.00] target=2.00 mult=1.61 -> min_gap=16s dead_air=32s
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the enemy's dragonair fainted — your moltres took it down
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=17ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [RoomRead] energy=0.00 [silence=0.00 chat=0.00] target=2.00 mult=1.63 -> min_gap=16s dead_air=33s
+   [RoomRead] energy=0.00 [silence=0.00 chat=0.00] target=2.00 mult=1.66 -> min_gap=17s dead_air=33s
+   >>> Kira (Bored): That's two Dragonair down and Moltres hasn't even broken a sweat. Lance, I'm almost embarrassed for you.
+   [TTS] Speaking: That's two Dragonair down and Moltres hasn't even ...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'That's two Dragonair down and Moltres ha' (12 words)
+   [TurnTiming] 15:44:41.858 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:44:45.427 TTS STOP — playback finished (span ~3568ms)
+   [TTS] Speaking: Lance, I'm almost embarrassed for you....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lance, I'm almost embarrassed for you.' (8 words)
+   [TurnTiming] 15:44:45.657 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:44:48.290 TTS STOP — playback finished (span ~2632ms)
+   [TIMING] interjection: vision=0ms llm=2171ms(sonnet) tts=6743ms total=8935ms
+   [LAG] sense→speak: total=6.3s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=4.1s)
+🎤 Recording... (recovered opening words)
+   [RoomRead] energy=0.57 [silence=1.00 chat=0.00] target=0.98 mult=1.64 -> min_gap=16s dead_air=33s
+   [RoomRead] energy=0.56 [silence=0.98 chat=0.00] target=0.98 mult=1.61 -> min_gap=16s dead_air=32s
+   [TurnTiming] 15:44:49.536 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~430517ms since onset)
+   [Pokemon] event react (bypass=False, tier=2, kind=event): the trainer sent out dragonite
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=23ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "broken a sweat" (3rd use this session)
+   [RoomRead] energy=0.56 [silence=0.99 chat=0.00] target=0.98 mult=1.59 -> min_gap=16s dead_air=32s
+   >>> Kira (Bored): Oh so Lance was holding out on me. Dragonite as the closer — okay, I'll give him that much.
+   [TTS] Speaking: Oh so Lance was holding out on me....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oh so Lance was holding out on me.' (9 words)
+   [TurnTiming] 15:44:52.568 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 15:44:55.096 TTS STOP — playback finished (span ~2528ms)
+   [TTS] Speaking: Dragonite as the closer — okay, I'll give him that...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Dragonite as the closer — okay, I'll giv' (13 words)
+   [TurnTiming] 15:44:55.386 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:44:58.941 TTS STOP — playback finished (span ~3554ms)
+   [TIMING] interjection: vision=0ms llm=2026ms(sonnet) tts=6596ms total=8649ms
+   [LAG] sense→speak: total=5.1s (content_age=0.0s, prep=0.0s, llm=2.0s, tts_wait+synth=3.0s)
+   [RoomRead] energy=0.57 [silence=0.99 chat=0.00] target=0.98 mult=1.55 -> min_gap=16s dead_air=31s
+   [RoomRead] energy=0.55 [silence=0.96 chat=0.00] target=0.99 mult=1.52 -> min_gap=15s dead_air=30s
+   [RoomRead] energy=0.53 [silence=0.93 chat=0.00] target=0.99 mult=1.48 -> min_gap=15s dead_air=30s
+   [LoopbackSTT] self-TTS gate released after 4 skip(s) — resuming transcription.
+   [RoomRead] energy=0.51 [silence=0.89 chat=0.00] target=1.00 mult=1.45 -> min_gap=15s dead_air=29s
+   [RoomRead] energy=0.49 [silence=0.86 chat=0.00] target=1.02 mult=1.42 -> min_gap=14s dead_air=28s
+   [Pokemon] event react (bypass=False, tier=2, kind=event): your moltres used move#53 - E4 wincon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=19ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "i'll give him that much" (3rd use this session)
+   >>> Kira (Bored): Moltres, you absolute menace. Lance didn't stand a chance.
+   [TTS] Speaking: Moltres, you absolute menace....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Moltres, you absolute menace.' (6 words)
+   [TurnTiming] 15:45:09.319 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:45:11.943 TTS STOP — playback finished (span ~2623ms)
+   [TTS] Speaking: Lance didn't stand a chance....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Lance didn't stand a chance.' (6 words)
+   [TurnTiming] 15:45:12.134 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [VRAM] 15:45:13 (periodic) kira_process=0.00GB card=8.4/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:45:14.379 TTS STOP — playback finished (span ~2245ms)
+   [TIMING] interjection: vision=0ms llm=1624ms(sonnet) tts=5259ms total=6904ms
+   [LAG] sense→speak: total=4.7s (content_age=0.0s, prep=0.0s, llm=1.6s, tts_wait+synth=3.0s)
+   [RoomRead] energy=0.57 [silence=1.00 chat=0.00] target=0.98 mult=1.40 -> min_gap=14s dead_air=28s
+   [RoomRead] energy=0.55 [silence=0.97 chat=0.00] target=0.98 mult=1.37 -> min_gap=14s dead_air=27s
+   [RoomRead] energy=0.53 [silence=0.93 chat=0.00] target=0.99 mult=1.35 -> min_gap=13s dead_air=27s
+   [Pokemon] event react (bypass=False, tier=2, kind=event): your moltres fainted
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=17ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0331 · gate=0.003 · 5 accepted
+   [RoomRead] energy=0.51 [silence=0.90 chat=0.00] target=1.00 mult=1.32 -> min_gap=13s dead_air=26s
+   >>> Kira (Bored): Oh, Moltres. You did so much and I'm not even mad, I'm just — okay, Blastoise, you're cleaning this up.
+   [TTS] Speaking: Oh, Moltres....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Oh, Moltres.' (4 words)
+   [TurnTiming] 15:45:21.208 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:45:22.991 TTS STOP — playback finished (span ~1783ms)
+   [TTS] Speaking: You did so much and I'm not even mad, I'm just — o...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'You did so much and I'm not even mad, I'' (22 words)
+   [TurnTiming] 15:45:23.382 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:45:29.097 TTS STOP — playback finished (span ~5714ms)
+   [TIMING] interjection: vision=0ms llm=2189ms(sonnet) tts=8048ms total=10256ms
+   [LAG] sense→speak: total=4.5s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=2.3s)
+   [RoomRead] energy=0.56 [silence=0.98 chat=0.00] target=0.98 mult=1.30 -> min_gap=13s dead_air=26s
+   [RoomRead] energy=0.54 [silence=0.94 chat=0.00] target=0.99 mult=1.28 -> min_gap=13s dead_air=26s
+🎤 Recording...
+   [TurnTiming] 15:45:32.620 VOICE ONSET — mic speech started
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [TurnTiming] 15:45:35.398 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2778ms since onset)
+   [RoomRead] energy=0.56 [silence=0.98 chat=0.00] target=0.98 mult=1.25 -> min_gap=13s dead_air=25s
+   [RoomRead] energy=0.53 [silence=0.93 chat=0.00] target=0.99 mult=1.23 -> min_gap=12s dead_air=25s
+   [RoomRead] energy=0.50 [silence=0.88 chat=0.00] target=1.00 mult=1.21 -> min_gap=12s dead_air=24s
+   [RoomRead] energy=0.47 [silence=0.82 chat=0.00] target=1.07 mult=1.18 -> min_gap=12s dead_air=24s
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "Your POK.MON have been healed to perfect health. We hope yo
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=27ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [Phrases] Throttling: "i'm not even" (3rd use this session)
+   >>> Kira (Bored): Okay that nurse is very confident in me and I refuse to let her down.
+   [TTS] Speaking: Okay that nurse is very confident in me and I refu...
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Okay that nurse is very confident in me ' (16 words)
+   [TurnTiming] 15:45:49.182 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:45:53.022 TTS STOP — playback finished (span ~3840ms)
+   [TIMING] interjection: vision=0ms llm=1783ms(sonnet) tts=4370ms total=6183ms
+   [LAG] sense→speak: total=2.3s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=0.5s)
+   [RoomRead] energy=0.55 [silence=0.96 chat=0.00] target=0.99 mult=1.16 -> min_gap=12s dead_air=23s
+   [VRAM] 15:45:58 (periodic) kira_process=0.00GB card=8.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [RoomRead] energy=0.51 [silence=0.89 chat=0.00] target=1.00 mult=1.14 -> min_gap=11s dead_air=23s
+🎤 Recording...
+   [TurnTiming] 15:46:03.533 VOICE ONSET — mic speech started
+   [TurnTiming] 15:46:07.385 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~3852ms since onset)
+   [RoomRead] energy=0.57 [silence=1.00 chat=0.00] target=0.98 mult=1.12 -> min_gap=11s dead_air=22s
+   [Intensity] → CALM  (silence=2s  audio="")
+   [RoomRead] energy=0.54 [silence=0.92 intensity=0.60 chat=0.00] target=0.99 mult=1.10 -> min_gap=11s dead_air=22s
+🎤 Recording...
+   [TurnTiming] 15:46:12.653 VOICE ONSET — mic speech started
+   [TurnTiming] 15:46:13.926 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1272ms since onset)
+   [RoomRead] energy=0.54 [silence=0.93 intensity=0.60 chat=0.00] target=0.99 mult=1.08 -> min_gap=11s dead_air=22s
+   [Pokemon] event react (bypass=False, tier=1, kind=dialogue, READING register): you read: "FULL RESTORE, and you want 1. That will be .3000. Okay?"
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=20ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Three thousand on a Full Restore right before Gary — yeah, okay, I'm buying it. No regrets.
+   [TTS] Speaking: Three thousand on a Full Restore right before Gary...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Three thousand on a Full Restore right b' (18 words)
+   [TurnTiming] 15:46:25.013 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 15:46:29.782 TTS STOP — playback finished (span ~4769ms)
+   [TTS] Speaking: No regrets....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'No regrets.' (3 words)
+   [TurnTiming] 15:46:29.897 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 15:46:31.486 TTS STOP — playback finished (span ~1589ms)
+   [TIMING] interjection: vision=0ms llm=1859ms(sonnet) tts=6817ms total=8697ms
+   [LAG] sense→speak: total=7.1s (content_age=0.0s, prep=0.0s, llm=1.9s, tts_wait+synth=5.2s)

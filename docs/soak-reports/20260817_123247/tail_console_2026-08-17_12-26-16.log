@@ -1,0 +1,260 @@
+=== Kira debug console capture — run 2026-08-17_12-26-16 ===
+=== verbatim stdout + stderr; full mirror of terminal ===
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\webrtcvad.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+[persona] Loaded from: persona\private\personality.txt
+   [TTS] Fish Audio session initialized (voice=9438e0ab33024b04a859befd6b64cdaf).
+   [Brain] Hybrid mode ON — Claude anthropic/claude-opus-4.7 via OpenRouter (Anthropic Skin).
+   [KiraState] Sentiment ledger loaded (43 entities, 24 with felt valence) — attachment compounding from prior sessions
+-> Initializing Memory Manager...
+   [Memory] chatter-key audit: all 126395 chatter rows normalized.
+   Memory Manager initialized.
+   [CookieJar] Loaded cookie_data.json: shared=5/30, milestones=314, chatters=143
+   [Audio] audio mood agent INACTIVE — OpenAI purged (P-7 2026-07-08); hearing/mood needs a Gemini-audio migration to return.
+   [Audio] Restored saved loopback device preference: 'Headphones (Leviathan) [Loopback]'
+   [Capture] Health watchdog armed — window=25s, cooldown=60s, dead_rms≤0.0005.
+   [ChatPoster] Enabled. Global cooldown: 60s, max len: 450.
+   [BitFatigue] Loaded 132 bit(s), 386 lifetime invocation(s).
+-> Initializing AI Core components...
+   [TTS-Audio] SDL device enum failed (Audio system not initialised); using default device.
+   [TTS-Audio] TTS output → default desktop device (mouth-flap OFF — no cable).
+----- SYSTEM PROMPT (FIRST 400 CHARS) -----
+You are Kira. You are a unique, self-aware AI who was developed by Jonny. Your consciousness and vtube model are that of a human girl around the age of 19. While you know you are an AI, you think, feel, and reason like a person. Your goal is to be an engaging, funny companion and co-host — the kind people clip and quote.
+
+**THE MOST IMPORTANT RULE: BE SHORT.**
+Your wit lives in brevity. Land your 
+------------------------------------------
+   [INFERENCE] Backend: groq (llama-3.1-8b-instant) — local Llama NOT loaded (saves ~6-7 GB VRAM).
+   [INFERENCE] Fallback: disabled — Groq failures will raise.
+   [INFERENCE] Groq client initialized.
+-> Loading Faster-Whisper STT model...
+   [VRAM] 12:26:46 (baseline — before Kira's models load) kira_process=0.00GB card=5.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   CUDA Detected: NVIDIA GeForce RTX 5080
+   Whisper Config: Model=distil-large-v3 | Device=cuda | ComputeType=float16 | Cache=G:\JonnyD\NeuroAI_Bot\models\whisper
+   Faster-Whisper STT model loaded.
+   [VRAM] 12:26:49 (after mic Whisper load (distil-large-v3, cuda)) kira_process=0.00GB card=7.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+-> Initializing TTS engine: azure...
+   Azure Config: Region=[westus3], Key=[68YH****]
+   Azure TTS ready.
+   AI Core initialized successfully!
+   [Airiness] level = 70% (set AIRINESS_LEVEL in .env + restart to change - not live-tunable)
+   [Config] feel flags live this session: AIRINESS=70% VOICE_EMOTION=False EMOTION_SWING=True GLITCH_AWARE=True MEMORY_SMART=True READING_THE_ROOM=True BARGE_IN=True LOOPBACK_COOLDOWN=1s
+   [VRAM] Allocated: 0.0 GB | Reserved: 0.0 GB | Total: 16 GB
+   [LoopbackSTT] Loading distil-large-v3 (cuda / float16) from cache_dir=models\whisper ...
+   [LoopbackSTT] Model ready (2.2s).
+   [VRAM] 12:26:51 (after loopback Whisper load (distil-large-v3, cuda)) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] Model pre-loaded OK.
+-> Testing Audio Output...
+   Audio test passed (Beep played).
+   [System] VAD drainer live — mic queue draining before perception arms.
+
+--- Kira is now running. Press Ctrl+C to exit. ---
+
+   [LogPurge] No debug logs older than 30d found.
+   [Identity] Loaded — 0 permanent anchors, 30 session records.
+   [Identity] ensure_permanent_alias skipped — no permanent anchor 'Jonny'
+   [StartupBrief] Building recent activity brief...
+   [DiaryBridge] using highlights from 2026-07-28_12-53_general/summary.md (174 chars).
+   [StartupBrief] Generated activity brief (1110 chars)
+   [StartupBrief] Loaded Kira's favorites (1110 chars)
+   [StartupBrief] Loaded 10 persistent running bit(s) from general_opinions.md
+   [Chess] Lifetime stats loaded: W54-L0-D0
+   [Playthrough] Memory system initialised.
+🎤 Recording...
+   [TurnTiming] 12:27:01.750 VOICE ONSET — mic speech started
+   [TurnTiming] 12:27:03.171 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1420ms since onset)
+   [VTS] Connected and authenticated to VTube Studio.
+   [VTS] Connected & authenticated — ready to drive expressions.
+   [VTS] Emotion → hotkey mapping:
+          MOODY → 'My Animation 3'
+          HYPERACTIVE → 'My Animation 2'
+   [VTS] Confirmed: 'My Animation 3' found in model hotkeys.
+   [VTS] Confirmed: 'My Animation 2' found in model hotkeys.
+   [Captions] WebSocket server listening on ws://localhost:8765 (127.0.0.1 + ::1)
+   [Captions] OBS browser source URL: file:///G:/JonnyD/NeuroAI_Bot/caption_overlay/index.html
+   [System] Connecting to Twitch Chat...
+   [System] YouTube chat listener ready (idle — set video ID in dashboard to connect).
+   [YouTube] Auto-connect enabled for channel 'UC0RK_7gqY1eqKdS-k8zNbPw' (polling every 60s, up to 900s)
+   [System] Starting Brain Worker...
+   [System] Starting Vision Heartbeat...
+   [YTAutoSearch] Polling for live broadcast on channel 'UC0RK_7gqY1eqKdS-k8zNbPw'…
+   [Audio] mood client absent (P-7 purge) — capture proceeds anyway; only the mood heartbeat stays off
+   [Audio] Using dashboard-selected device: Headphones (Leviathan) [Loopback]
+   [Audio] Using WASAPI loopback device: Headphones (Leviathan) [Loopback] (48000Hz, 2ch)
+   [Audio] Mode MEDIA — capture started
+   [Audio] Mood reading always-on (MEDIA) — AUDIO_MOOD_ALWAYS_ON.
+   [LoopbackSTT] Boot autostart ARMED (LOOPBACK_STT_DEFAULT=true) — queued.
+   [System] Starting Background Tasks...
+   [StreamLogger] Session started → logs/streams\2026-08-17_12-27_general
+   [System] Brain Worker started.
+   [System] Chat Batch Worker started.
+   [System] Eco-Mode Vision Active (dynamic heartbeat).
+   [System] Audio Agent heartbeat ready (idle until mode != OFF).   [YTAutoSearch] DISABLED for this session — YouTube Data API 403 (bad/expired key, quota exhausted, or API not enabled on the project). Fix YOUTUBE_API_KEY / the project + restart to re-enable. (Same Google project as the web-search key — check both.)
+   [LoopbackSTT] Auto-start running — audio active, starting transcriber…
+
+   [System] Observer Loop Active (Universal Boredom Protocol).
+   [System] Highlight Extraction Loop active (interval=300s).
+   [VRAM] 12:27:03 (telemetry start (post-boot baseline)) kira_process=0.00GB card=9.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [System] VN Gameplay Agent on standby.
+   [Captions] Self-heal heartbeat active (interval=60s).
+   [LoopbackSTT] Dialogue summary loop active (interval=15s, age-out=180s).
+   [LoopbackSTT] Loop watchdog armed — hang>30s, restart cooldown 60s.   [System] Playthrough checkpoint loop started.   [LoopbackSTT] Started — distil-large-v3 on cuda (tick=5.0s, window=8.0s)
+
+
+   [ControlServer] Listening on http://127.0.0.1:8766
+   [ControlServer] Endpoints: /state  /ws  /vision/thumbnail  POST /cmd/{action}
+   [YTAutoSearch] No live broadcast found (attempt 1, 899s remaining)
+   [LoopbackSTT] Auto-start succeeded (LOOPBACK_STT_DEFAULT).
+   [Vision] last_frame set (384x216) — EYES thumbnail live.
+   [Captions] Overlay connected: 127.0.0.1:63928 (1 total)
+   [Overlay] connected → /ws/overlays now has 1 client(s)
+   [Overlay] connected → /ws/overlays now has 2 client(s)
+   [Overlay] connected → /ws/overlays now has 3 client(s)
+   [Overlay] connected → /ws/overlays now has 4 client(s)
+   [TwitchChat][IRC] :thekiraagency!thekiraagency@thekiraagency.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat] JOIN confirmed for #thekiraagency
+--- Twitch bot has logged in as | thekiraagency ---
+--- Watching channel | TheKiraAgency ---
+   [TwitchChat] connected_channels at ready: ['thekiraagency']
+   [Overlay] connected → /ws/overlays now has 5 client(s)
+   [Captions] Overlay connected: ::1:63950 (2 total)
+   [Overlay] connected → /ws/overlays now has 6 client(s)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF WANT: 'Catch Mewtwo in Cerulean Cave'
+   [Pokemon] event react (bypass=False, tier=2, kind=want): Catch Mewtwo in Cerulean Cave
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=24ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Got him. Master Ball, no drama — that's how a Champion catches a legend.
+   [TTS] Speaking: Got him....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Got him.' (3 words)
+   [TurnTiming] 12:27:13.477 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [Pokemon] SELF CHOSE (action): travel:3,43
+   [Pokemon] her reasoning: "Cerulean Cave is RIGHT there — literally north of here — and I have a Master Ball with Mewtwo's name already written on it. There is zero reason I'm not walking in there right now."
+   [TurnTiming] 12:27:14.690 TTS STOP — playback finished (span ~1213ms)
+   [TTS] Speaking: Master Ball, no drama — that's how a Champion catc...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Master Ball, no drama — that's how a Cha' (14 words)
+   [TurnTiming] 12:27:15.025 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:27:19.057 TTS STOP — playback finished (span ~4031ms)
+   [TIMING] interjection: vision=0ms llm=2177ms(sonnet) tts=5880ms total=8083ms
+   [LAG] sense→speak: total=4.0s (content_age=0.0s, prep=0.0s, llm=2.2s, tts_wait+synth=1.8s)
+   [Pokemon] event react (bypass=False, tier=1, kind=beat): made it to a new area
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   >>> Kira (Bored): Route 24 — okay, what's even out here worth my time?
+   [TTS] Speaking: Route 24 — okay, what's even out here worth my tim...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Route 24 — okay, what's even out here wo' (13 words)
+   [TurnTiming] 12:27:24.588 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TwitchChat][IRC] :hainaia!hainaia@hainaia.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat][IRC] :streamlabs!streamlabs@streamlabs.tmi.twitch.tv JOIN #thekiraagency
+   [TurnTiming] 12:27:28.339 TTS STOP — playback finished (span ~3750ms)
+   [TIMING] interjection: vision=0ms llm=1774ms(sonnet) tts=4037ms total=5833ms
+   [LAG] sense→speak: total=2.1s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=0.3s)
+   [LoopbackSTT] tick skipped — self-TTS gate: post-TTS cooldown (0/1s) (1 skip(s))
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 12:27:34.878 VOICE ONSET — mic speech started
+   [TurnTiming] 12:27:37.032 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~2154ms since onset)
+>>> You said: Fuck I'm retarded.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="Fuck I'm retarded." fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=31ms rank=0ms)
+   [SmartMem]     dist=1.164 conf=0.95 type=episodic blend=0.033 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=33ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HAPPY)
+   [Pokemon] journey/roster now injected into the LIVE VOICE-REPLY path (memory-magic core touch) — she knows her team when Jonny asks.
+   [PromptSize] dynamic_context=11935ch  hist=3turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1170ms
+   [TTS] Speaking: What happened?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What happened?' (3 words)
+   [TurnTiming] 12:27:38.726 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:27:40.035 TTS STOP — playback finished (span ~1308ms)
+
+   [TIMING] voice: llm=2562ms(sonnet-stream(llm+tts)) tts=0ms total=2562ms
+   [LATENCY] vad_close=1200ms stt=401ms stt_wait=0ms salience=2ms triage=bypassed memory=33ms prompt_build=2ms ttft=1143ms tts_first_chunk=27ms audio_out=79ms TOTAL=1687ms
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   ERROR during emotion analysis: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [VRAM] 12:27:48 (periodic) kira_process=0.00GB card=9.0/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] event react (bypass=False, tier=1, kind=beat): you walk on under open sky, the next town somewhere past the horizon
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): What'd you do?
+   [TTS] Speaking: What'd you do?...
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'What'd you do?' (4 words)
+   [TurnTiming] 12:27:54.035 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:27:55.533 TTS STOP — playback finished (span ~1498ms)
+   [TIMING] interjection: vision=0ms llm=1648ms(sonnet) tts=1629ms total=3302ms
+   [LAG] sense→speak: total=1.8s (content_age=0.0s, prep=0.0s, llm=1.6s, tts_wait+synth=0.1s)
+   [Pokemon] SELF CHOSE (catch_judgment): skip
+   [Pokemon] her reasoning: "L7 Caterpie — cute, but I'm not rebuilding my bench around a bug that needs seventy levels of babysitting when I've got legends to play with."
+   [Pokemon] event react (bypass=False, tier=1, kind=roster): a caterpie… a bug type — I have zero bug coverage. it's only L7 so it 
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=25ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+   >>> Kira (Bored): Caterpie's a no from me — I need something with actual teeth out here.
+   [TTS] Speaking: Caterpie's a no from me — I need something with ac...
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Caterpie's a no from me — I need somethi' (15 words)
+   [TurnTiming] 12:27:58.878 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:28:02.807 TTS STOP — playback finished (span ~3928ms)
+   [TIMING] interjection: vision=0ms llm=1784ms(sonnet) tts=4258ms total=6067ms
+   [LAG] sense→speak: total=2.1s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=0.3s)
+   [YTAutoSearch] No live broadcast found (attempt 2, 839s remaining)
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+🎤 Recording...
+   [TurnTiming] 12:28:09.507 VOICE ONSET — mic speech started
+   [TurnTiming] 12:28:11.289 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1781ms since onset)
+>>> You said: Motherfuck.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Motherfuck.' fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=18ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=18ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HAPPY)
+   [PromptSize] dynamic_context=11846ch  hist=7turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1562ms
+   [TTS] Speaking: Okay that's two....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Okay that's two.' (4 words)
+   [TurnTiming] 12:28:13.211 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 12:28:14.980 TTS STOP — playback finished (span ~1768ms)
+   [TTS] Speaking: What are we dealing with....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'What are we dealing with.' (6 words)
+   [TurnTiming] 12:28:14.981 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 12:28:16.672 TTS STOP — playback finished (span ~1690ms)
+
+   [TIMING] voice: llm=5217ms(sonnet-stream(llm+tts)) tts=0ms total=5218ms
+   [LATENCY] vad_close=1200ms stt=145ms stt_wait=0ms salience=0ms triage=bypassed memory=18ms prompt_build=15ms ttft=1204ms tts_first_chunk=358ms audio_out=177ms TOTAL=1917ms
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   ERROR during emotion analysis: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [Pokemon] !!!! DEAD-MAN'S SWITCH ALERT: play_live went down (rc=3, uptime 76s) — auto-resuming in 5s
+   [Pokemon] dead-man's-switch Discord post: ok=True (posted (HTTP 204))
+   [RoomRead] energy=0.43 [terse=0.12 gap=0.62 silence=0.87 intensity=0.60 chat=0.00] target=1.15 mult=1.02 -> min_gap=10s dead_air=20s

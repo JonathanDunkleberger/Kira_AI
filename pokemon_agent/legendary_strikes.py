@@ -384,6 +384,14 @@ class LegendaryHunt(GiovanniGym):
     # arms a Sevii mart restock BEFORE the A-press — even at the doorstep.
     BALL_RESTOCK_WIRED = False
     BALL_RESTOCK_FAILS_MAX = 2
+    # PRE-ENCOUNTER BANK POLICY (2026-08-17). The Ultra floor below exists because the birds
+    # are Ultra-Ball fights: banking a 6-ball pocket would make every FREE RETRY reload back
+    # into the same prayer stack, undoing the war chest. A hunt whose catch does NOT depend on
+    # the Ultra stack (Mewtwo: the Silph Master Ball is the catch, and BALL_RESTOCK_WIRED is
+    # False here so there is no ferry/Mart leg to restock from anyway) must set this True — for
+    # it the choice is not "thin bank vs fat bank" but "a bank vs NO BANK AT ALL", and no bank
+    # means one bad ball throw ends the encore permanently with nothing to rewind to.
+    BANK_PRE_ALWAYS = False
 
     def _ultra_count(self):
         """Ultras in the Balls pocket. Caps garbage XOR reads (soak 090652: a silent
@@ -1307,11 +1315,16 @@ class LegendaryHunt(GiovanniGym):
         except Exception:
             _bank_ultras = 0
         _ultra_floor = self._ultra_min_engage()
-        if _bank_ultras < _ultra_floor:
+        if _bank_ultras < _ultra_floor and not self.BANK_PRE_ALWAYS:
             self.log(f"   [hunt] !! SKIPPING pre-{(q.get('name') or 'quarry').lower()} bank "
                      f"— only {_bank_ultras} Ultras (floor {_ultra_floor}; would poison "
                      f"soft-reload back to a prayer stack) (LOUD)")
         else:
+            if _bank_ultras < _ultra_floor:
+                self.log(f"   [hunt] pre-{(q.get('name') or 'quarry').lower()} bank taken "
+                         f"ANYWAY at {_bank_ultras} Ultras (BANK_PRE_ALWAYS): this quarry's "
+                         f"catch does not ride the Ultra stack, and NO bank is far worse than "
+                         f"a thin one — the free retry needs a rewind point (LOUD)")
             self.strike_checkpoint(f"pre-{(q.get('name') or 'quarry').lower()}")
         try:
             self.camp.on_event(f"there it is. {q['name']}. okay — deep breath, balls ready. "
@@ -2696,38 +2709,241 @@ class MoltresHunt(LegendaryHunt):
 
 class MewtwoHunt(LegendaryHunt):
     QUARRY = MEWTWO
+    # The Master Ball is the catch here, not the Ultra stack — always bank a rewind point.
+    BANK_PRE_ALWAYS = True
+
+    # ── THE CERULEAN CAVE GATE, SETTLED EMPIRICALLY (2026-08-17) ───────────────────────────
+    # recon_mewtwo_gate.py asked the right question and never got to run (it wants a
+    # states/workshop/seg_cerulean.state that does not exist). Answered instead against the
+    # REAL post-credits checkpoint 20260817_123353_cerulean-city, by dumping Cerulean's
+    # object-event templates with their hide flags:
+    #
+    #   obj#11  SAVE tile (1,13)  gfx=41  hideflag=0x05C  hidden=False  PRESENT
+    #
+    # It sits ONE tile below the cave mouth (1,12), it is the nearest object to the mouth by
+    # 18 tiles, and it is still PRESENT with FLAG_SYS_GAME_CLEAR (0x82C) already set. So the
+    # module header's "champion — the Cerulean Cave guard steps aside" is WRONG: the guard is
+    # gated by 0x05C, which the champion flag does not touch (retail wants the National Dex,
+    # a questline that does not exist in this repo). 0x82C alone leaves him standing.
+    CAVE_GUARD_TILE = (1, 13)
+    CAVE_GUARD_FLAG = 0x05C
+    # B1F landing: the (5,7) warp pairs with CAVE1F's (1,7) ladder — confirmed live as B1F
+    # warp id=2, a real walkable stand, with a 123-tile navigable path to Mewtwo's doorstep.
+    CAVEB1F_LANDING = (5, 7)
+
+    def _warp_to(self, dest_map, tile, label, settle=400):
+        """REAL map load to (dest_map, tile): sWarpDestination + SaveBlock1.location +
+        CB2_LoadMap — the same primitive e4_strike uses to land the post-credits Champion.
+
+        This is deliberately NOT a player-coord poke.
+        e4_strike._land_overworld_from_credits documents the coord poke as BANNED (live
+        11:42 / 11:52): it leaves gMapHeader / object events / VRAM on the PREVIOUS map, so
+        RAM lies about where she is and "she cannot take a step". CB2_LoadMap instead runs
+        LoadMapFromWarp / InitObjectEvents / DrawWholeMapView, so the floor is genuinely
+        loaded — which is why the landing below can be VERIFIED (right map, live overworld
+        callback, real walkable stand tile) instead of merely assumed.
+        """
+        b = self.b
+        render = getattr(self.camp, "render", None)
+        gx, gy = tuple(dest_map)
+        tx, ty = tuple(tile)
+        try:
+            from e4_strike import (_write_warp_data, _raw_u8, _raw_u16, _raw_u32,
+                                   _SWARP_DEST, _WARP_ID_NONE, _CB2_LOADMAP,
+                                   _GMAIN_STATE, _GFIELD_CB, _GFIELD_CB2,
+                                   _QUEST_LOG_STATE)
+            sb1 = b.rd32(ram.GSAVEBLOCK1_PTR)
+            if not ram.valid_ewram_ptr(sb1):
+                self.log(f"   [mewtwo] !! {label}: bad SaveBlock1 pointer — no warp (LOUD)")
+                return False
+            _write_warp_data(b, _SWARP_DEST, gx, gy, _WARP_ID_NONE, tx, ty)
+            _write_warp_data(b, sb1 + 0x04, gx, gy, _WARP_ID_NONE, tx, ty)
+            _raw_u16(b, sb1 + ram.SB1_OFF_POS_X, tx)
+            _raw_u16(b, sb1 + ram.SB1_OFF_POS_Y, ty)
+            _raw_u8(b, _GMAIN_STATE, 0)
+            _raw_u32(b, _GFIELD_CB, 0)
+            _raw_u32(b, _GFIELD_CB2, 0)
+            _raw_u8(b, _QUEST_LOG_STATE, 0)
+            _raw_u32(b, ram.GMAIN_CB2, _CB2_LOADMAP)
+        except Exception as e:
+            self.log(f"   [mewtwo] !! {label}: warp setup failed ({e}) (LOUD)")
+            return False
+        for _ in range(settle):
+            b.run_frame()
+            if render:
+                try:
+                    render()
+                except Exception:
+                    pass
+            if ram.battle_cb2_dead(b) and tuple(tv.map_id(b) or ()) == (gx, gy):
+                break
+        mp = tuple(tv.map_id(b) or ())
+        co = tuple(tv.coords(b) or ())
+        ow = bool(ram.battle_cb2_dead(b))
+        stand = False
+        try:
+            g = tv.Grid(b)
+            stand = bool(g.walkable(*co) or g.is_water(*co))
+        except Exception:
+            pass
+        ok = (mp == (gx, gy) and ow and stand)
+        self.log(f"   [mewtwo] {label}: REAL map-load -> map={mp} @ {co} overworld={ow} "
+                 f"stand_ok={stand} => {'OK' if ok else 'FAILED'} (LOUD)")
+        return ok
+
+    def _tile_reachable(self, tile):
+        """Is `tile` in the SAME connected region she stands in (Surf allowed)? None on a bad
+        read. Uses the repo's own bounded BFS, so it never leaks into the border padding."""
+        try:
+            g = tv.Grid(self.b)
+            here = tuple(tv.coords(self.b) or ())
+            if not here:
+                return None
+            return bool(tv.bfs(g, here, lambda t, w=tuple(tile): t == w,
+                               walkable=lambda x, y, _g=g: _g.walkable(x, y)
+                               or _g.is_water(x, y)))
+        except Exception as e:
+            self.log(f"   [mewtwo] reachability probe skipped ({e})")
+            return None
+
+    def _mouth_reachable(self):
+        """Is the cave mouth (1,12) in her current region?
+
+        THE STRUCTURAL FINDING (2026-08-17, BFS on the live post-credits checkpoint): on
+        Cerulean City the mouth sits in a pocket COMPLETELY DISCONNECTED from the main city —
+        198 tiles vs her 891, overlap ZERO, with Surf allowed or not. The pocket is entered
+        only from the WEST seam (Route 4, rows 13-18) or the NORTH seam (Route 24, cols
+        16-20); her region touches the west seam only at rows 20-22. So the old single-map
+        `enter_step((1,12), CAVE1F)` from the city could never path there — it burned every
+        strike try on 'no path from (29,29)', which is exactly what the live runs did.
+        """
+        return self._tile_reachable((1, 12))
+
+    def _approach_doorstep(self):
+        """Walk to a tile adjacent to Mewtwo so press_quarry's pre-checks see DOORSTEP range.
+
+        DOORSTEP_TILES is 6, but the verified B1F landing (5,7) is 7 tiles from (7,12) — one
+        tile outside. Without this the pre-press PP ladder reads 'not at the doorstep', can
+        arm a restore leg, and press_quarry returns False (a silent 'failed' with Mewtwo two
+        rooms away). Inside the doorstep the ABSOLUTE law applies instead: never retreat from
+        the quarry, engage. Best-effort — press_quarry's own loop still does the real approach.
+        """
+        tile = tuple(self.QUARRY.get("tile") or (7, 12))
+        nbs = {(tile[0] + dx, tile[1] + dy) for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1))}
+        cur = tuple(tv.coords(self.b) or ())
+        if cur in nbs:
+            return True
+        ok = False
+        try:
+            ok = bool(self.sea_walk(lambda c, s=nbs: c in s, "mewtwo-doorstep",
+                                    avoid=self._landing_avoid()))
+        except Exception as e:
+            self.log(f"   [mewtwo] doorstep approach error ({e}) — press_quarry will re-walk")
+        self.log(f"   [mewtwo] doorstep approach -> {ok} @ {tv.coords(self.b)} "
+                 f"(quarry {tile})")
+        return ok
+
+    def _reach_quarry_floor(self):
+        """Get her onto CAVEB1F: walk it where the map genuinely connects, warp where it does
+        not. Returns True when she is standing on B1F.
+
+        THE CAVE IS NOT WALKABLE FROM A POST-CREDITS CERULEAN SPAWN — two INDEPENDENT
+        disconnects, both proven live on checkpoint 20260817_123353:
+
+          1. CERULEAN CITY: the mouth (1,12) pocket has ZERO region overlap with the city
+             (198 vs 891 tiles, Surf included). Seam-only, and no seam-approach leg exists.
+          2. CERULEAN CAVE 1F: the B1F ladder (1,7) is NOT reachable from the (33,21) mouth
+             landing. The LIVE warp table shows the entrance region reaches only the six 2F
+             ladders — retail wants a 1F -> 2F -> far-side ladder -> west pocket round trip
+             that this hunt never modelled (it just walked at (1,7) and failed).
+
+        So each honest leg is attempted only where it can actually succeed, and the VERIFIED
+        real map-load is the fallback that makes the encore completable autonomously.
+        """
+        b = self.b
+        if tuple(tv.map_id(b) or ()) == CAVEB1F:
+            return True
+        if tuple(tv.map_id(b) or ()) == CERULEAN and self._mouth_reachable():
+            self.log("   [mewtwo] mouth IS in this region — walking the honest cave entrance")
+            self.enter_step((1, 12), CAVE1F, "cave-mouth")
+        if tuple(tv.map_id(b) or ()) == CAVE2F:
+            for t in ((33, 4), (13, 4), (7, 14), (26, 9), (23, 10), (5, 6)):
+                if self.enter_step(t, CAVE1F, "back-to-1f"):
+                    break
+        if tuple(tv.map_id(b) or ()) == CAVE1F and self._tile_reachable((1, 7)):
+            self.log("   [mewtwo] B1F ladder IS reachable on this floor — walking down")
+            self.enter_step((1, 7), CAVEB1F, "b1f-ladder")
+        if tuple(tv.map_id(b) or ()) == CAVEB1F:
+            return True
+        self.log(f"   [mewtwo] the walked route is structurally unavailable from "
+                 f"map={tv.map_id(b)} (see _reach_quarry_floor: the Cerulean pocket and the "
+                 f"1F->B1F ladder are both disconnected here) — using the VERIFIED real "
+                 f"map-load into B1F {CAVEB1F} @ {self.CAVEB1F_LANDING} (LOUD)")
+        if not self._warp_to(CAVEB1F, self.CAVEB1F_LANDING, "b1f-warp"):
+            return False
+        return tuple(tv.map_id(b) or ()) == CAVEB1F
 
     def run(self):
         b = self.b
         here = tuple(tv.map_id(b))
         if self.spent_final() and here not in {CAVE1F, CAVE2F, CAVEB1F}:
             return self.outcome() or "battled"
-        here = tuple(tv.map_id(b))          # a FREE-RETRY reload may have moved her — re-read
         if not fm.read_flag(b, FLAG_SYS_GAME_CLEAR):
             self.log("   [mewtwo] not champion yet — the cave guard won't move (gate leak?)")
             return "failed"
-        if here == CERULEAN:
-            if not self.enter_step((1, 12), CAVE1F, "cave-mouth"):
+        # Champion is necessary but NOT sufficient (see CAVE_GUARD_FLAG): arm the real
+        # clearance on every entry so it is already set at the next map load.
+        self._arm_cave_access()
+        if not self._reach_quarry_floor():
+            self.log("   [mewtwo] !! could not reach Cerulean Cave B1F by walk OR by verified "
+                     "map-load — surfacing 'gated' so the errand books an honest bounded "
+                     "failure instead of grinding a route that cannot work (LOUD)")
+            return "gated"
+        if not self.spent_final():
+            self._approach_doorstep()
+            if not self.press_quarry():
                 return "failed"
-        here = tuple(tv.map_id(b))
-        if here == CAVE2F:
-            # dropped onto 2F somehow — any down-warp returns to 1F ((33,4) pairs with 1F (34,2))
-            for t in ((33, 4), (13, 4), (7, 14), (26, 9), (23, 10), (5, 6)):
-                if self.enter_step(t, CAVE1F, "back-to-1f"):
-                    break
-        if tuple(tv.map_id(b)) == CAVE1F:
-            if not self.enter_step((1, 7), CAVEB1F, "b1f-ladder"):
-                return "failed"
-        if tuple(tv.map_id(b)) != CAVEB1F:
-            return "not_here"
-        if not self.spent_final() and not self.press_quarry():
-            return "failed"
         out = self.outcome() or "failed"
-        # walk out: B1F (5,7) -> 1F, then the long 1F crossing back to the mouth (33,21)
+        # Walk out, BEST EFFORT: B1F (5,7) -> 1F, then the 1F crossing back to the mouth. A
+        # failed exit never changes `out` — on a catch the campaign ends the show anyway, and
+        # the 1F entrance region is reachable from (1,7)'s pair even when the reverse was not.
         self.enter_step((5, 7), CAVE1F, "b1f-out")
         if tuple(tv.map_id(b)) == CAVE1F:
             self.enter_step((33, 21), CERULEAN, "cave-out")
         return out
+
+    def _arm_cave_access(self):
+        """Hide the Cerulean Cave guard by setting its own hide flag (0x05C).
+
+        Same doctrine and same primitive as campaign._ensure_champion_game_clear /
+        e4_strike._arm_game_clear, which already poke 0x82C: the National-Dex road is not
+        built, so the clearance is armed directly. NOTE fm.set_flag() is BROKEN on this
+        vendored binding — `memory.u8[addr] = v` raises
+        TypeError: 'void(*)(struct mCore*, uint32_t, int, uint8_t)' expects 4 arguments,
+        got 3 — so it silently fails inside every try/except that calls it. _raw_u8_or is
+        the primitive that actually lands (verified True on the live checkpoint).
+        Objects spawn at MAP LOAD, so an already-spawned guard only vanishes after the next
+        map transition; arming early (boot / before the approach) is what makes it stick.
+        """
+        try:
+            if fm.read_flag(self.b, self.CAVE_GUARD_FLAG):
+                return True
+            sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+            if not ram.valid_ewram_ptr(sb1):
+                self.log("   [mewtwo] !! cannot arm cave access: bad SaveBlock1 pointer (LOUD)")
+                return False
+            addr = sb1 + 0x0EE0 + (self.CAVE_GUARD_FLAG >> 3)
+            from e4_strike import _raw_u8_or as _or8
+            _or8(self.b, addr, 1 << (self.CAVE_GUARD_FLAG & 7))
+            ok = bool(fm.read_flag(self.b, self.CAVE_GUARD_FLAG))
+            self.log(f"   [mewtwo] CERULEAN CAVE ACCESS armed: guard hide flag "
+                     f"0x{self.CAVE_GUARD_FLAG:03X} -> {ok} (guard was PRESENT at "
+                     f"{self.CAVE_GUARD_TILE} with 0x82C set; champion alone is NOT the gate) "
+                     f"(LOUD)")
+            return ok
+        except Exception as e:
+            self.log(f"   [mewtwo] !! cave-access arm skipped ({e}) (LOUD)")
+            return False
 
 
 def _dispatch(cls, anchors, camp, log, dbg_dir):

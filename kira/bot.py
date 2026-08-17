@@ -3740,7 +3740,11 @@ class VTubeBot:
         # boundary, LOUD. Same-run POSTs (badges non-decreasing) accrete normally.
         _prev_badges = (prev.get("badge_count") if isinstance(prev, dict) else 0) or 0
         _new_badges = state.get("badge_count") or 0
-        if _new_badges == 0 and _prev_badges > 0:
+        _new_party = state.get("party_count") or 0
+        # Title-screen / credits SoftReset posts badges 0 + party 0 (live 2026-08-17). That is
+        # NOT a new playthrough — retiring the Champion saga here wiped her story mid-encore.
+        # A real fresh run has a starter (party >= 1) at 0 badges.
+        if _new_badges == 0 and _prev_badges > 0 and _new_party >= 1:
             print(f"   [Pokemon] FRESH RUN detected (badges {_prev_badges}→0) — retiring the old run's "
                   f"saga so the new playthrough starts its OWN story (run-scoping, CORE).")
             state["saga"] = []

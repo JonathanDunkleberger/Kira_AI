@@ -1,0 +1,120 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 0) coords=(8, 9) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 2 blocked tile(s), 3 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Headphones (Leviathan)', vol=0.25, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=26700).
+
+   [soul] continuity loaded: 20 roster bond(s), 1296 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 171 place(s) known, 261 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    [roam] !! BOOT MENU-CLOSE: screen is off-overworld (menu save) — B-cascading out before the first action (LOUD)
+
+   [dialogue] +++ 'OAK. Er-hem! Congratulations, KIRA! This floor is the POK.MON HALL OF FAME. POK.MON LEAGUE CHAMPIONS are honored for their exploits here. Their POK.MON are also recorded in the HALL OF FAME. K'  tags=['PLACE']
+
+   [kira-voice]    (dialogue tags: place)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "OAK. Er-hem! Congratulations, KIRA! This floor is the POK.MON HALL OF FAME. POK.MON LEAGUE CHAMPIONS are honored for their exploits here. Their POK.MON are also recorded in the HALL OF FAME. K"'  fired=True  [age 0.0s + post 4ms]
+
+   [pkmn-audio-child] LIVE: device=10, 48000Hz, 2ch � writing until parent EOF.
+
+   [campaign]    [boot-menu-close] !! menu stack STILL open after 10 B's (callback2 non-overworld) — hammering 6 more, long settles (LOUD)
+
+   [campaign]    !! CAMPAIGN SAVE REFUSED [roam_start]: the live world reads DEAD (title-screen signature — map (0,0), party 0). NOT poisoning the anchor (LOUD)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    [auto-ckpt] metadata write skipped: 'NoneType' object is not iterable
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260817_085426_an-unfamiliar-area_0b_62h16m_roam-start  (5 bundle file(s))
+
+   [campaign]    [roam] !!!! VOID-CORE TRIPWIRE #1: the world reads DEAD (title-screen signature) — the game REBOOTED under us. Recovering, not playing it.
+
+   [campaign]    [roam] !!!! VOID-CORE RECOVERED via campaign anchor: world restored at (3, 0)@(8, 10) party=4 (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [badge] -> campaign/kira_campaign.state  (map=(3, 0) coords=(8, 10) badges=8 party=4)
+
+   [kira-voice] -> T2·savor· (recover) 'whoa — everything just went dark on me. hang on… rewinding to where I last knew the world was real.'  fired=True  [age 0.0s + post 20ms]
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [gain-badge] -> checkpoints/20260817_085426_pallet-town_8b_62h16m_gain-badge  (5 bundle file(s))
+
+   [campaign]    [world] learned 3 warp(s) on (3, 0): (6, 7)->(4, 0), (15, 7)->(4, 2), (16, 13)->(4, 3)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/mewtwo → steps=['surf', 'mewtwo'] actionable=mewtwo (resolved=True)
+
+   [kira-voice] ·floor· (<1s since last) T2 'Okay — to get past this I need Mewtwo — the strongest Pokemon in the game, at the bottom of Cerulean Cave. The guard only steps aside for the Champion, and the Master Ball has been waiting for exactly this moment.'
+
+   [campaign]    [roam] 🏆 CHAMPION ENCORE: MEWTWO (Cerulean Cave) is live — routing the hunt (Eevee/gym march stay dead)
+
+   [campaign]    [roam] grass she KNOWS: routing north -> (3, 19) toward Route 1 (FORWARD — on the road to the objective, visited grass, avoiding any wall)
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 4, 20, 258) @ Pallet Town (ring=1/4)
+
+   [campaign] -- ROAM TICK 2/100000000 --
+
+   [campaign]    [roam] STATE IN: Pallet Town (8, 10) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L94, moltres L56, articuno L53, zapdos L55] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). You're the CHAMPION — the game is beaten. This is the post-game victory lap. Pokédex: 20 caught. Champion. The credits rolled — everything from here is the victory lap (Cerulean Cave, the Pokédex, her world now).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 0) (8,10) f1 -- badge8 $29260 party:38d6 bag:f22a]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['battle', 'wander_catch', 'travel:3,19', 'travel:3,39', 'travel:3,20', 'travel:3,21']
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 4
+
+   [campaign]    [soul] ORACLE decision: kind=action ctx={'place': 'You\'re in Pallet Town — outdoors under open sky (a town; tall grass around — wild Pokémon live in it).. From here: NORTH → Route 1 — wild Pokémon to catch/train; SOUTH → Route 21 — wild Pokémon to catch/train. Places you\'ve been with wild Pokémon you can walk back to: Route 2; Route 3; Viridian Forest. You can walk to anywhere you\'ve already been. You have SURF — you can cross water.. Okay — to get past this I need Mewtwo — the strongest Pokemon in the game, at the bottom of Cerulean Cave. The guard only steps aside for the Champion, and the Master Ball has been waiting for exactly this moment.. HOW POKÉMON WORKS (what you\'re playing for): the GOAL is to earn 8 Gym Badges, beat the Elite Four, and roll the credits — that\'s beating the game. You build a TEAM of up to 6 Pokémon you like AND that cover each other (types/roles) — a solo carry with a dead-weight bench is a losing setup; a real trainer fields a balanced, levelled squad. CATCHING wild Pokémon is central (\'gotta catch \'em all\') — you catch to build that team and to fill the Pokédex. When you meet a wild Pokémon, weigh it: is it cool/strong/useful, does it cover a gap, is it better than a bench-warmer? — keep your best ~6, and build a squad you actually like. THE ARC: build a team -> beat the 8 gyms prepared -> Elite Four -> credits. ALSO NORMAL: you entered your own name (and your rival\'s) when the game began — people in this world knowing your names is ordinary, not a mystery to react to. THE MAIN QUEST IS A FIXED PATH you\'re always on: beat the 8 Gym Leaders in order, then the Elite Four, then you win the game. YOU WON — you\'re the CHAMPION and the credits have rolled. This is the post-game victory lap: head OUT of the league building, heal the team up, and pick your own adventures now (Cerulean Cave just opened to champions, and the Pokédex is far from full). Nothing is required anymore — this is your world to enjoy. YOUR STORY SO FAR (what you\'ve actually done — your past, not the future): All eight Gym Badges are yours. The Elite Four and the Champion are the summit.. THINGS YOU\'VE HEARD AND READ (from people and signs — your own notes, use them when they point somewhere): "OAK. Er-hem! Congratulations, KIRA! This floor is the POK.MON HALL OF FAME. POK.MON LEAGUE CHAMPIONS are honored for their exploits here. Their POK.MON are also"; "I had a vision of your arrival. I have had psychic powers since I was a child. It started when a spoon I carelessly tossed, bent. I dislike battling, but if you"; "Sealed within that TM06 lies TOXIC! It is a secret technique dating back some four hundred years."; "KIRA put the TM06 in the TM CASE.". YOUR PLAN — right now: You\'re ready — stop grinding and push forward to the next objective. Next: FIRST Mewtwo — the strongest Pokemon in the game, at the bottom of Cerulean Cave. The guard only steps aside for the Champion, and the Master Ball has been waiting for exactly this moment — the gym comes right after; that errand is the road. Bigger picture: Enjoy the post-game as Champion (Cerulean Cave, the Pokédex). Your team right now: blastoise (L94), moltres (L56), articuno (L53), zapdos (L55). Remember YOU are the one playing this — narrate your plan to chat in your own voice (first person: "I\'m grinding", "my team"), and never ask anyone what you\'re doing or who\'s on your team — you know.', 'progress': "8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). You're the CHAMPION — the game is beaten. This is the post-game victory lap. Pokédex: 20 caught. Champion. The credits rolled — everything from here is the victory lap (Cerulean Cave, the Pokédex, her world now).", 'party': 'blastoise (L94), moltres (L56), articuno (L53), zapdos (L55)', 'goal': {'short': "You're ready — stop grinding and push forward to the next objective", 'medium': 'FIRST Mewtwo — the strongest Pokemon in the game, at the bottom of Cerulean Cave. The guard only steps aside for the Champion, and the Master Ball has been waiting for exactly this moment — the gym comes right after; that errand is the road', 'long': 'Enjoy the post-game as Champion (Cerulean Cave, the Pokédex)'}, 'strategy': "1) QUARTERMASTER: the bag is thin — 0 potion(s), 1 status cure(s), 0 revive(s), $29260 in pocket. Money is ammo: next Mart, stock potions toward ~12, cures for what's been hurting the team, a couple of Revives. Never walk into a gym or a long route under-stocked.\n2) DEX PUSH: 20/50 species caught — at 50 the Route 15 aide (by Fuchsia) hands over the EXP. SHARE (the whole bench levels off every fight). Catch every NEW species you cross; never wander just to hunt.\n3) STANDING ORDERS: the goal is ROLL CREDITS. Forward progress beats wandering; heal beats fighting hurt; type advantage decides fights; build the planned team, not just the ace."} options=['battle', 'wander_catch', 'travel:3,19', 'travel:3,39', 'travel:3,20', 'travel:3,21']
+
+   [pkmn-audio-child] parent closed the pipe (EOF) � clean shutdown.
+
+   [pkmn-audio-child] stopped after 1447 frames.
+
+   [pkmn-audio] stopped (isolated); audio child closed; frame-stepping restored.
+
+
+
+================================================================
+
+   PLAY-LIVE RESULT: window-closed
+
+   final: map=(3, 0) coords=(8, 7)  badge=True
+
+   [kira-voice] === 2 fired, 1 gated (0 failed) | by tier: T3=0 T2=1 T1=1 (incl ambient trickle) ===
+
+================================================================
+

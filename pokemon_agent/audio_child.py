@@ -54,17 +54,57 @@ def main():
         return 2
 
     device = None if args.device is None or args.device < 0 else args.device
-    try:
-        st = sd.OutputStream(samplerate=args.rate, channels=args.channels, dtype="int16",
-                             device=device, blocksize=0, latency="low")
-        st.start()
-    except Exception as e:
-        # A failure to OPEN the device is a real config problem, not a transient abort. Report loud
-        # and exit non-zero so the parent's restart-accounting eventually gives up (rather than thrash).
-        _log(f"!! could not open OutputStream (device={device}, rate={args.rate}): {e} — exiting.")
+
+    def _host_is_wasapi(dev):
+        if dev is None:
+            return False
+        try:
+            d = sd.query_devices(dev)
+            return "wasapi" in sd.query_hostapis(d["hostapi"])["name"].lower()
+        except Exception:
+            return False
+
+    # Open SHARED. latency="low" takes exclusive and then PortAudio abort()s ~24s
+    # later when Kira's loopback is on the same Leviathan endpoint (playlive_12-20-52).
+    # WasapiSettings is ONLY valid on a WASAPI host device — stuffing it onto the
+    # MME twin (device 10 'Headphones (Leviathan)') is PaErrorCode -9984 and the
+    # child never opens (playlive_12-27-06). Try shared-WASAPI, then plain shared.
+    attempts = []
+    base = dict(samplerate=args.rate, channels=args.channels, dtype="int16",
+                device=device, blocksize=1024)
+    if _host_is_wasapi(device):
+        kw = dict(base)
+        try:
+            kw["extra_settings"] = sd.WasapiSettings(exclusive=False)
+            attempts.append(("shared-WASAPI", kw))
+        except Exception:
+            pass
+    attempts.append(("shared", dict(base)))
+
+    st = None
+    opened_as = None
+    last_err = None
+    for label, kwargs in attempts:
+        try:
+            st = sd.OutputStream(**kwargs)
+            st.start()
+            opened_as = label
+            break
+        except Exception as e:
+            last_err = e
+            _log(f"open {label} failed (device={device}): {e}")
+            try:
+                st.close()
+            except Exception:
+                pass
+            st = None
+    if st is None:
+        # A failure to OPEN the device is a real config problem, not a transient abort.
+        _log(f"!! could not open OutputStream (device={device}, rate={args.rate}): {last_err} — exiting.")
         return 3
 
-    _log(f"LIVE: device={device}, {args.rate}Hz, {args.channels}ch — writing until parent EOF.")
+    _log(f"LIVE: device={device}, {args.rate}Hz, {args.channels}ch, {opened_as} "
+         f"— writing until parent EOF.")
     stdin = sys.stdin.buffer
     frames = 0
     try:

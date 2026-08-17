@@ -10085,12 +10085,43 @@ class Campaign:
             if (top_up or party_wide) and (mx - hp) < FIELDHEAL_TOPUP_MIN_MISSING:
                 continue
             if frac < thr:
-                need.append((0 if s == ace else 1, frac, s, hp, mx))
+                # 2026-08-16 THE BRUNO-SEAM MIS-PICK: in the gauntlet (party_wide) EVERY body
+                # is a type-answer, so order by NEED, never ace-first — an 81% ace jumped the
+                # queue for a comfort top-up while Moltres sat at 13/165, and the bottle then
+                # mis-aimed onto Moltres (remembered cursor), burning the last-but-one FR two
+                # rooms before Lance. Outside the gauntlet the ace-first law stands (the ace
+                # is the mon that actually fights).
+                need.append(((frac, 0) if party_wide else (0 if s == ace else 1, frac)) +
+                            (s, hp, mx))
         if not need:
             return None
         need.sort()
         _, _, s, hp, mx = need[0]
         iid = self._cheapest_adequate_heal(mx - hp)
+        # 2026-08-16 THE LANCE WIPE — THE LAST FULL RESTORE IS RESERVED FOR BATTLE.
+        # Live 09:58, Agatha's room: Blastoise at 199/269 (74%) took the party-wide
+        # top-up, the ladder found no smaller bottle, and fell back to the biggest
+        # present — the bag's ONLY Full Restore, drunk for a 70 HP chip. The party
+        # walked into Lance with FR x0 and the entry door sealed (no shop), so when
+        # Blastoise hit 73/269 mid-Lance there was nothing left to drink -> whiteout
+        # one room from the credits. A field top-up on a mon at/above ACE_FRAC is
+        # comfort, not survival; the last FR is the in-battle rescue (it also cures
+        # status — nothing else in the pocket does both). Skip the drink, LOUDLY;
+        # genuinely-hurt mons (below ACE_FRAC) still get it — a Center is not on
+        # this road and entering Lance at 40% is worse.
+        #
+        # 2026-08-16 BRUNO-SEAM TIGHTENING: inside the gauntlet the reserve is the last
+        # TWO, not one — the doctrine says "4 FR tanks the 5-dragon wave", and the
+        # live 17:54 run entered Lance with FR x0 after exactly these comfort spends.
+        _fr_reserve = 2 if party_wide else 1
+        if (iid == 19 and self.bag_count(19) <= _fr_reserve and mx > 0
+                and (hp / mx) >= FIELDHEAL_ACE_FRAC):
+            nm = st.SPECIES_NAME.get(st.read_party_species(self.b, s), f"slot{s}").title()
+            log(f"   [fieldheal] {nm} at {hp}/{mx} ({int(hp/mx*100)}%) — holding "
+                f"{'the last TWO' if party_wide else 'the LAST'} Full Restore(s) for "
+                f"in-battle (a {mx - hp} HP field top-up is comfort, not survival; the "
+                f"Lance wipe drank it at 74% and entered Lance with FR x0)")
+            return None
         if iid is None:
             if time.time() >= getattr(self, "_field_heal_empty_logged", 0):
                 self._field_heal_empty_logged = time.time() + 300
@@ -10208,6 +10239,15 @@ class Campaign:
                          f"quick drink, THEN we keep moving."), kind="heal", tier=1)
                 import hm_teach as _ht
                 res = _ht.TeachFlow(self, log=log, on_event=self.on_event).field_heal(iid, slot)
+                if res == "mis_aimed":
+                    # 2026-08-16 BRUNO SEAM: the bottle healed a DIFFERENT teammate (the
+                    # item-use party screen remembered its cursor from the GRIND-WEAK swaps).
+                    # A heal LANDED — count it, keep picking, never latch the 10-min backoff
+                    # on a working bag two rooms before Lance.
+                    healed_n += 1
+                    log(f"   [fieldheal] mis-aim landed on a teammate — counted, seam "
+                        f"continues (no backoff; the bottle did heal somebody)")
+                    continue
                 if res != "healed":
                     self._field_heal_backoff = time.time() + 600
                     log(f"   [fieldheal] !! bag-drive -> {res} — backing off 10 min "
@@ -10895,6 +10935,39 @@ class Campaign:
         if narr:
             self.on_event(narr, kind="route", tier=2)
         return True
+
+    def _pallet_postgame_unstick(self, state):
+        """Post-credits CONTINUE can park her on Pallet (8,6) — a collision/void tile
+        travel cannot leave (live 21:47 abandoned, 08:53 dead-man's at (8,6) x4).
+        Step onto walkable ground before any route. No-op off Pallet or on a walkable tile."""
+        try:
+            if tuple(tv.map_id(self.b) or ()) != (3, 0):
+                return
+            if not ram.battle_cb2_dead(self.b):
+                return                            # still on credits/THE END — drain owns this
+            c = tuple(tv.coords(self.b) or ())
+            if not c:
+                return
+            g = tv.Grid(self.b)
+            stuck = (c == (8, 6)
+                     or (not g.walkable(*c) and not g.is_water(*c)))
+            if not stuck:
+                return
+            log(f"   [roam] post-credits Pallet {c} void stand — stepping to walkable ground")
+            for d in ("DOWN", "RIGHT", "LEFT", "UP"):
+                for _ in range(6):
+                    self.b.press(d, 8, 8, self.render, owner="agent")
+                    for _f in range(24):
+                        self.b.run_frame()
+                    nc = tuple(tv.coords(self.b) or ())
+                    if nc and nc != c and (g.walkable(*nc) or g.is_water(*nc)):
+                        log(f"   [roam] Pallet unstick {c} -{d}-> {nc}")
+                        if isinstance(state, dict):
+                            state["coords"] = list(nc)
+                        return
+            log(f"   [roam] Pallet unstick: still {tv.coords(self.b)} after 4-way — LOUD")
+        except Exception as e:
+            log(f"   [roam] Pallet unstick skipped ({e})")
 
     def _clear_questline(self, reason):
         if self._active_questline is not None:
@@ -13102,6 +13175,22 @@ class Campaign:
                 # this just walks her out cleanly rather than dumping her at the boss floor.)
                 self._ql_inside_target = True
                 return "questline_strike_exit_wip"
+            if res == "gated":
+                # STRUCTURALLY UNREACHABLE, NOT UNLUCKY (2026-08-17). A strike returns 'gated'
+                # when it has PROVEN its objective cannot be reached from here — Mewtwo's case:
+                # the Cerulean Cave mouth (1,12) sits in a pocket that is a disconnected region
+                # on Cerulean City (BFS overlap ZERO with the city, Surf included), enterable
+                # only from the Route 4 / Route 24 seams, and that approach leg is not built.
+                # Retrying cannot change the topology, so skip the 3-try grind entirely, LATCH
+                # the errand off so its gate stops re-arming every tick, and surface an honest
+                # bounded failure. Without the latch the FORCE MEWTWO pick would re-drive a
+                # walk that provably cannot succeed for the rest of the marathon.
+                self._strike_gated = getattr(self, "_strike_gated", set()) | {succ}
+                log(f"   [roam] !! questline STRIKE reports GATED for {label} — objective is "
+                    f"structurally unreachable, not bad luck. Latching this errand OFF and "
+                    f"surfacing an honest failure; no retry grind (LOUD)")
+                self._clear_questline(f"strike gated: {label}")
+                return "questline_strike_failed"
             if res == "not_here":
                 return None
             return "questline_strike_failed"
@@ -13314,8 +13403,9 @@ class Campaign:
         try:
             # ENDGAME FOCUS (Jonny 2026-08-10): the gift Eevee is a luxury detour that kept
             # opening a questline mid-march at badge 8 ("I need the roof-room Eevee" while the
-            # League waits). Post-credits it may arm again; pre-credits the march owns the run.
-            if (state.get("badge_count") or 0) >= 8 and not state.get("post_game"):
+            # League waits). Post-credits the encore is MEWTWO — live 21:55 opened Eevee in
+            # Pallet and stole the Champion want. Never arm this after the credits.
+            if (state.get("badge_count") or 0) >= 8:
                 return None
             if self._lap_sevii_stranded():
                 return None
@@ -13512,13 +13602,22 @@ class Campaign:
         (battle_agent allow_master). Returns a Gate or None."""
         if not LEGENDARY_HUNTS_ENABLED:
             return None
+        # Latched OFF by a 'gated' strike (the Cerulean Cave seam approach is unbuilt) — stop
+        # re-arming an errand whose objective was PROVEN unreachable this process.
+        if ("flag", "FLAG_FOUGHT_MEWTWO") in getattr(self, "_strike_gated", ()):
+            return None
         try:
             if not fm.read_flag(self.b, 0x82C):
                 return None                       # not champion — the guard won't move
             if st.party_knows_move(self.b, 57, self.b.rd8(ram.GPLAYER_PARTY_CNT)) is None:
                 return None
-            # Master Ball in the pocket counts as ready even with a thin spendable stack
-            if (self._hunt_ready(150, 0x081, 0x2BC, need_balls=8) is not None
+            # Master Ball in the pocket counts as ready even with a thin spendable stack.
+            # key="mewtwo" (2026-08-17): its three siblings all pass a key (zapdos/articuno/
+            # moltres) and Mewtwo alone did not — so _hunt_ready could never grant the SPENT-BUT-
+            # RETRYABLE waiver here, and ONE fought flag (a flee, a faint, a failed ball) killed
+            # this gate for the rest of the process even with a 'pre-mewtwo' bank sitting on disk.
+            # The bank is the free retry; honour it for the encore too.
+            if (self._hunt_ready(150, 0x081, 0x2BC, need_balls=8, key="mewtwo") is not None
                     and self._balls_pocket_count(1) <= 0):
                 return None
         except Exception:
@@ -15455,6 +15554,21 @@ class Campaign:
             if (time.time() < getattr(self, "_bpp_hold_until", 0)
                     and cur_map in getattr(self, "_bpp_maps", set())):
                 return
+            # CHAMPION ENCORE (2026-08-16 live): credits rolled, she is in Pallet, the oracle
+            # already picked Mewtwo — then Eevee/head_to_gym stole the slot. Post-game the
+            # ONE errand is Cerulean Cave. Evict anything else and arm the hunt.
+            if state.get("post_game"):
+                _cq = self._active_questline
+                _miss = getattr(getattr(_cq, "gate", None), "missing", None)
+                if _cq is not None and _miss not in (None, "mewtwo"):
+                    self._clear_questline(
+                        f"Champion encore is Mewtwo — evicting parked '{_miss}'")
+                hg = self._mewtwo_gate(state)
+                if hg is not None and self._open_questline(hg, state):
+                    log("   [roam] 🏆 CHAMPION ENCORE: MEWTWO (Cerulean Cave) is live — "
+                        "routing the hunt (Eevee/gym march stay dead)")
+                    return
+                return
             # THE VICTORY LAP OWNS THE ERRAND SLOT (2026-08-04): at 8 badges the gym-keyed chain
             # below is dead (next_gym=None) and the luxury order (tea→bike→flute→fly…) let a
             # parked FLY errand hog the ONE questline slot from badge 5 all the way to the League
@@ -15621,12 +15735,9 @@ class Campaign:
             # Thunder Stone) in a city she already owns. No story gate ever demands it, so it must
             # be opened proactively, same as Fly. Fires AFTER the scope/fly blocks: war errands and
             # endgame mobility outrank a (spectacular) luxury detour.
-            # CREDITS-FIRST MUTE (2026-08-07 19:40 LIVE): at badge 8 pre-credits Eevee is
-            # NOT on the lap (Zapdos IS the electric slot) — yet this opened every boot,
-            # rewrote her 'medium' goal to "FIRST the gift Eevee", and her narration spent
-            # the whole Zapdos march talking about Jolteon. The lap owns the endgame.
-            if (int(state.get("badge_count") or 0) < 8 or state.get("post_game")
-                    or not VICTORY_LAP_ENABLED):
+            # CREDITS-FIRST MUTE (2026-08-07 19:40 LIVE): at badge 8 Eevee is never the
+            # errand (Zapdos is the electric slot; post-credits the encore is Mewtwo).
+            if int(state.get("badge_count") or 0) < 8 and not state.get("post_game"):
                 eg = self._eevee_gate(state)
                 if eg is not None and self._open_questline(eg, state):
                     log("   [roam] 🦊 PROACTIVE EEVEE-FETCH: the Celadon Condominiums gift Eevee is "
@@ -16304,6 +16415,15 @@ class Campaign:
         also get her CLOSER to the next objective (live questline anchor, else the next gym city) are
         tried FIRST; backward/cleared grass stays as the FALLBACK only (anti-park: the only reachable
         grass is never abandoned)."""
+        # CHAMPION ENCORE (2026-08-17 live): Route 1 grass stole the Mewtwo hunt
+        # and wedged on the HoF overlay. While that errand is open, there is no hunt.
+        try:
+            if state.get("post_game"):
+                _q = getattr(self, "_active_questline", None)
+                if getattr(getattr(_q, "gate", None), "missing", None) == "mewtwo":
+                    return None
+        except Exception:
+            pass
         tile = self._reachable_grass()
         # GRIND-SPOT LEVEL AWARENESS (NS#5 lever a): if grind() marked THIS map grind-inadequate (only
         # done when a reachable higher-level spot exists), don't short-circuit on grass-underfoot — fall
@@ -16676,6 +16796,21 @@ class Campaign:
                 a["head_to_league"] = ("all 8 badges are yours — no gyms left. The road to the Pokémon League "
                                        "is open: through Viridian, past your rival on Route 22, up Route 23 and "
                                        "the Victory Road cave to the Indigo Plateau. THIS is the way forward now.")
+        # HALL OF FAME mid-ceremony (2026-08-16 live): Gary is beaten, Oak walked her in,
+        # process died. post_game is True because she is ON this map, so the pre-credits
+        # enter_league offer never arms — and leave_building cannot exit. FRLG only leaves
+        # via the credits SoftReset → CONTINUE. Offer the strike so the drain runs.
+        elif tuple(state.get("map") or ()) == (1, 80) and E4_STRIKE_ENABLED:
+            if state.get("post_game"):
+                # Live 11:32: FORCE enter_league on HoF re-fired the ceremony after
+                # credits already rolled → title screen. Drain lands Pallet; do not
+                # offer the strike again.
+                a["leave_building"] = (
+                    "credits already rolled — do NOT re-enter the League strike. "
+                    "Get out of the Hall of Fame / land Pallet as Champion.")
+            else:
+                a["enter_league"] = ("the Hall of Fame — finish the ceremony, let the credits roll, "
+                                     "CONTINUE as Champion. That is the only door out of this room.")
         # POST-GAME (the summit-watch strand fix, scoped): a Champion parked inside the league (or any
         # interior) has no gym objective and no overworld route — offer the walk OUT so the victory lap
         # can actually start. Post-game-gated: pre-credits behavior untouched.
@@ -16795,6 +16930,33 @@ class Campaign:
                                    f"cross. THEN go back and push through.")
         else:
             prep_t = None
+        try:
+            if state.get("post_game"):
+                _qlm = getattr(self, "_active_questline", None)
+                if getattr(getattr(_qlm, "gate", None), "missing", None) == "mewtwo":
+                    _prn_m2 = [k for k in ("wander_catch", "battle")
+                               if a.pop(k, None) is not None]
+                    if _prn_m2:
+                        log(f"   [roam] !! CHAMPION ENCORE: pruned {_prn_m2} — "
+                            f"Mewtwo is the errand, not Route 1 grass")
+                    # THE ENCORE HAD NO DRIVER (2026-08-17). The block in _ensure_forward_questline
+                    # arms the Mewtwo questline on every post-game tick, but _run_questline_step is
+                    # reachable ONLY from pick=='head_to_gym' in _route_action — and head_to_gym is
+                    # offered only when state['next_gym'] is truthy, which at 8 badges is None
+                    # (read_live_state derives ng=None once every gym is billed). The victory-lap
+                    # driver is 'not post_game'-gated and has no mewtwo key either. So the errand
+                    # was OPENED every tick and EXECUTED never: with wander_catch/battle pruned just
+                    # above, the menu collapsed toward the empty-set 'regroup' floor while the
+                    # oracle kept narrating "catch Mewtwo with the Master Ball" (live 12-33-52).
+                    # Give the encore its OWN action so the existing executor can run: anchor-first
+                    # travel to Cerulean (3,3) -> _questline_strike -> legendary_strikes.run_mewtwo.
+                    # Post-game AND mewtwo-questline gated: no pre-credits menu changes shape.
+                    a["hunt_mewtwo"] = (
+                        "MEWTWO — the Cerulean Cave guard steps aside for the CHAMPION. Take the "
+                        "cave mouth on the water east of the city, descend 1F -> B1F, and spend "
+                        "the Master Ball you have been saving since Silph Co. THIS is the encore.")
+        except Exception:
+            pass
         # SHOP WITH INTENT (PART C) + BATCH-6 PHASE-2 FORESIGHT: offer "stock up" when it DOES something —
         # at a town with a mapped Mart and money above the floor, with EITHER a real restock need (low on
         # potions / missing a cure) OR she's walled and could prepare deeper before a push (foresight,
@@ -18274,10 +18436,19 @@ class Campaign:
         return "stuck"
 
     def _wait_overworld(self, max_frames=900):
-        """Settle to overworld-idle (not in battle, no open dialogue box) before reading state / acting."""
+        """Settle to overworld-idle before reading state / acting.
+
+        Live 2026-08-17: THE END / rolling credits have NO dialogue box and are not a
+        battle, so the old test returned True and roam played Pallet into a void tile
+        while chat stared at THE END. gMain.callback2 must say overworld too.
+        """
         from dialogue_drive import box_open
         for _ in range(max_frames):
-            if not st.in_battle(self.b) and not box_open(self.b):
+            try:
+                ow = ram.battle_cb2_dead(self.b)
+            except Exception:
+                ow = True
+            if ow and not st.in_battle(self.b) and not box_open(self.b):
                 return True
             self.b.run_frame(); self.render()
         log("   [roam] !! _wait_overworld TIMEOUT — proceeding (state may be mid-transition)")
@@ -18699,6 +18870,22 @@ class Campaign:
         plevel = state["party"][0]["level"] if state.get("party") else None
         if pick.startswith("travel:"):
             return self._travel_to_known(pick, state)
+        # CHAMPION ENCORE DRIVER (2026-08-17): the post-game twin of the head_to_gym questline
+        # hijack below. _available_actions only offers 'hunt_mewtwo' while the ACTIVE questline is
+        # the Mewtwo gate, so this is a straight hand-off to the same executor everything else uses
+        # — _run_questline_step -> (off-anchor) anchor-first travel to Cerulean (3,3) -> (on-anchor)
+        # _questline_strike -> legendary_strikes.run_mewtwo -> press_quarry -> battle_runner ->
+        # battle_agent's legendary divert, which is where allow_master lets the Master Ball fly at
+        # species 150 and only species 150. No new routing and no new catch logic: this is purely
+        # the dispatch edge that was missing. GO-HARD / road-blocker reasoning does not apply
+        # post-game (there is no gym march left to protect), so this stays deliberately simpler
+        # than the head_to_gym branch.
+        if pick == "hunt_mewtwo":
+            if QUESTLINE_ENABLED and self._active_questline is not None:
+                return self._run_questline_step(state)
+            log("   [roam] hunt_mewtwo picked but no questline is live — the encore re-arms next "
+                "tick (_ensure_forward_questline owns the post-game slot)")
+            return "no_questline"
         if pick == "head_to_gym":
             # GATE-UNLOCK: if a story/HM gate is walling the way forward, advancing the quest MEANS doing
             # the unlock errand — so while a questline is active, head_to_gym drives THAT (e.g. north to
@@ -19582,19 +19769,40 @@ class Campaign:
         except Exception as _ws:
             log(f"   [world] seed/caps skipped: {_ws}")
         self._boot_state_sanity()                  # PART C: scream NOW if the loaded save is suspect
-        # BOOT MENU-CLOSE (2026-08-08 LIVE, the Summary stare): a save banked mid-menu
-        # (party SUMMARY / bag) leaves CB2 off-overworld and every travel/lap actuator
-        # mashes a dead screen. B-cascade to the overworld before anything else runs.
+        # Snapshot Champion-ness BEFORE any B-mash / SoftReset zeros the saveblocks
+        # (title screen reads badges=0 party=0 — that's not a fresh run).
+        self._boot_was_champion = False
         try:
-            if not ram.battle_cb2_dead(self.b) and not st.in_battle(self.b):
+            self._boot_was_champion = (
+                sum(1 for i in range(8) if self.has_badge(0x820 + i)) >= 8
+                or bool(self.has_badge(0x82C))
+                or tuple(tv.map_id(self.b) or ()) in self._HALL_MAPS
+                or self._disk_says_champion())
+        except Exception:
+            self._boot_was_champion = self._disk_says_champion()
+        # CREDITS / THE END (2026-08-17): Pallet RAM during THE END. B-cascade SoftResets
+        # to title; empty flash means CONTINUE is NEW GAME. Drain loads Champion-room
+        # overworld instead of mashing A on the title screen.
+        try:
+            if self._credits_screen_stuck():
+                log("   [roam] !! BOOT CREDITS DRAIN: Champion save is on HoF/THE END/title "
+                    "— Champion-room overworld fallback, NEVER title-mash (LOUD)")
+                from e4_strike import drain_credits_to_champion as _drain_credits
+                _cr = _drain_credits(self, log)
+                log(f"   [roam] credits drain -> {_cr} @ {tv.map_id(self.b)}{tv.coords(self.b)}")
+            elif not ram.battle_cb2_dead(self.b) and not st.in_battle(self.b):
+                # BOOT MENU-CLOSE (2026-08-08 LIVE, the Summary stare): a save banked mid-menu
+                # (party SUMMARY / bag) leaves CB2 off-overworld. B-cascade to the overworld.
                 log("   [roam] !! BOOT MENU-CLOSE: screen is off-overworld (menu save) — "
                     "B-cascading out before the first action (LOUD)")
                 import hm_teach as _htbc
                 _f = _htbc.TeachFlow(self, log=log, on_event=self.on_event)
                 _f._b_cascade(12)
                 _f._confirm_world_back("boot-menu-close")
+            self._ensure_champion_game_clear()
+            self._pallet_postgame_unstick({})
         except Exception as _bmc:
-            log(f"   [roam] boot menu-close skipped: {_bmc}")
+            log(f"   [roam] boot menu-close/credits-drain skipped: {_bmc}")
         # LEGENDARY REWIND (2026-08-05 EMERGENCY): a battled-away-but-uncaught quarry with a
         # 'pre-<key>' bank resumes INTO the encounter — before the anchor below banks, before
         # any lap/questline machinery can read the fought flag as 'done' and wander off.
@@ -20043,6 +20251,10 @@ class Campaign:
                 self._sweep_stray_menus()
             except Exception as _sme:
                 log(f"   [roam] stray-menu sweep skipped: {_sme}")
+            try:
+                self._pallet_postgame_unstick(state)
+            except Exception as _pu:
+                log(f"   [roam] pallet unstick skipped: {_pu}")
             # PHASE 7 cockpit: stamp the time a badge lands, then publish the health snapshot this tick.
             if state.get("badge_count", 0) > _prev_badges:
                 last_badge_ts = time.time()
@@ -20551,8 +20763,25 @@ class Campaign:
                             f"a cheap fix on the menu; back on the gym road next tick")
                 except Exception as _tbx:
                     log(f"   [roam] team-build breather skipped: {_tbx}")
+            # FORCE MEWTWO (2026-08-17): the encore is not a taste question either — same doctrine
+            # as FORCE VICTORY LAP / FORCE ENDGAME below. _ensure_forward_questline has already
+            # EVICTED every rival errand post-game ("the ONE errand is Cerulean Cave"), so if
+            # 'hunt_mewtwo' is on the menu it IS the only road and the oracle is SKIPPED. Without a
+            # force the offer competes with travel:*/talk_npc/greet every tick and the hunt can be
+            # dithered away forever — exactly the failure the encore blocks were written to stop.
+            # Heal still outranks: Cerulean Cave is a combat dungeon and nobody starts one hurt —
+            # the hunt re-forces next tick at full HP (same yield as the lap leg and the strike).
+            if _forced_pick is None and "hunt_mewtwo" in avail:
+                if "heal" in avail and self.needs_heal():
+                    _forced_pick = "heal"
+                    log("   [roam] !! heal BEFORE the Mewtwo descent — Cerulean Cave is a combat "
+                        "dungeon; the encore re-forces at full HP")
+                else:
+                    _forced_pick = "hunt_mewtwo"
+                    log("   [roam] !! FORCE MEWTWO PICK: hunt_mewtwo — oracle SKIPPED (the "
+                        "Champion encore owns the post-game slot)")
             if (_forced_pick is None and getattr(self, "_force_gym_pick", False)
-                    and "head_to_gym" in avail):
+                    and "head_to_gym" in avail and not state.get("post_game")):
                 _forced_pick = "head_to_gym"
                 self._force_gym_pick = False
                 log("   [roam] !! FORCE GYM PICK: head_to_gym — oracle SKIPPED "
@@ -20577,7 +20806,8 @@ class Campaign:
             # articuno leads so it soaks up the XP" — and confabulated Flash/Rock-Tunnel goals).
             # Heal still outranks: nobody starts Victory Road hurt — the strike re-forces next
             # tick at full HP (same doctrine as the lap leg above).
-            if _forced_pick is None and ("head_to_league" in avail or "enter_league" in avail):
+            if (_forced_pick is None and ("head_to_league" in avail or "enter_league" in avail)
+                    and not state.get("post_game")):
                 _eg_pick = "enter_league" if "enter_league" in avail else "head_to_league"
                 _on_league = False
                 try:
@@ -20732,6 +20962,55 @@ class Campaign:
                 except Exception:
                     pass
                 return "all_segments_complete"
+            # ── THE ENCORE'S ENDING (2026-08-17): MEWTWO CAUGHT = the show is over ────────────────
+            # The credits ending above can never fire on a post-credits RESUME (out=='credits' comes
+            # from e4_strike, which is done), so the marathon had NO terminal state at all once the
+            # encore was wired: legendary_strikes seals 'caught-mewtwo', walks her out of the cave,
+            # the questline self-clears, _mewtwo_gate then returns None ('caught') — and she roams
+            # the post-game forever on a collapsing menu while the supervisor faithfully relaunches
+            # her. pokedex_owns(150) is the same 'caught' truth _hunt_ready uses at the gate: a
+            # hide/fought flag is a FIGHT, not a catch, so this fires only on a ball that actually
+            # landed. Checked every post-game tick rather than keyed to one `out` string, because
+            # the catch can land on a tick whose outcome is the cave walk-out, not the strike.
+            # Returns the ONE outcome play_live maps to exit 0 == GENUINE COMPLETION, so the
+            # supervisor lets the show END instead of relaunching with --resume.
+            if state.get("post_game"):
+                try:
+                    _m2_caught = ram.pokedex_owns(self.b, 150) is True
+                except Exception:
+                    _m2_caught = False
+                if _m2_caught:
+                    log("   [roam] ***** MEWTWO CAUGHT — THE ENCORE IS COMPLETE. Pallet Town to "
+                        "the Hall of Fame to the bottom of Cerulean Cave, autonomously. Ending "
+                        "the show (exit 0, no relaunch). *****")
+                    try:
+                        self.on_event(
+                            "Mewtwo. The strongest Pokemon in existence, at the bottom of "
+                            "Cerulean Cave — and the Master Ball I'd been saving since Silph Co. "
+                            "landed it. The victory lap is finished. There is nothing left to "
+                            "prove.", kind="milestone", tier=3)
+                    except Exception:
+                        pass
+                    try:
+                        self._save_campaign("mewtwo-caught")
+                    except Exception:
+                        pass
+                    return "all_segments_complete"
+                # ENCORE GATED (2026-08-17): the strike proved Cerulean Cave unreachable on this
+                # build, so the questline is latched off and there is NO post-credits errand
+                # left. Roaming on would be the empty-menu 'regroup' floor forever with the
+                # supervisor dutifully relaunching her. The credits already happened — end the
+                # show honestly instead of pacing Cerulean until someone notices.
+                if ("flag", "FLAG_FOUGHT_MEWTWO") in getattr(self, "_strike_gated", ()):
+                    log("   [roam] ***** POST-GAME COMPLETE (encore GATED) — Cerulean Cave is "
+                        "not reachable on this build (the Route 4 / Route 24 seam approach is "
+                        "unbuilt), so no errand remains after the credits. Ending the show "
+                        "(exit 0, no relaunch) rather than roaming an empty post-game. *****")
+                    try:
+                        self._save_campaign("postgame-gated")
+                    except Exception:
+                        pass
+                    return "all_segments_complete"
             ledger.note_action(pick, out)              # remember for next tick's progress check + feedback
             # PROBLEM 3 — SILENT-NO-MOVE GUARD: a movement pick that returned WITHOUT moving her and
             # WITHOUT arriving is silently failing (the live "head_to_gym isn't moving me" loop). Drop the
@@ -21181,6 +21460,65 @@ class Campaign:
         except Exception:
             return False
 
+    def _disk_says_champion(self):
+        """health.json / champion_lock from the last clean publish — used when title-screen RAM has zeros."""
+        try:
+            import json as _json
+            lock = os.path.join(STATES_CAMPAIGN, "champion_lock.json")
+            if os.path.exists(lock):
+                return True
+            h = os.path.join(STATES_CAMPAIGN, "health.json")
+            with open(h, encoding="utf-8") as f:
+                j = _json.load(f)
+            return int(j.get("badge_count") or 0) >= 8
+        except Exception:
+            return False
+
+    def _ensure_champion_game_clear(self):
+        """Champion-room fallback skipped HoF flash-save. Cave guard needs 0x82C."""
+        try:
+            import field_moves as _fm
+            badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
+            if badges < 8 or _fm.read_flag(self.b, 0x82C):
+                return
+            _fm.set_flag(self.b, 0x82C)
+            if not _fm.read_flag(self.b, 0x82C):
+                sb1 = self.b.rd32(ram.GSAVEBLOCK1_PTR)
+                addr = sb1 + 0x0EE0 + (0x82C >> 3)
+                from e4_strike import _raw_u8_or as _or8
+                _or8(self.b, addr, 1 << (0x82C & 7))
+            log(f"   [roam] FLAG_SYS_GAME_CLEAR armed (Cerulean Cave) "
+                f"-> {_fm.read_flag(self.b, 0x82C)} (LOUD)")
+        except Exception as e:
+            log(f"   [roam] game_clear arm skipped ({e})")
+
+    def _credits_screen_stuck(self):
+        """Champion save parked on HoF / rolling credits / THE END / title.
+
+        Live 2026-08-17: RAM still says Pallet Town during THE END, so roam + travel
+        wedge on (8,6) while the window shows THE END. Off-overworld + Champion is
+        the signal; title-screen zeros fall back to the boot snapshot / disk health.
+        """
+        try:
+            if self._world_lost():
+                return bool(getattr(self, "_boot_was_champion", False)
+                            or self._disk_says_champion())
+            from e4_strike import _ceremony_desync
+            if _ceremony_desync(self.b):
+                return True
+            if ram.battle_cb2_dead(self.b):
+                return False
+            if st.in_battle(self.b):
+                return False
+            badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
+            if badges >= 8 or bool(self.has_badge(0x82C)):
+                return True
+            if tuple(tv.map_id(self.b) or ()) in self._HALL_MAPS:
+                return True
+        except Exception:
+            return False
+        return False
+
     def _impossible_stand(self):
         """The PARTIAL-void signature (night shift 10): she 'stands' on a non-walkable tile
         with ZERO walkable/surfable neighbours — a door mat has an open front; no legit stand
@@ -21198,10 +21536,25 @@ class Campaign:
             return False
 
     def _void_recover(self):
-        """The world is GONE (title screen mid-run). Reload the newest REAL state we hold:
-        the in-memory last-good snapshot first, else the on-disk campaign anchor. Each candidate is
-        re-probed after load — a poisoned candidate (the summit banked the title screen!) is skipped
-        LOUD, never trusted. Returns True on a verified-real world."""
+        """The world is GONE (title screen mid-run). Empty flash means CONTINUE is NEW
+        GAME (live 2026-08-17). Drain loads the Champion-room overworld bank instead of
+        mashing the title screen. Returns True on a verified-real world."""
+        if self._credits_screen_stuck() or (
+                self._world_lost() and (getattr(self, "_boot_was_champion", False)
+                                        or self._disk_says_champion())):
+            try:
+                from e4_strike import drain_credits_to_champion as _drain_credits
+                log("   [roam] !! VOID-CORE is post-credits title — Champion-room overworld "
+                    "(NOT title CONTINUE / NEW GAME)")
+                if _drain_credits(self, log) == "ok" and ram.battle_cb2_dead(self.b):
+                    self._ensure_champion_game_clear()
+                    self._pallet_postgame_unstick({})
+                    log(f"   [roam] !!!! VOID-CORE RECOVERED: world restored at "
+                        f"{tv.map_id(self.b)}@{tv.coords(self.b)} "
+                        f"party={self.b.rd8(ram.GPLAYER_PARTY_CNT)} (LOUD)")
+                    return True
+            except Exception as e:
+                log(f"   [roam] !! VOID-CORE Champion-room fallback failed ({e}) — trying savestate reload")
         candidates = []
         if getattr(self, "_last_good_state", None):
             candidates.append(("last-good snapshot", lambda: self._last_good_state))
@@ -21212,13 +21565,13 @@ class Campaign:
             try:
                 self.b.load_state(get())
                 self._wait_overworld()
-                if not self._world_lost():
+                if not self._world_lost() and ram.battle_cb2_dead(self.b):
                     log(f"   [roam] !!!! VOID-CORE RECOVERED via {label}: world restored at "
                         f"{tv.map_id(self.b)}@{tv.coords(self.b)} "
                         f"party={self.b.rd8(ram.GPLAYER_PARTY_CNT)} (LOUD)")
                     return True
-                log(f"   [roam] !! VOID-CORE: {label} is ITSELF a dead world (poisoned bank) — "
-                    f"skipping it (LOUD)")
+                log(f"   [roam] !! VOID-CORE: {label} is ITSELF a dead/credits world "
+                    f"(poisoned bank) — skipping it (LOUD)")
             except Exception as e:
                 log(f"   [roam] !! VOID-CORE: reload via {label} failed ({e}) — trying next")
         return False
@@ -21237,12 +21590,34 @@ class Campaign:
             log(f"   !! CAMPAIGN SAVE REFUSED [{reason}]: the live world reads DEAD (title-screen "
                 f"signature — map (0,0), party 0). NOT poisoning the anchor (LOUD)")
             return False
+        try:
+            if not ram.battle_cb2_dead(self.b):
+                log(f"   !! CAMPAIGN SAVE REFUSED [{reason}]: CB2 not overworld "
+                    f"(credits/THE END/menu) — not banking a grenade (LOUD)")
+                return False
+        except Exception:
+            pass
         # MID-BATTLE GUARD (2026-08-02): denser cave CKPTs + heartbeat saves must NEVER bank a
         # fight-in-progress — escape-hatch / resume then rewind into the last seconds of the fight.
         try:
             if st.in_battle(self.b):
                 log(f"   !! CAMPAIGN SAVE REFUSED [{reason}]: mid-battle — not banking a fight "
                     f"rewind target (LOUD)")
+                return False
+        except Exception:
+            pass
+        # NEW-GAME POISON GUARD (2026-08-17 live): empty-flash CONTINUE started a fresh
+        # game. Never bank party-0 or a badge regression over the Champion file.
+        try:
+            live_party = self.b.rd8(ram.GPLAYER_PARTY_CNT)
+            live_badges = sum(1 for i in range(8) if self.has_badge(0x820 + i))
+            if live_party < 1:
+                log(f"   !! CAMPAIGN SAVE REFUSED [{reason}]: party 0 — not banking a "
+                    f"NEW GAME over the Champion file (LOUD)")
+                return False
+            if os.path.exists(os.path.join(STATES_CAMPAIGN, "champion_lock.json")) and live_badges < 8:
+                log(f"   !! CAMPAIGN SAVE REFUSED [{reason}]: live badges={live_badges} "
+                    f"but champion_lock is set — not banking a fresh game (LOUD)")
                 return False
         except Exception:
             pass
@@ -21304,6 +21679,13 @@ class Campaign:
             log("   !! AUTO-CKPT REFUSED: campaign root resolves onto the sacred states/kira/ spine — "
                 "the dev checkpoint history must NEVER touch the livestream timeline (LOUD).")
             return False
+        try:
+            if not ram.battle_cb2_dead(self.b):
+                log(f"   !! AUTO-CKPT REFUSED [{reason}]: CB2 not overworld "
+                    f"(credits/THE END) — not labeling a grenade (LOUD)")
+                return False
+        except Exception:
+            pass
         # the exact bundle a --resume free-roam / watch.py sandbox needs. soul lives as pokemon_soul.json
         # canonically but the bundle filename is soul.json (watch.py remaps it back on spawn).
         bundle = [(CAMPAIGN_SAVE, CAMPAIGN_SAVE), ("world_model.json", "world_model.json"),
@@ -22118,6 +22500,23 @@ class Campaign:
             _hdir = STATES_KIRA if getattr(self, "show_mode", False) else STATES_CAMPAIGN
             _hpath = os.path.join(_hdir, "health.json")
             os.makedirs(_hdir, exist_ok=True)
+            live_bc = int(health.get("badge_count") or 0)
+            live_pc = int(health.get("party_count") or 0)
+            if live_bc < 8 or live_pc < 1:
+                if os.path.exists(os.path.join(STATES_CAMPAIGN, "champion_lock.json")):
+                    log("   [health] publish skipped: champion_lock set, live is not Champion "
+                        f"(badges={live_bc} party={live_pc}) — not poisoning the HUD (LOUD)")
+                    return
+                if os.path.exists(_hpath):
+                    try:
+                        with open(_hpath, encoding="utf-8") as _hf:
+                            _old = _json.load(_hf)
+                        if int(_old.get("badge_count") or 0) >= 8 and live_bc < 8:
+                            log("   [health] publish skipped: refusing 0-badge overwrite of "
+                                "Champion health.json (LOUD)")
+                            return
+                    except Exception:
+                        pass
             tmp = _hpath + ".tmp"
             with open(tmp, "w", encoding="utf-8") as f:
                 _json.dump(health, f)
@@ -23501,6 +23900,13 @@ class Campaign:
                 if not self._warp_hop_reachable(wt):
                     log(f"   EXIT: door {wt} walk-unreachable from {tv.coords(self.b)} — "
                         f"skipped (sealed pocket)")
+                    continue
+                # HALL OF FAME is not an exit (live 2026-08-17): Champion's Room north
+                # warp (6,2)->(1,80) is Oak's escort into credits. leave_building must
+                # take the SOUTH door to Lance (1,78), never HoF.
+                if _dwt == (1, 80):
+                    log(f"   EXIT: door {wt} -> Hall of Fame — skipped (credits loop)")
+                    taken.add((before, wt))
                     continue
                 taken.add((before, wt))
                 # a directional/escalator tile has a REQUIRED entry side + a delayed fire — the

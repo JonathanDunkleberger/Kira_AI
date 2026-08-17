@@ -306,6 +306,24 @@ def main():
         campaign's own A-drain lands it (this is what froze the badge moment ~100s before)."""
         if args.no_pace or _holding[0]:
             return
+        # MENU TRANSACTION GUARD (2026-08-15 — the seven-day "she cannot revive in E4" wall).
+        # This hold STEALS THE CONTROLLER: it calls b.release(owner="agent") and then presses A
+        # to advance a page. That is correct for an overworld text box and catastrophic inside a
+        # MENU STACK, where an A confirms whatever the cursor sits on and a B cancels the item
+        # target screen back to the bag list. The battle agent drives the bag/party screens from
+        # `_wait()`, which calls render() every frame -> dialogue.poll() -> here, so this fired
+        # RE-ENTRANTLY inside its navigation. Both prompts the item path always produces
+        # ("REVIVE is selected." / "Use on which POKeMON?") score T2, so the theft happened on
+        # every revive: the stolen A confirmed the LIVING lead, the game answered "It won't have
+        # any effect.", and the Revive was never consumed. Receipts: the headless oracle (no
+        # voice reader, so no hold) revives 24/24 on the same savestate, while live logged
+        # hundreds of misses; battle MOVES were never hurt because the move menu re-verifies with
+        # STREAM COMMIT and retries. She still SPEAKS the line (poll already fired the voice) —
+        # only the frame-holding page-advance yields. Same doctrine as the draining_award guard.
+        if getattr(b, "_menu_txn", False):
+            print("   [play-live] dialogue-hold: menu transaction in flight — yielding the "
+                  "controller to the battle agent (never A/B inside a menu stack)", flush=True)
+            return
         # CLIMAX guard: never reading-pace the badge/TM award cutscene — yield to the scripted drain.
         try:
             buf_now = dialogue._read_buffer() or ""

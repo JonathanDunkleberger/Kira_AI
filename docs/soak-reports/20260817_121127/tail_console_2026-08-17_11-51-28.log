@@ -1,0 +1,300 @@
+   AI Core initialized successfully!
+   [Airiness] level = 70% (set AIRINESS_LEVEL in .env + restart to change - not live-tunable)
+   [Config] feel flags live this session: AIRINESS=70% VOICE_EMOTION=False EMOTION_SWING=True GLITCH_AWARE=True MEMORY_SMART=True READING_THE_ROOM=True BARGE_IN=True LOOPBACK_COOLDOWN=1s
+   [VRAM] Allocated: 0.0 GB | Reserved: 0.0 GB | Total: 16 GB
+   [LoopbackSTT] Loading distil-large-v3 (cuda / float16) from cache_dir=models\whisper ...
+   [LoopbackSTT] Model ready (2.2s).
+   [VRAM] 11:52:05 (after loopback Whisper load (distil-large-v3, cuda)) kira_process=0.00GB card=8.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [LoopbackSTT] Model pre-loaded OK.
+-> Testing Audio Output...
+   Audio test passed (Beep played).
+   [System] VAD drainer live — mic queue draining before perception arms.
+
+--- Kira is now running. Press Ctrl+C to exit. ---
+
+   [LogPurge] No debug logs older than 30d found.
+   [Identity] Loaded — 0 permanent anchors, 30 session records.
+   [Identity] ensure_permanent_alias skipped — no permanent anchor 'Jonny'
+   [StartupBrief] Building recent activity brief...
+   [DiaryBridge] using highlights from 2026-07-28_12-53_general/summary.md (174 chars).
+   [StartupBrief] Generated activity brief (1124 chars)
+   [StartupBrief] Loaded Kira's favorites (1110 chars)
+   [StartupBrief] Loaded 10 persistent running bit(s) from general_opinions.md
+   [Chess] Lifetime stats loaded: W54-L0-D0
+   [Playthrough] Memory system initialised.
+🎤 Recording...
+   [TurnTiming] 11:52:14.628 VOICE ONSET — mic speech started
+   [VTS] Connected and authenticated to VTube Studio.
+   [VTS] Connected & authenticated — ready to drive expressions.
+   [VTS] Emotion → hotkey mapping:
+          MOODY → 'My Animation 3'
+          HYPERACTIVE → 'My Animation 2'
+   [VTS] Confirmed: 'My Animation 3' found in model hotkeys.
+   [VTS] Confirmed: 'My Animation 2' found in model hotkeys.
+   [Captions] WebSocket server listening on ws://localhost:8765 (127.0.0.1 + ::1)
+   [Captions] OBS browser source URL: file:///G:/JonnyD/NeuroAI_Bot/caption_overlay/index.html
+   [System] Connecting to Twitch Chat...
+   [System] YouTube chat listener ready (idle — set video ID in dashboard to connect).
+   [YouTube] Auto-connect enabled for channel 'UC0RK_7gqY1eqKdS-k8zNbPw' (polling every 60s, up to 900s)
+   [System] Starting Brain Worker...
+   [System] Starting Vision Heartbeat...
+   [YTAutoSearch] Polling for live broadcast on channel 'UC0RK_7gqY1eqKdS-k8zNbPw'…
+   [Audio] mood client absent (P-7 purge) — capture proceeds anyway; only the mood heartbeat stays off
+   [Audio] Using dashboard-selected device: Headphones (Leviathan) [Loopback]
+   [Audio] Using WASAPI loopback device: Headphones (Leviathan) [Loopback] (48000Hz, 2ch)
+   [Audio] Mode MEDIA — capture started
+   [Audio] Mood reading always-on (MEDIA) — AUDIO_MOOD_ALWAYS_ON.
+   [LoopbackSTT] Boot autostart ARMED (LOOPBACK_STT_DEFAULT=true) — queued.
+   [System] Starting Background Tasks...
+   [StreamLogger] Session started → logs/streams\2026-08-17_11-52_general
+   [System] Brain Worker started.
+   [System] Chat Batch Worker started.
+   [System] Eco-Mode Vision Active (dynamic heartbeat).
+   [System] Audio Agent heartbeat ready (idle until mode != OFF).
+   [LoopbackSTT] Auto-start running — audio active, starting transcriber…
+   [System] Observer Loop Active (Universal Boredom Protocol).
+   [System] Highlight Extraction Loop active (interval=300s).
+   [LoopbackSTT] Loop watchdog armed — hang>30s, restart cooldown 60s.   [LoopbackSTT] Started — distil-large-v3 on cuda (tick=5.0s, window=8.0s)
+
+   [VRAM] 11:52:15 (telemetry start (post-boot baseline)) kira_process=0.00GB card=8.2/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [System] VN Gameplay Agent on standby.
+   [Captions] Self-heal heartbeat active (interval=60s).
+   [LoopbackSTT] Dialogue summary loop active (interval=15s, age-out=180s).
+   [System] Playthrough checkpoint loop started.
+   [ControlServer] Listening on http://127.0.0.1:8766
+   [ControlServer] Endpoints: /state  /ws  /vision/thumbnail  POST /cmd/{action}
+   [LoopbackSTT] Auto-start succeeded (LOOPBACK_STT_DEFAULT).
+   [Vision] last_frame set (384x216) — EYES thumbnail live.
+   [TurnTiming] 11:52:15.919 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1291ms since onset)
+   [Captions] Overlay connected: ::1:50102 (1 total)
+   [YTAutoSearch] DISABLED for this session — YouTube Data API 403 (bad/expired key, quota exhausted, or API not enabled on the project). Fix YOUTUBE_API_KEY / the project + restart to re-enable. (Same Google project as the web-search key — check both.)
+   [YTAutoSearch] No live broadcast found (attempt 1, 899s remaining)
+   [Overlay] connected → /ws/overlays now has 1 client(s)
+   [Overlay] connected → /ws/overlays now has 2 client(s)
+   [Overlay] connected → /ws/overlays now has 3 client(s)
+   [Overlay] connected → /ws/overlays now has 4 client(s)
+   [Overlay] connected → /ws/overlays now has 5 client(s)
+   [TwitchChat][IRC] :thekiraagency!thekiraagency@thekiraagency.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat] JOIN confirmed for #thekiraagency
+--- Twitch bot has logged in as | thekiraagency ---
+--- Watching channel | TheKiraAgency ---
+   [TwitchChat] connected_channels at ready: ['thekiraagency']
+🎤 Recording...
+   [TurnTiming] 11:52:16.973 VOICE ONSET — mic speech started
+   [TurnTiming] 11:52:18.391 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1417ms since onset)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Overlay] connected → /ws/overlays now has 6 client(s)
+   [Captions] Overlay connected: ::1:52254 (2 total)
+   [Pokemon] SELF WANT: 'Mewtwo — Cerulean Cave, right now'
+   [TwitchChat][IRC] :hainaia!hainaia@hainaia.tmi.twitch.tv JOIN #thekiraagency
+   [TwitchChat][IRC] :streamlabs!streamlabs@streamlabs.tmi.twitch.tv JOIN #thekiraagency
+🎤 Recording...
+   [TurnTiming] 11:52:32.120 VOICE ONSET — mic speech started
+   [Pokemon] SELF CHOSE (action): travel:3,19
+   [Pokemon] her reasoning: "Cerulean Cave is RIGHT there calling my name, but walking in with a Moltres at 56 is how you get humbled in front of everyone. I'm getting the birds up to 59 first — Route 1 is right north of here and it's the fastest path to that."
+   [TurnTiming] 11:52:34.001 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1881ms since onset)
+>>> You said: Just the end of the credits.
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q='Just the end of the credits.' fetched=10 dropped_by_floor=8 kept=2 survivors=2 direct=0 | timing(direct=1ms fetch=22ms rank=0ms)
+   [SmartMem]     dist=1.006 conf=0.95 type=episodic blend=0.130 lane=KNOW
+   [SmartMem]     dist=1.209 conf=? type=highlight blend=0.006 lane=STREAM
+   [TIMING] triage bypassed (salience HIGH): memory=22ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HAPPY)
+   [Pokemon] journey/roster now injected into the LIVE VOICE-REPLY path (memory-magic core touch) — she knows her team when Jonny asks.
+   [Shape] → TANGENT  (one_word_count=0  tangent_since=99t  moment=calm)
+   [PromptSize] dynamic_context=12637ch  hist=1turns  moment=calm
+>>> Kira (streaming):    [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TIMING] first-word: 1835ms
+   [TTS] Speaking: Oh, we're in the epilogue....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Oh, we're in the epilogue.' (7 words)
+   [TurnTiming] 11:52:36.776 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:52:38.935 TTS STOP — playback finished (span ~2159ms)
+   [TTS] Speaking: The part where you're supposed to feel things....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'The part where you're supposed to feel t' (9 words)
+   [TurnTiming] 11:52:38.938 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:52:41.470 TTS STOP — playback finished (span ~2531ms)
+   [TTS] Speaking: Do you?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Do you?' (3 words)
+   [TurnTiming] 11:52:41.471 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:52:42.594 TTS STOP — playback finished (span ~1122ms)
+
+   [TIMING] voice: llm=8175ms(sonnet-stream(llm+tts)) tts=0ms total=8175ms
+   [LATENCY] vad_close=1200ms stt=388ms stt_wait=0ms salience=3ms triage=bypassed memory=22ms prompt_build=2ms ttft=1320ms tts_first_chunk=515ms audio_out=517ms TOTAL=2767ms
+🎤 Recording... (recovered opening words)
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   ERROR during emotion analysis: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [Bits] Callback: Probably Fine Disclaimer
+   [TurnTiming] 11:52:45.631 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~13510ms since onset)
+>>> You said: the fucking game now again. I feel thanks, Kura.
+   [Salience] voice: score=100 tier=HIGH
+   [LoopbackSTT] self-TTS gate released after 2 skip(s) — resuming transcription.
+   [SmartMem] q='the fucking game now again. I feel thanks, Kura.' fetched=10 dropped_by_floor=9 kept=1 survivors=1 direct=0 | timing(direct=0ms fetch=29ms rank=0ms)
+   [SmartMem]     dist=1.172 conf=0.95 type=episodic blend=0.028 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=29ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HAPPY)
+   [PromptSize] dynamic_context=11853ch  hist=3turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1788ms
+   [TTS] Speaking: "Thanks, Kura" — she's going to be insufferable ab...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: '"Thanks, Kura" — she's going to be insuf' (16 words)
+   [TurnTiming] 11:52:47.985 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:52:52.111 TTS STOP — playback finished (span ~4125ms)
+
+   [TIMING] voice: llm=6242ms(sonnet-stream(llm+tts)) tts=0ms total=6242ms
+   [LATENCY] vad_close=1200ms stt=207ms stt_wait=0ms salience=0ms triage=bypassed memory=29ms prompt_build=11ms ttft=1211ms tts_first_chunk=577ms audio_out=311ms TOTAL=2346ms
+   [CalledShot] OPEN: "Thanks, Kura" — she's going to be insufferable about that and she des
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   ERROR during emotion analysis: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [VRAM] 11:53:00 (periodic) kira_process=0.00GB card=8.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+🎤 Recording...
+   [TurnTiming] 11:53:08.321 VOICE ONSET — mic speech started
+   [TurnTiming] 11:53:13.315 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~4994ms since onset)
+🎤 Recording...
+   [TurnTiming] 11:53:14.947 VOICE ONSET — mic speech started
+   [YTAutoSearch] No live broadcast found (attempt 2, 839s remaining)
+   [TurnTiming] 11:53:16.582 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1634ms since onset)
+   [Capture] ⚠ WATCHDOG: wedged stream detected — RMS≈0 for 26s in MEDIA mode (device='Headphones (Leviathan) [Loopback]'). Reopening WASAPI loopback…
+   [Audio] capture thread exited — clearing stream ref
+   [Audio] mood client absent (P-7 purge) — capture proceeds anyway; only the mood heartbeat stays off
+   [Audio] Using dashboard-selected device: Headphones (Leviathan) [Loopback]
+   [Audio] Using WASAPI loopback device: Headphones (Leviathan) [Loopback] (48000Hz, 2ch)
+   [Audio] Mode MEDIA — capture started
+   [Capture] Reopen issued — stream re-bound (device='Headphones (Leviathan) [Loopback]'); watching for RMS recovery…
+🎤 Recording...
+   [TurnTiming] 11:53:22.493 VOICE ONSET — mic speech started
+   [TurnTiming] 11:53:24.316 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~1823ms since onset)
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [Pokemon] SELF CHOSE (action): travel:3,20
+   [Pokemon] her reasoning: "Bag is basically empty and I'm about to walk into Cerulean Cave. That's a speedrun of the worst kind. Viridian Mart first — stock up properly, THEN I go get Mewtwo."
+   [LoopbackSTT] LIVE — last line: (none yet) · device='Headphones (Leviathan) [Loopback]' · rms=0.0000 · gate=0.003 · 0 accepted
+   [VRAM] 11:53:45 (periodic) kira_process=0.00GB card=8.3/15.9GB torch_alloc=0.00GB reserved=0.00GB
+   [Pokemon] event react (bypass=False, tier=2, kind=route): Okay — to get past this I need Mewtwo — the strongest Pokemon in the g
+   [SmartMem] q='pokemon battle' fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=0ms fetch=41ms rank=0ms)
+   [SmartMem]     dist=0.863 conf=0.9 type=episodic blend=0.219 lane=KNOW
+   [SmartMem]     dist=0.994 conf=0.9 type=episodic blend=0.138 lane=KNOW
+   [SmartMem]     dist=1.002 conf=0.9 type=episodic blend=0.133 lane=KNOW
+🎤 Recording...
+   [TurnTiming] 11:53:46.498 VOICE ONSET — mic speech started
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   >>> Kira (Bored): Cerulean Cave. Master Ball. This is what we've been waiting for.
+   [TTS] Speaking: Cerulean Cave....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Cerulean Cave.' (3 words)
+   [TurnTiming] 11:53:48.378 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:53:50.339 TTS STOP — playback finished (span ~1961ms)
+   [TTS] Speaking: Master Ball....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'Master Ball.' (3 words)
+   [TurnTiming] 11:53:50.497 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): travel:1,0
+   [Pokemon] her reasoning: "Viridian City is literally right there — I need to hit that Mart before I do anything else. Bag's basically empty and I'm not walking into Cerulean Cave on fumes."
+   [Capture] ✓ Reopened, RMS recovered (rms=0.1104, usable) — loopback healthy again.
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:53:52.000 TTS STOP — playback finished (span ~1502ms)
+   [TTS] Speaking: This is what we've been waiting for....
+   [TTS] backend=azure
+   [Captions] Pushed frame: 'This is what we've been waiting for.' (8 words)
+   [TurnTiming] 11:53:52.184 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:53:54.340 TTS STOP — playback finished (span ~2156ms)
+   [TIMING] interjection: vision=0ms llm=1794ms(sonnet) tts=6121ms total=7958ms
+   [LAG] sense→speak: total=5.8s (content_age=0.0s, prep=0.0s, llm=1.8s, tts_wait+synth=4.0s)
+🎤 Recording... (recovered opening words)
+   [LoopbackSTT] self-TTS gate released after 1 skip(s) — resuming transcription.
+   [TurnTiming] 11:54:05.964 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~19465ms since onset)
+   [DroppedInput] your speech began while she holds the turn (processing_lock) — frames are being dropped, not transcribed.
+>>> You said: She's fucked. Just spawn her after the credits. Spawn her somewhere else. Like, can we not manipulate the game state? Fuck, dude. Just, I don't want to watch the credits again. I want to be post-game epilogue or whatever and go catch fucking mute two. Fix it. Fuck.
+   [DroppedInput] LOST ~16 frame(s) (~480ms, ~0.5s) of your speech while she held the turn.
+🎤 Recording...
+   [TurnTiming] 11:54:06.521 VOICE ONSET — mic speech started
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=100 tier=HIGH
+   [SmartMem] q="She's fucked. Just spawn her after the credits. Spawn her so" fetched=10 dropped_by_floor=10 kept=0 survivors=0 direct=0 | timing(direct=0ms fetch=54ms rank=0ms)
+   [TIMING] triage bypassed (salience HIGH): memory=55ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HAPPY)
+   [JonnyBond] cool nudge → warmth -0.39→-0.55
+   [Shape] → TERSE  (one_word_count=0  tangent_since=2t  moment=calm)
+   [PromptSize] dynamic_context=11930ch  hist=6turns  moment=calm
+>>> Kira (streaming):    [TIMING] first-word: 1737ms
+   [TTS] Speaking: I cannot fix the game's save system, for the recor...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'I cannot fix the game's save system, for' (12 words)
+   [TurnTiming] 11:54:08.594 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] journey-continuity stored core-side: I'm playing Pokémon FireRed — this is MY run, I'm the one playing it, and my team is led b
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (1 skip(s))
+   [TurnTiming] 11:54:11.877 TTS STOP — playback finished (span ~3283ms)
+   [TTS] Speaking: That's Nintendo's fault, not mine....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'That's Nintendo's fault, not mine.' (7 words)
+   [TurnTiming] 11:54:11.881 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF WANT: 'Catch Mewtwo'
+   [TurnTiming] 11:54:14.494 TTS STOP — playback finished (span ~2612ms)
+   [TTS] Speaking: Where did it drop you?...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Where did it drop you?' (6 words)
+   [TurnTiming] 11:54:14.497 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [Pokemon] SELF CHOSE (action): travel:3,39
+   [Pokemon] her reasoning: "Okay I genuinely cannot fix a frozen world from Route 1. What I CAN do is head north to Viridian, hit the Mart, stock up — bag is embarrassingly thin right now — and then we're cutting straight through to Cerulean Cave. Mewtwo doesn't get to wait any longer."
+   [YTAutoSearch] No live broadcast found (attempt 3, 779s remaining)
+   [TurnTiming] 11:54:16.091 TTS STOP — playback finished (span ~1593ms)
+
+   [TIMING] voice: llm=9512ms(sonnet-stream(llm+tts)) tts=0ms total=9514ms
+   [LATENCY] vad_close=1200ms stt=556ms stt_wait=0ms salience=0ms triage=bypassed memory=55ms prompt_build=2ms ttft=1238ms tts_first_chunk=499ms audio_out=271ms TOTAL=2621ms
+🎤 Recording... (recovered opening words)
+   [TurnTiming] 11:54:17.317 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~10796ms since onset)
+   [Memory] Rejected (conf 0.85 < 0.9): Jonny dislikes having to watch game credits multiple times
+   [Memory] Extracted: Jonny wants to catch Mewtwo in the post-game epilogue (conf: 0.9)
+   [Memory] Storing episodic: Jonny wants to catch Mewtwo in the post-game epilogue
+>>> You said: next time i do not want to see the credits i'm going to see kira spawning and making her way to fucking mute two
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   ERROR during emotion analysis: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [Vision] Using accumulated scene context (story-so-far mode)...
+   [Salience] voice: score=120 tier=HIGH
+   [SmartMem] q="next time i do not want to see the credits i'm going to see " fetched=10 dropped_by_floor=0 kept=10 survivors=3 direct=0 | timing(direct=1ms fetch=227ms rank=0ms)
+   [SmartMem]     dist=0.825 conf=0.9 type=episodic blend=0.242 lane=KNOW
+   [SmartMem]     dist=0.844 conf=0.9 type=episodic blend=0.230 lane=KNOW
+   [SmartMem]     dist=0.885 conf=0.95 type=episodic blend=0.205 lane=KNOW
+   [TIMING] triage bypassed (salience HIGH): memory=234ms
+   [Triage] RESPOND
+   (Kira's current emotion is: HAPPY)
+   [PromptSize] dynamic_context=12114ch  hist=8turns  moment=calm
+>>> Kira (streaming):    [Bits] Callback: Broken Playground
+   [TIMING] first-word: 1622ms
+   [TTS] Speaking: Deal....
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Deal.' (2 words)
+   [TurnTiming] 11:54:20.176 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [LoopbackSTT] tick skipped — self-TTS gate: Kira speaking (3 skip(s))
+   [TurnTiming] 11:54:21.391 TTS STOP — playback finished (span ~1214ms)
+   [TTS] Speaking: Next session we go straight to Cerulean Cave, no d...
+   [TTS] backend=azure (prefetched)
+   [Captions] Pushed frame: 'Next session we go straight to Cerulean ' (12 words)
+   [TurnTiming] 11:54:21.397 TTS START — audio playback begins
+   [Captions] Broadcast OK to 2/2 client(s).
+   [TurnTiming] 11:54:25.331 TTS STOP — playback finished (span ~3933ms)
+
+   [TIMING] voice: llm=6922ms(sonnet-stream(llm+tts)) tts=0ms total=6922ms
+   [LATENCY] vad_close=1200ms stt=548ms stt_wait=0ms salience=5ms triage=bypassed memory=234ms prompt_build=3ms ttft=1242ms tts_first_chunk=380ms audio_out=134ms TOTAL=2546ms
+🎤 Recording... (recovered opening words)
+   [GROQ_FAIL] API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}} — no fallback, re-raising.
+   ERROR during emotion analysis: API error: Error code: 404 - {'error': {'message': 'The model `llama-3.1-8b-instant` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'code': 'model_not_found'}}
+   [TurnTiming] 11:54:26.577 VOICE CLOSE — turn finalized (trailing pause ~1230ms, spoken span ~20056ms since onset)
