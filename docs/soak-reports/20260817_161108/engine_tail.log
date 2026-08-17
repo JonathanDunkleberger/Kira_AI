@@ -1,0 +1,47 @@
+===== playlive_2026-08-17_15-48-57.log =====
+   [play-live]    [engine] JUST FIGHT: L94 vs L55 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 1 (eff x0.5) vs parasect 142/142 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] JUST FIGHT: L94 vs L55 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 1 (eff x0.5) vs parasect 52/142 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=14,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L94 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs kadabra 114/114 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L94 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs machoke 160/160 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=12,ref=0,sc=142.5) [2]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L94 vs L55 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 1 (eff x0.5) vs parasect 140/140 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=11,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=25)
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] JUST FIGHT: L94 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs machoke 150/150 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=10,ref=0,sc=142.5) [2]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — mewtwo: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (articuno) to chip it into the catchable band
+   [play-live]    [engine] switch: target party slot 2 sp=144 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 144 (slot 2)
+   [play-live]    [engine] catch: chipper articuno went down mid-chip — handing off to the send-in gate (bench walk continues)
+   [play-live]    [engine] fswitch: BUDGET 5s hit — blind-sending strongest live (anti 60–90s party theater)
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — mewtwo: weaken+balls, never KO
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (articuno) to chip it into the catchable band
+   [play-live]    [engine] switch: target party slot 2 sp=144 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 144 (slot 2)
+===== playlive_2026-08-17_12-33-52.log =====
+   [travel] start map=(3, 3) coords=(29, 29) -> map (3, 22) (budget 300s, surf-capable)
+   [travel] west connection band rows: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 14, 16, 17, 18, 20, 21, 22, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+   [travel] step 0: (29, 29)->(28, 29) map=(3, 3) (path 37 to exit)
+   [travel] step 10: (20, 28)->(20, 27) map=(3, 3) (path 27 to exit)

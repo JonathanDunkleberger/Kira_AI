@@ -1,0 +1,394 @@
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live] ⛰️  RESUMING CAMPAIGN from campaign/kira_campaign.state: map=(3, 3) coords=(29, 29) — she keeps climbing from here  url=http://127.0.0.1:8766
+
+G:\JonnyD\NeuroAI_Bot\.venv\lib\site-packages\pygame\pkgdata.py:25: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+
+  from pkg_resources import resource_stream, resource_exists
+
+pygame 2.6.1 (SDL 2.28.4, Python 3.10.10)
+
+Hello from the pygame community. https://www.pygame.org/contribute.html
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [planner] strategy KB loaded: 13 threats, 24 keeper species, 7 key moves
+
+   [campaign]    [roam] wedge memory restored: 3 blocked tile(s), 4 resolved talk-spot(s) — she REMEMBERS her traps (TTL 12h)
+
+   [campaign]    GYM-PREP: restored loss bumps from disk {'Erika': 10} — relaunch will NOT re-arm DOMINANT/GO HARD past a proven wall
+
+   [campaign]    [hints] ledger loaded: 14 overheard hint(s)
+
+   [pkmn-audio] --phones='Leviathan' not found among outputs — trying next
+
+   [pkmn-audio] POKEMON_PHONES='Leviathan' not found among outputs — trying next
+
+   [pkmn-audio] !! system default output is a VIRTUAL CABLE ('CABLE Input (VB-Audio Virtual C') — REFUSING it (it would flap her mouth + double the audio); picking a real output instead.
+
+   [pkmn-audio] routing emulator audio to first REAL output 'Microsoft Sound Mapper - Output'
+
+   [pkmn-audio] LIVE (ISOLATED): 48000Hz -> child process on 'Microsoft Sound Mapper - Output', vol=0.60, wall-clock paced ~60fps. A PortAudio abort kills only the child; the game keeps running.
+
+   [campaign]    [roam] universal watchdog ARMED (trips after 8s frozen-screen, sub-layer-agnostic)
+
+   [campaign] ==== FREE ROAM: she's loose — every move from here is HER call ====
+
+   [pkmn-audio] audio child started (pid=29136).
+
+   [soul] continuity loaded: 20 roster bond(s), 1301 want(s)
+
+   [campaign]    [strat] continuity loaded: 9 remembered wall(s)
+
+   [campaign]    [world] mental map loaded: 172 place(s) known, 262 node(s) in the graph
+
+   [campaign]    [teamplan] resumed plan-state from the campaign bundle
+
+   [campaign]    [world] seeded 10 dungeon-corridor connection(s) — route-through priors (Diglett's Cave class)
+
+   [campaign]    [roam] boot state sane: party has usable HP and a real objective route exists
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [roam_start] -> campaign/kira_campaign.state  (map=(3, 3) coords=(29, 29) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [roam_start] -> checkpoints/20260817_154858_cerulean-city_8b_62h31m_roam-start  (5 bundle file(s))
+
+   [campaign]    [world] learned 14 warp(s) on (3, 3): (10, 11)->(7, 0), (30, 11)->(7, 1), (15, 17)->(7, 2), (22, 19)->(7, 3), (31, 21)->(7, 5), (13, 28)->(7, 6)
+
+   [campaign]    [roam] 🎯 QUESTLINE OPENED: gate=story_npc/mewtwo → steps=['surf', 'mewtwo'] actionable=mewtwo (resolved=True)
+
+   [campaign]    [roam] 🏆 CHAMPION ENCORE: MEWTWO (Cerulean Cave) is live — routing the hunt (Eevee/gym march stay dead)
+
+   [kira-voice] -> T2·savor· (route) 'Okay — to get past this I need Mewtwo — the strongest Pokemon in the game, at the bottom of Cerulean Cave. The guard only steps aside for the Champion, and the Master Ball has been waiting for exactly this moment.'  fired=True  [age 0.0s + post 11ms]
+
+   [campaign]    [roam] deep-wedge ring: banked safe checkpoint (8, 4, 20, 258) @ Cerulean City (ring=1/4)
+
+   [campaign] -- ROAM TICK 1/100000000 --
+
+   [campaign]    [roam] STATE IN: Cerulean City (29, 29) | badges=8 (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth) | party=[blastoise L94, moltres L56, articuno L53, zapdos L55] | 8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). You're the CHAMPION — the game is beaten. This is the post-game victory lap. Pokédex: 20 caught. Champion. The credits rolled — everything from here is the victory lap (Cerulean Cave, the Pokédex, her world now).
+
+   [campaign]    [roam] PROGRESS: GREEN (unchanged 0 ticks) | fp[(3, 3) (29,29) f1 -- badge8 $20860 party:38d6 bag:b329]
+
+   [campaign]    [roam] OPTIONS OFFERED: ['hunt_mewtwo', 'talk_npc', 'travel:3,22', 'travel:3,23', 'travel:3,43', 'travel:3,27', 'swap_keeper']
+
+   [campaign]    [soul] surface_want FIRE -> Cerulean City
+
+   [campaign]    [soul] ORACLE decision: kind=want ctx={'place': "You're in Cerulean City — outdoors under open sky (a town with a Pokémon Center and a Mart; tall grass around — wild Pokémon live in it).. ALREADY BESIDE YOU — your current team: blastoise (L94), moltres (L56), articuno (L53), zapdos (L55). A want is something you DON'T yet have; never wish for a teammate who's already on your team.", 'map': (3, 3), 'badges': ['Boulder', 'Cascade', 'Thunder', 'Rainbow', 'Soul', 'Marsh', 'Volcano', 'Earth'], 'progress': "8 badge(s) earned (Boulder, Cascade, Thunder, Rainbow, Soul, Marsh, Volcano, Earth). You're the CHAMPION — the game is beaten. This is the post-game victory lap. Pokédex: 20 caught. Champion. The credits rolled — everything from here is the victory lap (Cerulean Cave, the Pokédex, her world now).", 'party': 'blastoise (L94), moltres (L56), articuno (L53), zapdos (L55)', 'goal': {'short': 'catch Mewtwo in Cerulean Cave', 'medium': 'FIRST Mewtwo — the strongest Pokemon in the game, at the bottom of Cerulean Cave. The guard only steps aside for the Champion, and the Master Ball has been waiting for exactly this moment — the gym comes right after; that errand is the road', 'long': 'Enjoy the post-game as Champion (Cerulean Cave, the Pokédex)'}} options=['eevee', 'fossil', 'starters', 'rare', 'legendaries']
+
+   [pkmn-audio-child] LIVE: device=4, 48000Hz, 2ch, shared � writing until parent EOF.
+
+   [kira-voice] ORACLE kind=want options=['eevee', 'fossil', 'starters', 'rare', 'legendaries'] -> pick='catch Mewtwo'
+
+   [campaign]    [soul] ORACLE pick -> 'catch Mewtwo'
+
+   [campaign]    [guide] search unavailable (import/config): No module named 'kira' — running without it
+
+   [campaign]    [strat] roster size = 4
+
+   [campaign]    [roam] !! FORCE MEWTWO PICK: hunt_mewtwo — oracle SKIPPED (the Champion encore owns the post-game slot)
+
+   [campaign]    [roam] PICK OUT: hunt_mewtwo
+
+   [campaign]    [roam] RATIONALE: catch Mewtwo. then on to the Elite Four
+
+   [kira-voice] -> T2·savor· (want) 'catch Mewtwo'  fired=True  [age 0.0s + post 5ms]
+
+   [campaign]    [roam] 🎯 QUESTLINE STRIKE: Cerulean Cave (MEWTWO — the final endgame project) — attempt 1/3 from (3, 3)
+
+   [campaign]    [mewtwo] CERULEAN CAVE ACCESS armed: guard hide flag 0x05C -> True (guard was PRESENT at (1, 13) with 0x82C set; champion alone is NOT the gate) (LOUD)
+
+   [campaign]    [mewtwo] the walked route is structurally unavailable from map=(3, 3) (see _reach_quarry_floor: the Cerulean pocket and the 1F->B1F ladder are both disconnected here) — using the VERIFIED real map-load into B1F (1, 74) @ (5, 7) (LOUD)
+
+   [dialogue] +++ 'Please come again!'  tags=[]
+
+   [kira-voice] ·floor· (<1s since last) T1 'you read: "Please come again!"'
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [campaign]    [mewtwo] b1f-warp: REAL map-load -> map=(1, 74) @ (5, 7) overworld=True stand_ok=True => OK (LOUD)
+
+   [campaign]    [mewtwo-doorstep] replan at (5, 7) (len 123, budget 9)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against parasect — your blastoise is up front'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] JUST FIGHT: L94 vs L55 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 1 (eff x0.5) vs parasect 142/142 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=25)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [kira-voice] -> T1·brisk· (event) 'your blastoise used Surf - a not-very-effective hit'  fired=True  [age 0.0s + post 2ms]
+
+   [play-live]    [engine] JUST FIGHT: L94 vs L55 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 1 (eff x0.5) vs parasect 52/142 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=14,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=25)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's parasect went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 4ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [mewtwo-doorstep] replan at (19, 2) (len 100, budget 10)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against kadabra — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L94 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs kadabra 114/114 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=10,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's kadabra went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 12ms]
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [mewtwo-doorstep] replan at (23, 4) (len 94, budget 11)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against machoke — your blastoise is up front'  fired=True  [age 0.0s + post 4ms]
+
+   [play-live]    [engine] JUST FIGHT: L94 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs machoke 160/160 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=12,ref=0,sc=142.5) [2]Earthquake(p100,pp=10,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] -> T1·brisk· (event) "the enemy's machoke went down to your blastoise — that's the battle, you won"  fired=True  [age 0.0s + post 5ms]
+
+   [pkmn-audio] !! PCM queue full — dropped frame audio (total drops 1; bursts here = audible crackle)
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [mewtwo-doorstep] replan at (33, 9) (len 79, budget 12)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against parasect — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L94 vs L55 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a not-very-effective hit -> slot 1 (eff x0.5) vs parasect 140/140 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=11,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=25)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a not-very-effective hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "the enemy's parasect went down to your blastoise — that's the battle, you won"
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [mewtwo-doorstep] replan at (30, 20) (len 65, budget 13)
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against machoke — your blastoise is up front'
+
+   [play-live]    [engine] JUST FIGHT: L94 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+
+   [play-live]    [engine] action menu: Surf - a STAB hit -> slot 1 (eff x1) vs machoke 150/150 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=10,ref=0,sc=142.5) [2]Earthquake(p100,pp=10,ref=0,sc=100)
+
+   [play-live]    [engine] STREAM COMMIT: Surf - a STAB hit slot 1 (menu_up=1 action=True moves=False)
+
+   [play-live]    [engine] battle-progress: move resolved
+
+   [play-live]    [engine] battle-progress: enemy fainted
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [campaign]    [mewtwo-doorstep] replan at (23, 18) (len 30, budget 14)
+
+   [dialogue] +++ 'The water is dyed a deep blue.. Would you like to SURF?'  tags=['TYPE']
+
+   [kira-voice]    (dialogue tags: type)
+
+   [kira-voice] -> T2·savor· (dialogue) 'you read: "The water is dyed a deep blue.. Would you like to SURF?"'  fired=True  [age 0.0s + post 2ms]
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "BLASTOISE used SURF!"'  fired=True  [age 0.0s + post 3ms]
+
+   [campaign]    [surf] MOUNTED at (17, 20) (attempt 1)
+
+   [campaign]    [mewtwo] doorstep approach -> True @ (7, 13) (quarry (7, 12))
+
+   [campaign]    [hunt] Ultra pocket check — 24 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    [hunt] CHIP-PP AUDIT — slot0 L94 hp 284/284 dmgPP 34 safePP 0 (Skull Bash:15, Surf:9, Earthquake:10); slot1 L56 hp 168/168 dmgPP 15 safePP 15 (Agility:30, 203:10, 53:15); slot2 L53 hp 163/163 dmgPP 10 safePP 10 (Agility:30, 170:5, Ice Beam:10); slot3 L55 hp 172/172 dmgPP 40 safePP 40 (86:20, Shock Wave:20, Drill Peck:20) | ace slot0 safe 0, party safe 65 (vs Mewtwo psychic L70)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP with EMPTY ace SAFE tank (safe=0) but ace still has 34 damaging PP — soft-reload cannot mint safer chips (overlevel); ENGAGING in LADDER MODE (NO rewind off the bird) (LOUD)
+
+   [campaign]    [hunt] doorstep empty-tank settle — ace safe now 0; ENGAGING (LOUD)
+
+   [campaign]    [hunt] !!!! AT THE DOORSTEP (1 tile(s) from Mewtwo) — ENGAGING NOW, no detours (doorstep law is absolute — never Center-retreat from the bird) (LOUD)
+
+   [campaign]    [hunt] Ultra pocket check — 24 Ultras (floor 20, target 50, wired=False, done=False, fails=0)
+
+   [campaign]    [hunt] Ultra war-chest not wired on this hunt — no ferry (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-mewtwo] -> campaign/kira_campaign.state  (map=(1, 74) coords=(7, 13) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-mewtwo] -> checkpoints/20260817_155247_cerulean-cave-b1f_8b_62h35m_pre-mewtwo  (5 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-mewtwo' banked — any recovery now resumes right here
+
+   [kira-voice] -> T3·BIG· (legendary) 'there it is. Mewtwo. okay — deep breath, balls ready. we are NOT blowing this.'  fired=True  [age 0.0s + post 18ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] -> T1·brisk· (event) 'a battle started against mewtwo — your blastoise is up front'  fired=True  [age 0.0s + post 2ms]
+
+   [kira-voice] -> T3·BIG· (event) "that's a mewtwo. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 14ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 31ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — mewtwo: weaken+balls, never KO
+
+   [play-live]    [catch] target=mewtwo L70 hp=100% status=none balls=24 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=126% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (articuno) to chip it into the catchable band
+
+   [play-live]    [engine] switch: target party slot 2 sp=144 -> menu row 2
+
+   [play-live]    [engine] switch: SWITCHED to species 144 (slot 2)
+
+   [kira-voice] -> T1·brisk· (event) "blastoise hits way too hard for this — articuno, you're up. soften it, don't finish it."  fired=True  [age 0.0s + post 8ms]
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] chip OUR-DOWN — active fainted on the foe's reply (foe at 242/242); handing off (LOUD)
+
+   [play-live]    [engine] catch: chipper articuno went down mid-chip — handing off to the send-in gate (bench walk continues)
+
+   [play-live]    [catch] OUR ACTIVE IS DOWN mid-catch — abandoning this turn's throw; the forced send-in flow runs first (the bag cannot open in the send-in state)
+
+   [kira-voice] -> T2·savor· (event) 'hold the catch — my Pokémon just went down. next one up first.'  fired=True  [age 0.0s + post 16ms]
+
+   [dialogue] +++ 'The MEWTWO flew away!'  tags=[]
+
+   [kira-voice] -> T1·brisk· (dialogue) 'you read: "The MEWTWO flew away!"'  fired=True  [age 0.0s + post 3ms]
+
+   [play-live]    [engine] fswitch: BUDGET 5s hit — blind-sending strongest live (anti 60–90s party theater)
+
+   [play-live]    [catch] !! send-in did not seat — handing the battle back (our_down); run()'s faint drain owns the recovery
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [dialogue] +++ 'BLASTOISE used SURF!'  tags=[]
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'you read: "BLASTOISE used SURF!"'
+
+   [campaign]    [ckpt] !!!! LABELED RELOAD 'pre-mewtwo': checkpoint '20260817_155247_cerulean-cave-b1f_8b_62h35m_pre-mewtwo' loaded and VERIFIED — resuming at that banked moment (LOUD)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [post_labeled_reload_pre-mewtwo] -> campaign/kira_campaign.state  (map=(1, 74) coords=(7, 13) badges=8 party=4)
+
+   [campaign]    ⛰️  CAMPAIGN SAVE [pre-mewtwo] -> campaign/kira_campaign.state  (map=(1, 74) coords=(7, 13) badges=8 party=4)
+
+   [campaign]    [sanctity] bundle VALID (schema/encoding/truth/monotonic all clean)
+
+   [campaign]    📌 AUTO-CHECKPOINT [pre-mewtwo] -> checkpoints/20260817_155415_cerulean-cave-b1f_8b_62h37m_pre-mewtwo  (5 bundle file(s))
+
+   [campaign]    [ckpt] MILESTONE 'pre-mewtwo' banked — any recovery now resumes right here
+
+   [campaign]    [hunt] !!!! re-banked fresh verified 'pre-mewtwo' after clean rewind — next resume has a known-good bird (LOUD)
+
+   [campaign]    [hunt] pinned PROMOTE_TARGET.txt -> CKPT 20260817_155247_cerulean-cave-b1f_8b_62h35m_pre-mewtwo (next resume_marathon hard-teleports here)
+
+   [campaign]    [hunt] !!!! FREE RETRY 1/4: 'pre-mewtwo' reloaded — fought flag clear, balls restored, standing at the mewtwo again (LOUD)
+
+   [kira-voice] -> T3·BIG· (legendary) 'no. we are NOT losing Mewtwo like that. rewinding to right before the fight — fresh balls, fresh plan.'  fired=True  [age 0.0s + post 7ms]
+
+   [campaign]    [roam] watchdog: SCENE callback owns the screen (evolution/naming/cutscene) — deliberate stillness, watch resets until the world returns
+
+   [Bridge] INPUT OWNER = 'agent' (sole writer; others dropped+logged)
+
+   [play-live]    [engine] re-entry: foe is already DOWN — draining the faint/switch chain
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) 'a battle started against mewtwo — your blastoise is up front'
+
+   [kira-voice] -> T3·BIG· (event) "that's a mewtwo. a LEGENDARY. okay — okay, do NOT mess this up."  fired=True  [age 0.0s + post 6ms]
+
+   [kira-voice] -> T3·BIG· (event) 'balls out. weaken it carefully — we are NOT knocking out a legendary.'  fired=True  [age 0.0s + post 5ms]
+
+   [play-live]    [engine] WILD CATCH DIVERT (legendary) — mewtwo: weaken+balls, never KO
+
+   [play-live]    [catch] target=mewtwo L70 hp=100% status=none balls=24 pref=best LEGENDARY DOCTRINE (ready<=20%, chip->15%, sleep rung armed)
+
+   [play-live]    [catch] !! LEGEND ETHER — bag has NO Ether/Elixir; cannot restore Bite (soft-reload cannot mint PP) (LOUD)
+
+   [play-live]    [catch] OVERKILL RISK — gentlest usable move=Skull Bash est=126% of max HP — no safe chip; SLEEP/CHIPPER, else throw early (never KO)
+
+   [play-live]    [engine] catch: CHIPPER SWITCH — blastoise would one-shot it; fielding slot 2 (articuno) to chip it into the catchable band
+
+   [play-live]    [engine] switch: target party slot 2 sp=144 -> menu row 2
+
+   [play-live]    [engine] switch: SWITCHED to species 144 (slot 2)
+
+   [kira-voice] ·dedup· (repeat text, T1, looping?) "blastoise hits way too hard for this — articuno, you're up. soften it, don't finish it."
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [play-live]    [catch] weaken — Ice Beam (est 57%) at foe 100% HP
+
+   [pkmn-audio] !! AUDIO CHILD DIED (exit=None, ran 396s, restart 1/8) — GAME CONTINUES; respawning audio.
+
