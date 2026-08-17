@@ -1,0 +1,24 @@
+===== playlive_2026-08-17_12-20-52.log =====
+   [travel] start map=(3, 3) coords=(29, 29) -> map (3, 43) (budget 300s, surf-capable)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16, 17, 18, 19, 20, 22, 23, 24, 26, 27, 28, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48]
+   [travel] step 0: (29, 29)->(28, 29) map=(3, 3) (path 61 to exit)
+   [travel] step 10: (20, 28)->(20, 27) map=(3, 3) (path 51 to exit)
+   [travel] step 20: (19, 19)->(19, 18) map=(3, 3) (path 41 to exit)
+   [travel] step 30: (11, 17)->(10, 17) map=(3, 3) (path 31 to exit)
+   [travel] HEARTBEAT step=40 map=(3, 3) coords=(14, 12) elapsed=5s
+   [travel] step 40: (14, 12)->(15, 12) map=(3, 3) (path 21 to exit)
+   [travel] step 50: (22, 10)->(22, 9) map=(3, 3) (path 11 to exit)
+   [travel] MAP TRANSITION (3, 3) -> (3, 43)
+   [travel] north connection band cols: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+   [travel] ARRIVED at target map (3, 43) coords=(10, 39)
+   [travel] start map=(3, 43) coords=(10, 39) -> coord (5, 31) (budget 80s, surf-capable)
+   [travel] step 0: (10, 39)->(10, 38) map=(3, 43) (path 46 to exit)
+===== playlive_2026-08-17_12-12-26.log =====
+   [travel] start map=(3, 3) coords=(22, 20) -> coord (29, 29) (budget 300s, surf-capable)
+   [travel] step 0: (22, 20)->(22, 21) map=(3, 3) (path 23 to exit)
+   [travel] step 10: (19, 27)->(19, 28) map=(3, 3) (path 13 to exit)
+   [travel] step 20: (27, 29)->(28, 29) map=(3, 3) (path 3 to exit)
+   [travel] reached target coord (29, 29)
+   [travel] start map=(7, 7) coords=(2, 5) -> coord (4, 6) (budget 60s, surf-capable)
+   [travel] step 0: (2, 5)->(3, 5) map=(7, 7) (path 4 to exit)
+   [travel] reached target coord (4, 6)
