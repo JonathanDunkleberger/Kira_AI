@@ -86,15 +86,40 @@ def _is_handsfree(name):
                                   "communications"))
 
 
+# ── THE ALIAS LOOPHOLE (2026-08-17 LIVE, game audio on Kira's mouth again) ──────────────
+# 'Microsoft Sound Mapper - Output' (MME) and 'Primary Sound Driver' (DirectSound) are NOT
+# endpoints — they are INDIRECTIONS to whatever Windows currently calls the default output.
+# On Jonny's rig the system default IS the VB-Audio cable (sd.default.device[1] == 6). So
+# when the Bluetooth Leviathan is powered off, _resolve('Leviathan') found nothing, the
+# named/default rungs correctly REFUSED the cable by name... and then _first_real_output
+# handed the emulator to 'Microsoft Sound Mapper - Output', whose name carries no cable
+# marker but which routes straight back into the cable. Result: the whole soundtrack came
+# out of the device VTube Studio lip-syncs from and flapped her mouth for 396s
+# (playlive_15-48-57: "routing emulator audio to first REAL output 'Microsoft Sound
+# Mapper - Output'", child on device=4). A name-based firewall MUST also refuse the
+# aliases, or it only blocks the front door.
+_DEFAULT_ALIAS_MARKERS = ("sound mapper", "primary sound driver", "primary sound capture",
+                          "default device", "@default")
+
+
+def _is_default_alias(name):
+    """True for host-API 'follow the system default' pseudo-devices. Never a real endpoint,
+    and on this rig the default is the cable — so these can never be trusted."""
+    low = (name or "").lower()
+    return any(m in low for m in _DEFAULT_ALIAS_MARKERS)
+
+
 def _usable_output(d):
-    """Stereo desktop/headphones only — never cable, never BT Hands-Free."""
+    """Stereo desktop/headphones only — never cable, never BT Hands-Free, never a
+    follow-the-default ALIAS (an alias inherits the system default, which is the cable)."""
     try:
         if int(d.get("max_output_channels") or 0) < 2:
             return False
     except Exception:
         return False
     n = d.get("name") or ""
-    return not _is_cable(n) and not _is_handsfree(n)
+    return not _is_cable(n) and not _is_handsfree(n) and not _is_default_alias(n)
+
 
 
 def _dev_name(idx):
@@ -197,7 +222,9 @@ def resolve_desktop_sink(phones=None, log=print):
             continue
         idx = _resolve(spec)
         if idx is None:
-            log(f"   [pkmn-audio] {label}={spec!r} not found among outputs — trying next")
+            log(f"   [pkmn-audio] {label}={spec!r} not found among outputs — trying next "
+                f"(is the device powered on / connected? a Bluetooth headset that is OFF "
+                f"disappears from the device list entirely)")
             continue
         if _is_cable(_dev_name(idx)):
             log(f"   [pkmn-audio] !! REFUSED {label}={spec!r}: that's a VIRTUAL CABLE "
@@ -207,12 +234,18 @@ def resolve_desktop_sink(phones=None, log=print):
             log(f"   [pkmn-audio] !! REFUSED {label}={spec!r}: that's Bluetooth Hands-Free "
                 f"({_dev_name(idx)!r}, mono) — credits would play silent. Trying next.")
             continue
+        if _is_default_alias(_dev_name(idx)):
+            log(f"   [pkmn-audio] !! REFUSED {label}={spec!r}: that's a follow-the-DEFAULT "
+                f"alias ({_dev_name(idx)!r}) — it inherits the system default, which on this "
+                f"rig is the CABLE. Trying next.")
+            continue
         idx = _prefer_wasapi(idx)
         log(f"   [pkmn-audio] {label}={spec!r} -> {_dev_name(idx)!r} [{_hostapi_name(idx)}]")
         return idx
     # named desktop device unavailable -> system default, but ONLY if it's a real (non-cable) device
     di = sd.default.device[1] if sd.default.device else None
-    if di is not None and not _is_cable(_dev_name(di)) and not _is_handsfree(_dev_name(di)):
+    if (di is not None and not _is_cable(_dev_name(di)) and not _is_handsfree(_dev_name(di))
+            and not _is_default_alias(_dev_name(di))):
         di = _prefer_wasapi(di)
         log(f"   [pkmn-audio] using system default output {_dev_name(di)!r} "
             f"[{_hostapi_name(di)}] (real, non-cable)")
@@ -222,8 +255,17 @@ def resolve_desktop_sink(phones=None, log=print):
             f"REFUSING it (it would flap her mouth + double the audio); picking a real output instead.")
     real = _first_real_output()
     if real is not None:
-        log(f"   [pkmn-audio] routing emulator audio to first REAL output {_dev_name(real)!r}")
+        log(f"   [pkmn-audio] !! FALLBACK: {DESKTOP_DEVICE!r} is NOT PRESENT, so emulator audio "
+            f"goes to the first real output {_dev_name(real)!r} [{_hostapi_name(real)}]. It is "
+            f"NOT the cable (her mouth is safe) but it is probably NOT what you are wearing — "
+            f"connect the headphones and relaunch to hear the game (LOUD)")
+    else:
+        log(f"   [pkmn-audio] !! NO usable output at all (every device is a cable / mono "
+            f"Hands-Free / default-alias) — REFUSING to route emulator audio anywhere. The run "
+            f"continues SILENT, which is correct: routing to the cable would lip-sync Kira's "
+            f"mouth to the soundtrack (LOUD)")
     return real
+
 
 
 class AudioPump:

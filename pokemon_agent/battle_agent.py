@@ -2176,6 +2176,31 @@ class BattleAgent:
         softened = False
         status_only = False
         sleep_tries = 0
+        # ── THE MASTER BALL NEVER FAILS (2026-08-17 LIVE — "she didn't throw the master ball") ──
+        # A Master Ball is a 100% capture at ANY hp and ANY status. So every gate the legendary
+        # doctrine puts in front of a throw — weaken, sleep rung, chipper switch, the red-zone
+        # ready band, the HARD THROW FLOOR — is not just useless here, it is ACTIVELY HARMFUL:
+        # each extra turn is another chance to lose the encounter outright. That is exactly how
+        # the live Mewtwo was lost (playlive_15-48-57): Blastoise L94 would one-shot it, so the
+        # engine benched him and sent L53 Articuno to "chip"; Ice Beam was selected six times
+        # while the foe never left 242/242, Mewtwo's reply KO'd the chipper, the send-in did not
+        # seat, and the box printed "The MEWTWO flew away!" — with a Master Ball sitting in the
+        # bag, unthrown. Twice, because the pre-mewtwo bank rewound into the same loop.
+        # So when a Master Ball is authorised AND actually in the pocket: declare the target
+        # already softened and throw it on turn one. The classic move, no ceremony.
+        _master_ok = False
+        try:
+            _master_ok = bool(allow_master and self._ball_qty(self._BALL_MASTER) > 0)
+        except Exception:
+            _master_ok = False
+        if _master_ok:
+            softened = True
+            status_only = False
+            self.log("   [catch] MASTER BALL AUTHORISED and in the pocket — skipping weaken/"
+                     "sleep/chipper and the HARD THROW FLOOR entirely: a Master Ball is a 100% "
+                     "catch at full HP, and every extra turn is a chance to lose the encounter "
+                     "(the 15-48-57 'MEWTWO flew away' loss). Throwing NOW (LOUD)")
+
         # 2026-07-06 NURSERY FIX: a strong ace "wearing down" a much-weaker wild ONE-SHOTS it (run-12:
         # 3 judged keepers KO'd mid-weaken, labeled 'fled'). Early-route species catch fine at full HP —
         # when the foe is 10+ levels under the lead, never CHIP it (one hit would KO). But a pure SLEEP
@@ -2564,7 +2589,13 @@ class BattleAgent:
             # other path latched softened=True early. Deepen / keep fighting — never RUN.
             # OVERKILL EXEMPT (2026-08-09): when the ace overkills and the whole bench walked
             # without a chip (_no_chipper_left), the high-HP throw is sanctioned — the only play.
-            if _legend and state is not None and state["enemy"].get("maxhp"):
+            # MASTER BALL EXEMPT (2026-08-17): this floor protects ULTRAS from being wasted at
+            # high HP. A Master Ball cannot be wasted — it is a guaranteed catch — so gating it
+            # behind an HP floor only hands the encounter more turns to flee. This is the gate
+            # that still fired after `softened`, so without the exemption the short-circuit above
+            # would be undone right here.
+            if (_legend and state is not None and state["enemy"].get("maxhp")
+                    and not _master_ok):
                 _ef_floor = _hp_frac(state["enemy"])
                 if not legend_throw_allowed(_ef_floor) and not _no_chipper_left:
                     _ref = self._legend_refuse_throw(
