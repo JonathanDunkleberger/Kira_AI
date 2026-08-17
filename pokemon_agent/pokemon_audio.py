@@ -26,7 +26,7 @@ import numpy as np
 
 # Single output-volume multiplier (covers BOTH sinks — headphones + OBS cable — since one _drain
 # feeds them). Jonny's live ask: ~60% of raw. Env-tunable live (restart) without a code edit.
-AUDIO_VOL = float(os.getenv("POKEMON_AUDIO_VOL", "0.25"))
+AUDIO_VOL = float(os.getenv("POKEMON_AUDIO_VOL", "0.60"))
 
 # ── PROCESS ISOLATION (2026-07-09): the game-audio OUTPUT path (PortAudio/WASAPI write) is the ONLY
 # reproducible hard-crash in the run — a native abort() (0xC0000409) at the Viridian-parcel fanfare
@@ -78,6 +78,25 @@ def _is_cable(name):
     return any(m in low for m in _CABLE_MARKERS)
 
 
+def _is_handsfree(name):
+    """Bluetooth Hands-Free / HSP is mono 8kHz. Matching 'Leviathan' to that device
+    (live 2026-08-17) opened a 1ch stream, PortAudio died, credits played silent."""
+    low = (name or "").lower()
+    return any(m in low for m in ("hands-free", "handsfree", "bthhfenum",
+                                  "communications"))
+
+
+def _usable_output(d):
+    """Stereo desktop/headphones only — never cable, never BT Hands-Free."""
+    try:
+        if int(d.get("max_output_channels") or 0) < 2:
+            return False
+    except Exception:
+        return False
+    n = d.get("name") or ""
+    return not _is_cable(n) and not _is_handsfree(n)
+
+
 def _dev_name(idx):
     try:
         return sd.query_devices(idx)["name"] if idx is not None else "default"
@@ -85,27 +104,79 @@ def _dev_name(idx):
         return "default"
 
 
-def _first_real_output():
-    """First non-cable output device index, or None if every output is a virtual cable."""
-    for i, d in enumerate(sd.query_devices()):
-        if d["max_output_channels"] > 0 and not _is_cable(d["name"]):
+def _hostapi_name(d_or_idx):
+    try:
+        d = sd.query_devices(d_or_idx) if isinstance(d_or_idx, int) else d_or_idx
+        return sd.query_hostapis(d["hostapi"])["name"]
+    except Exception:
+        return ""
+
+
+def _is_wasapi(d_or_idx):
+    return "wasapi" in _hostapi_name(d_or_idx).lower()
+
+
+def _prefer_wasapi(idx):
+    """MME/DirectSound 'Headphones (Leviathan)' is the first name-match PortAudio
+    returns. Passing WasapiSettings onto that MME index is PaErrorCode -9984
+    (live 2026-08-17: silent after resume). Shared exclusive=False only works on
+    the WASAPI twin of the same endpoint."""
+    if idx is None:
+        return None
+    try:
+        d = sd.query_devices(idx)
+    except Exception:
+        return idx
+    if not _usable_output(d):
+        return idx
+    if _is_wasapi(d):
+        return idx
+    name = (d.get("name") or "").lower().rstrip()
+    for i, other in enumerate(sd.query_devices()):
+        if i == idx or not _usable_output(other) or not _is_wasapi(other):
+            continue
+        n = (other.get("name") or "").lower()
+        if n == name or n.startswith(name) or name.startswith(n):
             return i
+    return idx
+
+
+def _first_real_output():
+    """First usable stereo output, or None if every output is a cable / Hands-Free."""
+    for i, d in enumerate(sd.query_devices()):
+        if _usable_output(d):
+            return _prefer_wasapi(i)
     return None
 
 
 def _resolve(name_or_idx):
-    """Resolve a device name-substring or index to an output device index, or None."""
+    """Resolve a device name-substring or index to a USABLE output, or None.
+
+    'Leviathan' matches BOTH 'Headphones (Leviathan)' (stereo) and the Bluetooth
+    Hands-Free enum name. Prefer the stereo WASAPI match; never return Hands-Free.
+    """
     if name_or_idx is None or name_or_idx == "":
         return None
     try:
-        return int(name_or_idx)
+        idx = int(name_or_idx)
+        d = sd.query_devices(idx)
+        return _prefer_wasapi(idx) if _usable_output(d) else None
     except (TypeError, ValueError):
         pass
+    except Exception:
+        return None
     low = str(name_or_idx).lower()
+    matches = []
     for i, d in enumerate(sd.query_devices()):
-        if d["max_output_channels"] > 0 and low in d["name"].lower():
+        if low in (d.get("name") or "").lower():
+            matches.append((i, d))
+    usable = [(i, d) for i, d in matches if _usable_output(d)]
+    if not usable:
+        return None
+    for i, d in usable:
+        if _is_wasapi(d):
             return i
-    return None
+    return _prefer_wasapi(usable[0][0])
 
 
 # SINGLE SOURCE OF TRUTH for the emulator's output device (every launch path: run.py, the dashboard
@@ -132,11 +203,19 @@ def resolve_desktop_sink(phones=None, log=print):
             log(f"   [pkmn-audio] !! REFUSED {label}={spec!r}: that's a VIRTUAL CABLE "
                 f"({_dev_name(idx)!r}) — emulator audio must NEVER touch the cable. Trying next.")
             continue
+        if _is_handsfree(_dev_name(idx)):
+            log(f"   [pkmn-audio] !! REFUSED {label}={spec!r}: that's Bluetooth Hands-Free "
+                f"({_dev_name(idx)!r}, mono) — credits would play silent. Trying next.")
+            continue
+        idx = _prefer_wasapi(idx)
+        log(f"   [pkmn-audio] {label}={spec!r} -> {_dev_name(idx)!r} [{_hostapi_name(idx)}]")
         return idx
     # named desktop device unavailable -> system default, but ONLY if it's a real (non-cable) device
     di = sd.default.device[1] if sd.default.device else None
-    if di is not None and not _is_cable(_dev_name(di)):
-        log(f"   [pkmn-audio] using system default output {_dev_name(di)!r} (real, non-cable)")
+    if di is not None and not _is_cable(_dev_name(di)) and not _is_handsfree(_dev_name(di)):
+        di = _prefer_wasapi(di)
+        log(f"   [pkmn-audio] using system default output {_dev_name(di)!r} "
+            f"[{_hostapi_name(di)}] (real, non-cable)")
         return di
     if di is not None:
         log(f"   [pkmn-audio] !! system default output is a VIRTUAL CABLE ({_dev_name(di)!r}) — "
@@ -230,8 +309,16 @@ class AudioPump:
 
         # ── LEGACY in-process pump (POKEMON_AUDIO_ISOLATE=0) ──
         try:
-            st = sd.OutputStream(samplerate=rate, channels=2, dtype="int16",
-                                 device=idx, blocksize=0, latency="low")
+            _kw = dict(samplerate=rate, channels=2, dtype="int16",
+                       device=idx, blocksize=1024)
+            # WasapiSettings is ONLY valid on a WASAPI host device. On MME it is
+            # PaErrorCode -9984 and the child never produces a single sample.
+            if _is_wasapi(idx):
+                try:
+                    _kw["extra_settings"] = sd.WasapiSettings(exclusive=False)
+                except Exception:
+                    pass
+            st = sd.OutputStream(**_kw)
             st.start()
             self._streams.append(("desktop", st))
             self.log(f"   [pkmn-audio] routing -> desktop ONLY: {_dev_name(idx)!r} "

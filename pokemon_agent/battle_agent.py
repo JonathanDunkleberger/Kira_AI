@@ -314,6 +314,15 @@ FAMINE_SWITCH_TRIES = int(os.getenv("POKEMON_FAMINE_SWITCH_TRIES", "3"))
 # cursor readback and the drawn cursor disagree, refusals get tallied on the wrong slots and
 # the ledger never converges — this counter converges anyway, because it counts EVENTS not slots.
 FUTILE_AMOVE_MAX = int(os.getenv("POKEMON_FUTILE_AMOVE_MAX", "4"))
+# E4 WINCON RE-FIRE BOUND (2026-08-16, the Lance wipe). The per-slot refusal ledger exiles a move
+# at >=2 tallies, but a tally is only PROOF of a dry move when the PP byte reads 0 — otherwise it
+# is OUR menu actuation missing, and this engine misses a lot (three MENU WEDGEs in the losing
+# Lance battle alone). Exiling the E4 wincon on two of our own misses is what put an L89 Blastoise
+# on a 0.5x 2-turn Skull Bash against Rock/Flying Aerodactyl until it fainted. So while the wincon
+# still reads pp>0 we un-exile and re-fire it, up to this many times PER MON PER SLOT. Past the
+# bound the ordinary rotation resumes; FUTILE_AMOVE_MAX above remains the real anti-livelock floor,
+# so this can never regress into the parked-on-Tackle loop.
+E4_WINCON_REFIRE_MAX = int(os.getenv("POKEMON_E4_WINCON_REFIRE_MAX", "6"))
 # NS#12 — HEAL-CONSUME-FAILED LATCH (the Route-10/Rock-Tunnel bag-USE/CANCEL livelock). An in-battle
 # heal can open the bag, reach "ITEM is selected -> USE/CANCEL", and FAIL to consume (count never drops)
 # — _bag_screen() doesn't fingerprint that sub-box, so the turn-top close is bypassed and every "pick a
@@ -499,6 +508,10 @@ class BattleAgent:
         self._skip_streak = set()      # FIX 1: every move slot that failed to fire THIS streak — so she
                                        # rotates through her WHOLE moveset (never re-spams a dead/0-PP
                                        # move) and only flees once all are exhausted. Clears on any fire.
+        self._move_refused = {}        # slot -> times the GAME refused it (>=2 = exiled). Both of these
+        self._move_refused_by_sp = {}  # are PER-MON views (see _sync_move_ledger — the Lance wipe fix);
+        self._skip_streak_by_sp = {}   # init'd here too so a direct-call flow can never AttributeError
+        self._ledger_sp = None         # before run()'s attach re-zeros them.
         self._win_emitted = False      # F-7(c): the certain-win beat already fired at the faint —
                                        # _finish must not voice the same win again 5-15s later.
         self._catching = False         # F-7(c) guard: KOing a CATCH target is a failure, never a
@@ -2146,7 +2159,8 @@ class BattleAgent:
         self._started = True
         self._catching = True              # F-7(c): KOing a catch target is a FAILURE — the
         #                                    certain-win beat stays silent for this whole flow
-        self._skip_streak = set()
+        self._reset_move_ledgers()         # fresh flow: drop every per-mon refusal/skip ledger too
+        #                                    (a bare `_skip_streak = set()` would orphan the view)
         # THE LEGENDARY CATCH DOCTRINE (2026-08-05): red-zone ready band, deep chip target,
         # sleep rung before every throw. Per-encounter budgets reset here.
         _legend = (divert_reason == "legendary")
@@ -3039,6 +3053,58 @@ class BattleAgent:
         except Exception:
             return None, False
 
+    def _reset_move_ledgers(self):
+        """Drop every per-mon move ledger (fresh battle / fresh catch flow). Re-points the
+        `_move_refused` / `_skip_streak` views at empty stores; the next `_sync_move_ledger`
+        binds them to whoever is actually out."""
+        self._move_refused_by_sp = {}
+        self._skip_streak_by_sp = {}
+        self._ledger_sp = None
+        self._move_refused = {}
+        self._skip_streak = set()
+        self._wincon_refires = {}          # (species, slot) -> bounded E4 wincon un-exiles
+
+    def _sync_move_ledger(self, sp):
+        """2026-08-16 THE LANCE WIPE FIX. Point `_move_refused` / `_skip_streak` at the ledger
+        belonging to the mon that is ACTUALLY OUT (`sp`), creating it on first sight.
+
+        Both ledgers are keyed by move SLOT INDEX, which only means anything relative to one
+        Pokemon's moveset — slot 1 is Shock Wave on Zapdos and Surf on Blastoise. They used to be
+        battle-scoped, so in the E4 gauntlet (four mons, one battle) a dead slot on the mon that
+        fainted first EXILED the live wincon of the mon that came in after it: Zapdos slot 1
+        refused once, Blastoise's Surf refused once, the shared counter hit the >=2 exile bar
+        (`_usable`), the E4 RETRY guard (`< 2`) refused to un-skip it, and an L89 Blastoise spent
+        Lance's Aerodactyl throwing a 0.5x 2-turn Skull Bash until it died.
+
+        These are VIEWS (same object as the store entry), so every existing in-place
+        `_move_refused[i] = ...` / `_skip_streak.add(i)` / `.clear()` site keeps working and keeps
+        writing to the right mon's ledger. Switching out and back RESTORES that mon's exiles
+        rather than wiping them, so the anti-Tackle-loop protection survives a switch.
+        Species 0 / unreadable = leave the current view alone (never bind a ledger to a tear)."""
+        try:
+            sp = int(sp or 0)
+        except Exception:
+            sp = 0
+        if not sp or sp == getattr(self, "_ledger_sp", None):
+            return
+        if not isinstance(getattr(self, "_move_refused_by_sp", None), dict):
+            self._move_refused_by_sp = {}
+        if not isinstance(getattr(self, "_skip_streak_by_sp", None), dict):
+            self._skip_streak_by_sp = {}
+        _prev = getattr(self, "_ledger_sp", None)
+        # Preserve whatever the outgoing mon accumulated (the views may have been reassigned
+        # wholesale by a legacy `= set()` site rather than mutated in place).
+        if _prev:
+            self._move_refused_by_sp[_prev] = getattr(self, "_move_refused", {}) or {}
+            self._skip_streak_by_sp[_prev] = getattr(self, "_skip_streak", set()) or set()
+        self._move_refused = self._move_refused_by_sp.setdefault(sp, {})
+        self._skip_streak = self._skip_streak_by_sp.setdefault(sp, set())
+        self._ledger_sp = sp
+        if _prev:
+            self.log(f"   [engine] move-ledger -> {st.SPECIES_NAME.get(sp, sp)} "
+                     f"(was {st.SPECIES_NAME.get(_prev, _prev)}; refusals/streak are PER-MON — "
+                     f"one mon's dead slot never exiles another's wincon)")
+
     def _note_battle_progress(self, why=""):
         """Real fight progress (not menu flicker) — resets the MENU WEDGE stall clock."""
         self._last_battle_progress_t = time.time()
@@ -3047,7 +3113,7 @@ class BattleAgent:
         if why:
             self.log(f"   [engine] battle-progress: {why}")
 
-    def use_item_in_battle(self, item_id, max_seconds=30, target=None):
+    def use_item_in_battle(self, item_id, max_seconds=30, target=None, known_status=None):
         """Use one `item_id` from the Items pocket. Returns 'used' (count dropped) | 'no_item' |
         'failed' | 'no_effect'. FAIL-SAFE: anything but 'used' leaves the battle fightable. `target`
         aims the item's party screen: 'active' (the mon that is OUT — gBattlerPartyIndexes[0],
@@ -3056,7 +3122,48 @@ class BattleAgent:
         Revive aimed at an assumed home-0 confirmed the living battler, ate 'It won't have
         any effect.' boxes, and never consumed (live 12:34: Articuno out = home slot 3).
         None keeps the legacy un-aimed walk; aim taps are party-screen-gated (pixel truth)
-        so a lagging party open never taps into the bag's USE/CANCEL sub-box."""
+        so a lagging party open never taps into the bag's USE/CANCEL sub-box.
+
+        `known_status` (2026-08-16 — the Lance wipe): the status the CALLER already resolved at
+        offer time, through the STATUS-TEAR GUARD (gBattleMons decode cross-checked against the
+        party struct). It is corroborating evidence for the menu-time cure re-check below, which
+        reads the SAME two lying structs one menu-transition later and, in the losing Lance
+        battle, came back empty on a Moltres the offer had just measured as PARALYZED — aborting a
+        Full Heal at "Use on which POKéMON?", latching CURE-BLOCK, and leaving the party screen
+        open for the 60s MENU WEDGE that let Lance's Dragonair kill it for free.
+
+        SOLE-CONTROLLER TRANSACTION (2026-08-15 — the seven-day "she cannot revive in E4"
+        wall). Everything from here to the return drives a MENU STACK, where one stray press
+        is unrecoverable: an A confirms whatever row the cursor sits on, and a B cancels the
+        target screen back to the bag list. `play_live`'s reading-pace `_dialogue_hold` does
+        BOTH — `b.release(owner="agent")` then `b.press("A")` to advance a page — and it is
+        driven from the per-frame `render()` callback that `_wait()` itself calls, so it fires
+        RE-ENTRANTLY inside this navigation. The two prompts this path always produces,
+        "REVIVE is selected." and "Use on which POKéMON?", both score T2, so the hold was
+        guaranteed to fire on every single revive: the stolen A confirmed the living lead,
+        the game said "It won't have any effect.", and the count never dropped. That is why
+        the headless oracle (no voice reader) revives 24/24 on the same savestate while the
+        live show never landed one, and why battle MOVES were unaffected — the move menu
+        re-verifies with STREAM COMMIT and retries, so a stolen press is recovered there.
+        This flag is the interlock; `play_live` yields to it exactly like `draining_award`.
+        It is a DEPTH COUNTER, not a bool: `_maybe_use_item` / `_legend_ether_for_chip` both call
+        in here, so a future nested call must not clear the guard while an outer transaction is
+        still holding the menu stack open."""
+        try:
+            self.b._menu_txn = int(getattr(self.b, "_menu_txn", 0) or 0) + 1
+        except Exception:
+            pass
+        try:
+            return self._use_item_txn(item_id, max_seconds=max_seconds, target=target,
+                                      known_status=known_status)
+        finally:
+            try:
+                self.b._menu_txn = max(0, int(getattr(self.b, "_menu_txn", 0) or 0) - 1)
+            except Exception:
+                pass
+
+    def _use_item_txn(self, item_id, max_seconds=30, target=None, known_status=None):
+        """The body of `use_item_in_battle`, run inside the sole-controller interlock above."""
         ids = [i for i, _ in self._items_pocket()]
         if item_id not in ids:
             self.log(f"   [engine] use_item: item {item_id} NOT in pocket {ids[:8]} — no_item (LOUD)")
@@ -3099,6 +3206,11 @@ class BattleAgent:
             # poison — on this core a d-pad press at the action menu can CONFIRM. Re-check
             # once after a settle; still nothing -> bail fightable instead of spraying keys.
             if not self._bag_screen() and not self._white_box() and not self._bag_menu_cb2():
+                # 2026-08-15: DO NOT add a settle poll here. Tried it (live Bruno, 6 bails) and
+                # `_open_bag`'s own docstring already records the measurement: waiting on
+                # `_bag_menu_cb2()/_bag_screen()` made the MUTE bails WORSE (4 -> 6), and
+                # proceeding on a stale read fires blind LEFTs at a screen that may not be the
+                # bag — which is poison on this core. One wasted turn, self-retried, is cheaper.
                 self._wait(40)
                 if not self._bag_screen() and not self._white_box() and not self._bag_menu_cb2():
                     self.log("   [engine] use_item: pocket byte MUTE + NO bag/white pixels + "
@@ -3157,6 +3269,7 @@ class BattleAgent:
         aimed = target is None                             # no aim requested = nothing to do
         _is_revive = item_id in _REVIVE_ITEMS_PREF or target == "fainted"
         self._revive_aimed_row = None                      # set only after a 0-HP walk this use
+        self._blind_aim_spent = False                      # one blind (cursor-less) A per bag trip
         # Cap raised 4->6 (2026-08-04 Gary): frozen-frame battles burn 2-3 laps before the
         # party screen even registers, so a 4-lap budget died the instant aiming started.
         # The wrong-aim A-spam risk that set the old cap is now closed by the no_effect
@@ -3244,9 +3357,38 @@ class BattleAgent:
                     # match or Full Heal) or we abort before the confirm.
                     if _is_cure:
                         _cur_status, _sok = self._true_active_party_status()
-                        if not _sok:
+                        _bstatus = None
+                        try:
                             _st = st.read_battle(self.b) or {}
-                            _cur_status = _decode_status((_st.get("ours") or {}).get("status1", 0) or 0)
+                            _bstatus = _decode_status(
+                                (_st.get("ours") or {}).get("status1", 0) or 0)
+                        except Exception:
+                            _bstatus = None
+                        if not _sok:
+                            _cur_status = _bstatus
+                        # BOTH live structs get a vote, plus the caller's offer-time reading.
+                        # 2026-08-16 THE LANCE WIPE: this branch used ONE source (party struct,
+                        # falling back to gBattleMons only when the party READ failed — not when
+                        # the two DISAGREED) and it came back empty on a Moltres the offer had
+                        # measured as 'paralysis' one menu-transition earlier. It aborted the
+                        # Full Heal at "Use on which POKéMON?", the caller latched CURE-BLOCK for
+                        # the rest of the fight, and `_exit_bag` believed the (lying) classifiers
+                        # and left the party screen up -> MENU WEDGE 60s -> Dragonair killed a
+                        # full-HP Moltres for free -> whiteout, one room from the credits.
+                        #
+                        # The risk here is ASYMMETRIC and we had it backwards. Confirming a cure
+                        # on an already-clear mon costs ONE turn and a dismissable "It won't have
+                        # any effect." box. Aborting a cure the mon actually needs costs the RUN.
+                        # So: any source that still sees a status wins, and we only abort when
+                        # every source agrees there is nothing to cure.
+                        _witness = _cur_status or _bstatus or (known_status or None)
+                        if not _cur_status and _witness:
+                            self.log(f"   [engine] use_item: menu-time status read empty but "
+                                     f"{'gBattleMons' if _bstatus else 'the offer'} still says "
+                                     f"{_witness!r} — STATUS-TEAR at menu time, NOT an abort. "
+                                     f"Confirming the cure (a wasted turn beats a CURE-BLOCK "
+                                     f"latch + wedged party screen — the Lance wipe)")
+                            _cur_status = _witness
                         if not _cur_status:
                             # Live Lorelei 18:23: Full Heal landed ("BLASTOISE became
                             # healthy") but bag-count lagged one walk; this abort
@@ -3259,6 +3401,13 @@ class BattleAgent:
                                 break
                             self.log("   [engine] use_item: active has NO status — aborting cure "
                                      "(no_effect; was the Awakening re-open loop)")
+                            # B-STORM, not _exit_bag (2026-08-16): we abort from INSIDE
+                            # "Use on which POKéMON?", the exact screen whose classifiers
+                            # lie (live: party=False bag=True while the party list was up).
+                            # _exit_bag consults those same classifiers and returned
+                            # "clean" onto an open party screen -> the next turn's move
+                            # commit found menu_up=1/action=False -> 60s MENU WEDGE.
+                            self._blind_menu_unwind(8)
                             self._exit_bag()
                             return "no_effect"
                         _needed = _STATUS_CURE_ITEM.get(_cur_status)
@@ -3285,7 +3434,7 @@ class BattleAgent:
                     for try_row in fainted_rows or [_row]:
                         if try_row is None:
                             continue
-                        if self._revive_land_fainted_row(try_row):
+                        if self._revive_land_fainted_row(try_row, item_id=item_id, cnt0=cnt0):
                             landed = True
                             break
                     if not landed:
@@ -3778,7 +3927,10 @@ class BattleAgent:
         if pick and pick in plan:
             item, kind = plan[pick]
             self.log(f"   [engine] ITEM-INSTINCT pick -> {pick} (item {item}, aim={kind})")
-            res = self.use_item_in_battle(item, target=kind)
+            # `status` here came through the STATUS-TEAR GUARD above (both structs cross-checked).
+            # Hand it to the menu-time cure re-check as a witness so a tear one transition later
+            # cannot abort a cure the mon genuinely needs (2026-08-16, the Lance wipe).
+            res = self.use_item_in_battle(item, target=kind, known_status=status)
             if res == "failed":
                 self._latch_bag_fail(f"{pick} item {item} not consumed")
             if pick == "use_revive" and res != "used":
@@ -4233,6 +4385,10 @@ class BattleAgent:
         Vine Whip), not a pre-swapped slot 0. We never press B at the action menu (that flees a
         wild battle); B is only used to back out of a wrongly-opened submenu."""
         ours, enemy = state["ours"], state["enemy"]
+        # THE LANCE WIPE GATE (2026-08-16): bind the refusal/skip ledgers to the mon that is OUT
+        # before a single one of them is consulted below (`_usable`, the E4 RETRY guard, the
+        # least-refused fallbacks). Slot indices are only meaningful per-moveset.
+        self._sync_move_ledger(ours.get("species"))
         _our_types = [t for t in (ours.get("types") or []) if t and t != "???"]
         # [dbl] PIN the choosing battler for this whole commit: slot 2's action/move cursors
         # live at array entry +2 (the ARRAY TRUTH note) and the post-commit PP audit must read
@@ -4269,13 +4425,42 @@ class BattleAgent:
                     # Live 20:22: Surf "didn't fire" (menu miss, PP still 5) then
                     # skip_streak rotated to Skull Bash 0x Ghost. A menu miss is
                     # not 0-PP — retry the wincon unless the GAME text-refused it.
-                    if (pref in self._skip_streak
-                            and (ours["moves"][pref].get("pp") or 0) > 0
-                            and self._move_refused.get(pref, 0) < 2):
+                    #
+                    # 2026-08-16 LANCE WIPE, second half: the `< 2` bar is the RIGHT
+                    # bar for a random move but the WRONG one for the wincon when the
+                    # PP byte still reads healthy. A genuine "There's no PP left!" can
+                    # only happen at pp==0; a tally on a move the game still says has
+                    # PP is our own menu actuation missing (this battle threw three
+                    # MENU WEDGEs — the actuation is demonstrably flaky). Exiling on
+                    # two of OUR misses is how an L89 Blastoise ends up hitting Rock/
+                    # Flying with a 2-turn Normal move. So: while the wincon's PP reads
+                    # > 0, keep re-firing it, BOUNDED by E4_WINCON_REFIRE_MAX per mon.
+                    # Past the bound the normal rotation takes over, and `_amove_futile`
+                    # / FUTILE_AMOVE_MAX still owns the real anti-livelock rescue (the
+                    # bench switch), so this can never become the Tackle-forever loop.
+                    _wc_pp = (ours["moves"][pref].get("pp") or 0)
+                    _wc_ref = self._move_refused.get(pref, 0)
+                    if not isinstance(getattr(self, "_wincon_refires", None), dict):
+                        self._wincon_refires = {}
+                    _wc_key = (ours.get("species"), pref)
+                    _wc_n = self._wincon_refires.get(_wc_key, 0)
+                    if (pref in self._skip_streak and _wc_pp > 0
+                            and (_wc_ref < 2 or _wc_n < E4_WINCON_REFIRE_MAX)):
                         self._skip_streak.discard(pref)
-                        self.log("   [engine] E4 RETRY: wincon still has PP — last "
-                                 "commit was a menu miss, not 0-PP. Firing it again "
-                                 "(never rotate Surf→Skull Bash / Flamethrower→Agility)")
+                        if _wc_ref >= 2:
+                            # Past the generic exile bar — say so, and un-exile the slot
+                            # so `_usable` stops calling our own miss a dry move.
+                            self._wincon_refires[_wc_key] = _wc_n + 1
+                            self._move_refused[pref] = 1
+                            self.log(f"   [engine] E4 WINCON UN-EXILE: "
+                                     f"{ours['moves'][pref].get('name', 'move')} reads pp={_wc_pp} "
+                                     f"but had {_wc_ref} refusals — those were MENU MISSES, not "
+                                     f"0-PP (re-fire {_wc_n + 1}/{E4_WINCON_REFIRE_MAX} for this "
+                                     f"mon). Never Surf→Skull Bash on Rock/Flying.")
+                        else:
+                            self.log("   [engine] E4 RETRY: wincon still has PP — last "
+                                     "commit was a menu miss, not 0-PP. Firing it again "
+                                     "(never rotate Surf→Skull Bash / Flamethrower→Agility)")
                     self.log(f"   [engine] E4 MOVE: {desc} — firing the max-damage pick "
                              f"(EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)")
                 else:
@@ -4925,19 +5110,27 @@ class BattleAgent:
     def _item_slot_id(self):
         """Position on the ITEM-USE target screen: 0..5 = a party row, 6 = CANCEL, None = unreadable.
 
-        MEASURED (recon_revive_cursor2.py, 2026-08-14, live Lorelei fixture, 10-stop ring):
-          * the right-column/lead ORANGE reads the highlight correctly at every stop once the
-            opening fade is done — pixels are the primary vote
-          * ITEM_PARTY_CURSOR is the confirming second vote and the ONLY vote on CANCEL (where
-            neither the lead panel nor a right-column row is lit): it read [0,1,2,3,7,...]
-          * the old PARTY_CURSOR byte read [2,1,0,2,1,0,...] here — a blink counter, see the
+        RAM FIRST — and that ordering is the whole fix (2026-08-15, the SIX-UNUSED-REVIVES
+        WHITEOUT). Live Agatha (playlive_2026-08-15_07-29-05.log): the target screen was
+        verifiably up ("REVIVE is selected." / "Use on which POKEMON?"), 36 DOWN taps fired
+        with ZERO dropped by the bridge, and this reader answered `0` every single time — so
+        three aims x twelve laps found nothing, the walk refused A (correctly), the battle-wide
+        latch armed, and 6 Revives rode a 3-corpse party into a whiteout. The ring walk was
+        never the bug: `recon_revive_land` passes on a fresh core. The bug was the VOTE ORDER.
+        Pixels were asked first, and on this long-running core the framebuffer goes STALE (the
+        frozen-frame disease this file has fought for months) — one stale frame pins the pixel
+        vote on the home/lead panel forever and the measured byte is never even read.
+
+        MEASURED (recon_revive_cursor2 2026-08-14 + recon_revive_frozenframe 2026-08-15, live
+        Lorelei fixture, 10-stop ring):
+          * ITEM_PARTY_CURSOR tracks the highlight EXACTLY at every stop: 0,1,2,3,7(CANCEL),0 —
+            on live frames AND with the framebuffer deliberately frozen (case 2b: pixels went
+            blind, `None/False` at all 8 stops; the byte still tracked perfectly)
+          * the right-column/lead ORANGE agrees when the frame is fresh, so it stays as the
+            fallback for the (rare) frames where the byte reads out of range
+          * the old PARTY_CURSOR byte reads [1,2,1,1,2,...] here — a blink counter, see the
             BLINK-COUNTER LAW at the top of this file. Never use it on this screen.
         """
-        pix = self._party_cursor_slot()
-        if pix is None and self._party_cursor_on_lead():
-            pix = 0
-        if pix is not None:
-            return int(pix)
         try:
             v = int(self.b.rd8(ITEM_PARTY_CURSOR))
             if 0 <= v <= 5:
@@ -4946,6 +5139,11 @@ class BattleAgent:
                 return ITEM_PARTY_CANCEL
         except Exception:
             pass
+        pix = self._party_cursor_slot()
+        if pix is None and self._party_cursor_on_lead():
+            pix = 0
+        if pix is not None:
+            return int(pix)
         return None
 
     def _item_party_settle(self, need=3, gap=8, max_frames=120):
@@ -4974,38 +5172,189 @@ class BattleAgent:
         return last
 
     def _item_party_walk(self, row, kind="item"):
-        """Land the ITEM-USE target cursor on party `row`. DOWN-ONLY, ring-aware.
+        """Land the ITEM-USE target cursor on party `row`. DOWN-ONLY, ring-aware, CLOSED-LOOP.
 
         MEASURED ring (recon_revive_cursor2): DOWN steps lead -> 1 -> 2 -> ... -> last ->
         CANCEL -> wraps to lead. So DOWN alone reaches every row from anywhere, and we never
         need the keys that can detonate: LEFT (lead-LEFT is CANCEL), UP (slot0-UP is CANCEL),
         B (cancels back to the bag list — the Gary wipe, four Revives 'selected', zero
-        consumed). Returns True iff the cursor is verifiably ON `row`."""
+        consumed). Returns True iff the cursor is verifiably ON `row`.
+
+        PROVE-BY-MOVING (2026-08-15, recon_revive_frozenframe case 2): a position reading that
+        has never CHANGED under our own DOWN taps is not evidence of anything. With the
+        framebuffer frozen, the reader answered "already on the row you want" at lap 0 — the
+        walk pressed nothing, A confirmed the HOME slot (a LIVING mon), "It won't have any
+        effect.", four times, item never consumed. So `cur == row` alone no longer authorizes
+        the A: the walk must have SEEN the reading move at least once first. A reading that
+        never moves across the whole budget is a MUTE byte, flagged for the caller.
+        """
+        self._item_cursor_mute = False
         if row is None:
             return False
         row = int(row)
         rows = self._menu_rows()
         if row < 0 or row >= len(rows):
             return False
+        # SESSION LATCH: once this core has PROVEN the cursor unreadable (heap-moved struct +
+        # stale frames), re-running twelve laps of dead menu on every later Revive is pure
+        # on-stream theater. Go straight to the blind sweep.
+        if getattr(self.b, "_item_cursor_mute_seen", False):
+            self._item_cursor_mute = True
+            self.log(f"   [engine] use_item: {kind} cursor readback already PROVEN mute on this "
+                     "core — skipping the walk, straight to the blind sweep")
+            return False
         cur = self._item_party_settle()
         if cur is None:
+            self._item_cursor_mute = True
             self.log(f"   [engine] use_item: {kind} target screen highlight never settled "
                      "— no A (fail-safe)")
             return False
         ring = len(rows) + 1                       # party rows + CANCEL
         budget = 2 * ring + 2                      # two full laps, plus slack for eaten taps
+        mute_at = 3                                # taps with a frozen reading = an unreadable cursor
+        seen = [cur]
         for lap in range(budget):
             if not (self._party_screen() or self._party_menu_cb2()):
                 return False
             cur = self._item_slot_id()
+            if cur is not None:
+                seen.append(cur)
+            moved = len(set(seen)) > 1
             self.log(f"   [engine] use_item: {kind} pos={cur} want={row} "
-                     f"lap={lap}/{budget} (DOWN-only ring, len {ring})")
-            if cur == row:
+                     f"lap={lap}/{budget} (DOWN-only ring, len {ring}, moved={moved})")
+            if cur == row and moved:
                 return True
+            if lap >= mute_at and not moved:
+                # Bail EARLY: the reading has not budged under our own taps, so it is not a
+                # cursor. Burning the other nine laps only wastes stream time.
+                self._item_cursor_mute = True
+                self.b._item_cursor_mute_seen = True
+                self.log(f"   [engine] use_item: {kind} cursor reading FROZEN at {cur} across "
+                         f"{lap} taps — MUTE (heap-moved slotId / stale frames), latching for "
+                         "this core and handing off to the blind sweep")
+                return False
             self._tap("DOWN")
-            self._wait(16)
+            self._wait(20)
+        self._item_cursor_mute = len(set(seen)) <= 1
+        if self._item_cursor_mute:
+            self.b._item_cursor_mute_seen = True
         self.log(f"   [engine] use_item: {kind} ring walk exhausted "
-                 f"(pos={self._item_slot_id()} want={row}) — no A (fail-safe)")
+                 f"(pos={self._item_slot_id()} want={row}, readings={sorted(set(seen))}) — "
+                 f"no A (fail-safe{'; MUTE cursor byte' if self._item_cursor_mute else ''})")
+        return False
+
+    def _item_reenter_target_screen(self, tries=3):
+        """From the bag list (REVIVE still the selected row) get back onto "Use on which
+        POKEMON?". One A selects the item, a second confirms USE — live needs one, the fixture
+        needs two, so press until callback2 says the party menu owns input. RAM truth only."""
+        for _ in range(tries):
+            if self._party_menu_cb2() or self._party_screen():
+                return True
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(34)
+        return bool(self._party_menu_cb2() or self._party_screen())
+
+    def _revive_blind_downcount(self, item_id, cnt0, row, rows):
+        """Aim the Revive with NO cursor readback at all: DOWN exactly k times from HOME, A once.
+
+        WHY there is nothing to read (live 2026-08-15, Lance's Room): the walk logged
+        `readings=[0]` — the slotId byte sat frozen for all twelve laps, while the same byte
+        tracks the ring perfectly on a staged core (recon_revive_frozenframe case 1/2b). That is
+        the signature of a HEAP-ALLOCATED struct — the party-menu internals are AllocZeroed per
+        open, so an address derived on one core points at unrelated memory on a core with 55
+        hours of allocation history. The pixel readers are the very thing the frozen-frame
+        disease eats. So both votes are gone, and the only honest primitives left are: the
+        target screen ALWAYS opens at HOME, DOWN always steps one row (measured ring), and the
+        bag COUNT cannot lie.
+
+        HOME is knowable: gBattlerPartyIndexes[0] — the same value the heal path aims with, and
+        it verified live ("MUTE-CORE home A on row 0 (zapdos ...)" -> Full Restore consumed). So
+        k = (target - home) mod ring is a REAL aim, not a guess.
+
+        ONE A PER BAG TRIP is the load-bearing rule. The first blind sweep pressed several A's
+        inside one trip; a failed Revive perturbs the menu stack (live: unwinds to the bag list;
+        fixture: leaves a box up), so press #2 onward landed somewhere unknown — that is how the
+        original Gary wipe scrolled the bag from REVIVE to NUGGET. Here each attempt spends
+        exactly one A and then returns; `_use_item`'s own re-aim lap and the next turn's offer
+        provide the retries, with k rotating so every row is covered.
+        """
+        ring = max(2, len(rows) + 1)
+        # WHERE DOES THE HIGHLIGHT START? THE REPO CONTRADICTS ITSELF, SO DO NOT BET ON IT:
+        #   * `_use_item`'s 'active' branch (line ~3226) carries a LIVE receipt that it opens on
+        #     gBattlerPartyIndexes[0], NOT display row 0 ("live 12:34: Articuno out = home slot 3").
+        #   * `hm_teach` (~line 166) states the opposite: "Item-use party: opens on slot 0".
+        #   * recon_revive_frozenframe reads position 0 at every `stop 0` — but in that fixture the
+        #     ACTIVE mon IS slot 0, so both claims predict 0. That fixture cannot tell them apart.
+        # MEASURED 2026-08-15 (recon_revive_frozenframe CASE 6, which CAN tell them apart): with
+        # gBattlerPartyIndexes[0] poked to 3 while the only LIVING mon was slot 0 and slot 3 was a
+        # corpse, aiming "DOWN x0 from home=bpi" did NOT consume — so the highlight was sitting on
+        # the living slot 0, not on bpi. Whether the game ignores that variable or the read is
+        # simply stale does not matter: the cursor does not follow it, so it cannot be `home`.
+        # Display row 0 leads the plan; bpi stays as a cheap second guess in case the 12:34 receipt
+        # was real; then an exhaustive sweep covers every position in <= ring attempts regardless.
+        # `k` is a number of DOWN taps and the ring wraps, so the sweep always terminates.
+        want = int(row)
+        try:
+            bpi = int(self.b.rd16(ram.GBATTLER_PARTY_IDX))
+        except Exception:
+            bpi = 0
+        if not (0 <= bpi < ring):
+            bpi = 0
+        guesses = [want % ring,                  # hypothesis B: home = display row 0 (MEASURED)
+                   (want - bpi) % ring]          # hypothesis A: home = gBattlerPartyIndexes[0]
+        plan = []
+        for g in guesses + list(range(ring)):    # informed first, then exhaustive
+            if g not in plan:
+                plan.append(g)
+        attempt = int(getattr(self.b, "_revive_blind_try", 0))
+        k = plan[attempt % len(plan)]
+        self.b._revive_blind_try = attempt + 1
+        name = st.SPECIES_NAME.get((rows[int(row)] if int(row) < len(rows) else {}).get("species"), "?")
+        self.log(f"   [engine] use_item: revive BLIND DOWN-COUNT aim — DOWN x{k} "
+                 f"(attempt {attempt} of plan {plan}: 2 informed guesses then an exhaustive "
+                 f"sweep; bpi={bpi}, want row {want}/{name}, ring={ring}); "
+                 "one A per bag trip, count-drop is the only truth")
+        # WAIT OUT THE OPENING FADE BEFORE THE FIRST TAP. Measured (recon_revive_cursor, and
+        # written into `_item_party_settle`): d-pad fired inside the fade is EATEN and the stable
+        # highlight only exists ~40 frames after the screen takes input. The readable-cursor walk
+        # gets this for free via `_item_party_settle`; the blind path skipped it and tapped
+        # straight into the fade — which is why the live log shows k=0,1,2,3,4 all producing the
+        # IDENTICAL non-consume: the taps never moved anything, so every A hit the same row.
+        # A blind path cannot settle on a readback, so this is a raw frame wait.
+        self._wait(60)
+        if not (self._party_menu_cb2() or self._party_screen()):
+            self.log("   [engine] use_item: revive blind aim — target screen gone after the "
+                     "fade wait — no A (fail-safe)")
+            return False
+        for _ in range(k):
+            self._tap("DOWN")
+            self._wait(22)
+        if not (self._party_menu_cb2() or self._party_screen()):
+            self.log("   [engine] use_item: revive blind aim lost the target screen mid-walk "
+                     "— no A (fail-safe)")
+            return False
+        self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+        self._wait(46)
+        if self._items_count(item_id) < cnt0:
+            self.log(f"   [engine] use_item: revive BLIND AIM LANDED (DOWN x{k}) — item "
+                     f"{item_id} consumed, so it WAS a 0-HP row (the game's own rule)")
+            self.b._revive_blind_try = 0
+            return True
+        # SELF-DIAGNOSING MISS. On a core where no cursor is readable, the game's own no-effect
+        # box is the one thing that separates the two failure modes: a box means the A landed on
+        # a LIVING row (so the taps DID move — keep enumerating), no box at all means the A was
+        # swallowed (the screen was not taking input yet — the fade wait is still too short).
+        # `_white_box()` can itself be blind on this core, so this is a HINT, logged as one.
+        box = False
+        try:
+            box = bool(self._white_box())
+        except Exception:
+            pass
+        why = ("no-effect box seen — the aim LANDED on a living row (taps are working)" if box
+               else "no box seen — either the A was swallowed or the box reader is blind too")
+        self._dismiss_item_no_effect()
+        self.log(f"   [engine] use_item: revive blind aim DOWN x{k} did not consume — {why}; "
+                 f"next attempt enumerates k={(self.b._revive_blind_try - 1) % ring}")
         return False
 
     # REMOVED 2026-08-14: _confirm_party_row(want) — a DOWN/UP probe that fell back to
@@ -5061,6 +5410,12 @@ class BattleAgent:
         # Agatha latched after 2 REFUSE-A and 3 Revives sat unused. Keep
         # retrying; latch only after a pile of misses so bag theater dies.
         cap = 6 if e4 else 2
+        # ...and on a core whose item-use cursor is PROVEN unreadable, a miss is not a miss at
+        # all: it is the blind DOWN-COUNT aim walking its offsets (each attempt spends one A and
+        # costs nothing). Latching at 6 could shut the bag before the rotation reaches the
+        # corpse on a full party. Give the rotation room.
+        if getattr(self.b, "_item_cursor_mute_seen", False):
+            cap = max(cap, 14)
         if self._revive_fail_n < cap:
             tag = ("first miss" if self._revive_fail_n == 1
                    else f"miss {self._revive_fail_n}/{cap}")
@@ -5204,6 +5559,14 @@ class BattleAgent:
         already the home slot, so a spurious `break` was harmless. Aim at anything else (a
         bench Ether, a bench heal) and it mis-landed exactly like the Revive did. One
         measured primitive for both paths now.
+
+        2026-08-15 MUTE-CORE PATH: when the cursor readback is proven unreadable (see
+        `_item_party_walk`), a heal aimed at the ACTIVE mon is the one case that needs no
+        cursor at all — the target screen HOMES on the battler that is out, which is exactly
+        who we are healing. So on a mute core we press A on home (the historical behavior,
+        count-drop still the only truth) instead of refusing and letting her faint holding a
+        Full Restore. Any OTHER row still refuses: a blind A there is a wrong-target A, and
+        unlike a Revive a potion on the wrong living mon IS consumed.
         """
         if row is None:
             return False
@@ -5214,7 +5577,24 @@ class BattleAgent:
         if row < 0 or row >= len(rows):
             return False
         if not self._item_party_walk(row, kind=kind):
-            return False
+            if not getattr(self, "_item_cursor_mute", False):
+                return False
+            try:
+                home = int(self.b.rd16(ram.GBATTLER_PARTY_IDX))
+            except Exception:
+                home = 0
+            if row != home:
+                self.log(f"   [engine] use_item: REFUSE A — {kind} cursor mute and row {row} "
+                         f"is not the home/active slot {home} (a blind potion A would be spent "
+                         "on the wrong mon)")
+                return False
+            name = st.SPECIES_NAME.get(rows[row].get("species"), "?")
+            self.log(f"   [engine] use_item: {kind} MUTE-CORE home A on row {row} ({name} "
+                     f"hp={rows[row].get('hp')}/{rows[row].get('maxhp')}) — the target screen "
+                     "homes on the active battler, which is who this heals")
+            self.b.press("A", self.hold, self.hold, self.render, owner=self.owner)
+            self._wait(40)
+            return True
         rows = self._menu_rows()
         cur = self._item_slot_id()
         if cur is None or cur < 0 or cur >= len(rows):
@@ -5235,7 +5615,7 @@ class BattleAgent:
         self._wait(40)
         return True
 
-    def _revive_land_fainted_row(self, row):
+    def _revive_land_fainted_row(self, row, item_id=None, cnt0=None):
         """Land the Revive on a 0-HP party row and press A once.
 
         2026-08-14 REWRITE (the six-unused-Revives wall — see the BLINK-COUNTER LAW at the
@@ -5244,6 +5624,11 @@ class BattleAgent:
         without pressing anything, and the 0-HP guard refused A. Live Lorelei: 3 attempts,
         6 Revives, 0 consumed. Now: settle the fade, DOWN-only ring walk by measured position,
         then A once — and still NEVER A unless the highlight is verifiably a 0-HP row.
+
+        2026-08-15: the walk is RAM-first and prove-by-moving (see `_item_slot_id` /
+        `_item_party_walk`). If the measured byte goes MUTE — the failure mode this whole
+        family keeps mutating into — fall through to the bounded BLIND RING SWEEP rather than
+        walk away from a bag full of Revives, which is what whited out the 54-hour run.
         """
         if row is None:
             return False
@@ -5254,6 +5639,22 @@ class BattleAgent:
         if row < 0 or row >= len(rows) or int(rows[row].get("hp") or 0) != 0:
             return False
         if not self._item_party_walk(row, kind="revive"):
+            if getattr(self, "_item_cursor_mute", False) and item_id is not None \
+                    and cnt0 is not None:
+                # ONE BLIND AIM PER BAG TRIP (live 2026-08-15 Bruno). `_use_item` tries every
+                # fainted row in turn (`tried rows [3, 1, 2]`), which is right for a READABLE
+                # cursor — but a blind aim ENDS with an A, and a failed Revive unwinds the menu
+                # stack to the bag list. So aims #2 and #3 fired DOWN/A at the BAG: scrolling
+                # off REVIVE and confirming whatever item landed under the cursor. That is the
+                # documented Gary-wipe trap, and it ate 4 of 6 attempts (k=0 twice, then random
+                # positions) which is why five enumerated offsets never found three corpses.
+                if getattr(self, "_blind_aim_spent", False):
+                    self.log("   [engine] use_item: revive blind aim already spent this bag trip "
+                             "— refusing a second (it would press DOWN/A on the BAG list); the "
+                             "next turn's offer enumerates the next offset")
+                    return False
+                self._blind_aim_spent = True
+                return self._revive_blind_downcount(item_id, cnt0, row, rows)
             return False
         # Re-derive at A-time (the MENU-TIME ORDER LAW): confirm the cursor is on a corpse.
         rows = self._menu_rows()
@@ -5581,21 +5982,33 @@ class BattleAgent:
             return None
 
     def _lorelei_banned(self):
-        """Articuno never. Blastoise banned only when Zapdos has Electric damage."""
+        """Articuno never. ZAPDOS while a body that survives Ice is standing.
+
+        THE 4x LAW (e4_strike, measured 2026-08-15): Lorelei fields three Ice Beams and
+        an Ice Punch; Ice is 4x on Electric/Flying, so her LEAD Dewgong OHKOs a L51
+        Zapdos (~175 vs 156 HP) and the 2x Shock Wave never pays. Blastoise takes the
+        same hit at 0.5x. Reads live HP so the ban lifts the moment Blastoise is down —
+        that is when the gun becomes the best thing left."""
         if self._league_seat() != "Lorelei":
             return frozenset()
         try:
             import e4_strike
             zap = None
+            alive = set()
             cnt = self.b.rd8(ram.GPLAYER_PARTY_CNT)
             for s in range(min(cnt, 6)):
                 if self.b.rd16(ram.GPLAYER_PARTY + s * 100 + 0x56) <= 0:
                     continue
-                if st.read_party_species(self.b, s) == e4_strike.ZAPDOS_SP:
+                sp = st.read_party_species(self.b, s)
+                alive.add(sp)
+                if sp == e4_strike.ZAPDOS_SP and zap is None:
                     zap = s
-                    break
             zap_elec = bool(zap is not None and e4_strike.slot_has_electric_damage(self.b, zap))
-            return e4_strike.lorelei_banned_species(zap_elec)
+            return e4_strike.lorelei_banned_species(
+                zap_elec,
+                blastoise_alive=e4_strike.BLASTOISE_SP in alive,
+                moltres_alive=e4_strike.MOLTRES_SP in alive,
+            )
         except Exception:
             return frozenset({144})
 
@@ -5703,7 +6116,7 @@ class BattleAgent:
             if sp == active_sp:
                 continue                                  # (probably) the one already out
             if sp in _lorelei_ban:
-                continue                                  # NEVER Blastoise/Articuno into Lorelei
+                continue                                  # NEVER Articuno / 4x-Ice Zapdos vs Lorelei
             lv = self.b.rd8(ram.GPLAYER_PARTY + s * 100 + 0x54)
             types = st.species_types(sp)
             if not types:
@@ -5850,8 +6263,8 @@ class BattleAgent:
             return "stay"
         if isinstance(decision, int):
             want = st.read_party_species(self.b, decision)
-            if want in e4_strike.lorelei_banned_species(zap_elec):
-                self.log("   [engine] MATCHUP SWITCH: blocked Articuno/Blastoise-with-gun vs Lorelei")
+            if want in self._lorelei_banned():
+                self.log("   [engine] MATCHUP SWITCH: blocked Articuno / 4x-Ice Zapdos vs Lorelei")
                 return "stay"
             return decision
         return "stay"
@@ -6645,6 +7058,26 @@ class BattleAgent:
         # skip_streak alone can't hold it because war-must-advance CLEARS the streak when it's the only
         # candidate. >=2 refusals = EXILED for this battle whatever its PP byte says: dropped from move
         # picks AND counted as dry by the famine test (so the famine switch — the real rescue — fires).
+        #
+        # 2026-08-16 LANCE WIPE — THE LEDGER IS PER-MON, NOT PER-BATTLE. This dict is keyed by move
+        # SLOT INDEX, and slot 1 on Zapdos (Shock Wave) is a completely different move from slot 1 on
+        # Blastoise (Surf). It was never reset when the active mon changed, so in a 4-mon E4 gauntlet
+        # fight the refusals CROSS-CONTAMINATED: Zapdos missed a menu commit on slot 1 (`refusals
+        # {1: 1}`), Blastoise came in and missed slot 1 once (`refusals {1: 2}`) — and that second
+        # tally EXILED Surf. An L89 Blastoise then fought Lance's Aerodactyl with Skull Bash (0.5x,
+        # 2-turn charge) for eight turns and died with Surf sitting at pp=4/ref=2. Same battle,
+        # Articuno's dead slot 3 leaked onto Moltres (`refusals {3: 1, 2: 1}`) and only missed
+        # exiling its wincon by luck of the slot number.
+        # Fix: the ledger lives PER SPECIES (`_move_refused_by_sp`), and `self._move_refused` is a
+        # live VIEW onto the active mon's ledger, re-pointed by `_sync_move_ledger` at the top of
+        # every move commit. Every existing read/write site keeps working unchanged, the anti-Tackle
+        # exile still holds for the mon that actually earned it (including across a switch-out and
+        # back), and one mon's dead slot can never bench another mon's wincon.
+        self._move_refused_by_sp = {}      # species -> {slot: refusals}   (per-mon exile ledgers)
+        self._skip_streak_by_sp = {}       # species -> set(slots)         (per-mon rotation streaks)
+        self._ledger_sp = None             # species the two views above currently point at
+        self._wincon_refires = {}          # (species, slot) -> bounded E4 wincon un-exiles (see
+        #                                    E4_WINCON_REFIRE_MAX: a pp>0 "refusal" is our miss)
         self._amove_futile = 0             # 2026-08-03 09:07 (the parked-on-Tackle photos): count EVERY
         # fruitless move-list confirm this battle, whoever pressed it (turn loop, struggle-walk, war
         # paths). The per-slot ledger can be poisoned when the cursor readback and the DRAWN cursor

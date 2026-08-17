@@ -38,9 +38,14 @@ Stubs the bridge + the TeachFlow bag rails and drives the pure doctrine logic:
      CB2_Overworld — ram.start_menu_open (gTasks scan for Task_StartMenuHandleInput) sees
      it where cb2 + bag/party pixels are all blind; wired through _stray_menu_kind, the
      sweep, the disengage rung, the strike-leg guard, and _confirm_world_back;
- 13. the UNIVERSAL B-FIRST rung: a drift-calibrated screen-change probe closes menus no
+  13. the UNIVERSAL B-FIRST rung: a drift-calibrated screen-change probe closes menus no
      classifier knows yet (2 bounded Bs), skipping the phantom wedge-mark; ambient tile
-     animation alone never reads as a menu.
+     animation alone never reads as a menu;
+  14. THE LAST FULL RESTORE IS RESERVED FOR BATTLE (2026-08-16, the Lance wipe): comfort
+     top-ups never drink the bag's final FR; genuinely-hurt mons still do;
+  15. field rails never press START into a script-owned screen (2026-08-16, the Gary
+     seam): _await_free_screen waits for the box to drain; timeout fails CLOSED;
+     unreadable classifiers fail OPEN.
 Run:  python3 recon_fieldheal_check.py   (from pokemon_agent/) — prints PASS/FAIL per check.
 """
 import sys
@@ -137,6 +142,15 @@ class FakeTeachFlow:
     def field_heal(self, item_id, mon_slot):
         FakeTeachFlow.calls.append(("heal", item_id, mon_slot))
         res = WORLD.get("heal_result", "healed")
+        if res == "mis_aimed":
+            # 2026-08-16: one-shot remembered-cursor mis-aim — the bottle lands on the
+            # OTHER party member; the next call heals normally (the seam re-pick).
+            WORLD["heal_result"] = "healed"
+            other = 1 if mon_slot == 0 else 0
+            if other < len(WORLD["party"]):
+                WORLD["party"][other]["hp"] = WORLD["party"][other]["mx"]
+                WORLD["bag"][item_id] = WORLD["bag"].get(item_id, 0) - 1
+            return "mis_aimed"
         if res == "healed":
             WORLD["party"][mon_slot]["hp"] = WORLD["party"][mon_slot]["mx"]
             WORLD["bag"][item_id] = WORLD["bag"].get(item_id, 0) - 1
@@ -169,12 +183,14 @@ class RailsBridge:
     reads, and gMain.callback2 — which flips back to the overworld only after
     `world_after_b` total B presses (None = the menu NEVER closes, the live wedge)."""
 
-    def __init__(self, heal_after_a=6, world_after_b=None, cb2_raises=False):
+    def __init__(self, heal_after_a=6, world_after_b=None, cb2_raises=False, heal_slot=0):
         self.a = self.bs = 0
         self.start_cursor, self.pocket = 5, 1
         self.heal_after_a, self.world_after_b = heal_after_a, world_after_b
         self.cb2_raises = cb2_raises
         self.healed = False
+        self.heal_slot = heal_slot          # 2026-08-16: != 0 simulates the remembered-cursor
+                                            # mis-aim (the bottle lands on the WRONG mon)
 
     def set_input_owner(self, owner):
         pass
@@ -190,7 +206,8 @@ class RailsBridge:
             self.a += 1
             if self.a >= self.heal_after_a and not self.healed and WORLD["party"]:
                 self.healed = True                      # the drink lands: HP up, bottle gone
-                WORLD["party"][0]["hp"] = WORLD["party"][0]["mx"]
+                tgt = self.heal_slot if self.heal_slot < len(WORLD["party"]) else 0
+                WORLD["party"][tgt]["hp"] = WORLD["party"][tgt]["mx"]
                 WORLD["bag"][21] = max(0, WORLD["bag"].get(21, 0) - 1)
         elif key == "B":
             self.bs += 1
@@ -668,6 +685,107 @@ def main():
     campU._mark_wedge_spot = lambda r: marked13.append(r)
     check("...and a B that changes nothing still falls through to the classic wedge-mark",
           campU._disengage_step1(req13) == "mark" and marked13 == [req13])
+
+    print("== 14. THE LAST FULL RESTORE IS RESERVED FOR BATTLE (2026-08-16, Lance wipe) ==")
+    # Live 09:58, Agatha's room: Blastoise 199/269 (74%) drank the bag's ONLY Full
+    # Restore as the between-room party-wide top-up (ladder fell back to biggest
+    # present). The party entered Lance with FR x0, door sealed, and when the ace
+    # hit 73/269 mid-Lance there was nothing to drink -> whiteout one room from
+    # the credits. The last FR is the in-battle rescue; field COMFORT at/above
+    # ACE_FRAC never gets it. Genuinely-hurt mons still do.
+    set_world(party=[dict(BLASTOISE, hp=180), LAPRAS], bag={19: 1})
+    check("ace at 74%, FR x1 the only bottle -> HELD for battle (the wipe scenario), LOUD",
+          make_camp()._field_heal_pick(party_wide=True) is None
+          and any("holding" in ln and "Full Restore" in ln for ln in LOGS))
+    set_world(party=[dict(BLASTOISE, hp=100), LAPRAS], bag={19: 1})
+    check("...but a genuinely-hurt ace (41%) still drinks it — no Center on this road",
+          make_camp()._field_heal_pick(party_wide=True) == (0, 100, 244, 19))
+    set_world(party=[dict(BLASTOISE, hp=200), LAPRAS], bag={13: 2, 22: 1, 19: 1})
+    check("a Super beside the last FR -> the Super takes the 44-point chip, FR held",
+          make_camp()._field_heal_pick(party_wide=True) == (0, 200, 244, 22))
+    set_world(party=[dict(BLASTOISE, hp=180), LAPRAS], bag={19: 2})
+    check("GAUNTLET RESERVE (2026-08-16 evening): FR x2 before Lance/Gary is ALSO held "
+          "(the 17:54 Lance entry had FR x0 after comfort spends)",
+          make_camp()._field_heal_pick(party_wide=True) is None
+          and any("last TWO" in ln for ln in LOGS))
+    set_world(party=[dict(BLASTOISE, hp=180), LAPRAS], bag={19: 3})
+    check("FR x3 in the gauntlet -> the top-up may still drink one (reserve keeps two)",
+          make_camp()._field_heal_pick(party_wide=True) == (0, 180, 244, 19))
+    set_world(party=[dict(BLASTOISE, hp=180), LAPRAS], bag={19: 2})
+    check("...but OUTSIDE the gauntlet (legendary seam) the reserve is still ONE",
+          make_camp()._field_heal_pick(top_up=True) == (0, 180, 244, 19))
+    # THE BRUNO-SEAM MIS-PICK: ace at 82% (top-up eligible) while a bench mon sits at
+    # 13/130 — in the gauntlet the neediest body wins, never the ace-first queue-jump.
+    set_world(party=[dict(BLASTOISE, hp=200), dict(LAPRAS, hp=13)], bag={19: 3})
+    check("BRUNO-SEAM ORDER: gauntlet pick is the NEEDIEST body (13/130 bench), not the "
+          "82% ace's comfort top-up",
+          make_camp()._field_heal_pick(party_wide=True) == (1, 13, 130, 19))
+    set_world(party=[dict(BLASTOISE, hp=200), dict(LAPRAS, hp=13)], bag={19: 3})
+    check("...and outside the gauntlet the ace-first law still stands (82% ace first "
+          "under the pre-legendary bar)",
+          make_camp()._field_heal_pick(top_up=True) == (0, 200, 244, 19))
+
+    print("== 15. field rails never press START into a script-owned screen (2026-08-16, Gary seam) ==")
+    # Live Gary wipe: the champion's intro cutscene fired mid between-room revive; both
+    # attempts read "START menu never opened" and she entered Gary 3-alive with the ace
+    # at 50%. TeachFlow._await_free_screen must WAIT for the box to drain, not abort.
+    campW = make_camp()
+    campW.render = lambda: None
+    tf15 = RealTeachFlow(campW, log=lambda s: LOGS.append(str(s)), on_event=None)
+
+    class _FlipBridge:
+        """run_frame flips the script-box closed after 4 frames (the draining intro)."""
+        def __init__(self):
+            self.frames = 0
+        def press(self, key, hold, rel, render, owner=None):
+            pass
+        def run_frame(self):
+            self.frames += 1
+            if self.frames > 4:
+                WORLD["box"] = False
+        def frame_rgb(self):
+            return types.SimpleNamespace(load=lambda: _BlackPx())
+        rd8 = rd16 = rd32 = lambda a: 0
+
+    WORLD["box"] = True
+    tf15.b = _FlipBridge()
+    check("script owns the screen at entry -> WAIT for it to drain, then free to menu",
+          tf15._await_free_screen(max_seconds=5) is True)
+    WORLD["box"] = True
+    tf15.b = types.SimpleNamespace(run_frame=lambda: None,
+                                   rd8=lambda a: 0, rd16=lambda a: 0, rd32=lambda a: 0)
+    check("script never drains -> False after the deadline (fail CLOSED at the rail entry)",
+          tf15._await_free_screen(max_seconds=0.3) is False)
+    tf15.b = make_b()                                  # box-open unreadable -> fail OPEN
+    dd.box_open = lambda b: (_ for _ in ()).throw(RuntimeError("torn probe"))
+    check("classifier unreadable -> proceed (today's rails decide; never a soft-lock)",
+          tf15._await_free_screen(max_seconds=0.3) is True)
+    dd.box_open = lambda b: WORLD.get("box", False)
+
+    print("== 16. THE BRUNO-SEAM MIS-AIM (remembered cursor heals the WRONG mon) ==")
+    # Live 18:08 (Bruno seam): field heal aimed at slot 0 (Blastoise 215/266) but the
+    # item-use party screen had remembered its cursor from the GRIND-WEAK swaps — the
+    # bottle healed MOLTRES, the target check read "no HP change" and booked a 10-min
+    # backoff. Blastoise walked into Lance at 20/269. A landed heal is NOT a drive failure.
+    _rows16, _qty16 = ht.items_pocket_rows, ht.items_pocket_qty
+    ht.items_pocket_rows = lambda b: [(iid, q) for iid, q in WORLD["bag"].items() if q > 0]
+    ht.items_pocket_qty = lambda b, iid: WORLD["bag"].get(iid, 0)
+    set_world(party=[dict(BLASTOISE, hp=100), dict(LAPRAS, hp=30)], bag={21: 3})
+    br16 = RailsBridge(world_after_b=13, heal_slot=1)   # the bottle lands on slot 1
+    r16 = make_real_tf(br16).field_heal(21, 0)
+    check("consumed + target unchanged + a teammate's HP rose -> 'mis_aimed', LOUD",
+          r16 == "mis_aimed" and WORLD["party"][1]["hp"] == 130
+          and WORLD["party"][0]["hp"] == 100 and WORLD["bag"][21] == 2
+          and any("MIS-AIM" in ln for ln in LOGS))
+    ht.items_pocket_rows, ht.items_pocket_qty = _rows16, _qty16
+    set_world(party=[dict(BLASTOISE, hp=100), dict(LAPRAS, hp=30)], bag={21: 3},
+              heal_result="mis_aimed")
+    camp16 = make_camp()
+    n16 = camp16.field_heal_check(reason="strike")
+    check("campaign books a mis-aim as a LANDED heal (no 10-min backoff), then the "
+          "re-pick heals the intended mon",
+          n16 == 2 and WORLD["party"][0]["hp"] == 244 and WORLD["party"][1]["hp"] == 130
+          and getattr(camp16, "_field_heal_backoff", 0) <= time.time())
 
     C.log = _oldlog
     ok = all(PASS)
