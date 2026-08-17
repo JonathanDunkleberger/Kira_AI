@@ -1,0 +1,837 @@
+===== playlive_2026-08-16_17-54-53.log =====
+   [travel] start map=(13, 0) coords=(2, 7) -> coord (11, 15) (budget 60s, surf-capable)
+   [travel] step 0: (2, 7)->(2, 8) map=(13, 0) (path 18 to exit)
+   [travel] step 10: (4, 15)->(5, 15) map=(13, 0) (path 8 to exit)
+   [travel] reached target coord (11, 15)
+   [travel] start map=(13, 0) coords=(11, 16) -> coord (11, 15) (budget 60s, surf-capable)
+   [travel] step 0: (11, 16)->(11, 15) map=(13, 0) (path 2 to exit)
+   [travel] reached target coord (11, 15)
+   [travel] start map=(13, 0) coords=(11, 16) -> coord (11, 15) (budget 60s, surf-capable)
+   [travel] !! WATCHDOG disengage requested — bailing this leg LOUD
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Earthquake - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Earthquake - E4 wincon -> slot 2 (eff x1) vs dewgong 171/171 | [0]Skull Bash(p100,pp=15,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 2 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Earthquake - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Earthquake - E4 wincon -> slot 2 (eff x1) vs dewgong 53/171 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=10,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Earthquake - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Earthquake - E4 wincon -> slot 2 (eff x1) vs cloyster 127/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=9,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 127 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Earthquake - a solid hit (never Ice Beam Lapras / never Surf Water)
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 2 (eff x1) vs cloyster 127/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=8,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Earthquake - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Earthquake - E4 wincon -> slot 2 (eff x1) vs cloyster 68/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=7,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 68 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Earthquake - a solid hit (never Ice Beam Lapras / never Surf Water)
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 2 (eff x1) vs cloyster 68/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=6,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 68 across the full turn -> accuracy-debuff spiral (streak 2/3)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Earthquake - a solid hit (never Ice Beam Lapras / never Surf Water)
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 2 (eff x1) vs cloyster 68/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=5,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Earthquake - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Earthquake - E4 wincon -> slot 2 (eff x1) vs cloyster 5/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=4,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: foe HP changed
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Earthquake - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Earthquake - E4 wincon -> slot 2 (eff x1) vs cloyster 62/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=3,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Earthquake - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Earthquake - E4 wincon -> slot 2 (eff x1) vs cloyster 3/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=2,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 3 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L51 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Earthquake - a solid hit (never Ice Beam Lapras / never Surf Water)
+   [play-live]    [engine] action menu: Earthquake - a solid hit -> slot 2 (eff x1) vs cloyster 3/127 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=1,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Earthquake - a solid hit slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Skull Bash - a solid hit (never Ice Beam Lapras / never Surf Water)
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 0 (eff x1) vs slowbro 176/176 | [0]Skull Bash(p100,pp=14,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Skull Bash - a solid hit (never Ice Beam Lapras / never Surf Water)
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 0 (eff x1) vs slowbro 87/176 | [0]Skull Bash(p100,pp=13,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] WHIFF: foe HP unchanged at 87 across the full turn -> accuracy-debuff spiral (streak 1/3)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] E4 EQ DRY: no Ether/Elixir in bag — Skull Bash/Bite, never Surf (LOUD)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '117/266', 'status': 'sleep', 'foe': 'slowbro'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 19, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=1/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=1 want=0 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=2 want=0 lap=3/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=3 want=0 lap=4/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=6 want=0 lap=5/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=6/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal WALK landed row 0 (blastoise hp=117) via the DOWN-only ring (measured cursor)
+   [play-live]    [engine] use_item: USED item 19 (count 3->2)
+   [play-live]    [engine] battle-progress: item 19 consumed
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L52 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: banned matchup for blastoise — picked Skull Bash - a solid hit (never Ice Beam Lapras / never Surf Water)
+   [play-live]    [engine] action menu: Skull Bash - a solid hit -> slot 0 (eff x1) vs slowbro 87/176 | [0]Skull Bash(p100,pp=12,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - a solid hit slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 1
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] matchup switch did not confirm (fail 1/3) -> retry next turn (fail-safe, no wedge)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '249/266', 'status': 'sleep', 'foe': 'jynx'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 23, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=1/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=1 want=0 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=2 want=0 lap=3/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=3 want=0 lap=4/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=6 want=0 lap=5/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=6/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal WALK landed row 0 (blastoise hp=249) via the DOWN-only ring (measured cursor)
+   [play-live]    [engine] use_item: USED item 23 (count 2->1)
+   [play-live]    [engine] battle-progress: item 23 consumed
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs jynx 150/150 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=15,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 1
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] matchup switch did not confirm (fail 2/3) -> retry next turn (fail-safe, no wedge)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '232/266', 'status': 'sleep', 'foe': 'jynx'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 23, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=1/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=1 want=0 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=2 want=0 lap=3/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=3 want=0 lap=4/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=6 want=0 lap=5/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=6/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal WALK landed row 0 (blastoise hp=232) via the DOWN-only ring (measured cursor)
+   [play-live]    [engine] use_item: USED item 23 (count 1->0)
+   [play-live]    [engine] battle-progress: item 23 consumed
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs jynx 150/150 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=14,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (asleep) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 1
+   [play-live]    [engine] switch: target party slot 1 sp=146 -> menu row 1
+   [play-live]    [engine] switch: SWITCHED to species 146 (slot 1)
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lorelei answer holds — fight instead
+   [play-live]    [engine] move-ledger -> moltres (was blastoise; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x2) vs jynx 150/150 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=15,ref=0,sc=285)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 146<->9 — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 146<->9 — fight instead
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x1) vs lapras 220/220 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=14,ref=0,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 146<->9 — fight instead
+   [play-live]    [engine] ACE-FIRST: L55 legendary bird is NOT fodder next to L88 — offering heal
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '13/165', 'status': 'none', 'foe': 'lapras'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 7% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 19, aim=active)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_potion item 19 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] HEAL-FAIL: item 19 failed — NOT latching species 146 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 146<->9 — fight instead
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] SE-CHUNK observed: this foe class hits us super-effectively and HARD -> sleep-lock armed even at neutral damage
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x1) vs lapras 130/220 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=13,ref=0,sc=142.5)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MUST-LEAVE: active alive but stuck (status/famine/exhausted) -> bench slot 3 (NOT re-picking species 9)
+   [play-live]    [engine] switch: party didn't open via RAM nav — BLIND fallback (B out, DOWN DOWN A)
+   [play-live]    [engine] switch: party screen never took focus -> B out (fail-safe)
+   [play-live]    [engine] must-leave switch did not confirm -> fight/Struggle
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs onix 112/112 | [0]Skull Bash(p100,pp=11,ref=0,sc=25) [1]Surf(p95*STAB,pp=14,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (asleep) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs onix 112/112 | [0]Skull Bash(p100,pp=11,ref=0,sc=25) [1]Surf(p95*STAB,pp=14,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs onix 112/112 | [0]Skull Bash(p100,pp=11,ref=0,sc=25) [1]Surf(p95*STAB,pp=14,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] !! MENU WEDGE 60s with NO progress — escaping the scroll theater (fire 1/8, menu_up=0 action=False moves=False bag=False party=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonchan 131/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=13,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonchan 2/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=12,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: foe HP changed
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonchan 1/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=11,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonlee 131/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=10,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L88 vs L53 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs hitmonlee 12/131 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=9,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '65/266', 'status': 'none', 'foe': 'machamp'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 24% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 19, aim=active)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_potion item 19 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] HEAL-FAIL: item 19 failed — NOT latching species 9 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs machamp 183/183 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=8,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '68/269', 'status': 'none', 'foe': 'onix'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_potion (active at 25% <= crit floor 30% — a faint loses the fight; oracle bypassed)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 19, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=1/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=1 want=0 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=2 want=0 lap=3/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=3 want=0 lap=4/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=6 want=0 lap=5/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=0 want=0 lap=6/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal WALK landed row 0 (blastoise hp=68) via the DOWN-only ring (measured cursor)
+   [play-live]    [engine] use_item: USED item 19 (count 1->0)
+   [play-live]    [engine] battle-progress: item 19 consumed
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Bruno Blastoise holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs onix 118/118 | [0]Skull Bash(p100,pp=11,ref=0,sc=25) [1]Surf(p95*STAB,pp=7,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs gengar 145/145 | [0]Skull Bash(p100,pp=11,ref=0,sc=0) [1]Surf(p95*STAB,pp=6,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 2
+   [play-live]    [engine] switch: target party slot 2 sp=145 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 145 (slot 2)
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] move-ledger -> zapdos (was blastoise; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs golbat 161/161 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=20,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs golbat 161/161 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=20,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] !! MENU WEDGE 64s with NO progress — escaping the scroll theater (fire 1/8, menu_up=0 action=False moves=False bag=False party=False)
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 145<->9 — fight instead
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 145<->9 — fight instead
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs golbat 11/161 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=19,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: foe HP changed
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 145<->9 — fight instead
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong blocked 145<->9 — fight instead
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs golbat 19/161 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=18,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: ping-pong OVERRIDE — Blastoise is the Agatha answer (live 20:03 Zapdos-Arbok)
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 0
+   [play-live]    [engine] switch: target party slot 0 sp=9 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 9 (slot 0)
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L56 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] move-ledger -> blastoise (was zapdos; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs arbok 150/150 | [0]Skull Bash(p100,pp=11,ref=0,sc=50) [1]Surf(p95*STAB,pp=5,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L56 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs arbok 34/150 | [0]Skull Bash(p100,pp=10,ref=0,sc=50) [1]Surf(p95*STAB,pp=5,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=400)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs gengar 155/155 | [0]Skull Bash(p100,pp=9,ref=0,sc=0) [1]Surf(p95*STAB,pp=5,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Agatha Blastoise holds — fight instead
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x1) vs haunter 126/126 | [0]Skull Bash(p100,pp=9,ref=0,sc=0) [1]Surf(p95*STAB,pp=4,ref=0,sc=142.5) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x4) vs gyarados 189/189 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=17,ref=0,sc=360) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] E4 SEND: articuno (matchup, not highest-level; skipped dying stepping-stone)
+   [play-live]    [engine] fswitch retry 2: target row 3 sp=144 skip_rows=[] party_cur=1 menu_rows=[(145, 0), (146, 165), (9, 15), (144, 160)]
+   [play-live]    [engine] fswitch: selecting row 3 (sp=144 L52 hp=160)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '160/160', 'status': 'none', 'foe': 'gyarados'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=1 want=3 lap=1/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive pos=2 want=3 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive pos=3 want=3 lap=3/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive WALK landed row 3 (zapdos hp=0) via the DOWN-only ring (measured cursor, not the blink byte)
+   [play-live]    [engine] use_item: USED item 24 (count 2->1)
+   [play-live]    [engine] battle-progress: item 24 consumed
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 0
+   [play-live]    [engine] switch: target party slot 0 sp=145 -> menu row 3
+   [play-live]    [engine] switch: SWITCHED to species 145 (slot 0)
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x4) vs gyarados 189/189 | [0]move#86(p0*STAB,pp=19,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=17,ref=0,sc=360) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x4) vs gyarados 189/189 | [0]move#86(p0*STAB,pp=18,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=17,ref=1,sc=360) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]move#86(p0*STAB,pp=18,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=16,ref=1,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] E4 SEND: articuno (matchup, not highest-level; skipped dying stepping-stone)
+   [play-live]    [engine] fswitch retry 4: target row 3 sp=144 skip_rows=[] party_cur=1 menu_rows=[(145, 0), (146, 165), (9, 15), (144, 143)]
+   [play-live]    [engine] fswitch: selecting row 3 (sp=144 L52 hp=143)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] revive-check: TYPE-ANSWER revive slot 0 (no standing mon has an SE move on this foe; the fainted one does)
+   [play-live]    [engine] E4/league: default keep_fighting — no use_revive offer (cursor not on a 0-HP row; refuse bag theater)
+   [play-live]    [engine] revive-check: TYPE-ANSWER revive slot 0 (no standing mon has an SE move on this foe; the fainted one does)
+   [play-live]    [engine] revive-check: NO offer (revive_item=24, worthy=0, party sp/hp/lv=[(145, 0, 53), (146, 165, 55), (9, 15, 89), (144, 143, 52), (0, 0, 0), (0, 0, 0)])
+   [play-live]    [engine] move-ledger -> articuno (was zapdos; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x2) vs aerodactyl 178/178 | [0]move#54(p0*STAB,pp=30,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=10,ref=0,sc=285)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] E4 SEND: blastoise (matchup, not highest-level)
+   [play-live]    [engine] fswitch retry 4: target row 2 sp=9 skip_rows=[] party_cur=2 menu_rows=[(144, 0), (146, 165), (9, 15), (145, 0)]
+   [play-live]    [engine] fswitch: selecting row 2 (sp=9 L89 hp=15)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] move-ledger -> blastoise (was articuno; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]Skull Bash(p100,pp=9,ref=0,sc=25) [1]Surf(p95*STAB,pp=3,ref=0,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 0, want 1) — RAM-correcting
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 2: target row 1 sp=146 skip_rows=[] party_cur=1 menu_rows=[(9, 0), (146, 165), (144, 0), (145, 0)]
+   [play-live]    [engine] fswitch: selecting row 1 (sp=146 L55 hp=165)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] E4/league: LAST-BODY revive kept (alive=1 fainted=3 — spend the turn, do not strip)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '165/165', 'status': 'none', 'foe': 'aerodactyl'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=1 fainted=3; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive pos=0 want=1 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=1 want=1 lap=1/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive WALK landed row 1 (blastoise hp=0) via the DOWN-only ring (measured cursor, not the blink byte)
+   [play-live]    [engine] use_item: USED item 24 (count 1->0)
+   [play-live]    [engine] battle-progress: item 24 consumed
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] E4 SEND: blastoise (matchup, not highest-level)
+   [play-live]    [engine] fswitch retry 5: target row 1 sp=9 skip_rows=[] party_cur=2 menu_rows=[(146, 0), (9, 134), (144, 0), (145, 0)]
+   [play-live]    [engine] fswitch: selecting row 1 (sp=9 L89 hp=134)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]Skull Bash(p100,pp=9,ref=0,sc=25) [1]Surf(p95*STAB,pp=3,ref=0,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 0, want 1) — RAM-correcting
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] JUST FIGHT: L89 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]Skull Bash(p100,pp=9,ref=0,sc=25) [1]Surf(p95*STAB,pp=3,ref=1,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 146/146 | [0]Skull Bash(p100,pp=9,ref=0,sc=50) [1]Surf(p95*STAB,pp=2,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0], refusals {1: 1, 0: 1}, futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 146/146 | [0]Skull Bash(p100,pp=9,ref=1,sc=50) [1]Surf(p95*STAB,pp=2,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] !! battle wedged stall=30 TRAINER -> screen-aware press, not stuck-abort (never a blind A — the bag-parked-cursor lesson)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 9/146 | [0]Skull Bash(p100,pp=8,ref=1,sc=50) [1]Surf(p95*STAB,pp=2,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: foe HP changed
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 146/146 | [0]Skull Bash(p100,pp=8,ref=1,sc=50) [1]Surf(p95*STAB,pp=2,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 146/146 | [0]Skull Bash(p100,pp=8,ref=1,sc=50) [1]Surf(p95*STAB,pp=2,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(145, 0, 53), (146, 0, 55), (9, 50, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 146/146 | [0]Skull Bash(p100,pp=7,ref=1,sc=50) [1]Surf(p95*STAB,pp=2,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [travel] start map=(13, 0) coords=(13, 12) -> coord (11, 15) (budget 60s, surf-capable)
+   [travel] path blocked at (13, 12) (NPC on the gap?) - waiting
+   [travel] no clean path from (13, 12); NPC-allowing path EXISTS (len 6), blocker NPC tile=None, npcs nearby=[(7, 14), (13, 10)] -> approaching to interact/trigger
+   [travel] reached target coord (11, 15)
+===== playlive_2026-08-16_15-10-16.log =====
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x4) vs gyarados 189/189 | [0]move#86(p0*STAB,pp=20,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=17,ref=0,sc=360) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] MATCHUP SWITCH: Zapdos vs Water — fight instead (Electric STAB)
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x4) vs gyarados 189/189 | [0]move#86(p0*STAB,pp=19,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=17,ref=1,sc=360) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_potion', 'keep_fighting'] ctx={'hp': '79/166', 'status': 'none', 'foe': 'aerodactyl'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_potion (item 19, aim=active)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_potion item 19 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] HEAL-FAIL: item 19 failed — NOT latching species 145 (actuation miss; retry next turn)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]move#86(p0*STAB,pp=19,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=16,ref=1,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=60)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 2}, futility 1/4)
+   [play-live]    [engine] E4 SEND: blastoise (matchup, not highest-level)
+   [play-live]    [engine] fswitch: selecting row 2 (sp=9 L89 hp=199)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] move-ledger -> blastoise (was zapdos; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]Skull Bash(p100,pp=8,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=0,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] STREAM COMMIT: RAM cursor disagrees after blind walk (reads 0, want 1) — RAM-correcting
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] JUST FIGHT: L89 vs L58 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x2) vs aerodactyl 178/178 | [0]Skull Bash(p100,pp=8,ref=0,sc=25) [1]Surf(p95*STAB,pp=4,ref=1,sc=285) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 3
+   [play-live]    [engine] switch: target party slot 3 sp=144 -> menu row 3
+   [play-live]    [engine] switch: SWITCHED to species 144 (slot 3)
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'use_revive', 'keep_fighting'] ctx={'hp': '160/160', 'status': 'paralysis', 'foe': 'dragonair'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item: pocket byte MUTE + NO bag/white pixels + callback2 not the bag — bag never opened; keep fighting (LOUD, no blind taps fired)
+   [play-live]    [engine] BAG-FAIL LATCH: pocket byte MUTE — bag never opened — species only (no battle-wide potion block)
+   [play-live]    [engine] BAG-FAIL LATCH: use_revive item 24 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] REVIVE-FAIL: first miss (failed) — retry next turn (no battle-wide latch; E4 cursor miss)
+   [play-live]    [engine] HEAL-FAIL: item 24 failed — NOT latching species 144 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] move-ledger -> articuno (was blastoise; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x4) vs dragonair 146/146 | [0]move#54(p0*STAB,pp=30,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=10,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=0 action=False moves=False)
+   [play-live]    [engine] turn resolved by IMMOBILIZATION (fully paralyzed) — not a dead move; fighting on (futility 1/4)
+   [play-live]    [engine] !! MENU WEDGE 64s with NO progress — escaping the scroll theater (fire 1/8, menu_up=1 action=True moves=False bag=False party=False)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'use_revive', 'keep_fighting'] ctx={'hp': '85/160', 'status': 'paralysis', 'foe': 'dragonair'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive pos=0 want=2 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=1 want=2 lap=1/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive pos=2 want=2 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive WALK landed row 2 (zapdos hp=0) via the DOWN-only ring (measured cursor, not the blink byte)
+   [play-live]    [engine] use_item: USED item 24 (count 2->1)
+   [play-live]    [engine] battle-progress: item 24 consumed
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '51/160', 'status': 'paralysis', 'foe': 'dragonair'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 19, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: heal pos=0 want=3 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=0 want=3 lap=1/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=1 want=3 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=2 want=3 lap=3/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=3 want=3 lap=4/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal WALK landed row 3 (blastoise hp=199) via the DOWN-only ring (measured cursor)
+   [play-live]    [engine] use_item: USED item 19 (count 1->0)
+   [play-live]    [engine] battle-progress: item 19 consumed
+   [play-live]    [engine] use_item: post-use settle NOT confirmed — blind B-unwind (the bag can sit open invisible to every classifier)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_cure', 'keep_fighting'] ctx={'hp': '51/160', 'status': 'paralysis', 'foe': 'dragonair'}
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_cure (item 23, aim=active)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: menu-time status read empty but gBattleMons still says 'paralysis' — STATUS-TEAR at menu time, NOT an abort. Confirming the cure (a wasted turn beats a CURE-BLOCK latch + wedged party screen — the Lance wipe)
+   [play-live]    [engine] use_item: heal pos=0 want=3 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=0 want=3 lap=1/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: heal pos=1 want=3 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=2 want=3 lap=3/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal pos=3 want=3 lap=4/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: heal WALK landed row 3 (blastoise hp=269) via the DOWN-only ring (measured cursor)
+   [play-live]    [engine] use_item: heal A after walk did not consume (count still 1) — dismiss no-effect, re-aim, no A-spam
+   [play-live]    [engine] use_item walk n=3: party=False bag=False white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=4: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=5: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: pocket=0 cursor=1 scroll=0 row=1 — selected but item 23 NOT consumed (count still 1) — keep fighting (LOUD)
+   [play-live]    [engine] BAG-FAIL LATCH: use_cure item 23 not consumed — species only (no battle-wide potion block)
+   [play-live]    [engine] HEAL-FAIL: item 23 failed — NOT latching species 144 (actuation miss; retry next turn)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x4) vs dragonair 126/146 | [0]move#54(p0*STAB,pp=29,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=10,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=False moves=False)
+   [play-live]    [engine] battle-progress: foe HP changed
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x4) vs dragonair 102/146 | [0]move#54(p0*STAB,pp=29,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=10,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x4) vs dragonair 146/146 | [0]move#54(p0*STAB,pp=29,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=9,ref=0,sc=570)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] E4 SEND: blastoise (matchup, not highest-level)
+   [play-live]    [engine] fswitch retry 3: target row 3 sp=9 skip_rows=[] party_cur=2 menu_rows=[(144, 0), (146, 162), (145, 83), (9, 269)]
+   [play-live]    [engine] fswitch: selecting row 3 (sp=9 L89 hp=269)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] move list already open at turn top — STREAM COMMIT, skipping switch/item menu theater
+   [play-live]    [engine] move-ledger -> blastoise (was articuno; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 6/146 | [0]Skull Bash(p100,pp=8,ref=0,sc=50) [1]Surf(p95*STAB,pp=3,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=0 action=False moves=True)
+   [play-live]    [engine] move slot 0 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [0], refusals {1: 1, 0: 1}, futility 1/4)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 6/146 | [0]Skull Bash(p100,pp=8,ref=1,sc=50) [1]Surf(p95*STAB,pp=3,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 5/146 | [0]Skull Bash(p100,pp=7,ref=1,sc=50) [1]Surf(p95*STAB,pp=3,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: foe HP changed
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L54 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonair 3/146 | [0]Skull Bash(p100,pp=6,ref=1,sc=50) [1]Surf(p95*STAB,pp=3,ref=1,sc=35.625) [2]Earthquake(p100,pp=0,ref=0,sc=100)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] !! PARTY THRASH #1: open but active ALIVE — B-closing (never A)
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L60 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonite 197/197 | [0]Skull Bash(p100,pp=5,ref=0,sc=50) [1]Surf(p95*STAB,pp=3,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] MATCHUP SWITCH: Lance answer holds — fight instead
+   [play-live]    [engine] JUST FIGHT: L89 vs L60 + connecting damage — skipping bag/switch hierarchy this turn
+   [play-live]    [engine] E4 MOVE: Skull Bash - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Skull Bash - E4 wincon -> slot 0 (eff x1) vs dragonite 108/197 | [0]Skull Bash(p100,pp=4,ref=0,sc=50) [1]Surf(p95*STAB,pp=3,ref=0,sc=71.25) [2]Earthquake(p100,pp=0,ref=0,sc=0)
+   [play-live]    [engine] STREAM COMMIT: Skull Bash - E4 wincon slot 0 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4/league: wincon revive offered (Blastoise+EQ / Moltres vs Jynx / Articuno vs dragon; cursor MUST land on 0-HP at use)
+   [play-live]    [engine] ITEM-INSTINCT offer: ['use_revive', 'keep_fighting'] ctx={'hp': '162/162', 'status': 'none', 'foe': 'pidgeot'}
+   [play-live]    [engine] ITEM-INSTINCT FORCED -> use_revive (E4 thin-party/wincon; alive=3 fainted=1; oracle bypassed — live Agatha keep_fighting)
+   [play-live]    [engine] ITEM-INSTINCT pick -> use_revive (item 24, aim=fainted)
+   [play-live]    [engine] use_item walk n=0: party=False bag=True white=False cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item walk n=1: party=False bag=True white=True cb2party=False cb2bag=True pcur=None lead=False
+   [play-live]    [engine] use_item: revive pos=0 want=3 lap=0/12 (DOWN-only ring, len 5, moved=False)
+   [play-live]    [engine] use_item: revive pos=1 want=3 lap=1/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive pos=2 want=3 lap=2/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive pos=3 want=3 lap=3/12 (DOWN-only ring, len 5, moved=True)
+   [play-live]    [engine] use_item: revive WALK landed row 3 (articuno hp=0) via the DOWN-only ring (measured cursor, not the blink byte)
+   [play-live]    [engine] use_item: USED item 24 (count 1->0)
+   [play-live]    [engine] battle-progress: item 24 consumed
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 1
+   [play-live]    [engine] switch: target party slot 1 sp=145 -> menu row 1
+   [play-live]    [engine] switch: SWITCHED to species 145 (slot 1)
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs pidgeot 185/185 | [0]move#86(p0*STAB,pp=19,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=16,ref=0,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] move slot 1 didn't fire (0-PP / disabled / blocked) -> rotating to an untried move (streak now [1], refusals {1: 1}, futility 1/4)
+   [play-live]    [engine] E4 RETRY: wincon still has PP — last commit was a menu miss, not 0-PP. Firing it again (never rotate Surf?Skull Bash / Flamethrower?Agility)
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs pidgeot 185/185 | [0]move#86(p0*STAB,pp=18,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=16,ref=1,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] E4 MOVE: Shock Wave - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Shock Wave - E4 wincon -> slot 1 (eff x2) vs pidgeot 72/185 | [0]move#86(p0*STAB,pp=18,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=15,ref=1,sc=180) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Shock Wave - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] party screen in drain: voluntary (shift prompt) -> single B out
+   [play-live]    [engine] MATCHUP SWITCH: active is out-typed -> trying party slot 2
+   [play-live]    [engine] switch: target party slot 2 sp=9 -> menu row 2
+   [play-live]    [engine] switch: SWITCHED to species 9 (slot 2)
+   [play-live]    [engine] E4 PREPLAN SWITCH: matchup decided before items (think once, then act — no continue-spam)
+   [play-live]    [engine] move-ledger -> blastoise (was zapdos; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Surf - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Surf - E4 wincon -> slot 1 (eff x4) vs rhydon 211/211 | [0]Skull Bash(p100,pp=3,ref=0,sc=25) [1]Surf(p95*STAB,pp=3,ref=0,sc=570) [2]Earthquake(p100,pp=0,ref=0,sc=200)
+   [play-live]    [engine] STREAM COMMIT: Surf - E4 wincon slot 1 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] !! WRONG SLOT FIRED: chose 1 but slot 0 was consumed (cursor desync survived the force-write; wrong-fires 1) — LOUD
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch: BUDGET 5s hit — blind-sending strongest live (anti 60–90s party theater)
+   [play-live]    [engine] E4 SEND: articuno (matchup, not highest-level)
+   [play-live]    [engine] fswitch BLIND: row 3 articuno L52
+   [play-live]    [engine] battle-progress: force-switch seated (blind)
+   [play-live]    [engine] ACE-FIRST: L52 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=2, party sp/hp/lv=[(146, 126, 55), (145, 37, 53), (9, 0, 89), (144, 80, 52), (0, 0, 0), (0, 0, 0)])
+   [play-live]    [engine] move-ledger -> articuno (was blastoise; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x2) vs rhydon 164/211 | [0]move#54(p0*STAB,pp=29,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=8,ref=0,sc=285)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: move resolved
+   [play-live]    [engine] battle-progress: enemy fainted
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L52 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=2, party sp/hp/lv=[(146, 126, 55), (145, 37, 53), (9, 0, 89), (144, 80, 52), (0, 0, 0), (0, 0, 0)])
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: Ice Beam - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Ice Beam - E4 wincon -> slot 3 (eff x0.25) vs arcanine 199/199 | [0]move#54(p0*STAB,pp=29,ref=0,sc=0) [1]Agility(p0,pp=30,ref=0,sc=0) [2]move#170(p0,pp=5,ref=0,sc=0) [3]Ice Beam(p95*STAB,pp=7,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: Ice Beam - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] E4 SEND: zapdos (matchup, not highest-level)
+   [play-live]    [engine] fswitch retry 2: target row 2 sp=145 skip_rows=[] party_cur=2 menu_rows=[(144, 0), (146, 126), (145, 37), (9, 0)]
+   [play-live]    [engine] fswitch: selecting row 2 (sp=145 L53 hp=37)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] ACE-FIRST: L53 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(146, 126, 55), (145, 37, 53), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+   [play-live]    [engine] move-ledger -> zapdos (was articuno; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: Drill Peck - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: Drill Peck - E4 wincon -> slot 3 (eff x1) vs arcanine 199/199 | [0]move#86(p0*STAB,pp=18,ref=0,sc=0) [1]Shock Wave(p60*STAB,pp=14,ref=1,sc=90) [2]move#197(p0,pp=5,ref=0,sc=0) [3]Drill Peck(p80*STAB,pp=20,ref=0,sc=120)
+   [play-live]    [engine] STREAM COMMIT: Drill Peck - E4 wincon slot 3 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [play-live]    [engine] fswitch retry 2: target row 1 sp=146 skip_rows=[] party_cur=2 menu_rows=[(145, 0), (146, 126), (144, 0), (9, 0)]
+   [play-live]    [engine] fswitch: selecting row 1 (sp=146 L55 hp=126)
+   [play-live]    [engine] battle-progress: force-switch seated
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(146, 126, 55), (145, 0, 53), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] move-ledger -> moltres (was zapdos; refusals/streak are PER-MON — one mon's dead slot never exiles another's wincon)
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.25) vs arcanine 199/199 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=15,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] ACE-FIRST: L55 legendary bird is NOT fodder next to L89 — offering heal
+   [play-live]    [engine] revive-check: NO offer (revive_item=None, worthy=3, party sp/hp/lv=[(146, 35, 55), (145, 0, 53), (9, 0, 89), (144, 0, 52), (0, 0, 0), (0, 0, 0)])
+   [play-live]    [engine] MATCHUP SWITCH: answer-lead holds — fight instead
+   [play-live]    [engine] E4 MOVE: move#53 - E4 wincon — firing the max-damage pick (EQ Gengar is 0x Levitate; Surf Gengar; EQ Arbok; Surf Onix)
+   [play-live]    [engine] action menu: move#53 - E4 wincon -> slot 2 (eff x0.25) vs arcanine 152/199 | [0]Agility(p0,pp=30,ref=0,sc=0) [1]move#203(p0,pp=10,ref=0,sc=0) [2]move#53(p95*STAB,pp=14,ref=0,sc=35.625)
+   [play-live]    [engine] STREAM COMMIT: move#53 - E4 wincon slot 2 (menu_up=1 action=True moves=False)
+   [play-live]    [engine] battle-progress: our mon fainted
+   [travel] start map=(13, 0) coords=(13, 12) -> coord (11, 15) (budget 60s, surf-capable)
+   [travel] step 0: (13, 12)->(13, 13) map=(13, 0) (path 6 to exit)
+   [travel] reached target coord (11, 15)
