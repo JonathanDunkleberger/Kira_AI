@@ -6,12 +6,15 @@ Twitch/YouTube, VN autopilot, and the autonomous Pokémon FireRed harness that h
 
 ## Current mission
 
-**docs/marathon-stream-plan.md** — make the autonomous playthrough a *watchable,
-narrated, chat-aware marathon stream* (the "Frankfurt Test"). Read it before anything.
+**FireRed is done.** Bedroom → credits (headless July 2026, then a watchable 1×
+let's-play through Mewtwo, August 2026). The repo is shelved — do not start an
+Emerald harness or a new climb unless Jonny re-opens the project. Historical
+mission notes: `docs/marathon-stream-plan.md`.
 
 ## Read-first list (in order)
 
-1. `docs/marathon-stream-plan.md` — the mission and build order.
+1. `README.md` — public face. Then `docs/marathon-stream-plan.md` if you need the
+   old marathon ops notes.
 2. `CLAUDE.md` (repo root, gitignored — exists only on Jonny's PC) — the accumulated
    operating rules: the run-the-rope loop, the 15-block competency map, the sanctity
    gate. If present, it outranks this file on process questions.

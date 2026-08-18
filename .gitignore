@@ -129,6 +129,14 @@ pokemon_agent/TEAM_PLANNER_DESIGN.md
 
 RUN_STATS_fresh_go_5.md
 
-# soak-reports are the PC->Mac agent channel (crash logs etc.) - never ignore
-!docs/soak-reports/**
+# soak-reports — crash dumps / console tails. Local-only; never re-commit.
+docs/soak-reports/
+
+# session handoffs / recon dossiers (ops paper, not the public repo)
+/handoff.md
+docs/HANDOFF_FULL_PROJECT.md
+docs/handoff-*.md
+docs/recon-menu-loop-dossier.md
+docs/code-review-notes.md
+
 .aider*
