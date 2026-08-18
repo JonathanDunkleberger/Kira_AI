@@ -1,11 +1,10 @@
 ﻿# resume_marathon.ps1 - the ONE-PASTE resume for the FireRed marathon (Windows PC).
 #
-# How the PC<->Mac loop works:
-#   - This script inventories EVERY watch sandbox + the canonical save + crash logs
-#     into docs\soak-reports\<timestamp>\ and pushes it to GitHub (the Mac agent's eyes).
-#   - The Mac agent picks the correct save and writes pokemon_agent\PROMOTE_TARGET.txt
-#     (a sandbox path, or the word CANONICAL to launch as-is), then pushes.
-#   - Rerunning this script pulls that decision, promotes it through the sanctity gate,
+# How it works:
+#   - This script inventories watch sandboxes + the canonical save + crash logs
+#     into docs\soak-reports\<timestamp>\ on disk (not pushed — public repo stays clean).
+#   - Optional: write pokemon_agent\PROMOTE_TARGET.txt (a sandbox path, or CANONICAL).
+#   - Rerunning pulls that decision, promotes it through the sanctity gate,
 #     and launches the marathon (bot + supervised game).
 #
 # PROMOTE_TARGET.txt contents (one-shot; consumed after use):
@@ -520,20 +519,9 @@ if (Test-Path $targetFile) {
     $promoteOk = $true; $launchApproved = $true
 }
 
-# 4) push the report (and the consumed target file) to GitHub
-# NOTE: separate git add calls - a pathspec that matches nothing must not sink the whole add.
-Say "== push soak report (this can take ~30s; console stays quiet on purpose) =="
-$pushBranch = (git rev-parse --abbrev-ref HEAD 2>&1 | Out-String).Trim()
-if (-not $pushBranch -or $pushBranch -eq "HEAD") { $pushBranch = "main" }
-RunLogged "push soak report" {
-    git add -A docs\soak-reports
-    git add -A pokemon_agent\PROMOTE_TARGET.txt 2>&1 | Out-Null
-    git commit -m "report(soak): $ts inventory/rescue (auto from resume_marathon.ps1)"
-    # Push the branch we are ON (never hardcode main — that rewrote soaks onto main while
-    # the endgame fix lived on a feature branch, then the next resume stayed on stale main).
-    git push -u origin $pushBranch
-} | Out-Null
-Say "push soak report finished (branch=$pushBranch; see log if git complained)."
+# 4) soak report stays on disk only (2026-08-18 shelf). Never git-add / push crash
+# dumps — they used to be the PC↔Mac agent channel and bloated the public repo.
+Say "== soak report written locally (not pushed): $report =="
 
 # 5) launch
 if (-not $launchApproved) { Say "done (no launch this run)."; exit 0 }

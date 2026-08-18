@@ -28,7 +28,7 @@
 
 ---
 
-Kira is not a chatbot. She is a real-time cognitive agent with long-term semantic memory, computer vision, full voice interaction, mood-driven Live2D expressions, on-screen synced captions, live chess on Lichess, and proactive autonomous behavior. Her senses are fully local — two CUDA Whisper instances on-device, WebRTC VAD, real-time screen capture — while reasoning is hybrid-cloud by design: Groq for triage and fast paths, Claude Sonnet streaming live during voice turns, Claude Opus for deep moments. She remembers facts about her user across sessions, watches the screen to understand context, drives a Live2D avatar from her emotional state, co-hosts live streams across Twitch and YouTube, and plays rated chess as a Lichess bot account — and, as of July 2026, has beaten Pokémon FireRed start-to-credits fully autonomously.
+Kira is not a chatbot. She is a real-time cognitive agent with long-term semantic memory, computer vision, full voice interaction, mood-driven Live2D expressions, on-screen synced captions, live chess on Lichess, and proactive autonomous behavior. Her senses are fully local — two CUDA Whisper instances on-device, WebRTC VAD, real-time screen capture — while reasoning is hybrid-cloud by design: Groq for triage and fast paths, Claude Sonnet streaming live during voice turns, Claude Opus for deep moments. She remembers facts about her user across sessions, watches the screen to understand context, drives a Live2D avatar from her emotional state, co-hosts live streams across Twitch and YouTube, and plays rated chess as a Lichess bot account — and she has beaten Pokémon FireRed start-to-credits fully autonomously: first as a headless proof (July 2026), then again as a watchable human-pace let's-play, credits through Mewtwo (August 2026).
 
 This project demonstrates end-to-end systems design: real-time audio pipelines, vector-database memory architectures, multimodal sensor fusion, WebSocket-driven avatar control, synced caption rendering from TTS word-timing, and agentic decision loops — built from scratch in Python.
 
@@ -53,6 +53,18 @@ On **July 15, 2026**, Kira played Pokémon FireRed from a brand-new save file to
 | **Final team** | Venusaur 87 · Lapras 65 · Raticate 62 · Arbok 62 · Kadabra 62 · Dugtrio 61 — all acquired in-run |
 
 The honest footnote: she entered the League at the minimum readiness bar and the gauntlet flattened her eight times. Her self-funded recovery loop (heal → restock → re-enter) ground it out, and the eleventh career fight against her rival was the one that made her Champion. I wouldn't trade that arc for a clean sweep.
+
+**Then she did it at human pace.** In August 2026 the same engine ran windowed, true-speed, narrated, on a live stream — a let's-play a stranger could actually watch. She caught Articuno, Zapdos, and Moltres on the road to the League, rolled credits again, then walked into Cerulean Cave as Champion and caught Mewtwo with the Master Ball.
+
+| | |
+|---|---|
+| **Pace** | 1×, windowed, voice + music — a watchable let's-play, not a speedrun |
+| **In-game clock at credits** | ~62 hours (HowLongToBeat's human average is ~41h) |
+| **Post-credits** | **Mewtwo** — Cerulean Cave, Master Ball |
+| **Final team** | Blastoise 94 · Moltres 56 · Articuno 53 · Zapdos 55 · Mewtwo 70 |
+| **Pokédex** | 21 caught |
+
+Runtime cost of *her* playing is pennies — Sonnet in the loop. The expensive part was building the harness.
 
 **How it works:** live RAM reads for game state (vision is for vibes, RAM is for truth), a learned warp-graph world model with BFS travel, an E4-readiness gate and ace-cap that force a balanced team instead of a solo carry, and the same soul/oracle layer that runs the rest of Kira making every decision in character. Receipts: [`RUN_STATS_fresh_go_6.md`](docs/RUN_STATS_fresh_go_6.md) · Deep dive: [`pokemon_agent/AUTONOMOUS_GAME_HARNESS.md`](pokemon_agent/AUTONOMOUS_GAME_HARNESS.md)
 
@@ -296,7 +308,7 @@ from the dashboard.
 - [ ] **Per-session Cost Telemetry** — Token + API cost tracking per session, surfaced on dashboard
 - [ ] **Talk-budget Governor** — Auto-throttle verbosity during high-volume chat to prevent flooding
 - [ ] **OBS Chess Board Overlay** — Phase 2: live board rendered as a browser source, updated each move
-- [x] **Pokémon FireRed Autonomous Play** — SHIPPED 2026-07-15 — bedroom-to-credits fully autonomous, zero human input. See the milestone section above.
+- [x] **Pokémon FireRed Autonomous Play** — SHIPPED 2026-07-15 (headless bedroom-to-credits, zero human input) and 2026-08 (watchable 1× let's-play to credits, then Mewtwo). See the milestone section above.
 
 ---
 

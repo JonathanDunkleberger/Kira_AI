@@ -1,5 +1,9 @@
 # pokemon_agent — autonomous FireRed (the "Kira plays Pokémon" project)
 
+**Shipped.** Bedroom → 8 badges → Elite Four → credits, twice: a headless proof
+(July 2026) and a watchable 1× let's-play that caught the legendary birds and
+Mewtwo (August 2026). See the root README milestone.
+
 Fully isolated from the Kira bot (M0 imports nothing from `kira/`). The only Kira
 touchpoint is the narrow reaction **seam** in `kira/bot.py` (`_pokemon_react`,
 `_pokemon_choose_starter`), flag-gated by `POKEMON_AGENT_ENABLED` (default OFF).
