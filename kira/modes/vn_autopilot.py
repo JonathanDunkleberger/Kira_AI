@@ -87,7 +87,9 @@ except ImportError:
 try:
     import pygetwindow as _pgw
     PYGETWINDOW_AVAILABLE = True
-except ImportError:
+except (ImportError, NotImplementedError):
+    # pygetwindow raises NotImplementedError on Linux (not ImportError)
+    _pgw = None
     PYGETWINDOW_AVAILABLE = False
 
 try:
@@ -96,7 +98,6 @@ try:
 except ImportError:
     PYDIRECTINPUT_AVAILABLE = False
     print("   [Autopilot] pydirectinput not installed — run: pip install pydirectinput")
-
 
 # ── Phase 2: Scene intensity states (System 1) ────────────────────────────────
 # These names are now aliases to SessionIntensity enum values imported from
